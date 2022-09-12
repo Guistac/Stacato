@@ -121,6 +121,8 @@ void AxisStateMachine::outputProcess(){
 		AnimatableStateStruct* targetValue = animatableState->getTargetValue()->toState()->value;
 		requestedState = getStateEnumerator(targetValue);
 		
+        auto axis = getAxis();
+        
 		double velocityCommand;
 		switch(requestedState){
 			case State::UNKNOWN:
@@ -129,15 +131,15 @@ void AxisStateMachine::outputProcess(){
 				break;
 			case State::MOVING_TO_POSITIVE_LIMIT:
 			case State::AT_POSITIVE_LIMIT:
-				velocityCommand = 1.0;
+                velocityCommand = axis->getVelocityLimit();
 				break;
 			case State::MOVING_TO_NEGATIVE_LIMIT:
 			case State::AT_NEGATIVE_LIMIT:
-				velocityCommand = -1.0;
+                velocityCommand = -axis->getVelocityLimit();
 				break;
 		}
 		
-		getAxis()->setVelocityCommand(velocityCommand, 0.0);
+		axis->setVelocityCommand(velocityCommand, axis->getAccelerationLimit());
 		
 	}
 }
@@ -263,14 +265,12 @@ bool AxisStateMachine::isMoving() {
 
 
 void AxisStateMachine::requestState(State newState){
-	/*
 	animatableState->stopMovement();
 	auto targetValue = AnimationValue::makeState();
 	switch(newState){
-		case State::STOPPED: 		targetValue->value = &stateStopped; break;
-		case State::CLOSED:			targetValue->value = &stateClosed; break;
-		case State::OPEN_LOWERED:	targetValue->value = &stateOpenLowered; break;
-		case State::RAISED:			targetValue->value = &stateRaised; break;
+		case State::STOPPED:            targetValue->value = &stateStopped; break;
+        case State::AT_POSITIVE_LIMIT:  targetValue->value = &statePositiveLimit; break;
+        case State::AT_NEGATIVE_LIMIT:  targetValue->value = &stateNegativeLimit; break;
 		default:
 			targetValue = nullptr;
 			Logger::error("machine {} = state {} is not selectable", getName(), Enumerator::getDisplayString(newState));
@@ -280,107 +280,7 @@ void AxisStateMachine::requestState(State newState){
 		animatableState->rapidToValue(targetValue);
 		Logger::info("rapid {} to value {}", getName(), targetValue->value->displayName);
 	}
-	 */
 }
-
-
-/*
-
-void FlipStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == animatableState) {
-		auto state = value->toState()->value;
-		switch (state->integerEquivalent) {
-			case 0:
-				requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-				break;
-			case 1:
-				requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-				break;
-			case 2:
-				requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-				break;
-		}
-		parameterMovementTargetState = requestedState;
-	}
-}
-
-float FlipStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
-	if (animatable == animatableState) {
-		float actual = getState(actualState)->floatEquivalent;
-		float start = getState(parameterMovementStartState)->floatEquivalent;
-		float target = getState(parameterMovementTargetState)->floatEquivalent;
-		float progress = (actual - start) / (target - start);
-		if (progress < start) progress = start;
-		else if (progress > target) progress = target;
-		return progress;
-	}
-	return 0.0;
-}
-
-bool FlipStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == animatableState) {
-		auto state = value->toState()->value;
-		//TODO: this is broken
-		if (state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
-	}
-	return false;
-}
-
-void FlipStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {}
-
-void FlipStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {}
-
-void FlipStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {}
-
-std::shared_ptr<AnimationValue> FlipStateMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
-	auto output = AnimationValue::makeState();
-	output->value = &stateParameterValues.front();
-	switch(actualState){
-		case FlipStateMachine::MachineState::State::UNKNOWN:
-		case FlipStateMachine::MachineState::State::UNEXPECTED_STATE: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT: output->value = &stateParameterValues[1]; break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
-		case FlipStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
-	}
-	return output;
-}
-
-
-
-void FlipStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
-	
-}
-
-
-void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
-	
-}
-
-bool FlipStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
-	parameterTrack->b_valid = true;
-	for (auto& curve : parameterTrack->curves) {
-		curve->b_valid = true;
-		for (auto& point : curve->points) {
-			point->b_valid = true;
-			point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
-		}
-		for (auto& interpolation : curve->interpolations) {
-			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
-		}
-	}
-	return true;
-}
-
-bool FlipStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
-	return false;
-}
-
-*/
-
-
 
 //========= ANIMATABLE OWNER ==========
 

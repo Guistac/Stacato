@@ -112,8 +112,8 @@ void VelocityControlledAxis::outputProcess(){
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
-	double velocityTarget;
-	double accelerationTarget;
+    double velocityTarget = 0.0;
+    double accelerationTarget = 0.0;
 	switch(controlMode){
 		case ControlMode::VELOCITY_TARGET:
 			velocityTarget = manualVelocityTarget;
@@ -134,7 +134,8 @@ void VelocityControlledAxis::outputProcess(){
 			accelerationTarget = 0.0;
 			break;
 	}
-	
+
+    
 	if((motionProfile.getVelocity() < 0.0 || velocityTarget < 0.0) && *lowLimitSignal){
 		motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, decelerationLimit->value);
 	}
@@ -148,18 +149,24 @@ void VelocityControlledAxis::outputProcess(){
 		motionProfile.matchVelocity(profileTimeDelta_seconds, slowdownVelocity->value, decelerationLimit->value);
 	}
 	else{
-		if(abs(velocityTarget) > abs(motionProfile.getVelocity())){
-			//accelerate
-			accelerationTarget = std::min(accelerationTarget, accelerationLimit->value);
-			motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
-		}else if(abs(velocityTarget) < abs(motionProfile.getVelocity())){
-			//decelerate
-			accelerationTarget = std::min(accelerationTarget, decelerationLimit->value);
-			motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
-		}else{
-			//constant velocity
-			motionProfile.matchVelocity(profileTime_seconds, velocityTarget, 0.0);
-		}
+        
+        bool b_sameSign = velocityTarget * motionProfile.getVelocity() >= 0.0;
+        
+        //condition for acceleration abs(tar) > abs(act) && tar & act have same sign
+        if(std::abs(velocityTarget) > std::abs(motionProfile.getVelocity()) && b_sameSign){
+            //accelerate
+            accelerationTarget = std::min(accelerationTarget, accelerationLimit->value);
+            motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
+        }
+        else if(velocityTarget == motionProfile.getVelocity()){
+            //constant velocity
+            motionProfile.matchVelocity(profileTime_seconds, velocityTarget, 0.0);
+        }
+        else{
+            //decelerate
+            accelerationTarget = std::min(accelerationTarget, decelerationLimit->value);
+            motionProfile.matchVelocity(profileTimeDelta_seconds, velocityTarget, accelerationTarget);
+        }
 	}
 		
 	//send commands to the actuator
@@ -221,10 +228,19 @@ void VelocityControlledAxis::enable() {
 void VelocityControlledAxis::disable() {
 	getActuatorDevice()->disable();
 	state = MotionState::NOT_READY;
+    onDisable();
 }
 
-void VelocityControlledAxis::onEnable() {}
-void VelocityControlledAxis::onDisable() {}
+void VelocityControlledAxis::onEnable() {
+    motionProfile.setPosition(0.0);
+    motionProfile.setVelocity(0.0);
+    motionProfile.setAcceleration(0.0);
+}
+void VelocityControlledAxis::onDisable() {
+    motionProfile.setPosition(0.0);
+    motionProfile.setVelocity(0.0);
+    motionProfile.setAcceleration(0.0);
+}
 
 void VelocityControlledAxis::setVelocity(double velocity) {
 	controlMode = ControlMode::VELOCITY_TARGET;

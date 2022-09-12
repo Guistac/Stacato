@@ -938,6 +938,8 @@ namespace EtherCatFieldbus {
 			slave->identity->state = EC_STATE_NONE;
         }
         ec_send_processdata();
+        
+        Environnement::updateEtherCatHardware();
 
         Logger::info("===== Cyclic Exchange Stopped !");
 

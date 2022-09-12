@@ -165,7 +165,7 @@ namespace Environnement {
 		mutex.unlock();
 		
 		if(!Script::isRunning()) {
-			Logger::error("Environnement Script Crashed, Stopping Environnement.");
+            Logger::warn("Environnement Script Stopped, Stopping Environnement");
 			stop();
 		}
 	}
@@ -270,7 +270,7 @@ namespace Environnement {
 		mutex.unlock();
 		
 		if(!Script::isRunning()){
-			Logger::error("Environnement Script Crashed, Stopping Environnement");
+			Logger::warn("Environnement Script Stopped, Stopping Environnement");
 			stop();
 		}
 	}

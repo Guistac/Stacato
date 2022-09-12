@@ -106,3 +106,13 @@ public:
 	
 	
 };
+
+#define axisStateMachineStrings \
+{.enumerator = AxisStateMachine::State::UNKNOWN,                  .displayString = "", .saveString = ""},\
+{.enumerator = AxisStateMachine::State::STOPPED,                  .displayString = "", .saveString = ""},\
+{.enumerator = AxisStateMachine::State::MOVING_TO_POSITIVE_LIMIT, .displayString = "", .saveString = ""},\
+{.enumerator = AxisStateMachine::State::MOVING_TO_NEGATIVE_LIMIT, .displayString = "", .saveString = ""},\
+{.enumerator = AxisStateMachine::State::AT_POSITIVE_LIMIT,        .displayString = "", .saveString = ""},\
+{.enumerator = AxisStateMachine::State::AT_NEGATIVE_LIMIT,        .displayString = "", .saveString = ""}\
+
+DEFINE_ENUMERATOR(AxisStateMachine::State, axisStateMachineStrings)

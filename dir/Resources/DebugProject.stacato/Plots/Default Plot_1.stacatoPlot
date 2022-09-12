@@ -610,7 +610,9 @@
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="29.999999848848052"/>
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="3.4692990594327478e-05"/>
         </Manoeuvre>
-        <Manoeuvre Name="1 - Montée Romaine" Description="" Type="Target"/>
+        <Manoeuvre Name="1 - Montée Romaine" Description="" Type="Key">
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Key" Target="AtPositiveLimit"/>
+        </Manoeuvre>
         <Manoeuvre Name="2. Ouverture" Description="Tournette Piano" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="90" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
@@ -915,19 +917,9 @@
             <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Cour" IsComposite="false" Type="Target" Target="12" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Target" Target="12.000000279817968" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
-        <Manoeuvre Name="Test 1" Description="" Type="Target">
-            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="2" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
-            <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="2.5" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Test 2" Description="" Type="Target">
-            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Target" Target="12" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Test 3" Description="" Type="Sequence">
-            <Animation Machine="Cost Jardin" MachineUniqueID="2280" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="2" End="5" Duration="10" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
+        <Manoeuvre Name="Starmania Starmania" Description="Debut tournette brouillon" Type="Key">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="538.65539868200335"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="540.03890818895161"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
