@@ -200,9 +200,10 @@ void Lexium32::readInputs() {
 	//EXPERIMENTAL
 	if(_LastError == 0xB121){
 		b_autoClearingFault = true;
-	}else{
-		b_autoClearingFault = false;
+		if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED) b_autoReenable = true;
 	}
+	
+	if(_LastError == 0x0 && requestedPowerState == actualPowerState) b_autoClearingFault = false;
 	
 	
 	
