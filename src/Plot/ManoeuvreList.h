@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Motion/MotionTypes.h"
+
 class Manoeuvre;
 class Plot;
 namespace tinyxml2{ struct XMLElement; }
@@ -18,7 +20,7 @@ public:
 	void selectNextManoeuvre();
 	void selectPreviousManoeuvre();
 	
-	void addManoeuvre();
+	void addManoeuvre(ManoeuvreType type = ManoeuvreType::KEY);
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
 	void moveManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex);

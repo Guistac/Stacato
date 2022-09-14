@@ -26,4 +26,7 @@ namespace Gui{
 		SINGLETON_GET_METHOD(AboutPopup);
 	};
 
+	void setFloatingPointComma();
+	void setFloatingPointPeriod();
+
 }

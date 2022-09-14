@@ -60,8 +60,8 @@ public:
 	}
 };
 
-void ManoeuvreList::addManoeuvre() {
-	std::make_shared<AddManoeuvreCommand>("Add Manoeuvre", shared_from_this(), ManoeuvreType::KEY)->execute();
+void ManoeuvreList::addManoeuvre(ManoeuvreType type) {
+	std::make_shared<AddManoeuvreCommand>("Add Manoeuvre", shared_from_this(), type)->execute();
 }
 
 

@@ -26,6 +26,8 @@ namespace Timing {
 
 	inline double getSystemTime_seconds() { return (double)getSystemTime_nanoseconds() / 1000000000.0; }
 
+	inline bool getBlink(double period_seconds){ return fmod(getProgramTime_seconds(), period_seconds) < (period_seconds * .5); }
+
 	inline std::string getDateAndTimeString(){
 		auto t = std::time(nullptr);
 		auto tm = *std::localtime(&t);
