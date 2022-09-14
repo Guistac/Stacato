@@ -175,6 +175,8 @@ namespace ReorderableList{
 			//main gui interaction catcher
 			ImGui::InvisibleButton("Item", state.currentItemSize);
 			
+			//ImGuiID backgroundID = ImGui::GetItemID();
+			
 			//if an item is being dragged
 			if(state.draggedItemIndex >= 0){
 				//store all items in a list for later computing of the drop target
@@ -195,7 +197,7 @@ namespace ReorderableList{
 			}
 			
 			//if the item is pressed, store its information in the retained state
-			if(ImGui::IsItemClicked()){
+			if(ImGui::IsItemClicked()/* && ImGui::GetCurrentContext()->HoveredIdPreviousFrame == backgroundID*/){
 				storePressedItemIndex(state.currentItemIndex);
 				ImVec2 mouse = ImGui::GetMousePos();
 				ImVec2 item = ImGui::GetItemRectMin();

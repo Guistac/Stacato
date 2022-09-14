@@ -842,7 +842,7 @@ void scrollingTextBase(const char* ID, const char* text, ImVec2 size, bool lock,
 }
 
 void scrollingTextWithBackground(const char* ID, const char* text, ImVec2 size, ImVec4 backgroundColor, bool lock, float pauseDuration, float velocity){
-	ImGui::InvisibleButton(text, size);
+	ImGui::InvisibleButton(ID, size);
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 max = ImGui::GetItemRectMax();
 	ImGui::GetWindowDrawList()->AddRectFilled(min, max,
