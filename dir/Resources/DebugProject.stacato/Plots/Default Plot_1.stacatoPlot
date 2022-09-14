@@ -162,6 +162,7 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
+        <Manoeuvre Name="M-62" Description="" Type="Target"/>
         <Manoeuvre Name="Flips Jardin -&gt; Cour" Description="démonstration" Type="Sequence">
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Sequence" interpolationType="Step" Start="Closed" End="Raised" Duration="2.5" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
                 <Curves>
@@ -1161,6 +1162,14 @@
             <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Key" Target="8.9999997151728621"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Key" Target="-3.2250000000000001"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Key" Target="3.2250000000000001"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-60" Description="" Type="Target">
+            <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Target" Target="Stopped" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip E-C3" MachineUniqueID="1717" Parameter="State" IsComposite="false" Type="Target" Target="Stopped" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip C-C3" MachineUniqueID="1781" Parameter="State" IsComposite="false" Type="Target" Target="Stopped" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-61" Description="" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="-720" ConstraintType="Velocity" Time="0" Velocity="0.5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

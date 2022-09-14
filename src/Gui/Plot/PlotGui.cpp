@@ -78,7 +78,7 @@ namespace PlotGui{
 		ImVec4 defaultButtonColor = ImGui::GetStyle().Colors[ImGuiCol_Button];
 		
 		
-		static ImVec2 createPopupPosition;
+		static glm::vec2 createPopupPosition;
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(1.0));
 		
@@ -86,8 +86,13 @@ namespace PlotGui{
 			ImGui::OpenPopup("Create Manoeuvre");
 			createPopupPosition = ImGui::GetMousePos();
 		}
+        
+        float popupWidth = ImGui::GetTextLineHeight() * 5.0;
+        float selectorHeight = ImGui::GetFrameHeight();
+        glm::vec2 popupSize(popupWidth, selectorHeight * 3.0 + ImGui::GetStyle().WindowBorderSize * 2.0);
 		
-		ImGui::SetNextWindowPos(createPopupPosition);
+		ImGui::SetNextWindowPos(createPopupPosition + glm::vec2(0.0, -popupSize.y));
+        ImGui::SetNextWindowSize(popupSize);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0.0));
 		if(ImGui::BeginPopup("Create Manoeuvre")){
 			
@@ -113,7 +118,7 @@ namespace PlotGui{
 				return b_pressed;
 			};
 			
-			float popupWidth = ImGui::GetTextLineHeight() * 6.0;
+			
 			
 			if(manoeuvreTypeSelector(Images::KeyIcon, "Key", popupWidth)) {
 				manoeuvreList->addManoeuvre(ManoeuvreType::KEY);

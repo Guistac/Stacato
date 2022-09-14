@@ -20,6 +20,12 @@ namespace EtherCatFieldbus {
 	pthread_t rtThread;
 	int stackSize = 65536;
 
+    bool b_skipCycles = false;
+    int maxSkippedFrames = 2;
+
+    bool b_skippingFrames = false;
+    int skippedFrames = 0;
+
 
 
 
@@ -721,7 +727,7 @@ namespace EtherCatFieldbus {
 			b_cyclicExchangeRunning = true;
 			osal_thread_create_rt(&rtThread, stackSize, (void*)&pthreadCyclicExchange, nullptr);
 			pthread_detach(rtThread);
-			
+        
 		}else{
 		
 			//join the cyclic echange thread if it was terminated previously
@@ -785,11 +791,28 @@ namespace EtherCatFieldbus {
 		
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
-            ec_send_processdata();
-            uint64_t frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-            int workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
-            uint64_t frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-			
+            if(b_skipCycles){
+                b_skipCycles = false;
+                b_skippingFrames = true;
+                skippedFrames = 0;
+                Logger::warn("Skipping {} EtherCAT Frames", maxSkippedFrames);
+            }else if(b_skippingFrames){
+                skippedFrames++;
+                Logger::warn("Skipping frame {}/{}", skippedFrames, maxSkippedFrames);
+                if(skippedFrames >= maxSkippedFrames) b_skippingFrames = false;
+            }
+            
+            int workingCounter;
+            uint64_t frameSentTime_nanoseconds = systemTime_nanoseconds;
+            uint64_t frameReceivedTime_nanoseconds = systemTime_nanoseconds;
+            
+            if(!b_skippingFrames){
+                ec_send_processdata();
+                frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+                workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
+                frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+            }
+                
 			switch(workingCounter){
 				case EC_NOFRAME:
 				case EC_TIMEOUT:

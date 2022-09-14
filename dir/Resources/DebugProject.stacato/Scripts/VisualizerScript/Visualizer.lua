@@ -136,10 +136,6 @@ function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState)
     local actualState = flipState:getActualValue()
     local image
 
-    --Logger:warn(actualValue:toString())
-
-    Logger:warn(actualState:toString())
-
     if actualState == flipStates.Closed then
         image = flipClosedImage
         --Logger:warn("closed")
