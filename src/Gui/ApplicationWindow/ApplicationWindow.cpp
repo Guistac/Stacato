@@ -14,6 +14,9 @@
 #include <imgui_impl_opengl3.h>
 #include <implot.h>
 
+
+#include <imgui_internal.h>
+
 #include "Gui.h"
 #include "Gui/Utilities/FileDialog.h"
 #include "Gui/Assets/Fonts.h"
@@ -161,7 +164,7 @@ namespace ApplicationWindow {
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
 		Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
-				
+		
 		//============ UPDATE LOOP ============
 		while (!b_shouldClose) update();
 		
@@ -178,7 +181,7 @@ namespace ApplicationWindow {
 
 
 	void update(){
-				
+		
 		//if a window close request was issued don't close the window but notify the gui and let the user confirm the request
 		if (glfwWindowShouldClose(window)) {
 			glfwSetWindowShouldClose(window, GLFW_FALSE);

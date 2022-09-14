@@ -2,9 +2,12 @@
 
 #include <tinyxml2.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include "CommandHistory.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
+
+#include "Gui/ApplicationWindow/Gui.h"
 
 #include "Environnement/Environnement.h"
 
@@ -189,7 +192,12 @@ public:
 	
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
-		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString());
+		
+		//Hacky way of getting floating point input with comma without disrupting other stuff like xml saving and loading
+		Gui::setFloatingPointComma();
+		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
+		Gui::setFloatingPointPeriod();
+		
 		ImGui::EndDisabled();
 		if(ImGui::IsItemDeactivatedAfterEdit()){
 			overwriteWithHistory(displayValue);

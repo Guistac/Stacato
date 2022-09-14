@@ -29,20 +29,25 @@
 void Manoeuvre::listGui(){
 	
 	//get drawing coordinates
+	glm::vec2 cursor = ImGui::GetCursorPos();
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 max = ImGui::GetItemRectMax();
 	glm::vec2 size = ImGui::GetItemRectSize();
 	glm::vec2 minCursor = ImGui::GetCursorPos();
 	bool b_hovered = ImGui::IsItemHovered();
 	bool b_selected = isSelected();
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	//draw background and show validness
-	ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(Colors::veryDarkGray), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	ImColor backgroundColor;
+	if(b_selected) backgroundColor = ImColor(Colors::blue);
+	else backgroundColor = ImColor(Colors::veryDarkGray);
+	drawing->AddRectFilled(min, max, backgroundColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	if(!b_valid){
-		bool blink = (int)Timing::getProgramTime_milliseconds() % 1000 > 500;
-		glm::vec4 color = blink ? Colors::red : Colors::yellow;
-		color.w = 0.5;
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+		ImColor blinkColor;
+		if(Timing::getBlink(1.0)) blinkColor = ImColor(1.f, 0.f, 0.f, .8f);
+		else blinkColor = ImColor(1.f, 0.f, 0.f, .2f);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, blinkColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	
 	//show header strip with icon
@@ -68,23 +73,43 @@ void Manoeuvre::listGui(){
 			icon = &Images::SequenceIcon;
 			break;
 	}
-	ImGui::GetWindowDrawList()->AddRectFilled(min, maxHeaderStrip, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
+	
+	
+	drawing->AddRectFilled(min, maxHeaderStrip, ImColor(headerStripColor), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft);
 	ImGui::PushFont(Fonts::sansRegular20);
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.0f, 0.f, 0.f, .9f));
+	ImColor textColor;
+	if(b_selected) textColor = ImColor(1.f, 1.f, 1.f, 1.f);
+	else textColor = ImColor(.0f, 0.f, 0.f, .9f);
 	glm::vec2 textSize = ImGui::CalcTextSize(manoeuvreTypeString);
-	ImGui::SetCursorPosX(minCursor.x + (headerStripWidth - textSize.x) / 2.0);
-	ImGui::SetCursorPosY(minCursor.y + ImGui::GetStyle().FramePadding.y);
-	ImGui::Text("%s", manoeuvreTypeString);
+	
+	glm::vec2 headerTextPos(min.x + (headerStripWidth - textSize.x) * .5f,
+							min.y + ImGui::GetStyle().FramePadding.y);
+	drawing->AddText(headerTextPos, textColor, manoeuvreTypeString);
 	ImGui::PopFont();
-	ImGui::PopStyleColor();
+	
+	 
 	glm::vec2 imageSize(headerStripWidth * 0.7);
-	glm::vec4 imageTint(1.f, 1.f, 1.f,.9f);
-	glm::vec2 imageUV1(.0f, .0f);
-	glm::vec2 imageUV2(1.f, 1.f);
-	float posY = ImGui::GetCursorPosY();
-	ImGui::SetCursorPosY(posY - ImGui::GetStyle().ItemSpacing.y);
+	ImGui::SetCursorPosY(cursor.y + textSize.y + ImGui::GetStyle().ItemSpacing.y);
 	ImGui::SetCursorPosX((headerStripWidth - imageSize.x) / 2.0);
-	ImGui::Image(icon->getID(), imageSize, imageUV1, imageUV2, imageTint);
+	
+	if(canStop()){
+		ImGui::SetItemAllowOverlap();
+		if(buttonStop("##stopManoeuvre", imageSize.x)){
+			stop();
+		}
+	}
+	else{
+		glm::vec2 imageUV1(.0f, .0f);
+		glm::vec2 imageUV2(1.f, 1.f);
+		glm::vec4 imageTint;
+		if(b_selected) imageTint = glm::vec4(1.f, 1.f, 1.f, 1.f);
+		else imageTint = glm::vec4(0.f, 0.f, 0.f, 1.f);
+		glm::vec2 imagePos(min.x + (headerStripWidth - imageSize.x) * .5f, min.y + textSize.y);
+		ImGui::Image(icon->getID(), imageSize, imageUV1, imageUV2, imageTint);
+	}
+	
+		
+	
 	
 	//show name and description
 	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
@@ -102,7 +127,7 @@ void Manoeuvre::listGui(){
 	
 	//show playback or rapid state
 	
-	if(hasActiveAnimations()){
+	if(b_hasActiveAnimations){
 		auto activeAnimations = getActiveAnimations();
 		int animationCount = activeAnimations.size();
 		float animationHeight = size.y / (float)animationCount;
@@ -114,8 +139,8 @@ void Manoeuvre::listGui(){
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
 			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);
-			
 		}
+		
 	}
 	
 	//mouse interaction and selection display
@@ -126,10 +151,10 @@ void Manoeuvre::listGui(){
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	if(b_selected){
-		float thickness = ImGui::GetTextLineHeight() * 0.2;
+		float thickness = ImGui::GetTextLineHeight() * 0.1;
 		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
-		glm::vec2 minSelection = min + glm::vec2(thickness / 2.0);
-		glm::vec2 maxSelection = max - glm::vec2(thickness / 2.0);
+		glm::vec2 minSelection = min + glm::vec2(thickness * .5f);
+		glm::vec2 maxSelection = max - glm::vec2(thickness * .5f);
 		ImGui::GetWindowDrawList()->AddRect(minSelection, maxSelection, ImColor(1.0f, 1.0f, 1.0f, .5f), rounding, ImDrawFlags_RoundCornersAll, thickness);
 	}
 	
