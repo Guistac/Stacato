@@ -90,9 +90,7 @@ public:
 	std::mutex mutex;
 	
 	
-	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) override {
-		return false;
-	}
+	virtual bool generateTargetAnimation(std::shared_ptr<TargetAnimation> animation) override;
 	
 	virtual bool validateAnimation(std::shared_ptr<Animation> animation) override {
 		return true;

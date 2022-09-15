@@ -162,6 +162,9 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
+        <Manoeuvre Name="M-59" Description="" Type="Target">
+            <Animation Machine="Flip G-J1" MachineUniqueID="1485" Parameter="State" IsComposite="false" Type="Target" Target="Raised" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
         <Manoeuvre Name="Flips Jardin -&gt; Cour" Description="démonstration" Type="Sequence">
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Sequence" interpolationType="Step" Start="Closed" End="Raised" Duration="2.5" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
                 <Curves>

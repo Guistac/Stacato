@@ -20,8 +20,8 @@ TargetAnimation::TargetAnimation(std::shared_ptr<Animatable> animatable) : Anima
 		setUnit(unit);
 	}
 	if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
+		constraintType->overwrite(Constraint::TIME);
 		constraintType->setDisabled(true);
-		timeConstraint->setDisabled(true);
 		velocityConstraint->setDisabled(true);
 		inAcceleration->setDisabled(true);
 		outAcceleration->setDisabled(true);

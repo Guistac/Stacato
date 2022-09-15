@@ -63,6 +63,48 @@ std::vector<std::string>& AnimatableState::getCurveNames(){
 	return curveNames_animatableState;
 }
 
+bool AnimatableState::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
+	
+	
+	auto target = parameterValueToAnimationValue(animation->target)->toState();
+	TargetAnimation::Constraint constraint = animation->getConstraintType();
+	if(constraint != TargetAnimation::Constraint::TIME) return false;
+	double timeOffset = animation->timeConstraint->value;
+	
+	auto startPoint = std::make_shared<Motion::ControlPoint>();
+	startPoint->time = 0.0;
+	startPoint->position = actualValue->value->integerEquivalent;
+	startPoint->velocity = 0.0;
+	startPoint->outAcceleration = 0.0;
+	startPoint->b_valid = true;
+	
+	auto endPoint = std::make_shared<Motion::ControlPoint>();
+	endPoint->time = timeOffset;
+	endPoint->position = target->value->integerEquivalent;
+	endPoint->velocity = 0.0;
+	endPoint->inAcceleration = 0.0;
+	endPoint->b_valid = true;
+	
+	std::shared_ptr<Motion::StepInterpolation> interpolation = Motion::StepInterpolation::getInterpolation(startPoint, endPoint);
+	if(!interpolation->b_valid) return false;
+	
+	auto& curve = animation->getCurves().front();
+	auto& points = curve->getPoints();
+	auto& interpolations = curve->getInterpolations();
+	
+	points.clear();
+	points.push_back(interpolation->inPoint);
+	points.push_back(interpolation->outPoint);
+	
+	interpolations.clear();
+	interpolation->updateDisplayCurvePoints();
+	interpolations.push_back(interpolation);
+	
+	curve->b_valid = true;
+	
+	return true;
+}
+
 void AnimatableState::fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint){
 	controlpoint->inAcceleration = 0.0;
 	controlpoint->outAcceleration = 0.0;
