@@ -128,42 +128,25 @@ local aspectRatio = drawingSizeX / drawingSizeY
 
 
 
-function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState)
-    of.setColor(127)
+function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState, bright)
+    if bright then of.setColor(100) else of.setColor(120) end
     of.drawRectangle(minX, minY, sizeX, sizeY)
+
     local flipSizeX = sizeX / flipCount
-    local flipSizeY = sizeY
     local actualState = flipState:getActualValue()
     local image
 
-    --Logger:warn(actualValue:toString())
-
-    Logger:warn(actualState:toString())
-
-    if actualState == flipStates.Closed then
-        image = flipClosedImage
-        --Logger:warn("closed")
-    elseif actualState == flipStates.OpeningClosing then
-        image = flipOpeningImage
-        --Logger:warn("opening")
-    elseif actualState == flipStates.OpenLowered then
-        image = flipOpenImage
-        --Logger:warn("open")
-    elseif actualState == flipStates.RaisingLowering then
-        image = flipRaisingImage
-        --Logger:warn("raising")
-    elseif actualState == flipStates.Raised then
-        image = flipRaisedImage
-        --Logger:warn("raised")
-    else
-        image = flipOfflineImage
-        --Logger:warn("offline")
-    end
+    if actualState == flipStates.Closed then image = flipClosedImage
+    elseif actualState == flipStates.OpeningClosing then image = flipOpeningImage
+    elseif actualState == flipStates.OpenLowered then image = flipOpenImage
+    elseif actualState == flipStates.RaisingLowering then image = flipRaisingImage
+    elseif actualState == flipStates.Raised then image = flipRaisedImage
+    else image = flipOfflineImage end
 
     of.setColor(255)
     for i=0,(flipCount-1) do
         local imageX = minX + i * flipSizeX
-        image:draw(imageX, minY, flipSizeX, flipSizeY)
+        image:draw(imageX, minY, flipSizeX, sizeY)
     end
 
 end
@@ -204,32 +187,32 @@ function drawStage()
     of.drawRectangle(drawingMinX, drawingMinY, drawingSizeX, drawingSizeY)
 
     --flips row G
-    drawFlip(-8480, -1438, 3960, 1000, 4, Flip_GJ2)
-    drawFlip(-4520, -1438, 3040, 1000, 3, Flip_GJ1)
-    drawFlip(-1480, -1438, 2960, 1000, 3, Flip_Gaxe)
-    drawFlip(1480, -1438, 3040, 1000, 3, Flip_GC1)
-    drawFlip(4520, -1438, 3960, 1000, 4, Flip_GC2)
+    drawFlip(-8480, -1438, 3960, 1000, 4, Flip_GJ2, true)
+    drawFlip(-4520, -1438, 3040, 1000, 3, Flip_GJ1, false)
+    drawFlip(-1480, -1438, 2960, 1000, 3, Flip_Gaxe, true)
+    drawFlip(1480, -1438, 3040, 1000, 3, Flip_GC1, false)
+    drawFlip(4520, -1438, 3960, 1000, 4, Flip_GC2, true)
 
     --flips row E
-    drawFlip(-11520, 1562, 3040, 1000, 3, Flip_EJ3)
-    drawFlip(-8480, 1562, 3960, 1000, 4, Flip_EJ2)
-    drawFlip(4520, 1562, 3960, 1000, 4, Flip_EC2)
-    drawFlip(8480, 1562, 3040, 1000, 3, Flip_EC3)
+    drawFlip(-11520, 1562, 3040, 1000, 3, Flip_EJ3, true)
+    drawFlip(-8480, 1562, 3960, 1000, 4, Flip_EJ2, false)
+    drawFlip(4520, 1562, 3960, 1000, 4, Flip_EC2, true)
+    drawFlip(8480, 1562, 3040, 1000, 3, Flip_EC3, false)
 
     --flips row C
-    drawFlip(-11520, 4562, 3040, 1000, 3, Flip_CJ3)
-    drawFlip(-8480, 4562, 3960, 1000, 4, Flip_CJ2)
-    drawFlip(4520, 4562, 3960, 1000, 4, Flip_CC2)
-    drawFlip(8480, 4562, 3040, 1000, 3, Flip_CC3)
+    drawFlip(-11520, 4562, 3040, 1000, 3, Flip_CJ3, false)
+    drawFlip(-8480, 4562, 3960, 1000, 4, Flip_CJ2, true)
+    drawFlip(4520, 4562, 3960, 1000, 4, Flip_CC2, false)
+    drawFlip(8480, 4562, 3040, 1000, 3, Flip_CC3, true)
 
     --flips row A
-    drawFlip(-11520, 7562, 3040, 1000, 3, Flip_AJ3)
-    drawFlip(-8480, 7562, 3960, 1000, 4, Flip_AJ2)
-    drawFlip(-4520, 7562, 3040, 1000, 3, Flip_AJ1)
-    drawFlip(-1480, 7562, 2960, 1000, 3, Flip_Aaxe)
-    drawFlip(1480, 7562, 3040, 1000, 3, Flip_AC1)
-    drawFlip(4520, 7562, 3960, 1000, 4, Flip_AC2)
-    drawFlip(8480, 7562, 3040, 1000, 3, Flip_AC3)
+    drawFlip(-11520, 7562, 3040, 1000, 3, Flip_AJ3, true)
+    drawFlip(-8480, 7562, 3960, 1000, 4, Flip_AJ2, false)
+    drawFlip(-4520, 7562, 3040, 1000, 3, Flip_AJ1, true)
+    drawFlip(-1480, 7562, 2960, 1000, 3, Flip_Aaxe, false)
+    drawFlip(1480, 7562, 3040, 1000, 3, Flip_AC1, true)
+    drawFlip(4520, 7562, 3960, 1000, 4, Flip_AC2, false)
+    drawFlip(8480, 7562, 3040, 1000, 3, Flip_AC3, true)
 
     --tournettes
     of.setRectMode(of.RECTMODE_CENTER)
