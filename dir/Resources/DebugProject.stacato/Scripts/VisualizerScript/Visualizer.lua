@@ -156,6 +156,7 @@ function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState, bright)
     elseif actualState == flipStates.Raised then image = flipRaisedImage
     else image = flipOfflineImage end
 
+
     of.setColor(255)
     for i=0,(flipCount-1) do
         local imageX = minX + i * flipSizeX

@@ -10,7 +10,7 @@ namespace Logger{
 
 	class Message {
 	public:
-		Message(std::string& msg, int l) : level(l){ message = "[" + Timing::getTimeString() + "] " + std::move(msg);}
+		Message(std::string& msg, int l) : level(l){ message = "[" + Timing::getTimeStringMillis() + "] " + std::move(msg);}
 		inline const char* getString() { return message.c_str(); }
 		inline bool isTrace() { return level == 0; }
 		inline bool isDebug() { return level == 1; }

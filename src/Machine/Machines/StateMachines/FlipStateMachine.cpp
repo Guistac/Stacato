@@ -172,10 +172,12 @@ void FlipStateMachine::inputProcess() {
 	
 	auto actualStateValue = AnimationValue::makeState(); //heap corruption detected
 	switch(actualState){
-		case State::CLOSED: 		actualStateValue->value = &stateClosed; break;
-		case State::OPEN_LOWERED: 	actualStateValue->value = &stateOpenLowered; break;
-		case State::RAISED: 		actualStateValue->value = &stateRaised; break;
-		default: 					actualStateValue->value = &stateStopped; break;
+		case State::CLOSED: 		    actualStateValue->value = &stateClosed; break;
+        case State::OPENING_CLOSING:    actualStateValue->value = &stateClosingOpening; break;
+		case State::OPEN_LOWERED: 	    actualStateValue->value = &stateOpenLowered; break;
+        case State::LOWERING_RAISING:   actualStateValue->value = &stateRaisingLowering; break;
+		case State::RAISED: 		    actualStateValue->value = &stateRaised; break;
+		default: 					    actualStateValue->value = &stateStopped; break;
 	}
 	animatableState->updateActualValue(actualStateValue); //heap corruption detected: actualStateValue becomes newActualValue and is null for some reason
 	

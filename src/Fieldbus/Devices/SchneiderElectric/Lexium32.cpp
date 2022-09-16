@@ -6,12 +6,16 @@
 
 void Lexium32::onConnection() {
 	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+    b_autoReenable = false;
+    b_autoClearingFault = false;
 }
 
 void Lexium32::onDisconnection() {
 	requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	servoMotor->state = MotionState::OFFLINE;
 	gpioDevice->state = MotionState::OFFLINE;
+    b_autoReenable = false;
+    b_autoClearingFault = false;
 }
 
 void Lexium32::initialize() {
@@ -202,9 +206,16 @@ void Lexium32::readInputs() {
 		b_autoClearingFault = true;
 		if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED) b_autoReenable = true;
 	}
-	
-	if(_LastError == 0x0 && requestedPowerState == actualPowerState) b_autoClearingFault = false;
-	
+    if(_LastError == 0x0 && requestedPowerState == actualPowerState && b_autoClearingFault) {
+        b_autoClearingFault = false;
+        b_autoReenable = false;
+    }
+
+    
+    if(_LastError != 0x0 && _LastError != 0xB121){
+        b_autoClearingFault = false;
+        b_autoReenable = false;
+    }
 	
 	
 	//Read Error
@@ -213,11 +224,7 @@ void Lexium32::readInputs() {
 		//EXPERIMENTAL: report auto clear status
 		if(_LastError == 0x0 && previousError == 0xB121){
             enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-			if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
-				Logger::critical("{} Auto-Recovered from error B121 while in operational state", getName());
-			}else{
-				Logger::critical("{} Auto-Recovered from error B121", getName());
-			}
+			if(requestedPowerState != DS402::PowerState::OPERATION_ENABLED) Logger::critical("{} Auto-Recovered from error B121", getName());
 		}
 		
 		
@@ -297,7 +304,7 @@ void Lexium32::readInputs() {
 	
 	if(!isConnected()) 														servoMotor->state = MotionState::OFFLINE;
 	//EXPERIMENTAL
-	else if(b_autoClearingFault){ /*don't change the servo State*/ }
+	else if(b_autoClearingFault || b_autoReenable){ /*don't change the servo State*/ }
 	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = MotionState::OFFLINE;
 	else if(b_stoActive) 													servoMotor->state = MotionState::NOT_READY;
 	else if(!b_motorVoltagePresent) 										servoMotor->state = MotionState::NOT_READY;
