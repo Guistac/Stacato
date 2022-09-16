@@ -272,7 +272,6 @@ function Visualizer.draw()
 
 end
 
-local counter = 0
 
 function drawStage()
 
@@ -348,28 +347,17 @@ function drawStage()
     drawFlip(8480, 7562, 3040, 1000, 3, Flip_AC3, true)
 
     --tournettes
-    --[[
-    of.setRectMode(of.RECTMODE_CENTER)
-    of.setCircleResolution(64)
-    of.setColor(200)
-    of.drawCircle(0, 3563, 3800) -- center & radius
-    of.setColor(255)
-    of.drawCircle(0, 3563, 2800) -- center & radius
-    ]]--
-
-    counter = counter + 1
-
-
+    local tournetteAnneauRotation = tournetteAnneau:getActualValue().Position
+    local tournetteCentreRotation = tournetteCentre:getActualValue().Position
     of.setRectMode(of.RECTMODE_CENTER)
     of.pushMatrix()
     of.translate(0, 3563)
-    of.rotateZDeg(counter)
+    of.rotateZDeg(tournetteCentreRotation)
     tournetteCentreImage:draw(0, 0, 7600, 7600)
     of.popMatrix()
-
     of.pushMatrix()
     of.translate(0, 3563)
-    of.rotateZDeg(-counter)
+    of.rotateZDeg(tournetteAnneauRotation)
     tournetteAnneauImage:draw(0, 0, 7600, 7600)
     of.popMatrix()
 
@@ -384,17 +372,6 @@ function drawStage()
 
     drawLames(4262, 11200, lameVideoLointain)
     drawLames(4462, 11200, lameVideoFace)
-
-    --center cross hair
-    --[[
-    of.setRectMode(of.RECTMODE_CORNER)
-    of.setColor(255,0,0)
-    of.drawRectangle(-100,-100,100,100)
-    of.drawRectangle(0,0,100,100)
-    of.setColor(0,0,255)
-    of.drawRectangle(0,-100,100,100)
-    of.drawRectangle(-100,0,100,100)
-    ]]--
 end
 
 
