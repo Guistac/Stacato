@@ -20,8 +20,8 @@ TargetAnimation::TargetAnimation(std::shared_ptr<Animatable> animatable) : Anima
 		setUnit(unit);
 	}
 	if(!animatable->isNumber() || !animatable->toNumber()->isReal()){
+		constraintType->overwrite(Constraint::TIME);
 		constraintType->setDisabled(true);
-		timeConstraint->setDisabled(true);
 		velocityConstraint->setDisabled(true);
 		inAcceleration->setDisabled(true);
 		outAcceleration->setDisabled(true);
@@ -171,9 +171,9 @@ bool TargetAnimation::canStartPlayback(){
 	if(!isValid()) return false;
 	auto animatable = getAnimatable();
 	if(!animatable->isReadyToMove()) return false;
-	auto actualValue = animatable->getActualValue();
+	auto animatableTargetValue = animatable->getTargetValue();
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
-	bool b_alreadyAtTarget = animatable->isParameterValueEqual(actualValue, targetValue);
+	bool b_alreadyAtTarget = animatable->isParameterValueEqual(animatableTargetValue, targetValue);
 	return !b_alreadyAtTarget;
 	return true;
 }

@@ -1,4 +1,5 @@
 <Environnement name="Default Environnement" notes="">
+
     <Dashboard Scale="0.95878673" OffsetX="1248.5154" OffsetY="-1013.1031" AutoFit="true" DrawGrid="false" LockEdit="true">
         <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.5" SizeY="229.9274"/>
         <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.5" SizeY="229.9274"/>
@@ -36,6 +37,7 @@
         <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1505" SizeX="354.47913" SizeY="237.39949"/>
         <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1151" PositionY="1262" SizeX="354.47913" SizeY="237.38408"/>
         <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1150" PositionY="1018" SizeX="354.47913" SizeY="237.32561"/>
+
     </Dashboard>
     <NodeGraph>
         <Nodes>

@@ -28,10 +28,9 @@ std::vector<AnimatableStateStruct*> FlipStateMachine::allStates = {
 };
 
 std::vector<AnimatableStateStruct*> FlipStateMachine::selectableStates = {
-	&FlipStateMachine::stateStopped,
-	&FlipStateMachine::stateClosed,
+	&FlipStateMachine::stateRaised,
 	&FlipStateMachine::stateOpenLowered,
-	&FlipStateMachine::stateRaised
+	&FlipStateMachine::stateClosed
 };
 
 

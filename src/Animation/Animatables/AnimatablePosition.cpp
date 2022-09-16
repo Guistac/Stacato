@@ -375,8 +375,8 @@ void AnimatablePosition::moveToPositionInTime(double targetPosition, double targ
 
 
 void AnimatablePosition::setManualVelocityTarget(double velocityTarget){
-	const std::lock_guard<std::mutex> lock(mutex);
 	stopAnimation();
+	const std::lock_guard<std::mutex> lock(mutex);
 	setVelocityTarget(velocityTarget);
 }
 
