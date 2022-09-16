@@ -791,6 +791,7 @@ namespace EtherCatFieldbus {
 		
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
+            //EXPERIMENTAL
             if(b_skipCycles){
                 b_skipCycles = false;
                 b_skippingFrames = true;
