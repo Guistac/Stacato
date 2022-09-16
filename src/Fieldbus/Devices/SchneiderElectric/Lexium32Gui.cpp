@@ -153,6 +153,9 @@ void Lexium32::controlsGui() {
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Device Control");
 	ImGui::PopFont();
+    
+    ImGui::Text("b_autoClearingFault: %s", b_autoClearingFault ? "YES" : "NO");
+    ImGui::Text("b_autoReenable: %s", b_autoReenable ? "YES" : "NO");
 	
 	ImGui::BeginDisabled(!servoMotor->isEnabled());
 	
