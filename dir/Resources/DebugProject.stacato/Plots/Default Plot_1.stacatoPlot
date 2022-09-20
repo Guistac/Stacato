@@ -613,9 +613,6 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="1 - Montée Romaine" Description="Ouverture Acte N°1" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-        </Manoeuvre>
         <Manoeuvre Name="1.1 - Tournette Piano" Description="Ouverture" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="90" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
@@ -1034,9 +1031,6 @@
         <Manoeuvre Name="12 - Tournette Escalier " Description="Il se passe.../ Demi tour anti-horaire pour escalier de face" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="324" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="12.1 - Fermeture Romaine" Description="Mise Starmania, Starmania" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-        </Manoeuvre>
         <Manoeuvre Name="Periactes + cable Vol" Description="Descente Romaine - Mise Starmania J1-C1 / J3-C3 / cables accroche" Type="Target">
             <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Target" Target="1.4035719235699169" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
             <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Target" Target="-8.5" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -1062,9 +1056,6 @@
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
             <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
-        </Manoeuvre>
-        <Manoeuvre Name="13 - Montée de la Romaine" Description="Starmania, Starmania" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="13.1 - Descente Vol Cristal" Description="Starmania, Starmania" Type="Target">
             <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Target" Target="1.3999999999999999" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>

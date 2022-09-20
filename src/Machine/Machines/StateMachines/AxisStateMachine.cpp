@@ -41,8 +41,8 @@ void AxisStateMachine::initialize() {
 	
 	//output pin
 	addNodePin(statePin);
-	
-	addAnimatable(animatableState);
+		
+	addAnimatable(animatableVelocity);
 	
 	auto thisMachine = std::static_pointer_cast<AxisStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
@@ -72,6 +72,7 @@ void AxisStateMachine::inputProcess() {
 	if(isEnabled() && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
+	/*
 	switch(state){
 		case MotionState::OFFLINE:
 			animatableState->state = Animatable::State::OFFLINE;
@@ -83,6 +84,7 @@ void AxisStateMachine::inputProcess() {
 			animatableState->state = Animatable::State::READY;
 			break;
 	}
+	 */
 	
 	//get current animation state
 	if(axis->isAtLowerLimit()) actualState = State::AT_NEGATIVE_LIMIT;
@@ -92,10 +94,12 @@ void AxisStateMachine::inputProcess() {
 	else if(axis->getProfileVelocity_axisUnitsPerSecond() == 0.0) actualState = State::STOPPED;
 	else actualState = State::UNKNOWN;
 	
+	/*
 	std::shared_ptr<AnimatableStateValue> newAnimationValue = AnimationValue::makeState();
 	newAnimationValue->value = getStateStruct(actualState);
 	animatableState->updateActualValue(newAnimationValue); //BUG?
-	
+	*/
+	 
 	*stateInteger = getStateInteger(actualState);
 }
 
@@ -103,8 +107,10 @@ void AxisStateMachine::outputProcess(){
 	
 	//handle dead mans switch
 	if(!isMotionAllowed()){
+		/*
 		if(animatableState->hasAnimation()) animatableState->getAnimation()->pausePlayback();
 		animatableState->stopMovement();
+		 */
 	}
 	
 	double profileTime_seconds = Environnement::getTime_seconds();
@@ -113,13 +119,13 @@ void AxisStateMachine::outputProcess(){
 	//update outputs signals
 	if (getState() != MotionState::ENABLED) {
 		
-		animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
+		//animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 		
 	}else{
 		
-		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-		AnimatableStateStruct* targetValue = animatableState->getTargetValue()->toState()->value;
-		requestedState = getStateEnumerator(targetValue);
+		//animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+		//AnimatableStateStruct* targetValue = animatableState->getTargetValue()->toState()->value;
+		//requestedState = getStateEnumerator(targetValue);
 		
         auto axis = getAxis();
         
@@ -265,7 +271,7 @@ bool AxisStateMachine::isMoving() {
 
 
 void AxisStateMachine::requestState(State newState){
-	animatableState->stopMovement();
+	//animatableState->stopMovement();
 	auto targetValue = AnimationValue::makeState();
 	switch(newState){
 		case State::STOPPED:            targetValue->value = &stateStopped; break;
@@ -277,7 +283,7 @@ void AxisStateMachine::requestState(State newState){
 			break;
 	}
 	if(targetValue) {
-		animatableState->rapidToValue(targetValue);
+		//animatableState->rapidToValue(targetValue);
 		Logger::info("rapid {} to value {}", getName(), targetValue->value->displayName);
 	}
 }

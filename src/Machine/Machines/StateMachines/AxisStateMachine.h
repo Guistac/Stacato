@@ -1,6 +1,7 @@
 #include "Machine/Machine.h"
 
 #include "Animation/Animatables/AnimatableState.h"
+#include "Animation/Animatables/AnimatableReal.h"
 
 #include "Animation/AnimationValue.h"
 
@@ -38,8 +39,10 @@ public:
 	};
 	State actualState = State::STOPPED;
 	State requestedState = State::STOPPED;
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
+	//std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
 	void requestState(State newState);
+	
+	std::shared_ptr<AnimatableReal> animatableVelocity = AnimatableReal::make("Velocity", Units::None::None);
 	
 	//————— Machine State —————
 	
