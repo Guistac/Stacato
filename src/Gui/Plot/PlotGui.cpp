@@ -44,20 +44,44 @@ namespace PlotGui{
 		
 		if(ReorderableList::begin("CueList", manoeuvreListSize)){
 		
-			float previousVerticalWindowPadding = ImGui::GetStyle().WindowPadding.y;
 			//0 horizontal padding is to display the header background strip up to the edge of the cue window
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
-			glm::vec2 cueSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 3.0 + ImGui::GetStyle().WindowPadding.y * 2.0);
-			ImGuiWindowFlags cueWindowFlags = ImGuiWindowFlags_NoScrollbar;
+			
+			float controlButtonSize = ImGui::GetTextLineHeight() * 2.0;
+			float cueSizeY = ImGui::GetTextLineHeight() * 3.0 + ImGui::GetStyle().WindowPadding.y * 2.0;
+			float cueSizeSelectedY = cueSizeY + controlButtonSize + ImGui::GetStyle().ItemSpacing.y;
 
+			bool b_scrollToSelected = false;
+			if(ImGui::IsWindowFocused()){
+				if(ImGui::IsKeyPressed(GLFW_KEY_UP)) {
+					manoeuvreList->selectPreviousManoeuvre();
+					b_scrollToSelected = true;
+				}
+				if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)) {
+					manoeuvreList->selectNextManoeuvre();
+					b_scrollToSelected = true;
+				}
+			}
+			
+			ImGuiWindow* list = ImGui::GetCurrentWindow();
+			
 			for (auto& manoeuvre : manoeuvres) {
-				if(ReorderableList::beginItem(cueSize.y)){
+				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
+					
+					if(b_scrollToSelected && manoeuvre->isSelected()){
+						ReorderableList::scrollToItem();
+					}
+					
 					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
 					manoeuvre->listGui();
 					ReorderableList::endItem();
 				}
 			}
 			ImGui::PopStyleVar();
+			
+			//ImGui::ScrollToItem();
+			//ImGui::ScrollToRect(nullptr, ImRect());
+			//ImGui::ScrollToBringRectIntoView(nullptr, ImRect());
 			
 			ReorderableList::end();
 		}

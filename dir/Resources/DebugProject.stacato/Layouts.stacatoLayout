@@ -35,6 +35,10 @@
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -412,7 +416,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Single Screen">
+    <Layout Name="Single Screen" IsDefault="true">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Dashboard"/>
@@ -422,6 +426,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -970,6 +978,10 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1349,6 +1361,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Node Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -1786,6 +1802,10 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Split=X Sel
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -2164,7 +2184,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Centr
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Visualizer Editor" IsDefault="true">
+    <Layout Name="Visualizer Editor">
         <OpenWindows>
             <Window Name="Dashboard"/>
             <Window Name="Manoeuvre List"/>
@@ -2173,6 +2193,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Centr
             <Window Name="Visualizer"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 
@@ -2576,6 +2600,10 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Sel
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -2957,7 +2985,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="repetes" IsDefault="true">
+    <Layout Name="repetes">
         <OpenWindows>
             <Window Name="Dashboard"/>
             <Window Name="Setup"/>
@@ -2971,6 +2999,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Log"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
 
 
 

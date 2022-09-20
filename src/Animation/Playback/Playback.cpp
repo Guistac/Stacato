@@ -103,6 +103,7 @@ namespace PlaybackManager {
 				animation->incrementPlaybackPosition(time_micros);
 			}
 		}
+		
 	}
 
 }

@@ -145,24 +145,28 @@ std::shared_ptr<AnimationValue> AnimatableState::getRapidTarget(){
 
 
 void AnimatableState::onRapidToValue(std::shared_ptr<AnimationValue> animationValue){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	auto newTargetValue = AnimationValue::makeState();
 	newTargetValue->value = animationValue->toState()->value;
 	targetValue = newTargetValue;
 	b_inRapid = true;
+	mutex.unlock();
 }
 
 void AnimatableState::onPlaybackStart(std::shared_ptr<Animation> animation){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = animation;
+	mutex.unlock();
 }
 void AnimatableState::onPlaybackPause(){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = nullptr;
+	mutex.unlock();
 }
 void AnimatableState::onPlaybackStop(){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = nullptr;
+	mutex.unlock();
 }
 void AnimatableState::onPlaybackEnd(){}
 void AnimatableState::stopMovement(){
@@ -174,26 +178,29 @@ void AnimatableState::stopMovement(){
 
 
 std::shared_ptr<AnimationValue> AnimatableState::getActualValue(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	std::shared_ptr<AnimatableStateValue> copy = AnimationValue::makeState();
-	copy->value = actualValue->value;
-	return copy;
+	auto ret = AnimationValue::makeState();
+	mutex.lock();
+	ret->value = actualValue->value;
+	mutex.unlock();
+	return ret;
 }
 
 void AnimatableState::updateActualValue(std::shared_ptr<AnimationValue> newActualValue){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	actualValue = newActualValue->toState();
+	mutex.unlock();
 }
 
 std::shared_ptr<AnimationValue> AnimatableState::getTargetValue() {
-	const std::lock_guard<std::mutex> lock(mutex);
-	std::shared_ptr<AnimatableStateValue> copy = AnimationValue::makeState();
-	copy->value = targetValue->value;
-	return copy;
+	auto ret = AnimationValue::makeState();
+	mutex.lock();
+	ret->value = targetValue->value;
+	mutex.unlock();
+	return ret;
 }
 
 void AnimatableState::updateTargetValue(double time_seconds, double deltaTime_seconds){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	if(isHalted()) {
 		targetValue->value = stoppedState;
 		stopMovement();
@@ -205,10 +212,12 @@ void AnimatableState::updateTargetValue(double time_seconds, double deltaTime_se
 		}
 		if(b_inRapid && targetValue->value == actualValue->value) b_inRapid = false;
 	}
+	mutex.unlock();
 }
 
 void AnimatableState::followActualValue(double time_seconds, double deltaTime_seconds){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	targetValue->value = actualValue->value;
+	mutex.unlock();
 }
 

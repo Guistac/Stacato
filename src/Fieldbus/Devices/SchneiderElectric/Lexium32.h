@@ -95,6 +95,8 @@ public:
     std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(digitalIn4Value, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(digitalIn5Value, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
 	
+	double cycleTime_milliseconds = 20.0;
+	
 	//————————— PROCESS DATA ———————————
 	
 private:

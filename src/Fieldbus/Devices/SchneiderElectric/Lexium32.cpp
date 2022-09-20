@@ -160,7 +160,7 @@ bool Lexium32::startupConfiguration() {
     txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13);
 
     //=========================== TIMING AND SYNC CONFIGURATION ============================
-
+/*
     //set interrupt routine for cyclic synchronous position mode
     //interval should be the same as the frame cycle time, and offset should be zero
     //the frame cycle time is offset 50% from dc_sync time (which is a integer multiple of the interval time)
@@ -168,7 +168,12 @@ bool Lexium32::startupConfiguration() {
     uint32_t sync0Interval_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1000000.0;
     uint32_t sync0offset_nanoseconds = sync0Interval_nanoseconds / 2;
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
-
+	*/
+	
+	uint32_t sync0Interval_nanoseconds = uint32_t(cycleTime_milliseconds) * 1000000;
+	uint32_t sync0offset_nanoseconds = uint32_t(EtherCatFieldbus::processInterval_milliseconds) * 500000;
+	ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+	 
     return true;
 }
 

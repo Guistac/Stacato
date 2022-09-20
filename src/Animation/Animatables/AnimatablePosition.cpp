@@ -290,30 +290,39 @@ bool AnimatablePosition::isControlledManuallyOrByAnimation(){
 
 
 bool AnimatablePosition::isReadyToMove(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return getMachine()->isEnabled() && state == Animatable::State::READY;
+	mutex.lock();
+	bool b = getMachine()->isEnabled() && state == Animatable::State::READY;
+	mutex.unlock();
+	return b;
 }
 
 bool AnimatablePosition::isReadyToStartPlaybackFromValue(std::shared_ptr<AnimationValue> animationValue){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return animationValue->toPosition()->position == targetValue->position;
+	mutex.lock();
+	bool b = animationValue->toPosition()->position == targetValue->position;
+	mutex.unlock();
+	return b;
 }
 
 bool AnimatablePosition::isInRapid(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return motionProfile.hasInterpolationTarget();
+	mutex.lock();
+	bool b = motionProfile.hasInterpolationTarget();
+	mutex.unlock();
+	return b;
 }
 
 float AnimatablePosition::getRapidProgress(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return motionProfile.getInterpolationProgress(profileTime_seconds);
+	mutex.lock();
+	float r = motionProfile.getInterpolationProgress(profileTime_seconds);
+	mutex.unlock();
+	return r;
 }
 
 void AnimatablePosition::cancelRapid(){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	velocitySetpoint = 0.0;
 	controlMode = VELOCITY_SETPOINT;
 	motionProfile.resetInterpolation();
+	mutex.unlock();
 }
 
 std::shared_ptr<AnimationValue> AnimatablePosition::getRapidTarget(){
@@ -331,17 +340,20 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 }
 
 void AnimatablePosition::onPlaybackStart(std::shared_ptr<Animation> animation){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = animation;
+	mutex.unlock();
 }
 void AnimatablePosition::onPlaybackPause(){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = nullptr;
+	mutex.unlock();
 }
 void AnimatablePosition::onPlaybackStop(){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	currentAnimation = nullptr;
 	setVelocityTarget(0.0);
+	mutex.unlock();
 }
 void AnimatablePosition::onPlaybackEnd(){}
 
@@ -376,20 +388,23 @@ void AnimatablePosition::moveToPositionInTime(double targetPosition, double targ
 
 void AnimatablePosition::setManualVelocityTarget(double velocityTarget){
 	stopAnimation();
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	setVelocityTarget(velocityTarget);
+	mutex.unlock();
 }
 
 void AnimatablePosition::setManualPositionTargetWithVelocity(double targetPosition, double targetVelocity){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	stopAnimation();
 	moveToPositionWithVelocity(targetPosition, targetVelocity);
+	mutex.unlock();
 }
 
 void AnimatablePosition::setManualPositionTargetWithTime(double targetPosition, double targetTime){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	stopAnimation();
 	moveToPositionInTime(targetPosition, targetTime);
+	mutex.unlock();
 }
 
 void AnimatablePosition::forcePositionTarget(double position, double velocity, double acceleration){
@@ -411,12 +426,16 @@ void AnimatablePosition::forceVelocityTarget(double velocity, double acceleratio
 
 
 bool AnimatablePosition::hasPositionSetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return controlMode == POSITION_SETPOINT || hasAnimation();
+	mutex.lock();
+	bool r = controlMode == POSITION_SETPOINT || hasAnimation();
+	mutex.unlock();
+	return r;
 }
 double AnimatablePosition::getPositionSetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return getTargetValue()->toPosition()->position;
+	mutex.lock();
+	bool r = getTargetValue()->toPosition()->position;
+	mutex.lock();
+	return r;
 }
 double AnimatablePosition::getPositionSetpointNormalized(){
 	return (getPositionSetpoint() - lowerPositionLimit) / (upperPositionLimit - lowerPositionLimit);
@@ -424,12 +443,16 @@ double AnimatablePosition::getPositionSetpointNormalized(){
 
 
 bool AnimatablePosition::hasVelocitySetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return isReadyToMove();
+	mutex.lock();
+	bool r = isReadyToMove();
+	mutex.unlock();
+	return r;
 }
 double AnimatablePosition::getVelocitySetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return getTargetValue()->toPosition()->velocity;
+	mutex.lock();
+	bool r = getTargetValue()->toPosition()->velocity;
+	mutex.unlock();
+	return r;
 }
 double AnimatablePosition::getVelocitySetpointNormalized(){
 	return getVelocitySetpoint() / velocityLimit;
@@ -437,18 +460,25 @@ double AnimatablePosition::getVelocitySetpointNormalized(){
 
 
 bool AnimatablePosition::hasAccelerationSetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return isReadyToMove();
+	mutex.lock();
+	bool r = isReadyToMove();
+	mutex.unlock();
+	return r;
 }
 
 double AnimatablePosition::getAccelerationSetpoint(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return getTargetValue()->toPosition()->acceleration;
+	mutex.lock();
+	double r = getTargetValue()->toPosition()->acceleration;
+	mutex.unlock();
+	return r;
+	
 }
 
 double AnimatablePosition::getAccelerationSetpointNormalized(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return getAccelerationSetpoint() / accelerationLimit;
+	mutex.lock();
+	double r = getAccelerationSetpoint() / accelerationLimit;
+	mutex.unlock();
+	return r;
 }
 
 
@@ -492,13 +522,19 @@ double AnimatablePosition::getBrakingPosition(){
 
 
 void AnimatablePosition::updateActualValue(std::shared_ptr<AnimationValue> newActualValue){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	actualValue = newActualValue->toPosition();
+	mutex.unlock();
 }
 
 std::shared_ptr<AnimationValue> AnimatablePosition::getActualValue(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return actualValue;
+	auto ret = AnimationValue::makePosition();
+	mutex.lock();
+	ret->position = actualValue->position;
+	ret->velocity = actualValue->velocity;
+	ret->acceleration = actualValue->acceleration;
+	mutex.unlock();
+	return ret;
 }
 
 void AnimatablePosition::copyMotionProfilerValueToTargetValue(){
@@ -510,13 +546,14 @@ void AnimatablePosition::copyMotionProfilerValueToTargetValue(){
 }
 
 void AnimatablePosition::followActualValue(double time_seconds, double deltaTime_seconds){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
 	profileTime_seconds = time_seconds;
 	deltaTime_seconds = deltaTime_seconds;
 	motionProfile.setPosition(actualValue->position);
 	motionProfile.setVelocity(actualValue->velocity);
 	motionProfile.setAcceleration(actualValue->acceleration);
 	copyMotionProfilerValueToTargetValue();
+	mutex.unlock();
 }
 
 void AnimatablePosition::getConstraintPositionLimits(double& min, double& max){
@@ -540,7 +577,8 @@ void AnimatablePosition::getConstraintPositionLimits(double& min, double& max){
 }
 
 void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_seconds){
-	const std::lock_guard<std::mutex> lock(mutex);
+	mutex.lock();
+	
 	profileTime_seconds = time_seconds;
 	
 	double minPosition, maxPosition;
@@ -610,9 +648,15 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		
 	//generate an output target value to be read by the machine
 	copyMotionProfilerValueToTargetValue();
+	mutex.unlock();
 }
 
 std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
-	const std::lock_guard<std::mutex> lock(mutex);
-	return targetValue;
+	auto r = AnimationValue::makePosition();
+	mutex.lock();
+	r->position = targetValue->position;
+	r->velocity = targetValue->velocity;
+	r->acceleration = targetValue->acceleration;
+	mutex.unlock();
+	return r;
 }

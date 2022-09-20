@@ -23,6 +23,7 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Gui/Utilities/ReorderableList.h"
 
 
 //inside draggable list element: InvisibleButton/ClipRectangle
@@ -34,7 +35,7 @@ void Manoeuvre::listGui(){
 	glm::vec2 max = ImGui::GetItemRectMax();
 	glm::vec2 size = ImGui::GetItemRectSize();
 	glm::vec2 minCursor = ImGui::GetCursorPos();
-	bool b_hovered = ImGui::IsItemHovered();
+	bool b_hovered = ReorderableList::isItemHovered();
 	bool b_selected = isSelected();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
@@ -92,11 +93,10 @@ void Manoeuvre::listGui(){
 	ImGui::SetCursorPosY(cursor.y + textSize.y + ImGui::GetStyle().ItemSpacing.y);
 	ImGui::SetCursorPosX((headerStripWidth - imageSize.x) / 2.0);
 	
+	
 	if(canStop()){
 		ImGui::SetItemAllowOverlap();
-		if(buttonStop("##stopManoeuvre", imageSize.x)){
-			stop();
-		}
+		if(buttonStop("##stopManoeuvre", imageSize.x)) stop();
 	}
 	else{
 		glm::vec2 imageUV1(.0f, .0f);
@@ -105,9 +105,9 @@ void Manoeuvre::listGui(){
 		if(b_selected) imageTint = glm::vec4(1.f, 1.f, 1.f, 1.f);
 		else imageTint = glm::vec4(0.f, 0.f, 0.f, 1.f);
 		glm::vec2 imagePos(min.x + (headerStripWidth - imageSize.x) * .5f, min.y + textSize.y);
+		ImGui::SetItemAllowOverlap();
 		ImGui::Image(icon->getID(), imageSize, imageUV1, imageUV2, imageTint);
 	}
-	
 		
 	
 	
@@ -121,9 +121,79 @@ void Manoeuvre::listGui(){
 	ImGui::PopFont();
 	ImGui::SetCursorPosY(minCursor.y + ImGui::GetTextLineHeightWithSpacing());
 	ImGui::SetCursorPosX(minCursor.x + headerStripWidth + ImGui::GetStyle().FramePadding.x);
+	glm::vec2 descriptionCursor = ImGui::GetCursorPos();
 	ImGui::PushFont(Fonts::sansLight15);
 	ImGui::TextWrapped("%s", getDescription());
 	ImGui::PopFont();
+	
+	if(isSelected()){
+	ImGui::SetCursorPosX(descriptionCursor.x);
+	ImGui::SetCursorPosY(descriptionCursor.y + ImGui::GetTextLineHeight() * 2.0);
+	
+		float buttonSize = ImGui::GetTextLineHeight() * 2.0;
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
+		
+		 switch(getType()){
+			 case ManoeuvreType::KEY:{
+				 ImGui::BeginDisabled(!canRapidToPlaybackPosition());
+				 bool atKey = isAtPlaybackPosition();
+				 if(atKey) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				 ImGui::SetItemAllowOverlap();
+				 if(buttonArrowDownStop("goToPos", buttonSize)) rapidToPlaybackPosition();
+				 if(atKey) ImGui::PopStyleColor();
+				 ImGui::EndDisabled();
+			 }break;
+			 case ManoeuvreType::TARGET:{
+				 ImGui::BeginDisabled(!canRapidToTarget());
+				 bool atTarget = isAtTarget();
+				 if(atTarget) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				 ImGui::SetItemAllowOverlap();
+				 if(buttonArrowRightStop("goToTarget", buttonSize)) rapidToTarget();
+				 if(atTarget) ImGui::PopStyleColor();
+				 ImGui::EndDisabled();
+				 ImGui::SameLine();
+				 ImGui::BeginDisabled(!canStartPlayback());
+				 ImGui::SetItemAllowOverlap();
+				 if(buttonPlay("StartPlayback", buttonSize)) startPlayback();
+				 ImGui::EndDisabled();
+			 }break;
+			 case ManoeuvreType::SEQUENCE:{
+				 ImGui::BeginDisabled(!canRapidToStart());
+				 bool atStart = isAtStart();
+				 if(atStart) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				 ImGui::SetItemAllowOverlap();
+				 if(buttonArrowLeftStop("goToStart", buttonSize)) rapidToStart();
+				 if(atStart) ImGui::PopStyleColor();
+				 ImGui::EndDisabled();
+				 ImGui::SameLine();
+				 ImGui::BeginDisabled(!canRapidToTarget());
+				 bool atTarget = isAtTarget();
+				 if(atTarget) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				 ImGui::SetItemAllowOverlap();
+				 if(buttonArrowRightStop("goToTarget", buttonSize)) rapidToTarget();
+				 if(atTarget) ImGui::PopStyleColor();
+				 ImGui::EndDisabled();
+				 ImGui::SameLine();
+				 if(canPausePlayback()){
+					 ImGui::BeginDisabled(!canPausePlayback());
+					 ImGui::SetItemAllowOverlap();
+					 if(buttonPause("PausePlayback", buttonSize)) pausePlayback();
+					 ImGui::EndDisabled();
+				 }
+				 else{
+					 ImGui::BeginDisabled(!canStartPlayback());
+					 ImGui::SetItemAllowOverlap();
+					 if(buttonPlay("StartPlayback", buttonSize)) startPlayback();
+					 ImGui::EndDisabled();
+				 }
+			 }break;
+		 }
+		ImGui::PopStyleVar();
+	
+	}
+	
+	
+	
 	
 	//show playback or rapid state
 	
@@ -220,6 +290,10 @@ void Manoeuvre::miniatureGui(glm::vec2 size_arg){
 		}else ImGui::Text("All Machines are Enabled");
 		ImGui::EndTooltip();
 	}
+}
+
+void Manoeuvre::playbackGui(float height){
+	
 }
 
 

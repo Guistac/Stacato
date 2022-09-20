@@ -241,6 +241,9 @@ namespace ReorderableList{
 		ImGui::SetCursorPosY(state.currentItemCursorPos.y + state.currentItemSize.y + ImGui::GetStyle().ItemSpacing.y);
 	}
 
+	inline bool isItemHovered(){
+		return ImGui::GetCurrentContext()->HoveredIdPreviousFrame == ImGui::GetItemID();
+	}
 
 	inline void end(bool b_wasOpen){
 		
@@ -306,7 +309,6 @@ namespace ReorderableList{
 		}
 		
 		ImGui::EndChild();
-		
 	}
 
 
@@ -321,6 +323,13 @@ namespace ReorderableList{
 
 	inline bool isItemSelected(){
 		return ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && getState().draggedItemIndex == -1;
+	}
+
+	inline void scrollToItem(){
+		State& s = getState();
+		ImVec2 min = s.currentItemCursorPos;
+		ImVec2 max = ImVec2(s.currentItemCursorPos.x + s.currentItemSize.x, s.currentItemCursorPos.y + s.currentItemSize.y);
+		ImGui::ScrollToRect(ImGui::GetCurrentWindow(), ImRect(min, max));
 	}
 
 };
