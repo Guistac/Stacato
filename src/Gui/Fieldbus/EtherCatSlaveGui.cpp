@@ -760,10 +760,9 @@ void EtherCatDevice::eventListGui() {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0, 0.0, 0.0, 1.0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     if (ImGui::BeginChild(ImGui::GetID("LogMessages"))) {
-
+		std::lock_guard<std::mutex> lock(eventListMutex);
+		
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-        eventListMutex.lock();
         for (int i = (int)eventList.size() - 1; i >= 0; i--) {
             Event* event = eventList[i];
             std::stringstream ss;
@@ -772,8 +771,6 @@ void EtherCatDevice::eventListGui() {
             ImGui::Text("[%s] %s", ss.str().c_str(), event->message);
             ImGui::PopStyleColor();
         }
-        eventListMutex.unlock();
-
         ImGui::PopStyleVar();
         ImGui::EndChild();
     }

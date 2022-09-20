@@ -156,6 +156,7 @@ public:
 	
 	void listGui();
 	void miniatureGui(glm::vec2 size_arg);
+	void playbackGui(float height);
 	
 	void sheetEditor();
 	void curveEditor();

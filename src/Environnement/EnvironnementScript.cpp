@@ -33,7 +33,7 @@ namespace Script{
    
    void start(){
 	   script.stop();
-       const std::lock_guard<std::mutex> lock(mutex);
+	   mutex.lock();
 	   script.setLoadLibrairiesCallback([](lua_State* L){
 		   Scripting::EnvironnementLibrary::openlib(L, true);
 		   
@@ -52,19 +52,21 @@ namespace Script{
 	   });
 	   script.compileAndRun();
 	   if(script.checkHasFunction("setup")) script.callFunction("setup");
+	   mutex.unlock();
 	   Logger::info("Started Environnement Script");
    }
 
 	void update(){
-        const std::lock_guard<std::mutex> lock(mutex);
+		mutex.lock();
 		if(script.isRunning()) script.callFunction("update");
+		mutex.unlock();
 	}
 
    void stop(){
-       const std::lock_guard<std::mutex> lock(mutex);
-	   //TODO: this sometimes crashes
+	   mutex.lock();
 	   if(script.checkHasFunction("exit")) script.callFunction("exit");
-	   script.stop(); //TODO: this crashes sometimes
+	   script.stop();
+	   mutex.unlock();
 	   Logger::info("Stopped Environnement Script");
    }
 
