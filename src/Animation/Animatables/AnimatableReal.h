@@ -15,13 +15,13 @@ public:
 	
 	//———————————— Contruction & Type Identification ————————————
 	
-	AnimatableReal(std::string name_, Unit unit) : AnimatableNumber(name_.c_str(), unit){
+	AnimatableReal(std::string name_, Unit unit, std::string suffix_) : AnimatableNumber(name_.c_str(), unit), suffix(suffix_){
 		actualValue = AnimationValue::makeReal();
 		targetValue = AnimationValue::makeReal();
 	}
 	
-	static std::shared_ptr<AnimatableReal> make(std::string name, Unit unit){
-		return std::make_shared<AnimatableReal>(name, unit);
+	static std::shared_ptr<AnimatableReal> make(std::string name, Unit unit, std::string suffix){
+		return std::make_shared<AnimatableReal>(name, unit, suffix);
 	}
 	
 	virtual AnimatableType getType() override { return AnimatableType::REAL; }
@@ -82,4 +82,5 @@ private:
 	
 	std::shared_ptr<AnimatableRealValue> targetValue;
 	std::shared_ptr<AnimatableRealValue> actualValue;
+	std::string suffix;
 };

@@ -10,29 +10,6 @@
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 
-AnimatableStateStruct AxisStateMachine::stateUnknown =					{0, "Unknown", 					"Unknown"};
-AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
-AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{0, "Moving To Negative Limit", "MovingToNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::stateMovingToPositiveLimit =	{0, "Moving To Positive Limit", "MovingToPositiveLimit"};
-AnimatableStateStruct AxisStateMachine::stateNegativeLimit =			{0, "At Negative Limit", 		"AtNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::statePositiveLimit =			{0, "At Positive Limit", 		"AtPositiveLimit"};
-
-std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
-	&AxisStateMachine::stateUnknown,
-	&AxisStateMachine::stateStopped,
-	&AxisStateMachine::stateMovingToNegativeLimit,
-	&AxisStateMachine::stateMovingToPositiveLimit,
-	&AxisStateMachine::stateNegativeLimit,
-	&AxisStateMachine::statePositiveLimit
-};
-
-std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
-	&AxisStateMachine::stateStopped,
-	&AxisStateMachine::stateNegativeLimit,
-	&AxisStateMachine::statePositiveLimit
-};
-
-
 
 void AxisStateMachine::initialize() {
 		
@@ -100,7 +77,7 @@ void AxisStateMachine::inputProcess() {
 	animatableState->updateActualValue(newAnimationValue); //BUG?
 	*/
 	 
-	*stateInteger = getStateInteger(actualState);
+	//*stateInteger = getStateInteger(actualState);
 }
 
 void AxisStateMachine::outputProcess(){
@@ -271,20 +248,11 @@ bool AxisStateMachine::isMoving() {
 
 
 void AxisStateMachine::requestState(State newState){
-	//animatableState->stopMovement();
-	auto targetValue = AnimationValue::makeState();
+	animatableVelocity->stopMovement();
 	switch(newState){
-		case State::STOPPED:            targetValue->value = &stateStopped; break;
-        case State::AT_POSITIVE_LIMIT:  targetValue->value = &statePositiveLimit; break;
-        case State::AT_NEGATIVE_LIMIT:  targetValue->value = &stateNegativeLimit; break;
-		default:
-			targetValue = nullptr;
-			Logger::error("machine {} = state {} is not selectable", getName(), Enumerator::getDisplayString(newState));
-			break;
-	}
-	if(targetValue) {
-		//animatableState->rapidToValue(targetValue);
-		Logger::info("rapid {} to value {}", getName(), targetValue->value->displayName);
+		case State::AT_NEGATIVE_LIMIT: movementVelocity = -1.0; break;
+		case State::AT_POSITIVE_LIMIT: movementVelocity = 1.0; break;
+		default: movementVelocity = 0.0; break;
 	}
 }
 

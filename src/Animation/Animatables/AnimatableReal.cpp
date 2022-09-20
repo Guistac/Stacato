@@ -93,7 +93,7 @@ int AnimatableReal::getCurveCount() {
 	return 1;
 }
 std::shared_ptr<Parameter> AnimatableReal::makeParameter() {
-	return NumberParameter<double>::make(0.0, "Parameter");
+	return NumberParameter<double>::make(0.0, "Parameter", "Parameter", "%.3f", getUnit(), true, 0, 0, "", suffix.c_str());
 }
 void AnimatableReal::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value) {
 	std::static_pointer_cast<NumberParameter<double>>(parameter)->overwrite(value->toReal()->value);
