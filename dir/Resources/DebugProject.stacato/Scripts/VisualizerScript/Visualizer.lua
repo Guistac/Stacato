@@ -218,8 +218,8 @@ function drawPeriactes(posY, rangeX, animatable1, animatable2, orientation1, ori
     of.setColor(255, 255, 255, 63)
     of.setRectMode(of.RECTMODE_CENTER)
     of.drawRectangle(0, posY, rangeX * 2, lineThickness)
-    local pos1 = animatable1:getActualValue().Position
-    local pos2 = animatable2:getActualValue().Position
+    local pos1 = animatable1:getActualValue().Position * 1000
+    local pos2 = animatable2:getActualValue().Position * 1000
     periacteGraphic(pos1, posY, orientation1, 1, 0.5)
     periacteGraphic(pos2, posY, orientation2, 0, 0.5)
 end
@@ -230,7 +230,7 @@ function drawLames(posY, rangeX, animatable)
     of.setRectMode(of.RECTMODE_CENTER)
     of.drawRectangle(0, posY, rangeX * 2, lineThickness)
 
-    local posX = animatable:getActualValue().Position
+    local posX = animatable:getActualValue().Position * 1000
     local lameThickness = 100
     local rectY = posY - lameThickness * 0.5
     of.setColor(0)
@@ -367,9 +367,9 @@ function drawStage()
     drawCostiere(-6510, -7640, 12100, costiereJardin)
     drawCostiere(6510, -7640, 12100, costiereCour)
 
-    drawPeriactes(0, 12850, periacteFaceCour, periacteFaceJardin, true, false)
-    drawPeriactes(3000, 12850, periacteFaceCour, periacteFaceJardin, true, true)
-    drawPeriactes(6002, 12850, periacteFaceCour, periacteFaceJardin, false, false)
+    drawPeriactes(0, 12850, periacteLointainJardin, periacteLointainCour, true, false)
+    drawPeriactes(3000, 12850, periacteMilieuJardin, periacteMilieuCour, true, true)
+    drawPeriactes(6002, 12850, periacteFaceJardin, periacteFaceCour, false, false)
 
     drawLames(4262, 11200, lameVideoLointain)
     drawLames(4462, 11200, lameVideoFace)
