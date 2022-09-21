@@ -32,8 +32,6 @@ std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
 	&AxisStateMachine::statePositiveLimit
 };
 
-
-
 void AxisStateMachine::initialize() {
 		
 	//input pin
@@ -41,8 +39,9 @@ void AxisStateMachine::initialize() {
 	
 	//output pin
 	addNodePin(statePin);
-	
+		
 	addAnimatable(animatableState);
+	addAnimatable(animatableVelocity);
 	
 	auto thisMachine = std::static_pointer_cast<AxisStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
@@ -72,19 +71,24 @@ void AxisStateMachine::inputProcess() {
 	if(isEnabled() && newState != MotionState::ENABLED) disable();
 	state = newState;
 	
+	//update state of animatables
 	switch(state){
 		case MotionState::OFFLINE:
 			animatableState->state = Animatable::State::OFFLINE;
+			animatableVelocity->state = Animatable::State::OFFLINE;
 			break;
 		case MotionState::NOT_READY:
 			animatableState->state = Animatable::State::NOT_READY;
+			animatableVelocity->state = Animatable::State::NOT_READY;
 		case MotionState::READY:
 		case MotionState::ENABLED:
 			animatableState->state = Animatable::State::READY;
+			animatableVelocity->state = Animatable::State::READY;
 			break;
 	}
+	 
 	
-	//get current animation state
+	//get actual axis state
 	if(axis->isAtLowerLimit()) actualState = State::AT_NEGATIVE_LIMIT;
 	else if(axis->isAtUpperLimit()) actualState = State::AT_POSITIVE_LIMIT;
 	else if(axis->getProfileVelocity_axisUnitsPerSecond() > 0.0) actualState = State::MOVING_TO_POSITIVE_LIMIT;
@@ -92,10 +96,15 @@ void AxisStateMachine::inputProcess() {
 	else if(axis->getProfileVelocity_axisUnitsPerSecond() == 0.0) actualState = State::STOPPED;
 	else actualState = State::UNKNOWN;
 	
-	std::shared_ptr<AnimatableStateValue> newAnimationValue = AnimationValue::makeState();
-	newAnimationValue->value = getStateStruct(actualState);
-	animatableState->updateActualValue(newAnimationValue); //BUG?
-	
+	//update actual value of animatables
+	std::shared_ptr<AnimatableStateValue> newStateValue = AnimationValue::makeState();
+	std::shared_ptr<AnimatableRealValue> newVelocityValue = AnimationValue::makeReal();
+	newStateValue->value = getStateStruct(actualState);
+	newVelocityValue->value = *axis->actualVelocity;
+	animatableState->updateActualValue(newStateValue);
+	animatableVelocity->updateActualValue(newVelocityValue);
+
+	//update state pin
 	*stateInteger = getStateInteger(actualState);
 }
 
@@ -105,6 +114,8 @@ void AxisStateMachine::outputProcess(){
 	if(!isMotionAllowed()){
 		if(animatableState->hasAnimation()) animatableState->getAnimation()->pausePlayback();
 		animatableState->stopMovement();
+		if(animatableVelocity->hasAnimation()) animatableVelocity->getAnimation()->pausePlayback();
+		animatableVelocity->stopMovement();
 	}
 	
 	double profileTime_seconds = Environnement::getTime_seconds();
@@ -114,32 +125,33 @@ void AxisStateMachine::outputProcess(){
 	if (getState() != MotionState::ENABLED) {
 		
 		animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
+		animatableVelocity->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 		
 	}else{
 		
+		//get new target values
 		animatableState->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-		AnimatableStateStruct* targetValue = animatableState->getTargetValue()->toState()->value;
-		requestedState = getStateEnumerator(targetValue);
+		animatableVelocity->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+		requestedState = getStateEnumerator(animatableState->getTargetValue()->toState()->value);
+		velocityTarget = animatableVelocity->getTargetValue()->toReal()->value;
 		
-        auto axis = getAxis();
-        
-		double velocityCommand;
 		switch(requestedState){
 			case State::UNKNOWN:
 			case State::STOPPED:
-				velocityCommand = 0.0;
+				velocityTarget = 0.0;
 				break;
 			case State::MOVING_TO_POSITIVE_LIMIT:
 			case State::AT_POSITIVE_LIMIT:
-                velocityCommand = axis->getVelocityLimit();
+				velocityTarget = std::abs(velocityTarget);
 				break;
 			case State::MOVING_TO_NEGATIVE_LIMIT:
 			case State::AT_NEGATIVE_LIMIT:
-                velocityCommand = -axis->getVelocityLimit();
+				velocityTarget = -std::abs(velocityTarget);
 				break;
 		}
 		
-		axis->setVelocityCommand(velocityCommand, axis->getAccelerationLimit());
+		auto axis = getAxis();
+		axis->setVelocityCommand(velocityTarget, axis->getAccelerationLimit());
 		
 	}
 }
@@ -266,20 +278,34 @@ bool AxisStateMachine::isMoving() {
 
 void AxisStateMachine::requestState(State newState){
 	animatableState->stopMovement();
-	auto targetValue = AnimationValue::makeState();
+	animatableVelocity->stopMovement();
+	double velocityLimit = getAxis()->getVelocityLimit();
 	switch(newState){
-		case State::STOPPED:            targetValue->value = &stateStopped; break;
-        case State::AT_POSITIVE_LIMIT:  targetValue->value = &statePositiveLimit; break;
-        case State::AT_NEGATIVE_LIMIT:  targetValue->value = &stateNegativeLimit; break;
+		case State::AT_NEGATIVE_LIMIT:
+			requestedState = State::AT_NEGATIVE_LIMIT;
+			velocityTarget = -velocityLimit;
+			break;
+		case State::AT_POSITIVE_LIMIT:
+			requestedState = State::AT_POSITIVE_LIMIT;
+			velocityTarget = velocityLimit;
+			break;
 		default:
-			targetValue = nullptr;
-			Logger::error("machine {} = state {} is not selectable", getName(), Enumerator::getDisplayString(newState));
+			requestedState = State::STOPPED;
+			velocityTarget = 0.0;
 			break;
 	}
-	if(targetValue) {
-		animatableState->rapidToValue(targetValue);
-		Logger::info("rapid {} to value {}", getName(), targetValue->value->displayName);
-	}
+}
+
+void AxisStateMachine::requestVelocityNormalized(double velocityNormalized){
+	animatableState->stopMovement();
+	animatableVelocity->stopMovement();
+	
+	double velocityLimit = getAxis()->getVelocityLimit();
+	velocityTarget = std::clamp(velocityNormalized * velocityLimit, -velocityLimit, velocityLimit);
+	
+	if(velocityLimit > 0.0) requestedState = State::AT_POSITIVE_LIMIT;
+	else if(velocityLimit < 0.0) requestedState = State::AT_NEGATIVE_LIMIT;
+	else requestedState = State::STOPPED;
 }
 
 //========= ANIMATABLE OWNER ==========

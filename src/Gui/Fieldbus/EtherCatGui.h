@@ -21,3 +21,10 @@ public:
 	virtual void drawContent() override;
 	SINGLETON_GET_METHOD(EtherCatNetworkWindow);
 };
+
+class EtherCatDevicesWindow : public Window{
+public:
+	EtherCatDevicesWindow() : Window("EtherCAT Devices", true){}
+	virtual void drawContent() override;
+	SINGLETON_GET_METHOD(EtherCatDevicesWindow);
+};

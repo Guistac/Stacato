@@ -508,9 +508,11 @@
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="29.999999848848052"/>
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="3.4692990594327478e-05"/>
         </Manoeuvre>
+
         <Manoeuvre Name="" Description="-------------------- ACTE N°1 --------------------" Type="Key"/>
         <Manoeuvre Name="1 - Montée Romaine" Description="Ouverture Acte N°1" Type="Target">
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+
         </Manoeuvre>
         <Manoeuvre Name="1.1 - Tournette Piano" Description="Ouverture" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="90" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
@@ -1053,6 +1055,7 @@
         <Manoeuvre Name="12 - Tournette Escalier de Face" Description="Il se passe.../ Demi tour anti-horaire pour escalier de face" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="324" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
+
         <Manoeuvre Name="12.1 - Prémise Périactes J3 - C3 " Description="" Type="Target">
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Target" Target="-9.4000000000000004" ConstraintType="Velocity" Time="0" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Target" Target="9.4000000000000004" ConstraintType="Velocity" Time="0" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -1062,6 +1065,7 @@
         </Manoeuvre>
         <Manoeuvre Name="Periactes + cable Vol pour accroche" Description="Descente Romaine - Mise Starmania J1-C1 / J3-C3 / cables accroche" Type="Target">
             <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Target" Target="2.5899999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
+
             <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Target" Target="-8.5" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Target" Target="8" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Target" Target="-2.5" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -1085,9 +1089,6 @@
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
             <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
-        </Manoeuvre>
-        <Manoeuvre Name="13 - Montée de la Romaine" Description="Starmania, Starmania" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="13.1 - Descente Vol Cristal" Description="Starmania, Starmania" Type="Target">
             <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Target" Target="2.5899999999999999" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.25" EndAcceleration="0.25"/>
