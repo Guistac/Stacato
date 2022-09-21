@@ -72,8 +72,8 @@ private:
 	std::shared_ptr<ConsoleMapping> mapping;
 
 	int timeoutDelay_milliseconds = 200;
-	int heartbeatInterval_milliseconds = 50;
-	int connectionTimeoutDelay_milliseconds = 200;
+	int heartbeatInterval_milliseconds = 25;
+	int connectionTimeoutDelay_milliseconds = 500;
 	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatReceiveTime;
 	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatSendTime;
 	std::chrono::time_point<std::chrono::system_clock> connectionRequestTime;

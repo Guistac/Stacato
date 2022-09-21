@@ -62,10 +62,8 @@ local pFaceCour_keepoutCostiereJardin
 local pFaceJardin_keepoutCostiereCour
 local pFaceJardin_keepoutCostiereJardin
 
-local lamesLointain_keepoutCostiereCour
-local lamesLointain_keepoutCostiereJardin
-local lamesFace_keepoutCostiereCour
-local lamesFace_keepoutCostiereJardin
+local lamesLointain_keepoutCostieres
+local lamesFace_keepoutCostieres
 
 local counter = 0
 
@@ -153,8 +151,8 @@ function setup()
 	pMilieuJardin_keepoutCostiereCour =		periacteMilieuJardin:createKeepoutConstraint("Keepout Costière Cour",		3.25,	8.7)
 	pFaceJardin_keepoutCostiereCour =		periacteFaceJardin:createKeepoutConstraint("Keepout Costière Cour",			3.25,	8.7)
 
-	lamesLointain_keepoutCostiereCour =		lamesLointain:createKeepoutConstraint("Keepout Costière Cour", 				1.6,	8.7)
-	lamesFace_keepoutCostiereCour =			lamesFace:createKeepoutConstraint("Keepout Costière Cour", 					1.6,	8.7)
+	lamesLointain_keepoutCostieres =		lamesLointain:createKeepoutConstraint("Keepout Costières", 					1.6,	8.7)
+	lamesFace_keepoutCostieres =			lamesFace:createKeepoutConstraint("Keepout Costières", 						1.6,	8.7)
 
 --periactes cour keepout costiere cour		(3.25	8.7)
 --periactes jardin keepout costiere cour	(4.5	10.0) (-8.7		-3.25)
@@ -168,9 +166,6 @@ function setup()
 	pLointainJardin_keepoutCostiereJardin =	periacteLointainJardin:createKeepoutConstraint("Keepout Costière Jardin",	-8.7,	-3.2)
 	pMilieuJardin_keepoutCostiereJardin =	periacteMilieuJardin:createKeepoutConstraint("Keepout Costière Jardin",		-8.7,	-3.2)
 	pFaceJardin_keepoutCostiereJardin =		periacteFaceJardin:createKeepoutConstraint("Keepout Costière Jardin",		-8.7,	-3.2)
-
-	lamesLointain_keepoutCostiereJardin =	lamesLointain:createKeepoutConstraint("Keepout Costière Jardin", 			1.4,	8.6)
-	lamesFace_keepoutCostiereJardin =		lamesFace:createKeepoutConstraint("Keepout Costière Jardin", 				1.4,	8.6)
 
 --periactes jardin keepout costiere jardin	(-8.7 	-3.2)
 --periactes cour keepout cosieter cour		(-10.0	-4.5)
@@ -278,9 +273,12 @@ function update()
 	pMilieuJardin_keepoutCostiereCour:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk,		7.65 + clearance,	99.9))
 	pFaceJardin_keepoutCostiereCour:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk,		10.75 + clearance,	99.9))
 
-	lamesLointain_keepoutCostiereCour:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk,		9.35 + clearance,	99.9))
-	lamesFace_keepoutCostiereCour:setEnabled(checkRangeOverlap(costCour_pos, costCour_brk,			9.5 + clearance,	99.9))
-
+	lamesLointain_keepoutCostieres:setEnabled(
+		checkRangeOverlap(costCour_pos, costCour_brk,		9.35 + clearance,	99.9) or
+		checkRangeOverlap(costJardin_pos, costJardin_brk,	9.35 + clearance,	99.9))
+	lamesFace_keepoutCostieres:setEnabled(
+		checkRangeOverlap(costCour_pos, costCour_brk,			9.5 + clearance,	99.9) or
+		checkRangeOverlap(costJardin_pos, costJardin_brk,		9.5 + clearance,	99.9))
 
 
 	pLointainCour_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,	4.8 + clearance,	10.5 - clearance))
@@ -290,9 +288,6 @@ function update()
 	pLointainJardin_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,	4.8 + clearance,	10.5 - clearance))
 	pMilieuJardin_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,	7.65 + clearance,	99.9))
 	pFaceJardin_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,		10.75 + clearance,	99.9))
-
-	lamesLointain_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,	9.35 + clearance,	99.9))
-	lamesFace_keepoutCostiereJardin:setEnabled(checkRangeOverlap(costJardin_pos, costJardin_brk,		9.5 + clearance,	99.9))
 
 --costieres keepout periactes lointain	(4.8	10.5)
 --costieres keepout periactes milieu	(7.65	999)
@@ -317,6 +312,25 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

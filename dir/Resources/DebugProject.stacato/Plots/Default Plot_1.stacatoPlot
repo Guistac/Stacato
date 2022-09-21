@@ -1579,5 +1579,21 @@
             <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Target" Target="0.80000000000000004" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="0.25" EndAcceleration="0.25"/>
             <Animation Machine="Vol Jardin" MachineUniqueID="2425" Parameter="Position" IsComposite="false" Type="Target" Target="0.80000000000000004" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="0.25" EndAcceleration="0.25"/>
         </Manoeuvre>
+        <Manoeuvre Name="M-143" Description="" Type="Sequence">
+            <Animation Machine="Vol Cour" MachineUniqueID="2419" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="5" End="9" Duration="30" TimeOffset="0" StartAcceleration="0.5" EndAcceleration="0.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="7.2729926770620974" Time="4.6341176470588232" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="5.945498731014502" Time="8.0505881646100228" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="6.8982967019371166" Time="10.923529299567729" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="6.2238442056660528" Time="13.602352790271535" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="7.5299268174925569" Time="16.979999800289381" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="6.063260277982466" Time="20.512940925710343" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="7.9153281429968327" Time="24.628235446705538" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="7.5513379463604187" Time="26.491765347088087" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

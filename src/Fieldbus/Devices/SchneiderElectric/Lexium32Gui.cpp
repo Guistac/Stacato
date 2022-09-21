@@ -509,20 +509,6 @@ void Lexium32::generalSettingsGui() {
 	ImGui::EndDisabled();
 	ImGui::SameLine();
 	ImGui::Text("%s", Enumerator::getDisplayString(encoderAbsolutePositionUploadState));
-	
-	
-	ImGui::Separator();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Drive Cycle Time");
-	ImGui::PopFont();
-	ImGui::InputDouble("##cycletime", &cycleTime_milliseconds, 0, 0, "%.2fms");
-	if(ImGui::IsItemDeactivatedAfterEdit()){
-		cycleTime_milliseconds = std::round(cycleTime_milliseconds);
-		cycleTime_milliseconds = std::min(cycleTime_milliseconds, 20.0);
-		cycleTime_milliseconds = std::max(cycleTime_milliseconds, 1.0);
-		cycleTime_milliseconds = std::max(cycleTime_milliseconds, EtherCatFieldbus::processInterval_milliseconds);
-	}
 
 }
 

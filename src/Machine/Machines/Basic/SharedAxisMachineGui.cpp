@@ -715,6 +715,7 @@ void SharedAxisMachine::widgetGui(){
 				
 		}
 		
+        /*
 		ImGui::Checkbox("##forceSync", &b_forceSynchronousControl);
 		ImGui::SameLine();
 		ImGui::Text("Force Sync");
@@ -722,7 +723,7 @@ void SharedAxisMachine::widgetGui(){
 		if(controlMode == ControlMode::NONE) ImGui::Text("None");
 		else if(controlMode == ControlMode::SYNCHRONOUS) ImGui::Text("Synchronous");
 		else if(controlMode == ControlMode::INDIVIDUAL) ImGui::Text("Individual");
-		 
+		 */
 	}
 	ImGui::EndGroup();
 	

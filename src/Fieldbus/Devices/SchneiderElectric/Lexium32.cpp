@@ -170,9 +170,11 @@ bool Lexium32::startupConfiguration() {
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
 	*/
 	
-	uint32_t sync0Interval_nanoseconds = uint32_t(cycleTime_milliseconds) * 1000000;
-	uint32_t sync0offset_nanoseconds = uint32_t(EtherCatFieldbus::processInterval_milliseconds) * 500000;
-	ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
+    double cycleTime_millis = std::floor(20.0 / EtherCatFieldbus::processInterval_milliseconds) * EtherCatFieldbus::processInterval_milliseconds;
+    uint32_t cycleTime_nanos = cycleTime_millis * 1000000;
+    uint32_t cycleOffset_nanos = EtherCatFieldbus::processInterval_milliseconds * 500000;
+    
+    ec_dcsync0(getSlaveIndex(), true, cycleTime_nanos, cycleOffset_nanos);
 	 
     return true;
 }
