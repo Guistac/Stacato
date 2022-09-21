@@ -29,6 +29,8 @@ public:
 	std::shared_ptr<Manoeuvre> getSelectedManoeuvre(){ return selectedManoeuvre; }
 	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 	
+	bool b_scrollToSelectedManoeuvre = false;
+	
 private:
 	
 	std::string name;

@@ -1,6 +1,7 @@
 #include "Machine/Machine.h"
 
 #include "Animation/Animatables/AnimatableState.h"
+#include "Animation/Animatables/AnimatableReal.h"
 
 #include "Animation/AnimationValue.h"
 
@@ -14,20 +15,17 @@ public:
 	//————— Input Pins —————
 	
 	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::VELOCITY_CONTROLLED_AXIS,
-																 NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Velocity Controlled Axis", "VelocityControlledAxis");
+																 NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+																 "Velocity Controlled Axis",
+																 "VelocityControlledAxis");
 	
 	//————— Output Pins —————
 	
 	std::shared_ptr<int> stateInteger = std::make_shared<int>(-1.0);
 	std::shared_ptr<NodePin> statePin = std::make_shared<NodePin>(stateInteger, NodePin::Direction::NODE_OUTPUT, "State", NodePin::Flags::DisableDataField);
 	
-	//————— Parameters —————
-	std::shared_ptr<NumberParameter<double>> manualStateTargetVelocity = NumberParameter<double>::make(0.0, "Manual State Target Velocity", "ManualStateTargetVelocity",
-																									   "%.3f", Units::None::None, false);
-	double manualVelocitySliderValue = 0.0;
-	
-	//————— Animation —————
-	
+	//————— State Machine —————
+		
 	enum class State{
 		UNKNOWN,
 		STOPPED,
@@ -36,18 +34,12 @@ public:
 		AT_POSITIVE_LIMIT,
 		AT_NEGATIVE_LIMIT
 	};
+	
 	State actualState = State::STOPPED;
 	State requestedState = State::STOPPED;
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
+	double velocityTarget = 0.0;
 	void requestState(State newState);
-	
-	//————— Machine State —————
-	
-	bool areAllPinsConnected();
-	bool isAxisConnected();
-	std::shared_ptr<VelocityControlledAxis> getAxis();
-	
-	//————— State Machine —————
+	void requestVelocityNormalized(double velocity);
 	
 	static AnimatableStateStruct stateUnknown;
 	static AnimatableStateStruct stateStopped;
@@ -61,7 +53,7 @@ public:
 	
 	int getStateInteger(State state){
 		switch(state){
-			case State::UNKNOWN:					return -2;
+			case State::UNKNOWN:					return -3;
 			case State::STOPPED:					return -1;
 			case State::MOVING_TO_POSITIVE_LIMIT:	return 0;
 			case State::MOVING_TO_NEGATIVE_LIMIT:	return 1;
@@ -89,6 +81,20 @@ public:
 		else if(stateStruct == &stateNegativeLimit) return State::AT_NEGATIVE_LIMIT;
 		return State::UNKNOWN;
 	}
+	
+	//————— Animation —————
+		
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
+	std::shared_ptr<AnimatableReal> animatableVelocity = AnimatableReal::make("Velocity", Units::None::None, "/s");
+	
+	double manualVelocitySliderValue = 0.0;
+	double movementVelocity = 0.0;
+	
+	//————— Machine State —————
+	
+	bool areAllPinsConnected();
+	bool isAxisConnected();
+	std::shared_ptr<VelocityControlledAxis> getAxis();
 	
 	//————— Control Widget —————
 	

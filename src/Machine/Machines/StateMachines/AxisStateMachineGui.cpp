@@ -13,107 +13,10 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 void AxisStateMachine::controlsGui() {
-
-	/*
-	//TODO: missing manual controls gui (previously was widget gui copy)
-
 	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Limit Switch Signals");
+	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
-
-	float quadWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 3.0) / 4.0;
-	glm::vec2 quadButtonSize(quadWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
-
-	bool inputsAreValid = state != MotionState::OFFLINE;
-
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if (inputsAreValid) {
-		if (*liftLoweredSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-		ImGui::Button("Lift Lowered", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*liftRaisedSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-		ImGui::Button("Lift Raised", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*hoodShutSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-		ImGui::Button("Hood Shut", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*hoodOpenSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkYellow);
-		ImGui::Button("Hood Open", quadButtonSize);
-		ImGui::PopStyleColor();
-	}
-	else {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-		ImGui::Button("Lift Lowered", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Lift Raised", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Hood Shut", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Hood Open", quadButtonSize);
-		ImGui::PopStyleColor();
-	}
-
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Actual State:");
-	ImGui::PopFont();
-	ImGui::SameLine();
-	ImGui::Text("%s", Enumerator::getDisplayString(actualState));
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Requested State:");
-	ImGui::PopFont();
-	ImGui::SameLine();
-	ImGui::Text("%s", Enumerator::getDisplayString(requestedState));
-
-	ImGui::Separator();
-
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Status Signals");
-	ImGui::PopFont();
-
-	if (inputsAreValid) {
-		if (*emergencyStopClearSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		ImGui::Button("Emergency Stop", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*localControlEnabledSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Remote Active", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*liftMotorCircuitBreakerSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Lift Motor Circuit Breaker", quadButtonSize);
-		ImGui::PopStyleColor();
-		ImGui::SameLine();
-		if (*hoodMotorCircuitBreakerSignal) ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		else ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Hood Motor Circuit Breaker", quadButtonSize);
-		ImGui::PopStyleColor();
-	}
-	else {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::blue);
-		ImGui::Button("Emergency Stop", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Remote Active", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Lift Motor Fuse", quadButtonSize);
-		ImGui::SameLine();
-		ImGui::Button("Hood Motor Fuse", quadButtonSize);
-		ImGui::PopStyleColor();
-	}
-
-	ImGui::PopItemFlag();
-	 */
-
+	widgetGui();
 }
 void AxisStateMachine::settingsGui() {}
 void AxisStateMachine::axisGui() {}
@@ -162,7 +65,7 @@ void AxisStateMachine::widgetGui(){
         ImColor notStateColor = ImGui::GetColorU32(ImGuiCol_Button);
         ImVec4 movingColor = Colors::yellow;
         ImVec4 reachedColor = Colors::green;
-        bool blink = fmod(Timing::getProgramTime_seconds(), .5) > .25;
+		bool blink = Timing::getBlink(0.5);
         float rounding = ImGui::GetStyle().FrameRounding;
         
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
@@ -196,9 +99,6 @@ void AxisStateMachine::widgetGui(){
             if(customButton("Move Down", commandButtonSize, notStateColor, rounding, ImDrawFlags_RoundCornersBottom)) requestState(State::AT_NEGATIVE_LIMIT);
         }
         
-        
-        
-         
 		ImGui::PopStyleVar();
 	}
 	
@@ -222,9 +122,11 @@ void AxisStateMachine::widgetGui(){
 	glm::vec2 sliderSize(ImGui::GetTextLineHeight() * 2.0, ImGui::GetItemRectSize().y);
 	static double min = -1.0;
 	static double max = 1.0;
-	ImGui::VSliderScalar("##ManualVelocity", sliderSize, ImGuiDataType_Double, &manualVelocitySliderValue, &min, &max, "");
-	if(ImGui::IsItemActive()) {}
+	if(ImGui::VSliderScalar("##ManualVelocity", sliderSize, ImGuiDataType_Double, &manualVelocitySliderValue, &min, &max, "")){
+		requestVelocityNormalized(manualVelocitySliderValue);
+	}
 	else if(ImGui::IsItemDeactivatedAfterEdit()) {
+		requestVelocityNormalized(0.0);
 		manualVelocitySliderValue = 0.0;
 	}
 		

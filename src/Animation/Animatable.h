@@ -13,6 +13,7 @@ class AnimatableNumber;
 class AnimatableState;
 class AnimatablePosition;
 class AnimatableBoolean;
+class AnimatableReal;
 
 class AnimationValue;
 class AnimationConstraint;
@@ -48,6 +49,7 @@ public:
 	std::shared_ptr<AnimatableState> toState();
 	std::shared_ptr<AnimatablePosition> toPosition();
 	std::shared_ptr<AnimatableBoolean> toBoolean();
+	std::shared_ptr<AnimatableReal> toReal();
 	
 	enum class State{
 		OFFLINE,

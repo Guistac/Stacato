@@ -222,6 +222,7 @@ void ManoeuvreList::selectNextManoeuvre(){
 		if(nextManoeuvreIndex >= getManoeuvres().size()) nextManoeuvreIndex = 0; //
 		getPlot()->selectManoeuvre(manoeuvres[nextManoeuvreIndex]);
 	}else if(!getManoeuvres().empty()) getPlot()->selectManoeuvre(getManoeuvres().back());
+	getPlot()->b_scrollToSelectedManoeuvre = true;
 }
 
 void ManoeuvreList::selectPreviousManoeuvre(){
@@ -231,5 +232,6 @@ void ManoeuvreList::selectPreviousManoeuvre(){
 		if(previousManoeuvreIndex <= -1) previousManoeuvreIndex = getManoeuvres().size() - 1;
 		getPlot()->selectManoeuvre(manoeuvres[previousManoeuvreIndex]);
 	}else if(!getManoeuvres().empty()) getPlot()->selectManoeuvre(getManoeuvres().front());
+	getPlot()->b_scrollToSelectedManoeuvre = true;
 }
 
