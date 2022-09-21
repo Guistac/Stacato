@@ -77,6 +77,12 @@
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -464,6 +470,12 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -967,6 +979,12 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1346,6 +1364,12 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Node Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -1865,6 +1889,12 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Split=X Sel
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -2252,6 +2282,12 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Centr
             <Window Name="Visualizer"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -2737,6 +2773,12 @@ DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Sel
 
 
 
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -3134,6 +3176,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
 
 
 
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -3350,8 +3396,8 @@ Collapsed=0
 [Window][Visualizer]
 ViewportPos=1920,0
 ViewportId=0xF4DC17C2
-Pos=1774,268
-Size=786,812
+Pos=1774,468
+Size=786,612
 Collapsed=0
 DockId=0x0000000F,0
 
@@ -3385,7 +3431,7 @@ Collapsed=0
 ViewportPos=1920,0
 ViewportId=0xF4DC17C2
 Pos=1774,0
-Size=786,266
+Size=786,466
 Collapsed=0
 DockId=0x0000000E,0
 
@@ -3505,8 +3551,8 @@ DockNode            ID=0x0000000A Pos=1920,0 Size=2560,1080 Split=X
           DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=328,444 Selected=0x8E074A3E
           DockNode  ID=0x0000000D Parent=0x00000006 SizeRef=995,444 Selected=0x8506A884
       DockNode      ID=0x00000002 Parent=0x0000000C SizeRef=786,1080 Split=Y Selected=0x64F50EE5
-        DockNode    ID=0x0000000E Parent=0x00000002 SizeRef=651,266 Selected=0x64F50EE5
-        DockNode    ID=0x0000000F Parent=0x00000002 SizeRef=651,812 Selected=0x2BD258E6
+        DockNode    ID=0x0000000E Parent=0x00000002 SizeRef=651,466 Selected=0x64F50EE5
+        DockNode    ID=0x0000000F Parent=0x00000002 SizeRef=651,612 Selected=0x2BD258E6
   DockNode          ID=0x00000008 Parent=0x0000000A SizeRef=413,1080 Selected=0xEDDB08E7
 DockSpace           ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=X Selected=0x20B12C37
   DockNode          ID=0x00000003 Parent=0x0B88F6CB SizeRef=1029,484 CentralNode=1 Selected=0x20B12C37
