@@ -4,7 +4,6 @@
 #include "Nodes/NodeFactory.h"
 #include "Project/Project.h"
 #include "Environnement/Environnement.h"
-
 #include "Console/ConsoleHandler.h"
 
 #ifdef STACATO_WIN32_APPLICATION
@@ -26,7 +25,7 @@ int main(int argcount, const char ** args){
 	Environnement::initialize();
 	
 	//start looking for consoles, and load profile for previously connected ones
-	//ConsoleHandler::initialize();
+	ConsoleHandler::initialize();
 	
 	//application gui runtime, function returns when application is quit
 	ApplicationWindow::open();
@@ -40,9 +39,3 @@ int main(int argcount, const char ** args){
 	//terminate application
 	ApplicationWindow::terminate();
 }
-
-
-//Test:
-//-lexium32 auto error clear
-//-fieldbus pthreads option
-//-fieldbus sleep timing option

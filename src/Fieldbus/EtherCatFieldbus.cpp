@@ -87,7 +87,7 @@ namespace EtherCatFieldbus {
     EtherCatMetrics metrics;
 	EtherCatMetrics& getMetrics(){ return metrics; }
 
-    double processInterval_milliseconds = 3.0;
+    int processInterval_milliseconds = 3.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     double fieldbusTimeout_milliseconds = 100.0;
@@ -779,16 +779,7 @@ namespace EtherCatFieldbus {
             //bruteforce timing precision by using 100% of CPU core
             //update and compare system time to next process 
             do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
-			
-            //sleep timing instead of bruteforce timing
-            /*
-            systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-            long long sleepTime_nanoseconds = cycleStartTime_nanoseconds - systemTime_nanoseconds;
-            uint32_t sleepTime_microseconds = sleepTime_nanoseconds / 1000;
-            if(sleepTime_microseconds > 0) osal_usleep(sleepTime_microseconds);
-            systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-             */
-		
+
             //============= PROCESS DATA SENDING AND RECEIVING ==============
 
             //EXPERIMENTAL
@@ -812,12 +803,9 @@ namespace EtherCatFieldbus {
                 frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
                 workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
                 frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-                if(frameSentTime_nanoseconds <= cycleStartTime_nanoseconds){
-                    Logger::critical("===========================================");
-                    Logger::critical("===========================================");
+                if(frameSentTime_nanoseconds < cycleStartTime_nanoseconds){
                     Logger::error("Weird frame send time... {} {}", frameSentTime_nanoseconds, cycleStartTime_nanoseconds);
-                    Logger::critical("===========================================");
-                    Logger::critical("===========================================");
+                    frameSentTime_nanoseconds = cycleStartTime_nanoseconds;
                 }
             }
                 

@@ -6,6 +6,10 @@
 #include "ConsoleIODevice.h"
 #include "Serial.h"
 
+//Operating System Abstraction Layer from libSOEM
+//Uselful for precise cross-platform thread sleep
+#include <osal.h>
+
 
 std::shared_ptr<Console> Console::initialize(std::shared_ptr<SerialPort> port){
 	auto console = std::make_shared<Console>();
@@ -260,7 +264,7 @@ void Console::updateInputs(){
 		if(!isConnected()) connect();
 		serialPort->read();
 		handleTimeout();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        osal_usleep(10000);
 	}
 }
 

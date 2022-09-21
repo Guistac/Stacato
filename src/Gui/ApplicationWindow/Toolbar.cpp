@@ -234,9 +234,11 @@ namespace Gui {
 		ImGui::BeginGroup();
 		ConsoleHandler::gui(buttonSize.y);
 		ImGui::EndGroup();
+        
 		ImGui::PushFont(Fonts::sansRegular12);
 		backgroundText("Console", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
 		ImGui::PopFont();
+         
 		ImGui::EndGroup();
 		
         
@@ -249,8 +251,8 @@ namespace Gui {
 		auto timeString = oss.str();
         
 		ImGui::BeginGroup();
-        ImGui::PushFont(Fonts::sansLight26);
-		glm::vec2 timeSize(ImGui::CalcTextSize("00:00:00").x, buttonHeight);
+        ImGui::PushFont(Fonts::sansBold26);
+        glm::vec2 timeSize(ImGui::CalcTextSize("00:00:00").x + ImGui::GetStyle().FramePadding.x * 2.0, buttonHeight);
 		backgroundText(timeString.c_str(), timeSize, Colors::darkGray);
         ImGui::PopFont();
 		
