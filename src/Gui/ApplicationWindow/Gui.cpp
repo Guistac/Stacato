@@ -33,6 +33,7 @@ void initialize(){
 	Environnement::Gui::EtherCATWindow::get()->addToDictionnary();
 	Environnement::Gui::LogWindow::get()->addToDictionnary();
 	Environnement::Gui::ScriptEditorWindow::get()->addToDictionnary();
+	
 	//performance windows
 	Environnement::Gui::SetupWindow::get()->addToDictionnary();
 	Environnement::Gui::VisualizerWindow::get()->addToDictionnary();
@@ -43,8 +44,7 @@ void initialize(){
 	DashboardWindow::get()->addToDictionnary();
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
 	EtherCatNetworkWindow::get()->addToDictionnary();
-	 
-	//EsiReaderWindow::get()->addToDictionnary();
+	EtherCatDevicesWindow::get()->addToDictionnary();
 	
 #ifdef STACATO_DEBUG
 	Environnement::unlockEditor();

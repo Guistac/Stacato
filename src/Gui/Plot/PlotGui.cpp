@@ -50,16 +50,13 @@ namespace PlotGui{
 			float controlButtonSize = ImGui::GetTextLineHeight() * 2.0;
 			float cueSizeY = ImGui::GetTextLineHeight() * 3.0 + ImGui::GetStyle().WindowPadding.y * 2.0;
 			float cueSizeSelectedY = cueSizeY + controlButtonSize + ImGui::GetStyle().ItemSpacing.y;
-
-			bool b_scrollToSelected = false;
+			
 			if(ImGui::IsWindowFocused()){
 				if(ImGui::IsKeyPressed(GLFW_KEY_UP)) {
 					manoeuvreList->selectPreviousManoeuvre();
-					b_scrollToSelected = true;
 				}
 				if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)) {
 					manoeuvreList->selectNextManoeuvre();
-					b_scrollToSelected = true;
 				}
 			}
 			
@@ -67,14 +64,17 @@ namespace PlotGui{
 			
 			for (auto& manoeuvre : manoeuvres) {
 				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
-					
-					if(b_scrollToSelected && manoeuvre->isSelected()){
-						ReorderableList::scrollToItem();
+					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
+						ImGui::SetScrollHereY(.5f);
+						plot->b_scrollToSelectedManoeuvre = false;
 					}
 					
 					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
 					manoeuvre->listGui();
 					ReorderableList::endItem();
+				}else if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
+					ImGui::SetScrollHereY(.5f);
+					plot->b_scrollToSelectedManoeuvre = false;
 				}
 			}
 			ImGui::PopStyleVar();

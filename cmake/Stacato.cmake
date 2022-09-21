@@ -133,6 +133,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePositionGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
