@@ -1514,14 +1514,14 @@
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Target" Target="1736" ConstraintType="Time" Time="103" Velocity="6" StartAcceleration="0.29999999999999999" EndAcceleration="1"/>
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Target" Target="11" ConstraintType="Time" Time="103" Velocity="4" StartAcceleration="0.20000000000000001" EndAcceleration="1"/>
         </Manoeuvre>
+        <Manoeuvre Name="50 - Tournette synchro ville Naziland" Description="Naziland / 1 tour apres ouverture Villes - 1:04" Type="Target">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="731" ConstraintType="Time" Time="64" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+        </Manoeuvre>
         <Manoeuvre Name="Remise tournette Naziland REPETE" Description="Naziland" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="11" ConstraintType="Velocity" Time="0" Velocity="7" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="49 - Tournette Synchro Ville DJ" Description="Naziland / Disc Jockey&apos;s Song - 1 Tour - 1:12" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="371" ConstraintType="Time" Time="72" Velocity="3" StartAcceleration="1" EndAcceleration="0.5"/>
-        </Manoeuvre>
-        <Manoeuvre Name="50 - Tournette synchro ville Naziland" Description="Naziland / 1 tour apres ouverture Villes - 1:04" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="731" ConstraintType="Time" Time="64" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="49.1 - Tournette Synchro pour  Ville " Description="Naziland" Type="Target">
             <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="3000" ConstraintType="Velocity" Time="0" Velocity="3.5" StartAcceleration="1" EndAcceleration="1"/>
