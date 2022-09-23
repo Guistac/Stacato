@@ -251,8 +251,8 @@ float Animation::getPlaybackProgress(){
 //—————————— Playback ——————————
 
 void Animation::startPlayback(){
-	//if(!b_isPaused) animatable->stopAnimation();
-	animatable->stopAnimation();
+	if(!b_isPaused) animatable->stopAnimation(); //TODO: verify if this interferes with the next line
+	//animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
 		

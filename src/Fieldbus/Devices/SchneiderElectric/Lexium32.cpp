@@ -170,7 +170,8 @@ bool Lexium32::startupConfiguration() {
     ec_dcsync0(getSlaveIndex(), true, sync0Interval_nanoseconds, sync0offset_nanoseconds);
 	*/
 	
-    double cycleTime_millis = std::floor(20.0 / EtherCatFieldbus::processInterval_milliseconds) * EtherCatFieldbus::processInterval_milliseconds;
+    double maxCycleTime_millis = 10.0;
+    double cycleTime_millis = std::floor(maxCycleTime_millis / EtherCatFieldbus::processInterval_milliseconds) * EtherCatFieldbus::processInterval_milliseconds;
     uint32_t cycleTime_nanos = cycleTime_millis * 1000000;
     uint32_t cycleOffset_nanos = EtherCatFieldbus::processInterval_milliseconds * 500000;
     
@@ -209,7 +210,8 @@ void Lexium32::readInputs() {
 	
 	
 	//EXPERIMENTAL
-	if(_LastError == 0xB121){
+    /*
+	if(_LastError == 0xB121 && servoMotor->targetVelocity == 0.0){
 		b_autoClearingFault = true;
 		if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED) b_autoReenable = true;
 	}
@@ -217,17 +219,17 @@ void Lexium32::readInputs() {
         b_autoClearingFault = false;
         b_autoReenable = false;
     }
-
-    
+     
     if(_LastError != 0x0 && _LastError != 0xB121){
         b_autoClearingFault = false;
         b_autoReenable = false;
     }
+     */
 	
 	
 	//Read Error
 	if(_LastError != previousError){
-		
+		/*
 		//EXPERIMENTAL: report auto clear status
 		if(_LastError == 0x0 && previousError == 0xB121){
             enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
@@ -235,17 +237,21 @@ void Lexium32::readInputs() {
 		}
 		
 		
-		else if(_LastError == 0x0) pushEvent("Error Cleared", false);
+		else
+            */
+            if(_LastError == 0x0) pushEvent("Error Cleared", false);
 		else{
 			std::string message = "Error " + getErrorCodeString(_LastError);
 			pushEvent(message.c_str(), true);
 			
+            /*
 			//EXPERIMENTAL
 			if(b_autoClearingFault){
 				//don't change the requested power state if we are clearing a fault
 			}else{
+             */
 				requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-			}
+			//}
 			
 		}
 	}

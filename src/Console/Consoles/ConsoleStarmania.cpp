@@ -198,12 +198,19 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
         auto rgbLed = device->toLED_RGB();
         auto manoeuvre = Project::currentPlot->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbLed->setColor(glm::vec3(0.f, 0.f, 0.1f));
-        else if(manoeuvre->canPausePlayback()){
-            glm::vec3 white = glm::vec3(1.f, 1.f, 1.f);
+        else if(manoeuvre->isPlaying()){
+            glm::vec3 black = glm::vec3(0.f);
             glm::vec3 green = glm::vec3(0.f, 1.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-			rgbLed->setColor(lerpColor(white, green, lerp));
-        }else if(manoeuvre->canStartPlayback()) rgbLed->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
+			rgbLed->setColor(lerpColor(black, green, lerp));
+        }else if(manoeuvre->isInRapid()){
+            glm::vec3 white = glm::vec3(1.f);
+            glm::vec3 yellow = glm::vec3(1.f, .7f, 0.f);
+            float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
+            rgbLed->setColor(lerpColor(white, yellow, lerp));
+        }
+        else if(manoeuvre->canStartPlayback()) rgbLed->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
+        else if(manoeuvre->canRapidToPlaybackPosition()) rgbLed->setColor(glm::vec3(1.f, .7f, 0.f));
         else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
     });
     

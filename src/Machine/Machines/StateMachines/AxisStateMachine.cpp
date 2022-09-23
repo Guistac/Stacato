@@ -27,7 +27,6 @@ std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
 };
 
 std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
-	&AxisStateMachine::stateStopped,
 	&AxisStateMachine::stateNegativeLimit,
 	&AxisStateMachine::statePositiveLimit
 };
@@ -279,33 +278,48 @@ bool AxisStateMachine::isMoving() {
 void AxisStateMachine::requestState(State newState){
 	animatableState->stopMovement();
 	animatableVelocity->stopMovement();
-	double velocityLimit = getAxis()->getVelocityLimit();
+    
+    AnimatableStateStruct* targetState;
 	switch(newState){
 		case State::AT_NEGATIVE_LIMIT:
-			requestedState = State::AT_NEGATIVE_LIMIT;
-			velocityTarget = -velocityLimit;
+            targetState = &stateNegativeLimit;
 			break;
 		case State::AT_POSITIVE_LIMIT:
-			requestedState = State::AT_POSITIVE_LIMIT;
-			velocityTarget = velocityLimit;
-			break;
+            targetState = &statePositiveLimit;
+            break;
 		default:
-			requestedState = State::STOPPED;
-			velocityTarget = 0.0;
+            targetState = nullptr;
 			break;
 	}
+    
+    if(targetState){
+        auto targetValue = AnimationValue::makeState();
+        targetValue->value = targetState;
+        auto targetVelocity = AnimationValue::makeReal();
+        targetVelocity->value = getAxis()->getVelocityLimit();
+        animatableState->rapidToValue(targetValue);
+        animatableVelocity->rapidToValue(targetVelocity);
+    }
+    
 }
 
 void AxisStateMachine::requestVelocityNormalized(double velocityNormalized){
 	animatableState->stopMovement();
 	animatableVelocity->stopMovement();
+    
+    double velocityLimit = getAxis()->getVelocityLimit();
+    double requestedVelocity = std::clamp(velocityNormalized * velocityLimit, -velocityLimit, velocityLimit);
+    
+    auto stateTarget = AnimationValue::makeState();
+    auto velocityTarget = AnimationValue::makeReal();
+    velocityTarget->value = requestedVelocity;
+    
+    if(requestedVelocity > 0.0) stateTarget->value = &statePositiveLimit;
+    else if(requestedVelocity < 0.0) stateTarget->value = &stateNegativeLimit;
+    else stateTarget->value = &stateStopped;
 	
-	double velocityLimit = getAxis()->getVelocityLimit();
-	velocityTarget = std::clamp(velocityNormalized * velocityLimit, -velocityLimit, velocityLimit);
-	
-	if(velocityLimit > 0.0) requestedState = State::AT_POSITIVE_LIMIT;
-	else if(velocityLimit < 0.0) requestedState = State::AT_NEGATIVE_LIMIT;
-	else requestedState = State::STOPPED;
+    animatableState->rapidToValue(stateTarget);
+    animatableVelocity->rapidToValue(velocityTarget);
 }
 
 //========= ANIMATABLE OWNER ==========

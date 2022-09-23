@@ -658,6 +658,20 @@ bool Manoeuvre::canStop(){
 	return false;
 }
 
+bool Manoeuvre::isPlaying(){
+    for(auto& animation : getAnimations()){
+        if(animation->isPlaying()) return true;
+    }
+    return false;
+}
+
+bool Manoeuvre::isInRapid(){
+    for(auto& animation : getAnimations()){
+        if(animation->isInRapid()) return true;
+    }
+    return false;
+}
+
 void Manoeuvre::stop(){
 	if(!canStop()) return;
 	for(auto& animation : animations) animation->stop();

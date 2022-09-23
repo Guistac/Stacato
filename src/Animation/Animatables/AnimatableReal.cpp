@@ -6,7 +6,9 @@
 #include "Animation/Animation.h"
 
 std::string AnimatableReal::getTargetValueString(){
-	return "testing";
+    static char buffer[32];
+    sprintf(buffer, "%.3f", targetValue->value);
+    return std::string(buffer);
 }
 
 std::vector<std::string>& AnimatableReal::getCurveNames(){
@@ -20,9 +22,24 @@ void AnimatableReal::fillControlPointDefaults(std::shared_ptr<Motion::ControlPoi
 	controlpoint->outAcceleration = 0.0;
 }
 
-void AnimatableReal::updateActualValue(std::shared_ptr<AnimationValue> newActualValue){}
-void AnimatableReal::updateTargetValue(double time_seconds, double deltaTime_seconds){}
-void AnimatableReal::followActualValue(double time_seconds, double deltaTime_seconds){}
+void AnimatableReal::updateActualValue(std::shared_ptr<AnimationValue> newActualValue){
+    mutex.lock();
+    actualValue = newActualValue->toReal();
+    mutex.unlock();
+}
+void AnimatableReal::updateTargetValue(double time_seconds, double deltaTime_seconds){
+    mutex.lock();
+    if(hasAnimation() && getAnimation()->isPlaying()){
+        auto target = getAnimationValue()->toReal();
+        targetValue->value = target->value;
+    }
+    mutex.unlock();
+}
+void AnimatableReal::followActualValue(double time_seconds, double deltaTime_seconds){
+    mutex.lock();
+    targetValue->value = actualValue->value;
+    mutex.unlock();
+}
 
 std::shared_ptr<AnimationValue> AnimatableReal::getActualValue(){
 	auto ret = AnimationValue::makeReal();
@@ -42,7 +59,41 @@ std::shared_ptr<AnimationValue> AnimatableReal::getTargetValue(){
 
 
 bool AnimatableReal::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
-	return true;
+    
+    double target = parameterValueToAnimationValue(animation->target)->toReal()->value;
+    
+    auto startPoint = std::make_shared<Motion::ControlPoint>();
+    startPoint->time = 0.0;
+    startPoint->position = targetValue->value;
+    startPoint->velocity = 0.0;
+    startPoint->outAcceleration = 0.0;
+    startPoint->b_valid = true;
+    
+    auto endPoint = std::make_shared<Motion::ControlPoint>();
+    endPoint->time = 0.0;
+    endPoint->position = target;
+    endPoint->velocity = 0.0;
+    endPoint->inAcceleration = 0.0;
+    endPoint->b_valid = true;
+    
+    std::shared_ptr<Motion::StepInterpolation> interpolation = Motion::StepInterpolation::getInterpolation(startPoint, endPoint);
+    if(!interpolation->b_valid) return false;
+    
+    auto& curve = animation->getCurves().front();
+    auto& points = curve->getPoints();
+    auto& interpolations = curve->getInterpolations();
+    
+    points.clear();
+    points.push_back(interpolation->inPoint);
+    points.push_back(interpolation->outPoint);
+    
+    interpolations.clear();
+    interpolation->updateDisplayCurvePoints();
+    interpolations.push_back(interpolation);
+    
+    curve->b_valid = true;
+    
+    return true;
 }
 bool AnimatableReal::validateAnimation(std::shared_ptr<Animation> animation){
 	return true;
@@ -69,10 +120,26 @@ std::shared_ptr<AnimationValue> AnimatableReal::getRapidTarget(){
 void AnimatableReal::stopMovement() {}
 
 
-void AnimatableReal::onRapidToValue(std::shared_ptr<AnimationValue> animationValue) {}
-void AnimatableReal::onPlaybackStart(std::shared_ptr<Animation> animation) {}
-void AnimatableReal::onPlaybackPause() {}
-void AnimatableReal::onPlaybackStop() {}
+void AnimatableReal::onRapidToValue(std::shared_ptr<AnimationValue> animationValue) {
+    mutex.lock();
+    targetValue = animationValue->toReal();
+    mutex.unlock();
+}
+void AnimatableReal::onPlaybackStart(std::shared_ptr<Animation> animation) {
+    mutex.lock();
+    currentAnimation = animation;
+    mutex.unlock();
+}
+void AnimatableReal::onPlaybackPause() {
+    mutex.lock();
+    currentAnimation = nullptr;
+    mutex.unlock();
+}
+void AnimatableReal::onPlaybackStop() {
+    mutex.lock();
+    currentAnimation = nullptr;
+    mutex.unlock();
+}
 void AnimatableReal::onPlaybackEnd() {}
 
 

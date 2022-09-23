@@ -111,6 +111,8 @@ public:
 	bool canStartPlayback();
 	bool canPausePlayback();
 	bool canStop();
+    bool isPlaying();
+    bool isInRapid();
 	
 	bool isAtStart();
 	bool isAtTarget();
