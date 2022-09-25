@@ -38,6 +38,45 @@ namespace PlotGui{
 
 		
 		std::shared_ptr<Plot> plot = Project::getCurrentPlot();
+		float width = ImGui::GetContentRegionAvail().x;
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		if(customButton(plot->getName(),
+						glm::vec2(width, ImGui::GetFrameHeight()),
+						Colors::darkGray,
+						ImGui::GetStyle().FrameRounding,
+						ImDrawFlags_RoundCornersAll)){
+			ImGui::OpenPopup("PlotSelector");
+		}
+		ImGui::PopFont();
+		
+		ImGui::SetNextWindowPos(ImGui::GetItemRectMin());
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, Colors::almostBlack);
+		if(ImGui::BeginPopup("PlotSelector")){
+			ImGui::Dummy(glm::vec2(width, 1));
+			ImGui::PushFont(Fonts::sansBold20);
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::Text("Select Current Plot: ");
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+			ImGui::Separator();
+			for(auto plot : Project::getPlots()){
+				bool b_isCurrent = plot->isCurrent();
+				if(b_isCurrent) {
+					ImGui::PushFont(Fonts::sansBold15);
+					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+				}
+				if(ImGui::Selectable(plot->getName())) Project::setCurrentPlot(plot);
+				if(b_isCurrent) {
+					ImGui::PopFont();
+					ImGui::PopStyleColor();
+				}
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleColor();
+		
+		
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
@@ -79,9 +118,14 @@ namespace PlotGui{
 			}
 			ImGui::PopStyleVar();
 			
-			//ImGui::ScrollToItem();
-			//ImGui::ScrollToRect(nullptr, ImRect());
-			//ImGui::ScrollToBringRectIntoView(nullptr, ImRect());
+			if(manoeuvres.empty()){
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("No manoeuvres.");
+				ImGui::PopFont();
+				ImGui::TextWrapped("Add new manoeuvres using the controls at the bottom of this window.");
+				ImGui::PopStyleColor();
+			}
 			
 			ReorderableList::end();
 		}

@@ -218,7 +218,7 @@ namespace Project{
 
 		for (int i = 0; i < getPlots().size(); i++) {
 			std::shared_ptr<Plot> plot = getPlots()[i];
-			std::string fileName = "Plot-" + std::to_string(i) + "_" + plot->getName() + ".stacatoPlot";
+			std::string fileName = "Plot-" + std::to_string(i) + " " + plot->getName() + ".stacatoPlot";
 			std::string plotFilePath = plotsFolder + "/" + fileName;
 			plot->save(plotFilePath);
 		}
