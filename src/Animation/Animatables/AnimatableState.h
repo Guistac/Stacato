@@ -100,13 +100,12 @@ private:
 	std::vector<AnimatableStateStruct*>* selectableStates;
 	AnimatableStateStruct* stoppedState;
 	
-	
 public:
 	
 	virtual std::string getTargetValueString() override{
-		static char targetstring[128];
-		sprintf(targetstring, "%s", getTargetValue()->toState()->value->displayName);
-		return std::string(targetstring);
+        const char* valueDisplayName = getTargetValue()->toState()->value->displayName;
+        if(valueDisplayName) return std::string(valueDisplayName);
+        else return "???";
 	}
 };
 

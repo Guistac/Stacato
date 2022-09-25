@@ -71,12 +71,13 @@ private:
 	std::vector<std::shared_ptr<IODevice>> ioDevices;
 	std::shared_ptr<ConsoleMapping> mapping;
 
-	int timeoutDelay_milliseconds = 200;
-	int heartbeatInterval_milliseconds = 25;
+	uint16_t timeoutDelay_milliseconds = 257;
+    uint8_t heartbeatInterval_milliseconds = 25;
 	int connectionTimeoutDelay_milliseconds = 500;
-	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatReceiveTime;
-	std::chrono::time_point<std::chrono::system_clock> lastHeartbeatSendTime;
-	std::chrono::time_point<std::chrono::system_clock> connectionRequestTime;
+	double lastHeartbeatReceiveTime;
+	double lastHeartbeatSendTime;
+	double connectionRequestTime;
+
 	
 	uint8_t outputMessage[128];
 

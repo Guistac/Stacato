@@ -113,9 +113,12 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 
 void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){
 	if(connectionState != ConnectionState::CONNECTION_REQUESTED) return;
-	if(size != 3) return;
-	if(message[1] != timeoutDelay_milliseconds) return;
-	if(message[2] != heartbeatInterval_milliseconds) return;
+	if(size != 4) return;
+    uint8_t msb = message[1];
+    uint8_t lsb = message[2];
+    uint16_t t = msb << 8 | lsb;
+	if(t != timeoutDelay_milliseconds) return;
+	if(message[3] != heartbeatInterval_milliseconds) return;
 	connectionState = ConnectionState::CONNECTION_CONFIRMATION_RECEIVED;
 	Logger::debug("Received Connection Confirmation");
 }
@@ -148,7 +151,8 @@ void Console::receiveDeviceEnumerationReply(uint8_t* message, size_t size){
 
 void Console::receiveHeartbeat(uint8_t* message, size_t size){
 	if(size != 1) return;
-	lastHeartbeatReceiveTime = std::chrono::system_clock::now();
+    double now_millis = Timing::getProgramTime_milliseconds();
+    lastHeartbeatReceiveTime = now_millis;
 }
 
 
@@ -171,11 +175,12 @@ void Console::readMessage(uint8_t* message, size_t messageLength){
 
 
 void Console::sendConnectionRequest(){
-	uint8_t message[3];
+	uint8_t message[4];
 	message[0] = CONNECTION_REQUEST;
-	message[1] = timeoutDelay_milliseconds;
-	message[2] = heartbeatInterval_milliseconds;
-	serialPort->send(message, 3);
+    message[1] = (timeoutDelay_milliseconds >> 8) & 0xFF;
+    message[2] = timeoutDelay_milliseconds & 0xFF;
+	message[3] = heartbeatInterval_milliseconds;
+	serialPort->send(message, 4);
 }
 
 void Console::sendIdentificationRequest(){
@@ -208,7 +213,7 @@ void Console::connect(){
 	switch(connectionState){
 		case ConnectionState::NOT_CONNECTED:
 			sendConnectionRequest();
-			connectionRequestTime = std::chrono::system_clock::now();
+            connectionRequestTime = Timing::getProgramTime_milliseconds();
 			connectionState = ConnectionState::CONNECTION_REQUESTED;
 			Logger::trace("Connection Requested");
 			break;
@@ -224,8 +229,8 @@ void Console::connect(){
 			break;
 		case ConnectionState::DEVICE_ENUMERATION_RECEIVED:
 			sendConnectionConfirmation();
-			lastHeartbeatReceiveTime = std::chrono::system_clock::now();
-			lastHeartbeatSendTime = std::chrono::system_clock::now();
+            lastHeartbeatReceiveTime = Timing::getProgramTime_milliseconds();
+            lastHeartbeatSendTime = Timing::getProgramTime_milliseconds();
 			onConnection();
 			break;
 		default: break;
@@ -234,20 +239,19 @@ void Console::connect(){
 
 
 void Console::handleTimeout(){
-	using namespace std::chrono;
-	auto now = system_clock::now();
+    auto now = Timing::getProgramTime_milliseconds();
 	if(isConnected()){
-		if(now - lastHeartbeatSendTime > milliseconds(heartbeatInterval_milliseconds)){
+		if(now - lastHeartbeatSendTime > heartbeatInterval_milliseconds){
 			lastHeartbeatSendTime = now;
 			sendHeartbeat();
 		}
-		if(now - lastHeartbeatReceiveTime > milliseconds(timeoutDelay_milliseconds)){
+		if(now - lastHeartbeatReceiveTime > timeoutDelay_milliseconds){
 			Logger::info("Console Connection Timed out");
 			onDisconnection();
 		}
 	}
 	else if(isConnecting()){
-		if(now - connectionRequestTime > milliseconds(connectionTimeoutDelay_milliseconds)){
+		if(now - connectionRequestTime > connectionTimeoutDelay_milliseconds){
 			Logger::info("Connection Request Timed out");
 			onDisconnection();
 		}
@@ -257,14 +261,14 @@ void Console::handleTimeout(){
 
 
 void Console::updateInputs(){
-	std::string threadName = "Unknown Console Connection Handler";
+	std::string threadName = "Console " + getName() + " Connection Handler";
 	pthread_setname_np(threadName.c_str());
 	b_inputHandlerRunning = true;
 	while(b_inputHandlerRunning){
 		if(!isConnected()) connect();
 		serialPort->read();
 		handleTimeout();
-        osal_usleep(10000);
+        osal_usleep(5000);
 	}
 }
 

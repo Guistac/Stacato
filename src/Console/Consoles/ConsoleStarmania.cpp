@@ -73,12 +73,12 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
 	joystickLeft->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
 		auto joystick = device->toJoystick2X();
 		auto position = joystick->getPosition();
-		Logger::warn("Joystick Left: {} {}", position.x, position.y);
+		//Logger::warn("Joystick Left: {} {}", position.x, position.y);
 	});
 	joystickRight->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto joystick = device->toJoystick2X();
         auto position = joystick->getPosition();
-        Logger::warn("Joystick Right: {} {}", position.x, position.y);
+        //Logger::warn("Joystick Right: {} {}", position.x, position.y);
     });
 	
     
