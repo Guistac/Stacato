@@ -37,7 +37,7 @@ namespace PlotGui{
 		//================= MANOEUVRE LIST =======================
 
 		
-		std::shared_ptr<Plot> plot = Project::currentPlot;
+		std::shared_ptr<Plot> plot = Project::getCurrentPlot();
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
@@ -188,7 +188,7 @@ namespace PlotGui{
 
 
 bool noSelectionDisplay(){
-	if (Project::currentPlot->getSelectedManoeuvre() == nullptr) {
+	if (Project::getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
 		ImGui::PushFont(Fonts::sansRegular20);
 		ImGui::Text("%s", "No Manoeuvre Selected");
 		ImGui::PopFont();
@@ -199,17 +199,48 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->sheetEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->curveEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->spatialEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
+
+
+
+void NewPlotPopup::drawContent(){
+	ImGui::Text("Enter a name for the new Plot:");
+	static char plotName[256];
+	ImGui::InputText("##plotName", plotName, 256);
+	if(ImGui::Button("Confirm")){}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){}
+}
+
+void NewPlotPopup::onPopupOpen(){
+	
+}
+
+void PlotEditorPopup::drawContent(){
+	static char plotName[256];
+	
+}
+
+void PlotEditorPopup::onPopupOpen(){
+	
+}
+
+
+void PlotDeletePopup::drawContent(){
+	
+}
+
+
 
 }

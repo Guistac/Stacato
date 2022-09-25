@@ -3,6 +3,7 @@
 #include "Plot.h"
 #include "ManoeuvreList.h"
 #include "Animation/Manoeuvre.h"
+#include "Project/Project.h"
 
 #include <tinyxml2.h>
 
@@ -15,4 +16,8 @@ std::shared_ptr<Plot> Plot::create(){
 void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
 	selectedManoeuvre = manoeuvre;
 	if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
+}
+
+bool Plot::isCurrent(){
+	return Project::getCurrentPlot() == shared_from_this();
 }

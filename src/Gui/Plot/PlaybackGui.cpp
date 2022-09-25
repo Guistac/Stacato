@@ -21,7 +21,8 @@ namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
-	std::shared_ptr<ManoeuvreList> manoeuvreList = Project::currentPlot->getManoeuvreList();
+	auto currentPlot = Project::getCurrentPlot();
+	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
 	//Manoeuvre Selection Buttons
 	UpDownButtons::Interaction interaction = UpDownButtons::draw("", height / 2.0);
@@ -29,7 +30,7 @@ void manoeuvrePlaybackControls(float height){
 	else if(interaction == UpDownButtons::Interaction::DOWN) manoeuvreList->selectNextManoeuvre();
 	
 	
-	auto selectedManoeuvre = Project::currentPlot->getSelectedManoeuvre();
+	auto selectedManoeuvre = currentPlot->getSelectedManoeuvre();
 	
 	//Selected Manoeuvre Miniature Display
 	ImGui::SameLine();

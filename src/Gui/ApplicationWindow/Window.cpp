@@ -68,7 +68,10 @@ void Popup::open(){ WindowManager::openPopup(shared_from_this()); }
 void Popup::close(){ WindowManager::closePopup(shared_from_this()); }
 
 void Popup::draw(){
-	if(!ImGui::IsPopupOpen(name.c_str())) ImGui::OpenPopup(name.c_str());
+	if(!ImGui::IsPopupOpen(name.c_str())) {
+		ImGui::OpenPopup(name.c_str());
+		onPopupOpen();
+	}
 	
 	glm::vec2 size = getSize();
 	if(size != glm::vec2(.0f, .0f)) ImGui::SetNextWindowSize(size);

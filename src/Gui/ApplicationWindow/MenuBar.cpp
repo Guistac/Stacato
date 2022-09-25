@@ -79,6 +79,30 @@ namespace Gui {
 			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
 			ImGui::EndMenu();
 		}
+		if(ImGui::BeginMenu("Plot")){
+			
+			if(ImGui::MenuItem("New Plot")) Project::createNewPlot();
+			
+			ImGui::Separator();
+			
+			auto& plots = Project::getPlots();
+			for(int i = 0; i < plots.size(); i++){
+				auto plot = plots[i];
+				ImGui::PushID(i);
+				if(ImGui::BeginMenu(plot->getName())){
+					
+					if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) Project::setCurrentPlot(plot);
+					if(ImGui::MenuItem("Rename")){}
+					if(ImGui::MenuItem("Duplicate")){}
+					if(ImGui::MenuItem("Delete")){}
+					
+					ImGui::EndMenu();
+				}
+				ImGui::PopID();
+			}
+			
+			ImGui::EndMenu();
+		}
 		if(ImGui::BeginMenu("View")){
 			if(ImGui::MenuItem("New layout")) LayoutManager::capture();
             

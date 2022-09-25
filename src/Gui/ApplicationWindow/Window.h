@@ -49,6 +49,7 @@ public:
 	void close();
 	void draw();
 	
+	virtual void onPopupOpen(){}
 	virtual void drawContent() = 0;
 	virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
 	

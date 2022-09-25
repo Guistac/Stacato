@@ -38,4 +38,32 @@ namespace PlotGui{
 		SINGLETON_GET_METHOD(SpatialEditorWindow)
 	};
 
+
+	class NewPlotPopup : public Popup{
+	public:
+		NewPlotPopup() : Popup("New Plot", true, true){}
+		//virtual void onPopupOpen() override;
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(NewPlotPopup);
+		char newNameBuffer[256];
+	};
+
+	class PlotEditorPopup : public Popup{
+	public:
+		PlotEditorPopup(std::shared_ptr<Plot> editedPlot) : Popup("Edit Plot", true, true), plot(editedPlot){}
+		//virtual void onPopupOpen() override;
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(PlotEditorPopup);
+		std::shared_ptr<Plot> plot;
+		char newNameBuffer[256];
+	};
+
+	class PlotDeletePopup : public Popup{
+	public:
+		PlotDeletePopup(std::shared_ptr<Plot> deletedPlot) : Popup("Delete Plot", true, true), plot(deletedPlot){}
+		virtual void drawContent() override;
+		SINGLETON_GET_METHOD(PlotDeletePopup);
+		std::shared_ptr<Plot> plot;
+	};
+
 }
