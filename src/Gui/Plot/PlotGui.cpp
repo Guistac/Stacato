@@ -25,14 +25,6 @@
 namespace PlotGui{
 
 	void manoeuvreList() {
-
-		float managerButtonWidth = (ImGui::GetContentRegionAvail().x - 2.0) / 3.0;
-		float managerButtonHeight = ImGui::GetTextLineHeight() * 2.0;
-		ImVec2 managerButtonSize(managerButtonWidth, managerButtonHeight);
-		
-		float managerHeight = managerButtonSize.y + ImGui::GetStyle().ItemSpacing.y;
-		glm::vec2 manoeuvreListSize = ImGui::GetContentRegionAvail();
-		manoeuvreListSize.y -= managerHeight;
 		
 		//================= MANOEUVRE LIST =======================
 
@@ -41,6 +33,7 @@ namespace PlotGui{
 		float width = ImGui::GetContentRegionAvail().x;
 		
 		ImGui::PushFont(Fonts::sansBold20);
+		float titleBarHeight = ImGui::GetFrameHeight();
 		if(customButton(plot->getName(),
 						glm::vec2(width, ImGui::GetFrameHeight()),
 						Colors::darkGray,
@@ -53,10 +46,10 @@ namespace PlotGui{
 		ImGui::SetNextWindowPos(ImGui::GetItemRectMin());
 		ImGui::PushStyleColor(ImGuiCol_PopupBg, Colors::almostBlack);
 		if(ImGui::BeginPopup("PlotSelector")){
-			ImGui::Dummy(glm::vec2(width, 1));
-			ImGui::PushFont(Fonts::sansBold20);
+			ImGui::Dummy(glm::vec2(width - ImGui::GetStyle().WindowPadding.x * 2.0, 1));
+			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			ImGui::Text("Select Current Plot: ");
+			ImGui::Text("Select Plot: ");
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 			ImGui::Separator();
@@ -76,6 +69,14 @@ namespace PlotGui{
 		}
 		ImGui::PopStyleColor();
 		
+		
+		float managerButtonWidth = (ImGui::GetContentRegionAvail().x - 2.0) / 3.0;
+		float managerButtonHeight = ImGui::GetTextLineHeight() * 2.0;
+		ImVec2 managerButtonSize(managerButtonWidth, managerButtonHeight);
+		
+		float managerHeight = managerButtonSize.y + ImGui::GetStyle().ItemSpacing.y;
+		glm::vec2 manoeuvreListSize = ImGui::GetContentRegionAvail();
+		manoeuvreListSize.y -= managerHeight;
 		
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
