@@ -46,16 +46,19 @@ void DeadMansSwitch::widgetGui(){
 	ImGui::PushFont(Fonts::sansBold20);
 	centeredText(getName(), ImVec2(width, ImGui::GetTextLineHeight()));
 	ImGui::PopFont();
+    
+    glm::vec2 statusSize(width, ImGui::GetTextLineHeight() * 3.0);
+    ImGui::PushFont(Fonts::sansBold15);
 		
 	switch(state){
 		case State::NOT_CONNECTED:
-			backgroundText("Not Connected", buttonSize, Colors::blue);
+			backgroundText("Not Connected", statusSize, Colors::blue);
 			break;
 		case State::NOT_PRESSED:
-			backgroundText("Not Pressed", buttonSize, Colors::red);
+			backgroundText("Not Pressed", statusSize, Colors::red);
 			break;
 		case State::PRESS_REQUESTED:
-			backgroundText("Press Requested", buttonSize, Colors::yellow);
+			backgroundText("Press Requested", statusSize, Colors::yellow);
 		{
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
 			glm::vec2 min = ImGui::GetItemRectMin();
@@ -67,9 +70,12 @@ void DeadMansSwitch::widgetGui(){
 		}
 			break;
 		case State::PRESSED:
-			backgroundText("Pressed", buttonSize, Colors::green);
+            if(b_shouldKeepPressing) backgroundText("Keep Pressing !", statusSize, Timing::getBlink(1.0 / requestBlinkFrequency->value) ? Colors::green : Colors::yellow);
+            else backgroundText("Pressed", statusSize, Colors::green);
 			break;
 	}
+    
+    ImGui::PopFont();
 	
 	ImGui::BeginDisabled(state == State::NOT_CONNECTED || state == State::PRESSED);
 	if(ImGui::Button("Request Press", buttonSize)) requestPress();

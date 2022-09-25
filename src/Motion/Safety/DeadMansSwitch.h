@@ -29,6 +29,7 @@ private:
 	double timeSincePressRequest_seconds = 0.0;
 	
 	bool b_shouldRequestPress = false;
+    bool b_shouldKeepPressing = false;
 	
 	std::shared_ptr<NumberParameter<double>> requestTimeoutDelay = NumberParameter<double>::make(5.0,
 																								 "Press Request Timeout Delay",

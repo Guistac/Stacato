@@ -4,6 +4,7 @@
 #include "Motion/SubDevice.h"
 
 #include "Environnement/Environnement.h"
+#include "Machine/Machine.h"
 
 void DeadMansSwitch::initialize(){
 	addNodePin(gpioDevicePin);
@@ -35,7 +36,8 @@ void DeadMansSwitch::inputProcess(){
 	//update inputs
 	switchPressedPin->copyConnectedPinValue();
 	
-	
+    
+    
 	if(b_pressRequested && !*b_switchPressed){
 		//press request timeout detection
 		long long time_nanoseconds = Environnement::getTime_nanoseconds();
@@ -48,6 +50,7 @@ void DeadMansSwitch::inputProcess(){
 		//when the switch is pressed, cancel the press request
 		b_pressRequested = false;
 	}
+    
 	
 	//update switch state
 	if(*b_switchPressed) state = State::PRESSED;
@@ -58,7 +61,19 @@ void DeadMansSwitch::inputProcess(){
 	updateLedState();
 }
 
-void DeadMansSwitch::outputProcess(){}
+void DeadMansSwitch::outputProcess(){
+    bool b_anyMachineMoving = false;
+    for(auto connectedPin : deadMansSwitchLink->getConnectedPins()){
+        auto node = connectedPin->getNode();
+        if(node->getType() != Node::Type::MACHINE) continue;
+        auto machine = std::static_pointer_cast<Machine>(node);
+        if(machine->isMoving()){
+            b_anyMachineMoving = true;
+            break;
+        }
+    }
+    b_shouldKeepPressing = b_anyMachineMoving;
+}
 
 void DeadMansSwitch::handlePressRequest(){
 	//handle press request
@@ -70,13 +85,15 @@ void DeadMansSwitch::handlePressRequest(){
 }
 
 void DeadMansSwitch::updateLedState(){
-	//get LED state
 	if(*b_switchPressed){
-		*b_switchLed = true;
-	}else if(b_pressRequested){
+        if(b_shouldKeepPressing) *b_switchLed = Timing::getBlink(1.0 / requestBlinkFrequency->value);
+        else *b_switchLed = true;
+	}
+    else if(b_pressRequested){
 		double blinkPeriod = 1.0 / requestBlinkFrequency->value;
 		*b_switchLed = fmod(timeSincePressRequest_seconds, blinkPeriod) < blinkPeriod * .5;
-	}else{
+	}
+    else{
 		long long time_nanoseconds = Environnement::getTime_nanoseconds();
 		long long blinkPeriod = 1000000000 / idleBlinkFrequency->value;
 		long long blinkLength = 1000000000 * idleBlinkLength->value;

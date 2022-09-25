@@ -11,7 +11,7 @@ void Lexium32::onConnection() {
 }
 
 void Lexium32::onDisconnection() {
-	requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
+	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	servoMotor->state = MotionState::OFFLINE;
 	gpioDevice->state = MotionState::OFFLINE;
     b_autoReenable = false;

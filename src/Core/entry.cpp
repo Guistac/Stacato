@@ -6,6 +6,19 @@
 #include "Environnement/Environnement.h"
 #include "Console/ConsoleHandler.h"
 
+#include <sys/resource.h>
+
+void setProcessPriority(){
+    errno = 0;
+    setpriority(PRIO_PROCESS, 0, -20);
+    if(errno == EACCES) Logger::info("could not set process priority : permission denied.");
+    else if(errno == 0) Logger::warn("successfully set process priority");
+    else Logger::info("failed to set process priority : error#{}", errno);
+    int p = getpriority(PRIO_PROCESS, 0);
+    Logger::info("======== Process Priority : {} (highest: -20, lowest: 20)", p);
+    
+}
+
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
@@ -14,6 +27,8 @@ int main(int argcount, const char ** args){
 	
     //initialize application
 	ApplicationWindow::init();
+    
+    setProcessPriority();
 		
 	//initialize node factory modules
 	NodeFactory::load();
