@@ -368,8 +368,8 @@ bool FlipStateMachine::areAllPinsConnected() {
 	return true;
 }
 
-bool FlipStateMachine::isMoving() { 
-	return actualState == State::LOWERING_RAISING || actualState == State::OPENING_CLOSING;
+bool FlipStateMachine::isMoving() {
+	return requestedState != State::STOPPED && requestedState != State::UNKNOWN && actualState != requestedState;
 }
 
 
