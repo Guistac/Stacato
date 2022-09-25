@@ -213,32 +213,57 @@ void spatialEditor(){
 }
 
 
+void NewPlotPopup::onPopupOpen(){
+	sprintf(newNameBuffer, "New Plot");
+}
 
 void NewPlotPopup::drawContent(){
 	ImGui::Text("Enter a name for the new Plot:");
-	static char plotName[256];
-	ImGui::InputText("##plotName", plotName, 256);
-	if(ImGui::Button("Confirm")){}
+	ImGui::InputText("##plotName", newNameBuffer, 256);
+	if(ImGui::Button("Confirm")){
+		auto newPlot = Project::createNewPlot();
+		newPlot->setName(newNameBuffer);
+		close();
+	}
 	ImGui::SameLine();
-	if(ImGui::Button("Cancel")){}
+	if(ImGui::Button("Cancel")){
+		close();
+	}
 }
 
-void NewPlotPopup::onPopupOpen(){
-	
+
+void PlotEditorPopup::onPopupOpen(){
+	strcpy(newNameBuffer, plot->getName());
 }
 
 void PlotEditorPopup::drawContent(){
-	static char plotName[256];
-	
-}
-
-void PlotEditorPopup::onPopupOpen(){
-	
+	ImGui::Text("Plot Name:");
+	ImGui::InputText("##plotName", newNameBuffer, 256);
+	if(ImGui::Button("Confirm")){
+		plot->setName(newNameBuffer);
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
 }
 
 
 void PlotDeletePopup::drawContent(){
-	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+	ImGui::Text("Do you really want to delete %s ?", plot->getName());
+	ImGui::PopStyleColor();
+	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
+	if(ImGui::Button("Delete")) {
+		Project::deletePlot(plot);
+		close();
+	}
+	ImGui::PopStyleColor();
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
 }
 
 

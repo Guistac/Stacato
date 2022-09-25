@@ -278,6 +278,15 @@ void PlaybackManagerWindow::drawContent(){
 		ImGui::EndGroup();
 	}
 	
+	if(PlaybackManager::getActiveAnimations().empty() && PlaybackManager::getActiveManoeuvres().empty()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("No Manoeuvres are playing.");
+		ImGui::PopFont();
+		ImGui::TextWrapped("Active manoeuvres & animations will show up once they are started.");
+		ImGui::PopStyleColor();
+	}
+	
 }
 
 

@@ -13,6 +13,23 @@ std::shared_ptr<Plot> Plot::create(){
 	return plot;
 }
 
+std::shared_ptr<Plot> Plot::duplicate(){
+	auto copy = create();
+	copy->setName("copy of " + std::string(getName()));
+	
+	auto& originalManoeuvres = manoeuvreList->getManoeuvres();
+	auto& copiedManoeuvres = copy->getManoeuvreList()->getManoeuvres();
+	
+	for(auto originalManoeuvre : originalManoeuvres){
+		auto manoeuvreCopy = originalManoeuvre->copy();
+		manoeuvreCopy->setManoeuvreList(copy->getManoeuvreList());
+		copiedManoeuvres.push_back(manoeuvreCopy);
+		manoeuvreCopy->validateAllAnimations();
+	}
+	
+	return copy;
+}
+
 void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
 	selectedManoeuvre = manoeuvre;
 	if(manoeuvre) selectedManoeuvre->requestCurveRefocus();

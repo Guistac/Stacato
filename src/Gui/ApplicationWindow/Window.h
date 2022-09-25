@@ -41,16 +41,16 @@ public:
 	Popup(std::string name_, bool modal, bool canClose) : name(name_), b_modal(modal), b_canClose(canClose) {}
 	
 	std::string name;
-	bool b_open;
-	bool b_modal;
-	bool b_canClose;
+	bool b_open = false;
+	bool b_modal = false;
+	bool b_canClose = false;
 		
 	void open();
 	void close();
 	void draw();
 	
-	virtual void onPopupOpen(){}
 	virtual void drawContent() = 0;
+	virtual void onPopupOpen(){}
 	virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
 	
 };

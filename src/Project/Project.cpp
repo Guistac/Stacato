@@ -46,6 +46,11 @@ namespace Project {
 		plots.push_back(plot);
 	}
 
+	void duplicatePlot(std::shared_ptr<Plot> plot){
+		auto copy = plot->duplicate();
+		plots.push_back(copy);
+		currentPlot = copy;
+	}
 
 
 

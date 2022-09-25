@@ -128,7 +128,8 @@ namespace Project{
 				break;
 			}
 		}
-		if(!b_loadedEnvironnementFile) {
+		if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
+		if(!b_loadedLayoutFile) {
 			Logger::warn("Could not load layout file in project {}", filePath.filename().string());
 			return false;
 		}
@@ -163,7 +164,7 @@ namespace Project{
 			auto defaultPlot = createNewPlot();
 			defaultPlot->setName("Default Plot");
 			setCurrentPlot(defaultPlot);
-		}
+		}else setCurrentPlot(getPlots().front());
 
 		strcpy(saveFilePath, dir);
 		b_hasFilePath = true;

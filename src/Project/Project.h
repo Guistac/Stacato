@@ -9,7 +9,8 @@ namespace Project {
 	void setCurrentPlot(std::shared_ptr<Plot> plot);
 	std::shared_ptr<Plot> createNewPlot();
 	void deletePlot(std::shared_ptr<Plot> plot);
-	
+	void duplicatePlot(std::shared_ptr<Plot> plot);
+
 	void deleteAllPlots();
 	void addPlot(std::shared_ptr<Plot> plot);
 
