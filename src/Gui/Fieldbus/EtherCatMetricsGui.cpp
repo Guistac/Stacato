@@ -11,11 +11,16 @@ void etherCatMetrics() {
 
 	if (ImGui::BeginChild("MetricsChild")) {
 
-		ImGui::Text("Process Time: %.1fs  cycles: %i (%.1fms/cycle)",
-			EtherCatFieldbus::getMetrics().fieldbusTime_seconds,
-			(int)EtherCatFieldbus::getMetrics().cycleCounter,
-			EtherCatFieldbus::processInterval_milliseconds);
-
+        double processTime = EtherCatFieldbus::getMetrics().fieldbusTime_seconds;
+        int processHours = std::floor(processTime / 3600.0);
+        int processMinutes = std::floor((processTime - processHours * 3600.0) / 60.0);
+        double processSeconds = processTime - (processHours * 3600.0) - (processMinutes * 60.0);
+        ImGui::Text("Process Time: %ih%im%.1fs", processHours, processMinutes, processSeconds);
+        ImGui::SameLine();
+        ImGui::Text("Cycles: %i (%ims/cycle)", (int)EtherCatFieldbus::getMetrics().frameCount, EtherCatFieldbus::processInterval_milliseconds);
+        ImGui::SameLine();
+        ImGui::Text("Dropped Frames: %i (%.3f%%)", (int)EtherCatFieldbus::getMetrics().droppedFrameCount, 100.0 * double(EtherCatFieldbus::getMetrics().droppedFrameCount) / double(EtherCatFieldbus::getMetrics().frameCount));
+    
 		EtherCatMetrics& metrics = EtherCatFieldbus::getMetrics();
 		float plotHeight = ImGui::GetTextLineHeight() * 20.0;
 

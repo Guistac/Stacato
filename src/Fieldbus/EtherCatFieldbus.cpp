@@ -809,15 +809,19 @@ namespace EtherCatFieldbus {
                 }
             }
                 
+            metrics.frameCount++;
+            
 			switch(workingCounter){
 				case EC_NOFRAME:
 				case EC_TIMEOUT:
 					cyclicFrameTimeoutCounter++;
+                    metrics.droppedFrameCount++;
 					break;
 				case EC_OTHERFRAME:
 				case EC_ERROR:
 				case EC_SLAVECOUNTEXCEEDED:
 					cyclicFrameErrorCounter++;
+                    metrics.droppedFrameCount++;
 					break;
 			}
 

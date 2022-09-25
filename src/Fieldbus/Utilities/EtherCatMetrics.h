@@ -29,6 +29,8 @@ public:
 		cycleCounter = 0;
 		frameReturnTypeCounters[0] = 0;
 		frameReturnTypeCounters[1] = 0;
+        frameCount = 0;
+        droppedFrameCount = 0;
 	}
 
 	uint64_t cycleCounter;
@@ -46,7 +48,9 @@ public:
 	ScrollingBuffer cycleLengths;
 	double scrollingBufferLength_seconds = 30.0;
 
-
+    unsigned long long frameCount = 0;
+    unsigned long long droppedFrameCount = 0;
+    
 	//working counter results
 	int frameReturnTypeCounters[2] = { 0, 0 };
 	const char* frameReturnTypeChars[2] = {
