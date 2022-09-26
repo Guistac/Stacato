@@ -24,6 +24,8 @@ public:
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
 	void moveManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex);
+	
+	void pasteManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 
 	//void refreshPlotAfterMachineLimitChanged(std::shared_ptr<Machine> m);
 	//void refreshAll();

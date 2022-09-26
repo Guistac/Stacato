@@ -23,6 +23,7 @@ std::shared_ptr<Plot> Plot::duplicate(){
 	for(auto originalManoeuvre : originalManoeuvres){
 		auto manoeuvreCopy = originalManoeuvre->copy();
 		manoeuvreCopy->setManoeuvreList(copy->getManoeuvreList());
+		manoeuvreCopy->name->overwrite(originalManoeuvre->getName());
 		copiedManoeuvres.push_back(manoeuvreCopy);
 		manoeuvreCopy->validateAllAnimations();
 	}

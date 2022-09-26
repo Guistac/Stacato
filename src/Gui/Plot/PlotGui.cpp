@@ -28,7 +28,6 @@ namespace PlotGui{
 		
 		//================= MANOEUVRE LIST =======================
 
-		
 		std::shared_ptr<Plot> plot = Project::getCurrentPlot();
 		float width = ImGui::GetContentRegionAvail().x;
 		
@@ -53,7 +52,10 @@ namespace PlotGui{
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 			ImGui::Separator();
-			for(auto plot : Project::getPlots()){
+			auto& plots = Project::getPlots();
+			for(int i = 0; i < plots.size(); i++){
+				auto plot = plots[i];
+				ImGui::PushID(i);
 				bool b_isCurrent = plot->isCurrent();
 				if(b_isCurrent) {
 					ImGui::PushFont(Fonts::sansBold15);
@@ -64,6 +66,7 @@ namespace PlotGui{
 					ImGui::PopFont();
 					ImGui::PopStyleColor();
 				}
+				ImGui::PopID();
 			}
 			ImGui::EndPopup();
 		}
@@ -82,7 +85,7 @@ namespace PlotGui{
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
 		
-		if(ReorderableList::begin("CueList", manoeuvreListSize)){
+		if(ReorderableList::begin("CueList", manoeuvreListSize, !Project::isPlotEditLocked())){
 		
 			//0 horizontal padding is to display the header background strip up to the edge of the cue window
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
@@ -234,9 +237,12 @@ namespace PlotGui{
 
 bool noSelectionDisplay(){
 	if (Project::getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
-		ImGui::PushFont(Fonts::sansRegular20);
-		ImGui::Text("%s", "No Manoeuvre Selected");
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("No Manoeuvre Selected.");
 		ImGui::PopFont();
+		ImGui::TextWrapped("Select manoeuvres in the manoeuvre list.");
+		ImGui::PopStyleColor();
 		return true;
 	}
 	return false;

@@ -52,7 +52,15 @@ namespace Project {
 		currentPlot = copy;
 	}
 
+	bool b_plotEditLocked = true;
+	void lockPlotEdit(){ b_plotEditLocked = true; }
+	void unlockPlotEdit(){ b_plotEditLocked = false; }
+	bool isPlotEditLocked(){ return b_plotEditLocked; }
 
+
+	std::shared_ptr<Manoeuvre> manoeuvreClipboard = nullptr;
+	void pushManoeuvreToClipboard(std::shared_ptr<Manoeuvre> manoeuvre){ manoeuvreClipboard = manoeuvre; }
+	std::shared_ptr<Manoeuvre> getClipboardManeouvre() { return manoeuvreClipboard; }
 
 
 

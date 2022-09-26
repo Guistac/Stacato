@@ -1,6 +1,7 @@
 #pragma once
 
 class Plot;
+class Manoeuvre;
 
 namespace Project {
 
@@ -13,6 +14,13 @@ namespace Project {
 
 	void deleteAllPlots();
 	void addPlot(std::shared_ptr<Plot> plot);
+
+	void lockPlotEdit();
+	void unlockPlotEdit();
+	bool isPlotEditLocked();
+
+	void pushManoeuvreToClipboard(std::shared_ptr<Manoeuvre> manoeuvre);
+	std::shared_ptr<Manoeuvre> getClipboardManeouvre();
 
 	//extern std::vector<std::shared_ptr<Plot>> plots;
 	//extern std::shared_ptr<Plot> currentPlot;

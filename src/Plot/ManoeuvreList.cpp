@@ -235,3 +235,17 @@ void ManoeuvreList::selectPreviousManoeuvre(){
 	getPlot()->b_scrollToSelectedManoeuvre = true;
 }
 
+
+void ManoeuvreList::pasteManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
+	int insertionIndex = manoeuvres.size();
+	auto selectedManoeuvre = plot->getSelectedManoeuvre();
+	if(selectedManoeuvre) {
+		int selectionIndex = getManoeuvreIndex(selectedManoeuvre);
+		if(selectionIndex >= 0) insertionIndex = getManoeuvreIndex(plot->getSelectedManoeuvre()) + 1;
+	};
+	auto copy = manoeuvre->copy();
+	copy->setManoeuvreList(shared_from_this());
+	copy->validateAllAnimations();
+	manoeuvres.insert(manoeuvres.begin() + insertionIndex, copy);
+	copy->select();
+}
