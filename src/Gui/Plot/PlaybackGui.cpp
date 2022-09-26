@@ -21,7 +21,8 @@ namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
-	std::shared_ptr<ManoeuvreList> manoeuvreList = Project::currentPlot->getManoeuvreList();
+	auto currentPlot = Project::getCurrentPlot();
+	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
 	//Manoeuvre Selection Buttons
 	UpDownButtons::Interaction interaction = UpDownButtons::draw("", height / 2.0);
@@ -29,7 +30,7 @@ void manoeuvrePlaybackControls(float height){
 	else if(interaction == UpDownButtons::Interaction::DOWN) manoeuvreList->selectNextManoeuvre();
 	
 	
-	auto selectedManoeuvre = Project::currentPlot->getSelectedManoeuvre();
+	auto selectedManoeuvre = currentPlot->getSelectedManoeuvre();
 	
 	//Selected Manoeuvre Miniature Display
 	ImGui::SameLine();
@@ -275,6 +276,15 @@ void PlaybackManagerWindow::drawContent(){
 		ImGui::PopFont();
 		
 		ImGui::EndGroup();
+	}
+	
+	if(PlaybackManager::getActiveAnimations().empty() && PlaybackManager::getActiveManoeuvres().empty()){
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("No Manoeuvres are playing.");
+		ImGui::PopFont();
+		ImGui::TextWrapped("Active manoeuvres & animations will show up once they are started.");
+		ImGui::PopStyleColor();
 	}
 	
 }

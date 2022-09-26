@@ -25,7 +25,54 @@
 namespace PlotGui{
 
 	void manoeuvreList() {
+		
+		//================= MANOEUVRE LIST =======================
 
+		std::shared_ptr<Plot> plot = Project::getCurrentPlot();
+		float width = ImGui::GetContentRegionAvail().x;
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		float titleBarHeight = ImGui::GetFrameHeight();
+		if(customButton(plot->getName(),
+						glm::vec2(width, ImGui::GetFrameHeight()),
+						Colors::darkGray,
+						ImGui::GetStyle().FrameRounding,
+						ImDrawFlags_RoundCornersAll)){
+			ImGui::OpenPopup("PlotSelector");
+		}
+		ImGui::PopFont();
+		
+		ImGui::SetNextWindowPos(ImGui::GetItemRectMin());
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, Colors::almostBlack);
+		if(ImGui::BeginPopup("PlotSelector")){
+			ImGui::Dummy(glm::vec2(width - ImGui::GetStyle().WindowPadding.x * 2.0, 1));
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::Text("Select Plot: ");
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+			ImGui::Separator();
+			auto& plots = Project::getPlots();
+			for(int i = 0; i < plots.size(); i++){
+				auto plot = plots[i];
+				ImGui::PushID(i);
+				bool b_isCurrent = plot->isCurrent();
+				if(b_isCurrent) {
+					ImGui::PushFont(Fonts::sansBold15);
+					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+				}
+				if(ImGui::Selectable(plot->getName())) Project::setCurrentPlot(plot);
+				if(b_isCurrent) {
+					ImGui::PopFont();
+					ImGui::PopStyleColor();
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopStyleColor();
+		
+		
 		float managerButtonWidth = (ImGui::GetContentRegionAvail().x - 2.0) / 3.0;
 		float managerButtonHeight = ImGui::GetTextLineHeight() * 2.0;
 		ImVec2 managerButtonSize(managerButtonWidth, managerButtonHeight);
@@ -34,15 +81,11 @@ namespace PlotGui{
 		glm::vec2 manoeuvreListSize = ImGui::GetContentRegionAvail();
 		manoeuvreListSize.y -= managerHeight;
 		
-		//================= MANOEUVRE LIST =======================
-
-		
-		std::shared_ptr<Plot> plot = Project::currentPlot;
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
 		
-		if(ReorderableList::begin("CueList", manoeuvreListSize)){
+		if(ReorderableList::begin("CueList", manoeuvreListSize, !Project::isPlotEditLocked())){
 		
 			//0 horizontal padding is to display the header background strip up to the edge of the cue window
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
@@ -79,9 +122,14 @@ namespace PlotGui{
 			}
 			ImGui::PopStyleVar();
 			
-			//ImGui::ScrollToItem();
-			//ImGui::ScrollToRect(nullptr, ImRect());
-			//ImGui::ScrollToBringRectIntoView(nullptr, ImRect());
+			if(manoeuvres.empty()){
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("No manoeuvres.");
+				ImGui::PopFont();
+				ImGui::TextWrapped("Add new manoeuvres using the controls at the bottom of this window.");
+				ImGui::PopStyleColor();
+			}
 			
 			ReorderableList::end();
 		}
@@ -188,10 +236,13 @@ namespace PlotGui{
 
 
 bool noSelectionDisplay(){
-	if (Project::currentPlot->getSelectedManoeuvre() == nullptr) {
-		ImGui::PushFont(Fonts::sansRegular20);
-		ImGui::Text("%s", "No Manoeuvre Selected");
+	if (Project::getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("No Manoeuvre Selected.");
 		ImGui::PopFont();
+		ImGui::TextWrapped("Select manoeuvres in the manoeuvre list.");
+		ImGui::PopStyleColor();
 		return true;
 	}
 	return false;
@@ -199,17 +250,73 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->sheetEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->curveEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Project::currentPlot->getSelectedManoeuvre()->spatialEditor();
+	Project::getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
+
+
+void NewPlotPopup::onPopupOpen(){
+	sprintf(newNameBuffer, "New Plot");
+}
+
+void NewPlotPopup::drawContent(){
+	ImGui::Text("Enter a name for the new Plot:");
+	ImGui::InputText("##plotName", newNameBuffer, 256);
+	if(ImGui::Button("Confirm")){
+		auto newPlot = Project::createNewPlot();
+		newPlot->setName(newNameBuffer);
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+}
+
+
+void PlotEditorPopup::onPopupOpen(){
+	strcpy(newNameBuffer, plot->getName());
+}
+
+void PlotEditorPopup::drawContent(){
+	ImGui::Text("Plot Name:");
+	ImGui::InputText("##plotName", newNameBuffer, 256);
+	if(ImGui::Button("Confirm")){
+		plot->setName(newNameBuffer);
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+}
+
+
+void PlotDeletePopup::drawContent(){
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+	ImGui::Text("Do you really want to delete %s ?", plot->getName());
+	ImGui::PopStyleColor();
+	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
+	if(ImGui::Button("Delete")) {
+		Project::deletePlot(plot);
+		close();
+	}
+	ImGui::PopStyleColor();
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+}
+
+
 
 }

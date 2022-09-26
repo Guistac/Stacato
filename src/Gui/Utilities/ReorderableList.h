@@ -7,6 +7,9 @@
 namespace ReorderableList{
 
 	struct State{
+		
+		bool b_canReorder;
+		
 		//immediate state
 		int currentItemIndex = -1;
 		int draggedItemIndex = -1;
@@ -63,7 +66,7 @@ namespace ReorderableList{
 
 	void end(bool b_wasOpen = true);
 
-	inline bool begin(const char* ID, ImVec2 size_arg = ImVec2(0,0)){
+	inline bool begin(const char* ID, ImVec2 size_arg = ImVec2(0,0), bool b_allowReordering = true){
 		
 		//get auto size if none specified
 		if(size_arg.x <= 0.0 || size_arg.y <= 0.0) size_arg = ImGui::GetContentRegionAvail();
@@ -80,13 +83,14 @@ namespace ReorderableList{
 		state.currentItemIndex = -1;
 		state.originIndex = -1;
 		state.destinationIndex = -1;
+		state.b_canReorder = b_allowReordering;
 		
 		state.draggedItemIndex = readDraggedItemIndex();
 		int pressedItemIndex = readPressedItemIndex();
 		
 		//if item is dragged
 		if(pressedItemIndex >= 0){
-			if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+			if(ImGui::IsMouseDragging(ImGuiMouseButton_Left) && b_allowReordering){
 				//store index of dragged item in immediate state
 				storeDraggedItemIndex(pressedItemIndex);
 				state.draggedItemIndex = pressedItemIndex;
@@ -322,7 +326,11 @@ namespace ReorderableList{
 	}
 
 	inline bool isItemSelected(){
-		return ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && getState().draggedItemIndex == -1;
+		//selection event when mouse is released
+		return ImGui::IsItemHovered() //item is hovered
+		&& ImGui::IsMouseReleased(ImGuiMouseButton_Left) //mouse is released
+		&& getState().draggedItemIndex == -1 //no item is dragged
+		&& getState().currentItemIndex == readPressedItemIndex(); //current item is pressed
 	}
 
 	inline void scrollToItem(){

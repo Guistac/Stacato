@@ -16,8 +16,12 @@
 
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
+#include "Gui/Plot/PlotGui.h"
 #include "Project/Project.h"
 #include "Project/Editor/CommandHistory.h"
+
+#include "Animation/Manoeuvre.h"
+#include "Plot/ManoeuvreList.h"
 
 #include "KeyboardShortcut.h"
 
@@ -79,14 +83,106 @@ namespace Gui {
 			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
 			ImGui::EndMenu();
 		}
+		if(ImGui::BeginMenu("Plot")){
+			
+			if(ImGui::MenuItem("Lock Plot Editing", nullptr, Project::isPlotEditLocked())){
+				if(Project::isPlotEditLocked()) Project::unlockPlotEdit();
+				else Project::lockPlotEdit();
+			}
+			
+			ImGui::BeginDisabled(Project::isPlotEditLocked());
+			if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
+			ImGui::EndDisabled();
+			
+			ImGui::Separator();
+			
+			auto& plots = Project::getPlots();
+			
+			ImGui::BeginDisabled();
+			ImGui::Text("Current Plot:");
+			ImGui::EndDisabled();
+			
+			if(Project::isPlotEditLocked()){
+				
+				for(int i = 0; i < plots.size(); i++){
+					auto plot = plots[i];
+					ImGui::PushID(i);
+					
+					bool b_current = plot->isCurrent();
+					
+					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Project::setCurrentPlot(plot);
+					if(b_current) ImGui::PopStyleColor();
+					
+					ImGui::PopID();
+				}
+				
+			}else{
+			
+				for(int i = 0; i < plots.size(); i++){
+					auto plot = plots[i];
+					ImGui::PushID(i);
+					
+					bool b_current = plot->isCurrent();
+					
+					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+					if(ImGui::BeginMenu(plot->getName())){
+						if(b_current) ImGui::PopStyleColor();
+						
+						if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
+							Project::setCurrentPlot(plot);
+						}
+						
+						if(ImGui::MenuItem("Rename")) {
+							PlotGui::PlotEditorPopup::open(plot);
+						}
+						if(ImGui::MenuItem("Duplicate")){
+							Project::duplicatePlot(plot);
+						}
+						if(ImGui::MenuItem("Delete")) {
+							PlotGui::PlotDeletePopup::open(plot);
+						}
+						
+						ImGui::EndMenu();
+					} else if(b_current) ImGui::PopStyleColor();
+					ImGui::PopID();
+				}
+			}
+			
+			ImGui::Separator();
+						
+			ImGui::PushFont(Fonts::sansBold15);
+			if(Project::getClipboardManeouvre() == nullptr) {
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::Text("Clipboard empty.");
+			}else{
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+				ImGui::Text("Clipboard: %s", Project::getClipboardManeouvre()->getName());
+			}
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+			
+			auto currentPlot = Project::getCurrentPlot();
+			
+			ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
+			if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
+			ImGui::EndDisabled();
+			
+			ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
+			if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
+				auto manoeuvreList = Project::getCurrentPlot()->getManoeuvreList();
+				manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
+			}
+			ImGui::EndDisabled();
+			
+			ImGui::EndMenu();
+		}
 		if(ImGui::BeginMenu("View")){
 			if(ImGui::MenuItem("New layout")) LayoutManager::capture();
             
             ImGui::MenuItem("Lock Current Layout", nullptr, &LayoutManager::b_lockLayout);
             
 			ImGui::Separator();
-			
-			if(ImGui::MenuItem("Set factory layout")) Gui::setDefaultLayout();
 			
 			if(auto defaultLayout = LayoutManager::getDefaultLayout()){
 				if(ImGui::MenuItem("Set default layout")) defaultLayout->makeActive();
@@ -100,7 +196,12 @@ namespace Gui {
 			
 			std::shared_ptr<Layout> removedLayout = nullptr;
 			for(auto& layout : LayoutManager::getLayouts()){
+				
+				bool b_active = layout->isActive();
+				
+				if(b_active) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
 				if(ImGui::BeginMenu(layout->name)){
+					if(b_active) ImGui::PopStyleColor();
 					
 					ImGui::BeginDisabled(layout->isActive());
 					if(ImGui::MenuItem("Make Active", nullptr, layout->isActive())) layout->makeActive();
@@ -114,7 +215,7 @@ namespace Gui {
 					if(ImGui::MenuItem("Rename")) layout->edit();
 					if(ImGui::MenuItem("Remove")) removedLayout = layout;
 					ImGui::EndMenu();
-				}
+				}else if(b_active) ImGui::PopStyleColor();
 			}
 			if(removedLayout) removedLayout->remove();
 			

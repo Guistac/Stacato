@@ -14,8 +14,10 @@ public:
 	
 	static std::shared_ptr<Plot> create();
 	static std::shared_ptr<Plot> load(std::string& filePath);
+	std::shared_ptr<Plot> duplicate();
 	bool save(std::string& filePath);
-
+	bool isCurrent();
+	
 	//—————————————————————————————————————
 	//		   General Properties
 	//—————————————————————————————————————
@@ -46,4 +48,3 @@ private:
 	std::time_t saveTime;
 	
 };
-

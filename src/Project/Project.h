@@ -1,11 +1,29 @@
 #pragma once
 
 class Plot;
+class Manoeuvre;
 
 namespace Project {
 
-	extern std::vector<std::shared_ptr<Plot>> plots;
-	extern std::shared_ptr<Plot> currentPlot;
+	std::vector<std::shared_ptr<Plot>>& getPlots();
+	std::shared_ptr<Plot> getCurrentPlot();
+	void setCurrentPlot(std::shared_ptr<Plot> plot);
+	std::shared_ptr<Plot> createNewPlot();
+	void deletePlot(std::shared_ptr<Plot> plot);
+	void duplicatePlot(std::shared_ptr<Plot> plot);
+
+	void deleteAllPlots();
+	void addPlot(std::shared_ptr<Plot> plot);
+
+	void lockPlotEdit();
+	void unlockPlotEdit();
+	bool isPlotEditLocked();
+
+	void pushManoeuvreToClipboard(std::shared_ptr<Manoeuvre> manoeuvre);
+	std::shared_ptr<Manoeuvre> getClipboardManeouvre();
+
+	//extern std::vector<std::shared_ptr<Plot>> plots;
+	//extern std::shared_ptr<Plot> currentPlot;
 
 	void createNew();
 	void loadStartup();

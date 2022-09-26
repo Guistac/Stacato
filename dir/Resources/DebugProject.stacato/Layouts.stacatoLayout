@@ -1,5 +1,5 @@
 <Layouts>
-    <Layout Name="Single Screen">
+    <Layout Name="Single Screen" IsDefault="true">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Dashboard"/>
@@ -9,6 +9,12 @@
             <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -528,7 +534,7 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Dual Screen" IsDefault="true">
+    <Layout Name="Dual Screen">
         <OpenWindows>
             <Window Name="Dashboard"/>
             <Window Name="Setup"/>
@@ -542,6 +548,12 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="EtherCAT Fieldbus"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 
@@ -949,6 +961,12 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Log"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
 
 
 

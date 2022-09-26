@@ -10,6 +10,58 @@ namespace Project {
 	std::vector<std::shared_ptr<Plot>> plots;
 	std::shared_ptr<Plot> currentPlot;
 
+	std::vector<std::shared_ptr<Plot>>& getPlots(){ return plots; }
+
+	std::shared_ptr<Plot> getCurrentPlot(){ return currentPlot; }
+
+	void setCurrentPlot(std::shared_ptr<Plot> plot){
+		if(plot == nullptr) return;
+		currentPlot = plot;
+	}
+
+	std::shared_ptr<Plot> createNewPlot(){
+		auto newPlot = Plot::create();
+		plots.push_back(newPlot);
+		currentPlot = newPlot;
+		return newPlot;
+	}
+
+	void deletePlot(std::shared_ptr<Plot> plot){
+		if(plots.size() <= 1) return;
+		for(int i = 0; i < plots.size(); i++){
+			if(plots[i] == plot){
+				plots.erase(plots.begin() + i);
+				break;
+			}
+		}
+		if(plot == currentPlot) currentPlot = plots.front();
+	}
+
+	void deleteAllPlots(){
+		plots.clear();
+		currentPlot = nullptr;
+	}
+
+	void addPlot(std::shared_ptr<Plot> plot){
+		plots.push_back(plot);
+	}
+
+	void duplicatePlot(std::shared_ptr<Plot> plot){
+		auto copy = plot->duplicate();
+		plots.push_back(copy);
+		currentPlot = copy;
+	}
+
+	bool b_plotEditLocked = true;
+	void lockPlotEdit(){ b_plotEditLocked = true; }
+	void unlockPlotEdit(){ b_plotEditLocked = false; }
+	bool isPlotEditLocked(){ return b_plotEditLocked; }
+
+
+	std::shared_ptr<Manoeuvre> manoeuvreClipboard = nullptr;
+	void pushManoeuvreToClipboard(std::shared_ptr<Manoeuvre> manoeuvre){ manoeuvreClipboard = manoeuvre; }
+	std::shared_ptr<Manoeuvre> getClipboardManeouvre() { return manoeuvreClipboard; }
+
 
 
 	bool canCloseImmediately(){

@@ -9,6 +9,8 @@
 #include "Animation/Animatable.h"
 #include "Machine/Machine.h"
 
+#include "Project/Project.h"
+
 #include "Gui/Utilities/CustomWidgets.h"
 
 void Manoeuvre::curveEditor(){
@@ -19,76 +21,81 @@ void Manoeuvre::curveEditor(){
 	float sequenceEditorHeight = ImGui::GetContentRegionAvail().y;
 	ImGui::BeginChild("SequenceEditor", glm::vec2(sequenceEditorWidth, sequenceEditorHeight));
 	
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
-	float inputFieldWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * .5f;
+	if(!Project::isPlotEditLocked()){
 	
-	glm::vec2 fieldsize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
-	ImDrawList* drawing = ImGui::GetWindowDrawList();
-	ImColor backgroundColor = ImColor(Colors::veryDarkGray);
-	float rounding = ImGui::GetStyle().FrameRounding;
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
+		float inputFieldWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * .5f;
+		
+		glm::vec2 fieldsize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		ImColor backgroundColor = ImColor(Colors::veryDarkGray);
+		float rounding = ImGui::GetStyle().FrameRounding;
 
-	auto pointFieldEditor = [&](const char* name, double* data, const char* txt = "") -> bool {
-		glm::vec2 cursor = ImGui::GetCursorPos();
-		ImGui::Dummy(fieldsize);
-		drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), backgroundColor, rounding, ImDrawFlags_RoundCornersAll);
-		ImGui::SetCursorPosX(cursor.x + ImGui::GetStyle().FramePadding.x);
-		ImGui::SetCursorPosY(cursor.y + (ImGui::GetFrameHeight() - ImGui::GetTextLineHeight()) * .5f);
-		ImGui::Text("%s", name);
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(cursor.y);
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if(data == nullptr) {
-			ImGui::BeginDisabled();
-			ImGui::InputText(name, (char*)txt, 0);
-			ImGui::EndDisabled();
-			return false;
-		}
-		else {
-			ImGui::SetItemAllowOverlap();
-			return ImGui::InputDouble(name, data);
-		}
-	};
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	backgroundText("Control Point Editor", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()), Colors::darkGray);
-	ImGui::PopFont();
-	
-	auto& selectedControlPoints = getSelectedControlPoints();
-	if(selectedControlPoints.empty()){
-		static const char* noSelectionString = "No Selection";
-		pointFieldEditor("Time", nullptr, noSelectionString);
-		pointFieldEditor("Position", nullptr, noSelectionString);
-		pointFieldEditor("Velocity", nullptr, noSelectionString);
-		pointFieldEditor("In-Acceleration", nullptr, noSelectionString);
-		pointFieldEditor("Out-Acceleration", nullptr, noSelectionString);
-	}else if(selectedControlPoints.size() > 1){
-		static const char* multipleSelectionString = "Multiple";
-		pointFieldEditor("Time", nullptr, multipleSelectionString);
-		pointFieldEditor("Position", nullptr, multipleSelectionString);
-		pointFieldEditor("Velocity", nullptr, multipleSelectionString);
-		pointFieldEditor("In-Acceleration", nullptr, multipleSelectionString);
-		pointFieldEditor("Out-Acceleration", nullptr, multipleSelectionString);
-	}else{
-		//single selection
-		auto controlPoint = selectedControlPoints.front();
-		bool b_pointEdited = false;
-		if(pointFieldEditor("Time", &controlPoint->time)) b_pointEdited = true;
-		if(pointFieldEditor("Position", &controlPoint->position)) b_pointEdited = true;
-		if(pointFieldEditor("Velocity", &controlPoint->velocity)) b_pointEdited = true;
-		if(pointFieldEditor("In-Acceleration", &controlPoint->inAcceleration)) b_pointEdited = true;
-		if(pointFieldEditor("Out-Acceleration", &controlPoint->outAcceleration)) b_pointEdited = true;
-		if(b_pointEdited) {
-            //check for nullptr
-			if(getSelectedEditorAnimation()->getType() == ManoeuvreType::SEQUENCE){
-				getSelectedEditorAnimation()->toSequence()->updateAfterCurveEdit();
+		auto pointFieldEditor = [&](const char* name, double* data, const char* txt = "") -> bool {
+			glm::vec2 cursor = ImGui::GetCursorPos();
+			ImGui::Dummy(fieldsize);
+			drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), backgroundColor, rounding, ImDrawFlags_RoundCornersAll);
+			ImGui::SetCursorPosX(cursor.x + ImGui::GetStyle().FramePadding.x);
+			ImGui::SetCursorPosY(cursor.y + (ImGui::GetFrameHeight() - ImGui::GetTextLineHeight()) * .5f);
+			ImGui::Text("%s", name);
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(cursor.y);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			if(data == nullptr) {
+				ImGui::BeginDisabled();
+				ImGui::InputText(name, (char*)txt, 0);
+				ImGui::EndDisabled();
+				return false;
+			}
+			else {
+				ImGui::SetItemAllowOverlap();
+				return ImGui::InputDouble(name, data);
+			}
+		};
+		
+		ImGui::PushFont(Fonts::sansBold15);
+		backgroundText("Control Point Editor", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()), Colors::darkGray);
+		ImGui::PopFont();
+		
+		auto& selectedControlPoints = getSelectedControlPoints();
+		if(selectedControlPoints.empty()){
+			static const char* noSelectionString = "No Selection";
+			pointFieldEditor("Time", nullptr, noSelectionString);
+			pointFieldEditor("Position", nullptr, noSelectionString);
+			pointFieldEditor("Velocity", nullptr, noSelectionString);
+			pointFieldEditor("In-Acceleration", nullptr, noSelectionString);
+			pointFieldEditor("Out-Acceleration", nullptr, noSelectionString);
+		}else if(selectedControlPoints.size() > 1){
+			static const char* multipleSelectionString = "Multiple";
+			pointFieldEditor("Time", nullptr, multipleSelectionString);
+			pointFieldEditor("Position", nullptr, multipleSelectionString);
+			pointFieldEditor("Velocity", nullptr, multipleSelectionString);
+			pointFieldEditor("In-Acceleration", nullptr, multipleSelectionString);
+			pointFieldEditor("Out-Acceleration", nullptr, multipleSelectionString);
+		}else{
+			//single selection
+			auto controlPoint = selectedControlPoints.front();
+			bool b_pointEdited = false;
+			if(pointFieldEditor("Time", &controlPoint->time)) b_pointEdited = true;
+			if(pointFieldEditor("Position", &controlPoint->position)) b_pointEdited = true;
+			if(pointFieldEditor("Velocity", &controlPoint->velocity)) b_pointEdited = true;
+			if(pointFieldEditor("In-Acceleration", &controlPoint->inAcceleration)) b_pointEdited = true;
+			if(pointFieldEditor("Out-Acceleration", &controlPoint->outAcceleration)) b_pointEdited = true;
+			if(b_pointEdited) {
+				//check for nullptr
+				if(getSelectedEditorAnimation()->getType() == ManoeuvreType::SEQUENCE){
+					getSelectedEditorAnimation()->toSequence()->updateAfterCurveEdit();
+				}
 			}
 		}
+		
+		ImGui::PopStyleVar();
+		
+		ImGui::Separator();
+			
 	}
 	
-	ImGui::PopStyleVar();
-	
-	ImGui::Separator();
-	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	backgroundText("Curve Selector", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()), Colors::darkGray);
@@ -198,7 +205,9 @@ void Manoeuvre::curveEditor(){
 		//draw animation curves
 		for (auto& animation : getAnimations()) animation->drawCurves();
 		
-        if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
+		if(!Project::isPlotEditLocked()){
+			if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
+		}
         
         /*
 		//draw curve editor controls
@@ -240,7 +249,7 @@ void Manoeuvre::curveEditor(){
 
 		if(ImPlot::IsPlotHovered()){
 		
-			if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)){
+			if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !Project::isPlotEditLocked()){
 				auto selectedCurve = getSelectedEditorCurve();
 				auto selectedAnimation = getSelectedEditorAnimation();
 				if(selectedCurve != nullptr && selectedAnimation != nullptr){
@@ -253,7 +262,7 @@ void Manoeuvre::curveEditor(){
 			}
 		}
 		
-		if(ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
+		if(!Project::isPlotEditLocked() && ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
 			deletedControlPointSelection();
 			selectedEditorCurve->refresh();
 		}

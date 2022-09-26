@@ -28,7 +28,7 @@ int main(int argcount, const char ** args){
     //initialize application
 	ApplicationWindow::init();
     
-    setProcessPriority();
+    //setProcessPriority();
 		
 	//initialize node factory modules
 	NodeFactory::load();

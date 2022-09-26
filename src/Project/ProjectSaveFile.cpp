@@ -39,11 +39,17 @@ namespace Project{
 		}
 		Logger::info("Creating new project");
 		Environnement::createNew();
-		plots.clear();
-		currentPlot = nullptr;
-		currentPlot = Plot::create();
-		currentPlot->setName("Default Plot");
-		plots.push_back(currentPlot);
+		
+		deleteAllPlots();
+		auto defaultPlot = createNewPlot();
+		defaultPlot->setName("Default Plot");
+		setCurrentPlot(defaultPlot);
+		
+		
+		
+		
+		
+		
 		saveFilePath[0] = 0;
 		b_hasFilePath = false;
 		ApplicationWindow::hideUnsavedModifications();
@@ -122,7 +128,8 @@ namespace Project{
 				break;
 			}
 		}
-		if(!b_loadedEnvironnementFile) {
+		if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
+		if(!b_loadedLayoutFile) {
 			Logger::warn("Could not load layout file in project {}", filePath.filename().string());
 			return false;
 		}
@@ -150,14 +157,14 @@ namespace Project{
 				std::string plotFilePath = entry.path().string();
 				auto plot = Plot::load(plotFilePath);
 				if(plot == nullptr) Logger::warn("Could not load plot file {}", plotFilePath);
-				else plots.push_back(plot);
+				else addPlot(plot);
 			}
 		}
-		if (plots.empty()) {
-			plots.push_back(std::make_shared<Plot>());
-			plots.back()->setName("Default Plot");
-		}
-		currentPlot = plots.back();
+		if (getPlots().empty()) {
+			auto defaultPlot = createNewPlot();
+			defaultPlot->setName("Default Plot");
+			setCurrentPlot(defaultPlot);
+		}else setCurrentPlot(getPlots().front());
 
 		strcpy(saveFilePath, dir);
 		b_hasFilePath = true;
@@ -209,9 +216,10 @@ namespace Project{
 		std::string plotsFolder = projectFolderPath + "/Plots";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));
 
-		for (int i = 0; i < plots.size(); i++) {
-			std::shared_ptr<Plot> plot = plots[i];
-			std::string plotFilePath = plotsFolder + "/" + plot->getName() + "_" + std::to_string(i) + ".stacatoPlot";
+		for (int i = 0; i < getPlots().size(); i++) {
+			std::shared_ptr<Plot> plot = getPlots()[i];
+			std::string fileName = "Plot-" + std::to_string(i) + " " + plot->getName() + ".stacatoPlot";
+			std::string plotFilePath = plotsFolder + "/" + fileName;
 			plot->save(plotFilePath);
 		}
 	
