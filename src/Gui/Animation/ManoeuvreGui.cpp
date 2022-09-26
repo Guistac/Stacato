@@ -25,6 +25,8 @@
 
 #include "Gui/Utilities/ReorderableList.h"
 
+#include "Project/Project.h"
+
 
 //inside draggable list element: InvisibleButton/ClipRectangle
 void Manoeuvre::listGui(){
@@ -302,45 +304,87 @@ void Manoeuvre::sheetEditor(){
 	
 	
 	
-	ImVec2 cursorPos = ImGui::GetCursorPos();
+	if(Project::isPlotEditLocked()){
+		
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		ImDrawListSplitter layers;
+		layers.Split(drawing, 2);
+		
+		layers.SetCurrentChannel(drawing, 1);
+		
+		glm::vec2 titleMin, titleMax, descriptionMax;
+		
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().FramePadding.x);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().FramePadding.y);
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		ImGui::Text("%s", getName());
+		ImGui::PopFont();
+		
+		titleMin = ImGui::GetItemRectMin();
+		titleMax = ImGui::GetItemRectMax();
+		
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().FramePadding.x);
+		
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::TextWrapped("%s", getDescription());
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+		
+		descriptionMax = ImGui::GetItemRectMax();
+		
+		layers.SetCurrentChannel(drawing, 0);
+		
+		glm::vec2 padding = ImGui::GetStyle().FramePadding;
+		float maxX = std::max(descriptionMax.x, titleMax.x);
+		drawing->AddRectFilled(titleMin - padding, glm::vec2(maxX, descriptionMax.y) + padding, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding);
+		drawing->AddRectFilled(titleMin - padding, glm::vec2(maxX, titleMax.y) + padding, ImColor(Colors::veryDarkGray), ImGui::GetStyle().FrameRounding);
+		
+		layers.Merge(drawing);
+		
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().FramePadding.y);
+		
+	}else{
 	
-	ImGui::BeginGroup();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Manoeuvre Type");
-	ImGui::PopFont();
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
-	type->gui();
-	 
-	ImGui::EndGroup();
-	
-	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
-	ImGui::SetCursorPos(cursorPos);
-	
-	ImGui::BeginGroup();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Name");
-	ImGui::PopFont();
-	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 15.0);
-	name->gui();
-	ImGui::EndGroup();
-	
-	cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
-	ImGui::SetCursorPos(cursorPos);
-	
-	ImGui::BeginGroup();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Description");
-	ImGui::PopFont();
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-	description->gui();
-	ImGui::EndGroup();
+		ImVec2 cursorPos = ImGui::GetCursorPos();
+		
+		ImGui::BeginGroup();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Manoeuvre Type");
+		ImGui::PopFont();
+		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 8.0);
+		type->gui();
 		 
-	ImGui::Separator();
+		ImGui::EndGroup();
+		
+		cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
+		ImGui::SetCursorPos(cursorPos);
+		
+		ImGui::BeginGroup();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Name");
+		ImGui::PopFont();
+		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 15.0);
+		name->gui();
+		ImGui::EndGroup();
+		
+		cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
+		ImGui::SetCursorPos(cursorPos);
+		
+		ImGui::BeginGroup();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Description");
+		ImGui::PopFont();
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		description->gui();
+		ImGui::EndGroup();
+			
+	}
 	
 	int removedTrackIndex = -1;
 	int movedUpTrackIndex = -1;
 	int movedDownTrackIndex = -1;
-
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
@@ -359,19 +403,31 @@ void Manoeuvre::sheetEditor(){
 			if (animation->hasParentComposite()) continue;
 			
 			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
 			
-			ListManagerWidget::Interaction interaction = ListManagerWidget::draw(animation == animations.front(), animation == animations.back(), "", ImGui::GetFrameHeight());
-			switch(interaction){
-				case ListManagerWidget::Interaction::NONE: break;
-				case ListManagerWidget::Interaction::MOVE_UP: movedUpTrackIndex = i; break;
-				case ListManagerWidget::Interaction::MOVE_DOWN: movedDownTrackIndex = i; break;
-				case ListManagerWidget::Interaction::DELETE: removedTrackIndex = i; break;
+			
+			if(Project::isPlotEditLocked()){
+				
+				//[1] "Playback"
+				ImGui::TableSetColumnIndex(0);
+				animation->playbackGui();
+				
+			}else{
+				ImGui::TableSetColumnIndex(0);
+				
+				ListManagerWidget::Interaction interaction = ListManagerWidget::draw(animation == animations.front(), animation == animations.back(), "", ImGui::GetFrameHeight());
+				switch(interaction){
+					case ListManagerWidget::Interaction::NONE: break;
+					case ListManagerWidget::Interaction::MOVE_UP: movedUpTrackIndex = i; break;
+					case ListManagerWidget::Interaction::MOVE_DOWN: movedDownTrackIndex = i; break;
+					case ListManagerWidget::Interaction::DELETE: removedTrackIndex = i; break;
+				}
+				
+				//[1] "Playback"
+				ImGui::TableSetColumnIndex(1);
+				animation->playbackGui();
 			}
 			
-			//[1] "Playback"
-			ImGui::TableSetColumnIndex(1);
-			animation->playbackGui();
+		
 			
 			animation->baseTrackSheetRowGui();
 			animation->trackSheetRowGui();
@@ -394,33 +450,35 @@ void Manoeuvre::sheetEditor(){
 			ImGui::PopID();
 		}
 		
-		ImGui::TableNextRow();
-		
-		ImGui::TableSetColumnIndex(0);
-		glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0, ImGui::GetFrameHeight());
-		if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
-		if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
-			ImGui::BeginDisabled();
-			ImGui::MenuItem("Add Parameter Track");
-			ImGui::MenuItem("Machine List :");
-			ImGui::EndDisabled();
-			ImGui::Separator();
-			for (auto& machine : Environnement::getMachines()) {
-				if(machine->getAnimatables().empty()) continue;
-				if (ImGui::BeginMenu(machine->getName())) {
-					for (auto& animatable : machine->getAnimatables()) {
-						if (animatable->hasParentComposite()) continue;
-						bool isSelected = hasAnimation(animatable);
-						if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
-							if (!isSelected) addAnimation(animatable);
-							else removeAnimation(animatable);
+		if(!Project::isPlotEditLocked()){
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0, ImGui::GetFrameHeight());
+			if (ImGui::Button("Add Track", addTrackButtonSize)) ImGui::OpenPopup("ManoeuvreTrackAdder");
+			if (ImGui::BeginPopup("ManoeuvreTrackAdder")) {
+				ImGui::BeginDisabled();
+				ImGui::MenuItem("Add Parameter Track");
+				ImGui::MenuItem("Machine List :");
+				ImGui::EndDisabled();
+				ImGui::Separator();
+				for (auto& machine : Environnement::getMachines()) {
+					if(machine->getAnimatables().empty()) continue;
+					if (ImGui::BeginMenu(machine->getName())) {
+						for (auto& animatable : machine->getAnimatables()) {
+							if (animatable->hasParentComposite()) continue;
+							bool isSelected = hasAnimation(animatable);
+							if (ImGui::MenuItem(animatable->getName(), nullptr, isSelected)) {
+								if (!isSelected) addAnimation(animatable);
+								else removeAnimation(animatable);
+							}
 						}
+						ImGui::EndMenu();
 					}
-					ImGui::EndMenu();
 				}
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
 		}
+		
 		if(animations.empty()){
 			ImGui::TableNextColumn();
 			ImGui::Text("No Tracks");

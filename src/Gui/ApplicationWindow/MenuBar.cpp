@@ -91,7 +91,7 @@ namespace Gui {
 			}
 			
 			ImGui::BeginDisabled(Project::isPlotEditLocked());
-			if(ImGui::MenuItem("New Plot")) PlotGui::NewPlotPopup::get()->open();
+			if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
 			ImGui::EndDisabled();
 			
 			ImGui::Separator();
