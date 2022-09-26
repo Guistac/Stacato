@@ -151,15 +151,47 @@ namespace Project{
 			return false;
 		}
 		
-		//load plot files
-		for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::path(plotsFolderPath))) {
-			if (entry.path().extension() == ".stacatoPlot") {
-				std::string plotFilePath = entry.path().string();
-				auto plot = Plot::load(plotFilePath);
-				if(plot == nullptr) Logger::warn("Could not load plot file {}", plotFilePath);
-				else addPlot(plot);
-			}
+		
+		
+		
+		
+		std::string plotListFilePath = plotsFolderPath + "/PlotList.stacatoPlotList";
+		tinyxml2::XMLDocument plotListXML;
+		tinyxml2::XMLError loadResult = plotListXML.LoadFile(plotListFilePath.c_str());
+		if (loadResult != tinyxml2::XML_SUCCESS) {
+			Logger::warn("Could not open plot list file : {}", tinyxml2::XMLDocument::ErrorIDToName(loadResult));
+			return false;
 		}
+		
+		tinyxml2::XMLElement* plotsXML = plotListXML.FirstChildElement("Plots");
+		if(plotsXML == nullptr){
+			Logger::warn("could not find plot list xml element");
+			return false;
+		}
+		
+		std::vector<std::string> plotFileNames;
+		
+		tinyxml2::XMLElement* plotFileXML = plotsXML->FirstChildElement("Plot");
+		while(plotFileXML){
+			const char* plotFileName;
+			if(plotFileXML->QueryAttribute("FileName", &plotFileName) != tinyxml2::XML_SUCCESS) {
+				Logger::warn("could not find plot filename attribute");
+				return false;
+			}
+			plotFileNames.push_back(std::string(plotFileName));
+			plotFileXML = plotFileXML->NextSiblingElement("Plot");
+		}
+		
+		for(auto& plotFileName : plotFileNames){
+			std::string plotFilePath = plotsFolderPath + "/" + plotFileName;
+			auto plot = Plot::load(plotFilePath);
+			if(plot == nullptr){
+				Logger::warn("failed to load plot");
+				return false;
+			}
+			addPlot(plot);
+		}
+		
 		if (getPlots().empty()) {
 			auto defaultPlot = createNewPlot();
 			defaultPlot->setName("Default Plot");
@@ -215,13 +247,22 @@ namespace Project{
 		
 		std::string plotsFolder = projectFolderPath + "/Plots";
 		if (!std::filesystem::exists(std::filesystem::path(plotsFolder))) std::filesystem::create_directory(std::filesystem::path(plotsFolder));
-
+		
+		tinyxml2::XMLDocument plotListXML;
+		tinyxml2::XMLElement* plotsXML = plotListXML.NewElement("Plots");
+		plotListXML.InsertEndChild(plotsXML);
+		
 		for (int i = 0; i < getPlots().size(); i++) {
 			std::shared_ptr<Plot> plot = getPlots()[i];
 			std::string fileName = "Plot-" + std::to_string(i) + " " + plot->getName() + ".stacatoPlot";
 			std::string plotFilePath = plotsFolder + "/" + fileName;
 			plot->save(plotFilePath);
+			tinyxml2::XMLElement* plotXML = plotsXML->InsertNewChildElement("Plot");
+			plotXML->SetAttribute("FileName", fileName.c_str());
 		}
+		
+		std::string plotListFilePath = plotsFolder + "/PlotList.stacatoPlotList";
+		plotListXML.SaveFile(plotListFilePath.c_str());
 	
 		if(strcmp(saveFilePath, dir) != 0) strcpy(saveFilePath, dir);
 		b_hasFilePath = true;
