@@ -2,7 +2,7 @@
 
 #include "Console/ConsoleMapping.h"
 
-class ConsoleStarmania : public ConsoleMapping{
+class ConsoleStarmania : public ConsoleMapping, public std::enable_shared_from_this<ConsoleStarmania>{
 public:
 	
 	virtual std::vector<IODevice::Type>& getDeviceTypes() override{

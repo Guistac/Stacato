@@ -153,7 +153,7 @@ namespace Project{
 		
 		
 		
-		
+        Project::deleteAllPlots();
 		
 		std::string plotListFilePath = plotsFolderPath + "/PlotList.stacatoPlotList";
 		tinyxml2::XMLDocument plotListXML;
