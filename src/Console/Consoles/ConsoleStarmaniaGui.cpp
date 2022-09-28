@@ -29,9 +29,13 @@ public:
     Type type;
     
     //size in pixels
-    float widthToGamesizeRatio = 0.2;
+    //float widthToGamesizeRatio = 0.2;
     float sizeY;
     float sizeX = 20.0;
+    
+    float widthRatio;
+    float widthMin = 0.01;
+    float widthMax = 0.4;
     
     //values for ball collision
     float collisionPosX;
@@ -57,6 +61,7 @@ class Ball : public std::enable_shared_from_this<Ball>{
 public:
     Ball(std::shared_ptr<PongGame> g) : game(g) {
         velocity = startVelocity;
+        size = Random::getRanged(minSize, maxSize);
     }
     
     void onGamesizeChange();
@@ -70,7 +75,9 @@ public:
     glm::vec2 positionMin;
     glm::vec2 positionMax;
     
-    float size = 40.0;
+    float minSize = 2.0;
+    float maxSize = 50.0;
+    float size;
     float startVelocity = 10.0;
     float bounceVelocityMultiplier = 1.05;
     bool b_isInsideBounds = true;
@@ -222,9 +229,6 @@ public:
 
 
 void Paddle::onGamesizeChange(){
-    sizeY = game->gameSize.y * widthToGamesizeRatio;
-    minTravelY = sizeY * 0.5;
-    maxTravelY = game->gameSize.y - sizeY * 0.5;
     switch(type){
         case Type::LEFT_PADDLE:
             collisionPosX = sizeX;
@@ -236,6 +240,28 @@ void Paddle::onGamesizeChange(){
 }
 
 void Paddle::update(){
+        
+    float scoreRatio;
+    switch(type){
+        case Type::LEFT_PADDLE:
+            scoreRatio = float(game->scoreRight + 1) / float(game->scoreLeft + 1);
+            break;
+        case Type::RIGHT_PADDLE:
+            scoreRatio = float(game->scoreLeft + 1) / float(game->scoreRight + 1);
+            break;
+    }
+    
+    widthRatio = map(scoreRatio, 0.5, 2, widthMin, widthMax);
+    widthRatio = std::clamp(widthRatio, widthMin, widthMax);
+
+    
+    
+    
+    sizeY = game->gameSize.y * widthRatio;
+    minTravelY = sizeY * 0.5;
+    maxTravelY = game->gameSize.y - sizeY * 0.5;
+    
+    
     float normalizedYPosition = -joystick->getPosition().y;
     float normalizedXPosition = joystick->getPosition().x;
     collisionMinY = map(normalizedYPosition, -1.0, 1.0, minTravelY, maxTravelY) - sizeY * 0.5;
