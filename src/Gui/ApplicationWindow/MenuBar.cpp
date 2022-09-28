@@ -90,9 +90,9 @@ namespace Gui {
 				else Project::lockPlotEdit();
 			}
 			
-			ImGui::BeginDisabled(Project::isPlotEditLocked());
-			if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
-			ImGui::EndDisabled();
+            if(!Project::isPlotEditLocked()){
+                if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
+            }
 			
 			ImGui::Separator();
 			
@@ -149,31 +149,35 @@ namespace Gui {
 				}
 			}
 			
-			ImGui::Separator();
-						
-			ImGui::PushFont(Fonts::sansBold15);
-			if(Project::getClipboardManeouvre() == nullptr) {
-				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-				ImGui::Text("Clipboard empty.");
-			}else{
-				ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-				ImGui::Text("Clipboard: %s", Project::getClipboardManeouvre()->getName());
-			}
-			ImGui::PopStyleColor();
-			ImGui::PopFont();
-			
-			auto currentPlot = Project::getCurrentPlot();
-			
-			ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
-			if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
-			ImGui::EndDisabled();
-			
-			ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
-			if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
-				auto manoeuvreList = Project::getCurrentPlot()->getManoeuvreList();
-				manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
-			}
-			ImGui::EndDisabled();
+            if(!Project::isPlotEditLocked()){
+            
+                ImGui::Separator();
+                
+                ImGui::PushFont(Fonts::sansBold15);
+                if(Project::getClipboardManeouvre() == nullptr) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+                    ImGui::Text("Clipboard empty.");
+                }else{
+                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+                    ImGui::Text("Clipboard: %s", Project::getClipboardManeouvre()->getName());
+                }
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                
+                auto currentPlot = Project::getCurrentPlot();
+                
+                ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
+                if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
+                ImGui::EndDisabled();
+                
+                ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
+                if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
+                    auto manoeuvreList = Project::getCurrentPlot()->getManoeuvreList();
+                    manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
+                }
+                ImGui::EndDisabled();
+                
+            }
 			
 			ImGui::EndMenu();
 		}

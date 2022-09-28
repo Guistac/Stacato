@@ -26,6 +26,7 @@ namespace Fonts {
 	ImFont* sansLight42;
 
 	ImFont* mono14;
+    ImFont* mono42;
 
 	void load(float scale) {
 		ImGuiIO& io = ImGui::GetIO();
@@ -39,6 +40,7 @@ namespace Fonts {
 		sansLight15 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Light.ttf", 15.0f * scale, &conf);
 		
 		mono14 = io.Fonts->AddFontFromFileTTF("fonts/FiraCode-Retina.ttf", 14.0f * scale, &conf);
+        mono42 = io.Fonts->AddFontFromFileTTF("fonts/FiraCode-Retina.ttf", 42.0f * scale, &conf);
 		
 		sansRegular12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Regular.ttf", 12.0f * scale, &conf);
 		sansBold12 = io.Fonts->AddFontFromFileTTF("fonts/OpenSans-Bold.ttf", 12.0f * scale, &conf);
