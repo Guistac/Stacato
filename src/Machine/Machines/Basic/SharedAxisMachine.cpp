@@ -571,10 +571,11 @@ void SharedAxisMachine::outputProcess(){
 }
 
 void SharedAxisMachine::simulateInputProcess() {
-	/*
+	
+	
 	//update machine state
-	if(isEnabled()) state = MotionState::ENABLED;
-	else if(isAxisConnected()) state = MotionState::READY;
+	if(state == MotionState::ENABLED) { /* do nothing*/ }
+	else if(areAxesConnected() && axesHaveSamePositionUnit()) state = MotionState::READY;
 	else state = MotionState::OFFLINE;
 	
 	//update halt and estop state
@@ -582,10 +583,21 @@ void SharedAxisMachine::simulateInputProcess() {
 	b_halted = false;
 		
 	//update animatable state
-	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
-	else if(isEnabled() && !b_halted) animatablePosition->state = Animatable::State::READY;
-	else animatablePosition->state = Animatable::State::NOT_READY;
-	 */
+	if(state == MotionState::OFFLINE) {
+		axis1Animatable->state = Animatable::State::OFFLINE;
+		axis2Animatable->state = Animatable::State::OFFLINE;
+		synchronizedAnimatable->state = Animatable::State::OFFLINE;
+	}
+	else if(state == MotionState::ENABLED && !b_halted){
+		axis1Animatable->state = Animatable::State::READY;
+		axis2Animatable->state = Animatable::State::READY;
+		synchronizedAnimatable->state = Animatable::State::READY;
+	}
+	else{
+		axis1Animatable->state = Animatable::State::NOT_READY;
+		axis2Animatable->state = Animatable::State::NOT_READY;
+		synchronizedAnimatable->state = Animatable::State::NOT_READY;
+	}
 	
 	if(enableAntiCollision->value){
 		if(axis1isAboveAxis2->value){
@@ -611,18 +623,15 @@ void SharedAxisMachine::simulateInputProcess() {
 }
 
 void SharedAxisMachine::simulateOutputProcess(){
-	/*
-	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	 
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-	animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-	auto target = animatablePosition->getTargetValue()->toPosition();
-	animatablePosition->updateActualValue(target);
-	*positionPinValue = target->position;
-	*velocityPinValue = target->velocity;
-	 */
+	
+	axis1Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	axis2Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	synchronizedAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	
+	axis1Animatable->updateActualValue(axis1Animatable->getTargetValue());
+	axis2Animatable->updateActualValue(axis2Animatable->getTargetValue());
 }
 
 bool SharedAxisMachine::canStartHoming(){
