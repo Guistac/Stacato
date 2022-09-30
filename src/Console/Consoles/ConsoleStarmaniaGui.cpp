@@ -34,7 +34,7 @@ public:
     float sizeX = 20.0;
     
     float widthRatio;
-    float widthMin = 0.01;
+    float widthMin = 0.1;
     float widthMax = 0.4;
     
     //values for ball collision
@@ -75,7 +75,7 @@ public:
     glm::vec2 positionMin;
     glm::vec2 positionMax;
     
-    float minSize = 2.0;
+    float minSize = 10.0;
     float maxSize = 50.0;
     float size;
     float startVelocity = 10.0;

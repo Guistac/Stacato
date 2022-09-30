@@ -58,6 +58,7 @@ local flipRaisingImage = of.Image()
 local flipRaisedImage = of.Image()
 local tournetteCentreImage = of.Image()
 local tournetteAnneauImage = of.Image()
+local catImage = of.Image()
 
 
 function Visualizer.setup()
@@ -71,9 +72,10 @@ function Visualizer.setup()
     flipRaisedImage:load("Images/FlipRaised.png")
     tournetteCentreImage:load("Images/TournetteCentre.png")
     tournetteAnneauImage:load("Images/TournetteAnneau.png")
+    catImage:load("Images/Cat.png")
     
     lameVideoFace =             Environnement.getMachine("Lames Vidéo"):getAnimatable("Face");
-    lameVideoLointain =           Environnement.getMachine("Lames Vidéo"):getAnimatable("Lointain");
+    lameVideoLointain =         Environnement.getMachine("Lames Vidéo"):getAnimatable("Lointain");
     periacteLointainJardin =    Environnement.getMachine("Périactes Lointain"):getAnimatable("Jardin");
     periacteLointainCour =      Environnement.getMachine("Périactes Lointain"):getAnimatable("Cour");
     periacteMilieuJardin =      Environnement.getMachine("Périactes Milieu"):getAnimatable("Jardin");
@@ -156,8 +158,11 @@ function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState, bright)
     elseif actualState == flipStates.Raised then image = flipRaisedImage
     else image = flipOfflineImage end
 
+    if flipState:isOffline() then of.setColor(255)
+    elseif flipState:isHalted() then of.setColor(255, 255, 0, 255)
+    elseif flipState:isReady() then of.setColor(255)
+    else of.setColor(255, 0, 0) end
 
-    of.setColor(255)
     for i=0,(flipCount-1) do
         local imageX = minX + i * flipSizeX
         image:draw(imageX, minY, flipSizeX, sizeY)
@@ -176,14 +181,19 @@ function drawCostiere(posX, zeroY, rangeY, animatable)
     of.drawRectangle(posX - lineWidth * 0.5, zeroY, lineWidth, rangeY)
 
     of.setRectMode(of.RECTMODE_CENTER)
-    of.setColor(255, 255, 255, 200)
+    
+    if animatable:isOffline() then of.setColor(0, 0, 255, 200)
+    elseif animatable:isHalted() then of.setColor(255, 255, 0, 200)
+    elseif animatable:isReady() then of.setColor(255, 255, 255, 200)
+    else of.setColor(255, 0, 0, 200) end
+
     of.drawRectangle(posX, posY, sizeX, sizeY)
     of.setColor(0)
     of.drawRectangle(posX, posY, 200, 200)
     --of.drawCircle(posX, posY, 100, 100)
 end
 
-function periacteGraphic(x, y, mirror, anchorX, anchorY)
+function periacteGraphic(x, y, mirror, anchorX, anchorY, animatable)
     local sizeX = 1341.08
     local sizeY = 577.89
     x = x - anchorX * sizeX
@@ -195,12 +205,18 @@ function periacteGraphic(x, y, mirror, anchorX, anchorY)
     else
         of.translate(x, y)
     end
-    of.setColor(255, 255, 255, 100)
+    
+    if animatable:isOffline() then of.setColor(0, 0, 255, 200)
+    elseif animatable:isHalted() then of.setColor(255, 255, 0, 200)
+    elseif animatable:isReady() then of.setColor(255, 255, 255, 200)
+    else of.setColor(255, 0, 0, 200) end
+
     of.beginShape()
     of.vertex(72.56, 0)
     of.vertex(291.54, 471.64)
     of.vertex(1307.39, 0)
     of.endShape()
+
     of.setColor(0)
     of.beginShape()
     of.vertex(0, 33.69)
@@ -220,8 +236,8 @@ function drawPeriactes(posY, rangeX, animatable1, animatable2, orientation1, ori
     of.drawRectangle(0, posY, rangeX * 2, lineThickness)
     local pos1 = animatable1:getActualValue().Position * 1000
     local pos2 = animatable2:getActualValue().Position * 1000
-    periacteGraphic(pos1, posY, orientation1, 1, 0.5)
-    periacteGraphic(pos2, posY, orientation2, 0, 0.5)
+    periacteGraphic(pos1, posY, orientation1, 1, 0.5, animatable1)
+    periacteGraphic(pos2, posY, orientation2, 0, 0.5, animatable2)
 end
 
 function drawLames(posY, rangeX, animatable)
@@ -233,8 +249,18 @@ function drawLames(posY, rangeX, animatable)
     local posX = animatable:getActualValue().Position * 1000
     local lameThickness = 100
     local rectY = posY - lameThickness * 0.5
-    of.setColor(0)
+
     of.setRectMode(of.RECTMODE_CORNER)
+
+    if animatable:isOffline() then of.setColor(0, 0, 255, 200)
+    elseif animatable:isHalted() then of.setColor(255, 255, 0, 200)
+    elseif animatable:isReady() then of.setColor(255, 255, 255, 200)
+    else of.setColor(255, 0, 0, 200) end
+
+    of.drawRectangle(posX, rectY - lameThickness, 3000, lameThickness * 2)
+    of.drawRectangle(- 3000 - posX, rectY - lameThickness, 3000, lameThickness * 2)
+
+    of.setColor(0)
     of.drawRectangle(posX, rectY, 1000, lameThickness)
     of.drawRectangle(posX + 2000, rectY, 1000, lameThickness)
     of.drawRectangle(- 1000 - posX, rectY, 1000, lameThickness)
@@ -243,6 +269,43 @@ end
 
 
 
+function drawTournettes()
+    local tournetteAnneauRotation = tournetteAnneau:getActualValue().Position
+    local tournetteCentreRotation = tournetteCentre:getActualValue().Position
+
+
+    of.setRectMode(of.RECTMODE_CENTER)
+    of.pushMatrix()
+    of.translate(0, 3563)
+    of.rotateZDeg(tournetteCentreRotation)
+    if tournetteCentre:isOffline() then of.setColor(100, 100, 255)
+    elseif tournetteCentre:isHalted() then of.setColor(255, 255, 100)
+    elseif tournetteCentre:isReady() then of.setColor(255, 255, 255)
+    else of.setColor(200, 0, 0) end
+    tournetteCentreImage:draw(0, 0, 7600, 7600)
+    of.popMatrix()
+    of.pushMatrix()
+    of.translate(0, 3563)
+    of.rotateZDeg(tournetteAnneauRotation)
+    if tournetteAnneau:isOffline() then of.setColor(100, 100, 255)
+    elseif tournetteAnneau:isHalted() then of.setColor(255, 255, 100)
+    elseif tournetteAnneau:isReady() then of.setColor(255, 255, 255)
+    else of.setColor(200, 0, 0) end
+    tournetteAnneauImage:draw(0, 0, 7600, 7600)
+    of.popMatrix()
+
+    if Canvas.isPressed() then 
+    
+    of.setColor(255)
+    of.setRectMode(of.RECTMODE_CENTER)
+    of.pushMatrix()
+    of.translate(0, 3563)
+    of.rotateZDeg(tournetteCentreRotation * 50.0);
+    catImage:draw(0, 0, 7000, 7000)
+    of.popMatrix()
+
+    end
+end
 
 
 
@@ -275,9 +338,6 @@ end
 
 
 function drawStage()
-
-    --of.setColor(0,0,0,64)
-    --of.drawRectangle(drawingMinX, drawingMinY, drawingSizeX, drawingSizeY)
 
     of.setColor(64)
     of.beginShape()
@@ -348,20 +408,7 @@ function drawStage()
     drawFlip(8480, 7562, 3040, 1000, 3, Flip_AC3, true)
 
     --tournettes
-    local tournetteAnneauRotation = tournetteAnneau:getActualValue().Position
-    local tournetteCentreRotation = tournetteCentre:getActualValue().Position
-    of.setRectMode(of.RECTMODE_CENTER)
-    of.pushMatrix()
-    of.translate(0, 3563)
-    of.rotateZDeg(tournetteCentreRotation)
-    tournetteCentreImage:draw(0, 0, 7600, 7600)
-    of.popMatrix()
-    of.pushMatrix()
-    of.translate(0, 3563)
-    of.rotateZDeg(tournetteAnneauRotation)
-    tournetteAnneauImage:draw(0, 0, 7600, 7600)
-    of.popMatrix()
-
+    drawTournettes()
 
     --costieres
     drawCostiere(-6510, -7640, 12100, costiereJardin)

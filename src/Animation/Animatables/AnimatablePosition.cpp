@@ -651,6 +651,80 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	mutex.unlock();
 }
 
+
+void AnimatablePosition::simulateTargetValue(double time_seconds, double deltaT_seconds) {
+    mutex.lock();
+    
+    profileTime_seconds = time_seconds;
+    
+    double minPosition, maxPosition;
+    getConstraintPositionLimits(minPosition, maxPosition);
+    
+    //update the setpoints
+    if(hasAnimation()){
+        auto target = getAnimationValue()->toPosition();
+        motionProfile.setPosition(target->position);
+        motionProfile.setVelocity(target->velocity);
+        motionProfile.setAcceleration(target->acceleration);
+        copyMotionProfilerValueToTargetValue();
+        mutex.unlock();
+        return;
+    }
+    else if(motionProfile.hasInterpolationTarget()){
+        auto interpolationPoint = motionProfile.getInterpolationPoint(profileTime_seconds);
+        positionSetpoint = interpolationPoint.position;
+        velocitySetpoint = interpolationPoint.velocity;
+        controlMode = POSITION_SETPOINT;
+        if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
+            velocitySetpoint = 0.0;
+            motionProfile.resetInterpolation();
+        }
+    }else if(controlMode == POSITION_SETPOINT){
+        velocitySetpoint = 0.0;
+        accelerationSetpoint = 0.0;
+    }
+    //else control mode is forced and setpoint is adjuste externally
+    
+    //handle motion interrupt if the setpoint goes outside limits
+    if(controlMode == POSITION_SETPOINT || controlMode == FORCED_POSITION_SETPOINT){
+        if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
+            if(hasAnimation()) getAnimation()->pausePlayback();
+            stopMovement();
+            Logger::info("{} movement aborted, position set point was outside limits", getName());
+        }
+    }
+    
+    //update the motion profiler
+    switch(controlMode){
+        case FORCED_VELOCITY_SETPOINT:
+        case VELOCITY_SETPOINT:
+            motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
+                                                                velocitySetpoint,
+                                                                accelerationLimit,
+                                                                minPosition,
+                                                                maxPosition,
+                                                                accelerationLimit);
+            break;
+        case FORCED_POSITION_SETPOINT:
+        case POSITION_SETPOINT:
+            motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
+                                                                positionSetpoint,
+                                                                velocitySetpoint,
+                                                                accelerationSetpoint,
+                                                                accelerationLimit,
+                                                                velocityLimit,
+                                                                minPosition,
+                                                                maxPosition);
+            break;
+    }
+    
+        
+    //generate an output target value to be read by the machine
+    copyMotionProfilerValueToTargetValue();
+    mutex.unlock();
+}
+
+
 std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
 	auto r = AnimationValue::makePosition();
 	mutex.lock();

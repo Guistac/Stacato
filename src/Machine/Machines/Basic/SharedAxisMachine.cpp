@@ -308,11 +308,13 @@ void SharedAxisMachine::inputProcess() {
 			axis1Animatable->state = Animatable::State::OFFLINE;
 			break;
 		case MotionState::NOT_READY:
-			axis1Animatable->state = Animatable::State::NOT_READY;
-			break;
 		case MotionState::READY:
+            if(b_halted) axis1Animatable->state = Animatable::State::HALTED;
+            else axis1Animatable->state = Animatable::State::NOT_READY;
+            break;
 		case MotionState::ENABLED:
-			axis1Animatable->state = Animatable::State::READY;
+            if(b_halted) axis1Animatable->state = Animatable::State::HALTED;
+			else axis1Animatable->state = Animatable::State::READY;
 			break;
 	}
 	switch(axis2->getState()){
@@ -320,9 +322,10 @@ void SharedAxisMachine::inputProcess() {
 			axis2Animatable->state = Animatable::State::OFFLINE;
 			break;
 		case MotionState::NOT_READY:
-			axis2Animatable->state = Animatable::State::NOT_READY;
-			break;
 		case MotionState::READY:
+            if(b_halted) axis2Animatable->state = Animatable::State::HALTED;
+            else axis2Animatable->state = Animatable::State::NOT_READY;
+            break;
 		case MotionState::ENABLED:
 			axis2Animatable->state = Animatable::State::READY;
 			break;
@@ -626,9 +629,9 @@ void SharedAxisMachine::simulateOutputProcess(){
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	
-	axis1Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-	axis2Animatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
-	synchronizedAnimatable->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	axis1Animatable->simulateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	axis2Animatable->simulateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
+	synchronizedAnimatable->simulateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
 	
 	axis1Animatable->updateActualValue(axis1Animatable->getTargetValue());
 	axis2Animatable->updateActualValue(axis2Animatable->getTargetValue());

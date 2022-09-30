@@ -1,5 +1,6 @@
 <Plots>
-    <Plot FileName="Plot-0 Default Plot.stacatoPlot"/>
-    <Plot FileName="Plot-1 Acte I.stacatoPlot"/>
-    <Plot FileName="Plot-2 Test Plot testing lol.stacatoPlot"/>
+    <Plot FileName="Plot-0 Acte 1.stacatoPlot"/>
+    <Plot FileName="Plot-1 Acte 2.stacatoPlot"/>
+    <Plot FileName="Plot-2 Bricolage.stacatoPlot"/>
+    <Plot FileName="Plot-3 Mises.stacatoPlot"/>
 </Plots>

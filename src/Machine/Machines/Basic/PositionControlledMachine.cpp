@@ -197,7 +197,10 @@ void PositionControlledMachine::inputProcess() {
 	
 	//update animatable state
 	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
-	else if(state == MotionState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
+    else if(state == MotionState::ENABLED){
+        if(b_halted) animatablePosition->state = Animatable::State::HALTED;
+        else animatablePosition->state = Animatable::State::READY;
+    }
 	else animatablePosition->state = Animatable::State::NOT_READY;
 	
 	auto actualPosition = AnimationValue::makePosition();

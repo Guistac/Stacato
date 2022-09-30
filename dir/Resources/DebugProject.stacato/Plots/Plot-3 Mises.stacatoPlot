@@ -1,0 +1,22 @@
+<Plot Name="Mises">
+    <ManoeuvreList>
+        <Manoeuvre Name="Garage Video" Description="Périactes + Lames" Type="Key">
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Key" Target="-12.400000826638399"/>
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Key" Target="12.399996439686589"/>
+            <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Jardin" IsComposite="false" Type="Key" Target="-12.39999980098581"/>
+            <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Cour" IsComposite="false" Type="Key" Target="12.399999230126841"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Key" Target="-12.399991218620274"/>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Key" Target="12.399987495547347"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Key" Target="10.899993819080308"/>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Key" Target="10.900000526235129"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Travesti" Description="prémise tournettes" Type="Key">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="720"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="360"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Il se passe quelque chose a Monopolis" Description="prémise tournettes" Type="Key">
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Centre" IsComposite="false" Type="Key" Target="143.9999282330555"/>
+            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Anneau" IsComposite="false" Type="Key" Target="360.03346450290178"/>
+        </Manoeuvre>
+    </ManoeuvreList>
+</Plot>

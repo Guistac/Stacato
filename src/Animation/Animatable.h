@@ -54,6 +54,7 @@ public:
 	enum class State{
 		OFFLINE,
 		NOT_READY,
+        HALTED,
 		READY
 	};
 	
