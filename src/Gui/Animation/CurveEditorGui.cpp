@@ -224,7 +224,7 @@ void Manoeuvre::curveEditor(){
 			double playbackTime = getSychronizedPlaybackPosition();
             
             if(Environnement::isSimulating()){
-                
+				if(ImPlot::DragLineX("Playhead", &playbackTime)) setSynchronizedPlaybackPosition(playbackTime);
             }else{
                 if(!isnan(playbackTime)){
                     ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
