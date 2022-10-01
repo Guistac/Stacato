@@ -229,6 +229,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -609,6 +625,22 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X S
             <Window Name="Log"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1144,6 +1176,22 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Window][Debug##Default]
 Pos=60,60
 Size=400,400
@@ -1538,6 +1586,22 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,57 Size=1920,939 Centr
             <Window Name="Manoeuvre List"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
