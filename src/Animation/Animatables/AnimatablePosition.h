@@ -98,6 +98,7 @@ public:
 	virtual bool hasManualControls() override { return true; }
 	virtual void onSetManualControlTarget(float x, float y, float z) override;
 	
+	virtual bool isMoving() override;
 	
 public:
 	void setManualVelocityTarget(double velocityTarget);

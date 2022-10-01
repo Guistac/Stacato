@@ -358,6 +358,12 @@ void AnimatablePosition::onPlaybackStop(){
 void AnimatablePosition::onPlaybackEnd(){}
 
 
+bool AnimatablePosition::isMoving(){
+	mutex.lock();
+	bool b_moving = motionProfile.getVelocity() != 0.0;
+	mutex.unlock();
+	return b_moving;
+}
 
 
 

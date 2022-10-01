@@ -78,6 +78,8 @@ public:
 	virtual std::vector<double> getCurvePositionsFromAnimationValue(std::shared_ptr<AnimationValue> value) override;
 	virtual bool isControlledManuallyOrByAnimation() override;
 	
+	virtual bool isMoving() override;
+	
 private:
 	
 	std::shared_ptr<AnimatableRealValue> targetValue;
