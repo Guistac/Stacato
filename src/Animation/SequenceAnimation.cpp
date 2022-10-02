@@ -245,13 +245,13 @@ void SequenceAnimation::getCurvePositionRange(double& min, double& max){
 
 void SequenceAnimation::captureStart(){
 	auto animatable = getAnimatable();
-	animatable->setParameterValueFromAnimationValue(start, animatable->getActualValue());
+	animatable->setParameterValueFromAnimationValue(start, animatable->getTargetValue());
 	updateAfterParameterEdit();
 }
 
 void SequenceAnimation::captureTarget(){
 	auto animatable = getAnimatable();
-	animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
+	animatable->setParameterValueFromAnimationValue(target, animatable->getTargetValue());
 	updateAfterParameterEdit();
 }
 

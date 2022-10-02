@@ -188,3 +188,7 @@ std::vector<double> AnimatableReal::getCurvePositionsFromAnimationValue(std::sha
 bool AnimatableReal::isControlledManuallyOrByAnimation() {
 	return false;
 }
+
+bool AnimatableReal::isMoving(){
+	return false;
+}

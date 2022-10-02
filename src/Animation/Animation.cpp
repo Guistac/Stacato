@@ -244,6 +244,7 @@ float Animation::getRapidProgress(){
 }
 
 float Animation::getPlaybackProgress(){
+    if(duration_seconds == 0.0) return 0.0;
 	return playbackPosition_seconds / duration_seconds;
 }
 
@@ -329,7 +330,7 @@ void Animation::updateDuration(){
 
 void Animation::updatePlaybackState(){
 	if(isPlaying()){
-		if(playbackPosition_seconds >= duration_seconds && isAtTarget()) {
+		if(playbackPosition_seconds >= duration_seconds && isAtTarget() && !animatable->isMoving()) {
 			b_isPlaying = false;
 			b_isPaused = false;
 			animatable->currentAnimation = nullptr;
