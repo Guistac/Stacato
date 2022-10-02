@@ -61,7 +61,10 @@ namespace PlotGui{
 					ImGui::PushFont(Fonts::sansBold15);
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
 				}
-				if(ImGui::Selectable(plot->getName())) Project::setCurrentPlot(plot);
+                if(ImGui::Selectable(plot->getName())) {
+                    Project::setCurrentPlot(plot);
+                    
+                }
 				if(b_isCurrent) {
 					ImGui::PopFont();
 					ImGui::PopStyleColor();

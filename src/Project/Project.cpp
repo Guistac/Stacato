@@ -17,6 +17,7 @@ namespace Project {
 	void setCurrentPlot(std::shared_ptr<Plot> plot){
 		if(plot == nullptr) return;
 		currentPlot = plot;
+        plot->b_scrollToSelectedManoeuvre = true;
 	}
 
 	std::shared_ptr<Plot> createNewPlot(){
