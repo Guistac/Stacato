@@ -71,15 +71,16 @@ void SafetySignal::inputProcess(){
 	
 	switch(safetyState){
 		case State::CLEAR:
+            *stateLedSignal = true;
+            break;
 		case State::OFFLINE:
 			*stateLedSignal = false;
 			break;
 		case State::EMERGENCY_STOP:
-			*stateLedSignal = true;
-			break;
+            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->value);
+            break;
 		case State::UNCLEARED_SAFETY_FAULT:{
-			double blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->value;
-			*stateLedSignal = fmod(Timing::getProgramTime_seconds(), blinkTimeSeconds) < blinkTimeSeconds * 0.5;
+            *stateLedSignal = true;
 			}break;
 	}
 	

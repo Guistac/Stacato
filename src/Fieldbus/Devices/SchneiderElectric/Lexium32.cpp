@@ -204,55 +204,18 @@ void Lexium32::readInputs() {
 	auto newPowerState = ds402Status.getPowerState();
 	if(newPowerState != actualPowerState){
 		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
-		pushEvent(message.c_str(), !DS402::isNominal(newPowerState));
+		pushEvent(message.c_str(), false/*!DS402::isNominal(newPowerState)*/);
 	}
 	actualPowerState = newPowerState;
 	
 	
-	//EXPERIMENTAL
-    /*
-	if(_LastError == 0xB121 && servoMotor->targetVelocity == 0.0){
-		b_autoClearingFault = true;
-		if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED) b_autoReenable = true;
-	}
-    if(_LastError == 0x0 && requestedPowerState == actualPowerState && b_autoClearingFault) {
-        b_autoClearingFault = false;
-        b_autoReenable = false;
-    }
-     
-    if(_LastError != 0x0 && _LastError != 0xB121){
-        b_autoClearingFault = false;
-        b_autoReenable = false;
-    }
-     */
-	
-	
 	//Read Error
 	if(_LastError != previousError){
-		/*
-		//EXPERIMENTAL: report auto clear status
-		if(_LastError == 0x0 && previousError == 0xB121){
-            enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-			if(requestedPowerState != DS402::PowerState::OPERATION_ENABLED) Logger::critical("{} Auto-Recovered from error B121", getName());
-		}
-		
-		
-		else
-            */
-            if(_LastError == 0x0) pushEvent("Error Cleared", false);
+        if(_LastError == 0x0) pushEvent("Error Cleared", false);
 		else{
 			std::string message = "Error " + getErrorCodeString(_LastError);
 			pushEvent(message.c_str(), true);
-			
-            /*
-			//EXPERIMENTAL
-			if(b_autoClearingFault){
-				//don't change the requested power state if we are clearing a fault
-			}else{
-             */
-				requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-			//}
-			
+            requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 		}
 	}
 	b_hasFault = ds402Status.hasFault() || _LastError != 0x0;
@@ -260,13 +223,10 @@ void Lexium32::readInputs() {
 	
 	//react to power state change
 	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
-		//EXPERIMENTAL: don't change the requested power state if we are autoclearing a fault
-		if(!b_autoClearingFault){
-			if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
-				Logger::warn("{} : Enable Request Timeout", getName());
-				requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-			}
-		}
+        if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
+            Logger::warn("{} : Enable Request Timeout", getName());
+            requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+        }
 	}
 
 	//read operating mode
@@ -280,7 +240,7 @@ void Lexium32::readInputs() {
 	//read STO State
 	bool b_stoActive = _IO_STO_act == 0;
 	if (b_stoActive != servoMotor->b_emergencyStopActive) {
-		if (b_stoActive) pushEvent("STO Activated", true);
+		if (b_stoActive) pushEvent("STO Activated", false);
 		else pushEvent("STO Released", false);
 	}
 	servoMotor->b_emergencyStopActive = b_stoActive;
