@@ -80,7 +80,7 @@ void SafetySignal::inputProcess(){
             *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->value);
             break;
 		case State::UNCLEARED_SAFETY_FAULT:{
-            *stateLedSignal = true;
+            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->value);
 			}break;
 	}
 	
