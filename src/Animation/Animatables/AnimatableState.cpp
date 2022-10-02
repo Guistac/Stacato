@@ -221,3 +221,9 @@ void AnimatableState::followActualValue(double time_seconds, double deltaTime_se
 	mutex.unlock();
 }
 
+bool AnimatableState::isMoving(){
+	mutex.lock();
+	bool b_moving = actualValue->value != targetValue->value;
+	mutex.unlock();
+	return b_moving;
+}

@@ -116,6 +116,7 @@ public:
 	virtual void cancelRapid() = 0;
 	virtual std::shared_ptr<AnimationValue> getRapidTarget() = 0;
 	
+	virtual bool isMoving() = 0;
 	virtual void stopMovement() = 0;
 	void stopAnimation();
 	

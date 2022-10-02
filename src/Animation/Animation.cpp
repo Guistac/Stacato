@@ -327,7 +327,7 @@ void Animation::updateDuration(){
 
 void Animation::updatePlaybackState(){
 	if(isPlaying()){
-		if(playbackPosition_seconds >= duration_seconds && isAtTarget()) {
+		if(playbackPosition_seconds >= duration_seconds && isAtTarget() && !animatable->isMoving()) {
 			b_isPlaying = false;
 			b_isPaused = false;
 			animatable->currentAnimation = nullptr;
