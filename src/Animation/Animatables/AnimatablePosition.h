@@ -79,6 +79,8 @@ public:
 	virtual std::shared_ptr<AnimationValue> getTargetValue() override;
 	std::shared_ptr<AnimatablePositionValue> targetValue;
 	
+    virtual void simulateTargetValue(double time_seconds, double deltaTime_seconds);
+    
 	virtual void updateActualValue(std::shared_ptr<AnimationValue> newActualValue) override;
 	virtual std::shared_ptr<AnimationValue> getActualValue() override;
 	std::shared_ptr<AnimatablePositionValue> actualValue;

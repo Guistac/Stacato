@@ -222,10 +222,16 @@ void Manoeuvre::curveEditor(){
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();
-			if(!isnan(playbackTime)){
-				ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-				ImPlot::PlotVLines("Playhead", &playbackTime, 1);
-			}
+            
+            if(Environnement::isSimulating()){
+				if(ImPlot::DragLineX("Playhead", &playbackTime)) setSynchronizedPlaybackPosition(playbackTime);
+            }else{
+                if(!isnan(playbackTime)){
+                    ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
+                    ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+                }
+            }
+            
 		}
 		
 		if(hasActiveAnimations()){

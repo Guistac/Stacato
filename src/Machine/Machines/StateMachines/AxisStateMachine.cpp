@@ -77,9 +77,10 @@ void AxisStateMachine::inputProcess() {
 			animatableVelocity->state = Animatable::State::OFFLINE;
 			break;
 		case MotionState::NOT_READY:
-			animatableState->state = Animatable::State::NOT_READY;
-			animatableVelocity->state = Animatable::State::NOT_READY;
 		case MotionState::READY:
+            animatableState->state = Animatable::State::NOT_READY;
+            animatableVelocity->state = Animatable::State::NOT_READY;
+            break;
 		case MotionState::ENABLED:
 			animatableState->state = Animatable::State::READY;
 			animatableVelocity->state = Animatable::State::READY;

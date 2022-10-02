@@ -221,7 +221,9 @@ void Animation::rapidToTarget(){
 
 void Animation::rapidToPlaybackPosition(){
 	if(!canRapidToPlaybackPosition()) return;
+    double pos = playbackPosition_seconds;
 	animatable->stopAnimation();
+    setPlaybackPosition(pos);
 	if(onRapidToPlaybackPosition()){
 		
 		b_isPlaying = false;
