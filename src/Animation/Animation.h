@@ -223,7 +223,7 @@ public:
 	
 	void captureTarget(){
         auto animatable = getAnimatable();
-        animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
+        animatable->setParameterValueFromAnimationValue(target, animatable->getTargetValue());
 	}
 	std::shared_ptr<Parameter> target;
 	
@@ -299,7 +299,7 @@ public:
 	
 	void captureTarget(){
         auto animatable = getAnimatable();
-        animatable->setParameterValueFromAnimationValue(target, animatable->getActualValue());
+        animatable->setParameterValueFromAnimationValue(target, animatable->getTargetValue());
 	}
 	std::shared_ptr<Parameter> target;
 	std::shared_ptr<EnumeratorParameter<Constraint>> constraintType = std::make_shared<EnumeratorParameter<Constraint>>(Constraint::TIME, "Constraint Type", "ConstraintType");

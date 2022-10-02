@@ -208,6 +208,7 @@ void Manoeuvre::listGui(){
 			float progress;
 			if(animation->isInRapid()) progress = animation->getRapidProgress();
 			else progress = animation->getPlaybackProgress();
+            progress = std::clamp(progress, 0.01f, 1.0f);
 			glm::vec2 minBar(min.x, min.y + animationHeight * i);
 			glm::vec2 maxBar(minBar.x + size.x * progress, minBar.y + animationHeight);
 			ImGui::GetWindowDrawList()->AddRectFilled(minBar, maxBar, ImColor(glm::vec4(1.0, 1.0, 1.0, 0.1)), 5.0);

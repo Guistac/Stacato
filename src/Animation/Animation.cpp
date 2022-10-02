@@ -242,6 +242,7 @@ float Animation::getRapidProgress(){
 }
 
 float Animation::getPlaybackProgress(){
+    if(duration_seconds == 0.0) return 0.0;
 	return playbackPosition_seconds / duration_seconds;
 }
 

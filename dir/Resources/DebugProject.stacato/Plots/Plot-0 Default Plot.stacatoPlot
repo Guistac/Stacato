@@ -2468,5 +2468,17 @@
         <Manoeuvre Name="M-177" Description="" Type="Target">
             <Animation Machine="Cost Cour" MachineUniqueID="2303" Parameter="Position" IsComposite="false" Type="Target" Target="12" ConstraintType="Velocity" Time="0" Velocity="0.69999999999999996" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999"/>
         </Manoeuvre>
+        <Manoeuvre Name="M-172" Description="" Type="Target">
+            <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Target" Target="OpenLowered" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip G-C1" MachineUniqueID="1534" Parameter="State" IsComposite="false" Type="Target" Target="OpenLowered" ConstraintType="Time" Time="1" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Flip G-J1" MachineUniqueID="1485" Parameter="State" IsComposite="false" Type="Target" Target="OpenLowered" ConstraintType="Time" Time="1" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-173" Description="" Type="Key">
+            <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-174" Description="" Type="Target">
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

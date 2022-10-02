@@ -161,11 +161,13 @@ void AnimatableState::onPlaybackStart(std::shared_ptr<Animation> animation){
 void AnimatableState::onPlaybackPause(){
 	mutex.lock();
 	currentAnimation = nullptr;
+    stopMovement();
 	mutex.unlock();
 }
 void AnimatableState::onPlaybackStop(){
 	mutex.lock();
 	currentAnimation = nullptr;
+    stopMovement();
 	mutex.unlock();
 }
 void AnimatableState::onPlaybackEnd(){}

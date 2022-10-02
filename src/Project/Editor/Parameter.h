@@ -194,9 +194,9 @@ public:
 		ImGui::BeginDisabled(isDisabled());
 		
 		//Hacky way of getting floating point input with comma without disrupting other stuff like xml saving and loading
-		Gui::setFloatingPointComma();
+		//Gui::setFloatingPointComma();
 		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
-		Gui::setFloatingPointPeriod();
+		//Gui::setFloatingPointPeriod();
 		
 		ImGui::EndDisabled();
 		if(ImGui::IsItemDeactivatedAfterEdit()){
