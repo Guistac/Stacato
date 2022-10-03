@@ -92,7 +92,7 @@ bool PositionControlledMachine::isHardwareReady() {
 bool PositionControlledMachine::isMoving() {
     if (isAxisConnected()) {
         auto axis = getAxis();
-        axis->isMoving() && axis->getState() == MotionState::ENABLED;
+        return axis->isMoving() && axis->getState() == MotionState::ENABLED;
     }
 	return false;
 }
