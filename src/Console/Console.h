@@ -71,7 +71,7 @@ private:
 	std::vector<std::shared_ptr<IODevice>> ioDevices;
 	std::shared_ptr<ConsoleMapping> mapping;
 
-	uint16_t timeoutDelay_milliseconds = 257;
+	uint16_t timeoutDelay_milliseconds = 512;
     uint8_t heartbeatInterval_milliseconds = 25;
 	int connectionTimeoutDelay_milliseconds = 500;
 	double lastHeartbeatReceiveTime;
