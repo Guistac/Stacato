@@ -9,6 +9,7 @@
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 #include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
+#include "Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h"
 
 namespace NodeFactory{
 	
@@ -27,7 +28,9 @@ namespace NodeFactory{
 			//new PD4_E(),
 			new MicroFlex_e190(),
 			new CU1128(),
-			new CU1124()
+			new CU1124(),
+            new ECAT_2511_A_FiberConverter(),
+            new ECAT_2511_B_FiberConverter()
 		};
 
 		//sort devices by manufacturer

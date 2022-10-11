@@ -273,6 +273,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctionsGui.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverterGui.cpp
+
     #========================== MACHINE TYPES ===========================
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
