@@ -83,6 +83,7 @@ public:
 	virtual void updateTargetValue(double time_seconds, double deltaTime_seconds) override;
 	virtual void followActualValue(double time_seconds, double deltaTime_seconds) override;
 	
+	virtual bool isMoving() override;
 	
 	
 	bool b_inRapid = false;

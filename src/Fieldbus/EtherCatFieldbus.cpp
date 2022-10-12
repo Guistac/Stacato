@@ -804,7 +804,7 @@ namespace EtherCatFieldbus {
                 workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
                 frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
                 if(frameSentTime_nanoseconds < cycleStartTime_nanoseconds){
-                    Logger::error("Weird frame send time... {} {}", frameSentTime_nanoseconds, cycleStartTime_nanoseconds);
+                    //Logger::error("Weird frame send time... {} {}", frameSentTime_nanoseconds, cycleStartTime_nanoseconds);
                     frameSentTime_nanoseconds = cycleStartTime_nanoseconds;
                 }
             }

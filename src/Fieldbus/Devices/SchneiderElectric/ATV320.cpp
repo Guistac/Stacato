@@ -197,7 +197,7 @@ void ATV320::readInputs() {
 	auto newPowerState = ds402Status.getPowerState();
 	if(newPowerState != actualPowerState){
 		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
-		pushEvent(message.c_str(), !DS402::isNominal(newPowerState));
+		pushEvent(message.c_str(), false /*!DS402::isNominal(newPowerState)*/);
 	}
 	actualPowerState = newPowerState;
 	

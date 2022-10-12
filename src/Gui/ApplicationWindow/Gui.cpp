@@ -32,7 +32,6 @@ void initialize(){
 	Environnement::Gui::NodeManagerWindow::get()->addToDictionnary();
 	Environnement::Gui::VisualizerScriptWindow::get()->addToDictionnary();
 	Environnement::Gui::EtherCATWindow::get()->addToDictionnary();
-	Environnement::Gui::LogWindow::get()->addToDictionnary();
 	Environnement::Gui::ScriptEditorWindow::get()->addToDictionnary();
 	
 	//performance windows
@@ -41,12 +40,13 @@ void initialize(){
 	PlotGui::ManoeuvreListWindow::get()->addToDictionnary();
 	PlotGui::TrackSheetEditorWindow::get()->addToDictionnary();
 	PlotGui::CurveEditorWindow::get()->addToDictionnary();
-	Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
+	//Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
 	DashboardWindow::get()->addToDictionnary();
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
 	EtherCatNetworkWindow::get()->addToDictionnary();
 	EtherCatDevicesWindow::get()->addToDictionnary();
-	
+    Environnement::Gui::LogWindow::get()->addToDictionnary();
+    
 #ifdef STACATO_DEBUG
 	Environnement::unlockEditor();
 #else

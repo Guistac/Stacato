@@ -10,12 +10,12 @@
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 
-AnimatableStateStruct AxisStateMachine::stateUnknown =					{0, "Unknown", 					"Unknown"};
+AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
 AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
-AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{0, "Moving To Negative Limit", "MovingToNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::stateMovingToPositiveLimit =	{0, "Moving To Positive Limit", "MovingToPositiveLimit"};
-AnimatableStateStruct AxisStateMachine::stateNegativeLimit =			{0, "At Negative Limit", 		"AtNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::statePositiveLimit =			{0, "At Positive Limit", 		"AtPositiveLimit"};
+AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{-2, "Moving To Negative Limit", "MovingToNegativeLimit"};
+AnimatableStateStruct AxisStateMachine::stateMovingToPositiveLimit =	{2, "Moving To Positive Limit", "MovingToPositiveLimit"};
+AnimatableStateStruct AxisStateMachine::stateNegativeLimit =			{-1, "At Negative Limit", 		"AtNegativeLimit"};
+AnimatableStateStruct AxisStateMachine::statePositiveLimit =			{1, "At Positive Limit", 		"AtPositiveLimit"};
 
 std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
 	&AxisStateMachine::stateUnknown,
