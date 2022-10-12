@@ -27,6 +27,8 @@
 
 #include "Layout.h"
 
+#include "SnakeGame.h"
+
 namespace Gui {
 
 	void menuBar() {
@@ -282,6 +284,13 @@ namespace Gui {
 		if(unlockEditorShortcut.isTriggered()){
 			if(Environnement::isEditorLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
 			else Environnement::lockEditor();
+		}
+		
+		if(ImGui::IsKeyDown(ImGuiKey_UpArrow) &&
+		   ImGui::IsKeyDown(ImGuiKey_DownArrow) &&
+		   ImGui::IsKeyDown(ImGuiKey_LeftArrow) &&
+		   ImGui::IsKeyDown(ImGuiKey_RightArrow)){
+			SnakeGameWindow::get()->open();
 		}
 		
 		//utility windows

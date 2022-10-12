@@ -46,7 +46,6 @@ void initialize(){
 	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
 	EtherCatNetworkWindow::get()->addToDictionnary();
 	EtherCatDevicesWindow::get()->addToDictionnary();
-	SnakeGameWindow::get()->addToDictionnary();
 	
 #ifdef STACATO_DEBUG
 	Environnement::unlockEditor();
