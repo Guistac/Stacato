@@ -16,6 +16,7 @@
 #include "Gui/Environnement/Dashboard/Managers.h"
 #include "Gui/Plot/PlaybackGui.h"
 #include "Gui/Fieldbus/EtherCatGui.h"
+#include "SnakeGame.h"
 
 #include "Tests/CommandZ.h"
 #include "Tests/EsiReader.h"

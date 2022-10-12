@@ -403,6 +403,161 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
+        <Manoeuvre Name="1.3 - Séquence Ecrans V11 (Top à 01:01:07.00) AAA" Description="=== NOUVEAU ==== Ouverture - Monopolis + fermeture Flip-Flap" Type="Sequence">
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-9" End="-12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-0.5" Time="27" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-8" Time="52" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.5" Time="85" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.5" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-4.2450066024972228" Time="119.43204456421992" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-3.5154160678434225" Time="128.05986831308962" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-4.7036063671367545" Time="137.9778339309492" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-3.6821796186214337" Time="147.33136248112569" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-4.8286790302202629" Time="157.24932809898525" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-3.8906340570939504" Time="166.28032118191425" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-5.349815126401551" Time="177.40779480195178" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-4.2658520463444765" Time="188.05146522111815" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="9" End="12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.5" Time="27" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8" Time="52" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="85" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="105" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.36353795207364303" Time="114.10129544581233" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.54589592165708289" Time="123.19586228067507" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.80716423194228959" Time="133.92745114581314" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.21317621175559776" Time="143.29485498572177" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.76280160395542485" Time="152.38942182058452" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.25753883974246161" Time="162.12060833388767" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.91807080190945278" Time="172.21557752058533" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.057907013801570706" Time="181.40109002379671" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-1.1425196071458323" Time="192.8805123083024" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Jardin" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-10.5" End="-12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-0.5" Time="33" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-8" Time="58" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.5" Time="92" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.5" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-1.7187525236320971" Time="112.60208503111535" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.55445814118675019" Time="123.18536397442645" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-1.6687998333405534" Time="133.45555291143947" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.66317440383590043" Time="142.99215692438011" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-1.1252185200947946" Time="149.28002770214317" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.66317440383590309" Time="155.6726963262023" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-2.2259706794174563" Time="167.20045941876793" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.85342786347191568" Time="178.41382897244543" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-12.076887708802358" Time="210.98660569105866" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Périactes Milieu" MachineUniqueID="2233" Parameter="Cour" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10.5" End="12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.5" Time="33" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8" Time="58" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="92" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.6286490438673229" Time="119.59927239329966" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.102366756048859" Time="126.41410363704944" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.8939639370860899" Time="134.74495575930538" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.2782772407237992" Time="141.89456765527132" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="4.1258459396121472" Time="150.44301666131753" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.4381958631555634" Time="158.0899928630898" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="4.3097523554086763" Time="167.01146509849076" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.622102278952092" Time="174.65844130026306" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="4.4616750467188524" Time="183.17580503719637" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="3.6860697279247967" Time="191.56882769767813" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="12" Time="220" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Lointain" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10.9" End="10.9" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="10.9" Time="3" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="41" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8" Time="66" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.001" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.001" Time="110" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1.5" Time="125" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.95595105078989451" Time="131.84434617332084" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="2.0098129774293776" Time="141.14026724870979" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1.4828820141096359" Time="147.67094597888808" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="2.0365965668757595" Time="154.37427809643032" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1.0855626617822658" Time="163.21650192643688" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1.9414486187616138" Time="171.66634160653189" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1.3159934963536286" Time="178.75513328446397" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="10.9" Time="209.09408626682051" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Lames Vidéo" MachineUniqueID="2393" Parameter="Face" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10.9" End="10.9" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="10.9" Time="6" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="52" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8" Time="77" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1" Time="104" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="1" Time="110" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.1214962384573059" Time="128.33525908978419" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="4.3457311886060701" Time="136.33738857402682" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.7772395680407032" Time="147.34270573123197" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="4.9027410250007026" Time="156.32319730381136" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.9464973505645746" Time="166.07031620575725" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.4669336334136069" Time="172.96996217005602" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.997023343771346" Time="180.31514801934571" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5.451077299044722" Time="187.43302577242207" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="10.9" Time="210" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Jardin" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-11.5" End="-12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-11.5" Time="10" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-0.5" Time="60" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-8" Time="85" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-5" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-5" Time="105" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-7.8921419994251156" Time="126.60333909297842" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-6.0337065877141178" Time="139.29010376200338" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-7.8233110582506331" Time="151.44825323648567" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-6.1713684700630811" Time="163.07778751642522" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-7.7544801170761524" Time="174.70732179636479" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-6.2401994112375618" Time="185.80824088176163" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="-12" Time="210" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Périactes Face" MachineUniqueID="2243" Parameter="Cour" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="11.5" End="12" Duration="230" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="11.5" Time="10" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="0.5" Time="60" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8" Time="85" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5" Time="102" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="5" Time="105" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8.4324324324324316" Time="123.11640696608615" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="6.9729729729729719" Time="134.28964252978918" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8.2702702702702702" Time="145.25206232813932" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="6.594594594594593" Time="157.05774518790099" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="8.2533695241737508" Time="170.39924403157997" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="6.8554671994759282" Time="183.03785079543937" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                        <ControlPoint Position="12" Time="209.58566079983243" Velocity="0" InAcceleration="0.050000000000000003" OutAcceleration="0.050000000000000003"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
         <Manoeuvre Name="1.4 - Garage Video" Description="A la fin de la sequence Périactes + Lames" Type="Key">
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Jardin" IsComposite="false" Type="Key" Target="-12.400000826638399"/>
             <Animation Machine="Périactes Lointain" MachineUniqueID="2223" Parameter="Cour" IsComposite="false" Type="Key" Target="12.399996439686589"/>
