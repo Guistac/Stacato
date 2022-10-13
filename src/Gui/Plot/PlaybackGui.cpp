@@ -34,7 +34,7 @@ void manoeuvrePlaybackControls(float height){
 	
 	//Selected Manoeuvre Miniature Display
 	ImGui::SameLine();
-	glm::vec2 manoeuvreDisplaySize(ImGui::GetTextLineHeight() * 8.0, height);
+	glm::vec2 manoeuvreDisplaySize(ImGui::GetTextLineHeight() * 16.0, height);
 	bool b_noSelection = selectedManoeuvre == nullptr;
 	if(b_noSelection) {
 		ImGui::PushFont(Fonts::sansRegular15);

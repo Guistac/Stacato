@@ -39,9 +39,6 @@ local Flip_AC3
 local tournetteAnneau
 local tournetteCentre
 
-local costiereJardin
-local costiereCour
-
 local volJardin
 local volCour
 
@@ -108,9 +105,6 @@ function Visualizer.setup()
     tournetteAnneau =   Environnement.getMachine("Tournettes"):getAnimatable("Anneau")
     tournetteCentre =   Environnement.getMachine("Tournettes"):getAnimatable("Centre")
 
-    costiereJardin =    Environnement.getMachine("Cost Jardin"):getAnimatable("Position")
-    costiereCour =      Environnement.getMachine("Cost Cour"):getAnimatable("Position")
-
     volJardin = Environnement.getMachine("Vol Jardin"):getAnimatable("Position")
     volCour =   Environnement.getMachine("Vol Cour"):getAnimatable("Position")
 
@@ -125,7 +119,8 @@ end
 --local drawingMargin = 500.0
 
 local drawingMinX = -14520
-local drawingMinY = -10438
+--local drawingMinY = -10438
+local drawingMinY = -2638
 local drawingMaxX = 14520
 local drawingMaxY = 10712
 local drawingMargin = 200.0
@@ -168,29 +163,6 @@ function drawFlip(minX, minY, sizeX, sizeY, flipCount, flipState, bright)
         image:draw(imageX, minY, flipSizeX, sizeY)
     end
 
-end
-
-function drawCostiere(posX, zeroY, rangeY, animatable)
-    local position_meters = animatable:getActualValue().Position
-    local posY = zeroY + position_meters * 1000
-    local sizeX = 3150
-    local sizeY = 4150
-    local lineWidth = 50
-    of.setRectMode(of.RECTMODE_CORNER)
-    of.setColor(255, 255, 255, 63)
-    of.drawRectangle(posX - lineWidth * 0.5, zeroY, lineWidth, rangeY)
-
-    of.setRectMode(of.RECTMODE_CENTER)
-    
-    if animatable:isOffline() then of.setColor(0, 0, 255, 200)
-    elseif animatable:isHalted() then of.setColor(255, 255, 0, 200)
-    elseif animatable:isReady() then of.setColor(255, 255, 255, 200)
-    else of.setColor(255, 0, 0, 200) end
-
-    of.drawRectangle(posX, posY, sizeX, sizeY)
-    of.setColor(0)
-    of.drawRectangle(posX, posY, 200, 200)
-    --of.drawCircle(posX, posY, 100, 100)
 end
 
 function periacteGraphic(x, y, mirror, anchorX, anchorY, animatable)
@@ -341,7 +313,6 @@ function drawStage()
 
     of.setColor(64)
     of.beginShape()
-
     of.vertex(-14520,8519)
     of.vertex(-13020,8519)
     of.vertex(-13020,9419)
@@ -365,13 +336,12 @@ function drawStage()
     of.vertex(13020,9419)
     of.vertex(13020,8519)
     of.vertex(14520,8519)
-
     of.vertex(14520, 8562)
-    of.vertex(14520, -10438)
-    of.vertex(-14520, -10438)
+    --of.vertex(14520, -10438) --size of movable stuff became much smaller without costieres
+   -- of.vertex(-14520, -10438)
+    of.vertex(14520, -2638)
+    of.vertex(-14520, -2638)
     of.vertex(-14520, 8562)
-    
-
     of.endShape()
 
     of.setRectMode(of.RECTMODE_CENTER)
@@ -410,14 +380,12 @@ function drawStage()
     --tournettes
     drawTournettes()
 
-    --costieres
-    drawCostiere(-6510, -7640, 12100, costiereJardin)
-    drawCostiere(6510, -7640, 12100, costiereCour)
-
+    --periactes
     drawPeriactes(0, 12850, periacteLointainJardin, periacteLointainCour, true, false)
     drawPeriactes(3000, 12850, periacteMilieuJardin, periacteMilieuCour, true, true)
     drawPeriactes(6002, 12850, periacteFaceJardin, periacteFaceCour, false, false)
 
+    --lames
     drawLames(4262, 11200, lameVideoLointain)
     drawLames(4462, 11200, lameVideoFace)
 end

@@ -104,9 +104,27 @@ private:
 public:
 	
 	virtual std::string getTargetValueString() override{
-        const char* valueDisplayName = getTargetValue()->toState()->value->displayName;
-        if(valueDisplayName) return std::string(valueDisplayName);
-        else return "???";
+        std::shared_ptr<AnimationValue> targetValue = getTargetValue();
+        if(targetValue == nullptr) {
+            Logger::critical("animatable state: target value is null");
+            return "???";
+        }
+        std::shared_ptr<AnimatableStateValue> stateTargetValue = targetValue->toState();
+        if(stateTargetValue == nullptr){
+            Logger::critical("animatable state: State Target value is null");
+            return "???";
+        }
+        AnimatableStateStruct* targetStateStruct = stateTargetValue->value;
+        if(targetStateStruct == nullptr) {
+            Logger::critical("animatable state: target state Struct is null");
+            return "???";
+        }
+        const char* targetStateString = targetStateStruct->displayName;
+        if(targetStateString == nullptr) {
+            Logger::critical("animatable state: target state string is null");
+            return "???";
+        }
+        return std::string(targetStateString);
 	}
 };
 

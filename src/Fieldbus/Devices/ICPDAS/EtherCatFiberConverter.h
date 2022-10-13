@@ -11,3 +11,4 @@ class ECAT_2511_B_FiberConverter : public EtherCatDevice {
 public:
     DEFINE_ETHERCAT_DEVICE(ECAT_2511_B_FiberConverter, "ECAT-2511-A Fiber to RJ45 EtherCAT Converter [B]", "ECAT-2511-B", "ICPDAS", "Utilities", 0x494350, 0x9ce)
 };
+                                
