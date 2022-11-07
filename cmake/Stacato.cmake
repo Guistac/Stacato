@@ -246,6 +246,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32i.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32i.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32iGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV320Gui.cpp

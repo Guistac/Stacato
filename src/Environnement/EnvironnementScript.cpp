@@ -93,6 +93,9 @@ namespace Script{
 	}
 
 	void save(std::string folderPath){
+		if(!std::filesystem::exists(std::filesystem::path(folderPath))){
+			std::filesystem::create_directory(folderPath);
+		}
 		std::string path = folderPath + "/main.lua";
 		script.save(path.c_str());
 	}
