@@ -242,6 +242,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/FieldbusXML.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.h
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp

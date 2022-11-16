@@ -10,16 +10,14 @@ void MicroFlex_e190::onConnection() {}
 void MicroFlex_e190::onDisconnection() {}
 
 void MicroFlex_e190::initialize() {
+	
+	axis.configure_CyclicSynchronousPosition = true;
+	axis.configure_CyclicSynchronousVelocity = true;
 
 	rxPdoAssignement.addNewModule(0x1600);
-	rxPdoAssignement.addEntry(0x6040, 0x0, 16, "AX0_ControlWord_U16", &ds402Control.controlWord);
-	rxPdoAssignement.addEntry(0x6060, 0x0, 8,  "AX0_ModesOfOperation_I8", &ds402Control.operatingMode);
-	rxPdoAssignement.addEntry(0x607A, 0x0, 32, "AX0_TargetPosition_I32", &targetPosition);
-	
 	txPdoAssignement.addNewModule(0x1A00);
-	txPdoAssignement.addEntry(0x6041, 0x0, 16, "AX0_StatusWord_U16", &ds402Status.statusWord);
-	txPdoAssignement.addEntry(0x6060, 0x0, 8,  "AX0_ModesOfOperationDisplay_I8", &ds402Status.operatingMode);
-	txPdoAssignement.addEntry(0x6064, 0x0, 32, "AX0_ActualPosition_I32", &actualPosition);
+	
+	axis.configureProcessData(rxPdoAssignement, txPdoAssignement);
 	
 }
 
@@ -52,17 +50,41 @@ bool MicroFlex_e190::startupConfiguration() {
 
 void MicroFlex_e190::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
-	actualPowerState = ds402Status.getPowerState();
-	actualOperatingMode = ds402Status.getOperatingMode();
+	axis.updateInputs();
 }
 
 
 //====================== PREPARING OUTPUTS =====================
 
 void MicroFlex_e190::writeOutputs() {
-	ds402Control.setPowerState(requestedPowerState, actualPowerState);
-	ds402Control.setOperatingMode(requestedOperatingMode);
-	ds402Control.updateControlWord();
+	
+	
+	if(!axis.isEnabled()){
+		velocity = axis.getActualVelocity() / axisUnitsPerVel;
+		position = axis.getActualPosition() / axisUnitsPerPos;
+		axis.setPosition(position * axisUnitsPerPos);
+		//axis.setVelocity(velocity * axisUnitsPerVel);
+	}else{
+		double deltaT_s = EtherCatFieldbus::getCycleTimeDelta_seconds();
+		double deltaV = acceleration * deltaT_s;
+		if(manualVelocity > velocity) {
+			velocity += deltaV;
+			if(velocity > manualVelocity) velocity = manualVelocity;
+		}
+		else if(manualVelocity < velocity) {
+			velocity -= deltaV;
+			if(velocity < manualVelocity) velocity = manualVelocity;
+		}
+		velocity = std::clamp(velocity, -maxVelocity, maxVelocity);
+		double deltaP = velocity * deltaT_s;
+		position += deltaP;
+		axis.setPosition(position * axisUnitsPerPos);
+		//axis.setVelocity(velocity * axisUnitsPerVel);
+	}
+	
+	
+	
+	axis.updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
 

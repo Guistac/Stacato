@@ -1,39 +1,39 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.95954669" OffsetX="1245.2224" OffsetY="-1013.1071" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.50002" SizeY="229.72812"/>
-        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50002" SizeY="229.72812"/>
-        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.50002" SizeY="229.72812"/>
-        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.49995" SizeY="229.72812"/>
-        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.49995" SizeY="229.72812"/>
-        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.50002" SizeY="230.25601"/>
-        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.50002" SizeY="230.25601"/>
-        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.49995" SizeY="230.25601"/>
-        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.49995" SizeY="230.25601"/>
-        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.50002" SizeY="229.74173"/>
-        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.50002" SizeY="229.74173"/>
-        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.49995" SizeY="229.74173"/>
-        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.49995" SizeY="229.74173"/>
-        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.50002" SizeY="229.22746"/>
-        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.50002" SizeY="229.22746"/>
-        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.50002" SizeY="229.22746"/>
-        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.50002" SizeY="229.22746"/>
-        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.49995" SizeY="229.22746"/>
-        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.49995" SizeY="229.22746"/>
-        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.49995" SizeY="229.22746"/>
-        <Widget Name="Périactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.8829" SizeY="236.73337"/>
-        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35004" SizeY="421.68771"/>
-        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1505" SizeX="354.8829" SizeY="236.82605"/>
-        <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1151" PositionY="1262" SizeX="354.88287" SizeY="237.00307"/>
-        <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1150" PositionY="1018" SizeX="354.8829" SizeY="237.13789"/>
-        <Widget Name="Vol Jardin" UniqueID="46" PositionX="193" PositionY="1275" SizeX="134.40012" SizeY="401.17004"/>
-        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1275" SizeX="134.40012" SizeY="401.17004"/>
-        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="170" PositionY="1160" SizeX="157.49998" SizeY="110.77029"/>
-        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="333" PositionY="1160" SizeX="157.49998" SizeY="110.77029"/>
-        <Widget Name="Romaine" UniqueID="8" PositionX="240" PositionY="1680" SizeX="180.59985" SizeY="194.18024"/>
-        <Widget Name="H.M. Vol" UniqueID="6" PositionX="482" PositionY="1615" SizeX="178.50002" SizeY="142.45847"/>
-        <Widget Name="H.M. Cour" UniqueID="5" PositionX="482" PositionY="1475" SizeX="178.50002" SizeY="141.76697"/>
-        <Widget Name="H.M. Jardin" UniqueID="4" PositionX="483" PositionY="1335" SizeX="178.50002" SizeY="142.11771"/>
-        <Widget Name="A.U." UniqueID="52" PositionX="494" PositionY="1220" SizeX="157.49998" SizeY="111.21552"/>
+    <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="9" PositionX="-650" PositionY="1040" SizeX="136.50002" SizeY="227.75258"/>
+        <Widget Name="Flip G-J1" UniqueID="10" PositionX="-510" PositionY="1040" SizeX="136.50002" SizeY="227.75258"/>
+        <Widget Name="Flip G-Axe" UniqueID="11" PositionX="-370" PositionY="1040" SizeX="136.50002" SizeY="227.75258"/>
+        <Widget Name="Flip G-C1" UniqueID="13" PositionX="-230" PositionY="1040" SizeX="136.50002" SizeY="227.75258"/>
+        <Widget Name="Flip G-C2" UniqueID="14" PositionX="-90" PositionY="1040" SizeX="136.50002" SizeY="227.75258"/>
+        <Widget Name="Flip E-J3" UniqueID="16" PositionX="-790" PositionY="1275" SizeX="136.50002" SizeY="227.22452"/>
+        <Widget Name="Flip E-J2" UniqueID="17" PositionX="-650" PositionY="1275" SizeX="136.50002" SizeY="227.22452"/>
+        <Widget Name="Flip E-C2" UniqueID="21" PositionX="-90" PositionY="1275" SizeX="136.50002" SizeY="227.22452"/>
+        <Widget Name="Flip E-C3" UniqueID="22" PositionX="50" PositionY="1275" SizeX="136.50002" SizeY="227.22452"/>
+        <Widget Name="Flip C-J3" UniqueID="23" PositionX="-790" PositionY="1510" SizeX="136.50002" SizeY="226.69653"/>
+        <Widget Name="Flip C-J2" UniqueID="24" PositionX="-650" PositionY="1510" SizeX="136.50002" SizeY="226.69653"/>
+        <Widget Name="Flip C-C2" UniqueID="25" PositionX="-90" PositionY="1510" SizeX="136.50002" SizeY="226.69653"/>
+        <Widget Name="Flip C-C3" UniqueID="26" PositionX="50" PositionY="1510" SizeX="136.50002" SizeY="226.69653"/>
+        <Widget Name="Flip A-J3" UniqueID="27" PositionX="-790" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-J2" UniqueID="28" PositionX="-650" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-J1" UniqueID="29" PositionX="-510" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-Axe" UniqueID="30" PositionX="-370" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-C1" UniqueID="31" PositionX="-230" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-C2" UniqueID="32" PositionX="-90" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Flip A-C3" UniqueID="33" PositionX="50" PositionY="1745" SizeX="136.50002" SizeY="228.38065"/>
+        <Widget Name="Périactes Face" UniqueID="40" PositionX="-1150" PositionY="1750" SizeX="354.42404" SizeY="236.65263"/>
+        <Widget Name="Tournettes" UniqueID="41" PositionX="-506" PositionY="1292" SizeX="406.35013" SizeY="415.94055"/>
+        <Widget Name="Lames Vidéo" UniqueID="44" PositionX="-1150" PositionY="1505" SizeX="354.42404" SizeY="236.12056"/>
+        <Widget Name="Périactes Milieu" UniqueID="39" PositionX="-1151" PositionY="1262" SizeX="354.42404" SizeY="235.80051"/>
+        <Widget Name="Périactes Lointain" UniqueID="38" PositionX="-1150" PositionY="1018" SizeX="354.42404" SizeY="236.48056"/>
+        <Widget Name="Vol Jardin" UniqueID="46" PositionX="193" PositionY="1275" SizeX="134.39981" SizeY="395.33655"/>
+        <Widget Name="Vol Cour" UniqueID="45" PositionX="333" PositionY="1275" SizeX="134.39981" SizeY="395.33655"/>
+        <Widget Name="Sécu Vol Jardin" UniqueID="54" PositionX="170" PositionY="1160" SizeX="157.49998" SizeY="107.75256"/>
+        <Widget Name="Sécu Vol Cour" UniqueID="53" PositionX="333" PositionY="1160" SizeX="157.49998" SizeY="107.75256"/>
+        <Widget Name="Romaine" UniqueID="8" PositionX="240" PositionY="1680" SizeX="180.59988" SizeY="191.62856"/>
+        <Widget Name="H.M. Vol" UniqueID="6" PositionX="482" PositionY="1615" SizeX="178.49994" SizeY="139.39253"/>
+        <Widget Name="H.M. Cour" UniqueID="5" PositionX="482" PositionY="1475" SizeX="178.49994" SizeY="140.03653"/>
+        <Widget Name="H.M. Jardin" UniqueID="4" PositionX="483" PositionY="1335" SizeX="178.49994" SizeY="138.46854"/>
+        <Widget Name="A.U." UniqueID="52" PositionX="494" PositionY="1220" SizeX="157.49998" SizeY="107.47653"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2708,6 +2708,14 @@ end
                 <InputPins/>
                 <OutputPins/>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:333)" UniqueID="4090">
+                <NodeEditorPosition x="-1550" y="1446"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="333"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="451" StartPin="409" EndPin="432"/>
@@ -3106,7 +3114,7 @@ end
 
 <FieldbusSettings>
     <NetworkInterfaceCard>
-        <Primary Description="en6" Name="en6"/>
+        <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="0.80000001192092896" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
