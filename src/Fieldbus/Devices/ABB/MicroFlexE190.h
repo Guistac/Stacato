@@ -19,11 +19,11 @@ public:
 	double axisUnitsPerPos = 100.0;
 	double axisUnitsPerVel = 100.0;
 	
-	double acceleration = 30.0;
+	double acceleration = 100.0;
 	double velocity = 0.0;
 	double position = 0.0;
 	
-	double maxVelocity = 100.0;
+	double maxVelocity = 190.0;
 	
 	float manualVelocity = 0.0;
 	

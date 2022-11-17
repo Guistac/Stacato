@@ -39,7 +39,7 @@ bool MicroFlex_e190::startupConfiguration() {
 	
 	//=========================== TIMING AND SYNC CONFIGURATION ============================
 	
-	ec_dcsync0(getSlaveIndex(), true, EtherCatFieldbus::processInterval_milliseconds * 1000000.0, 0);
+	ec_dcsync0(getSlaveIndex(), true, EtherCatFieldbus::processInterval_milliseconds * 1000000.0, EtherCatFieldbus::processInterval_milliseconds * 500000.0);
 	
 	return true;
 }
@@ -63,7 +63,6 @@ void MicroFlex_e190::writeOutputs() {
 		velocity = axis.getActualVelocity() / axisUnitsPerVel;
 		position = axis.getActualPosition() / axisUnitsPerPos;
 		axis.setPosition(position * axisUnitsPerPos);
-		//axis.setVelocity(velocity * axisUnitsPerVel);
 	}else{
 		double deltaT_s = EtherCatFieldbus::getCycleTimeDelta_seconds();
 		double deltaV = acceleration * deltaT_s;
@@ -79,7 +78,6 @@ void MicroFlex_e190::writeOutputs() {
 		double deltaP = velocity * deltaT_s;
 		position += deltaP;
 		axis.setPosition(position * axisUnitsPerPos);
-		//axis.setVelocity(velocity * axisUnitsPerVel);
 	}
 	
 	
