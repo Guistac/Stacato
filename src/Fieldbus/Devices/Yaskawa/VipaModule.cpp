@@ -51,10 +51,12 @@ void VIPA_022_1HD10::onConstruction(){
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
+	/*
 	inputBitCount = 0;
 	inputByteCount = 0;
 	outputBitCount = 8;
 	outputByteCount = 1;
+	 */
 }
 void VIPA_022_1HD10::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
@@ -156,10 +158,12 @@ void VIPA_021_1BF00::onConstruction(){
 		outputPinValues.push_back(pinValue);
 		outputPins.push_back(pin);
 	}
+	/*
 	inputBitCount = 8;
 	inputByteCount = 1;
 	outputBitCount = 0;
 	outputByteCount = 0;
+	 */
 }
 void VIPA_021_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
@@ -256,10 +260,12 @@ void VIPA_022_1BF00::onConstruction(){
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
+	/*
 	inputBitCount = 0;
 	inputByteCount = 0;
 	outputBitCount = 8;
 	outputByteCount = 1;
+	 */
 }
 
 void VIPA_022_1BF00::onSetIndex(int i){
@@ -363,10 +369,12 @@ void VIPA_050_1BS00::onConstruction(){
 	outputPins.push_back(encoderPin);
 	resetPin->assignData(resetPinValue);
 	outputPins.push_back(resetPin);
+	/*
 	inputBitCount = 48;
 	inputByteCount = 6;
 	outputBitCount = 0;
 	outputByteCount = 0;
+	 */
 	updateResetPinVisibility();
 }
 
@@ -656,10 +664,12 @@ void VIPA_032_1BD70::onConstruction(){
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
+	/*
 	inputBitCount = 0;
 	inputByteCount = 0;
 	outputBitCount = 64;
 	outputByteCount = 8;
+	 */
 }
 
 void VIPA_032_1BD70::onSetIndex(int i){
@@ -800,10 +810,12 @@ bool VIPA_032_1BD70::load(tinyxml2::XMLElement* xml){
 void VIPA_050_1BB40::onConstruction(){
 	outputPins.push_back(frequency0Pin);
 	outputPins.push_back(frequency1Pin);
+	/*
 	inputBitCount = 160;
 	inputByteCount = 20;
 	outputBitCount = 96;
 	outputByteCount = 12;
+	 */
 	channel0MeasurementPeriod = NumberParameter<double>::make(0.1,
 															  "Channel 0 Measurement Period",
 															  "Ch0MeasurementPeriod",

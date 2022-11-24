@@ -244,6 +244,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDevice.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDevice.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DeviceModule.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DeviceModule.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
@@ -273,6 +278,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK_Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/ioModules.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/ioModules.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/PhoenixContact/ioModulesGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.cpp

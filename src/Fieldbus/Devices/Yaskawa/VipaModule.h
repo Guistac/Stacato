@@ -56,13 +56,13 @@ public:
 	
 	//reads data from input data and assigns it to pins
 	virtual void readInputs() = 0;
-	int inputByteCount = 0;
-	int inputBitCount = 0;
+	//int inputByteCount = 0;
+	//int inputBitCount = 0;
 	
 	//reads data from pins and output data
 	virtual void writeOutputs() = 0;
-	int outputByteCount = 0;
-	int outputBitCount = 0;
+	//int outputByteCount = 0;
+	//int outputBitCount = 0;
 	
 	virtual void onConnection(){}
 	virtual void onDisconnection(){}

@@ -80,8 +80,6 @@ void MicroFlex_e190::writeOutputs() {
 		axis.setPosition(position * axisUnitsPerPos);
 	}
 	
-	
-	
 	axis.updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }

@@ -81,31 +81,68 @@ struct EtherCatPdoAssignement {
 		}
 	}
 
-	bool mapToSyncManager(uint16_t slaveIndex, uint16_t syncManagerIndex) {
+	bool mapToSyncManager(uint16_t slaveIndex, uint16_t syncManagerIndex, bool b_PDOconfig = true) {
+		
 		//disable sync manager
-		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, 0x0, slaveIndex)) return false;
-		//for each mapping module
-		for (int i = 0; i < modules.size(); i++) {
-			EtherCatPdoMappingModule& pdoModule = modules[i];
-			//disable the module
-			if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, 0x0, slaveIndex)) return false;
-			for (int j = 0; j < pdoModule.getEntryCount(); j++) {
-				//concatenate the entry data
-				EtherCatPdoEntry& entry = pdoModule.entries[j];
-				uint32_t entryMapping = entry.index << 16 | entry.subindex << 8 | entry.bitCount;
-				//write the entry to the module
-				if (!CanOpen::writeSDO_U32(pdoModule.index, j + 1, entryMapping, slaveIndex)) return false;
+		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, 0x0, slaveIndex)) {
+			return Logger::error("Failed to disable sync manager {:#x}", syncManagerIndex);
+		}else Logger::trace("Disabled Sync Manager {:#x}", syncManagerIndex);
+		
+	
+		if(b_PDOconfig){
+		
+			//for each mapping module
+			for (int i = 0; i < modules.size(); i++) {
+				
+				EtherCatPdoMappingModule& pdoModule = modules[i];
+				
+				//disable the module
+				if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, 0x0, slaveIndex)) {
+					return Logger::error("Failed to disable PDO module {:#x} (is PDO Config supported ?)", pdoModule.index);
+				}else Logger::trace("Disabled PDO module {:#x}", pdoModule.index);
+				
+				for (int j = 0; j < pdoModule.getEntryCount(); j++) {
+					//concatenate the entry data
+					EtherCatPdoEntry& entry = pdoModule.entries[j];
+					uint32_t entryMapping = entry.index << 16 | entry.subindex << 8 | entry.bitCount;
+					//write the entry to the module
+					if (!CanOpen::writeSDO_U32(pdoModule.index, j + 1, entryMapping, slaveIndex)) {
+						return Logger::error("Failed to configure PDO module object {:#x}:{:x} (is PDO Config supported ?)", pdoModule.index, j + 1);
+					}else Logger::trace("Configured PDO module object {:#x}:{:x}", pdoModule.index, j + 1);
+					
+				}
+				//enable the module by writing the entry count
+				if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, pdoModule.getEntryCount(), slaveIndex)) {
+					return Logger::error("Failed to reenable PDO module {:#x} (size: {}) (is PDO Config supported ?)", pdoModule.index, pdoModule.getEntryCount());
+				}else Logger::trace("Reenabled PDO module {:#x} (size: {})", pdoModule.index, pdoModule.getEntryCount());
 			}
-			//enable the module by writing the entry count
-			if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, pdoModule.getEntryCount(), slaveIndex)) return false;
+			
 		}
+	
 		for (int i = 0; i < modules.size(); i++) {
+			uint16_t pdoMappingObjectIndex = modules[i].index;
 			//assign each module to the sync manager
-			if (!CanOpen::writeSDO_U16(syncManagerIndex, i + 1, modules[i].index, slaveIndex)) return false;
+			if (!CanOpen::writeSDO_U16(syncManagerIndex, i + 1, modules[i].index, slaveIndex)) {
+				return Logger::error("Failed to set PDO module {:#x} to sync manager {:#x}:{:x}", modules[i].index, syncManagerIndex, i + 1);
+			}else Logger::trace("Set PDO module {:#x} to sync manager {:#x}:{:x}", modules[i].index, syncManagerIndex, i + 1);
+			
 		}
+		
 		//enable the sync manager by setting the number of modules
-		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, getModuleCount(), slaveIndex)) return false;
+		uint8_t moduleCount = (uint8_t)getModuleCount();
+		if (!CanOpen::writeSDO_U8(syncManagerIndex, 0x0, moduleCount, slaveIndex)) {
+			return Logger::error("Failed to reenable sync manager {:#x} (size: {})", syncManagerIndex, moduleCount);
+		}else Logger::trace("Reenabled sync manager {:#x} (size: {})", syncManagerIndex, moduleCount);
+		
 		return true;
+	}
+	
+	bool mapToRxPdoSyncManager(uint16_t slaveIndex, bool b_PDOconfig = true){
+		return mapToSyncManager(slaveIndex, 0x1C12, b_PDOconfig);
+	}
+	
+	bool mapToTxPdoSyncManager(uint16_t slaveIndex, bool b_PDOconfig = true){
+		return mapToSyncManager(slaveIndex, 0x1C13, b_PDOconfig);
 	}
 
 	void pullDataFrom(uint8_t* buffer) {

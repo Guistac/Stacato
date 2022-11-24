@@ -631,7 +631,7 @@ namespace EtherCatFieldbus {
         if (!ec_configdc()) {
 			startupProgress.setFailure("Could not configure distributed clocks. Check the Log for more detailed errors.");
             Logger::error("===== Could not configure distributed clocks ...");
-            return false;
+            //return false;
         }
 
         //assign slave startup hooks
@@ -652,8 +652,8 @@ namespace EtherCatFieldbus {
 						startupProgress.setProgress(configurationProgress, slaveConfigurationString);
 						
 						Logger::debug("Configuring Slave '{}'", slave->getName());
-                        bool configurationResult = slave->startupConfiguration();
-                        if (configurationResult) {
+                        
+                        if (slave->startupConfiguration()) {
                             Logger::debug("Successfully configured Slave '{}'", slave->getName());
                             return 1;
                         }

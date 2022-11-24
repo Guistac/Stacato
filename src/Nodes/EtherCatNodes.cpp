@@ -26,7 +26,7 @@ namespace NodeFactory{
 			new Lexium32i(),
 			new ATV320(),
 			new VipaBusCoupler_053_1EC01(),
-			new IL_EC_BK_BusCoupler(),
+			new PhoenixContact::BusCoupler(),
 			//new PD4_E(),
 			new MicroFlex_e190(),
 			new CU1128(),

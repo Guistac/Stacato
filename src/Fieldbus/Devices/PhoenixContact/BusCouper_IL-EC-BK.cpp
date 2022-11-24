@@ -4,87 +4,93 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
+#include "ioModules.h"
 
-void IL_EC_BK_BusCoupler::onConnection() {}
+namespace PhoenixContact{
 
-void IL_EC_BK_BusCoupler::onDisconnection() {}
 
-void IL_EC_BK_BusCoupler::initialize() {
+std::vector<EtherCAT::DeviceModule*>& BusCoupler::getModuleFactory(){
+	return ModuleFactory::getModules();
+}
 
-	/*
-	rxPdoAssignement.addNewModule(0x1600);
-	rxPdoAssignement.addEntry(0x6040, 0x0, 16, "AX0_ControlWord_U16", &ds402Control.controlWord);
-	rxPdoAssignement.addEntry(0x6060, 0x0, 8,  "AX0_ModesOfOperation_I8", &ds402Control.operatingMode);
-	rxPdoAssignement.addEntry(0x607A, 0x0, 32, "AX0_TargetPosition_I32", &targetPosition);
-	
-	txPdoAssignement.addNewModule(0x1A00);
-	txPdoAssignement.addEntry(0x6041, 0x0, 16, "AX0_StatusWord_U16", &ds402Status.statusWord);
-	txPdoAssignement.addEntry(0x6060, 0x0, 8,  "AX0_ModesOfOperationDisplay_I8", &ds402Status.operatingMode);
-	txPdoAssignement.addEntry(0x6064, 0x0, 32, "AX0_ActualPosition_I32", &actualPosition);
-	*/
-	 
+void BusCoupler::beforeModuleReordering(){
+	txPdoAssignement.clear();
+	txPdoAssignement.addNewModule(0x1AFF);
+	txPdoAssignement.addEntry(0x0, 		0x0, 16, "Mandatory Diagnostics word 0", 			&diagnosticsWord0);
+	txPdoAssignement.addEntry(0xF100, 	0x1, 16, "Interbus Diagnotstics State", 			&diagnosticsWord1);
+	txPdoAssignement.addEntry(0xF100, 	0x2, 16, "Interbus Diagnotstics Parameter", 		&diagnosticsWord2);
+	txPdoAssignement.addEntry(0xF100, 	0x3, 16, "Interbus Diagnotstics Ext. Parameter", 	&diagnosticsWord3);
+}
+
+void BusCoupler::onDisconnection() {
+	for(auto& module : modules) module->onDisconnection();
+	gpioDevice->state = MotionState::OFFLINE;
+}
+
+void BusCoupler::onConnection() {
+	for(auto& module : modules) module->onConnection();
+	gpioDevice->state = MotionState::ENABLED;
+}
+
+void BusCoupler::initialize() {
+	//by default, this node only has one pin
+	//no modules are loaded by default
+	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());
+	gpioDevice = std::make_shared<PhoenixContactGpioDevice>(thisCoupler);
+	gpioDevice->setParentDevice(thisCoupler);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioDevice>(gpioDevice);
+	gpioDeviceLink->assignData(abstractGpioDevice);
+	//gpio device link pin
+	addNodePin(gpioDeviceLink);
 }
 
 
-
-
-
-
-//==============================================================
-//==================== STARTUP CONFIGURATION ===================
-//==============================================================
-
-bool IL_EC_BK_BusCoupler::startupConfiguration() {
-
-	/*
-	//=============== PROCESS DATA ASSIGNEMENT ===============
-
-	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12)) return false;
-	if(!txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13)) return false;
+bool BusCoupler::startupConfiguration() {
 	
-	//=========================== TIMING AND SYNC CONFIGURATION ============================
-	
-	ec_dcsync0(getSlaveIndex(), true, EtherCatFieldbus::processInterval_milliseconds * 1000000.0, 0);
-	*/
+	//no idea why CanOpen SDO data is not available until around 250 milliseconds after transition to PreOp
+	std::this_thread::sleep_for(std::chrono::milliseconds(300));
 	 
+	
+	uint8_t resetBehavior = 0x0; //reset all outputs to 0 when fault occurs
+	if(!writeSDO_U8(0xF801, 0x0, resetBehavior)) {
+		return Logger::error("{} : Could not configure reset behavior", getName());
+	}
+	
+	uint8_t validateModuleConfiguration = 0x1;
+	if(!writeSDO_U8(0xF802, 0x0, validateModuleConfiguration)) {
+		return Logger::error("{} : Could not configure module configuration validation", getName());
+	}
+	
+	
+	
+	if(!configureModules()) return false;
 	return true;
 }
 
 
-
-//======================= READING INPUTS =======================
-
-void IL_EC_BK_BusCoupler::readInputs() {
+void BusCoupler::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
-	/*
-	actualPowerState = ds402Status.getPowerState();
-	actualOperatingMode = ds402Status.getOperatingMode();
-	 */
+	readModuleInputs();
 }
 
 
-//====================== PREPARING OUTPUTS =====================
-
-void IL_EC_BK_BusCoupler::writeOutputs() {
-	/*
-	ds402Control.setPowerState(requestedPowerState, actualPowerState);
-	ds402Control.setOperatingMode(requestedOperatingMode);
-	ds402Control.updateControlWord();
-	*/
+void BusCoupler::writeOutputs(){
+	writeModuleOutputs();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
 
-
-
-//============================= SAVING AND LOADING DEVICE DATA ============================
-
-bool IL_EC_BK_BusCoupler::saveDeviceData(tinyxml2::XMLElement* xml) {
+bool BusCoupler::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-    return true;
+	saveModules(xml);
+	return true;
 }
 
 
-bool IL_EC_BK_BusCoupler::loadDeviceData(tinyxml2::XMLElement* xml) {
-    using namespace tinyxml2;
-    return true;
+bool BusCoupler::loadDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	if(!loadModules(xml)) return Logger::warn("Failed to load modules");
+	return true;
+}
+
+
 }

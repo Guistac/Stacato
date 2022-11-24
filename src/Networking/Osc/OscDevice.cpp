@@ -314,7 +314,7 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 		long long interval_nanoseconds = 1000000000.0 / outputFrequency_Hertz;
 		b_isSending = true;
 		
-		long long cycleTime = Timing::getSystemTime_nanoseconds();
+		long long cycleTime = Timing::getProgramTime_nanoseconds();
 		long long previousTime = cycleTime - interval_nanoseconds;
 		long long cycleDeltaTime;
 		long long cycleDeltaTimeError;
@@ -328,7 +328,7 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 		while(b_isSending){
 			
 			previousTime = cycleTime;
-			cycleTime = Timing::getSystemTime_nanoseconds();
+			cycleTime = Timing::getProgramTime_nanoseconds();
 			cycleDeltaTime = cycleTime - previousTime;
 			long long deltaTimeError = interval_nanoseconds - cycleDeltaTime;
 			float deltaTimeErrorPercentage = 100.0 * ((float)deltaTimeError / (float)interval_nanoseconds);
