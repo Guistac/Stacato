@@ -28,7 +28,8 @@ namespace EtherCatFieldbus {
 
 
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
-	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards(){ return networkInterfaceCards; }
+	std::shared_ptr<NetworkInterfaceCard> activeNetworkInterfaceCard = nullptr;
+	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return activeNetworkInterfaceCard; }
 
     std::vector<std::shared_ptr<EtherCatDevice>> discoveredDevices;			//slaves discovered on the network
     std::vector<std::shared_ptr<EtherCatDevice>> discoveredDevicesUnmatched; //slaves discovered on the network but not added to the environnement editor
@@ -243,8 +244,10 @@ namespace EtherCatFieldbus {
 		//check all nics for EtherCAT slave responses
 		Logger::info("Scanning all Network Interface Cards for EtherCAT slaves.");
 		std::vector<std::shared_ptr<NetworkInterfaceCard>> nicsWithDetectedSlaves = {};
-		for(auto nic : getNetworksInterfaceCards()){
+		for(auto nic : networkInterfaceCards){
 			if(ec_init(nic->name) > 0){
+				
+				activeNetworkInterfaceCard = nic;
 				
 				//check for network permissions after opening a network interface
 				if(!hasNetworkPermissions()){
@@ -262,6 +265,8 @@ namespace EtherCatFieldbus {
 					Logger::trace("{} : Found 0 EtherCAT slaves", nic->name);
 				}
 				ec_close();
+				activeNetworkInterfaceCard = nullptr;
+				
 			}else Logger::error("Failed to initialize Network Interface Card {}", nic->name);
 		}
 		
@@ -287,6 +292,8 @@ namespace EtherCatFieldbus {
 				b_networkInitializing = false;
 				return false;
 			}
+			
+			activeNetworkInterfaceCard = nic;
 			
 			//discover and setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
 			//BUG: we need to do this twice: when swapping etherCAT connections, sometimes the aliasAdress doesn't read on the first config call (probably SOEM bug)
@@ -1111,7 +1118,7 @@ namespace EtherCatFieldbus {
 		}
 	}
 
-	void startCountingTransmissionsErrors(){
+	void startCountingTransmissionErrors(){
 		if(b_transmissionErrorCounterRunning){
 			Logger::error("Can't start transmission error counter while it is running");
 			return;
