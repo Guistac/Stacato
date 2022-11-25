@@ -1303,7 +1303,6 @@ void updateErrorCounters(){
 			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
 			double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
 			int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
-			Logger::warn("{}", masterStability_i);
 			largestErrorCount = std::max(largestErrorCount, masterStability_i);
 			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
 			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);

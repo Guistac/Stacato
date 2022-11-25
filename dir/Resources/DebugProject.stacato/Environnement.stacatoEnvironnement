@@ -35,6 +35,7 @@
         </Nodes>
         <Links>
             <Link UniqueID="13" StartPin="4" EndPin="8"/>
+            <Link UniqueID="20" StartPin="4" EndPin="10"/>
         </Links>
     </NodeGraph>
 </Environnement>
@@ -43,5 +44,5 @@
     <NetworkInterfaceCard>
         <Primary Description="en7" Name="en7"/>
     </NetworkInterfaceCard>
-    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

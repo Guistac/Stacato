@@ -87,6 +87,53 @@ public:
 	uint64_t resetStartTime_nanoseconds = 0;
 	double resetStartTime_seconds = 0.0;
 	
+	
+	
+	enum ControlCode{
+		NO_ACTION 			= 0x0,
+		READ_POSITION 		= 0x1,
+		OFFLINE 			= 0x2,
+		ACKNOWLEDGE_FAULT 	= 0x21
+	};
+	
+	enum Parity{
+		NONE	= 0x0,
+		ODD		= 0x1,
+		EVEN	= 0x2
+	};
+	
+	
+	enum Rev{
+		OFF	= 0x0,
+		ON	= 0x1
+	};
+	
+	const int minResolution = 8;
+	const int maxResolution = 25;
+	int resolution = 25;
+	uint8_t resolutionCode;
+	
+	uint8_t getResolutionCode(int res){
+		return std::clamp(res, minResolution, maxResolution) - 7;
+	};
+	
+	enum Speed{
+		KHz_100 = 0x1,
+		KHz_200 = 0x2,
+		KHz_400 = 0x3,
+		KHz_800 = 0x4,
+		MHz_1	= 0x5
+	};
+	
+	enum Code{
+		BINARY 	= 0x0,
+		GRAY	= 0x1
+	};
+	
+	
+		
+	
+	
 	//————— SubDevice ——————
 	
 	class SsiEncoder : public PositionFeedbackDevice{

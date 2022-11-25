@@ -206,8 +206,40 @@ void IB_IL_SSI_IN::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignemen
 	rxPdoAssignement.addEntry(0x7000 + moduleIndex * 0x10, 0x1, 32, "SSI Control Data", &controlData);
 }
 bool IB_IL_SSI_IN::configureParameters(){ return true; }
-void IB_IL_SSI_IN::readInputs(){}
-void IB_IL_SSI_IN::writeOutputs(){}
+void IB_IL_SSI_IN::readInputs(){
+	
+	uint8_t byte0 = encoderData & 0xFF;
+	uint8_t byte1 = (encoderData >> 8) & 0xFF;
+	uint8_t byte2 = (encoderData >> 16) & 0xFF;
+	uint8_t byte3 = (encoderData >> 24) & 0xFF;
+	
+	uint16_t word0 = (byte0 << 8) | byte1;
+	uint16_t word1 = (byte2 << 8) | byte3;
+	
+	uint8_t status = (word0 >> 9) & 0x7F;
+	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
+	
+	Logger::warn("status: {:#x} position: {}", status, actualPosition);
+	
+	
+}
+void IB_IL_SSI_IN::writeOutputs(){
+	
+	uint8_t controlCode = ControlCode::READ_POSITION;
+	uint8_t parity = Parity::NONE;
+	uint8_t rev = Rev::OFF;
+	uint8_t resolution = getResolutionCode(25);
+	uint8_t speed = Speed::MHz_1;
+	uint8_t code = Code::GRAY;
+	
+	uint8_t byte0 = (controlCode & 0x7F) << 1;
+	uint8_t byte1 = ((parity & 0x3) << 4) | (rev & 0x1);
+	uint8_t byte2 = resolution & 0x1F;
+	uint8_t byte3 = ((speed & 0x7) << 4) | (code & 0x1);
+	
+	controlData = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24);
+	
+}
 void IB_IL_SSI_IN::moduleGui(){}
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
