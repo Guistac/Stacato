@@ -105,17 +105,14 @@ namespace EtherCatFieldbus {
 	bool b_networkStarting = false;
 	bool b_networkRunning = false;
 
-	bool canScan(){
-		return !b_networkInitializing && !b_networkStarting && !b_networkRunning;
-	}
+	bool canScan(){ return !b_networkInitializing && !b_networkStarting && !b_networkRunning; }
+	bool canStart(){ return !b_networkInitializing && !b_networkStarting && !b_networkRunning; }
+	bool canStop(){ return b_networkRunning; }
 
-	bool canStart(){
-		return !b_networkInitializing && !b_networkStarting && !b_networkRunning;
-	}
-
-	bool canStop(){
-		return b_networkRunning;
-	}
+	bool isScanning(){ return b_networkInitializing; }
+	bool isInitialized(){ return b_networkInitialized; }
+	bool isStarting(){ return b_networkStarting; }
+	bool isRunning(){ return b_networkRunning; }
 
 	void scan(){
 		initializeNetwork();
