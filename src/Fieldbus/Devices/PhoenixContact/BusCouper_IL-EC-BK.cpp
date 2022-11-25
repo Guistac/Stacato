@@ -49,7 +49,6 @@ bool BusCoupler::startupConfiguration() {
 	
 	//no idea why CanOpen SDO data is not available until around 250 milliseconds after transition to PreOp
 	std::this_thread::sleep_for(std::chrono::milliseconds(300));
-	 
 	
 	uint8_t resetBehavior = 0x0; //reset all outputs to 0 when fault occurs
 	if(!writeSDO_U8(0xF801, 0x0, resetBehavior)) {

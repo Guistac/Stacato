@@ -1301,8 +1301,10 @@ void updateErrorCounters(){
 		int largestErrorCount = 0;
 		if(connection->b_parentIsMaster) {
 			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
-			largestErrorCount = std::max(largestErrorCount, cyclicFrameTimeoutCounter);
-			largestErrorCount = std::max(largestErrorCount, cyclicFrameErrorCounter);
+			double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
+			int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
+			Logger::warn("{}", masterStability_i);
+			largestErrorCount = std::max(largestErrorCount, masterStability_i);
 			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
 			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
 			connection->b_wasDisconnected = childPortErrors.lostLinks > 0;

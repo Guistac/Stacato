@@ -413,25 +413,20 @@ void listNetworkConnections(){
 				ImGui::Text("Interface %s", EtherCatFieldbus::getActiveNetworkInterfaceCard()->description);
 				ImGui::PopStyleColor();
 				
-				ImGui::Text("Frame Timeouts:");
+				ImGui::Text("Dropped Frames:");
 				ImGui::SameLine();
-				ImGui::PushFont(Fonts::sansBold15);
-				float timeouts = 100.f * (float)EtherCatFieldbus::getCyclicFrameTimeoutCounter() / 255.f;
-				timeouts = std::min(timeouts, 100.0f);
-				ImGui::PushStyleColor(ImGuiCol_Text, getInstabilityColor(timeouts / 100.0));
-				ImGui::Text("%.1f%%", timeouts);
-				ImGui::PopFont();
-				ImGui::PopStyleColor();
+				double droppedFramesNormalized = 100.0 * double(EtherCatFieldbus::getMetrics().droppedFrameCount) / double(EtherCatFieldbus::getMetrics().frameCount);
+				ImGui::Text("%i / %i (%.3f%%)",
+							(int)EtherCatFieldbus::getMetrics().droppedFrameCount,
+							(int)EtherCatFieldbus::getMetrics().frameCount,
+							droppedFramesNormalized);
 				
 				ImGui::Text("Frame Errors:");
 				ImGui::SameLine();
 				ImGui::PushFont(Fonts::sansBold15);
-				float errors = 100.f * (float)EtherCatFieldbus::getCyclicFrameErrorCounter() / 255.f;
-				errors = std::min(errors, 100.0f);
-				ImGui::PushStyleColor(ImGuiCol_Text, getInstabilityColor(errors / 100.0));
-				ImGui::Text("%.1f%%", errors);
+				ImGui::Text("%i", EtherCatFieldbus::getCyclicFrameErrorCounter());
 				ImGui::PopFont();
-				ImGui::PopStyleColor();
+
 				
 			};
 			
@@ -635,12 +630,14 @@ void EtherCatNetworkWindow::drawContent(){
 		ImGui::BeginChild("Topology");
 		//networkTopology();
 		listNetworkConnections();
+		/*
 		ImGui::NewLine();
 		ImGui::Separator();
 		ImGui::Separator();
 		ImGui::Separator();
 		ImGui::NewLine();
 		unfoldNetwork();
+		 */
 		ImGui::EndChild();
 	}
 	
