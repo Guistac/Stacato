@@ -17,7 +17,6 @@ namespace EtherCatFieldbus {
 
 	//EXPERIMENTAL SETTINGS
 	bool b_usePosixRealtimeThread = true;
-	pthread_t rtThread;
 	int stackSize = 65536;
 
     bool b_skipCycles = false;
@@ -32,40 +31,22 @@ namespace EtherCatFieldbus {
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
 	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards(){ return networkInterfaceCards; }
 
-	std::shared_ptr<NetworkInterfaceCard> primaryNetworkInterfaceCard;
-	std::shared_ptr<NetworkInterfaceCard> redundantNetworkInterfaceCard;
-	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return primaryNetworkInterfaceCard; }
-	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard(){ return redundantNetworkInterfaceCard; }
 
-	char defaultPrimaryNetworkInterfaceDescription[512];
-	char defaultSecondaryNetworkInterfaceDescription[512];
-	
-	void setDefaultNetworkInterfaces(const char* primary, const char* secondary){
-		if(primary != 0) strcpy(defaultPrimaryNetworkInterfaceDescription, primary);
-		if(secondary != 0) strcpy(defaultSecondaryNetworkInterfaceDescription, secondary);
-	}
 
     std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
     std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned; //slaves discovered on the network but not added to the environnement editor
 	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return slaves; }
 	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves_unassigned; }
+	void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
+		std::remove(slaves_unassigned.begin(), slaves_unassigned.end(), removedDevice);
+	}
+
 
 	//contiguous storage for cyclic exchange data
-	
     uint8_t ioMap[MAX_IO_MAP_SIZE];
     int ioMapSize = 0;
 
-
-	bool b_detectionThreadRunning = false;
-	std::thread slaveDetectionThread;
-
 	bool b_cyclicExchangeRunning = false;
-	std::thread cyclicExchangeThread;	//cyclic exchange thread (needs a full cpu core to avoid scheduler issues and achieve realtime performance)
-	std::thread slaveStateHandler; 		//helper thread to periodically check the state of all slaves and recover them if necessary
-	std::thread slaveErrorCounter;		//helper thread to periodically read all slaves error counters
-
-	bool b_errorWatcherRunning = false;
-	std::thread errorWatcherThread;       //thread to read errors encountered by SOEM
 
 	int cyclicFrameTimeoutCounter = 0;
 	int cyclicFrameErrorCounter = 0;
@@ -75,7 +56,6 @@ namespace EtherCatFieldbus {
 	bool b_running = false;		//network is running
 
 	bool hasNetworkInterface() { return b_networkOpen; }
-	bool hasRedundantInterface() { return b_networkOpen && primaryNetworkInterfaceCard && redundantNetworkInterfaceCard; }
 	bool hasDetectedDevices(){ return !slaves.empty(); }
 	bool isStarting(){ return b_starting; }
 	bool isRunning(){ return b_running; }
@@ -126,6 +106,8 @@ namespace EtherCatFieldbus {
     bool configureSlaves();
     void startCyclicExchange();
 
+	bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
+
 	void logDeviceStates();
 	void logAlStatusCodes();
 
@@ -150,176 +132,152 @@ namespace EtherCatFieldbus {
 
     void updateNetworkInterfaceCardList() {
 		if(isRunning()) return;
-        Logger::info("===== Refreshing Network Interface Card List");
+        Logger::info("Refreshing Network Interface Card List");
 		
-		std::vector<std::shared_ptr<NetworkInterfaceCard>> oldNics = networkInterfaceCards;
         networkInterfaceCards.clear();
 		
-        ec_adaptert* nics = ec_find_adapters();
-        if (nics != nullptr) {
+		if (ec_adaptert* nics = ec_find_adapters()){
             while (nics != nullptr) {
 				
-#ifdef STACATO_MACOS
+				#ifdef STACATO_MACOS
 				//on macos, we can skip network interfaces that don't have a name with the format en
 				if (strstr(nics->name, "en") == nullptr) {
 					nics = nics->next;
 					continue;
 				}
-#endif
+				#endif
 				
-				bool wasPresent = false;
-				for(auto& oldNic : oldNics){
-					if(strcmp(oldNic->name, nics->name) == 0 && strcmp(oldNic->description, nics->desc) == 0){
-						networkInterfaceCards.push_back(oldNic);
-						wasPresent = true;
-						break;
-					}
-				}
-				
-				if(!wasPresent){
-					std::shared_ptr<NetworkInterfaceCard> newNic = std::make_shared<NetworkInterfaceCard>();
-					strcpy(newNic->name, nics->name);
-					strcpy(newNic->description, nics->desc);
-					networkInterfaceCards.push_back(newNic);
-				}
+				std::shared_ptr<NetworkInterfaceCard> nic = std::make_shared<NetworkInterfaceCard>();
+				strcpy(nic->name, nics->name);
+				strcpy(nic->description, nics->desc);
+				networkInterfaceCards.push_back(nic);
 				
                 nics = nics->next;
             }
         }
-        Logger::info("===== Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
+        Logger::info("Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
         for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
     }
 
+
+
+
     //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
 
-    bool init() {
+	bool initializeNetwork();
+	bool identifyDevices();
+
+	bool b_networkInitialized = false;
+	bool b_networkRunning = false;
+
+
+	bool initializeNetwork(){
 		
-		std::shared_ptr<NetworkInterfaceCard> primary = nullptr;
-		std::shared_ptr<NetworkInterfaceCard> secondary = nullptr;
-		
-		if(defaultPrimaryNetworkInterfaceDescription){
-			for(auto nic : getNetworksInterfaceCards()){
-				if(strcmp(defaultPrimaryNetworkInterfaceDescription, nic->description) == 0){
-					primary = nic;
-					break;
-				}
-			}
-			if(primary) Logger::info("Found default primary EtherCAT network interface");
-			else Logger::info("Could not find default primary EtherCAT network interface");
-
-			if(primary && defaultSecondaryNetworkInterfaceDescription){
-				for(auto nic : getNetworksInterfaceCards()){
-					if(strcmp(defaultSecondaryNetworkInterfaceDescription, nic->description) == 0){
-						secondary = nic;
-						break;
-					}
-				}
-				if(secondary) Logger::info("Found default secondary EtherCAT network interface");
-				else Logger::info("Could not find default secondary EtherCAT network interface");
-			}
-		}else Logger::warn("No Default EtherCAT network interface");
-		
-		if(primary && secondary) return init(primary, secondary);
-		else if(primary) return init(primary);
-		else if(!getNetworksInterfaceCards().empty()) return init(getNetworksInterfaceCards().front());
-		else return false;
-    }
-
-
-    bool init(std::shared_ptr<NetworkInterfaceCard> nic) {
-        if (b_networkOpen) terminate();
-        primaryNetworkInterfaceCard = nic;
-		redundantNetworkInterfaceCard = nullptr;
-        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}'", primaryNetworkInterfaceCard->description);
-        if (ec_init(primaryNetworkInterfaceCard->name) < 0) {
-            Logger::error("===== Failed to initialize network interface card ...");
-            b_networkOpen = false;
-            return false;
-        }
-        b_networkOpen = true;
-        Logger::info("===== Initialized network interface card '{}'", primaryNetworkInterfaceCard->description);
-        setup();
-        return true;
-    }
-
-    bool init(std::shared_ptr<NetworkInterfaceCard> nic, std::shared_ptr<NetworkInterfaceCard> redNic) {
-        if (b_networkOpen) terminate();
-		primaryNetworkInterfaceCard = nic;
-        redundantNetworkInterfaceCard = redNic;
-        Logger::debug("===== Initializing EtherCAT Fieldbus on Network Interface Card '{}' with redundancy on '{}'",
-					  primaryNetworkInterfaceCard->description,
-					  redundantNetworkInterfaceCard->description);
-        if (ec_init_redundant(primaryNetworkInterfaceCard->name, redundantNetworkInterfaceCard->name) < 0) {
-            Logger::error("===== Failed to initialize network interface cards ...");
-            b_networkOpen = false;
-            return false;
-        }
-        b_networkOpen = true;
-        Logger::info("===== Initialized network interface cards '{}' & '{}'",
-					 primaryNetworkInterfaceCard->description,
-					 redundantNetworkInterfaceCard->description);
-        setup();
-        return true;
-    }
-
-	bool b_autoInit = false;
-
-	void autoInit(){
-		if(isAutoInitRunning()) return;
-		std::thread autoInitHandler([](){
-			pthread_setname_np("EtherCAT Auto Init Handler Thread");
-			b_autoInit = true;
-			updateNetworkInterfaceCardList();
-			for(auto& nic : networkInterfaceCards){
-				if(!init(nic)) continue;
-				if(slaves.empty()) terminate();
-				else break;
-			}
-			b_autoInit = false;
-		});
-		autoInitHandler.detach();
-	}
-
-	bool isAutoInitRunning(){
-		return b_autoInit;
-	}
-
-    void setup() {
-        startErrorWatcher();
-        scanNetwork();
-        metrics.init(processInterval_milliseconds);
-    }
-
-    //============= STOP FIELDBUS AND CLOSE NETWORK INTERFACE CARD ==============
-
-    void terminate() {
-        stop();
-		if(b_networkOpen){
-			stopErrorWatcher();
-			stopSlaveDetectionHandler();
-			Logger::debug("===== Closing EtherCAT Network Interface Card");
-			ec_close();
-			b_networkOpen = false;
-			Logger::info("===== Stopped EtherCAT fieldbus");
+		if(b_networkRunning) {
+			Logger::critical("Can't initialize the network while it is running");
+			return false;
 		}
-		primaryNetworkInterfaceCard = nullptr;
-		redundantNetworkInterfaceCard = nullptr;
-    }
-
-    //================= SCAN REQUEST FROM GUI =================
-
-    void scanNetwork() {
-        stopSlaveDetectionHandler();
+		if(b_networkInitialized) ec_close();
 		
-		if(!hasNetworkPermissions()){
-			Logger::critical("Could not start EtherCAT Fieldbus because low level network packet manipulation is not allowed on the system.");
-			Logger::critical("Please install ChmodBPF.pkg and restart Stacato.");
-			return;
+		Logger::info("Initializing EtherCAT Network and searching for devices.");
+		startupProgress.setProgress(0.01, "Scanning Network for devices");
+		
+		b_networkInitialized = false;
+		updateNetworkInterfaceCardList();
+		
+		//check all nics for EtherCAT slave responses
+		Logger::info("Scanning all Network Interface Cards for EtherCAT slaves.");
+		std::vector<std::shared_ptr<NetworkInterfaceCard>> nicsWithDetectedSlaves = {};
+		for(auto nic : getNetworksInterfaceCards()){
+			if(ec_init(nic->name) > 0){
+				
+				//check for network permissions after opening a network interface
+				if(!hasNetworkPermissions()){
+					Logger::critical("Could not start EtherCAT Fieldbus because low level network packet manipulation is not allowed on the system.");
+					Logger::critical("Please install ChmodBPF.pkg and restart Stacato.");
+					return false;
+				}
+				
+				uint16_t w;
+				int workingCounter = ec_BRD(0x0000, ECT_REG_TYPE, sizeof(w), &w, EC_TIMEOUTSAFE);
+				if(workingCounter > 0){
+					nicsWithDetectedSlaves.push_back(nic);
+					Logger::info("{} : Found {} EtherCAT slaves", nic->name, workingCounter);
+				}else{
+					Logger::trace("{} : Found 0 EtherCAT slaves", nic->name);
+				}
+				ec_close();
+			}else Logger::error("Failed to initialize Network Interface Card {}", nic->name);
 		}
 		
-        discoverDevices(false);
-        startSlaveDetectionHandler();
-    }
+		if(nicsWithDetectedSlaves.empty()){
+			//no slave on any nic
+			Logger::warn("No Slaves detected on any Network Interface Card");
+			startupProgress.setFailure("No EtherCAT slaves found.");
+			return false;
+		}
+		else{
+			//one network interface card with slaves, or more than two
+			std::shared_ptr<NetworkInterfaceCard> nic = nicsWithDetectedSlaves[0];
+			
+			if(nicsWithDetectedSlaves.size() != 1)
+				Logger::info("Found EtherCAT slaves on more than two Network Interface Cards.");
+			
+			Logger::info("Starting EtherCAT on Network Interface {}", nic->name);
+			
+			if(ec_init(nic->name) <= 0){
+				Logger::error("Failed to initialize EtherCAT on Network Interface {}", nic->name);
+				startupProgress.setFailure("Failed to initialize network interface.");
+				return false;
+			}
+			
+			//discover and setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
+			//BUG: we need to do this twice: when swapping etherCAT connections, sometimes the aliasAdress doesn't read on the first config call (probably SOEM bug)
+			if(ec_config_init(false) <= 0){
+				ec_close();
+				Logger::error("Failed to configure EtherCAT on Network Interface {}", nic->name);
+				startupProgress.setFailure("Failed to configure network interface.");
+				return false;
+			}
+			
+			b_networkInitialized = true;
+			Logger::info("Initialized EtherCAT Network with {} devices on Network Interface {}", ec_slavecount, nic->name);
+			
+			identifyDevices();
+			
+			
+			
+			
+			return true;
+		}
+		
+		
+		/*
+		 if(!b_networkInitialized) {
+			 Logger::info("Network was not previously initialized.");
+			 if(findDevices() <= 0) {
+				 Logger::warn("Could not start EtherCAT Fieldbus.");
+				 return false;
+			 }
+		 }
+		 */
+	}
+
+
+//==== on INIT
+//stopSlaveDetectionHandler();
+//startSlaveDetectionHandler();
+//startErrorWatcher();
+//metrics.init(processInterval_milliseconds);
+
+//==== on STOP
+
+//==== on TERMINATE
+//stopErrorWatcher();
+//stopSlaveDetectionHandler();
+//ec_close();
+
+
 
     //================= START CYCLIC EXCHANGE =================
 
@@ -333,6 +291,17 @@ namespace EtherCatFieldbus {
 			std::thread etherCatProcessStarter([]() {
 				pthread_setname_np("EtherCAT Process Starter Thread");
 								
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
                 stopSlaveDetectionHandler();
 							
 				if(!hasDetectedDevices() || !hasNetworkInterface()) {
@@ -374,19 +343,14 @@ namespace EtherCatFieldbus {
         }
     }
 
-    //================= STOP CYCLIC EXCHANGE ===================
 
-    void stop() {
-        if (b_cyclicExchangeRunning) {
-            Logger::debug("===== Stopping Cyclic Exchange...");
-			b_cyclicExchangeRunning = false;
-			b_starting = false;
-			if(cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
-        }
-    }
+
 
 
     //========== General Error Watcher Utility ============
+
+	bool b_errorWatcherRunning = false;
+	std::thread errorWatcherThread;
 
     void startErrorWatcher() {
         b_errorWatcherRunning = true;
@@ -406,94 +370,35 @@ namespace EtherCatFieldbus {
         if (errorWatcherThread.joinable()) errorWatcherThread.join();
     }
 
-    //============ Check Explicit ID compatibility and Read explicit ID of slave ============
 
-    bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
-		
-        int maxTries = 8;
-		bool success = false;
-		int tries = 0;
-		bool foundID = false;
-		
-		//read AL Status (state machine, error, and ID status)
-		uint16_t ALstatus;
-		while(tries < maxTries && !success){
-			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-			if(wc == 1) success = true;
-			tries++;
-		}
-		
-		success = false;
-		tries = 0;
-		
-		//write AL Control to request device identification (bit 5 high)
-		uint16_t ALcontrol = ALstatus |= 0x20;
-		while(tries < maxTries && !success){
-			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-			if(wc == 1) success = true;
-			tries++;
-		}
-		
-		success = false;
-		tries = 0;
-		
-		//read AL status to see if device id is active (bit 5)
-		//this takes a considerable amount of time, a single read might be too soon, so we read multiple time
-		while(tries < maxTries && !success){
-			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
-			if(wc == 1 && ALstatus & 0x20) success = true;
-			tries++;
-		}
-		
-		if (success) {
-			
-			success = false;
-			tries = 0;
-			
-			//if it is supported read AL Status code (will contain explicit device ID)
-			uint16_t ALstatusCode;
-			
-			while(tries < maxTries && !success){
-				int wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
-				if(wc == 1) success = true;
-				tries++;
+	//================ Slave Pinging Utility during no cyclic exchange ====================
+
+	bool b_detectionThreadRunning = false;
+	std::thread slaveDetectionThread;
+
+	void startSlaveDetectionHandler() {
+		if (b_detectionThreadRunning) return;
+		b_detectionThreadRunning = true;
+		slaveDetectionThread = std::thread([]() {
+			pthread_setname_np("EtherCAT Detection Handler Thread");
+			Logger::debug("Started EtherCAT Detection Handler");
+			while (b_detectionThreadRunning) {
+				ec_readstate();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
-			
-			if(success) {
-				ID = ALstatusCode;
-				foundID = true;
-			}else{
-				foundID = false;
-			}
-			
-		}else{
-			foundID = false;
-		}
-		
-		
-		success = false;
-		tries = 0;
-		
-		//write to AL Control to disable ID Display
-		ALcontrol &= ~0x20;
-		while(tries < maxTries && !success){
-			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
-			if(wc == 1) success = true;
-			tries++;
-		}
-		
-		if(foundID) return true;
-		
-		ID = 0;
-        return false;
-    }
+			Logger::debug("Exited EtherCAT Detection Handler");
+		});
+	}
+
+	void stopSlaveDetectionHandler() {
+		b_detectionThreadRunning = false;
+		if (slaveDetectionThread.joinable()) slaveDetectionThread.join();
+	}
 
 
     //=================== DISCOVER ETHERCAT DEVICES ON THE NETWORK =====================
 
-    bool discoverDevices(bool logStartup) {
-
-		if(logStartup) startupProgress.setProgress(0.01, "Scanning Network");
+    bool identifyDevices() {
 		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
@@ -503,127 +408,85 @@ namespace EtherCatFieldbus {
         //we also clear the list of slaves that were not in the nodegraph
         slaves_unassigned.clear();
 
-        //setup all slaves, get slave count and info in ec_slave, setup mailboxes, request state PRE-OP for all slaves
-		//BUG: we need to do this twice: when swapping etherCAT connections, sometimes the aliasAdress doesn't read on the first config call (probably SOEM bug)
-        int workingCounter = ec_config_init(false);
-		workingCounter = ec_config_init(false);
+		//wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
+		if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+			Logger::error("Not All Slaves Reached Pre-Operational State...");
+			startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
+			return false;
+		}else Logger::info("All devices reached Pre-Operational State.");
+		
+		Logger::info("Identifying Devices.");
+		startupProgress.setProgress(0.05, "Identifying Devices");
 
-        if (workingCounter > 0) {
+		for (int i = 1; i <= ec_slavecount; i++) {
+			ec_slavet& identity = ec_slave[i];
 
-            //wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
-            if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
-				if(logStartup) startupProgress.setFailure("Not all slaves reached Pre-Operational State. Check the Log for more detailed errors.");
-                Logger::error("Not All Slaves Reached Pre-Operational State...");
-				return false;
-            }
+			Logger::info("    = Slave {} : '{}'  Address: {}", i, identity.name, identity.configadr);
 
-			if(logStartup) startupProgress.setProgress(0.05, "Identifying Devices");
-            Logger::info("===== Found and Configured {} EtherCAT Slave{}", ec_slavecount, ((ec_slavecount == 1) ? ": " : "s: "));
+			uint16_t explicitDeviceID;
+			bool explicitDeviceIdSupported = getExplicitDeviceID(identity.configadr, explicitDeviceID);
+			if (explicitDeviceIdSupported) Logger::debug("    = Explicit Device ID: {}", explicitDeviceID);
+			else Logger::debug("      Explicit Device ID is not supported");
+			uint16_t stationAlias = identity.aliasadr;
+			Logger::debug("      Station Alias: {}", stationAlias);
 
-            for (int i = 1; i <= ec_slavecount; i++) {
-                ec_slavet& identity = ec_slave[i];
+			std::shared_ptr<EtherCatDevice> slave = nullptr;
 
-                Logger::info("    = Slave {} : '{}'  Address: {}", i, identity.name, identity.configadr);
+			for (auto environnementSlave : Environnement::getEtherCatDevices()) {
+				//match the detected device name against the manufacturer and identification codes
+				if(environnementSlave->getManufacturerCode() != identity.eep_man || environnementSlave->getIdentificationCode() != identity.eep_id) continue;
+				switch (environnementSlave->identificationType) {
+					case EtherCatDevice::IdentificationType::STATION_ALIAS:
+						if (environnementSlave->stationAlias == stationAlias) {
+							slave = environnementSlave;
+							Logger::info("      Matched Environnement Slave by Name & Station Alias");
+						}
+						break;
+					case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
+						if (explicitDeviceIdSupported && environnementSlave->explicitDeviceID == explicitDeviceID) {
+							slave = environnementSlave;
+							Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
+						}
+						break;
+				}
+				if(slave != nullptr) break;
+			}
 
-                uint16_t explicitDeviceID;
-                bool explicitDeviceIdSupported = getExplicitDeviceID(identity.configadr, explicitDeviceID);
-                if (explicitDeviceIdSupported) Logger::debug("    = Explicit Device ID: {}", explicitDeviceID);
-                else Logger::debug("      Explicit Device ID is not supported");
-                uint16_t stationAlias = identity.aliasadr;
-                Logger::debug("      Station Alias: {}", stationAlias);
+			if (slave == nullptr) {
+				Logger::info("      Slave did not match any Environnement Slave");
+				slave = NodeFactory::getEtherCatDeviceByIdCodes(identity.eep_man, identity.eep_id);
+				slave->stationAlias = stationAlias;
+				slave->explicitDeviceID = explicitDeviceID;
+				char name[128];
+				if (explicitDeviceIdSupported && explicitDeviceID != 0) {
+					slave->identificationType = EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID;
+					sprintf(name, "%s (ID:%i)", slave->getName(), slave->explicitDeviceID);
+				}
+				else {
+					slave->identificationType = EtherCatDevice::IdentificationType::STATION_ALIAS;
+					sprintf(name, "%s (Alias:%i)", slave->getName(), slave->stationAlias);
+				}
+				slave->setName(name);
+				slaves_unassigned.push_back(slave);
+			}
 
-                std::shared_ptr<EtherCatDevice> slave = nullptr;
+			slave->identity = &identity;
+			slave->slaveIndex = i;
 
-                for (auto environnementSlave : Environnement::getEtherCatDevices()) {
-                    //match the detected device name against the manufacturer and identification codes
-					if(environnementSlave->getManufacturerCode() != identity.eep_man || environnementSlave->getIdentificationCode() != identity.eep_id) continue;
-                    switch (environnementSlave->identificationType) {
-						case EtherCatDevice::IdentificationType::STATION_ALIAS:
-							if (environnementSlave->stationAlias == stationAlias) {
-								slave = environnementSlave;
-								Logger::info("      Matched Environnement Slave by Name & Station Alias");
-							}
-							break;
-						case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
-							if (explicitDeviceIdSupported && environnementSlave->explicitDeviceID == explicitDeviceID) {
-								slave = environnementSlave;
-								Logger::info("      Matched Environnement Slave by Name & Explicit Device ID");
-							}
-							break;
-                    }
-					if(slave != nullptr) break;
-                }
+			if (!slave->isEtherCatDeviceKnown()) {
+				Logger::warn("Found Unknown Slave: {}", identity.name);
+			}
 
-                if (slave == nullptr) {
-                    Logger::info("      Slave did not match any Environnement Slave");
-					slave = NodeFactory::getEtherCatDeviceByIdCodes(identity.eep_man, identity.eep_id);
-                    slave->stationAlias = stationAlias;
-                    slave->explicitDeviceID = explicitDeviceID;
-                    char name[128];
-                    if (explicitDeviceIdSupported && explicitDeviceID != 0) {
-                        slave->identificationType = EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID;
-                        sprintf(name, "%s (ID:%i)", slave->getName(), slave->explicitDeviceID);
-                    }
-                    else {
-                        slave->identificationType = EtherCatDevice::IdentificationType::STATION_ALIAS;
-                        sprintf(name, "%s (Alias:%i)", slave->getName(), slave->stationAlias);
-                    }
-                    slave->setName(name);
-                    slaves_unassigned.push_back(slave);
-                }
-
-                slave->identity = &identity;
-                slave->slaveIndex = i;
-
-                if (!slave->isEtherCatDeviceKnown()) {
-                    Logger::warn("Found Unknown Slave: {}", identity.name);
-                }
-
-                //add the slave to the list of slaves regardless of environnement presence
-                slaves.push_back(slave);
-            }
-
-            return true;
-        }
-
-		if(logStartup) startupProgress.setFailure("No EtherCAT slaves found");
-        Logger::warn("===== No EtherCAT Slaves found...");
-        return false;
-    }
-
-    void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
-        for (int i = 0; i < slaves_unassigned.size(); i++) {
-            if (slaves_unassigned[i] == removedDevice) {
-                slaves_unassigned.erase(slaves_unassigned.begin() + i);
-                break;
-            }
-        }
-    }
-
-    //================ Slave Pinging Utility during no cyclic exchange ====================
-
-    void startSlaveDetectionHandler() {
-        if (b_detectionThreadRunning) return;
-		b_detectionThreadRunning = true;
-		slaveDetectionThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Detection Handler Thread");
-            Logger::debug("Started EtherCAT Detection Handler");
-            while (b_detectionThreadRunning) {
-                ec_readstate();
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-            Logger::debug("Exited EtherCAT Detection Handler");
-		});
-    }
-
-    void stopSlaveDetectionHandler() {
-		b_detectionThreadRunning = false;
-        if (slaveDetectionThread.joinable()) slaveDetectionThread.join();
+			//add the slave to the list of slaves regardless of environnement presence
+			slaves.push_back(slave);
+		}
+		
+		return true;
     }
 
     //=========== Map Slave memory, Configure Distributed Clocks, Do Per slave configuration, Transition to Safe Operational ===============
 
-    bool configureSlaves() {
+    bool configureDevices() {
 
 		startupProgress.setProgress(0.075, "Configuring Distributed Clocks");
         Logger::debug("===== Configuring Distributed Clocks");
@@ -706,252 +569,64 @@ namespace EtherCatFieldbus {
 
     //========= START CYCLIC EXCHANGE ============
 
-	//EXPERIMENTAL
-	void pthreadCyclicExchange(void* data){
+	//cyclic exchange timing variables
+	uint64_t processInterval_nanoseconds;
+	uint64_t processDataTimeout_microseconds;
+	uint64_t systemTime_nanoseconds;
+	uint64_t cycleStartTime_nanoseconds;
+	uint64_t previousCycleStartTime_nanoseconds;
+	uint64_t fieldbusStartTime_nanoseconds;
+	uint64_t clockStableThreshold_nanoseconds;
+	double averageDCTimeDelta_nanoseconds;
+	int clockDriftCorrectionintegral;
+	std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
+	int64_t systemTimeErrorSmoothed_nanoseconds;
+	int64_t systemTimeSmoothed_nanoseconds;
+	bool b_clockStable;
+	
+	void cycle();
+
+    void cyclicExchange(void* data) {
+		
+		b_cyclicExchangeRunning = true;
+		
 		pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
-		cyclicExchange();
-	}
 
-    void startCyclicExchange() {
-        //don't allow the thread to start if it is already running
-        if (b_cyclicExchangeRunning) return;
-
-		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
-        Logger::debug("===== Starting Cyclic Process Data Exchange");
-
-        metrics.init(processInterval_milliseconds);
+		metrics.init(processInterval_milliseconds);
 		
-		if(b_usePosixRealtimeThread){
-			
-			//EXPERIMENTAL
-			b_cyclicExchangeRunning = true;
-			osal_thread_create_rt(&rtThread, stackSize, (void*)&pthreadCyclicExchange, nullptr);
-			pthread_detach(rtThread);
-        
-		}else{
-		
-			//join the cyclic echange thread if it was terminated previously
-			if (cyclicExchangeThread.joinable()) cyclicExchangeThread.join();
-			
-			b_cyclicExchangeRunning = true;
-			cyclicExchangeThread = std::thread([]() {
-				pthread_setname_np("EtherCAT Cyclic Exchange Thread (std::thread)");
-				cyclicExchange();
-			});
+		//slaves are considered online when they are detected and actively exchanging data with the master
+		//if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
+		//we can trigger the onConnection event of all slaves
+		for (auto slave : slaves) {
+			slave->pushEvent("Device Connected (Fieldbus Started)", false);
+			slave->onConnection();
 		}
-    }
-
-
-    void cyclicExchange() {
-        using namespace std::chrono;
-
+		
         //thread timing variables
-        uint64_t processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
-        uint64_t processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
-        uint64_t systemTime_nanoseconds = Timing::getProgramTime_nanoseconds() + processInterval_nanoseconds;
-        uint64_t cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
-        uint64_t previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
-        uint64_t fieldbusStartTime_nanoseconds = cycleStartTime_nanoseconds;
-        uint64_t clockStableThreshold_nanoseconds = clockStableThreshold_milliseconds * 1000000.0;
-        double averageDCTimeDelta_nanoseconds = (double)processInterval_nanoseconds / 2.0;
-        int clockDriftCorrectionintegral = 0;
-        std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime = high_resolution_clock::now();
-
+        processInterval_nanoseconds = processInterval_milliseconds * 1000000.0L;
+        processDataTimeout_microseconds = processDataTimeout_milliseconds * 1000.0L;
+        systemTime_nanoseconds = Timing::getProgramTime_nanoseconds() + processInterval_nanoseconds;
+        cycleStartTime_nanoseconds = systemTime_nanoseconds + processInterval_nanoseconds;
+        previousCycleStartTime_nanoseconds = systemTime_nanoseconds;
+        fieldbusStartTime_nanoseconds = cycleStartTime_nanoseconds;
+        clockStableThreshold_nanoseconds = clockStableThreshold_milliseconds * 1000000.0;
+        averageDCTimeDelta_nanoseconds = (double)processInterval_nanoseconds / 2.0;
+        clockDriftCorrectionintegral = 0;
+        lastProcessDataFrameReturnTime = std::chrono::high_resolution_clock::now();
+		systemTimeErrorSmoothed_nanoseconds = 0;
+		systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
+		b_clockStable = false;
+		
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
 		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
 
-        //slaves are considered online when they are detected and actively exchanging data with the master
-        //if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
-        //we can trigger the onConnection event of all slaves
-        for (auto slave : slaves) {
-            slave->pushEvent("Device Connected (Fieldbus Started)", false);
-            slave->onConnection();
-        }
-
-        int64_t systemTimeErrorSmoothed_nanoseconds = 0;
-        int64_t systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
-		bool b_clockStable = false;
-
-        while (b_cyclicExchangeRunning) {
-
-            //======================= THREAD TIMING =========================
-
-            //bruteforce timing precision by using 100% of CPU core
-            //update and compare system time to next process 
-            do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
-
-            //============= PROCESS DATA SENDING AND RECEIVING ==============
-
-            //EXPERIMENTAL
-            if(b_skipCycles){
-                b_skipCycles = false;
-                b_skippingFrames = true;
-                skippedFrames = 0;
-                Logger::warn("Skipping {} EtherCAT Frames", maxSkippedFrames);
-            }else if(b_skippingFrames){
-                skippedFrames++;
-                Logger::warn("Skipping frame {}/{}", skippedFrames, maxSkippedFrames);
-                if(skippedFrames >= maxSkippedFrames) b_skippingFrames = false;
-            }
-            
-            int workingCounter;
-            uint64_t frameSentTime_nanoseconds = systemTime_nanoseconds;
-            uint64_t frameReceivedTime_nanoseconds = systemTime_nanoseconds;
-            
-            if(!b_skippingFrames){
-                ec_send_processdata();
-                frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-                workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
-                frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-                if(frameSentTime_nanoseconds < cycleStartTime_nanoseconds){
-                    //Logger::error("Weird frame send time... {} {}", frameSentTime_nanoseconds, cycleStartTime_nanoseconds);
-                    frameSentTime_nanoseconds = cycleStartTime_nanoseconds;
-                }
-            }
-                
-            metrics.frameCount++;
-            
-			switch(workingCounter){
-				case EC_NOFRAME:
-				case EC_TIMEOUT:
-					cyclicFrameTimeoutCounter++;
-                    metrics.droppedFrameCount++;
-					break;
-				case EC_OTHERFRAME:
-				case EC_ERROR:
-				case EC_SLAVECOUNTEXCEEDED:
-					cyclicFrameErrorCounter++;
-                    metrics.droppedFrameCount++;
-					break;
-			}
-
-            //===================== TIMEOUT HANDLING ========================
-
-            if (workingCounter <= 0) {
-                if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
-                    Logger::critical("Fieldbus timed out...");
-                    break; //breaks out of the main while loop (which stops the fieldbus?)
-                }
-				//adjust the copy of the reference clock in case no frame was received
-                ec_DCtime += processInterval_nanoseconds;
-            }
-            else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
-
-            //===================== ENVIRONNEMENT UPDATE =======================
-
-			if (b_running) Environnement::updateEtherCatHardware();
-
-            //=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
-
-            //----- Adjust clock drift between the reference clock (ec_DCtime, time of process data receive at first slave) and the master clock ------
-            //We do this by adjusting the time of next the next process cycle start.
-            //This way the refresh rate of the current cyclic exchange loop is synchronized with the EtherCAT reference clock.
-            //The target is to synchronize reception of the process frame with an integer multiple of the process interval.
-            //For example, if the process interval is 100, the frame should be received by the reference clock slave at 0, 100, 200, 300, etc.
-            //This is done by calculating the time error between the reference clock and the desired reception time (an integer multiple of the process interval)
-            //We then use this dellta value in a simple control loop to produce a time offset that we will be added to the next cycle start time.
-            //This effectively synchronises the cyclic exchange loop with the EtherCAT reference clock.
-            int64_t referenceClockError_nanoseconds = ec_DCtime % processInterval_nanoseconds;
-            if (referenceClockError_nanoseconds > processInterval_nanoseconds / 2) referenceClockError_nanoseconds -= processInterval_nanoseconds;
-            averageDCTimeDelta_nanoseconds = averageDCTimeDelta_nanoseconds * 0.95 + (double)abs(referenceClockError_nanoseconds) * 0.05;
-            if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
-            else if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
-            int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
-            previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
-            cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
-
-            //======================== SYSTEM CLOCK ==========================
-
-            //update a time value that will serve as a synchronisation reference for all ethercat devices
-            //the time value is synchronous to the master system clock and is updated on each ethercat process cycle
-            //we start by initializing the time value to the first cycle start time
-            //we increment this time by the process interval time on each cycle
-            //to avoid drift from the actual system clock, we calculate the error between the incremented time and the actual system time.
-            //to avoid jitter we filter this error before applying it as a correction to the time value using a proportional gain weight.
-            //this way we get a time reference that is synchronous with the system clock and
-            //most importantly without high frequency jitter induced by corrections that keep the process cycle synchronized with the EtherCAT reference clock
-
-            static double systemTimeErrorFilter = 0.99; //smoothing of the error to get a get a stable value
-            static double smoothedTimeCorrection_proportionalGain = 0.002; //strength of the correction applied to the time value (tested and working for cycle times between 1ms and 20 ms)
-            
-			//calculate the current time error
-			int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
-			//smoothe the time error
-            systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
-			//apply a weighted error correction to the system time
-			systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
-			
-			//time values in reference to fieldbus start
-			uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
-			double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
-			
-			//save previous time values (in reference to fieldbus start)
-			uint64_t previousCycleProgramTime_nanoseconds = currentCycleProgramTime_nanoseconds;
-			double previousCycleProgramTime_seconds = currentCycleProgramTime_seconds;
-			
-			//assign new current time values (in reference to fieldbus start)
-            currentCycleProgramTime_nanoseconds = fieldbusTimeSmoothed_nanoseconds;
-            currentCycleProgramTime_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
-            
-			//calculate current delta time values
-			currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
-			currentCycleDeltaT_nanoseconds = currentCycleProgramTime_nanoseconds - previousCycleProgramTime_nanoseconds;
-			
-            //================= OPERATIONAL STATE TRANSITION ==================
-
-            if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
-				//detect clock stabilisation and request operational state
-				b_clockStable = true;
-				startupProgress.setProgress(0.95, "Requesting Operational State");
-                std::thread opStateHandler([]() {
-					pthread_setname_np("EtherCAT Operational State Transition Handler");
-					transitionToOperationalState();
-				});
-                opStateHandler.detach();
-			}else if(!b_clockStable){
-				//while the clocks are stabilizing, update the startup progress bar
-				float from = 0.65;
-				float to = 1.0;
-				float maxValue = processInterval_milliseconds / 2.0;
-				float minValue = clockStableThreshold_milliseconds;
-				float value = metrics.averageDcTimeError_milliseconds;
-				float percentage = 1.0 - ((value - minValue) / (maxValue - minValue));
-				percentage = std::min(1.0f, percentage);
-				percentage = std::max(0.0f, percentage);
-				float progress = from + (to - from) * percentage;
-				startupProgress.progress = progress;
-			}
-
-            //==================== UPDATE FIELDBUS METRICS =====================
-
-            metrics.fieldbusTime_seconds = fieldbusTimeSmoothed_seconds;
-            metrics.averageDcTimeError_milliseconds = averageDCTimeDelta_nanoseconds / 1000000.0;       //used to display clock drift correction progress
-            double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
-            double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            metrics.dcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, referenceClockError_nanoseconds / 1000000.0));
-            metrics.averageDcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, averageDCTimeDelta_nanoseconds / 1000000.0));
-            metrics.sendDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameSendDelay_milliseconds));
-            metrics.receiveDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
-            metrics.timeoutDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, timeoutDelay_milliseconds));
-            metrics.cycleLengths.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, cycleLength_milliseconds));;
-            metrics.addWorkingCounter(workingCounter, fieldbusTimeSmoothed_seconds);
-            if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
-            uint64_t processedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
-            double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
-            metrics.processDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, processDelay_milliseconds));
-            metrics.cycleCounter++;
-
-            //======================== RUNTIME LOOP END =========================
-        }
+		//========= CYCLIC EXCHANGE ============
+		while (b_cyclicExchangeRunning) cycle();
+		//======================================
+		
 		b_cyclicExchangeRunning = false; //set this in case we broke out of the main loop
         b_running = false;
 
-		
-		
-		
-		
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
         for (auto slave : slaves) {
@@ -973,6 +648,204 @@ namespace EtherCatFieldbus {
 		
 		Environnement::stop();
     }
+
+
+
+	void cycle(){
+		using namespace std::chrono;
+		
+		//======================= THREAD TIMING =========================
+
+		//bruteforce timing precision by using 100% of CPU core
+		//update and compare system time to next process
+		do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
+
+		//============= PROCESS DATA SENDING AND RECEIVING ==============
+
+		//EXPERIMENTAL
+		if(b_skipCycles){
+			b_skipCycles = false;
+			b_skippingFrames = true;
+			skippedFrames = 0;
+			Logger::warn("Skipping {} EtherCAT Frames", maxSkippedFrames);
+		}else if(b_skippingFrames){
+			skippedFrames++;
+			Logger::warn("Skipping frame {}/{}", skippedFrames, maxSkippedFrames);
+			if(skippedFrames >= maxSkippedFrames) b_skippingFrames = false;
+		}
+		
+		int workingCounter;
+		uint64_t frameSentTime_nanoseconds = systemTime_nanoseconds;
+		uint64_t frameReceivedTime_nanoseconds = systemTime_nanoseconds;
+		
+		if(!b_skippingFrames){
+			ec_send_processdata();
+			frameSentTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			workingCounter = ec_receive_processdata(processDataTimeout_microseconds);
+			frameReceivedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			if(frameSentTime_nanoseconds < cycleStartTime_nanoseconds){
+				//Logger::error("Weird frame send time... {} {}", frameSentTime_nanoseconds, cycleStartTime_nanoseconds);
+				frameSentTime_nanoseconds = cycleStartTime_nanoseconds;
+			}
+		}
+			
+		metrics.frameCount++;
+		
+		switch(workingCounter){
+			case EC_NOFRAME:
+			case EC_TIMEOUT:
+				cyclicFrameTimeoutCounter++;
+				metrics.droppedFrameCount++;
+				break;
+			case EC_OTHERFRAME:
+			case EC_ERROR:
+			case EC_SLAVECOUNTEXCEEDED:
+				cyclicFrameErrorCounter++;
+				metrics.droppedFrameCount++;
+				break;
+		}
+
+		//===================== TIMEOUT HANDLING ========================
+
+		if (workingCounter <= 0) {
+			if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
+				Logger::critical("Fieldbus timed out...");
+				return; //breaks out of the main while loop (which stops the fieldbus?)
+			}
+			//adjust the copy of the reference clock in case no frame was received
+			ec_DCtime += processInterval_nanoseconds;
+		}
+		else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
+
+		//===================== ENVIRONNEMENT UPDATE =======================
+
+		if (b_running) Environnement::updateEtherCatHardware();
+
+		//=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
+
+		//----- Adjust clock drift between the reference clock (ec_DCtime, time of process data receive at first slave) and the master clock ------
+		//We do this by adjusting the time of next the next process cycle start.
+		//This way the refresh rate of the current cyclic exchange loop is synchronized with the EtherCAT reference clock.
+		//The target is to synchronize reception of the process frame with an integer multiple of the process interval.
+		//For example, if the process interval is 100, the frame should be received by the reference clock slave at 0, 100, 200, 300, etc.
+		//This is done by calculating the time error between the reference clock and the desired reception time (an integer multiple of the process interval)
+		//We then use this dellta value in a simple control loop to produce a time offset that we will be added to the next cycle start time.
+		//This effectively synchronises the cyclic exchange loop with the EtherCAT reference clock.
+		int64_t referenceClockError_nanoseconds = ec_DCtime % processInterval_nanoseconds;
+		if (referenceClockError_nanoseconds > processInterval_nanoseconds / 2) referenceClockError_nanoseconds -= processInterval_nanoseconds;
+		averageDCTimeDelta_nanoseconds = averageDCTimeDelta_nanoseconds * 0.95 + (double)abs(referenceClockError_nanoseconds) * 0.05;
+		if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
+		else if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
+		int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
+		previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
+		cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
+
+		//======================== SYSTEM CLOCK ==========================
+
+		//update a time value that will serve as a synchronisation reference for all ethercat devices
+		//the time value is synchronous to the master system clock and is updated on each ethercat process cycle
+		//we start by initializing the time value to the first cycle start time
+		//we increment this time by the process interval time on each cycle
+		//to avoid drift from the actual system clock, we calculate the error between the incremented time and the actual system time.
+		//to avoid jitter we filter this error before applying it as a correction to the time value using a proportional gain weight.
+		//this way we get a time reference that is synchronous with the system clock and
+		//most importantly without high frequency jitter induced by corrections that keep the process cycle synchronized with the EtherCAT reference clock
+
+		static double systemTimeErrorFilter = 0.99; //smoothing of the error to get a get a stable value
+		static double smoothedTimeCorrection_proportionalGain = 0.002; //strength of the correction applied to the time value (tested and working for cycle times between 1ms and 20 ms)
+		
+		//calculate the current time error
+		int64_t systemTimeError = systemTime_nanoseconds - systemTimeSmoothed_nanoseconds;
+		//smoothe the time error
+		systemTimeErrorSmoothed_nanoseconds = systemTimeErrorSmoothed_nanoseconds * systemTimeErrorFilter + (1.0 - systemTimeErrorFilter) * systemTimeError;
+		//apply a weighted error correction to the system time
+		systemTimeSmoothed_nanoseconds += processInterval_nanoseconds + systemTimeErrorSmoothed_nanoseconds * smoothedTimeCorrection_proportionalGain;
+		
+		//time values in reference to fieldbus start
+		uint64_t fieldbusTimeSmoothed_nanoseconds = systemTimeSmoothed_nanoseconds - fieldbusStartTime_nanoseconds;
+		double fieldbusTimeSmoothed_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+		
+		//save previous time values (in reference to fieldbus start)
+		uint64_t previousCycleProgramTime_nanoseconds = currentCycleProgramTime_nanoseconds;
+		double previousCycleProgramTime_seconds = currentCycleProgramTime_seconds;
+		
+		//assign new current time values (in reference to fieldbus start)
+		currentCycleProgramTime_nanoseconds = fieldbusTimeSmoothed_nanoseconds;
+		currentCycleProgramTime_seconds = (double)fieldbusTimeSmoothed_nanoseconds / 1000000000.0;
+		
+		//calculate current delta time values
+		currentCycleDeltaT_seconds = currentCycleProgramTime_seconds - previousCycleProgramTime_seconds;
+		currentCycleDeltaT_nanoseconds = currentCycleProgramTime_nanoseconds - previousCycleProgramTime_nanoseconds;
+		
+		//================= OPERATIONAL STATE TRANSITION ==================
+
+		if (!b_clockStable && averageDCTimeDelta_nanoseconds < clockStableThreshold_nanoseconds) {
+			//detect clock stabilisation and request operational state
+			b_clockStable = true;
+			startupProgress.setProgress(0.95, "Requesting Operational State");
+			std::thread opStateHandler([]() {
+				pthread_setname_np("EtherCAT Operational State Transition Handler");
+				transitionToOperationalState();
+			});
+			opStateHandler.detach();
+		}else if(!b_clockStable){
+			//while the clocks are stabilizing, update the startup progress bar
+			float from = 0.65;
+			float to = 1.0;
+			float maxValue = processInterval_milliseconds / 2.0;
+			float minValue = clockStableThreshold_milliseconds;
+			float value = metrics.averageDcTimeError_milliseconds;
+			float percentage = 1.0 - ((value - minValue) / (maxValue - minValue));
+			percentage = std::min(1.0f, percentage);
+			percentage = std::max(0.0f, percentage);
+			float progress = from + (to - from) * percentage;
+			startupProgress.progress = progress;
+		}
+
+		//==================== UPDATE FIELDBUS METRICS =====================
+
+		metrics.fieldbusTime_seconds = fieldbusTimeSmoothed_seconds;
+		metrics.averageDcTimeError_milliseconds = averageDCTimeDelta_nanoseconds / 1000000.0;       //used to display clock drift correction progress
+		double frameSendDelay_milliseconds = (double)(frameSentTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+		double frameReceiveDelay_milliseconds = (double)(frameReceivedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+		double timeoutDelay_milliseconds = frameSendDelay_milliseconds + processDataTimeout_milliseconds;
+		double cycleLength_milliseconds = (double)(cycleStartTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+		metrics.dcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, referenceClockError_nanoseconds / 1000000.0));
+		metrics.averageDcTimeErrors.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, averageDCTimeDelta_nanoseconds / 1000000.0));
+		metrics.sendDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameSendDelay_milliseconds));
+		metrics.receiveDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
+		metrics.timeoutDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, timeoutDelay_milliseconds));
+		metrics.cycleLengths.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, cycleLength_milliseconds));;
+		metrics.addWorkingCounter(workingCounter, fieldbusTimeSmoothed_seconds);
+		if (workingCounter <= 0) metrics.timeouts.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, frameReceiveDelay_milliseconds));
+		uint64_t processedTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+		double processDelay_milliseconds = (double)(processedTime_nanoseconds - previousCycleStartTime_nanoseconds) / 1000000.0L;
+		metrics.processDelays.addPoint(glm::vec2(fieldbusTimeSmoothed_seconds, processDelay_milliseconds));
+		metrics.cycleCounter++;
+
+		//======================== RUNTIME LOOP END =========================
+	}
+
+	pthread_t rtThread;
+
+	void startCyclicExchange() {
+		//don't allow the thread to start if it is already running
+		if (b_cyclicExchangeRunning) return;
+		
+		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
+		Logger::debug("===== Starting Cyclic Process Data Exchange");
+			
+		osal_thread_create_rt(&rtThread, stackSize, (void*)&cyclicExchange, nullptr);
+		pthread_detach(rtThread);
+
+	}
+
+
+	void stopCyclicExchange(){
+		//TODO: this...
+	}
+
+
 
     //============== TRANSITION ALL SLAVES TO OPERATIONAL AFTER REFERENCE CLOCK AND MASTER CLOCKS ALIGNED ===================
 
@@ -1010,11 +883,16 @@ namespace EtherCatFieldbus {
 
     //============== STATE HANDLING AND SLAVE RECOVERY =================
 
-    void handleStateTransitions() {
+	std::thread slaveStateHandler;
+	bool b_slaveStateHandlerRunning = false;
+
+    void startHandlingStateTransitions() {
 		slaveStateHandler = std::thread([]() {
+			b_slaveStateHandlerRunning = true;
+			
 			pthread_setname_np("EtherCAT State Transition Handler Thread");
 			Logger::debug("Started Slave State Handler Thread");
-			while (b_cyclicExchangeRunning) {
+			while (b_slaveStateHandlerRunning) {
 
 				//save each slaves previous state
 				for (auto slave : slaves) slave->previousState = slave->identity->state;
@@ -1089,16 +967,31 @@ namespace EtherCatFieldbus {
 		});
     }
 
-	void countSlaveErrors(){
-		slaveErrorCounter = std::thread([]() {
+	void stopHandlingStateTransitions(){
+		b_slaveStateHandlerRunning = false;
+		slaveStateHandler.join();
+	}
+
+
+	std::thread transmissionErrorCounterThread;
+	bool b_transmissionErrorCounterRunning = false;
+
+	void startCountingTransmissionsErrors(){
+		transmissionErrorCounterThread = std::thread([]() {
+			b_transmissionErrorCounterRunning = true;
 			pthread_setname_np("EtherCAT Slave Error Counter Thread");
 			Logger::debug("Started Slave Error Counter Thread");
-			while (b_cyclicExchangeRunning) {
+			while (b_transmissionErrorCounterRunning) {
 				updateErrorCounters();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
 			Logger::debug("Exited Slave Error Counter Thread");
 		});
+	}
+
+	void stopCountingTransmissionErrors(){
+		b_transmissionErrorCounterRunning = false;
+		transmissionErrorCounterThread.join();
 	}
 
 	//========= DEVICE STATE LOGGING ========
@@ -1117,6 +1010,93 @@ namespace EtherCatFieldbus {
 			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
 		}
 	}
+
+
+
+
+	//============ Check Explicit ID compatibility and Read explicit ID of slave ============
+
+	bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID) {
+		
+		int maxTries = 8;
+		bool success = false;
+		int tries = 0;
+		bool foundID = false;
+		
+		//read AL Status (state machine, error, and ID status)
+		uint16_t ALstatus;
+		while(tries < maxTries && !success){
+			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		success = false;
+		tries = 0;
+		
+		//write AL Control to request device identification (bit 5 high)
+		uint16_t ALcontrol = ALstatus |= 0x20;
+		while(tries < maxTries && !success){
+			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		success = false;
+		tries = 0;
+		
+		//read AL status to see if device id is active (bit 5)
+		//this takes a considerable amount of time, a single read might be too soon, so we read multiple time
+		while(tries < maxTries && !success){
+			int wc = ec_FPRD(configAddress, 0x130, 2, &ALstatus, EC_TIMEOUTSAFE);
+			if(wc == 1 && ALstatus & 0x20) success = true;
+			tries++;
+		}
+		
+		if (success) {
+			
+			success = false;
+			tries = 0;
+			
+			//if it is supported read AL Status code (will contain explicit device ID)
+			uint16_t ALstatusCode;
+			
+			while(tries < maxTries && !success){
+				int wc = ec_FPRD(configAddress, 0x134, 2, &ALstatusCode, EC_TIMEOUTSAFE);
+				if(wc == 1) success = true;
+				tries++;
+			}
+			
+			if(success) {
+				ID = ALstatusCode;
+				foundID = true;
+			}else{
+				foundID = false;
+			}
+			
+		}else{
+			foundID = false;
+		}
+		
+		
+		success = false;
+		tries = 0;
+		
+		//write to AL Control to disable ID Display
+		ALcontrol &= ~0x20;
+		while(tries < maxTries && !success){
+			int wc = ec_FPWR(configAddress, 0x120, 2, &ALcontrol, EC_TIMEOUTSAFE);
+			if(wc == 1) success = true;
+			tries++;
+		}
+		
+		if(foundID) return true;
+		
+		ID = 0;
+		return false;
+	}
+
+
 
 
 
@@ -1332,6 +1312,14 @@ void resetErrorCounters(){
 
 int getCyclicFrameTimeoutCounter(){ return cyclicFrameTimeoutCounter; }
 int getCyclicFrameErrorCounter(){ return cyclicFrameErrorCounter; }
+
+
+
+
+
+
+
+
 
 
 
