@@ -51,14 +51,16 @@ namespace Environnement {
 
 	void initialize(){
 		if(isRunning()) stop();
-		EtherCatFieldbus::updateNetworkInterfaceCardList();
+		//EtherCatFieldbus::updateNetworkInterfaceCardList();
 		Network::init();
-		EtherCatFieldbus::init();
+		//EtherCatFieldbus::init();
+		EtherCatFieldbus::scan();
 	}
 
 	void terminate(){
 		if(isRunning()) stop();
-		EtherCatFieldbus::terminate();
+		//EtherCatFieldbus::terminate();
+		EtherCatFieldbus::stop();
 		Network::terminate();
 	}
 

@@ -70,18 +70,16 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::Text("Detected Devices");
 				ImGui::PopStyleColor();
 				
-				bool disableScanButton = EtherCatFieldbus::isRunning();
-				ImGui::BeginDisabled(disableScanButton);
-				if (ImGui::Button("Scan Network")) {
-					EtherCatFieldbus::autoInit();
-				}
+				ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
+				if (ImGui::Button("Scan Network")) EtherCatFieldbus::scan();
 				ImGui::EndDisabled();
-				if (EtherCatFieldbus::isAutoInitRunning()) {
+				
+				if (EtherCatFieldbus::isScanning()) {
 					ImGui::SameLine();
 					auto nic = EtherCatFieldbus::getActiveNetworkInterfaceCard();
 					if(nic) ImGui::TextWrapped("Scanning network interface %s", nic->name);
 					else ImGui::Text("Scanning...");
-				}else if(EtherCatFieldbus::hasDetectedDevices()){
+				}else if(EtherCatFieldbus::isInitialized()){
 					ImGui::PushFont(Fonts::sansBold15);
 					ImGui::Text("Devices detected on network interface %s:", EtherCatFieldbus::getActiveNetworkInterfaceCard()->name);
 					ImGui::PopFont();
@@ -89,7 +87,7 @@ namespace Environnement::NodeGraph::Gui{
 				
 				ImGui::TreePush();
 				
-				for (auto device : EtherCatFieldbus::getUnassignedDevices()) {
+				for (auto device : EtherCatFieldbus::getUnmatchedDevices()) {
 					const char* deviceDisplayName = device->getName();
 					ImGui::Selectable(deviceDisplayName);
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -183,7 +181,7 @@ namespace Environnement::NodeGraph::Gui{
 			payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
 			if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
 				std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
-				EtherCatFieldbus::removeUnassignedDevice(detectedSlave);
+				EtherCatFieldbus::removeUnmatchedDevice(detectedSlave);
 				return detectedSlave;
 			}
 			ImGui::EndDragDropTarget();
@@ -227,13 +225,13 @@ namespace Environnement::NodeGraph::Gui{
 		}
 
 		std::shared_ptr<EtherCatDevice> selectedDetectedSlave = nullptr;
-		if (!EtherCatFieldbus::getUnassignedDevices().empty()) {
+		if (!EtherCatFieldbus::getUnmatchedDevices().empty()) {
 			if (ImGui::BeginMenu("Detected Slaves")) {
-				for (auto detectedSlave : EtherCatFieldbus::getUnassignedDevices()) {
+				for (auto detectedSlave : EtherCatFieldbus::getUnmatchedDevices()) {
 					if (ImGui::MenuItem(detectedSlave->getName())) {
 						output = detectedSlave;
 						selectedDetectedSlave = detectedSlave;
-						EtherCatFieldbus::removeUnassignedDevice(selectedDetectedSlave);
+						EtherCatFieldbus::removeUnmatchedDevice(selectedDetectedSlave);
 					}
 				}
 				ImGui::EndMenu();

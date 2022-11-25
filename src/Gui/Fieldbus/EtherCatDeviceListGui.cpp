@@ -17,9 +17,8 @@ void etherCatSlaves() {
 
 	ImGui::BeginGroup();
 
-	bool disableScanButton = !EtherCatFieldbus::canScan();
-	ImGui::BeginDisabled(disableScanButton);
-	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scanNetwork();
+	ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
+	if (ImGui::Button("Scan Network")) EtherCatFieldbus::scan();
 	ImGui::EndDisabled();
 	ImGui::SameLine();
 	ImGui::Text("%i Devices Found", (int)EtherCatFieldbus::getDevices().size());
