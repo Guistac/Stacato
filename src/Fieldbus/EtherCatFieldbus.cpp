@@ -17,7 +17,6 @@ namespace EtherCatFieldbus {
 
 	//EXPERIMENTAL SETTINGS
 	bool b_usePosixRealtimeThread = true;
-	int stackSize = 65536;
 
     bool b_skipCycles = false;
     int maxSkippedFrames = 2;
@@ -31,14 +30,12 @@ namespace EtherCatFieldbus {
     std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
 	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards(){ return networkInterfaceCards; }
 
-
-
-    std::vector<std::shared_ptr<EtherCatDevice>> slaves;			//slaves discovered on the network
-    std::vector<std::shared_ptr<EtherCatDevice>> slaves_unassigned; //slaves discovered on the network but not added to the environnement editor
-	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return slaves; }
-	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices(){ return slaves_unassigned; }
-	void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
-		std::remove(slaves_unassigned.begin(), slaves_unassigned.end(), removedDevice);
+    std::vector<std::shared_ptr<EtherCatDevice>> discoveredDevices;			//slaves discovered on the network
+    std::vector<std::shared_ptr<EtherCatDevice>> discoveredDevicesUnmatched; //slaves discovered on the network but not added to the environnement editor
+	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return discoveredDevices; }
+	std::vector<std::shared_ptr<EtherCatDevice>>& getUnmatchedDevices(){ return discoveredDevicesUnmatched; }
+	void removeUnmatchedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
+		std::remove(discoveredDevicesUnmatched.begin(), discoveredDevicesUnmatched.end(), removedDevice);
 	}
 
 
@@ -46,32 +43,22 @@ namespace EtherCatFieldbus {
     uint8_t ioMap[MAX_IO_MAP_SIZE];
     int ioMapSize = 0;
 
-	bool b_cyclicExchangeRunning = false;
-
 	int cyclicFrameTimeoutCounter = 0;
 	int cyclicFrameErrorCounter = 0;
-
-    bool b_networkOpen = false; //Network is initialized on one or two networks interface cards
-	bool b_starting = false;	//while cyclic exchange is starting
-	bool b_running = false;		//network is running
-
-	bool hasNetworkInterface() { return b_networkOpen; }
-	bool hasDetectedDevices(){ return !slaves.empty(); }
-	bool isStarting(){ return b_starting; }
-	bool isRunning(){ return b_running; }
-	bool canScan(){ return b_networkOpen && !b_cyclicExchangeRunning; }
-	bool canStart(){ return true; } //should indicate if network permissions are set !
-	bool canStop(){ return !b_starting || (b_starting && b_cyclicExchangeRunning); }
+	int getCyclicFrameTimeoutCounter(){ return cyclicFrameTimeoutCounter; }
+	int getCyclicFrameErrorCounter(){ return cyclicFrameErrorCounter; }
 
 	ProgressIndicator startupProgress;
     EtherCatMetrics metrics;
 	EtherCatMetrics& getMetrics(){ return metrics; }
 
+	//parameters
     int processInterval_milliseconds = 3.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     double fieldbusTimeout_milliseconds = 100.0;
 
+	//timing
 	double currentCycleProgramTime_seconds = 0.0;
 	long long int currentCycleProgramTime_nanoseconds = 0;
 	double currentCycleDeltaT_seconds = 0.0;
@@ -83,42 +70,114 @@ namespace EtherCatFieldbus {
 
     //====== non public functions ======
 
-    void setup();
-
-    //SOEM extension to read Explicit Device ID
-    bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
-
-	bool discoverDevices(bool logStartup);
-    bool configureSlaves();
-    void startCyclicExchange();
+	bool initializeNetwork();
+	bool identifyDevices();
+	bool configureDevices();
 	void updateNetworkTopology();
-    void cyclicExchange();
-    void transitionToOperationalState();
-    void handleStateTransitions();
-	void countSlaveErrors();
-	void updateErrorCounters();
+	void startCyclicExchange();
+	void cycle();
+	void transitionToOperationalState();
+	void stopCyclicExchange();
 
-    void startSlaveDetectionHandler();
-    void stopSlaveDetectionHandler();
-    void startErrorWatcher();
-    void stopErrorWatcher();
+	void startDiscoveredDeviceDetection();
+	void stopDiscoveredDeviceDetection();
 
-    bool configureSlaves();
-    void startCyclicExchange();
+	void startHandlingStateTransitions();
+	void stopHandlingStateTransitions();
 
-	bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
+	void startCountingTransmissionErrors();
+	void stopCountingTransmissionErrors();
+
+	void startWatchingForErrors();
+	void stopWatchingForErrors();
 
 	void logDeviceStates();
 	void logAlStatusCodes();
 
-	//============= CHECK NETWORK PERMISSIONS ==============
+	bool getExplicitDeviceID(uint16_t configAddress, uint16_t& ID);
 
-	//this checks if low lewel network packet manipulation permissions are granted to libpcap by the operating system
-	//on windows machine its unclear how these permissions are enabled (by some module installed by wireshark?)
-	//on macos permissions are disabled by default and can be enabled by running the "Install ChmodBPF.pkg" Installer provided with the repository in the utilities folder
-	//trying to execute pcap or ethercat functions without these permissions will result in a bad memory access and hard crash
+
+
+	//========== Network Control Methods
+
+	bool b_networkInitializing = false;
+	bool b_networkInitialized = false;
+	bool b_networkStarting = false;
+	bool b_networkRunning = false;
+
+	bool canScan(){
+		return !b_networkInitializing && !b_networkStarting && !b_networkRunning;
+	}
+
+	bool canStart(){
+		return !b_networkInitializing && !b_networkStarting && !b_networkRunning;
+	}
+
+	bool canStop(){
+		return b_networkRunning;
+	}
+
+	void scan(){
+		initializeNetwork();
+	}
+
+	void start() {
+		
+		if(b_networkRunning){
+			Logger::warn("Cannot start network while it is running");
+			return;
+		}
+		else if(b_networkStarting){
+			Logger::warn("Cannot start network while it is starting");
+			return;
+		}
+		else if(b_networkInitializing){
+			Logger::warn("Cannot start network while it is initializing");
+			return;
+		}
+		
+		b_networkStarting = true;
+
+		startupProgress.setStart("Starting Fieldbus");
+		Logger::info("===== Starting Fieldbus");
+					
+		std::thread ethercatFieldbusStarter([]() {
+			pthread_setname_np("EtherCAT Process Starter Thread");
+						
+			if(!initializeNetwork()){
+				Logger::error("failed to initialize network");
+				b_networkStarting = false;
+				return;
+			}
+			
+			stopDiscoveredDeviceDetection();
+			
+			if(!configureDevices()){
+				Logger::error("Failed to configure devices.");
+				b_networkStarting = false;
+				return;
+			}
+			
+			updateNetworkTopology();
+			
+			startCyclicExchange();
+
+		});
+		ethercatFieldbusStarter.detach();
+		
+	}
+
+	void stop(){
+		stopCyclicExchange();
+	}
+
+	//============= Check Network Permissions ==============
 
 	bool hasNetworkPermissions(){
+		//this checks if low lewel network packet manipulation permissions are granted to libpcap by the operating system
+		//on windows machine its unclear how these permissions are enabled (by some module installed by wireshark?)
+		//on macos permissions are disabled by default and can be enabled by running the "Install ChmodBPF.pkg" Installer provided with the repository in the utilities folder
+		//trying to execute pcap or ethercat functions without these permissions will result in a bad memory access and hard crash
 		//this will only report a correct status after a network interface card was opened
 		ecx_contextt* context = &ecx_context;
 		ecx_portt* port = context->port;
@@ -128,7 +187,7 @@ namespace EtherCatFieldbus {
 		return socket != nullptr;
 	}
 
-    //============ LIST NETWORK INTERFACE CARDS ===============
+    //============== Update Network interface card list
 
     void updateNetworkInterfaceCardList() {
 		if(isRunning()) return;
@@ -159,25 +218,24 @@ namespace EtherCatFieldbus {
         for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
     }
 
-
-
-
-    //============== INTIALIZE FIELDBUS WITH AND OPEN NETWORK INTERFACE CARD ==============
-
-	bool initializeNetwork();
-	bool identifyDevices();
-
-	bool b_networkInitialized = false;
-	bool b_networkRunning = false;
-
+    //============== Search all NICs for slaves, initialize network and identify slaves
 
 	bool initializeNetwork(){
-		
-		if(b_networkRunning) {
-			Logger::critical("Can't initialize the network while it is running");
+		if(b_networkInitializing){
+			Logger::error("Can't initialize the network while it is initializing");
+			return;
+		}
+		else if(b_networkRunning) {
+			Logger::error("Can't initialize the network while it is running");
 			return false;
 		}
-		if(b_networkInitialized) ec_close();
+		else if(b_networkInitialized) {
+			stopWatchingForErrors();
+			stopDiscoveredDeviceDetection();
+			ec_close();
+		}
+		
+		b_networkInitializing = true;
 		
 		Logger::info("Initializing EtherCAT Network and searching for devices.");
 		startupProgress.setProgress(0.01, "Scanning Network for devices");
@@ -214,6 +272,7 @@ namespace EtherCatFieldbus {
 			//no slave on any nic
 			Logger::warn("No Slaves detected on any Network Interface Card");
 			startupProgress.setFailure("No EtherCAT slaves found.");
+			b_networkInitializing = false;
 			return false;
 		}
 		else{
@@ -228,6 +287,7 @@ namespace EtherCatFieldbus {
 			if(ec_init(nic->name) <= 0){
 				Logger::error("Failed to initialize EtherCAT on Network Interface {}", nic->name);
 				startupProgress.setFailure("Failed to initialize network interface.");
+				b_networkInitializing = false;
 				return false;
 			}
 			
@@ -237,176 +297,35 @@ namespace EtherCatFieldbus {
 				ec_close();
 				Logger::error("Failed to configure EtherCAT on Network Interface {}", nic->name);
 				startupProgress.setFailure("Failed to configure network interface.");
+				b_networkInitializing = false;
 				return false;
 			}
 			
 			b_networkInitialized = true;
 			Logger::info("Initialized EtherCAT Network with {} devices on Network Interface {}", ec_slavecount, nic->name);
 			
+			startWatchingForErrors();
+			
 			identifyDevices();
 			
+			startDiscoveredDeviceDetection();
 			
-			
-			
+			b_networkInitializing = false;
 			return true;
 		}
-		
-		
-		/*
-		 if(!b_networkInitialized) {
-			 Logger::info("Network was not previously initialized.");
-			 if(findDevices() <= 0) {
-				 Logger::warn("Could not start EtherCAT Fieldbus.");
-				 return false;
-			 }
-		 }
-		 */
 	}
 
-
-//==== on INIT
-//stopSlaveDetectionHandler();
-//startSlaveDetectionHandler();
-//startErrorWatcher();
-//metrics.init(processInterval_milliseconds);
-
-//==== on STOP
-
-//==== on TERMINATE
-//stopErrorWatcher();
-//stopSlaveDetectionHandler();
-//ec_close();
-
-
-
-    //================= START CYCLIC EXCHANGE =================
-
-    void start() {
-        if (!b_starting) {
-			b_starting = true;
-
-			startupProgress.setStart("Starting Fieldbus Configuration");
-			Logger::info("===== Starting Fieldbus Configuration");
-						
-			std::thread etherCatProcessStarter([]() {
-				pthread_setname_np("EtherCAT Process Starter Thread");
-								
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-                stopSlaveDetectionHandler();
-							
-				if(!hasDetectedDevices() || !hasNetworkInterface()) {
-					updateNetworkInterfaceCardList();
-					startupProgress.setProgress(0.01, "Scanning Network Interfaces");
-					for(auto& nic : networkInterfaceCards){
-						std::string nicScanString = "Scanning Network Interface " + std::string(nic->description);
-						startupProgress.setProgress(0.02, nicScanString.c_str());
-						if(!init(nic)) continue;
-						if(slaves.empty()) terminate();
-						else break;
-					}
-					if(!hasNetworkInterface()){
-						b_starting = false;
-						startupProgress.setFailure("No EtherCAT devices found on any network interface.");
-						return;
-					}
-				}
-				
-                if (!discoverDevices(true)) {
-					b_starting = false;
-					logDeviceStates();
-					logAlStatusCodes();
-                    return;
-                }
-
-                if (!configureSlaves()) {
-					b_starting = false;
-					logDeviceStates();
-					logAlStatusCodes();
-                    return;
-                }
-				
-				updateNetworkTopology();
-
-                startCyclicExchange();
-			});
-            etherCatProcessStarter.detach();
-        }
-    }
-
-
-
-
-
-    //========== General Error Watcher Utility ============
-
-	bool b_errorWatcherRunning = false;
-	std::thread errorWatcherThread;
-
-    void startErrorWatcher() {
-        b_errorWatcherRunning = true;
-		errorWatcherThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Error Watcher Thread");
-            Logger::debug("===== Started EtherCAT Error Watchdog");
-            while (b_errorWatcherRunning) {
-                while (EtherCatError::hasError()) EtherCatError::logError();
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-            Logger::debug("===== Exited EtherCAT Error Watchdog");
-            });
-    }
-
-    void stopErrorWatcher() {
-        b_errorWatcherRunning = false;
-        if (errorWatcherThread.joinable()) errorWatcherThread.join();
-    }
-
-
-	//================ Slave Pinging Utility during no cyclic exchange ====================
-
-	bool b_detectionThreadRunning = false;
-	std::thread slaveDetectionThread;
-
-	void startSlaveDetectionHandler() {
-		if (b_detectionThreadRunning) return;
-		b_detectionThreadRunning = true;
-		slaveDetectionThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Detection Handler Thread");
-			Logger::debug("Started EtherCAT Detection Handler");
-			while (b_detectionThreadRunning) {
-				ec_readstate();
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			}
-			Logger::debug("Exited EtherCAT Detection Handler");
-		});
-	}
-
-	void stopSlaveDetectionHandler() {
-		b_detectionThreadRunning = false;
-		if (slaveDetectionThread.joinable()) slaveDetectionThread.join();
-	}
-
-
-    //=================== DISCOVER ETHERCAT DEVICES ON THE NETWORK =====================
+    //============== Identify devices on the network
 
     bool identifyDevices() {
 		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
-        for (auto slave : slaves) slave->identity = nullptr;
+        for (auto device : discoveredDevices) device->identity = nullptr;
         //we clear the list of slaves, slaves that are in the node graph remain there
-        slaves.clear();
+        discoveredDevices.clear();
         //we also clear the list of slaves that were not in the nodegraph
-        slaves_unassigned.clear();
+        discoveredDevicesUnmatched.clear();
 
 		//wait and check if all slaves have reached Pre Operational State like requested by ec_config_init()
 		if (ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
@@ -467,7 +386,7 @@ namespace EtherCatFieldbus {
 					sprintf(name, "%s (Alias:%i)", slave->getName(), slave->stationAlias);
 				}
 				slave->setName(name);
-				slaves_unassigned.push_back(slave);
+				discoveredDevicesUnmatched.push_back(slave);
 			}
 
 			slave->identity = &identity;
@@ -478,13 +397,13 @@ namespace EtherCatFieldbus {
 			}
 
 			//add the slave to the list of slaves regardless of environnement presence
-			slaves.push_back(slave);
+			discoveredDevices.push_back(slave);
 		}
 		
 		return true;
     }
 
-    //=========== Map Slave memory, Configure Distributed Clocks, Do Per slave configuration, Transition to Safe Operational ===============
+    //============== Map Slave memory, Configure Distributed Clocks, Do Per slave configuration, Transition to Safe Operational ===============
 
     bool configureDevices() {
 
@@ -501,27 +420,27 @@ namespace EtherCatFieldbus {
         for (int i = 1; i <= ec_slavecount; i++) {
             //we don't use the PO2SOconfigx hook since it isn't supported by ec_reconfig_slave()
             ec_slave[i].PO2SOconfig = [](uint16_t slaveIndex) -> int {
-                for (auto slave : slaves) {
-                    if (slave->getSlaveIndex() == slaveIndex) {
+                for (auto device : discoveredDevices) {
+                    if (device->getSlaveIndex() == slaveIndex) {
 						
-						int slaveCount = slaves.size();
+						int slaveCount = discoveredDevices.size();
 						float confProgStart = 0.1;
 						float confProgEnd = 0.5;
 						float confIncrement = (confProgEnd - confProgStart) / slaveCount;
-						float configurationProgress = slave->getSlaveIndex() * confIncrement + confProgStart;
+						float configurationProgress = device->getSlaveIndex() * confIncrement + confProgStart;
 						
 						static char slaveConfigurationString[256];
-						sprintf(slaveConfigurationString, "Configuring %s", slave->getName());
+						sprintf(slaveConfigurationString, "Configuring %s", device->getName());
 						startupProgress.setProgress(configurationProgress, slaveConfigurationString);
 						
-						Logger::debug("Configuring Slave '{}'", slave->getName());
+						Logger::debug("Configuring Slave '{}'", device->getName());
                         
-                        if (slave->startupConfiguration()) {
-                            Logger::debug("Successfully configured Slave '{}'", slave->getName());
+                        if (device->startupConfiguration()) {
+                            Logger::debug("Successfully configured Slave '{}'", device->getName());
                             return 1;
                         }
                         else {
-                            Logger::warn("Failed to configure slave '{}'", slave->getName());
+                            Logger::warn("Failed to configure slave '{}'", device->getName());
                             return 0;
                         }
                     }
@@ -544,14 +463,14 @@ namespace EtherCatFieldbus {
         Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
 
 		
-        for (auto slave : slaves) {
+        for (auto device : discoveredDevices) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
-                slave->getSlaveIndex(),
-                slave->getSaveName(),
-                slave->identity->Ibytes + slave->identity->Obytes,
-                slave->identity->Ibits + slave->identity->Obits);
-            Logger::debug("          Inputs: {} bytes ({} bits)", slave->identity->Ibytes, slave->identity->Ibits);
-            Logger::debug("          Outputs: {} bytes ({} bits)", slave->identity->Obytes, slave->identity->Obits);
+						  device->getSlaveIndex(),
+						  device->getSaveName(),
+						  device->identity->Ibytes + device->identity->Obytes,
+						  device->identity->Ibits + device->identity->Obits);
+            Logger::debug("          Inputs: {} bytes ({} bits)", device->identity->Ibytes, device->identity->Ibits);
+            Logger::debug("          Outputs: {} bytes ({} bits)", device->identity->Obytes, device->identity->Obits);
         }
 
 		
@@ -567,7 +486,177 @@ namespace EtherCatFieldbus {
         return true;
     }
 
-    //========= START CYCLIC EXCHANGE ============
+	//============== Network Topology
+
+	std::vector<std::shared_ptr<DeviceConnection>> networkTopology;
+	std::vector<std::shared_ptr<WrongConnection>> wrongConnections;
+	std::vector<std::shared_ptr<DeviceConnection>>& getNetworkTopology(){ return networkTopology; }
+	std::vector<std::shared_ptr<WrongConnection>>& getWrongConnections(){ return wrongConnections; }
+
+	void updateNetworkTopology(){
+		
+		//remove all existing connections
+		networkTopology.clear();
+		wrongConnections.clear();
+		for(auto& device : discoveredDevices) device->connections.clear();
+		
+		
+		
+		for(auto device : discoveredDevices){
+			if(device->identity->entryport != 0) {
+				auto wrongConnection = std::make_shared<WrongConnection>();
+				wrongConnection->device = device;
+				wrongConnection->port = device->identity->entryport;
+				wrongConnections.push_back(wrongConnection);
+			}
+		}
+		if(!wrongConnections.empty()) return;
+		
+		
+		
+		
+		//find the first device after the master on the network chain
+		std::shared_ptr<EtherCatDevice> firstDeviceConnectedToMaster = nullptr;
+		for(auto& device : discoveredDevices){
+			if(device->identity->parent == 0) {
+				firstDeviceConnectedToMaster = device;
+				break;
+			}
+		}
+		if(!firstDeviceConnectedToMaster) return;
+		
+		//add a special connection between the master and the first device
+		auto masterConnection = std::make_shared<DeviceConnection>();
+		masterConnection->b_parentIsMaster = true;
+		masterConnection->childDevice = firstDeviceConnectedToMaster;
+		masterConnection->childDevicePort = firstDeviceConnectedToMaster->identity->entryport;
+		networkTopology.push_back(masterConnection);
+		
+		
+		std::shared_ptr<EtherCatDevice> parentDevice = firstDeviceConnectedToMaster;
+		std::vector<std::shared_ptr<EtherCatDevice>> devicesWithUnregisteredConnections;
+		
+		
+		auto getNextChildDeviceOnPort = [](int port, std::shared_ptr<EtherCatDevice> parent, std::vector<std::shared_ptr<EtherCatDevice>>& children) -> std::shared_ptr<EtherCatDevice> {
+			for(auto& connection : parent->connections){
+				if(connection->parentDevice == parent && connection->parentDevicePort == port) return nullptr;
+			}
+			for(auto& child : children){
+				if(child->identity->parentport == port) return child;
+			}
+			return nullptr;
+		};
+		
+		
+		auto getNextChildDeviceOf = [&getNextChildDeviceOnPort](std::shared_ptr<EtherCatDevice> parent) -> std::shared_ptr<EtherCatDevice> {
+			int parentDeviceIndex = parent->getSlaveIndex();
+			
+			//get a list of devices that have the parent as parent
+			std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
+			for(auto& device : discoveredDevices){
+				if(device->identity->parent == parentDeviceIndex) childDevices.push_back(device);
+			}
+			
+			//check the next port for an unregistered conneciont (order is 3 1 2 0)
+			if(auto nextChild = getNextChildDeviceOnPort(3, parent, childDevices)) {
+				return nextChild;
+			}
+			if(auto nextChild = getNextChildDeviceOnPort(1, parent, childDevices)) {
+				return nextChild;
+			}
+			if(auto nextChild = getNextChildDeviceOnPort(2, parent, childDevices)) {
+				return nextChild;
+			}
+			if(auto nextChild = getNextChildDeviceOnPort(0, parent, childDevices)) {
+				return nextChild;
+			}
+			return nullptr;
+		};
+		
+		
+		auto hasUnregisteredConnections = [&](std::shared_ptr<EtherCatDevice> device) -> bool {
+			
+			int deviceIndex = device->getSlaveIndex();
+			std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
+			for(auto& childDevice : discoveredDevices){
+				if(childDevice->identity->parent == deviceIndex) childDevices.push_back(childDevice);
+			}
+			
+			//check each child device of the queried device
+			for(auto& childDevice : childDevices){
+				
+				bool b_connectionAlreadyRegistered = false;
+				
+				//for each connection that is registered by the device
+				for(auto& connection : device->connections){
+					//if a connection exists for between the queried device and one of its child device, that connection is already registered
+					if(connection->parentDevice == device && connection->childDevice == childDevice) {
+						b_connectionAlreadyRegistered = true;
+						break;
+					}
+				}
+				
+				if(!b_connectionAlreadyRegistered) {
+					return true;
+				}
+				
+			}
+			
+			return false;
+		};
+		
+		
+		
+		while(parentDevice){
+			
+			//get the next child with an unregistered connection to the parent device
+			auto childDevice = getNextChildDeviceOf(parentDevice);
+			
+			//if there is a child with unregistered connection, register that connection with the parent and child
+			if(childDevice){
+				auto connection = std::make_shared<DeviceConnection>();
+				connection->parentDevice = parentDevice;
+				connection->parentDevicePort = childDevice->identity->parentport;
+				connection->childDevice = childDevice;
+				connection->childDevicePort = childDevice->identity->entryport;
+				parentDevice->connections.push_back(connection);
+				childDevice->connections.push_back(connection);
+				networkTopology.push_back(connection);
+			}
+			
+			//check if the parent device has unregistered connections
+			if(hasUnregisteredConnections(parentDevice)){
+				devicesWithUnregisteredConnections.push_back(parentDevice);
+			}
+			
+			if(childDevice) parentDevice = childDevice;
+			else {
+		
+				
+				parentDevice = nullptr;
+		
+				//go back to the last device with unscanned ports and find its children
+				while(!devicesWithUnregisteredConnections.empty()){
+					
+					//check if the last device with unregistered connections still has unregistered connections
+					auto lastDeviceWithUnregisteredConnections = devicesWithUnregisteredConnections.back();
+					if(hasUnregisteredConnections(lastDeviceWithUnregisteredConnections)){
+						//if it has unregistered connections, get the next unregistered child
+						parentDevice = lastDeviceWithUnregisteredConnections;
+						break;
+					}else{
+						//if that device has no unregistered connections, remove it from the list of devices with unregistered connections
+						devicesWithUnregisteredConnections.pop_back();
+					}
+						
+				}
+				
+			}
+		}
+		
+	}
+
+    //============== Cyclic Exchange
 
 	//cyclic exchange timing variables
 	uint64_t processInterval_nanoseconds;
@@ -583,12 +672,12 @@ namespace EtherCatFieldbus {
 	int64_t systemTimeErrorSmoothed_nanoseconds;
 	int64_t systemTimeSmoothed_nanoseconds;
 	bool b_clockStable;
-	
-	void cycle();
+
+	bool b_cyclicExchangeThreadRunning = false;
 
     void cyclicExchange(void* data) {
 		
-		b_cyclicExchangeRunning = true;
+		b_cyclicExchangeThreadRunning = true;
 		
 		pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
 
@@ -597,9 +686,9 @@ namespace EtherCatFieldbus {
 		//slaves are considered online when they are detected and actively exchanging data with the master
 		//if we reached this state of the configuration, all slaves are detected and we are about to start exchanging data
 		//we can trigger the onConnection event of all slaves
-		for (auto slave : slaves) {
-			slave->pushEvent("Device Connected (Fieldbus Started)", false);
-			slave->onConnection();
+		for (auto device : discoveredDevices) {
+			device->pushEvent("Device Connected (Fieldbus Started)", false);
+			device->onConnection();
 		}
 		
         //thread timing variables
@@ -619,21 +708,18 @@ namespace EtherCatFieldbus {
 		
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
 		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
-
-		//========= CYCLIC EXCHANGE ============
-		while (b_cyclicExchangeRunning) cycle();
-		//======================================
 		
-		b_cyclicExchangeRunning = false; //set this in case we broke out of the main loop
-        b_running = false;
+		//========= CYCLIC EXCHANGE ============
+		while (b_cyclicExchangeThreadRunning) cycle();
+		//======================================
 
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
-        for (auto slave : slaves) {
-            slave->onDisconnection();
-            slave->writeOutputs();
-			slave->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
-			slave->identity->state = EC_STATE_NONE;
+        for (auto device : discoveredDevices) {
+			device->onDisconnection();
+			device->writeOutputs();
+			device->pushEvent("Device Disconnected (Fieldbus Shutdown)", false);
+			device->identity->state = EC_STATE_NONE;
         }
         ec_send_processdata();
         
@@ -642,14 +728,18 @@ namespace EtherCatFieldbus {
         Logger::info("===== Cyclic Exchange Stopped !");
 
         //cleanup threads and relaunch slave detection handler
-        if (slaveStateHandler.joinable()) slaveStateHandler.join();
-		if(slaveErrorCounter.joinable()) slaveErrorCounter.join();
-        startSlaveDetectionHandler();
+		
+		stopHandlingStateTransitions();
+		stopCountingTransmissionErrors();
+		
+		startDiscoveredDeviceDetection();
 		
 		Environnement::stop();
+		
+		b_cyclicExchangeThreadRunning = false;
+		b_networkRunning = false;
+		b_networkStarting = false; //we set this in case we canceled network starting during clock stabilisation
     }
-
-
 
 	void cycle(){
 		using namespace std::chrono;
@@ -719,7 +809,7 @@ namespace EtherCatFieldbus {
 
 		//===================== ENVIRONNEMENT UPDATE =======================
 
-		if (b_running) Environnement::updateEtherCatHardware();
+		if (b_networkRunning) Environnement::updateEtherCatHardware();
 
 		//=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 
@@ -783,11 +873,7 @@ namespace EtherCatFieldbus {
 			//detect clock stabilisation and request operational state
 			b_clockStable = true;
 			startupProgress.setProgress(0.95, "Requesting Operational State");
-			std::thread opStateHandler([]() {
-				pthread_setname_np("EtherCAT Operational State Transition Handler");
-				transitionToOperationalState();
-			});
-			opStateHandler.detach();
+			transitionToOperationalState();
 		}else if(!b_clockStable){
 			//while the clocks are stabilizing, update the startup progress bar
 			float from = 0.65;
@@ -826,60 +912,77 @@ namespace EtherCatFieldbus {
 		//======================== RUNTIME LOOP END =========================
 	}
 
-	pthread_t rtThread;
+	void transitionToOperationalState() {
+		std::thread opStateHandler([]() {
+			pthread_setname_np("EtherCAT Operational State Transition Handler");
+			Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
+			//set all slaves to operational (by setting slave 0 to operational)
+			ec_slave[0].state = EC_STATE_OPERATIONAL;
+			ec_writestate(0);
+			//wait for all slaves to reach OP state
+			if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
+				
+				//addition read state is required to set the individual state of each slave
+				//statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
+				ec_readstate();
+				b_networkRunning = true;
+
+				startHandlingStateTransitions();
+				startCountingTransmissionErrors();
+				
+				startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
+				Logger::info("===== All slaves are operational");
+				Logger::info("===== Successfully started EtherCAT Fieldbus");
+
+			}
+			else {
+				startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
+				Logger::error("===== Not all slaves reached operational state... ");
+				logDeviceStates();
+				logAlStatusCodes();
+				for (auto device : discoveredDevices) {
+					if (!device->isStateOperational() || device->hasStateError()) {
+						Logger::error("Device '{}' has state {}", device->getName(), device->getEtherCatStateChar());
+					}
+				}
+				stop();
+			}
+			b_networkStarting = false;
+		});
+		opStateHandler.detach();
+	}
+
+	pthread_t cyclicExchangeThread;
+	int stackSize = 65536;
 
 	void startCyclicExchange() {
-		//don't allow the thread to start if it is already running
-		if (b_cyclicExchangeRunning) return;
+		
+		//if the cyclic exchange thread was not terminate manually (because of fieldbus timeout)
+		//it still needs to be joined (or maybe we should just detach it)
+		pthread_join(cyclicExchangeThread, nullptr);
+		
+		if (b_cyclicExchangeThreadRunning){
+			Logger::error("Can't start Cyclic exchange while it is running");
+			return;
+		}
 		
 		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
 		Logger::debug("===== Starting Cyclic Process Data Exchange");
 			
-		osal_thread_create_rt(&rtThread, stackSize, (void*)&cyclicExchange, nullptr);
-		pthread_detach(rtThread);
+		osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
+		pthread_detach(cyclicExchangeThread);
 
 	}
-
 
 	void stopCyclicExchange(){
-		//TODO: this...
+		if(b_cyclicExchangeThreadRunning){
+			b_cyclicExchangeThreadRunning = false;
+			pthread_join(cyclicExchangeThread, nullptr);
+		}
 	}
 
 
 
-    //============== TRANSITION ALL SLAVES TO OPERATIONAL AFTER REFERENCE CLOCK AND MASTER CLOCKS ALIGNED ===================
-
-    void transitionToOperationalState() {
-        Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
-        //set all slaves to operational (by setting slave 0 to operational)
-        ec_slave[0].state = EC_STATE_OPERATIONAL;
-        ec_writestate(0);
-        //wait for all slaves to reach OP state
-        if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-			startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
-            b_running = true;
-            Logger::info("===== All slaves are operational");
-            Logger::info("===== Successfully started EtherCAT Fieldbus");
-            //addition read state is required to set the individual state of each slave
-            //statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
-            ec_readstate();
-			handleStateTransitions();
-			countSlaveErrors();
-        }
-        else {
-			startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
-            Logger::error("===== Not all slaves reached operational state... ");
-			logDeviceStates();
-			logAlStatusCodes();
-            for (auto slave : slaves) {
-                if (!slave->isStateOperational() || slave->hasStateError()) {
-                    Logger::error("Slave '{}' has state {}", slave->getName(), slave->getEtherCatStateChar());
-                }
-            }
-            stop();
-        }
-		b_starting = false;
-    }
 
     //============== STATE HANDLING AND SLAVE RECOVERY =================
 
@@ -887,6 +990,12 @@ namespace EtherCatFieldbus {
 	bool b_slaveStateHandlerRunning = false;
 
     void startHandlingStateTransitions() {
+		
+		if(b_slaveStateHandlerRunning){
+			Logger::error("Can't start slave state transition handler while it is running.");
+			return;
+		}
+		
 		slaveStateHandler = std::thread([]() {
 			b_slaveStateHandlerRunning = true;
 			
@@ -895,68 +1004,68 @@ namespace EtherCatFieldbus {
 			while (b_slaveStateHandlerRunning) {
 
 				//save each slaves previous state
-				for (auto slave : slaves) slave->previousState = slave->identity->state;
+				for (auto device : discoveredDevices) device->previousState = device->identity->state;
 
 				//read the current state of each slave
 				ec_readstate();
 
 				//detect state changes by comparing the previous state with the current state
-				for (auto slave : slaves) {
-					if (slave->identity->state != slave->previousState) {
-						if (slave->isStateNone()) {
-							slave->pushEvent("Device Disconnected", true);
-							slave->onDisconnection();
-							Logger::error("Slave '{}' Disconnected...", slave->getName());
+				for (auto device : discoveredDevices) {
+					if (device->identity->state != device->previousState) {
+						if (device->isStateNone()) {
+							device->pushEvent("Device Disconnected", true);
+							device->onDisconnection();
+							Logger::error("Slave '{}' Disconnected...", device->getName());
 						}
-						else if (slave->previousState == EC_STATE_NONE) {
+						else if (device->previousState == EC_STATE_NONE) {
 							char eventString[64];
-							sprintf(eventString, "Device Reconnected with state %s", slave->getEtherCatStateChar());
-							slave->pushEvent(eventString, false);
-							slave->onConnection();
-							Logger::info("Slave '{}' reconnected with state {}", slave->getName(), slave->getEtherCatStateChar());
+							sprintf(eventString, "Device Reconnected with state %s", device->getEtherCatStateChar());
+							device->pushEvent(eventString, false);
+							device->onConnection();
+							Logger::info("Slave '{}' reconnected with state {}", device->getName(), device->getEtherCatStateChar());
 						}
 						else {
 							char eventString[64];
-							sprintf(eventString, "EtherCAT state changed to %s", slave->getEtherCatStateChar());
-							slave->pushEvent(eventString, false);
-							Logger::info("Slave '{}' state changed to {}", slave->getName(), slave->getEtherCatStateChar());
+							sprintf(eventString, "EtherCAT state changed to %s", device->getEtherCatStateChar());
+							device->pushEvent(eventString, false);
+							Logger::info("Slave '{}' state changed to {}", device->getName(), device->getEtherCatStateChar());
 						}
 					}
 				}
 
 				//try to recover slaves that are not online or in operational state
-				for (auto slave : slaves) {
-					if (slave->isStateNone()) {
+				for (auto device : discoveredDevices) {
+					if (device->isStateNone()) {
 						//recover is useful to detect a slave that has a power cycle and lost its configured address
 						//recover uses incremental addressing to detect if an offline slave pops up at the same place in the network
 						//if a slave responds at that address, the function verify it matches the previous slave at that address
 						//it then reattributes an configured address to the slave
 						//the function returns 1 if the slave was successfully recovered with its previous configured address
-						if (1 == ec_recover_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-							slave->pushEvent("Device Reconnected after power cycle", false);
-							slave->onConnection();
-							Logger::info("Recovered slave '{}' !", slave->getName());
+						if (1 == ec_recover_slave(device->getSlaveIndex(), EC_TIMEOUTRET3)) {
+							device->pushEvent("Device Reconnected after power cycle", false);
+							device->onConnection();
+							Logger::info("Recovered Device '{}' !", device->getName());
 						}
 					}
-					else if (slave->isStateSafeOperational() && !slave->hasStateError()) {
+					else if (device->isStateSafeOperational() && !device->hasStateError()) {
 						//set the slave back to operational after reconfiguration
-						slave->identity->state = EC_STATE_OPERATIONAL;
-						ec_writestate(slave->getSlaveIndex());
-						if (EC_STATE_OPERATIONAL == ec_statecheck(slave->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-							slave->pushEvent("Device back in operational state", false);
-							Logger::info("Slave '{}' is back in Operational State!", slave->getName());
+						device->identity->state = EC_STATE_OPERATIONAL;
+						ec_writestate(device->getSlaveIndex());
+						if (EC_STATE_OPERATIONAL == ec_statecheck(device->getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
+							device->pushEvent("Device back in operational state", false);
+							Logger::info("Slave '{}' is back in Operational State!", device->getName());
 						}
 					}
-					else if (!slave->isStateOperational() || slave->hasStateError()) {
+					else if (!device->isStateOperational() || device->hasStateError()) {
 						//reconfigure looks for a slave that still has the same configured address
 						//if no slave is found at the configured address, the function does nothing
 						//this mean the function cannot directly be used to reconfigure a slave that had a power cycle and lost its configured address
 						//reconfigure takes the slave back to init and reconfigures it all the way through safeoperational
 						//we then need to set it back to operational
 						//the ec_reconfig_slave function returns the status of the slave
-						if (EC_STATE_SAFE_OP == ec_reconfig_slave(slave->getSlaveIndex(), EC_TIMEOUTRET3)) {
-							slave->pushEvent("Device Reconfigured", false);
-							Logger::info("Slave '{}' Successfully Reconfigured", slave->getName());
+						if (EC_STATE_SAFE_OP == ec_reconfig_slave(device->getSlaveIndex(), EC_TIMEOUTRET3)) {
+							device->pushEvent("Device Reconfigured", false);
+							Logger::info("Slave '{}' Successfully Reconfigured", device->getName());
 						}
 					}
 				}
@@ -968,21 +1077,54 @@ namespace EtherCatFieldbus {
     }
 
 	void stopHandlingStateTransitions(){
-		b_slaveStateHandlerRunning = false;
-		slaveStateHandler.join();
+		if(b_slaveStateHandlerRunning){
+			b_slaveStateHandlerRunning = false;
+			slaveStateHandler.join();
+		}
 	}
 
+
+	//============== TRANSMISSION ERROR COUNTER =================
 
 	std::thread transmissionErrorCounterThread;
 	bool b_transmissionErrorCounterRunning = false;
 
+	void updateTransmissionErrorCounters(){
+		for(auto& device : discoveredDevices) device->downloadErrorCounters();
+		for(auto& connection : networkTopology){
+			int largestErrorCount = 0;
+			if(connection->b_parentIsMaster) {
+				auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+				double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
+				int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
+				largestErrorCount = std::max(largestErrorCount, masterStability_i);
+				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+				connection->b_wasDisconnected = childPortErrors.lostLinks > 0;
+			}else{
+				auto& parentPortErrors = connection->parentDevice->errorCounters.portErrors[connection->parentDevicePort];
+				auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+				connection->b_wasDisconnected = parentPortErrors.lostLinks > 0 || childPortErrors.lostLinks > 0;
+				largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.frameRxErrors);
+				largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.physicalRxErrors);
+				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+			}
+			connection->instability = (float)largestErrorCount / 255.0;
+		}
+	}
+
 	void startCountingTransmissionsErrors(){
+		if(b_transmissionErrorCounterRunning){
+			Logger::error("Can't start transmission error counter while it is running");
+			return;
+		}
 		transmissionErrorCounterThread = std::thread([]() {
 			b_transmissionErrorCounterRunning = true;
 			pthread_setname_np("EtherCAT Slave Error Counter Thread");
 			Logger::debug("Started Slave Error Counter Thread");
 			while (b_transmissionErrorCounterRunning) {
-				updateErrorCounters();
+				updateTransmissionErrorCounters();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
 			Logger::debug("Exited Slave Error Counter Thread");
@@ -990,28 +1132,99 @@ namespace EtherCatFieldbus {
 	}
 
 	void stopCountingTransmissionErrors(){
-		b_transmissionErrorCounterRunning = false;
-		transmissionErrorCounterThread.join();
+		if(b_transmissionErrorCounterRunning){
+			b_transmissionErrorCounterRunning = false;
+			transmissionErrorCounterThread.join();
+		}
 	}
+
+	void resetErrorCounters(){
+		std::thread errorCounterResetter([](){
+			cyclicFrameTimeoutCounter = 0;
+			cyclicFrameErrorCounter = 0;
+			for(auto& device : discoveredDevices) device->resetErrorCounters();
+			updateTransmissionErrorCounters();
+		});
+		errorCounterResetter.detach();
+	}
+
+	//========== GENERAL ERROR WATCHING ============
+
+	bool b_errorWatcherRunning = false;
+	std::thread errorWatcherThread;
+
+	void startWatchingForErrors() {
+		if(b_errorWatcherRunning){
+			Logger::error("Can't start error watcher while it is runnning");
+			return;
+		}
+		
+		b_errorWatcherRunning = true;
+		errorWatcherThread = std::thread([]() {
+			pthread_setname_np("EtherCAT Error Watcher Thread");
+			Logger::debug("===== Started EtherCAT Error Watchdog");
+			while (b_errorWatcherRunning) {
+				while (EtherCatError::hasError()) EtherCatError::logError();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			Logger::debug("===== Exited EtherCAT Error Watchdog");
+			});
+	}
+
+	void stopWatchingForErrors() {
+		if(b_errorWatcherRunning){
+			b_errorWatcherRunning = false;
+			errorWatcherThread.join();
+		}
+	}
+
+
+	//============ DISCOVERED DEVICE DETECTION ==============
+
+	bool b_detectionThreadRunning = false;
+	std::thread slaveDetectionThread;
+
+	void startDiscoveredDeviceDetection() {
+		if (b_detectionThreadRunning) {
+			Logger::error("Can't start Discovered Device Detection while it is running");
+			return;
+		}
+		b_detectionThreadRunning = true;
+		slaveDetectionThread = std::thread([]() {
+			pthread_setname_np("EtherCAT Detection Handler Thread");
+			Logger::debug("Started EtherCAT Detection Handler");
+			while (b_detectionThreadRunning) {
+				ec_readstate();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			Logger::debug("Exited EtherCAT Detection Handler");
+		});
+	}
+
+	void stopDiscoveredDeviceDetection() {
+		if(b_detectionThreadRunning){
+			b_detectionThreadRunning = false;
+			slaveDetectionThread.join();
+		}
+	}
+
 
 	//========= DEVICE STATE LOGGING ========
 
 	void logDeviceStates(){
-		for (auto& slave : slaves) {
-			Logger::warn("{} has state {}", slave->getName(), slave->getEtherCatStateChar());
+		for (auto& device : discoveredDevices) {
+			Logger::warn("Device {} has state {}", device->getName(), device->getEtherCatStateChar());
 		}
 	}
 
 	void logAlStatusCodes(){
-		for(auto& slave : slaves){
+		for(auto& device : discoveredDevices){
 			uint16_t AlStatusCode = 0x0;
-			int wc = ec_FPRD(slave->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
+			int wc = ec_FPRD(device->getAssignedAddress(), 0x134, 2, &AlStatusCode, EC_TIMEOUTSAFE);
 			if(wc != 1) Logger::error("{} : Could not read AL Status Code", AlStatusCode);
-			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", slave->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
+			else if(AlStatusCode != 0x0) Logger::error("{} : AL Status Code 0x{:X} ({})", device->getName(), AlStatusCode, ec_ALstatuscode2string(AlStatusCode));
 		}
 	}
-
-
 
 
 	//============ Check Explicit ID compatibility and Read explicit ID of slave ============
@@ -1095,233 +1308,5 @@ namespace EtherCatFieldbus {
 		ID = 0;
 		return false;
 	}
-
-
-
-
-
-
-
-
-
-
-std::vector<std::shared_ptr<DeviceConnection>> networkTopology;
-std::vector<std::shared_ptr<WrongConnection>> wrongConnections;
-
-std::vector<std::shared_ptr<DeviceConnection>>& getNetworkTopology(){ return networkTopology; }
-std::vector<std::shared_ptr<WrongConnection>>& getWrongConnections(){ return wrongConnections; }
-
-
-void updateNetworkTopology(){
-	
-	//remove all existing connections
-	networkTopology.clear();
-	wrongConnections.clear();
-	for(auto& device : slaves) device->connections.clear();
-	
-	
-	
-	for(auto device : slaves){
-		if(device->identity->entryport != 0) {
-			auto wrongConnection = std::make_shared<WrongConnection>();
-			wrongConnection->device = device;
-			wrongConnection->port = device->identity->entryport;
-			wrongConnections.push_back(wrongConnection);
-		}
-	}
-	if(!wrongConnections.empty()) return;
-	
-	
-	
-	
-	//find the first device after the master on the network chain
-	std::shared_ptr<EtherCatDevice> firstDeviceConnectedToMaster = nullptr;
-	for(auto& device : slaves){
-		if(device->identity->parent == 0) {
-			firstDeviceConnectedToMaster = device;
-			break;
-		}
-	}
-	if(!firstDeviceConnectedToMaster) return;
-	
-	//add a special connection between the master and the first device
-	auto masterConnection = std::make_shared<DeviceConnection>();
-	masterConnection->b_parentIsMaster = true;
-	masterConnection->childDevice = firstDeviceConnectedToMaster;
-	masterConnection->childDevicePort = firstDeviceConnectedToMaster->identity->entryport;
-	networkTopology.push_back(masterConnection);
-	
-	
-	std::shared_ptr<EtherCatDevice> parentDevice = firstDeviceConnectedToMaster;
-	std::vector<std::shared_ptr<EtherCatDevice>> devicesWithUnregisteredConnections;
-	
-	
-	auto getNextChildDeviceOnPort = [](int port, std::shared_ptr<EtherCatDevice> parent, std::vector<std::shared_ptr<EtherCatDevice>>& children) -> std::shared_ptr<EtherCatDevice> {
-		for(auto& connection : parent->connections){
-			if(connection->parentDevice == parent && connection->parentDevicePort == port) return nullptr;
-		}
-		for(auto& child : children){
-			if(child->identity->parentport == port) return child;
-		}
-		return nullptr;
-	};
-	
-	
-	auto getNextChildDeviceOf = [&getNextChildDeviceOnPort](std::shared_ptr<EtherCatDevice> parent) -> std::shared_ptr<EtherCatDevice> {
-		int parentDeviceIndex = parent->getSlaveIndex();
-		
-		//get a list of devices that have the parent as parent
-		std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
-		for(auto& device : slaves){
-			if(device->identity->parent == parentDeviceIndex) childDevices.push_back(device);
-		}
-		
-		//check the next port for an unregistered conneciont (order is 3 1 2 0)
-		if(auto nextChild = getNextChildDeviceOnPort(3, parent, childDevices)) {
-			return nextChild;
-		}
-		if(auto nextChild = getNextChildDeviceOnPort(1, parent, childDevices)) {
-			return nextChild;
-		}
-		if(auto nextChild = getNextChildDeviceOnPort(2, parent, childDevices)) {
-			return nextChild;
-		}
-		if(auto nextChild = getNextChildDeviceOnPort(0, parent, childDevices)) {
-			return nextChild;
-		}
-		return nullptr;
-	};
-	
-	
-	auto hasUnregisteredConnections = [&](std::shared_ptr<EtherCatDevice> device) -> bool {
-		
-		int deviceIndex = device->getSlaveIndex();
-		std::vector<std::shared_ptr<EtherCatDevice>> childDevices;
-		for(auto& childDevice : slaves){
-			if(childDevice->identity->parent == deviceIndex) childDevices.push_back(childDevice);
-		}
-		
-		//check each child device of the queried device
-		for(auto& childDevice : childDevices){
-			
-			bool b_connectionAlreadyRegistered = false;
-			
-			//for each connection that is registered by the device
-			for(auto& connection : device->connections){
-				//if a connection exists for between the queried device and one of its child device, that connection is already registered
-				if(connection->parentDevice == device && connection->childDevice == childDevice) {
-					b_connectionAlreadyRegistered = true;
-					break;
-				}
-			}
-			
-			if(!b_connectionAlreadyRegistered) {
-				return true;
-			}
-			
-		}
-		
-		return false;
-	};
-	
-	
-	
-	while(parentDevice){
-		
-		//get the next child with an unregistered connection to the parent device
-		auto childDevice = getNextChildDeviceOf(parentDevice);
-		
-		//if there is a child with unregistered connection, register that connection with the parent and child
-		if(childDevice){
-			auto connection = std::make_shared<DeviceConnection>();
-			connection->parentDevice = parentDevice;
-			connection->parentDevicePort = childDevice->identity->parentport;
-			connection->childDevice = childDevice;
-			connection->childDevicePort = childDevice->identity->entryport;
-			parentDevice->connections.push_back(connection);
-			childDevice->connections.push_back(connection);
-			networkTopology.push_back(connection);
-		}
-		
-		//check if the parent device has unregistered connections
-		if(hasUnregisteredConnections(parentDevice)){
-			devicesWithUnregisteredConnections.push_back(parentDevice);
-		}
-		
-		if(childDevice) parentDevice = childDevice;
-		else {
-	
-			
-			parentDevice = nullptr;
-	
-			//go back to the last device with unscanned ports and find its children
-			while(!devicesWithUnregisteredConnections.empty()){
-				
-				//check if the last device with unregistered connections still has unregistered connections
-				auto lastDeviceWithUnregisteredConnections = devicesWithUnregisteredConnections.back();
-				if(hasUnregisteredConnections(lastDeviceWithUnregisteredConnections)){
-					//if it has unregistered connections, get the next unregistered child
-					parentDevice = lastDeviceWithUnregisteredConnections;
-					break;
-				}else{
-					//if that device has no unregistered connections, remove it from the list of devices with unregistered connections
-					devicesWithUnregisteredConnections.pop_back();
-				}
-					
-			}
-			
-		}
-	}
-	
-}
-
-void updateErrorCounters(){
-	for(auto& device : slaves) device->downloadErrorCounters();
-	for(auto& connection : networkTopology){
-		int largestErrorCount = 0;
-		if(connection->b_parentIsMaster) {
-			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
-			double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
-			int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
-			largestErrorCount = std::max(largestErrorCount, masterStability_i);
-			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
-			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
-			connection->b_wasDisconnected = childPortErrors.lostLinks > 0;
-		}else{
-			auto& parentPortErrors = connection->parentDevice->errorCounters.portErrors[connection->parentDevicePort];
-			auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
-			connection->b_wasDisconnected = parentPortErrors.lostLinks > 0 || childPortErrors.lostLinks > 0;
-			largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.frameRxErrors);
-			largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.physicalRxErrors);
-			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
-			largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
-		}
-		connection->instability = (float)largestErrorCount / 255.0;
-	}
-}
-
-void resetErrorCounters(){
-	std::thread errorCounterResetter([](){
-		cyclicFrameTimeoutCounter = 0;
-		cyclicFrameErrorCounter = 0;
-		for(auto& device : slaves) device->resetErrorCounters();
-		updateErrorCounters();
-	});
-	errorCounterResetter.detach();
-}
-
-int getCyclicFrameTimeoutCounter(){ return cyclicFrameTimeoutCounter; }
-int getCyclicFrameErrorCounter(){ return cyclicFrameErrorCounter; }
-
-
-
-
-
-
-
-
-
-
-
 
 }
