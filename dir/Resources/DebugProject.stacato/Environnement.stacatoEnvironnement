@@ -12,7 +12,7 @@
                                 <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false"/>
                             </Module>
                             <Module Type="IB IL 24 DO 4-PAC">
-                                <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false"/>
+                                <SignalInversion InvertOutput0="false" InvertOutput1="true" InvertOutput2="false" InvertOutput3="false"/>
                             </Module>
                             <Module Type="IB IL SSI-IN-PAC"/>
                         </Modules>
@@ -36,13 +36,11 @@
         <Links>
             <Link UniqueID="13" StartPin="4" EndPin="8"/>
             <Link UniqueID="20" StartPin="4" EndPin="10"/>
+            <Link UniqueID="22" StartPin="4" EndPin="9"/>
         </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
-    <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
-    </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

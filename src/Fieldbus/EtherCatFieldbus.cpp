@@ -36,7 +36,12 @@ namespace EtherCatFieldbus {
 	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices(){ return discoveredDevices; }
 	std::vector<std::shared_ptr<EtherCatDevice>>& getUnmatchedDevices(){ return discoveredDevicesUnmatched; }
 	void removeUnmatchedDevice(std::shared_ptr<EtherCatDevice> removedDevice) {
-		std::remove(discoveredDevicesUnmatched.begin(), discoveredDevicesUnmatched.end(), removedDevice);
+		for(int i = 0; i < discoveredDevicesUnmatched.size(); i++){
+			if(discoveredDevicesUnmatched[i] == removedDevice){
+				discoveredDevicesUnmatched.erase(discoveredDevicesUnmatched.begin() + i);
+				break;
+			}
+		}
 	}
 
 
@@ -116,7 +121,10 @@ namespace EtherCatFieldbus {
 	bool isRunning(){ return b_networkRunning; }
 
 	void scan(){
-		initializeNetwork();
+		std::thread networkScanner([](){
+			initializeNetwork();
+		});
+		networkScanner.detach();
 	}
 
 	void start() {
@@ -678,10 +686,12 @@ namespace EtherCatFieldbus {
 	bool b_clockStable;
 
 	bool b_cyclicExchangeThreadRunning = false;
+	bool b_cyclicExchangeTimedOut;
 
     void cyclicExchange(void* data) {
 		
 		b_cyclicExchangeThreadRunning = true;
+		b_cyclicExchangeTimedOut = false;
 		
 		pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
 
@@ -714,7 +724,7 @@ namespace EtherCatFieldbus {
 		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
 		
 		//========= CYCLIC EXCHANGE ============
-		while (b_cyclicExchangeThreadRunning) cycle();
+		while (b_cyclicExchangeThreadRunning && !b_cyclicExchangeTimedOut) cycle();
 		//======================================
 
         //send one last frame to all slaves to disable them
@@ -804,6 +814,7 @@ namespace EtherCatFieldbus {
 		if (workingCounter <= 0) {
 			if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
 				Logger::critical("Fieldbus timed out...");
+				b_cyclicExchangeTimedOut = true;
 				return; //breaks out of the main while loop (which stops the fieldbus?)
 			}
 			//adjust the copy of the reference clock in case no frame was received

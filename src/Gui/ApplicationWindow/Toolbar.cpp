@@ -54,22 +54,20 @@ namespace Gui {
 		ImGui::BeginGroup();
 		ImGui::BeginGroup();
 		
-		ImGui::BeginDisabled(!Environnement::isReady() || Environnement::isStarting());
 		if(Environnement::isStarting()){
 			ImGui::BeginDisabled();
 			ImGui::Button("Starting", buttonSize);
 			ImGui::EndDisabled();
 		}
-		else if(!Environnement::isRunning()){
-			if(ImGui::Button("Start", buttonSize)){
-				Environnement::start();
-			}
-		}else{
+		else if(Environnement::isRunning()){
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 			if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
 			ImGui::PopStyleColor();
+		}else{
+			ImGui::BeginDisabled(!Environnement::isReady());
+			if(ImGui::Button("Start", buttonSize)) Environnement::start();
+			ImGui::EndDisabled();
 		}
-		ImGui::EndDisabled();
 
 		ImGui::SameLine();
 		
