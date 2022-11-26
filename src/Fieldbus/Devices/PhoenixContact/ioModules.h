@@ -14,17 +14,18 @@ namespace tinyxml2{ struct XMLElement; }
 
 
 
-namespace PhoenixContact{
-
-namespace ModuleFactory{
+namespace PhoenixContact::ModuleFactory{
 	std::vector<EtherCAT::DeviceModule*>& getModules();
 }
+
 
 
 
 //=================================================================
 //======================= 4x Digital Input ========================
 //=================================================================
+
+namespace PhoenixContact{
 
 class IB_IL_24_DI_4 : public EtherCAT::DeviceModule{
 public:
@@ -40,9 +41,13 @@ public:
 	bool invertInputs[4] = {false, false, false, false};
 };
 
+}
+
 //=================================================================
 //======================= 4x Digital Output =======================
 //=================================================================
+
+namespace PhoenixContact{
 
 class IB_IL_24_DO_4 : public EtherCAT::DeviceModule{
 public:
@@ -58,10 +63,60 @@ public:
 	bool invertOutputs[4] = {false, false, false, false};
 };
 
+}
+
 //=================================================================
 //============== 050-1BS00 Single SSI Encoder Input ===============
 //=================================================================
 
+
+namespace PhoenixContact::SSI{
+
+	enum class Parity{
+		NONE,
+		EVEN,
+		ODD
+	};
+
+	enum class Baudrate{
+		KHz_100,
+		KHz_200,
+		KHz_400,
+		KHz_800,
+		MHz_1
+	};
+
+	enum class Code{
+		BINARY,
+		GRAY
+	};
+
+};
+
+#define ParityTypeStrings \
+	{PhoenixContact::SSI::Parity::NONE, 	"No Parity",	"None"},\
+	{PhoenixContact::SSI::Parity::EVEN, 	"Even",			"Even"},\
+	{PhoenixContact::SSI::Parity::ODD, 		"Odd",			"Odd"}\
+
+DEFINE_ENUMERATOR(PhoenixContact::SSI::Parity, ParityTypeStrings)
+
+#define BaudrateTypeStrings \
+	{PhoenixContact::SSI::Baudrate::KHz_100, 	"100 KHz",	"100KHz"},\
+	{PhoenixContact::SSI::Baudrate::KHz_200, 	"200 KHz",	"200KHz"},\
+	{PhoenixContact::SSI::Baudrate::KHz_400, 	"400 KHz", 	"400KHz"},\
+	{PhoenixContact::SSI::Baudrate::KHz_800, 	"800 KHz", 	"800KHz"},\
+	{PhoenixContact::SSI::Baudrate::MHz_1, 		"1 MHz", 	"1MHz"}\
+
+DEFINE_ENUMERATOR(PhoenixContact::SSI::Baudrate, BaudrateTypeStrings);
+
+#define CodeTypeStrings \
+	{PhoenixContact::SSI::Code::BINARY, "Binary",	"Binary"},\
+	{PhoenixContact::SSI::Code::GRAY, 	"Gray",		"Gray"}\
+
+DEFINE_ENUMERATOR(PhoenixContact::SSI::Code, CodeTypeStrings)
+
+
+namespace PhoenixContact{
 
 class IB_IL_SSI_IN : public EtherCAT::DeviceModule{
 public:
@@ -130,9 +185,24 @@ public:
 		GRAY	= 0x1
 	};
 	
+	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25,
+																						   "Resolution", "Resolution", "%i",
+																						   Units::Data::Bit,
+																						   false);
 	
-		
+	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12,
+																									"Singleturn Resolution", "SingleturnResolution", "%i",
+																									 Units::Data::Bit, false);
 	
+	std::shared_ptr<EnumeratorParameter<SSI::Parity>> parityParameter = EnumeratorParameter<SSI::Parity>::make(SSI::Parity::NONE, "Parity", "Parity");
+	
+	std::shared_ptr<BooleanParameter> invertDirectionParameter = BooleanParameter::make(false, "Invert Direction", "Invert");
+	
+	std::shared_ptr<EnumeratorParameter<SSI::Baudrate>> baudrateParameter = EnumeratorParameter<SSI::Baudrate>::make(SSI::Baudrate::KHz_100, "Baudrate", "Baudrate");
+	
+	std::shared_ptr<EnumeratorParameter<SSI::Code>> codeParameter = EnumeratorParameter<SSI::Code>::make(SSI::Code::GRAY, "Code", "Code");
+	
+	std::shared_ptr<BooleanParameter> centerWorkingRangeOnZeroParameter = BooleanParameter::make(true, "Center working range on zero", "CenterWorkingRangeOnZero");
 	
 	//————— SubDevice ——————
 	
@@ -171,10 +241,6 @@ public:
 	
 	//virtual void onDisconnection() override;
 };
-
-
-
-
 
 
 };

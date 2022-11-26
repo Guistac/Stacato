@@ -29,6 +29,9 @@ namespace EtherCatFieldbus {
 	std::vector<std::shared_ptr<EtherCatDevice>>& getUnmatchedDevices();	//discovered slaves that are not in the environnement nodegraph
 	void removeUnmatchedDevice(std::shared_ptr<EtherCatDevice> removedDevice);
 
+	void initialize();
+	void terminate();
+
 	//Network Control
 	void scan();
     void start();

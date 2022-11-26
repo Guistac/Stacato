@@ -680,7 +680,7 @@ namespace EtherCatFieldbus {
 	uint64_t clockStableThreshold_nanoseconds;
 	double averageDCTimeDelta_nanoseconds;
 	int clockDriftCorrectionintegral;
-	std::chrono::high_resolution_clock::time_point lastProcessDataFrameReturnTime;
+	uint64_t lastProcessDataFrameReturnTime_nanoseconds;
 	int64_t systemTimeErrorSmoothed_nanoseconds;
 	int64_t systemTimeSmoothed_nanoseconds;
 	bool b_clockStable;
@@ -715,7 +715,7 @@ namespace EtherCatFieldbus {
         clockStableThreshold_nanoseconds = clockStableThreshold_milliseconds * 1000000.0;
         averageDCTimeDelta_nanoseconds = (double)processInterval_nanoseconds / 2.0;
         clockDriftCorrectionintegral = 0;
-        lastProcessDataFrameReturnTime = std::chrono::high_resolution_clock::now();
+		lastProcessDataFrameReturnTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 		systemTimeErrorSmoothed_nanoseconds = 0;
 		systemTimeSmoothed_nanoseconds = cycleStartTime_nanoseconds;
 		b_clockStable = false;
@@ -812,7 +812,7 @@ namespace EtherCatFieldbus {
 		//===================== TIMEOUT HANDLING ========================
 
 		if (workingCounter <= 0) {
-			if (high_resolution_clock::now() - lastProcessDataFrameReturnTime > milliseconds((int)fieldbusTimeout_milliseconds)) {
+			if (Timing::getProgramTime_nanoseconds() - lastProcessDataFrameReturnTime_nanoseconds > fieldbusTimeout_milliseconds * 1000000) {
 				Logger::critical("Fieldbus timed out...");
 				b_cyclicExchangeTimedOut = true;
 				return; //breaks out of the main while loop (which stops the fieldbus?)
@@ -820,7 +820,7 @@ namespace EtherCatFieldbus {
 			//adjust the copy of the reference clock in case no frame was received
 			ec_DCtime += processInterval_nanoseconds;
 		}
-		else lastProcessDataFrameReturnTime = high_resolution_clock::now(); //reset timeout watchdog
+		else lastProcessDataFrameReturnTime_nanoseconds = Timing::getProgramTime_nanoseconds(); //reset timeout watchdog
 
 		//===================== ENVIRONNEMENT UPDATE =======================
 
@@ -1096,6 +1096,19 @@ namespace EtherCatFieldbus {
 			b_slaveStateHandlerRunning = false;
 			slaveStateHandler.join();
 		}
+	}
+
+	//============== INIT TERMINATE ==============
+
+	void initialize(){
+		scan();
+	}
+	void terminate(){
+		stopCyclicExchange();
+		stopWatchingForErrors();
+		stopHandlingStateTransitions();
+		stopDiscoveredDeviceDetection();
+		stopCountingTransmissionErrors();
 	}
 
 

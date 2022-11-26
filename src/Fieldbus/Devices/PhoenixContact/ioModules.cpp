@@ -195,7 +195,15 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 //============== 050-1BS00 Single SSI Encoder Input ===============
 //=================================================================
 
-void IB_IL_SSI_IN::onConstruction(){}
+void IB_IL_SSI_IN::onConstruction(){
+	resolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+		resolutionParameter->validateRange(8, 25, true, true);
+		singleturnResolutionParameter->onEdit();
+	});
+	singleturnResolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+		singleturnResolutionParameter->validateRange(0, resolutionParameter->value, true, true);
+	});
+}
 void IB_IL_SSI_IN::onSetIndex(int i){}
 void IB_IL_SSI_IN::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
 	txPdoAssignement.addNewModule(0x1A00 + moduleIndex);
@@ -240,13 +248,68 @@ void IB_IL_SSI_IN::writeOutputs(){
 	controlData = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24);
 	
 }
-void IB_IL_SSI_IN::moduleGui(){}
+void IB_IL_SSI_IN::moduleGui(){
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Overall Resolution");
+	ImGui::PopFont();
+	resolutionParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Singleturn Resolution");
+	ImGui::PopFont();
+	singleturnResolutionParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Coding");
+	ImGui::PopFont();
+	codeParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Transmission Rate");
+	ImGui::PopFont();
+	baudrateParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Parity");
+	ImGui::PopFont();
+	parityParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Invert Direction");
+	ImGui::PopFont();
+	invertDirectionParameter->gui();
+	ImGui::SameLine();
+	ImGui::Text("Direction is %sinverted", invertDirectionParameter->value ? "" : "not ");
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Working range adjustement");
+	ImGui::PopFont();
+	centerWorkingRangeOnZeroParameter->gui();
+	ImGui::SameLine();
+	ImGui::Text("Working range is %scentered on zero", centerWorkingRangeOnZeroParameter->value ? "" : "not ");
+	
+}
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	resolutionParameter->save(xml);
+	singleturnResolutionParameter->save(xml);
+	parityParameter->save(xml);
+	invertDirectionParameter->save(xml);
+	baudrateParameter->save(xml);
+	codeParameter->save(xml);
+	centerWorkingRangeOnZeroParameter->save(xml);
 	return true;
 }
 bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	if(!resolutionParameter->load(xml)) return false;
+	if(!singleturnResolutionParameter->load(xml)) return false;
+	if(!parityParameter->load(xml)) return false;
+	if(!invertDirectionParameter->load(xml)) return false;
+	if(!baudrateParameter->load(xml)) return false;
+	if(!codeParameter->load(xml)) return false;
+	if(!centerWorkingRangeOnZeroParameter->load(xml)) return false;
 	return true;
 }
 

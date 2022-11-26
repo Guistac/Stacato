@@ -720,6 +720,10 @@ public:
 		displayValue = value_;
 	}
 	
+	static std::shared_ptr<EnumeratorParameter<T>> make(T value_, std::string name, std::string saveString){
+		return std::make_shared<EnumeratorParameter<T>>(value_, name, saveString);
+	};
+	
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		combo();

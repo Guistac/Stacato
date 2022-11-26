@@ -14,7 +14,7 @@
                             <Module Type="IB IL 24 DO 4-PAC">
                                 <SignalInversion InvertOutput0="false" InvertOutput1="true" InvertOutput2="false" InvertOutput3="false"/>
                             </Module>
-                            <Module Type="IB IL SSI-IN-PAC"/>
+                            <Module Type="IB IL SSI-IN-PAC" Resolution="25" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="false"/>
                         </Modules>
                     </ModularDeviceProfile>
                 </NodeSpecificData>
