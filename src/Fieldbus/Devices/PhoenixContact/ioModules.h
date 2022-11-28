@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Fieldbus/Utilities/DeviceModule.h"
+#include "Fieldbus/Utilities/ModularDevice.h"
 
 #include "Motion/SubDevice.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
@@ -141,10 +142,10 @@ public:
 	DEFINE_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN-PAC", "SSI input", 0x25F)
 	
 	//————— Node Pins ———————
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
-	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
-	
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
+	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(resetPinValue, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
 	
 	//————— Process Data —————
 	
@@ -152,21 +153,15 @@ public:
 	uint32_t encoderData;
 	uint32_t controlData;
 	
-	//--- parameters retained on startup
-	uint32_t totalIncrements;
-	uint32_t incrementsPerTurn;
-	bool b_rangeCenteredOnZero;
-	
 	//--- cyclic data
 	SSI::StatusCode statusCode = SSI::StatusCode::UNKNOWN;
-	double encoderPosition_revolutions = 0.0;
-	double encoderVelocity_revolutionsPerSecond = 0.0;
 	
-	uint16_t previousReadingTime_microseconds = 0.0;
-	double previousEncoderPosition_revolutions = 0.0;
+	uint64_t previousReadingTime_nanoseconds = 0;
+	double previousPosition_revolutions = 0.0;
 	
+	bool b_doHardReset = false;
+	bool b_hardResetBusy = false;
 	uint64_t resetStartTime_nanoseconds = 0;
-	double resetStartTime_seconds = 0.0;
 	
 	//————— User Parameters ——————
 	
@@ -191,32 +186,61 @@ public:
 		encoderModule(module){}
 		
 		virtual std::string getName() override {
-			//return std::string(encoderModule->parentBusCoupler->getName()) + " SSI Encoder";
+			return std::string(encoderModule->parentDevice->getName()) + " SSI Encoder";
 		};
 		
-		virtual std::string getStatusString() override { return ""; }
+		virtual std::string getStatusString() override {
+			if(state == MotionState::OFFLINE) {
+				std::string message = "Encoder is Offline: parent device " + std::string(encoderModule->parentDevice->getName()) + " is Offline";
+				return message;
+			}else if(!encoderModule->parentDevice->isStateOperational()){
+				std::string message = "Enoder is Not Ready : parent device " + std::string(encoderModule->parentDevice->getName()) + " is not in operational state";
+				return message;
+			}
+			switch(encoderModule->statusCode){
+				case SSI::StatusCode::UNKNOWN:
+					return "Encoder is not ready : unknown state";
+				case SSI::StatusCode::OFFLINE:
+					return "Encoder is offline";
+				case SSI::StatusCode::OPERATION:
+					return "Encoder is operating normally";
+				case SSI::StatusCode::ACKNOWLEDGE_FAULT:
+					return "Encoder is not ready : acknowledging fault";
+				case SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT:
+					return "Encoder is not ready : no power supply or short circuit present";
+				case SSI::StatusCode::FAULT_PARITY_ERROR:
+					return "Encoder is not ready : parity error";
+				case SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA:
+					return "Encoder is not ready : invalid configuration data";
+				case SSI::StatusCode::FAULT_INVALID_CONTROL_CODE:
+					return "Encoder is not ready : invalid control code";
+			}
+		}
 		
 		virtual bool canHardReset() override {
-			//return encoderModule->b_hasResetSignal && encoderModule->resetPin->isConnected();
+			return encoderModule->hasResetSignalParameter->value && encoderModule->resetPin->isConnected();
 		}
 		virtual void executeHardReset() override {
-			b_doHardReset = true;
-			b_hardResetBusy = true;
+			encoderModule->b_doHardReset = true;
 		}
-		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
+		virtual bool isExecutingHardReset() override {
+			return encoderModule->b_hardResetBusy;
+		}
 						
 		std::shared_ptr<IB_IL_SSI_IN> encoderModule;
-		bool b_doHardReset = false;
-		bool b_hardResetBusy = false;
 	};
 	
 	std::shared_ptr<SsiEncoder> encoder;
 	
-	//virtual void onSetParentDevice(std::shared_ptr<EtherCAT::ModularDevice> busCoupler) override;
 	void updateEncoderWorkingRange();
-	void updateResetPinVisibility();
 	
-	//virtual void onDisconnection() override;
+	virtual void onDisconnection() override {
+		encoder->state = MotionState::OFFLINE;
+	}
+	
+	virtual void onSetParentDevice(std::shared_ptr<EtherCAT::ModularDevice> busCoupler) override{
+		encoder->setParentDevice(busCoupler);
+	}
 };
 
 

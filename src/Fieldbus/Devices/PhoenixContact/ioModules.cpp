@@ -1,6 +1,8 @@
 #include <pch.h>
 #include "ioModules.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 namespace PhoenixContact{
 
 
@@ -196,13 +198,30 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 //=================================================================
 
 void IB_IL_SSI_IN::onConstruction(){
+	
+	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
+	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
+	encoderPin->assignData(std::static_pointer_cast<PositionFeedbackDevice>(encoder));
+	
+	outputPins.push_back(encoderPin);
+	outputPins.push_back(resetPin);
+	
 	resolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
 		resolutionParameter->validateRange(8, 25, true, true);
 		singleturnResolutionParameter->onEdit();
 	});
 	singleturnResolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
 		singleturnResolutionParameter->validateRange(0, resolutionParameter->value, true, true);
+		updateEncoderWorkingRange();
 	});
+	centerWorkingRangeOnZeroParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+		updateEncoderWorkingRange();
+	});
+	hasResetSignalParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+		resetPin->setVisible(hasResetSignalParameter->value);
+	});
+	
+	resetPin->setVisible(hasResetSignalParameter->value);
 }
 void IB_IL_SSI_IN::onSetIndex(int i){}
 void IB_IL_SSI_IN::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -253,9 +272,9 @@ bool IB_IL_SSI_IN::configureParameters(){
 	
 	controlData = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24);
 	
-	totalIncrements = 0x1 << resolutionParameter->value;
-	incrementsPerTurn = 0x1 << singleturnResolutionParameter->value;
-	b_rangeCenteredOnZero = centerWorkingRangeOnZeroParameter->value;
+	b_doHardReset = false;
+	b_hardResetBusy = false;
+	*resetPinValue = false;
 	
 	return true;
 }
@@ -269,6 +288,7 @@ void IB_IL_SSI_IN::readInputs(){
 	uint16_t word1 = (byte2 << 8) | byte3;
 	uint8_t status = (word0 >> 9) & 0x7F;
 	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
+	int32_t actualPositionSigned = actualPosition;
 	
 	if(status == 0x0) statusCode = SSI::StatusCode::OFFLINE;
 	else if(status == 0x1) statusCode = SSI::StatusCode::OPERATION;
@@ -279,14 +299,27 @@ void IB_IL_SSI_IN::readInputs(){
 	else if(status == 0x50) statusCode = SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA;
 	else statusCode = SSI::StatusCode::UNKNOWN;
 	
-	int32_t actualPositionSigned = actualPosition;
-	if(b_rangeCenteredOnZero) actualPositionSigned -= (totalIncrements / 2);
+	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
+	uint32_t incrementsTotal = 0x1 << resolutionParameter->value;
 	
-	double position = double(actualPositionSigned) / double(incrementsPerTurn);
+	if(centerWorkingRangeOnZeroParameter->value && actualPosition >= incrementsTotal / 2) actualPositionSigned -= incrementsTotal;
 	
-	Logger::warn("status: {:#x} position: {}", status, actualPosition);
+	double position_revolutions = double(actualPositionSigned) / double(incrementsPerRevolution);
+	uint64_t readingTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
+	uint64_t deltaT_seconds = double(readingTime_nanoseconds - previousReadingTime_nanoseconds) / 1000000000.0;
+	double deltaP_revolutions = position_revolutions - previousPosition_revolutions;
 	
+	previousReadingTime_nanoseconds = readingTime_nanoseconds;
+	previousPosition_revolutions = position_revolutions;
+	
+	encoder->position = position_revolutions;
+	encoder->velocity = deltaP_revolutions / deltaT_seconds;
+	
+	if(!parentDevice->isStateOperational()) encoder->state = MotionState::NOT_READY;
+	else if(parentDevice->isStateInit()) encoder->state = MotionState::OFFLINE;
+	else if(statusCode != SSI::StatusCode::OPERATION) encoder->state = MotionState::NOT_READY;
+	else encoder->state = MotionState::ENABLED;
 }
 void IB_IL_SSI_IN::writeOutputs(){
 	
@@ -300,9 +333,43 @@ void IB_IL_SSI_IN::writeOutputs(){
 	}
 	controlData |= (controlCode << 1);
 	
-	//do encoder position reset here
-	
+	//do encoder position reset
+	uint64_t time_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+	if(b_doHardReset){
+		b_doHardReset = false;
+		b_hardResetBusy = true;
+		*resetPinValue = true;
+		resetStartTime_nanoseconds = time_nanoseconds;
+		Logger::info("Start Hard Reset of Encoder {}", encoder->getName());
+	}
+	if(b_hardResetBusy){
+		encoder->velocity = 0.0;
+		if(time_nanoseconds > resetStartTime_nanoseconds + resetSignalTimeParameter->value * 1000000){
+			b_hardResetBusy = false;
+			encoder->positionOffset = 0.0;
+			*resetPinValue = false;
+		}
+	}
 }
+
+void IB_IL_SSI_IN::updateEncoderWorkingRange(){
+	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
+	uint32_t incrementsTotal = 0x1 << resolutionParameter->value;
+	
+	double workingRangeDelta = incrementsTotal / incrementsPerRevolution;
+	double workingRangeMin = 0.0;
+	double workingRangeMax = workingRangeDelta;
+	if(centerWorkingRangeOnZeroParameter->value){
+		workingRangeMin -= workingRangeDelta / 2.0;
+		workingRangeMax -= workingRangeDelta / 2.0;
+	}
+	
+	encoder->minWorkingRange = workingRangeMin;
+	encoder->maxWorkingRange = workingRangeMax;
+}
+
+
+
 void IB_IL_SSI_IN::moduleGui(){
 	
 	ImGui::PushFont(Fonts::sansBold15);
@@ -357,6 +424,10 @@ void IB_IL_SSI_IN::moduleGui(){
 	centerWorkingRangeOnZeroParameter->gui();
 	ImGui::SameLine();
 	ImGui::Text("Working range is %scentered on zero", centerWorkingRangeOnZeroParameter->value ? "" : "not ");
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::Text("(%.f to %.f revolutions)", encoder->minWorkingRange, encoder->maxWorkingRange);
+	ImGui::PopStyleColor();
 	
 }
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
@@ -368,6 +439,8 @@ bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	baudrateParameter->save(xml);
 	codeParameter->save(xml);
 	centerWorkingRangeOnZeroParameter->save(xml);
+	hasResetSignalParameter->save(xml);
+	resetSignalTimeParameter->save(xml);
 	return true;
 }
 bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
@@ -379,6 +452,11 @@ bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
 	if(!baudrateParameter->load(xml)) return false;
 	if(!codeParameter->load(xml)) return false;
 	if(!centerWorkingRangeOnZeroParameter->load(xml)) return false;
+	if(!hasResetSignalParameter->load(xml)) return false;
+	if(!resetSignalTimeParameter->load(xml)) return false;
+	
+	updateEncoderWorkingRange();
+	resetPin->setVisible(hasResetSignalParameter->value);
 	return true;
 }
 
