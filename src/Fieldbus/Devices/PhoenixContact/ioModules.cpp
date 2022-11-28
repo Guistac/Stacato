@@ -213,32 +213,38 @@ void IB_IL_SSI_IN::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignemen
 	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
 	rxPdoAssignement.addEntry(0x7000 + moduleIndex * 0x10, 0x1, 32, "SSI Control Data", &controlData);
 }
-bool IB_IL_SSI_IN::configureParameters(){ return true; }
-void IB_IL_SSI_IN::readInputs(){
-	
-	uint8_t byte0 = encoderData & 0xFF;
-	uint8_t byte1 = (encoderData >> 8) & 0xFF;
-	uint8_t byte2 = (encoderData >> 16) & 0xFF;
-	uint8_t byte3 = (encoderData >> 24) & 0xFF;
-	
-	uint16_t word0 = (byte0 << 8) | byte1;
-	uint16_t word1 = (byte2 << 8) | byte3;
-	
-	uint8_t status = (word0 >> 9) & 0x7F;
-	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
-	
-	Logger::warn("status: {:#x} position: {}", status, actualPosition);
+bool IB_IL_SSI_IN::configureParameters(){
 	
 	
-}
-void IB_IL_SSI_IN::writeOutputs(){
+	uint8_t controlCode = SSI::ControlCode::READ_POSITION;
 	
-	uint8_t controlCode = ControlCode::READ_POSITION;
-	uint8_t parity = Parity::NONE;
-	uint8_t rev = Rev::OFF;
-	uint8_t resolution = getResolutionCode(25);
-	uint8_t speed = Speed::MHz_1;
-	uint8_t code = Code::GRAY;
+	uint8_t parity;
+	switch(parityParameter->value){
+		case SSI::Parity::NONE:	parity = 0x0; break;
+		case SSI::Parity::ODD:	parity = 0x1; break;
+		case SSI::Parity::EVEN:	parity = 0x2; break;
+	}
+	
+	uint8_t rev;
+	if(invertDirectionParameter->value) rev = 0x1;
+	else rev = 0x0;
+	
+	uint8_t resolution = std::clamp(resolutionParameter->value, 8, 25) - 8;
+	
+	uint8_t speed;
+	switch(baudrateParameter->value){
+		case SSI::Baudrate::KHz_100: 	return speed = 0x1; break;
+		case SSI::Baudrate::KHz_200: 	return speed = 0x2; break;
+		case SSI::Baudrate::KHz_400: 	return speed = 0x3; break;
+		case SSI::Baudrate::KHz_800: 	return speed = 0x4; break;
+		case SSI::Baudrate::MHz_1:		return speed = 0x5; break;
+	}
+	
+	uint8_t code;
+	switch(codeParameter->value){
+		case SSI::Code::BINARY: code = 0x0; break;
+		case SSI::Code::GRAY:	code = 0x1; break;
+	}
 	
 	uint8_t byte0 = (controlCode & 0x7F) << 1;
 	uint8_t byte1 = ((parity & 0x3) << 4) | (rev & 0x1);
@@ -246,6 +252,55 @@ void IB_IL_SSI_IN::writeOutputs(){
 	uint8_t byte3 = ((speed & 0x7) << 4) | (code & 0x1);
 	
 	controlData = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24);
+	
+	totalIncrements = 0x1 << resolutionParameter->value;
+	incrementsPerTurn = 0x1 << singleturnResolutionParameter->value;
+	b_rangeCenteredOnZero = centerWorkingRangeOnZeroParameter->value;
+	
+	return true;
+}
+void IB_IL_SSI_IN::readInputs(){
+	
+	uint8_t byte0 = encoderData & 0xFF;
+	uint8_t byte1 = (encoderData >> 8) & 0xFF;
+	uint8_t byte2 = (encoderData >> 16) & 0xFF;
+	uint8_t byte3 = (encoderData >> 24) & 0xFF;
+	uint16_t word0 = (byte0 << 8) | byte1;
+	uint16_t word1 = (byte2 << 8) | byte3;
+	uint8_t status = (word0 >> 9) & 0x7F;
+	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
+	
+	if(status == 0x0) statusCode = SSI::StatusCode::OFFLINE;
+	else if(status == 0x1) statusCode = SSI::StatusCode::OPERATION;
+	else if(status & 0x8000) statusCode = SSI::StatusCode::ACKNOWLEDGE_FAULT;
+	else if(status == 0x42) statusCode = SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT;
+	else if(status == 0x44) statusCode = SSI::StatusCode::FAULT_PARITY_ERROR;
+	else if(status == 0x48) statusCode = SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA;
+	else if(status == 0x50) statusCode = SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA;
+	else statusCode = SSI::StatusCode::UNKNOWN;
+	
+	int32_t actualPositionSigned = actualPosition;
+	if(b_rangeCenteredOnZero) actualPositionSigned -= (totalIncrements / 2);
+	
+	double position = double(actualPositionSigned) / double(incrementsPerTurn);
+	
+	Logger::warn("status: {:#x} position: {}", status, actualPosition);
+	
+	
+}
+void IB_IL_SSI_IN::writeOutputs(){
+	
+	//change control code here (if needed)
+	controlData &= 0xFFFFFF00;
+	uint8_t controlCode;
+	if(statusCode != SSI::StatusCode::OPERATION){
+		controlCode = SSI::ControlCode::ACKNOWLEDGE_FAULT;
+	}else{
+		controlCode = SSI::ControlCode::READ_POSITION;
+	}
+	controlData |= (controlCode << 1);
+	
+	//do encoder position reset here
 	
 }
 void IB_IL_SSI_IN::moduleGui(){
@@ -274,6 +329,20 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::Text("Parity");
 	ImGui::PopFont();
 	parityParameter->gui();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Reset Signal");
+	ImGui::PopFont();
+	hasResetSignalParameter->gui();
+	ImGui::SameLine();
+	ImGui::Text("%s reset signal", hasResetSignalParameter->value ? "Has" : "Does not have");
+	
+	if(hasResetSignalParameter->value){
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Reset Time");
+		ImGui::PopFont();
+		resetSignalTimeParameter->gui();
+	}
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Invert Direction");

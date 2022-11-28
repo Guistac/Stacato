@@ -91,6 +91,24 @@ namespace PhoenixContact::SSI{
 		GRAY
 	};
 
+	enum ControlCode{
+		NO_ACTION = 0x0,
+		READ_POSITION = 0x1,
+		OFFLINE = 0x2,
+		ACKNOWLEDGE_FAULT = 0x21
+	};
+
+	enum class StatusCode{
+		UNKNOWN,
+		OFFLINE,
+		OPERATION,
+		ACKNOWLEDGE_FAULT,
+		FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT,
+		FAULT_PARITY_ERROR,
+		FAULT_INVALID_CONFIGURATION_DATA,
+		FAULT_INVALID_CONTROL_CODE
+	};
+
 };
 
 #define ParityTypeStrings \
@@ -128,11 +146,19 @@ public:
 	
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
-	//————— PDO DATA —————
+	//————— Process Data —————
 	
+	//--- rx/tx-PDO
 	uint32_t encoderData;
 	uint32_t controlData;
 	
+	//--- parameters retained on startup
+	uint32_t totalIncrements;
+	uint32_t incrementsPerTurn;
+	bool b_rangeCenteredOnZero;
+	
+	//--- cyclic data
+	SSI::StatusCode statusCode = SSI::StatusCode::UNKNOWN;
 	double encoderPosition_revolutions = 0.0;
 	double encoderVelocity_revolutionsPerSecond = 0.0;
 	
@@ -142,67 +168,18 @@ public:
 	uint64_t resetStartTime_nanoseconds = 0;
 	double resetStartTime_seconds = 0.0;
 	
+	//————— User Parameters ——————
 	
-	
-	enum ControlCode{
-		NO_ACTION 			= 0x0,
-		READ_POSITION 		= 0x1,
-		OFFLINE 			= 0x2,
-		ACKNOWLEDGE_FAULT 	= 0x21
-	};
-	
-	enum Parity{
-		NONE	= 0x0,
-		ODD		= 0x1,
-		EVEN	= 0x2
-	};
-	
-	
-	enum Rev{
-		OFF	= 0x0,
-		ON	= 0x1
-	};
-	
-	const int minResolution = 8;
-	const int maxResolution = 25;
-	int resolution = 25;
-	uint8_t resolutionCode;
-	
-	uint8_t getResolutionCode(int res){
-		return std::clamp(res, minResolution, maxResolution) - 7;
-	};
-	
-	enum Speed{
-		KHz_100 = 0x1,
-		KHz_200 = 0x2,
-		KHz_400 = 0x3,
-		KHz_800 = 0x4,
-		MHz_1	= 0x5
-	};
-	
-	enum Code{
-		BINARY 	= 0x0,
-		GRAY	= 0x1
-	};
-	
-	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25,
-																						   "Resolution", "Resolution", "%i",
-																						   Units::Data::Bit,
-																						   false);
-	
-	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12,
-																									"Singleturn Resolution", "SingleturnResolution", "%i",
-																									 Units::Data::Bit, false);
-	
+	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25, "Resolution", "Resolution", "%i", Units::Data::Bit, false);
+	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12, "Singleturn Resolution", "SingleturnResolution", "%i", Units::Data::Bit, false);
 	std::shared_ptr<EnumeratorParameter<SSI::Parity>> parityParameter = EnumeratorParameter<SSI::Parity>::make(SSI::Parity::NONE, "Parity", "Parity");
-	
 	std::shared_ptr<BooleanParameter> invertDirectionParameter = BooleanParameter::make(false, "Invert Direction", "Invert");
-	
 	std::shared_ptr<EnumeratorParameter<SSI::Baudrate>> baudrateParameter = EnumeratorParameter<SSI::Baudrate>::make(SSI::Baudrate::KHz_100, "Baudrate", "Baudrate");
-	
 	std::shared_ptr<EnumeratorParameter<SSI::Code>> codeParameter = EnumeratorParameter<SSI::Code>::make(SSI::Code::GRAY, "Code", "Code");
-	
 	std::shared_ptr<BooleanParameter> centerWorkingRangeOnZeroParameter = BooleanParameter::make(true, "Center working range on zero", "CenterWorkingRangeOnZero");
+	
+	std::shared_ptr<BooleanParameter> hasResetSignalParameter = BooleanParameter::make(true, "Has position reset signal", "HasResetSignal");
+	std::shared_ptr<NumberParameter<double>> resetSignalTimeParameter = NumberParameter<double>::make(10.0, "Reset Time", "ResetTime", "%.1f", Units::Time::Millisecond, false);
 	
 	//————— SubDevice ——————
 	
