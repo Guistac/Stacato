@@ -17,6 +17,9 @@ void etherCatParameters() {
 
 		float widgetWidth = ImGui::GetTextLineHeight() * 20.0;
 		
+		ImGuiTableFlags tableFlags = ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit;
+		
+		/*
 		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("EtherCAT Network Hardware");
 		ImGui::PopFont();
@@ -35,7 +38,6 @@ void etherCatParameters() {
 		
 		bool disableNicButtons = EtherCatFieldbus::isRunning();
 		
-		ImGuiTableFlags tableFlags = ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit;
 		if(ImGui::BeginTable("##nicTable", 2, tableFlags)){
 			
 			ImGui::TableNextRow();
@@ -104,18 +106,21 @@ void etherCatParameters() {
 			else if(selectedSecondaryNic == nullptr && selectedPrimaryNic != nullptr) EtherCatFieldbus::init(selectedPrimaryNic);
 			else if (selectedPrimaryNic != nullptr) EtherCatFieldbus::init(selectedPrimaryNic, selectedSecondaryNic);
 		}
-		
+		*/
 		
 		static char networkStatusString[256];
-		if (EtherCatFieldbus::hasNetworkInterface()) {
-			if (!EtherCatFieldbus::hasRedundantInterface())
+		if (EtherCatFieldbus::isInitialized()) {
+			
+			//if (!EtherCatFieldbus::hasRedundantInterface())
 				sprintf(networkStatusString,
 						"Network is Open on Interface '%s'",
 						EtherCatFieldbus::getActiveNetworkInterfaceCard()->description);
+			/*
 			else sprintf(networkStatusString,
 						 "Network is Open on Interface '%s' with redundancy on '%s'",
 						 EtherCatFieldbus::getActiveNetworkInterfaceCard()->description,
 						 EtherCatFieldbus::getActiveRedundantNetworkInterfaceCard()->description);
+			 */
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		}
 		else {
@@ -123,6 +128,7 @@ void etherCatParameters() {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		}
 		 
+		/*
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::Button(networkStatusString);
 		ImGui::PopItemFlag();
@@ -133,11 +139,12 @@ void etherCatParameters() {
 		ImGui::SameLine();
 		if(ImGui::Button("Auto Setup")) EtherCatFieldbus::autoInit();
 		ImGui::EndDisabled();
+		 */
 		
 		static char deviceCountString[128];
 		sprintf(deviceCountString, "%i Device%s Detected", (int)EtherCatFieldbus::getDevices().size(), EtherCatFieldbus::getDevices().size() == 1 ? "" : "s");
 		glm::vec4 deviceCountButtonColor;
-		if(!EtherCatFieldbus::hasDetectedDevices()) deviceCountButtonColor = Colors::blue;
+		if(!EtherCatFieldbus::isInitialized()) deviceCountButtonColor = Colors::blue;
 		else deviceCountButtonColor = Colors::green;
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, deviceCountButtonColor);
@@ -158,9 +165,8 @@ void etherCatParameters() {
 		
 		ImGui::SameLine();
 		
-		bool disableScanButton = EtherCatFieldbus::isRunning();
-		ImGui::BeginDisabled(disableScanButton);
-		if(ImGui::Button("Scan for Devices")) EtherCatFieldbus::scanNetwork();
+		ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
+		if(ImGui::Button("Scan for Devices")) EtherCatFieldbus::scan();
 		ImGui::EndDisabled();
 		
 		ImGui::Separator();

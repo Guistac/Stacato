@@ -27,4 +27,35 @@ public:
 	
 	float manualVelocity = 0.0;
 	
+	
+	
+	
+	//———— parameters ————
+	
+	//axis:
+	//-velocity limit
+	//-acceleration limit
+	
+	//drive:
+	//-max current
+	//-quickstop reaction
+	//-invert motion
+	
+	
+	//———— find these on drive ————
+	//-encoder type
+	//-current limit
+	//-velocity limit
+	//-digital inputs
+	//-digital outputs
+	//-analog input
+	//-error message and sto status
+	
+	
+	
+	
+	
+	
+	
+	
 };

@@ -11,6 +11,7 @@ namespace Units{
 		CURRENT,
 		TEMPERATURE,
 		MASS,
+		DATA,
 		NONE
 	};
 
@@ -99,6 +100,20 @@ namespace Units{
 		extern const UnitStructure* const Gram;
 		extern const UnitStructure* const Kilogram;
 		extern const UnitStructure* const Ton;
+	}
+
+	namespace Data{
+	UNIT_TYPE_FUNCTIONS(Type::Data);
+		extern const UnitStructure* const Bit;
+		extern const UnitStructure* const Byte;
+		extern const UnitStructure* const KiloBit;
+		extern const UnitStructure* const KiloByte;
+		extern const UnitStructure* const MegaBit;
+		extern const UnitStructure* const MegaByte;
+		extern const UnitStructure* const GigaBit;
+		extern const UnitStructure* const GigaByte;
+		extern const UnitStructure* const TeraBit;
+		extern const UnitStructure* const TeraByte;
 	}
 
 	bool isValidSaveString(const char* saveString);

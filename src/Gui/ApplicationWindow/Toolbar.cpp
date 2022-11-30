@@ -54,27 +54,25 @@ namespace Gui {
 		ImGui::BeginGroup();
 		ImGui::BeginGroup();
 		
-		ImGui::BeginDisabled(!Environnement::isReady() || Environnement::isStarting());
 		if(Environnement::isStarting()){
 			ImGui::BeginDisabled();
 			ImGui::Button("Starting", buttonSize);
 			ImGui::EndDisabled();
 		}
-		else if(!Environnement::isRunning()){
-			if(ImGui::Button("Start", buttonSize)){
-				Environnement::start();
-			}
-		}else{
+		else if(Environnement::isRunning()){
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 			if(ImGui::Button("Stop", buttonSize)) Environnement::stop();
 			ImGui::PopStyleColor();
+		}else{
+			ImGui::BeginDisabled(!Environnement::isReady());
+			if(ImGui::Button("Start", buttonSize)) Environnement::start();
+			ImGui::EndDisabled();
 		}
-		ImGui::EndDisabled();
 
 		ImGui::SameLine();
 		
-		ImGui::BeginDisabled(EtherCatFieldbus::isRunning());
-		if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::autoInit();
+		ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
+		if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scan();
 		ImGui::EndDisabled();
 		
 		ImGui::SameLine();
@@ -109,8 +107,8 @@ namespace Gui {
 		glm::vec4 etherCatStatusColor;
 		if(EtherCatFieldbus::isRunning()) etherCatStatusColor = Colors::green;
 		else if(EtherCatFieldbus::isStarting()) etherCatStatusColor = Colors::yellow;
-		else if(!EtherCatFieldbus::hasNetworkInterface()) etherCatStatusColor = Colors::red;
-		else if(!EtherCatFieldbus::hasDetectedDevices()) etherCatStatusColor = Colors::orange;
+		else if(EtherCatFieldbus::isScanning()) etherCatStatusColor = Colors::darkYellow;
+		else if(EtherCatFieldbus::isInitialized()) etherCatStatusColor = Colors::orange;
 		else etherCatStatusColor = Colors::blue;
 		
 		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
@@ -118,10 +116,10 @@ namespace Gui {
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
 			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\nAll devices are operational");
-			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting...");
-			else if(!EtherCatFieldbus::hasNetworkInterface()) ImGui::Text("EtherCAT Fieldbus has no configured network interface.");
-			else if(!EtherCatFieldbus::hasDetectedDevices()) ImGui::Text("EtherCAT Fieldbus is configured.\nNo devices are detected on the network.");
-			else ImGui::Text("EtherCAT Fieldbus is configured but not running");
+			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting.");
+			else if(EtherCatFieldbus::isScanning()) ImGui::Text("EtherCAT Fieldbus is scanning for devices.");
+			else if(EtherCatFieldbus::isInitialized()) ImGui::Text("EtherCAT Fieldbus is initialized and has discovered devices.");
+			else ImGui::Text("EtherCAT Fieldbus is not initialized, no devices are detected.");
 			ImGui::EndTooltip();
 		}
 		

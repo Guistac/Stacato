@@ -20,38 +20,37 @@ glm::vec2 EtherCatStartPopup::getSize(){
 void EtherCatStartPopup::drawContent(){
 	ProgressIndicator& progress = EtherCatFieldbus::startupProgress;
 	
+	ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+	
 	if(progress.succeeded()){
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		ImGui::ProgressBar(1.0);
+		ImGui::ProgressBar(1.0, progressBarSize);
 		ImGui::PopStyleColor();
 		ImGui::Text("%s", progress.getProgressString());
 		if(progress.getTimeSinceCompletion() > 0.5) close();
 	}else if(progress.failed()){
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-		ImGui::ProgressBar(1.0);
+		ImGui::ProgressBar(1.0, progressBarSize, "");
 		ImGui::PopStyleColor();
 		ImGui::Text("%s", progress.getProgressString());
 	}else{
 		progress.updateSmoothProgress();
-		ImGui::ProgressBar(progress.progressSmooth);
+		ImGui::ProgressBar(progress.progressSmooth, progressBarSize);
 		ImGui::Text("%s", progress.getProgressString());
 	}
 
 	
-	bool disableCancelButton = !EtherCatFieldbus::canStop();
-	ImGui::BeginDisabled(disableCancelButton);
 	if (ImGui::Button("Cancel")) {
 		EtherCatFieldbus::stop();
 		close();
 	}
-	ImGui::EndDisabled();
 	
 	if(progress.failed()){
 		ImGui::SameLine();
 		if (ImGui::Button("Retry")) Environnement::start();
 	}
 	
-	if(!disableCancelButton && ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
+	if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
 		Environnement::stop();
 		close();
 	}

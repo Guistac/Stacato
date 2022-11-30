@@ -9,8 +9,8 @@ namespace EtherCatFieldbus {
 	bool save(tinyxml2::XMLElement* xml) {
 		using namespace tinyxml2;
 
+		/*
 		XMLElement* networkInterfaceCardXML = xml->InsertNewChildElement("NetworkInterfaceCard");
-		
 		if(EtherCatFieldbus::hasNetworkInterface()){
 			XMLElement* primaryNicXML = networkInterfaceCardXML->InsertNewChildElement("Primary");
 			auto mainNic = getActiveNetworkInterfaceCard();
@@ -23,6 +23,8 @@ namespace EtherCatFieldbus {
 				redundantNicXML->SetAttribute("Name", redundantNic->name);
 			}
 		}
+		 */
+		
 		XMLElement* timingXML = xml->InsertNewChildElement("Timing");
 		timingXML->SetAttribute("ProcessIntervalMilliseconds", processInterval_milliseconds);
 		timingXML->SetAttribute("ProcessDataTimeoutMilliseconds", processDataTimeout_milliseconds);
@@ -37,6 +39,7 @@ namespace EtherCatFieldbus {
 
 		Logger::debug("Loading Fieldbus Parameters");
 		
+		/*
 		EtherCatFieldbus::terminate();
 
 		XMLElement* networkInterfaceCardXML = xml->FirstChildElement("NetworkInterfaceCard");
@@ -53,6 +56,7 @@ namespace EtherCatFieldbus {
 			}
 			setDefaultNetworkInterfaces(primaryNicDescription, redundantNicDescription);
 		}
+		 */
 
 		XMLElement* timingXML = xml->FirstChildElement("Timing");
 		if (timingXML->QueryIntAttribute("ProcessIntervalMilliseconds", &processInterval_milliseconds) != XML_SUCCESS) return Logger::warn("Could not load process interval value");

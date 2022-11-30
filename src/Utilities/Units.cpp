@@ -331,6 +331,100 @@ namespace Units{
 		};
 	}
 
+	namespace Data{
+	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::DATA);
+		const UnitStructure* const Bit = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "Bit",
+			.plural = "Bits",
+			.abbreviated = "b",
+			.saveString = "Bit",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const Byte = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "Byte",
+			.plural = "Bytes",
+			.abbreviated = "B",
+			.saveString = "Byte",
+			.baseMultiplier = 8.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const KiloBit = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "KiloBit",
+			.plural = "KiloBits",
+			.abbreviated = "Kb",
+			.saveString = "KiloBit",
+			.baseMultiplier = 1000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const KiloByte = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "KiloByte",
+			.plural = "KiloBytes",
+			.abbreviated = "KB",
+			.saveString = "KiloByte",
+			.baseMultiplier = 8000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const MegaBit = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "MegaBit",
+			.plural = "MegaBits",
+			.abbreviated = "Mb",
+			.saveString = "MegaBit",
+			.baseMultiplier = 1000000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const MegaByte = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "MegaByte",
+			.plural = "MegaBytes",
+			.abbreviated = "MB",
+			.saveString = "MegaByte",
+			.baseMultiplier = 8000000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const GigaBit = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "GigaBit",
+			.plural = "GigaBits",
+			.abbreviated = "Gb",
+			.saveString = "GigaBit",
+			.baseMultiplier = 1000000000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const GigaByte = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "GigaByte",
+			.plural = "GigaBytes",
+			.abbreviated = "GB",
+			.saveString = "GigaByte",
+			.baseMultiplier = 8000000000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const TeraBit = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "TeraBit",
+			.plural = "TeraBits",
+			.abbreviated = "Tb",
+			.saveString = "TeraBit",
+			.baseMultiplier = 1000000000000.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const TeraByte = new UnitStructure{
+			.unitType = Units::Type::DATA,
+			.singular = "TeraByte",
+			.plural = "TeraBytes",
+			.abbreviated = "TB",
+			.saveString = "TeraByte",
+			.baseMultiplier = 8000000000000.0,
+			.baseOffset = 0.0
+		};
+	};
+
 
 
 	std::vector<UnitTypeStructure>& getAllUnits(){

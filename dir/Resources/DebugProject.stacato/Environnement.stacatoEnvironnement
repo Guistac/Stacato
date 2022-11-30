@@ -2,8 +2,8 @@
     <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="2">
-                <NodeEditorPosition x="42" y="365"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="7">
+                <NodeEditorPosition x="312" y="288"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="33"/>
                     <ModularDeviceProfile>
@@ -14,35 +14,31 @@
                             <Module Type="IB IL 24 DO 4-PAC">
                                 <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false"/>
                             </Module>
-                            <Module Type="IB IL SSI-IN-PAC"/>
+                            <Module Type="IB IL SSI-IN-PAC" Resolution="25" SingleturnResolution="13" Parity="None" Invert="false" Baudrate="100KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
                         </Modules>
                     </ModularDeviceProfile>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Module 1 Digital Output 0" DataType="Boolean" UniqueID="8" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="Module 1 Digital Output 1" DataType="Boolean" UniqueID="9" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Module 1 Digital Output 2" DataType="Boolean" UniqueID="10" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Module 1 Digital Output 3" DataType="Boolean" UniqueID="11" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Module 1 Digital Output 0" DataType="Boolean" UniqueID="13" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="Module 1 Digital Output 1" DataType="Boolean" UniqueID="14" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Module 1 Digital Output 2" DataType="Boolean" UniqueID="15" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Module 1 Digital Output 3" DataType="Boolean" UniqueID="16" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="3" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Module 0 Digital Input 0" DataType="Boolean" UniqueID="4" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput1" DisplayString="Module 0 Digital Input 1" DataType="Boolean" UniqueID="5" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="6" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="7" Visible="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="8" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Module 0 Digital Input 0" DataType="Boolean" UniqueID="9" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput1" DisplayString="Module 0 Digital Input 1" DataType="Boolean" UniqueID="10" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="11" Visible="true"/>
+                    <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="12" Visible="true"/>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="17" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="18" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
-        <Links>
-            <Link UniqueID="13" StartPin="4" EndPin="8"/>
-            <Link UniqueID="20" StartPin="4" EndPin="10"/>
-        </Links>
+        <Links/>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
-    <NetworkInterfaceCard>
-        <Primary Description="en7" Name="en7"/>
-    </NetworkInterfaceCard>
     <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

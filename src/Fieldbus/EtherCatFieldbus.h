@@ -21,41 +21,25 @@ namespace EtherCatFieldbus {
     extern int maxSkippedFrames;
 
 
-	bool hasNetworkPermissions();
-
-    //Get Network Interface Cards
-    void updateNetworkInterfaceCardList();
-	std::vector<std::shared_ptr<NetworkInterfaceCard>>& getNetworksInterfaceCards();
+	//Network interface
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard();
-	std::shared_ptr<NetworkInterfaceCard> getActiveRedundantNetworkInterfaceCard();
 
-	void setDefaultNetworkInterfaces(const char* primary, const char* secondary = nullptr);
+	//Discovered Devices
+	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices();             //all slaves discovered on the network
+	std::vector<std::shared_ptr<EtherCatDevice>>& getUnmatchedDevices();	//discovered slaves that are not in the environnement nodegraph
+	void removeUnmatchedDevice(std::shared_ptr<EtherCatDevice> removedDevice);
 
-    //initialize and terminate
-    bool init();
-    bool init(std::shared_ptr<NetworkInterfaceCard>);
-    bool init(std::shared_ptr<NetworkInterfaceCard>, std::shared_ptr<NetworkInterfaceCard>);
+	void initialize();
 	void terminate();
 
-    //scan network for devices
-    void scanNetwork();
-	bool hasDetectedDevices();
-	std::vector<std::shared_ptr<EtherCatDevice>>& getDevices();             //all slaves discovered on the network
-	std::vector<std::shared_ptr<EtherCatDevice>>& getUnassignedDevices();	//discovered slaves that are not in the environnement nodegraph
-	void removeUnassignedDevice(std::shared_ptr<EtherCatDevice> removedDevice);
-
-	//scan all network interfaces for devices
-	void autoInit();
-	bool isAutoInitRunning();
-
-    //Cyclic Exchange Control
+	//Network Control
+	void scan();
     void start();
 	void stop();
 	
 	//Network State
-	bool hasNetworkInterface();
-	bool hasRedundantInterface();
-	bool hasDetectedDevices();
+	bool isScanning();
+	bool isInitialized();
 	bool isStarting();
 	bool isRunning();
 	bool canScan();
