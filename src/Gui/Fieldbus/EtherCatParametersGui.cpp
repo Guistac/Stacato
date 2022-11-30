@@ -239,8 +239,6 @@ void etherCatParameters() {
 		EtherCatFieldbus::clockStableThreshold_milliseconds = stableClockThreshold_milliseconds;
 		EtherCatFieldbus::fieldbusTimeout_milliseconds = fieldbusTimeoutDelay_milliseconds;
 		
-		ImGui::Checkbox("Use Posix Real-Time Thread", &EtherCatFieldbus::b_usePosixRealtimeThread);
-		
         ImGui::InputInt("Skipped Frame Count", &EtherCatFieldbus::maxSkippedFrames);
         if(ImGui::Button("Skip Frames")) EtherCatFieldbus::b_skipCycles = true;
         

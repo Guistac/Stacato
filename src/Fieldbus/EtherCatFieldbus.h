@@ -19,7 +19,6 @@ struct ProgressIndicator;
 namespace EtherCatFieldbus {
 
 	//EXPERIMENTAL SETTINGS
-	extern bool b_usePosixRealtimeThread;
     extern bool b_skipCycles;
     extern int maxSkippedFrames;
 

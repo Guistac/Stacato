@@ -82,7 +82,7 @@ namespace ApplicationWindow {
 	#endif
 		
 		Logger::init(); //Logger is initialized after working directory is defined to have log file access
-		Logger::critical("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
+		Logger::info("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
 	}
 
 

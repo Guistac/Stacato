@@ -15,9 +15,6 @@
 
 namespace EtherCatFieldbus {
 
-	//EXPERIMENTAL SETTINGS
-	bool b_usePosixRealtimeThread = true;
-
     bool b_skipCycles = false;
     int maxSkippedFrames = 2;
 
