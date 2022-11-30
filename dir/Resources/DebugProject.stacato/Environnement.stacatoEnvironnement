@@ -2,8 +2,9 @@
     <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="7">
-                <NodeEditorPosition x="312" y="288"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="7">
+                <InputNodeEditorPosition x="840" y="486"/>
+                <OutputNodeEditorPosition x="312" y="450"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="33"/>
                     <ModularDeviceProfile>
@@ -34,8 +35,22 @@
                     <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="18" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="20">
+                <NodeEditorPosition x="696" y="512"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="21" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="22" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="23" StartPin="9" EndPin="21"/>
+            <Link UniqueID="24" StartPin="18" EndPin="21"/>
+            <Link UniqueID="25" StartPin="22" EndPin="15"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 

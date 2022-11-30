@@ -985,7 +985,6 @@ namespace EtherCatFieldbus {
 		Logger::debug("===== Starting Cyclic Process Data Exchange");
 			
 		osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
-		pthread_detach(cyclicExchangeThread);
 
 	}
 
@@ -1094,7 +1093,7 @@ namespace EtherCatFieldbus {
 	void stopHandlingStateTransitions(){
 		if(b_slaveStateHandlerRunning){
 			b_slaveStateHandlerRunning = false;
-			slaveStateHandler.join();
+			if(slaveStateHandler.joinable()) slaveStateHandler.join();
 		}
 	}
 
@@ -1106,9 +1105,7 @@ namespace EtherCatFieldbus {
 	void terminate(){
 		stopCyclicExchange();
 		stopWatchingForErrors();
-		stopHandlingStateTransitions();
 		stopDiscoveredDeviceDetection();
-		stopCountingTransmissionErrors();
 	}
 
 
@@ -1153,7 +1150,7 @@ namespace EtherCatFieldbus {
 			Logger::debug("Started Slave Error Counter Thread");
 			while (b_transmissionErrorCounterRunning) {
 				updateTransmissionErrorCounters();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				if(b_transmissionErrorCounterRunning) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
 			Logger::debug("Exited Slave Error Counter Thread");
 		});
@@ -1162,7 +1159,7 @@ namespace EtherCatFieldbus {
 	void stopCountingTransmissionErrors(){
 		if(b_transmissionErrorCounterRunning){
 			b_transmissionErrorCounterRunning = false;
-			transmissionErrorCounterThread.join();
+			if(transmissionErrorCounterThread.joinable()) transmissionErrorCounterThread.join();
 		}
 	}
 

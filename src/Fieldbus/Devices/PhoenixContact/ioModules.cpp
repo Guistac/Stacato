@@ -435,16 +435,10 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::Text("Realtime encoder data");
 	ImGui::PopFont();
 	
-	switch(statusCode){
-		case SSI::StatusCode::UNKNOWN: ImGui::Text("Encoder status code: UNKNOWN"); break;
-		case SSI::StatusCode::OFFLINE: ImGui::Text("Encoder status code: OFFLINE"); break;
-		case SSI::StatusCode::OPERATION: ImGui::Text("Encoder status code: OPERATION"); break;
-		case SSI::StatusCode::ACKNOWLEDGE_FAULT: ImGui::Text("Encoder status code: ACKNOWLEDGE_FAULT"); break;
-		case SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT: ImGui::Text("Encoder status code: FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT"); break;
-		case SSI::StatusCode::FAULT_PARITY_ERROR: ImGui::Text("Encoder status code: FAULT_PARITY_ERROR"); break;
-		case SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA: ImGui::Text("Encoder status code: FAULT_INVALID_CONFIGURATION_DATA"); break;
-		case SSI::StatusCode::FAULT_INVALID_CONTROL_CODE: ImGui::Text("Encoder status code: FAULT_INVALID_CONTROL_CODE"); break;
-	}
+
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("%s", encoder->getStatusString().c_str());
+	ImGui::PopStyleColor();
 	
 	float positionInWorkingRange = (encoder->position - encoder->minWorkingRange) / (encoder->maxWorkingRange - encoder->minWorkingRange);
 	float velocityNormalized = encoder->velocity / 10.0;
