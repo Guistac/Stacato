@@ -324,7 +324,6 @@ void IB_IL_SSI_IN::readInputs(){
 	else encoder->state = MotionState::ENABLED;
 }
 void IB_IL_SSI_IN::writeOutputs(){
-	
 
 	//change control code here (if needed)
 	controlData &= 0xFFFFFF01;

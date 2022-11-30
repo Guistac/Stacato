@@ -196,9 +196,6 @@ namespace EtherCatFieldbus {
     //============== Update Network interface card list
 
     void updateNetworkInterfaceCardList() {
-		if(isRunning()) return;
-        Logger::info("Refreshing Network Interface Card List");
-		
         networkInterfaceCards.clear();
 		
 		if (ec_adaptert* nics = ec_find_adapters()){
@@ -220,9 +217,21 @@ namespace EtherCatFieldbus {
                 nics = nics->next;
             }
         }
-        Logger::info("Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
-        for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
     }
+
+	bool isActiveNicConnected(){
+		if(activeNetworkInterfaceCard == nullptr) return true;
+		
+		updateNetworkInterfaceCardList();
+		
+		for(auto nic : networkInterfaceCards){
+			if(strcmp(activeNetworkInterfaceCard->name, nic->name) == 0){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
     //============== Search all NICs for slaves, initialize network and identify slaves
 
@@ -247,7 +256,10 @@ namespace EtherCatFieldbus {
 		startupProgress.setProgress(0.01, "Scanning Network for devices");
 		
 		b_networkInitialized = false;
+		
 		updateNetworkInterfaceCardList();
+		Logger::info("Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
+		for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
 		
 		//check all nics for EtherCAT slave responses
 		Logger::info("Scanning all Network Interface Cards for EtherCAT slaves.");
@@ -1227,8 +1239,17 @@ namespace EtherCatFieldbus {
 			pthread_setname_np("EtherCAT Detection Handler Thread");
 			Logger::debug("Started EtherCAT Detection Handler");
 			while (b_detectionThreadRunning) {
-				ec_readstate();
+				
+				if(b_networkInitialized){
+					ec_readstate();
+					if(!isActiveNicConnected()){
+						b_networkInitialized = false;
+						ec_close();
+						Logger::warn("Active Network Interface Card {} was disconnected.", activeNetworkInterfaceCard->name);
+					}
+				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				
 			}
 			Logger::debug("Exited EtherCAT Detection Handler");
 		});
@@ -1240,6 +1261,7 @@ namespace EtherCatFieldbus {
 			slaveDetectionThread.join();
 		}
 	}
+
 
 
 	//========= DEVICE STATE LOGGING ========

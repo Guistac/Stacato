@@ -13,9 +13,9 @@
                                 <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false"/>
                             </Module>
                             <Module Type="IB IL 24 DO 4-PAC">
-                                <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false"/>
+                                <SignalInversion InvertOutput0="false" InvertOutput1="true" InvertOutput2="false" InvertOutput3="false"/>
                             </Module>
-                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="false" HasResetSignal="true" ResetTime="10"/>
+                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
                         </Modules>
                     </ModularDeviceProfile>
                 </NodeSpecificData>
@@ -51,6 +51,7 @@
             <Link UniqueID="24" StartPin="18" EndPin="21"/>
             <Link UniqueID="25" StartPin="22" EndPin="15"/>
             <Link UniqueID="27" StartPin="9" EndPin="13"/>
+            <Link UniqueID="29" StartPin="9" EndPin="14"/>
         </Links>
     </NodeGraph>
 </Environnement>
