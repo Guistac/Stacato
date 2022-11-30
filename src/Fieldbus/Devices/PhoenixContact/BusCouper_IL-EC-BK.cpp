@@ -47,9 +47,13 @@ void BusCoupler::initialize() {
 
 bool BusCoupler::startupConfiguration() {
 	
-	//no idea why CanOpen SDO data is not available until around 250 milliseconds after transition to PreOp
-	//we should maybe perform some sort of check to see if mailbox communication is available
-	std::this_thread::sleep_for(std::chrono::milliseconds(400));
+	//no idea why CanOpen SDO data is not available until around 300 milliseconds after transition to PreOp
+	//i guess we just need to wait
+	while(true){
+		double timeSinceFieldbusConfigurationStart = Timing::getProgramTime_seconds() - EtherCatFieldbus::getConfigurationProgramStartTime_seconds();
+		if(timeSinceFieldbusConfigurationStart > 0.4) break;
+		else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
 	
 	uint8_t resetBehavior = 0x0; //reset all outputs to 0 when fault occurs
 	if(!writeSDO_U8(0xF801, 0x0, resetBehavior)) {

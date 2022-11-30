@@ -417,6 +417,12 @@ namespace EtherCatFieldbus {
 
     //============== Map Slave memory, Configure Distributed Clocks, Do Per slave configuration, Transition to Safe Operational ===============
 
+	double configurationStartProgramTime_seconds = 0.0;
+
+	double getConfigurationProgramStartTime_seconds(){
+		return configurationStartProgramTime_seconds;
+	}
+
     bool configureDevices() {
 
 		startupProgress.setProgress(0.075, "Configuring Distributed Clocks");
@@ -460,6 +466,8 @@ namespace EtherCatFieldbus {
                 return 0;
             };
         }
+		
+		configurationStartProgramTime_seconds = Timing::getProgramTime_seconds();
 
         //build ioMap for PDO data, configure FMMU and SyncManager, request SAFE-OP state for all slaves
 		startupProgress.setProgress(0.01, "Configuring Devices");

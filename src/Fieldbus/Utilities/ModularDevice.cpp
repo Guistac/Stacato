@@ -85,23 +85,13 @@ std::shared_ptr<EtherCAT::DeviceModule> ModularDevice::createModule(const char* 
 
 bool ModularDevice::configureModules(){
 	
-	/*
-	if(!writeSDO_U8(0xF030, 0x0, 0)){
-		return Logger::error("{} : Could not write Configured Module Ident Count to 0", getName());
-	}
-	*/
 	for(int i = 0; i < modules.size(); i++){
 		auto module = modules[i];
 		uint8_t subindex = i + 1;
 		if(!writeSDO_U32(0xF030, subindex, module->getIdentifier())) {
-			/*return*/ Logger::error("{} : Could not write Configured Module Ident of module {}", getName(), module->getDisplayName());
+			return Logger::error("{} : Could not write Configured Module Ident of module {}", getName(), module->getDisplayName());
 		}
 	}
-	/*
-	if(!writeSDO_U8(0xF030, 0x0, modules.size())){
-		return Logger::error("{} : Could not write Configured Module Ident Count {}", getName(), modules.size());
-	}
-	*/
 	
 	//===== Module Parameter Configuration =====
 	for(auto& module : modules) {
@@ -113,10 +103,10 @@ bool ModularDevice::configureModules(){
 	
 	//===== Module PDO Mapping =====
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex(), supportsCoE_PDOconfig())){
-		/*return*/ Logger::error("{} : Failed to upload Rx-PDO Configuration", getName());
+		return Logger::error("{} : Failed to upload Rx-PDO Configuration", getName());
 	}
 	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex(), supportsCoE_PDOconfig())){
-		/*return*/ Logger::error("{} : Failed to upload Tx-PDO Configuration", getName());
+		return Logger::error("{} : Failed to upload Tx-PDO Configuration", getName());
 	}
 	
 	Logger::info("{} : successfully configured module process data", getName(), modules.size());

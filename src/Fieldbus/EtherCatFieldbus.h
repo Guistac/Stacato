@@ -89,5 +89,7 @@ namespace EtherCatFieldbus {
 	int getCyclicFrameTimeoutCounter();
 	int getCyclicFrameErrorCounter();
 
+	double getConfigurationProgramStartTime_seconds();
+
 };
 

@@ -50,6 +50,7 @@
             <Link UniqueID="23" StartPin="9" EndPin="21"/>
             <Link UniqueID="24" StartPin="18" EndPin="21"/>
             <Link UniqueID="25" StartPin="22" EndPin="15"/>
+            <Link UniqueID="27" StartPin="9" EndPin="13"/>
         </Links>
     </NodeGraph>
 </Environnement>
