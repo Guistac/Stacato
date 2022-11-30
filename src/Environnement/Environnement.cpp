@@ -56,7 +56,7 @@ namespace Environnement {
 	}
 
 	void terminate(){
-		if(isRunning()) stop();
+		//if(isRunning()) stop();
 		EtherCatFieldbus::terminate();
 		Network::terminate();
 	}

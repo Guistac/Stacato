@@ -839,6 +839,7 @@ namespace EtherCatFieldbus {
 
         //send one last frame to all slaves to disable them
         //this way motors don't suddenly jerk to a stop when stopping the fieldbus in the middle of a movement
+		//TODO: is the previous still valid ?
         for (auto device : discoveredDevices) {
 			device->onDisconnection();
 			device->writeOutputs();
@@ -1101,8 +1102,8 @@ namespace EtherCatFieldbus {
 	void stopCyclicExchange(){
 		if(b_cyclicExchangeThreadRunning){
 			b_cyclicExchangeThreadRunning = false;
-			pthread_join(cyclicExchangeThread, nullptr);
 		}
+		pthread_join(cyclicExchangeThread, nullptr);
 	}
 
 
@@ -1245,13 +1246,13 @@ namespace EtherCatFieldbus {
 		}
 		transmissionErrorCounterThread = std::thread([]() {
 			b_transmissionErrorCounterRunning = true;
-			pthread_setname_np("EtherCAT Slave Error Counter Thread");
-			Logger::debug("Started Slave Error Counter Thread");
+			pthread_setname_np("EtherCAT Transmission Error Counter");
+			Logger::debug("Started Transmission Error Counter");
 			while (b_transmissionErrorCounterRunning) {
 				updateTransmissionErrorCounters();
-				if(b_transmissionErrorCounterRunning) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
-			Logger::debug("Exited Slave Error Counter Thread");
+			Logger::debug("Exited Transmission Error Counter");
 		});
 	}
 

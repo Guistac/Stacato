@@ -51,7 +51,7 @@ bool BusCoupler::startupConfiguration() {
 	//i guess we just need to wait
 	while(true){
 		double timeSinceFieldbusConfigurationStart = Timing::getProgramTime_seconds() - EtherCatFieldbus::getConfigurationProgramStartTime_seconds();
-		if(timeSinceFieldbusConfigurationStart > 0.4) break;
+		if(timeSinceFieldbusConfigurationStart > .5) break;
 		else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	
@@ -60,7 +60,8 @@ bool BusCoupler::startupConfiguration() {
 		return Logger::error("{} : Could not configure reset behavior", getName());
 	}
 	
-	//TODO: continue checking out how module validation works
+	//object 0xF030 (Configured Module Ident List) gets written in configureModules()
+	//not sure if this is working or really necessary after all...
 	uint8_t validateModuleConfiguration = 0x1;
 	if(!writeSDO_U8(0xF802, 0x0, validateModuleConfiguration)) {
 		return Logger::error("{} : Could not configure module configuration validation", getName());
