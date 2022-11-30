@@ -298,7 +298,7 @@ void IB_IL_SSI_IN::readInputs(){
 	else if(status == 0x42) statusCode = SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT;
 	else if(status == 0x44) statusCode = SSI::StatusCode::FAULT_PARITY_ERROR;
 	else if(status == 0x48) statusCode = SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA;
-	else if(status == 0x50) statusCode = SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA;
+	else if(status == 0x50) statusCode = SSI::StatusCode::FAULT_INVALID_CONTROL_CODE;
 	else statusCode = SSI::StatusCode::UNKNOWN;
 	
 	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
@@ -325,13 +325,23 @@ void IB_IL_SSI_IN::readInputs(){
 }
 void IB_IL_SSI_IN::writeOutputs(){
 	
+
 	//change control code here (if needed)
-	controlData &= 0xFFFFFF00;
+	controlData &= 0xFFFFFF01;
 	uint8_t controlCode;
-	if(statusCode != SSI::StatusCode::OPERATION){
-		controlCode = SSI::ControlCode::ACKNOWLEDGE_FAULT;
-	}else{
-		controlCode = SSI::ControlCode::READ_POSITION;
+	switch(statusCode){
+		case SSI::StatusCode::UNKNOWN:
+		case SSI::StatusCode::OFFLINE:
+		case SSI::StatusCode::OPERATION:
+		case SSI::StatusCode::ACKNOWLEDGE_FAULT:
+			controlCode = SSI::ControlCode::READ_POSITION;
+			break;
+		case SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT:
+		case SSI::StatusCode::FAULT_PARITY_ERROR:
+		case SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA:
+		case SSI::StatusCode::FAULT_INVALID_CONTROL_CODE:
+			controlCode = SSI::ControlCode::ACKNOWLEDGE_FAULT;
+			break;
 	}
 	controlData |= (controlCode << 1);
 	 
