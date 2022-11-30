@@ -48,19 +48,19 @@ void BusCoupler::initialize() {
 bool BusCoupler::startupConfiguration() {
 	
 	//no idea why CanOpen SDO data is not available until around 250 milliseconds after transition to PreOp
-	std::this_thread::sleep_for(std::chrono::milliseconds(300));
+	//we should maybe perform some sort of check to see if mailbox communication is available
+	std::this_thread::sleep_for(std::chrono::milliseconds(400));
 	
 	uint8_t resetBehavior = 0x0; //reset all outputs to 0 when fault occurs
 	if(!writeSDO_U8(0xF801, 0x0, resetBehavior)) {
 		return Logger::error("{} : Could not configure reset behavior", getName());
 	}
 	
+	//TODO: continue checking out how module validation works
 	uint8_t validateModuleConfiguration = 0x1;
 	if(!writeSDO_U8(0xF802, 0x0, validateModuleConfiguration)) {
 		return Logger::error("{} : Could not configure module configuration validation", getName());
 	}
-	
-	
 	
 	if(!configureModules()) return false;
 	return true;

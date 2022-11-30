@@ -252,11 +252,11 @@ bool IB_IL_SSI_IN::configureParameters(){
 	
 	uint8_t speed;
 	switch(baudrateParameter->value){
-		case SSI::Baudrate::KHz_100: 	return speed = 0x1; break;
-		case SSI::Baudrate::KHz_200: 	return speed = 0x2; break;
-		case SSI::Baudrate::KHz_400: 	return speed = 0x3; break;
-		case SSI::Baudrate::KHz_800: 	return speed = 0x4; break;
-		case SSI::Baudrate::MHz_1:		return speed = 0x5; break;
+		case SSI::Baudrate::KHz_100: 	speed = 0x1; break;
+		case SSI::Baudrate::KHz_200: 	speed = 0x2; break;
+		case SSI::Baudrate::KHz_400: 	speed = 0x3; break;
+		case SSI::Baudrate::KHz_800: 	speed = 0x4; break;
+		case SSI::Baudrate::MHz_1:		speed = 0x5; break;
 	}
 	
 	uint8_t code;
