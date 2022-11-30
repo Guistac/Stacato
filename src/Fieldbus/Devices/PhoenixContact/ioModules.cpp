@@ -276,6 +276,8 @@ bool IB_IL_SSI_IN::configureParameters(){
 	b_hardResetBusy = false;
 	*resetPinValue = false;
 	
+	updateEncoderWorkingRange();
+	
 	return true;
 }
 void IB_IL_SSI_IN::readInputs(){
@@ -307,7 +309,7 @@ void IB_IL_SSI_IN::readInputs(){
 	double position_revolutions = double(actualPositionSigned) / double(incrementsPerRevolution);
 	uint64_t readingTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
-	uint64_t deltaT_seconds = double(readingTime_nanoseconds - previousReadingTime_nanoseconds) / 1000000000.0;
+	double deltaT_seconds = double(readingTime_nanoseconds - previousReadingTime_nanoseconds) / 1000000000.0;
 	double deltaP_revolutions = position_revolutions - previousPosition_revolutions;
 	
 	previousReadingTime_nanoseconds = readingTime_nanoseconds;
@@ -332,7 +334,7 @@ void IB_IL_SSI_IN::writeOutputs(){
 		controlCode = SSI::ControlCode::READ_POSITION;
 	}
 	controlData |= (controlCode << 1);
-	
+	 
 	//do encoder position reset
 	uint64_t time_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	if(b_doHardReset){
@@ -428,6 +430,37 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 	ImGui::Text("(%.f to %.f revolutions)", encoder->minWorkingRange, encoder->maxWorkingRange);
 	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Realtime encoder data");
+	ImGui::PopFont();
+	
+	switch(statusCode){
+		case SSI::StatusCode::UNKNOWN: ImGui::Text("Encoder status code: UNKNOWN"); break;
+		case SSI::StatusCode::OFFLINE: ImGui::Text("Encoder status code: OFFLINE"); break;
+		case SSI::StatusCode::OPERATION: ImGui::Text("Encoder status code: OPERATION"); break;
+		case SSI::StatusCode::ACKNOWLEDGE_FAULT: ImGui::Text("Encoder status code: ACKNOWLEDGE_FAULT"); break;
+		case SSI::StatusCode::FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT: ImGui::Text("Encoder status code: FAULT_ENCODER_SUPPLY_NOT_PRESENT_OR_SHORT_CIRCUIT"); break;
+		case SSI::StatusCode::FAULT_PARITY_ERROR: ImGui::Text("Encoder status code: FAULT_PARITY_ERROR"); break;
+		case SSI::StatusCode::FAULT_INVALID_CONFIGURATION_DATA: ImGui::Text("Encoder status code: FAULT_INVALID_CONFIGURATION_DATA"); break;
+		case SSI::StatusCode::FAULT_INVALID_CONTROL_CODE: ImGui::Text("Encoder status code: FAULT_INVALID_CONTROL_CODE"); break;
+	}
+	
+	float positionInWorkingRange = (encoder->position - encoder->minWorkingRange) / (encoder->maxWorkingRange - encoder->minWorkingRange);
+	float velocityNormalized = encoder->velocity / 10.0;
+	
+	ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+	
+	static char statusString[64];
+	sprintf(statusString, "%.3f rev", encoder->position);
+	ImGui::ProgressBar(positionInWorkingRange, progressSize, statusString);
+	
+	sprintf(statusString, "%.2f rev/s", encoder->velocity);
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized > 0.0 ? Colors::green : Colors::red);
+	ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, statusString);
+	ImGui::PopStyleColor();
+	
+	if(ImGui::Button("Hard Reset")) b_doHardReset = true;
 	
 }
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
