@@ -25,9 +25,6 @@ namespace EtherCatFieldbus {
     int skippedFrames = 0;
 
 
-
-
-    std::vector<std::shared_ptr<NetworkInterfaceCard>> networkInterfaceCards;
 	std::shared_ptr<NetworkInterfaceCard> activeNetworkInterfaceCard = nullptr;
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return activeNetworkInterfaceCard; }
 
@@ -77,16 +74,22 @@ namespace EtherCatFieldbus {
     //====== non public functions ======
 
 	bool initializeNetwork();
+	void closeNetwork();
+
 	bool identifyDevices();
 	bool configureDevices();
 	void updateNetworkTopology();
+
 	void startCyclicExchange();
 	void cycle();
 	void transitionToOperationalState();
 	void stopCyclicExchange();
 
-	void startDiscoveredDeviceDetection();
-	void stopDiscoveredDeviceDetection();
+	void startPollingNetworkInterfaceCards();
+	void stopPollingNetworkInterfaceCards();
+
+	void startPollingDiscoveredDevices();
+	void stopPollingDiscoveredDevices();
 
 	void startHandlingStateTransitions();
 	void stopHandlingStateTransitions();
@@ -120,6 +123,18 @@ namespace EtherCatFieldbus {
 	bool isStarting(){ return b_networkStarting; }
 	bool isRunning(){ return b_networkRunning; }
 
+	//============== public functions ==============
+
+	void initialize(){
+		scan();
+		startPollingNetworkInterfaceCards();
+	}
+	void terminate(){
+		stopPollingNetworkInterfaceCards();
+		closeNetwork();
+	}
+
+	//non blocking
 	void scan(){
 		std::thread networkScanner([](){
 			initializeNetwork();
@@ -127,6 +142,7 @@ namespace EtherCatFieldbus {
 		networkScanner.detach();
 	}
 
+	//non blocking
 	void start() {
 		
 		if(b_networkRunning){
@@ -149,14 +165,14 @@ namespace EtherCatFieldbus {
 					
 		std::thread ethercatFieldbusStarter([]() {
 			pthread_setname_np("EtherCAT Process Starter Thread");
-						
+			
 			if(!initializeNetwork()){
 				Logger::error("failed to initialize network");
 				b_networkStarting = false;
 				return;
 			}
 			
-			stopDiscoveredDeviceDetection();
+			stopPollingDiscoveredDevices(); //because intializeNetwork() started polling devices
 			
 			if(!configureDevices()){
 				Logger::error("Failed to configure devices.");
@@ -195,8 +211,9 @@ namespace EtherCatFieldbus {
 
     //============== Update Network interface card list
 
-    void updateNetworkInterfaceCardList() {
-        networkInterfaceCards.clear();
+    void getDetectedNetworkInterfaceCards(std::vector<std::shared_ptr<NetworkInterfaceCard>>& output) {
+		
+		output.clear();
 		
 		if (ec_adaptert* nics = ec_find_adapters()){
             while (nics != nullptr) {
@@ -212,25 +229,85 @@ namespace EtherCatFieldbus {
 				std::shared_ptr<NetworkInterfaceCard> nic = std::make_shared<NetworkInterfaceCard>();
 				strcpy(nic->name, nics->name);
 				strcpy(nic->description, nics->desc);
-				networkInterfaceCards.push_back(nic);
+				output.push_back(nic);
 				
                 nics = nics->next;
             }
         }
     }
 
-	bool isActiveNicConnected(){
-		if(activeNetworkInterfaceCard == nullptr) return true;
-		
-		updateNetworkInterfaceCardList();
-		
-		for(auto nic : networkInterfaceCards){
-			if(strcmp(activeNetworkInterfaceCard->name, nic->name) == 0){
-				return true;
+	bool b_nicCheckerRunning = false;
+	std::thread nicChecker;
+
+	std::vector<std::shared_ptr<NetworkInterfaceCard>> previousDetectedNics;
+
+	void startPollingNetworkInterfaceCards(){
+		b_nicCheckerRunning = true;
+		nicChecker = std::thread([](){
+			
+			getDetectedNetworkInterfaceCards(previousDetectedNics);
+			
+			while(b_nicCheckerRunning){
+				
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				if(b_networkRunning) continue;
+				
+				std::vector<std::shared_ptr<NetworkInterfaceCard>> newDetectedNics;
+				std::vector<std::shared_ptr<NetworkInterfaceCard>> processedNics;
+				getDetectedNetworkInterfaceCards(newDetectedNics);
+				
+				for(auto oldNic : previousDetectedNics){
+					bool oldNicStillConnected = false;
+					for(int i = newDetectedNics.size() - 1; i >= 0; i--){
+						if(oldNic->matches(newDetectedNics[i])){
+							//old network interface is still there, remove it from the new ones
+							oldNicStillConnected = true;
+							processedNics.push_back(newDetectedNics[i]);
+							newDetectedNics.erase(newDetectedNics.begin() + i);
+						}
+					}
+					if(!oldNicStillConnected) Logger::info("Network interface '{}' was disconnected", oldNic->name);
+				}
+				
+				for(auto newNic : newDetectedNics){
+					Logger::info("Network interface '{}' was connected", newNic->name);
+					processedNics.push_back(newNic);
+				}
+				
+				previousDetectedNics = processedNics;
+				
+				
+				
+				if(b_networkInitialized){
+					
+					auto currentNic = activeNetworkInterfaceCard;
+					std::vector<std::shared_ptr<NetworkInterfaceCard>> detectedNics;
+					getDetectedNetworkInterfaceCards(detectedNics);
+					
+					bool currentNicDetected = false;
+					for(auto nic : detectedNics){
+						if(strcmp(currentNic->name, nic->name) == 0 && strcmp(currentNic->description, nic->description) == 0){
+							currentNicDetected = true;
+							break;
+						}
+					}
+					
+					if(!currentNicDetected){
+						Logger::critical("Active network interface '{}' was disconnected.", currentNic->name);
+						closeNetwork();
+					}
+						
+				}
+				
 			}
+		});
+	}
+	
+	void stopPollingNetworkInterfaceCards(){
+		if(b_nicCheckerRunning){
+			b_nicCheckerRunning = false;
+			if(nicChecker.joinable()) nicChecker.join();
 		}
-		
-		return false;
 	}
 
     //============== Search all NICs for slaves, initialize network and identify slaves
@@ -238,7 +315,7 @@ namespace EtherCatFieldbus {
 	bool initializeNetwork(){
 		if(b_networkInitializing){
 			Logger::error("Can't initialize the network while it is initializing");
-			return;
+			return false;
 		}
 		else if(b_networkRunning) {
 			Logger::error("Can't initialize the network while it is running");
@@ -246,7 +323,7 @@ namespace EtherCatFieldbus {
 		}
 		else if(b_networkInitialized) {
 			stopWatchingForErrors();
-			stopDiscoveredDeviceDetection();
+			stopPollingDiscoveredDevices();
 			ec_close();
 		}
 		
@@ -257,14 +334,16 @@ namespace EtherCatFieldbus {
 		
 		b_networkInitialized = false;
 		
-		updateNetworkInterfaceCardList();
-		Logger::info("Found {} Network Interface Card{}", networkInterfaceCards.size(), networkInterfaceCards.size() == 1 ? "" : "s");
-		for (auto& nic : networkInterfaceCards) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
+		std::vector<std::shared_ptr<NetworkInterfaceCard>> detectedNics;
+		getDetectedNetworkInterfaceCards(detectedNics);
+		
+		Logger::info("Found {} Network Interface Card{}", detectedNics.size(), detectedNics.size() == 1 ? "" : "s");
+		for (auto& nic : detectedNics) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
 		
 		//check all nics for EtherCAT slave responses
 		Logger::info("Scanning all Network Interface Cards for EtherCAT slaves.");
 		std::vector<std::shared_ptr<NetworkInterfaceCard>> nicsWithDetectedSlaves = {};
-		for(auto nic : networkInterfaceCards){
+		for(auto nic : detectedNics){
 			if(ec_init(nic->name) > 0){
 				
 				activeNetworkInterfaceCard = nic;
@@ -332,10 +411,24 @@ namespace EtherCatFieldbus {
 			
 			identifyDevices();
 			
-			startDiscoveredDeviceDetection();
+			startPollingDiscoveredDevices();
 			
 			b_networkInitializing = false;
 			return true;
+		}
+	}
+
+	void closeNetwork(){
+		if(b_networkInitialized){
+			
+			stopCyclicExchange();
+			
+			stopPollingDiscoveredDevices();
+			stopWatchingForErrors();
+			
+			ec_close();
+			
+			b_networkInitialized = false;
 		}
 	}
 
@@ -766,7 +859,7 @@ namespace EtherCatFieldbus {
 		stopHandlingStateTransitions();
 		stopCountingTransmissionErrors();
 		
-		startDiscoveredDeviceDetection();
+		startPollingDiscoveredDevices();
 		
 		Environnement::stop();
 		
@@ -1117,17 +1210,6 @@ namespace EtherCatFieldbus {
 		}
 	}
 
-	//============== INIT TERMINATE ==============
-
-	void initialize(){
-		scan();
-	}
-	void terminate(){
-		stopCyclicExchange();
-		stopWatchingForErrors();
-		stopDiscoveredDeviceDetection();
-	}
-
 
 	//============== TRANSMISSION ERROR COUNTER =================
 
@@ -1229,7 +1311,7 @@ namespace EtherCatFieldbus {
 	bool b_detectionThreadRunning = false;
 	std::thread slaveDetectionThread;
 
-	void startDiscoveredDeviceDetection() {
+	void startPollingDiscoveredDevices() {
 		if (b_detectionThreadRunning) {
 			Logger::error("Can't start Discovered Device Detection while it is running");
 			return;
@@ -1242,11 +1324,13 @@ namespace EtherCatFieldbus {
 				
 				if(b_networkInitialized){
 					ec_readstate();
+					/*
 					if(!isActiveNicConnected()){
 						b_networkInitialized = false;
 						ec_close();
 						Logger::warn("Active Network Interface Card {} was disconnected.", activeNetworkInterfaceCard->name);
 					}
+					*/
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				
@@ -1255,7 +1339,7 @@ namespace EtherCatFieldbus {
 		});
 	}
 
-	void stopDiscoveredDeviceDetection() {
+	void stopPollingDiscoveredDevices() {
 		if(b_detectionThreadRunning){
 			b_detectionThreadRunning = false;
 			slaveDetectionThread.join();

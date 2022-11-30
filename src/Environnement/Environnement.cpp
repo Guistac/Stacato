@@ -52,7 +52,7 @@ namespace Environnement {
 	void initialize(){
 		if(isRunning()) stop();
 		Network::init();
-		EtherCatFieldbus::scan();
+		EtherCatFieldbus::initialize();
 	}
 
 	void terminate(){

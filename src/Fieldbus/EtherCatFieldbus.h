@@ -7,6 +7,9 @@ class EtherCatDevice;
 struct NetworkInterfaceCard {
     char description[128];
     char name[128];
+	bool matches(std::shared_ptr<NetworkInterfaceCard> other){
+		return strcmp(name, other->name) == 0 && strcmp(description, other->description) == 0;
+	}
 };
 
 namespace tinyxml2 { class XMLElement; }
