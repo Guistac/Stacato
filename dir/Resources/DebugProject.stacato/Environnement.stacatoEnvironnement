@@ -2,57 +2,16 @@
     <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="7">
-                <InputNodeEditorPosition x="840" y="486"/>
-                <OutputNodeEditorPosition x="312" y="450"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:333)" UniqueID="31">
+                <NodeEditorPosition x="464" y="472"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="33"/>
-                    <ModularDeviceProfile>
-                        <Modules>
-                            <Module Type="IB IL 24 DI 4-PAC">
-                                <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false"/>
-                            </Module>
-                            <Module Type="IB IL 24 DO 4-PAC">
-                                <SignalInversion InvertOutput0="false" InvertOutput1="true" InvertOutput2="false" InvertOutput3="false"/>
-                            </Module>
-                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
-                        </Modules>
-                    </ModularDeviceProfile>
+                    <Identification Type="StationAlias" StationAlias="333"/>
                 </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Module 1 Digital Output 0" DataType="Boolean" UniqueID="13" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="Module 1 Digital Output 1" DataType="Boolean" UniqueID="14" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Module 1 Digital Output 2" DataType="Boolean" UniqueID="15" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Module 1 Digital Output 3" DataType="Boolean" UniqueID="16" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="8" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Module 0 Digital Input 0" DataType="Boolean" UniqueID="9" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput1" DisplayString="Module 0 Digital Input 1" DataType="Boolean" UniqueID="10" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="11" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="12" Visible="true"/>
-                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="17" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="18" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="20">
-                <NodeEditorPosition x="696" y="512"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="21" Visible="true" AcceptsMultipleInputs="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="22" Visible="true" DisableDataField="true"/>
-                </OutputPins>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </Nodes>
-        <Links>
-            <Link UniqueID="23" StartPin="9" EndPin="21"/>
-            <Link UniqueID="24" StartPin="18" EndPin="21"/>
-            <Link UniqueID="25" StartPin="22" EndPin="15"/>
-            <Link UniqueID="27" StartPin="9" EndPin="13"/>
-            <Link UniqueID="29" StartPin="9" EndPin="14"/>
-        </Links>
+        <Links/>
     </NodeGraph>
 </Environnement>
 

@@ -1,9 +1,21 @@
 #pragma once
 
+#include <memory>
+#include "Fieldbus/EtherCatDevice.h"
+
 struct EtherCatPdoAssignement;
 
 class DS402Axis{
+private:
+	
+	DS402Axis(std::shared_ptr<EtherCatDevice> parentDevice_) : parentDevice(parentDevice_){}
+	std::shared_ptr<EtherCatDevice> parentDevice = nullptr;
+	
 public:
+	
+	static std::shared_ptr<DS402Axis> make(std::shared_ptr<EtherCatDevice> parentDevice_){
+		return std::shared_ptr<DS402Axis>(new DS402Axis(parentDevice_));
+	}
 
 	enum class OperatingMode{
 		NONE,
@@ -30,30 +42,225 @@ public:
 		FAULT
 	};
 	
-	//=== Axis Control ===
 	
-	void setPosition(int32_t position);
-	void setVelocity(int32_t velocity);
-	void setTorque(int32_t torque);
-	void setFrequency(int16_t frequency);
+	//—————————————————————————————————————————————————
+	//—————————————— PDO Configuration ————————————————
+	//—————————————————————————————————————————————————
 	
-	int32_t getActualPosition(){ return csp_positionActual; }
-	int32_t getActualVelocity(){ return csv_velocityActual; }
-	int32_t getActualTorque(){ return cst_torqueActual; }
-	int16_t getActualFrequency(){ return vl_velocityActual; }
+	struct ProcessDataConfiguration{
+		
+		struct OperatingModes{
+			bool frequency = false;
+			bool cyclicSynchronousPosition = false;
+			bool cyclicSynchronousVelocity = false;
+			bool cyclicSynchronousTorque = false;
+			//bool cyclicSycnhronousTorqueWithCommutationAngle = false;
+		}operatingModes;
+		
+		//———— Errors
+		
+		///603F.0 Error Code
+		bool errorCode = false;
+		
+		//———— Frequency Converter
+		
+		///6042.0 Target Velocity (frequency converter mode)
+		bool targetFrequency = false;
+		
+		///6044.0 Velocity Actual Value (frequency converter mode)
+		bool frequencyActualValue = false;
+		
+		//———— Position
+		
+		///607A.0 Target Position
+		bool targetPosition = false;
+		
+		///6064.0 Position Actual Value
+		bool positionActualValue = false;
+		
+		///60F4.0 Following Error Actual Value (int32, position units)
+		bool positionFollowingErrorActualValue = false;
+		
+		//———— Velocity
+		
+		///60FF.0 Target Velocity
+		bool targetVelocity = false;
+		
+		///606C.0 Velocity Actual Value
+		bool velocityActualValue = false;
+		
+		//———— Torque
+		
+		///6071.0 Target Torque
+		bool targetTorque = false;
+		
+		///6077.0 Torque Actual Value
+		bool torqueActualValue = false;
+		
+		///6078.0 Current Actual Value
+		bool currentActualValue = false;
+		
+		///60EA.0 Commutation Angle
+		//bool commutationAngle = false;
+		
+		///60FA Control Effort
+		//bool controlEffort = false;
+		
+		//———— Inputs and Outputs
+		
+		///60FD.0 Digital Inputs
+		bool digitalInputs = false;
+		
+		///60FE.1 Digital Outputs
+		bool digitalOutputs = false;
+		
+	}processDataConfiguration;
 	
+	void configureProcessData();
+	void updateInputs();
+	void updateOutput();
+
+	//—————————————————————————————————————————————————
+	//—————————————— SDO Configuration ————————————————
+	//—————————————————————————————————————————————————
+	
+	//=== Drive Operation
+	
+	///60C2.? Interpolation Time Period
+
+	///607E.0 Polarity
+	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity); }
+	bool getPolarity(uint8_t& output){ return parentDevice->readSDO_U8(0x607E, 0x0, output); }
+
+	///6073.0 Max Current
+	bool setMaxCurrent(uint16_t current){ return parentDevice->writeSDO_U16(0x6073, 0x0, current); }
+	bool getMaxCurrent(uint16_t& output){ return parentDevice->readSDO_U16(0x6073, 0x0, output); }
+	
+	///6075.0 Motor Rated Current
+	bool getMotorRatedCurrent(uint32_t& output) { return parentDevice->readSDO_U32(0x6075, 0x0, output); }
+	
+	///6076.? Motor Rated Torque
+	
+	///6080.? Max Motor Speed
+	
+	///6007.9 Abort Connection Option Code
+	bool setAbortConnectionOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x6007, 0x0, optionCode); }
+	bool getAbortConnectionOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x6007, 0x0, output); }
+	
+	///605A.0 Quickstop Option Code
+	bool setQuickstopOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605A, 0x0, optionCode); }
+	bool getQuickstopOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605A, 0x0, output); }
+	
+	///605B.0 Shutdown Option Code
+	bool setShutdownOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605B, 0x0, optionCode); }
+	bool getShutdownOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605B, 0x0, output); }
+	
+	///605C.0 Disable Operation Option Code
+	bool setDisableOperationOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605C, 0x0, optionCode); }
+	bool getDisableOperationOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605C, 0x0, output); }
+	
+	///605D.0 Halt Option Code
+	bool setHaltOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605D, 0x0, optionCode); }
+	bool getHaltOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605D, 0x0, output); }
+	
+	///605E.0 Fault Reaction Option Code
+	bool setFaultReactionOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605E, 0x0, optionCode); }
+	bool getFaultReactionOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605E, 0x0, output); }
+	
+	
+	
+	
+	//=== Frequency
+	
+	///6046.? vl velocity min max amount
+	
+	///6048.? velocity acceleration
+	
+	///6049.? velocity deceleration
+	
+	//=== Position
+	
+	///60B0.0 Position Offset (position units)
+	bool setPositionOffset(int32_t offset){ return parentDevice->writeSDO_S32(0x60B0, 0x0, offset); }
+	bool getPositionOffset(int32_t& output){ return parentDevice->readSDO_S32(0x60B0, 0x0, output); }
+	
+	///6065.0 Following Error Window (position units)
+	bool setPositionFollowingErrorWindow(uint32_t window){ return parentDevice->writeSDO_U32(0x6065, 0x0, window); }
+	bool getPositionFollowingErrorWindow(uint32_t& output){ return parentDevice->readSDO_U32(0x6065, 0x0, output); }
+	
+	///6066.0 Following Error Timeout (milliseconds)
+	bool setPositionFollowingErrorTimeout(uint16_t timeout){ return parentDevice->writeSDO_U16(0x6066, 0x0, timeout); }
+	bool getPositionFollowingErrorTimeout(uint16_t& output){ return parentDevice->readSDO_U16(0x6066, 0x0, output); }
+	
+	///607D.? position range limit
+	
+	///607B.? software position limit
+	
+	//==== Velocity
+	
+	///60B1.0 Velocity Offset
+	bool setVelocityOffset(int32_t offset){ return parentDevice->writeSDO_S32(0x60B1, 0x0, offset); }
+	bool getVelocityOffset(int32_t& output){ return parentDevice->readSDO_S32(0x60B1, 0x0, output); }
+	
+	//==== Torque
+	
+	///60B2.0 Torque Offset
+	bool setTorqueOffset(int16_t offset){ return parentDevice->writeSDO_S16(0x60B2, 0x0, offset); }
+	bool getTorqueOffset(int16_t& output){ return parentDevice->readSDO_S16(0x60B2, 0x0, output); }
+	
+	///6072.? Max Torque
+	
+	///60E0.0 Max Positive Torque
+	bool setMaxPositiveTorque(uint16_t torque){ return parentDevice->writeSDO_U16(0x60E0, 0x0, torque); }
+	bool getMaxPositiveTorque(uint16_t& output){ return parentDevice->readSDO_U16(0x60E0, 0x0, output); }
+	
+	///60E1.0 Max Negative Torque
+	bool setMaxNegativeTorque(uint16_t torque){ return parentDevice->writeSDO_U16(0x60E1, 0x0, torque); }
+	bool getMaxNegativeTorque(uint16_t& output){ return parentDevice->readSDO_U16(0x60E1, 0x0, output); }
+	
+	
+	
+	//—————————————————————————————————————————————————
+	//———————————————— Axis Control ———————————————————
+	//—————————————————————————————————————————————————
+	
+	bool hasVoltage(){ return b_voltageEnabled; }
 	bool hasWarning(){ return b_hasWarning; }
 	bool hasFault(){ return b_hasFault; }
 	bool isReady(){ return b_isReady; }
 	bool isEnabled(){ return b_isEnabled; }
-	bool isQuickstop(){ return b_isQuickstop; }
-	
-	bool hasVoltage(){ return b_voltageEnabled; }
+	bool isQuickstopActive(){ return b_isQuickstop; }
 	
 	void enable(){ b_shouldEnable = true; }
 	void disable(){ b_shouldDisable = true; }
 	void doFaultReset(){ b_shouldFaultReset = true; }
 	void doQuickstop(){ b_shouldQuickstop = true; }
+	
+	PowerState getActualPowerState(){ return powerStateActual; }
+	OperatingMode getActualOperatingMode(){ return operatingModeActual; }
+	uint16_t getErrorCode(){ return processData.errorCode; }
+	
+	int16_t getActualFrequency(){ return processData.frequencyActualValue; }
+	int32_t getActualPosition(){ return processData.positionActualValue; }
+	int32_t getActualVelocity(){ return processData.velocityActualValue; }
+	int16_t getActualTorque(){ return processData.torqueActualValue; }
+	
+	void setFrequency(int16_t frequency){
+		processData.targetFrequency = frequency;
+		operatingModeTarget = OperatingMode::VELOCITY;
+	}
+	void setPosition(int32_t position){
+		processData.targetPosition = position;
+		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+	}
+	void setVelocity(int32_t velocity){
+		processData.targetVelocity = velocity;
+		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
+	}
+	void setTorque(int16_t torque){
+		processData.targetTorque = torque;
+		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
+	}
 	
 	void startHoming();
 	bool isHoming();
@@ -68,24 +275,45 @@ public:
 		statusManB15 = b15;
 	}
 	void getStatusWordBits(bool& b8, bool& b14, bool& b15){
-		b8 = (statusWord >> 8) & 0x1;
-		b14 = (statusWord >> 14) & 0x1;
-		b15 = (statusWord >> 15) & 0x1;
+		b8 = (processData.statusWord >> 8) & 0x1;
+		b14 = (processData.statusWord >> 14) & 0x1;
+		b15 = (processData.statusWord >> 15) & 0x1;
 	}
 	
-	//=== Axis Configuration ===
-	
-	bool configure_Velocity = false;
-	bool configure_Homing = false;
-	bool configure_CyclicSynchronousVelocity = false;
-	bool configure_CyclicSynchronousPosition = true;
-	bool configure_CyclicSynchronousTorque = false;
-	
-	void configureProcessData(EtherCatPdoAssignement& rxPdo, EtherCatPdoAssignement& txPdo);
-	void updateInputs();
-	void updateOutput();
-	
 private:
+	
+	struct ProcessData{
+		
+		//———— Drive Operation
+		uint16_t controlWord;
+		uint16_t statusWord;
+		int8_t operatingModeSelection;
+		int8_t operatingModeDisplay;
+		uint16_t errorCode;
+		
+		//———— Frequency Converter
+		int16_t targetFrequency;
+		int16_t frequencyActualValue;
+		
+		//———— Position
+		int32_t targetPosition;
+		int32_t positionActualValue;
+		int32_t positionFollowingErrorActualValue;
+		
+		//———— Velocity
+		int32_t targetVelocity;
+		int32_t velocityActualValue;
+		
+		//———— Torque
+		int16_t targetTorque;
+		int16_t torqueActualValue;
+		int16_t currentActualValue;
+
+		//———— Inputs and Outputs
+		uint32_t digitalInputs;
+		uint32_t digitalOutputs;
+		
+	}processData;
 	
 	PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
 	PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
@@ -112,57 +340,6 @@ private:
 	bool b_shouldEnable = false;
 	bool b_shouldDisable = false;
 	bool b_shouldQuickstop = false;
-	
-	//=== Power Control
-	uint16_t controlWord;				//0x6040:0
-	uint16_t statusWord;				//0x6041:0
-	
-	//=== Operating mode selection
-	int8_t operatingModeSelection;		//0x6060:0
-	int8_t operatingModeDisplay;		//0x6061:0
-	
-	//=== Cyclic Position Control
-	int32_t csp_positionTarget;		//0x607A:0
-	uint32_t csp_followingErrorWindow;	//0x6065:0 Optional
-	uint32_t csp_followingErrorTimeout;	//0x6066:0 Optional
-	
-	//=== Cyclic Velocity Control
-	int32_t csv_velocityTarget;		//0x60FF:0
-	
-	//=== Cyclic Torque Control
-	int32_t cst_torqueTarget;			//0x6071:0
-	uint32_t maxTorque;					//0x6072:0
-	uint32_t maxPositionTorque;			//0x60E0:0
-	uint32_t maxNegativeTorque;			//0x60E1:0
-	
-	//=== Realtime Drive State
-	uint32_t csp_positionActual;		//0x6064:0
-	uint32_t csv_velocityActual;		//0x606C:0
-	uint32_t cst_torqueActual;			//0x6077:0
-	uint32_t csp_followingErrorActual;	//0x60F4:0 Optional
-	uint16_t motorCurrentActual;		//0x6078:0 Optional
-	uint32_t controlEfforAtual;			//0x60FA:0 Optional
-	
-	//=== Drive Info
-	uint16_t motorRatedCurrent;			//0x6075:0 Optional
-	uint16_t motorRatedTorque;			//0x6076:0 Optional
-	uint16_t polarity;					//0x607E:0 Optional
-	uint16_t maxMotorSpeed;				//0x6080:0 Optional
-	uint32_t interpolationTimePeriod;	//0x60C2:0
-	
-	//=== Homing
-	uint16_t homingMethod;				//0x6098:0
-	
-	
-	//=== Velocity Control
-	uint16_t vl_velocityTarget;			//0x6042:0
-	uint16_t vl_velocityActual;			//0x6044:0
-	uint16_t vl_velocityLimit;			//0x6046:0
-	uint16_t vl_acceleration;			//0x6048:0
-	uint16_t vl_deceleration;			//0x6049:0
-	
-	
-	
 	
 	//control world bits specific to operation mode: b4 b5 b6 b9
 	//b4: homing operation start

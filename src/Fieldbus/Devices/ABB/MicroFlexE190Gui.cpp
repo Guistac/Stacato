@@ -21,17 +21,17 @@ void MicroFlex_e190::deviceSpecificGui() {
 
 void MicroFlex_e190::controlTab(){
 	
-	ImGui::Text("ready: %i", axis.isReady());
-	ImGui::Text("enabled: %i", axis.isEnabled());
-	ImGui::Text("quickstop: %i", axis.isQuickstop());
-	ImGui::Text("warning: %i", axis.hasWarning());
-	ImGui::Text("fault: %i", axis.hasFault());
-	ImGui::Text("voltage: %i", axis.hasVoltage());
+	ImGui::Text("ready: %i", axis->isReady());
+	ImGui::Text("enabled: %i", axis->isEnabled());
+	ImGui::Text("quickstop: %i", axis->isQuickstopActive());
+	ImGui::Text("warning: %i", axis->hasWarning());
+	ImGui::Text("fault: %i", axis->hasFault());
+	ImGui::Text("voltage: %i", axis->hasVoltage());
 	
-	if(ImGui::Button("Enable")) axis.enable();
-	if(ImGui::Button("Disable")) axis.disable();
-	if(ImGui::Button("Quickstop")) axis.doQuickstop();
-	if(ImGui::Button("Fault Reset")) axis.doFaultReset();
+	if(ImGui::Button("Enable")) axis->enable();
+	if(ImGui::Button("Disable")) axis->disable();
+	if(ImGui::Button("Quickstop")) axis->doQuickstop();
+	if(ImGui::Button("Fault Reset")) axis->doFaultReset();
 	
 	ImGui::SliderFloat("vel", &manualVelocity, -maxVelocity, maxVelocity);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
@@ -40,6 +40,8 @@ void MicroFlex_e190::controlTab(){
 	
 	ImGui::Text("pos: %.3f", position);
 	ImGui::Text("vel: %.3f", velocity);
+	
+	ImGui::Text("Error: %s", getErrorCodeString());
 	
 	/*
 	ImGui::Text("Actual Power State: %s", Enumerator::getDisplayString(actualPowerState));
