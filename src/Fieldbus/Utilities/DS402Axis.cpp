@@ -141,8 +141,6 @@ void DS402Axis::configureProcessData(){
 
 void DS402Axis::updateInputs(){
 	
-	PowerState previousPowerState = powerStateActual;
-	
 	bool b_readyToSwitchOn		= (processData.statusWord >> 0) & 0x1;
 	bool b_switchedOn 			= (processData.statusWord >> 1) & 0x1;
 	bool b_operationEnabled 	= (processData.statusWord >> 2) & 0x1;
@@ -160,25 +158,46 @@ void DS402Axis::updateInputs(){
 	statusWord_ManSpecBit_14 	= (processData.statusWord >> 14) & 0x1;
 	statusWord_ManSpecBit_15 	= (processData.statusWord >> 15) & 0x1;
 	
-	Logger::warn("statusword: {:b}", processData.statusWord);
+	//Logger::warn("statusword: {:b}", processData.statusWord);
+	
+	
+	//——— old power state solver, we should compare that with future drives
+	//if (b_readyToSwitchOn) {
+	//	if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
+	//	else if (!b_quickstop)			powerStateActual = PowerState::QUICKSTOP_ACTIVE;
+	//	else if (b_operationEnabled) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
+	//	else if (b_switchedOn) 			powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
+	//	else 							powerStateActual = DS402Axis::PowerState::READY_TO_SWITCH_ON;
+	//}
+	//else {
+	//	if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT;
+	//	else if (b_switchOnDisabled) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
+	//	else 							powerStateActual = DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON;
+	//}
+	
+
 	
 	//=== update actual power state
-	if(!b_quickstop)					powerStateActual = PowerState::QUICKSTOP_ACTIVE;
-	else if (b_readyToSwitchOn) {
-		if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
-		else if (b_operationEnabled) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
-		else if (b_switchedOn) 			powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
-		else 							powerStateActual = DS402Axis::PowerState::READY_TO_SWITCH_ON;
-	}
-	else {
-		if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT;
-		else if (b_switchOnDisabled) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
-		else 							powerStateActual = DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON;
-	}
+	PowerState previousPowerState = powerStateActual;
+	if(b_hasFault && (!b_operationEnabled || !b_switchedOn || !b_readyToSwitchOn))
+		powerStateActual = PowerState::FAULT;
+	else if(b_hasFault)
+		powerStateActual = PowerState::FAULT_REACTION_ACTIVE;
+	else if(b_switchOnDisabled)
+		powerStateActual = PowerState::SWITCH_ON_DISABLED;
+	else if(!b_quickstop)
+		powerStateActual = PowerState::QUICKSTOP_ACTIVE;
+	else if(b_operationEnabled)
+		powerStateActual = PowerState::OPERATION_ENABLED;
+	else if(b_switchedOn)
+		powerStateActual = PowerState::SWITCHED_ON;
+	else if(b_readyToSwitchOn)
+		powerStateActual = PowerState::READY_TO_SWITCH_ON;
+	else
+		powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
 	
-	if(previousPowerState != powerStateActual){
+	if(previousPowerState != powerStateActual)
 		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
-	}
 	
 	//=== update actual operating mode
 	operatingModeActual = getOperatingMode(processData.operatingModeDisplay);
@@ -217,9 +236,9 @@ void DS402Axis::updateOutput(){
 				case PowerState::SWITCHED_ON:			//transition 6
 				case PowerState::SWITCH_ON_DISABLED:	//transition 2
 				case PowerState::READY_TO_SWITCH_ON:	//stay in state
+				case PowerState::QUICKSTOP_ACTIVE: 		//transition 12
 					processData.controlWord |= 0b0110; 	//Shutdown
 					break;
-				case PowerState::QUICKSTOP_ACTIVE: 		//transition 12
 				case PowerState::NOT_READY_TO_SWITCH_ON://transition 1
 				default:
 					processData.controlWord |= 0b0100;	//Disable Voltage
@@ -249,7 +268,7 @@ void DS402Axis::updateOutput(){
 			switch(powerStateActual){
 				case PowerState::OPERATION_ENABLED:		//transition 11
 				case PowerState::QUICKSTOP_ACTIVE:		//stay in state
-					processData.controlWord |= 0b1011;	//Quickstop
+					processData.controlWord |= 0b0010;	//Quickstop
 					break;
 				default:
 					//can't quickstop, go to READY_TO_SWITCH_ON
@@ -258,6 +277,8 @@ void DS402Axis::updateOutput(){
 			}
 		}break;
 	}
+	
+	
 	
 	if(controlWord_OpSpecBit_4) 	processData.controlWord |= (0x1 << 4);
 	if(controlWord_OpSpecBit_5) 	processData.controlWord |= (0x1 << 5);
@@ -269,7 +290,7 @@ void DS402Axis::updateOutput(){
 	if(controlWord_ManSpecBit_14) 	processData.controlWord |= (0x1 << 14);
 	if(controlWord_ManSpecBit_15) 	processData.controlWord |= (0x1 << 15);
 	
-	Logger::error("control word: {:b}", processData.controlWord);
+	//Logger::error("control word: {:b}", processData.controlWord);
 	
 	//=== update operating mode target
 	processData.operatingModeSelection = getOperatingModeInteger(operatingModeTarget);

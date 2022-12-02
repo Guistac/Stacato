@@ -38,8 +38,9 @@ void MicroFlex_e190::controlTab(){
 	else if(!isStateOperational()) ImGui::Text("Not Ready");
 	else if(b_estop) ImGui::Text("Safe Torque Off");
 	else if(axis->hasFault()) ImGui::Text("Fault : %s", getErrorCodeString());
-	else if(b_isReady) ImGui::Text("Ready");
 	else if(b_isEnabled) ImGui::Text("Enabled");
+	else if(b_isReady) ImGui::Text("Ready");
+
 	
 	ImGui::SliderFloat("vel", &manualVelocity, -maxVelocity, maxVelocity);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
@@ -47,6 +48,12 @@ void MicroFlex_e190::controlTab(){
 	}
 	ImGui::Text("pos: %.3f", position);
 	ImGui::Text("vel: %.3f", velocity);
+	
+	ImGui::Separator();
+	
+	ImGui::Text("position: %i", axis->getActualPosition());
+	ImGui::Text("velocity: %i", axis->getActualVelocity());
+	ImGui::Text("current: %i", axis->getActuatCurrent());
 	
 	ImGui::Separator();
 	

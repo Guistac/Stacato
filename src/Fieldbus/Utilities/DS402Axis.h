@@ -278,6 +278,7 @@ public:
 	int32_t getActualPosition(){ return processData.positionActualValue; }
 	int32_t getActualVelocity(){ return processData.velocityActualValue; }
 	int16_t getActualTorque(){ return processData.torqueActualValue; }
+	int16_t getActuatCurrent(){ return processData.currentActualValue; }
 	
 	void setFrequency(int16_t frequency){
 		processData.targetFrequency = frequency;

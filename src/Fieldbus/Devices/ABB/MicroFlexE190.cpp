@@ -49,19 +49,26 @@ bool MicroFlex_e190::startupConfiguration() {
 	//if(!axis->setInterpolationTimePeriod(EtherCatFieldbus::processInterval_milliseconds)) return false;
 	
 	
+	//WHY IS THIS NOT WORKING ?
+	//6510.1 uint32 drive rated current, impossible to download a value (should be 6 amps)
+	//we keep getting error codes 10000 (motion aborted) and 149 (incorrect reference source) on enable
+	
+	//todo:
+	//current limiting
+	//drive units
+	
+	//checkout:
+	//6410.13 motor rated speed rpm
+	//5027.1 int32 drive current ???
+	
+	
+	
 	//———— Current Limitation
 	
-	//current values are expressed as .1% increments of this value
-	//uint32_t driveRatedCurrent_mA = 0;
-	//if(!readSDO_U32(0x6510, 0x0, driveRatedCurrent_mA)) return false;
+	double maxCurrentPercentage = 10.0;
 	
-	//max motor current, this will be the limit of our max current setting
-	uint32_t motorRatedCurrent_mA;
-	if(!axis->getMotorRatedCurrent(motorRatedCurrent_mA)) return false;
-	
-	double maxCurrent_amperes = 2.0;
 	//as .1% increments of drive rated current
-	uint16_t maxCurrent = std::round(1000000.0 * maxCurrent_amperes / double(motorRatedCurrent_mA));
+	uint16_t maxCurrent = 10.0 * maxCurrentPercentage;
 	if(!axis->setMaxCurrent(maxCurrent)) return false;
 	
 	
@@ -69,20 +76,20 @@ bool MicroFlex_e190::startupConfiguration() {
 	
 	//ERRORDECEL
 	uint32_t quickstopDeceleration = 100;
-	//if(!axis->setQuickstopDeceleration(quickstopDeceleration)) return false;
+	if(!axis->setQuickstopDeceleration(quickstopDeceleration)) return false;
 	
 	//STOPMODE (Quickstop Reaction or stop input)
 	//1 ERROR_DECEL
-	//if(!axis->setQuickstopOptionCode(1)) return false;
+	if(!axis->setQuickstopOptionCode(1)) return false;
 	
 	//ABORTMODE (when leaving State Operation Enabled Manually?)
 	//0 IGNORE (no error triggered)
-	//if(!axis->setShutdownOptionCode(0)) return false;
+	if(!axis->setShutdownOptionCode(0)) return false;
 	
-	//Fault Reaction
+	//Fault Reaction DS402 [important]
 	//0 Disable
 	//2 Quick ramp (ERRORDECEL)
-	//if(!axis->setFaultReactionOptionCode(2)) return false;
+	if(!axis->setFaultReactionOptionCode(0)) return false;
 	
 	//500D.0 LIMITMODE (when a limit signal is triggered)
 	//500E.0 FOLERRORMODE (when following error happens)
@@ -126,10 +133,14 @@ void MicroFlex_e190::writeOutputs() {
 		axis->disable();
 	}
 	else if(b_shouldEnable){
-		b_shouldEnable = false;
-		b_waitingForEnable = true;
-		enableRequestTime_nanoseconds = now_nanoseconds;
-		axis->enable();
+		if(axis->hasFault()) {
+			axis->doFaultReset();
+		}else{
+			b_shouldEnable = false;
+			b_waitingForEnable = true;
+			enableRequestTime_nanoseconds = now_nanoseconds;
+			axis->enable();
+		}
 	}
 	else if(b_waitingForEnable){
 		
@@ -155,8 +166,9 @@ void MicroFlex_e190::writeOutputs() {
 	//once it leaves the operation state, we assume a quickstop was triggered and just disable the drive
 	//if we would keep requesting the state quickstop, the drive would stay in switch on disabled
 	if(axis->getTargetPowerState() == DS402Axis::TargetPowerState::QUICKSTOP_ACTIVE && axis->getActualPowerState() != DS402Axis::PowerState::OPERATION_ENABLED){
-		axis->disable();
+		//axis->disable();
 	}
+	
 	
 	//fault handling
 	if(axis->hasFault()){
@@ -164,7 +176,7 @@ void MicroFlex_e190::writeOutputs() {
 		if(b_waitingForEnable) axis->doFaultReset();
 		else axis->disable();
 	}
-	
+	 
 	//fault logging
 	if(previousErrorCode != axis->getErrorCode()){
 		if(axis->getErrorCode() == 0x0) Logger::info("Fault cleared.");
