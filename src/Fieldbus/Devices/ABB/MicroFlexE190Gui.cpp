@@ -20,51 +20,45 @@ void MicroFlex_e190::deviceSpecificGui() {
 }
 
 void MicroFlex_e190::controlTab(){
-	
-	ImGui::Text("ready: %i", axis->isReady());
-	ImGui::Text("enabled: %i", axis->isEnabled());
-	ImGui::Text("quickstop: %i", axis->isQuickstopActive());
-	ImGui::Text("warning: %i", axis->hasWarning());
-	ImGui::Text("fault: %i", axis->hasFault());
-	ImGui::Text("voltage: %i", axis->hasVoltage());
-	
-	if(ImGui::Button("Enable")) axis->enable();
-	if(ImGui::Button("Disable")) axis->disable();
-	if(ImGui::Button("Quickstop")) axis->doQuickstop();
+
+	if(b_isEnabled){
+		if(ImGui::Button("Disable")) b_shouldDisable = true;
+	}else{
+		ImGui::BeginDisabled(!b_isReady);
+		if(ImGui::Button("Enable")) b_shouldEnable = true;
+		ImGui::EndDisabled();
+	}
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!axis->hasFault());
 	if(ImGui::Button("Fault Reset")) axis->doFaultReset();
+	ImGui::EndDisabled();
+	
+	ImGui::SameLine();
+	if(isStateNone()) ImGui::Text("Offline");
+	else if(!isStateOperational()) ImGui::Text("Not Ready");
+	else if(b_estop) ImGui::Text("Safe Torque Off");
+	else if(axis->hasFault()) ImGui::Text("Fault : %s", getErrorCodeString());
+	else if(b_isReady) ImGui::Text("Ready");
+	else if(b_isEnabled) ImGui::Text("Enabled");
 	
 	ImGui::SliderFloat("vel", &manualVelocity, -maxVelocity, maxVelocity);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
 		manualVelocity = 0.0;
 	}
-	
 	ImGui::Text("pos: %.3f", position);
 	ImGui::Text("vel: %.3f", velocity);
 	
-	ImGui::Text("Error: %s", getErrorCodeString());
+	ImGui::Separator();
 	
-	/*
-	ImGui::Text("Actual Power State: %s", Enumerator::getDisplayString(actualPowerState));
-	
-	if(ImGui::BeginCombo("Requested Power State", Enumerator::getDisplayString(requestedPowerState))){
-		for(auto& state : Enumerator::getTypes<DS402::PowerState>()){
-			if(ImGui::Selectable(state.displayString, requestedPowerState == state.enumerator)){
-				requestedPowerState = state.enumerator;
-			}
-		}
-		ImGui::EndCombo();
-	}
-	
-	ImGui::Text("Actual Operating Mode: %s", Enumerator::getDisplayString(actualOperatingMode));
-	
-	if(ImGui::BeginCombo("Requested Operating Mode", Enumerator::getDisplayString(requestedOperatingMode))){
-		for(auto& mode : Enumerator::getTypes<DS402::OperatingMode>()){
-			if(ImGui::Selectable(mode.displayString, requestedOperatingMode == mode.enumerator)){
-				requestedOperatingMode = mode.enumerator;
-			}
-		}
-		ImGui::EndCombo();
-	}
-	*/
+	ImGui::Text("Fault: %i %s", axis->hasFault(), getErrorCodeString());
+	ImGui::Text("Voltage: %i", axis->hasVoltage());
+	ImGui::Text("Warning: %i", axis->hasWarning());
+	ImGui::Text("Remote Control: %i", axis->isRemoteControlActive());
+	ImGui::Text("Internal Limit Reached: %i", axis->isInternalLimitReached());
+	ImGui::Text("Quickstop: %i", axis->isQuickstopActive());
+	ImGui::Text("Power State Target: %s", Enumerator::getDisplayString(axis->getTargetPowerState()));
+	ImGui::Text("Power State Actual: %s", Enumerator::getDisplayString(axis->getActualPowerState()));
+	ImGui::Text("Operating Mode Target: %s", Enumerator::getDisplayString(axis->getOperatingModeTarget()));
+	ImGui::Text("Operating Mode Actual: %s", Enumerator::getDisplayString(axis->getOperatingModeActual()));
 	
 }

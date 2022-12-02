@@ -16,7 +16,6 @@ void MicroFlex_e190::initialize() {
 	
 	axis->processDataConfiguration.operatingModes.cyclicSynchronousPosition = true;
 	axis->processDataConfiguration.operatingModes.cyclicSynchronousVelocity = true;
-	axis->processDataConfiguration.operatingModes.cyclicSynchronousTorque = true;
 	axis->processDataConfiguration.errorCode = true;
 	axis->processDataConfiguration.currentActualValue = true;
 	axis->processDataConfiguration.digitalInputs = true;
@@ -24,13 +23,8 @@ void MicroFlex_e190::initialize() {
 	
 	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
-	
 	axis->configureProcessData();
-	
 	txPdoAssignement.addEntry(0x4022, 0x1, 16, "Analog Input 0", &AI0);
-
-	//For some reason we are aborting motion after first enable, How do you abort motion in microflex e190?
-	
 }
 
 
@@ -44,45 +38,66 @@ void MicroFlex_e190::initialize() {
 
 bool MicroFlex_e190::startupConfiguration() {
 	
-	int16_t AX0_AbortMode_I16 = 0; //do not generator abort errors
-	if(!writeSDO_U16(0x505E, 0x0, AX0_AbortMode_I16)) return false;
+	//———— General Drive Control
 	
-	//TODO: what are the posible values ??
-	//if(!axis->setAbortConnectionOptionCode(0)) return false;
+	//set drive control to DS402
+	int16_t controlRefSource = 1;
+	if(!writeSDO_S16(0x5002, 0x0, controlRefSource)) return false;
 	
-	//STOPMODE
-	//0 _smCRASH_STOP
-	//1 _smERROR_DECEL
-	//2 _smDECEL
-	if(!axis->setQuickstopOptionCode(0)) return false;
+	//interpolation
+	//TODO: how do we set this? it seem the drive works best at 10ms cycle time and stutters at smaller cycle times
+	//if(!axis->setInterpolationTimePeriod(EtherCatFieldbus::processInterval_milliseconds)) return false;
 	
-	//ABORTMODE
-	//0 _emIGNORE
-	//1 _emCRASH_STOP_DISABLE
-	//2 _emCRASH_STOP
-	//3 _emERROR_DECEL
-	//4 [reserved]
-	//5 _emCALL_HANDLER
-	if(!axis->setShutdownOptionCode(0)) return false;
 	
-	//internal only, always 1
-	//if(!axis->setHaltOptionCode(0)) return false;
+	//———— Current Limitation
 	
-	//FAULTREACITONACTIVEOPTIONCODE
-	//-1 Manufacturer Specific
+	//current values are expressed as .1% increments of this value
+	//uint32_t driveRatedCurrent_mA = 0;
+	//if(!readSDO_U32(0x6510, 0x0, driveRatedCurrent_mA)) return false;
+	
+	//max motor current, this will be the limit of our max current setting
+	uint32_t motorRatedCurrent_mA;
+	if(!axis->getMotorRatedCurrent(motorRatedCurrent_mA)) return false;
+	
+	double maxCurrent_amperes = 2.0;
+	//as .1% increments of drive rated current
+	uint16_t maxCurrent = std::round(1000000.0 * maxCurrent_amperes / double(motorRatedCurrent_mA));
+	if(!axis->setMaxCurrent(maxCurrent)) return false;
+	
+	
+	//———— Error Reactions
+	
+	//ERRORDECEL
+	uint32_t quickstopDeceleration = 100;
+	//if(!axis->setQuickstopDeceleration(quickstopDeceleration)) return false;
+	
+	//STOPMODE (Quickstop Reaction or stop input)
+	//1 ERROR_DECEL
+	//if(!axis->setQuickstopOptionCode(1)) return false;
+	
+	//ABORTMODE (when leaving State Operation Enabled Manually?)
+	//0 IGNORE (no error triggered)
+	//if(!axis->setShutdownOptionCode(0)) return false;
+	
+	//Fault Reaction
 	//0 Disable
-	//1 Slow Ramp (DECEL)
 	//2 Quick ramp (ERRORDECEL)
-	if(!axis->setFaultReactionOptionCode(0)) return false;
-		
-	//=============== PROCESS DATA ASSIGNEMENT ===============
+	//if(!axis->setFaultReactionOptionCode(2)) return false;
+	
+	//500D.0 LIMITMODE (when a limit signal is triggered)
+	//500E.0 FOLERRORMODE (when following error happens)
+	
+	
+	//———— PDO Assignement
 
-	rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex());
-	txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex());
+	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
+	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
 	
-	//=========================== TIMING AND SYNC CONFIGURATION ============================
+	//———— Synchronisation
 	
-	ec_dcsync0(getSlaveIndex(), true, EtherCatFieldbus::processInterval_milliseconds * 1000000.0, EtherCatFieldbus::processInterval_milliseconds * 500000.0);
+	uint32_t cycleTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1'000'000;
+	uint32_t shiftTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 500'000;
+	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, shiftTime_nanoseconds);
 	
 	return true;
 }
@@ -100,6 +115,70 @@ void MicroFlex_e190::readInputs() {
 //====================== PREPARING OUTPUTS =====================
 
 void MicroFlex_e190::writeOutputs() {
+	
+	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+	
+	//handle enabling & disabling
+	if(b_shouldDisable){
+		b_shouldDisable = false;
+		b_shouldEnable = false;
+		b_waitingForEnable = false;
+		axis->disable();
+	}
+	else if(b_shouldEnable){
+		b_shouldEnable = false;
+		b_waitingForEnable = true;
+		enableRequestTime_nanoseconds = now_nanoseconds;
+		axis->enable();
+	}
+	else if(b_waitingForEnable){
+		
+		static const long long maxEnableTime_nanoseconds = 400'000'000; //400ms
+		static const long long minEnableTime_nanoseconds = 250'000'000; //250ms
+		long long timeSinceEnableRequeset_nanoseconds = now_nanoseconds - enableRequestTime_nanoseconds;
+		
+		if(axis->isEnabled()){
+			if(timeSinceEnableRequeset_nanoseconds > minEnableTime_nanoseconds){
+				Logger::info("Drive was enabled after {} ns", timeSinceEnableRequeset_nanoseconds);
+				b_waitingForEnable = false;
+			}
+		}
+		else if(timeSinceEnableRequeset_nanoseconds > maxEnableTime_nanoseconds){
+			Logger::warn("Enable request timed out");
+			b_waitingForEnable = false;
+			axis->disable();
+		}
+	}
+	
+	//quickstop drive reaction:
+	//the drive never reports being in the state quickstop,
+	//once it leaves the operation state, we assume a quickstop was triggered and just disable the drive
+	//if we would keep requesting the state quickstop, the drive would stay in switch on disabled
+	if(axis->getTargetPowerState() == DS402Axis::TargetPowerState::QUICKSTOP_ACTIVE && axis->getActualPowerState() != DS402Axis::PowerState::OPERATION_ENABLED){
+		axis->disable();
+	}
+	
+	//fault handling
+	if(axis->hasFault()){
+		//auto clear fault during enable
+		if(b_waitingForEnable) axis->doFaultReset();
+		else axis->disable();
+	}
+	
+	//fault logging
+	if(previousErrorCode != axis->getErrorCode()){
+		if(axis->getErrorCode() == 0x0) Logger::info("Fault cleared.");
+		else Logger::error("fault {:x} {}", axis->getErrorCode(), getErrorCodeString());
+	}
+	previousErrorCode = axis->getErrorCode();
+	
+	//Drive Status
+	b_estop = !isStateNone() && !axis->hasVoltage();
+	b_isReady = !isStateNone() && isStateOperational() && !b_estop && axis->isRemoteControlActive();
+	b_isEnabled = axis->isEnabled() && !b_waitingForEnable && axis->isRemoteControlActive();
+	
+	
+	
 	
 	
 	if(!axis->isEnabled()){
@@ -122,8 +201,6 @@ void MicroFlex_e190::writeOutputs() {
 		position += deltaP;
 		axis->setPosition(position * axisUnitsPerPos);
 	}
-	
-	axis->updateControlWordBits(false, false, false, false, false);
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);

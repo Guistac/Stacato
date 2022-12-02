@@ -141,41 +141,49 @@ void DS402Axis::configureProcessData(){
 
 void DS402Axis::updateInputs(){
 	
+	PowerState previousPowerState = powerStateActual;
+	
+	bool b_readyToSwitchOn		= (processData.statusWord >> 0) & 0x1;
+	bool b_switchedOn 			= (processData.statusWord >> 1) & 0x1;
+	bool b_operationEnabled 	= (processData.statusWord >> 2) & 0x1;
+	b_hasFault					= (processData.statusWord >> 3) & 0x1;
+	b_voltageEnabled 			= (processData.statusWord >> 4) & 0x1;
+	bool b_quickstop 			= (processData.statusWord >> 5) & 0x1;
+	bool b_switchOnDisabled 	= (processData.statusWord >> 6) & 0x1;
+	b_hasWarning 				= (processData.statusWord >> 7) & 0x1;
+	statusWord_ManSpecBit_8 	= (processData.statusWord >> 8) & 0x1;
+	b_remoteControlActive 		= (processData.statusWord >> 9) & 0x1;
+	statusWord_OpSpecBit_10 	= (processData.statusWord >> 10) & 0x1;
+	b_internalLimitReached 		= (processData.statusWord >> 11) & 0x1;
+	statusWord_OpSpecBit_12 	= (processData.statusWord >> 12) & 0x1;
+	statusWord_OpSpecBit_13 	= (processData.statusWord >> 13) & 0x1;
+	statusWord_ManSpecBit_14 	= (processData.statusWord >> 14) & 0x1;
+	statusWord_ManSpecBit_15 	= (processData.statusWord >> 15) & 0x1;
+	
+	Logger::warn("statusword: {:b}", processData.statusWord);
+	
 	//=== update actual power state
-	bool readyToSwitchOn_bit =	(processData.statusWord >> 0) & 0x1;
-	bool switchedOn_bit =		(processData.statusWord >> 1) & 0x1;
-	bool operationEnabled_bit = (processData.statusWord >> 2) & 0x1;
-	bool fault_bit =			(processData.statusWord >> 3) & 0x1;
-	bool quickstop_bit =		(processData.statusWord >> 5) & 0x1;
-	bool switchOnDisabled_bit = (processData.statusWord >> 6) & 0x1;
-	if (readyToSwitchOn_bit) {
-		if (fault_bit) 					powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
-		else if (!quickstop_bit) 		powerStateActual = DS402Axis::PowerState::QUICKSTOP_ACTIVE;
-		else if (operationEnabled_bit) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
-		else if (switchedOn_bit) 		powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
+	if(!b_quickstop)					powerStateActual = PowerState::QUICKSTOP_ACTIVE;
+	else if (b_readyToSwitchOn) {
+		if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
+		else if (b_operationEnabled) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
+		else if (b_switchedOn) 			powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
 		else 							powerStateActual = DS402Axis::PowerState::READY_TO_SWITCH_ON;
 	}
 	else {
-		if (fault_bit) 					powerStateActual = DS402Axis::PowerState::FAULT;
-		else if (switchOnDisabled_bit) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
+		if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT;
+		else if (b_switchOnDisabled) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
 		else 							powerStateActual = DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON;
 	}
 	
-	//TODO: we should react to power state changes and change the state target accordingly
+	if(previousPowerState != powerStateActual){
+		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
+	}
 	
 	//=== update actual operating mode
 	operatingModeActual = getOperatingMode(processData.operatingModeDisplay);
 	
-	//=== update axis state
-	b_isReady					= readyToSwitchOn_bit;
-	b_isEnabled					= operationEnabled_bit;
-	b_hasFault					= fault_bit;
-	b_voltageEnabled 			= (processData.statusWord >> 4) & 0x1;
-	b_isQuickstop				= !quickstop_bit;
-	b_hasWarning 				= (processData.statusWord >> 7) & 0x1;
-	b_isControlledRemotely 		= (processData.statusWord >> 9) & 0x1;
-	b_internalLimitActive 		= (processData.statusWord >> 11) & 0x1;
-	b_isFollowingCommandValue 	= (processData.statusWord >> 12) & 0x1;
+	//Logger::warn("status word: {:b}", processData.statusWord);
 }
 
 void DS402Axis::updateOutput(){
@@ -183,93 +191,85 @@ void DS402Axis::updateOutput(){
 	//=== reset control word
 	processData.controlWord = 0x0;
 	
-	//=== react to power stage commands
-	if(b_shouldEnable){
-		b_shouldEnable = false;
-		powerStateTarget = PowerState::OPERATION_ENABLED;
-	}
-	if(b_shouldDisable){
-		b_shouldDisable = false;
-		powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-	}
-	if(b_shouldQuickstop){
-		b_shouldQuickstop = false;
-		powerStateTarget = PowerState::QUICKSTOP_ACTIVE;
-	}
-	
 	//=== react to fault reset command
-	if(b_shouldFaultReset && !b_faultResetBusy){
+	if(b_doFaultReset && !b_faultResetBusy){
 		processData.controlWord |= (0x1 << 7);
 		b_faultResetBusy = true;
-		b_shouldFaultReset = false;
+		b_doFaultReset = false;
 	}else if(b_faultResetBusy){
 		b_faultResetBusy = false;
 	}
 	
+	
+	//Shutdown 			0110
+	//Switch On 		0111
+	//Disable Voltage	0100
+	//Quick Stop		0010
+	//Disable Operation	0111
+	//Enable Operation	1111
+	
 	//=== update power state target
 	switch(powerStateTarget){
-		case PowerState::QUICKSTOP_ACTIVE:{
-			//target: QUICKSTOP
+			
+		case TargetPowerState::DISABLED:{ //target: READY_TO_SWITCH_ON
 			switch(powerStateActual){
-				case PowerState::OPERATION_ENABLED:
-				case PowerState::QUICKSTOP_ACTIVE:
-					//go to QUICKSTOP_ACTIVE
-					processData.controlWord |= 0b1011;
+				case PowerState::OPERATION_ENABLED: 	//transition 8
+				case PowerState::SWITCHED_ON:			//transition 6
+				case PowerState::SWITCH_ON_DISABLED:	//transition 2
+				case PowerState::READY_TO_SWITCH_ON:	//stay in state
+					processData.controlWord |= 0b0110; 	//Shutdown
 					break;
+				case PowerState::QUICKSTOP_ACTIVE: 		//transition 12
+				case PowerState::NOT_READY_TO_SWITCH_ON://transition 1
 				default:
-					//go to SWITCH_ON_DISABLED
-					processData.controlWord |= 0b0000;
+					processData.controlWord |= 0b0100;	//Disable Voltage
 					break;
 			}
 		}break;
-		case PowerState::OPERATION_ENABLED:{
-			//target: OPERATION_ENABLED
+			
+		case TargetPowerState::ENABLED:{ //target: OPERATION_ENABLED
 			switch(powerStateActual){
-				case PowerState::SWITCHED_ON:
-				case PowerState::QUICKSTOP_ACTIVE:
-				case PowerState::OPERATION_ENABLED:
-					//go to OPERATION_ENABLED
-					processData.controlWord |= 0b1111;
+				case PowerState::SWITCHED_ON:			//transition 4
+				case PowerState::QUICKSTOP_ACTIVE:		//transition 16
+				case PowerState::OPERATION_ENABLED:		//stay in state
+					processData.controlWord |= 0b1111; 	//Enable operation
 					break;
-				case PowerState::READY_TO_SWITCH_ON:
-					//go to SWITCHED_ON
-					processData.controlWord |= 0b0111;
+				case PowerState::READY_TO_SWITCH_ON:	//transition 3
+					processData.controlWord |= 0b0111;	//Switch On
 					break;
+				case PowerState::SWITCH_ON_DISABLED:	//transition 2
+				case PowerState::NOT_READY_TO_SWITCH_ON://transition 1
 				default:
-					//go to READY_TO_SWITCH_ON
-					processData.controlWord |= 0b0110;
+					processData.controlWord |= 0b0110;  //Shutdown
 					break;
 			}
 		}break;
-		case PowerState::READY_TO_SWITCH_ON:
-		default:{
-			//target: READY_TO_SWITCH_ON
+			
+		case TargetPowerState::QUICKSTOP_ACTIVE:{ //target: QUICKSTOP
 			switch(powerStateActual){
-				case PowerState::OPERATION_ENABLED:
-				case PowerState::SWITCHED_ON:
-				case PowerState::SWITCH_ON_DISABLED:
-				case PowerState::READY_TO_SWITCH_ON:
-					//go to READY_TO_SWITCH_ON
-					processData.controlWord |= 0b0110;
+				case PowerState::OPERATION_ENABLED:		//transition 11
+				case PowerState::QUICKSTOP_ACTIVE:		//stay in state
+					processData.controlWord |= 0b1011;	//Quickstop
 					break;
 				default:
-					//go to SWITCH_ON_DISABLED
-					processData.controlWord |= 0b0000;
+					//can't quickstop, go to READY_TO_SWITCH_ON
+					processData.controlWord |= 0b0110;
 					break;
 			}
 		}break;
 	}
 	
-	//update application specific control word bits
-	if(statusOpB4) processData.controlWord |= 0x1 << 4;
-	if(statusOpB5) processData.controlWord |= 0x1 << 5;
-	if(statusOpB6) processData.controlWord |= 0x1 << 6;
-	if(statusOpB9) processData.controlWord |= 0x1 << 9;
-	if(statusManB11) processData.controlWord |= 0x1 << 11;
-	if(statusManB12) processData.controlWord |= 0x1 << 12;
-	if(statusManB13) processData.controlWord |= 0x1 << 13;
-	if(statusManB14) processData.controlWord |= 0x1 << 14;
-	if(statusManB15) processData.controlWord |= 0x1 << 15;
+	if(controlWord_OpSpecBit_4) 	processData.controlWord |= (0x1 << 4);
+	if(controlWord_OpSpecBit_5) 	processData.controlWord |= (0x1 << 5);
+	if(controlWord_OpSpecBit_6) 	processData.controlWord |= (0x1 << 6);
+	if(controlWord_OpSpecBit_9) 	processData.controlWord |= (0x1 << 9);
+	if(controlWord_ManSpecBit_11) 	processData.controlWord |= (0x1 << 11);
+	if(controlWord_ManSpecBit_12) 	processData.controlWord |= (0x1 << 12);
+	if(controlWord_ManSpecBit_13) 	processData.controlWord |= (0x1 << 13);
+	if(controlWord_ManSpecBit_14) 	processData.controlWord |= (0x1 << 14);
+	if(controlWord_ManSpecBit_15) 	processData.controlWord |= (0x1 << 15);
+	
+	Logger::error("control word: {:b}", processData.controlWord);
 	
 	//=== update operating mode target
 	processData.operatingModeSelection = getOperatingModeInteger(operatingModeTarget);

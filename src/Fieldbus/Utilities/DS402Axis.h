@@ -42,6 +42,12 @@ public:
 		FAULT
 	};
 	
+	enum class TargetPowerState{
+		DISABLED,
+		ENABLED,
+		QUICKSTOP_ACTIVE
+	};
+	
 	
 	//—————————————————————————————————————————————————
 	//—————————————— PDO Configuration ————————————————
@@ -127,6 +133,13 @@ public:
 	//=== Drive Operation
 	
 	///60C2.? Interpolation Time Period
+	bool setInterpolationTimePeriod(int milliseconds){
+		if(milliseconds < 1 || milliseconds > 255) return false;
+		uint8_t base = milliseconds;
+		int8_t exponent = -3;
+		if(!parentDevice->writeSDO_U8(0x60C2, 0x1, base)) return false;
+		if(!parentDevice->writeSDO_S8(0x60C2, 0x2, exponent)) return false;
+	}
 
 	///607E.0 Polarity
 	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity); }
@@ -136,7 +149,7 @@ public:
 	bool setMaxCurrent(uint16_t current){ return parentDevice->writeSDO_U16(0x6073, 0x0, current); }
 	bool getMaxCurrent(uint16_t& output){ return parentDevice->readSDO_U16(0x6073, 0x0, output); }
 	
-	///6075.0 Motor Rated Current
+	///6075.0 Motor Rated Current (mA)
 	bool getMotorRatedCurrent(uint32_t& output) { return parentDevice->readSDO_U32(0x6075, 0x0, output); }
 	
 	///6076.? Motor Rated Torque
@@ -167,6 +180,9 @@ public:
 	bool setFaultReactionOptionCode(int16_t optionCode){ return parentDevice->writeSDO_S16(0x605E, 0x0, optionCode); }
 	bool getFaultReactionOptionCode(int16_t& output){ return parentDevice->readSDO_S16(0x605E, 0x0, output); }
 	
+	///6085.0 Quickstop Deceleration
+	bool setQuickstopDeceleration(uint32_t deceleration) { return parentDevice->writeSDO_U32(0x6085, 0x0, deceleration); }
+	bool getQuickstopDeceleration(uint32_t& output) { return parentDevice->readSDO_U32(0x6085, 0x0, output); }
 	
 	
 	
@@ -224,21 +240,39 @@ public:
 	//———————————————— Axis Control ———————————————————
 	//—————————————————————————————————————————————————
 	
-	bool hasVoltage(){ return b_voltageEnabled; }
 	bool hasWarning(){ return b_hasWarning; }
 	bool hasFault(){ return b_hasFault; }
-	bool isReady(){ return b_isReady; }
-	bool isEnabled(){ return b_isEnabled; }
-	bool isQuickstopActive(){ return b_isQuickstop; }
-	
-	void enable(){ b_shouldEnable = true; }
-	void disable(){ b_shouldDisable = true; }
-	void doFaultReset(){ b_shouldFaultReset = true; }
-	void doQuickstop(){ b_shouldQuickstop = true; }
-	
-	PowerState getActualPowerState(){ return powerStateActual; }
-	OperatingMode getActualOperatingMode(){ return operatingModeActual; }
 	uint16_t getErrorCode(){ return processData.errorCode; }
+	
+	bool hasVoltage(){ return b_voltageEnabled; }
+	bool isRemoteControlActive(){ return b_remoteControlActive; }
+	bool isInternalLimitReached(){ return b_internalLimitReached; }
+	
+	bool isReady(){
+		switch(powerStateActual){
+			case PowerState::READY_TO_SWITCH_ON:
+			case PowerState::SWITCHED_ON:
+			case PowerState::OPERATION_ENABLED:
+			case PowerState::QUICKSTOP_ACTIVE:
+				return true;
+			default:
+				return false;
+		}
+	}
+	bool isEnabled(){ return powerStateActual == PowerState::OPERATION_ENABLED; }
+	bool isQuickstopActive(){ return powerStateActual == PowerState::QUICKSTOP_ACTIVE; }
+	
+	void enable(){ powerStateTarget = TargetPowerState::ENABLED; }
+	void disable(){ powerStateTarget = TargetPowerState::DISABLED; }
+	void quickstop(){ powerStateTarget = TargetPowerState::QUICKSTOP_ACTIVE; }
+	void doFaultReset(){ b_doFaultReset = true; }
+	
+	void setTargetPowerState(TargetPowerState target){ powerStateTarget = target; }
+	TargetPowerState getTargetPowerState(){ return powerStateTarget; }
+	PowerState getActualPowerState(){ return powerStateActual; }
+	
+	OperatingMode getOperatingModeActual(){ return operatingModeActual; }
+	OperatingMode getOperatingModeTarget(){ return operatingModeTarget; }
 	
 	int16_t getActualFrequency(){ return processData.frequencyActualValue; }
 	int32_t getActualPosition(){ return processData.positionActualValue; }
@@ -266,114 +300,155 @@ public:
 	bool isHoming();
 	bool didHomingSucceed();
 	
-	//manufacturer specific control/statusword bits
-	void updateControlWordBits(bool b11, bool b12, bool b13, bool b14, bool b15){
-		statusManB11 = b11;
-		statusManB12 = b12;
-		statusManB13 = b13;
-		statusManB14 = b14;
-		statusManB15 = b15;
-	}
-	void getStatusWordBits(bool& b8, bool& b14, bool& b15){
-		b8 = (processData.statusWord >> 8) & 0x1;
-		b14 = (processData.statusWord >> 14) & 0x1;
-		b15 = (processData.statusWord >> 15) & 0x1;
-	}
+	
+	void setOperatingModeSpecificControlWorldBit_4(bool bit){ controlWord_OpSpecBit_4 = bit; }
+	void setOperatingModeSpecificControlWorldBit_5(bool bit){ controlWord_OpSpecBit_5 = bit; }
+	void setOperatingModeSpecificControlWorldBit_6(bool bit){ controlWord_OpSpecBit_6 = bit; }
+	void setOperatingModeSpecificControlWorldBit_9(bool bit){ controlWord_OpSpecBit_9 = bit; }
+	
+	void setManufacturerSpecificControlWordBit_11(bool bit){ controlWord_ManSpecBit_11 = bit; }
+	void setManufacturerSpecificControlWordBit_12(bool bit){ controlWord_ManSpecBit_12 = bit; }
+	void setManufacturerSpecificControlWordBit_13(bool bit){ controlWord_ManSpecBit_13 = bit; }
+	void setManufacturerSpecificControlWordBit_14(bool bit){ controlWord_ManSpecBit_14 = bit; }
+	void setManufacturerSpecificControlWordBit_15(bool bit){ controlWord_ManSpecBit_15 = bit; }
+	
+	void getOperatingModeSpeciricStatusWordBit_10(){ return statusWord_OpSpecBit_10; }
+	void getOperatingModeSpeciricStatusWordBit_12(){ return statusWord_OpSpecBit_12; }
+	void getOperatingModeSpeciricStatusWordBit_13(){ return statusWord_OpSpecBit_13; }
+	
+	bool getManufacturerSpecificStatusWordBit_8(){ return statusWord_ManSpecBit_8; }
+	bool getManufacturerSpecificStatusWordBit_14(){ return statusWord_ManSpecBit_14; }
+	bool getManufacturerSpecificStatusWordBit_15(){ return statusWord_ManSpecBit_15; }
 	
 private:
 	
 	struct ProcessData{
 		
 		//———— Drive Operation
-		uint16_t controlWord;
-		uint16_t statusWord;
-		int8_t operatingModeSelection;
-		int8_t operatingModeDisplay;
-		uint16_t errorCode;
+		uint16_t controlWord = 0;
+		uint16_t statusWord = 0;
+		int8_t operatingModeSelection = 0;
+		int8_t operatingModeDisplay = 0;
+		uint16_t errorCode = 0;
 		
 		//———— Frequency Converter
-		int16_t targetFrequency;
-		int16_t frequencyActualValue;
+		int16_t targetFrequency = 0;
+		int16_t frequencyActualValue = 0;
 		
 		//———— Position
-		int32_t targetPosition;
-		int32_t positionActualValue;
-		int32_t positionFollowingErrorActualValue;
+		int32_t targetPosition = 0;
+		int32_t positionActualValue = 0;
+		int32_t positionFollowingErrorActualValue = 0;
 		
 		//———— Velocity
-		int32_t targetVelocity;
-		int32_t velocityActualValue;
+		int32_t targetVelocity = 0;
+		int32_t velocityActualValue = 0;
 		
 		//———— Torque
-		int16_t targetTorque;
-		int16_t torqueActualValue;
-		int16_t currentActualValue;
+		int16_t targetTorque = 0;
+		int16_t torqueActualValue = 0;
+		int16_t currentActualValue = 0;
 
 		//———— Inputs and Outputs
-		uint32_t digitalInputs;
-		uint32_t digitalOutputs;
+		uint32_t digitalInputs = 0;
+		uint32_t digitalOutputs = 0;
 		
 	}processData;
 	
-	PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-	PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
 	
+	//FAULT RESET
+	bool b_doFaultReset = false;
+	bool b_faultResetBusy = false;
+	
+	//HOMING
+	//bool b_isHoming = false;
+	//bool b_didHomingSucceed = false;
+	
+	
+	
+	//OPERATING MODE:
 	OperatingMode operatingModeActual = OperatingMode::NONE;
 	OperatingMode operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
 	
-	bool b_isControlledRemotely = false;
-	bool b_internalLimitActive = false;
-	bool b_isFollowingCommandValue = false;
-	bool b_voltageEnabled = false;
-	bool b_hasWarning = false;
-	bool b_hasFault = false;
-	bool b_isReady = false;
-	bool b_isEnabled = false;
-	bool b_isQuickstop = false;
 	
-	bool b_shouldFaultReset = false;
-	bool b_faultResetBusy = false;
+	//CONTROL WORLD:
+	//b0: Switch On
+	//b1: Enable Voltage
+	//b2: Quick Stop (inverted)
+	//b3: Enable Operation
+	//b7: Fault Reset
+	//b8: Halt
 	
-	bool b_isHoming = false;
-	bool b_didHomingSucceed = false;
+	TargetPowerState powerStateTarget = TargetPowerState::DISABLED;
 	
-	bool b_shouldEnable = false;
-	bool b_shouldDisable = false;
-	bool b_shouldQuickstop = false;
-	
-	//control world bits specific to operation mode: b4 b5 b6 b9
-	//b4: homing operation start
-	//b11 b12 b13 b14 b15: manufacturer specific
-	bool statusOpB4 = false;
-	bool statusOpB5 = false;
-	bool statusOpB6 = false;
-	bool statusOpB9 = false;
-	bool statusManB11 = false;
-	bool statusManB12 = false;
-	bool statusManB13 = false;
-	bool statusManB14 = false;
-	bool statusManB15 = false;
+	bool controlWord_OpSpecBit_4 = false;	//(start homing)
+	bool controlWord_OpSpecBit_5 = false;
+	bool controlWord_OpSpecBit_6 = false;
+	bool controlWord_OpSpecBit_9 = false;
+	bool controlWord_ManSpecBit_11 = false;
+	bool controlWord_ManSpecBit_12 = false;
+	bool controlWord_ManSpecBit_13 = false;
+	bool controlWord_ManSpecBit_14 = false;
+	bool controlWord_ManSpecBit_15 = false;
 	
 	//STATUS WORD
-	//b7: warning
-	//b9: remote
-	//b11: internal limit reached
-	//b12: drive follows the command value (mandatory for csp csv cst cstca)
-	//b10: status toggle (in csp csv cst cstca)
-	//b13: extended 2nd bit for status toggle (in csp csv cst cstca)
-	//b8 b14 b15: manufacturer specific
+	//b0: Ready To Switch On
+	//b1: Switched On
+	//b2: Operation Enabled
+	//b3: Fault
+	//b4: Voltage Enabled
+	//b5: Quick Stop (inverted)
+	//b6: Switch On Disabled
+	//b7: Warning
+	//b9: Remote Control Active
+	//b11: Internal Limit Reached
 	
-	//=== Supported Drive Modes
-	uint32_t supportedDriveModes; //0x6502:0
-	//b0: profile position
-	//b1: velocity (frequency converter)
-	//b2: profile velocity
-	//b3: profile torque
-	//b5: homing
-	//b6: interpolated position
-	//b7: cyclic synchronous position
-	//b8: cyclic synchronous velocity
-	//b9: cyclic synchronous torque
-	//b10: cyclic synchrous torque with commutation angle
+	PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
+	bool b_hasFault = false;
+	bool b_voltageEnabled = false;
+	bool b_hasWarning = false;
+	bool b_remoteControlActive = false;
+	bool b_internalLimitReached = false;
+	
+	bool statusWord_ManSpecBit_8 = false;
+	bool statusWord_OpSpecBit_10 = false; //status toggle (in csp csv cst cstca)
+	bool statusWord_OpSpecBit_12 = false; //drive follows the command value (mandatory for csp csv cst cstca)
+	bool statusWord_OpSpecBit_13 = false; //extended 2nd bit for status toggle (in csp csv cst cstca)
+	bool statusWord_ManSpecBit_14 = false;
+	bool statusWord_ManSpecBit_15 = false;
 	
 };
+
+#define DS402AxisOperatingModeStrings \
+	{DS402Axis::OperatingMode::NONE, 												"None", "None"},\
+	{DS402Axis::OperatingMode::PROFILE_POSITION, 									"Profile Position", "ProfilePosition"},\
+	{DS402Axis::OperatingMode::VELOCITY, 											"Velocity (Frequency Converter)", "Velocity"},\
+	{DS402Axis::OperatingMode::PROFILE_VELOCITY, 									"Profile Velocity", "ProfileVelocity"},\
+	{DS402Axis::OperatingMode::PROFILE_TORQUE, 										"Profile Torque", "ProfileTorque"},\
+	{DS402Axis::OperatingMode::HOMING, 												"Homing", "Homing"},\
+	{DS402Axis::OperatingMode::INTERPOLATED_POSITION, 								"Interpolated Position", "InterpolatedPosition"},\
+	{DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION, 						"Cyclic Synchronous Position", "CyclicSynchronousPosition"},\
+	{DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY, 						"Cyclic Synchronous Velocity", "CyclicSynchronousVelocity"},\
+	{DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE, 							"Cyclic Sychronous Torque", "CyclicSychronousTorque"},\
+	{DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE, 	"Cyclic Sychronous Torque with Commutation Angle", "CyclicSychronousTorquewithCommutationAngle"}\
+
+DEFINE_ENUMERATOR(DS402Axis::OperatingMode, DS402AxisOperatingModeStrings)
+
+#define DS402AxisPowerStateStrings \
+	{DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON, "Not Ready to Switch On", "NotReadytoSwitchOn"},\
+	{DS402Axis::PowerState::SWITCH_ON_DISABLED, 	"Switch On Disabled", "SwitchOnDisabled"},\
+	{DS402Axis::PowerState::READY_TO_SWITCH_ON, 	"Ready to Switch On", "ReadytoSwitchOn"},\
+	{DS402Axis::PowerState::SWITCHED_ON, 			"Switched On", "SwitchedOn"},\
+	{DS402Axis::PowerState::OPERATION_ENABLED, 		"Operation Enabled", "OperationEnabled"},\
+	{DS402Axis::PowerState::QUICKSTOP_ACTIVE, 		"Quickstop Active", "QuickstopActive"},\
+	{DS402Axis::PowerState::FAULT_REACTION_ACTIVE,	"Fault Reaction Active", "FaultReactionActive"},\
+	{DS402Axis::PowerState::FAULT, 					"Fault", "Fault"}\
+
+DEFINE_ENUMERATOR(DS402Axis::PowerState, DS402AxisPowerStateStrings)
+
+#define DS402AxisTargetPowerStateStrings \
+	{DS402Axis::TargetPowerState::ENABLED,			"Enabled",			"Enabled"},\
+	{DS402Axis::TargetPowerState::DISABLED,			"Disabled",			"Disabled"},\
+	{DS402Axis::TargetPowerState::QUICKSTOP_ACTIVE,	"Quickstop Active",	"QuickstopActive"}\
+
+DEFINE_ENUMERATOR(DS402Axis::TargetPowerState, DS402AxisTargetPowerStateStrings)

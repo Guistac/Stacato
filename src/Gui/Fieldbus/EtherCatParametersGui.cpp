@@ -108,19 +108,17 @@ void etherCatParameters() {
 		}
 		*/
 		
+		/*
 		static char networkStatusString[256];
 		if (EtherCatFieldbus::isInitialized()) {
-			
-			//if (!EtherCatFieldbus::hasRedundantInterface())
+			if (!EtherCatFieldbus::hasRedundantInterface())
 				sprintf(networkStatusString,
 						"Network is Open on Interface '%s'",
 						EtherCatFieldbus::getActiveNetworkInterfaceCard()->description);
-			/*
 			else sprintf(networkStatusString,
 						 "Network is Open on Interface '%s' with redundancy on '%s'",
 						 EtherCatFieldbus::getActiveNetworkInterfaceCard()->description,
 						 EtherCatFieldbus::getActiveRedundantNetworkInterfaceCard()->description);
-			 */
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		}
 		else {
@@ -128,7 +126,6 @@ void etherCatParameters() {
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
 		}
 		 
-		/*
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::Button(networkStatusString);
 		ImGui::PopItemFlag();

@@ -14,35 +14,62 @@ public:
 	std::shared_ptr<DS402Axis> axis;
 	int16_t AI0;
 	
-	//TODO: stuff
-	//figure out position velocity acceleration units
-	//figure out why we get "Motion Aborted" on first startup
-	//figure out how to auto clear STO state
-	
+	//TODO: list
+	//figure out position velocity acceleration units and scaling
+	//adjust enable timings
 	
 	//0x5062 : input pin function assignement (int16)
 	//values: -1 (function disabled) or 0-3 (input pin number)
-	//.1 error input
-	//.2 home input
-	//.3 limit forward input
-	//.4 limit reverse input
-	//.5 motor temperature input
-	//.6 phase search input
-	//.7 reset input
-	//.8 stop input
-	//.9 suspend input
-	//.A power ready input
+	//5062.1 error input
+	//5062.2 home input
+	//5062.3 limit forward input
+	//5062.4 limit reverse input
+	//5062.5 motor temperature input
+	//5062.6 phase search input
+	//5062.7 reset input
+	//5062.8 stop input
+	//5062.9 suspend input
+	//5062.A power ready input
 	
 	//0x5061 : outpt pin function assignement (int16)
 	//values: -1 (function disabled) or 1-2 (output pin number)
-	//.1 drive enabled output
-	//.2 motor brake output
-	//.3 phase search output
-	//.4 power ready output
+	//5061.1 drive enabled output
+	//5061.2 motor brake output
+	//5061.3 phase search output
+	//5061.4 power ready output
 	
 	//0x4035.1 int32 Encoder Multiturn Resolution
 	//0x4036.1 int32 Encoder Singleturn Resolution ???
 	
+	//status word:
+	//b11 : reset warnings
+	//b12 : 
+	//b13 :
+	
+	//control word:
+	//
+	//
+	//
+	
+	
+	
+	//commands
+	bool b_shouldEnable = false;
+	bool b_shouldDisable = false;
+	
+	//servo status
+	bool b_isEnabled = false;
+	bool b_isReady = false;
+	bool b_estop = false;
+	
+	//for error logging
+	uint16_t previousErrorCode = 0x0;
+	
+	//enable request
+	bool b_waitingForEnable = false;
+	long long enableRequestTime_nanoseconds;
+	
+		
 	const char* getErrorCodeString(){
 		switch(axis->getErrorCode()){
 			case 0x0000: return "No Error";
