@@ -65,7 +65,7 @@ bool MicroFlex_e190::startupConfiguration() {
 	
 	//———— Current Limitation
 	
-	double maxCurrentPercentage = 10.0;
+	double maxCurrentPercentage = 100.0;
 	
 	//as .1% increments of drive rated current
 	uint16_t maxCurrent = 10.0 * maxCurrentPercentage;
@@ -116,6 +116,29 @@ bool MicroFlex_e190::startupConfiguration() {
 void MicroFlex_e190::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	axis->updateInputs();
+	
+	
+	//Drive Status
+	b_estop = !isStateNone() && !axis->hasVoltage();
+	b_isReady = !isStateNone() && isStateOperational() && !b_estop && axis->isRemoteControlActive();
+	b_isEnabled = axis->isEnabled() && !b_waitingForEnable && axis->isRemoteControlActive();
+	
+	//fault logging
+	if(previousErrorCode != axis->getErrorCode()){
+		if(axis->getErrorCode() == 0x0) Logger::info("Fault cleared.");
+		else Logger::error("fault {:x} {}", axis->getErrorCode(), getErrorCodeString());
+	}
+	previousErrorCode = axis->getErrorCode();
+	
+	//status word:
+	//b10 : Target Reached (quickstop, halt ???)
+	//b12 :	homing mode 1 = homing attained
+	//		cyclic modes 0 = target ignored
+	//b13 : homing mode 1 = homing error
+	//		cyclic position 1 = following error
+	bool b_targetReached = axis->getOperatingModeSpeciricStatusWordBit_10();
+	bool b_homingAttainedOrFollowingTarget = axis->getOperatingModeSpeciricStatusWordBit_12();
+	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpeciricStatusWordBit_13();
 }
 
 
@@ -143,32 +166,17 @@ void MicroFlex_e190::writeOutputs() {
 		}
 	}
 	else if(b_waitingForEnable){
-		
-		static const long long maxEnableTime_nanoseconds = 400'000'000; //400ms
-		static const long long minEnableTime_nanoseconds = 250'000'000; //250ms
-		long long timeSinceEnableRequeset_nanoseconds = now_nanoseconds - enableRequestTime_nanoseconds;
-		
-		if(axis->isEnabled()){
-			if(timeSinceEnableRequeset_nanoseconds > minEnableTime_nanoseconds){
-				Logger::info("Drive was enabled after {} ns", timeSinceEnableRequeset_nanoseconds);
-				b_waitingForEnable = false;
-			}
+		static const long long maxEnableTime_nanoseconds = 100'000'000; //100ms
+		if(axis->isEnabled()) {
+			Logger::info("Drive Enabled");
+			b_waitingForEnable = false;
 		}
-		else if(timeSinceEnableRequeset_nanoseconds > maxEnableTime_nanoseconds){
+		else if(now_nanoseconds - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
 			Logger::warn("Enable request timed out");
 			b_waitingForEnable = false;
 			axis->disable();
 		}
 	}
-	
-	//quickstop drive reaction:
-	//the drive never reports being in the state quickstop,
-	//once it leaves the operation state, we assume a quickstop was triggered and just disable the drive
-	//if we would keep requesting the state quickstop, the drive would stay in switch on disabled
-	if(axis->getTargetPowerState() == DS402Axis::TargetPowerState::QUICKSTOP_ACTIVE && axis->getActualPowerState() != DS402Axis::PowerState::OPERATION_ENABLED){
-		//axis->disable();
-	}
-	
 	
 	//fault handling
 	if(axis->hasFault()){
@@ -176,18 +184,14 @@ void MicroFlex_e190::writeOutputs() {
 		if(b_waitingForEnable) axis->doFaultReset();
 		else axis->disable();
 	}
-	 
-	//fault logging
-	if(previousErrorCode != axis->getErrorCode()){
-		if(axis->getErrorCode() == 0x0) Logger::info("Fault cleared.");
-		else Logger::error("fault {:x} {}", axis->getErrorCode(), getErrorCodeString());
-	}
-	previousErrorCode = axis->getErrorCode();
 	
-	//Drive Status
-	b_estop = !isStateNone() && !axis->hasVoltage();
-	b_isReady = !isStateNone() && isStateOperational() && !b_estop && axis->isRemoteControlActive();
-	b_isEnabled = axis->isEnabled() && !b_waitingForEnable && axis->isRemoteControlActive();
+	//control word:
+	//b4 : 	Homing = Start homing
+	//b11 : reset warnings
+	bool b_startHoming = false;
+	bool b_resetWarning = false;
+	axis->setOperatingModeSpecificControlWorldBit_4(b_startHoming);
+	axis->setManufacturerSpecificControlWordBit_11(b_resetWarning);
 	
 	
 	

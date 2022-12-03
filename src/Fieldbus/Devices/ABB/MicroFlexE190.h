@@ -42,14 +42,19 @@ public:
 	//0x4036.1 int32 Encoder Singleturn Resolution ???
 	
 	//status word:
-	//b11 : reset warnings
-	//b12 : 
-	//b13 :
+	//b10 : Target Reached (quickstop, halt ???)
+	//b12 :	homing mode 1 = homing attained
+	//		cyclic modes 0 = target ignored
+	//b13 : homing mode 1 = homing error
+	//		cyclic position 1 = following error
 	
 	//control word:
-	//
-	//
-	//
+	//b4 : 	Homing = Start homing
+	//b11 : reset warnings
+	
+	
+	///When comissionning the drive through Mint Workbench, make sure the mint program is completely disabled or commented out
+	///It generated weird "incrorrect reference source" and "motion aborted" errors that were very unpredictable
 	
 	
 	

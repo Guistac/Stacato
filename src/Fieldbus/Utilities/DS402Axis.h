@@ -313,9 +313,9 @@ public:
 	void setManufacturerSpecificControlWordBit_14(bool bit){ controlWord_ManSpecBit_14 = bit; }
 	void setManufacturerSpecificControlWordBit_15(bool bit){ controlWord_ManSpecBit_15 = bit; }
 	
-	void getOperatingModeSpeciricStatusWordBit_10(){ return statusWord_OpSpecBit_10; }
-	void getOperatingModeSpeciricStatusWordBit_12(){ return statusWord_OpSpecBit_12; }
-	void getOperatingModeSpeciricStatusWordBit_13(){ return statusWord_OpSpecBit_13; }
+	bool getOperatingModeSpeciricStatusWordBit_10(){ return statusWord_OpSpecBit_10; }
+	bool getOperatingModeSpeciricStatusWordBit_12(){ return statusWord_OpSpecBit_12; }
+	bool getOperatingModeSpeciricStatusWordBit_13(){ return statusWord_OpSpecBit_13; }
 	
 	bool getManufacturerSpecificStatusWordBit_8(){ return statusWord_ManSpecBit_8; }
 	bool getManufacturerSpecificStatusWordBit_14(){ return statusWord_ManSpecBit_14; }
