@@ -75,8 +75,8 @@ bool MicroFlex_e190::startupConfiguration() {
 	//———— Error Reactions
 	
 	//ERRORDECEL
-	uint32_t quickstopDeceleration = 100;
-	if(!axis->setQuickstopDeceleration(quickstopDeceleration)) return false;
+	uint32_t errorDeceleration = 100;
+	if(!axis->setQuickstopDeceleration(errorDeceleration)) return false;
 	
 	//STOPMODE (Quickstop Reaction or stop input)
 	//1 ERROR_DECEL
@@ -86,7 +86,7 @@ bool MicroFlex_e190::startupConfiguration() {
 	//0 IGNORE (no error triggered)
 	if(!axis->setShutdownOptionCode(0)) return false;
 	
-	//Fault Reaction DS402 [important]
+	//DS402 Fault Reaction
 	//0 Disable
 	//2 Quick ramp (ERRORDECEL)
 	if(!axis->setFaultReactionOptionCode(0)) return false;
