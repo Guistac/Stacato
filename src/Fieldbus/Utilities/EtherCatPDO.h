@@ -101,6 +101,13 @@ struct EtherCatPdoAssignement {
 					return Logger::error("Failed to disable PDO module {:#x} (is PDO Config supported ?)", pdoModule.index);
 				}else Logger::trace("Disabled PDO module {:#x}", pdoModule.index);
 				
+				/*
+				uint8_t entryCount = pdoModule.getEntryCount();
+				if(!CanOpen::writeSDO_U8(pdoModule.index, 0x0, entryCount, slaveIndex)) {
+					Logger::error("Failed to set Mapping Module Object {:#x} entry count ({})", pdoModule.index, entryCount);
+				}else Logger::info("Set Mapping Module Object {:#x} entry count ({})", pdoModule.index, entryCount);
+				*/
+				 
 				for (int j = 0; j < pdoModule.getEntryCount(); j++) {
 					//concatenate the entry data
 					EtherCatPdoEntry& entry = pdoModule.entries[j];
@@ -111,6 +118,8 @@ struct EtherCatPdoAssignement {
 					}else Logger::trace("Configured PDO module object {:#x}:{:x}", pdoModule.index, j + 1);
 					
 				}
+				
+				
 				//enable the module by writing the entry count
 				if (!CanOpen::writeSDO_U8(pdoModule.index, 0x0, pdoModule.getEntryCount(), slaveIndex)) {
 					return Logger::error("Failed to reenable PDO module {:#x} (size: {}) (is PDO Config supported ?)", pdoModule.index, pdoModule.getEntryCount());

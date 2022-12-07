@@ -14,37 +14,100 @@ void ATV340::initialize() {
 	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
 	axis->processDataConfiguration.operatingModes.frequency = true;
-	axis->processDataConfiguration.errorCode = true;
-	
-	txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
-	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
-	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);
-	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
-	
-	
 	axis->configureProcessData();
+	
+	rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
+	
+	txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
+	txPdoAssignement.addEntry(0x207B, 0x17, 16, "Safe torque Off function Status", &stoState);
+	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
+	//txPdoAssignement.addEntry(0x2016, 0x17, 16, "AI1 Input Physical Image", &analogInput1);
+	
+	//txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
 }
 
 //==============================================================
 //==================== STARTUP CONFIGURATION ===================
 //==============================================================
 
+bool ATV340::startupConfiguration() {
+	
+	axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY);
+	
+	//———— Control Profile Settings
+	/*
+	//[fr1] configuration for reference frequency channel 1
+	uint16_t ref1configuration = 169; //169 = Communication Module
+	if(!writeSDO_U16(0x2036, 0xE, ref1configuration)) return false;
+
+	//[rfc] Frequency Switching assignement
+	uint16_t frequencySwitchingAssigment = 96; //96 = Reference Frequency Channel 1
+	if(!writeSDO_U16(0x2036, 0xC, frequencySwitchingAssigment)) return false;
+	
+	//[chcf] Control Mode
+	uint16_t controlMode = 1; //1=combined mode, ethercat has complete control of the drive
+	if(!writeSDO_U16(0x2036, 0x2, controlMode)) return false;
+	*/
+	
+	/*
+	//———— Dynamics and Limits
+	
+	//[inr] Ramp Time Increment: 0.01 second increments
+	uint16_t rampIncrement = 0; //(0=0.01, 1=0.1, 2=1.0)
+	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
+	
+	//[lsp] low speed (0.1Hz Increments)
+	uint16_t lowSpeed = 0;
+	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
+	
+	//[hsp] high speed (0.1Hz Increments)
+	uint16_t highSpeed = 1000;
+	if(!writeSDO_U16(0x2001, 0x5, highSpeed)) return false;
+	
+	//[acc] acceleration ramp time (0.01 second increments)
+	uint16_t accelerationRampTime = 300;
+	if(!writeSDO_U16(0x203C, 0x2, accelerationRampTime)) return false;
+	
+	//[dec] deceleration ramp time (0.01 second increments)
+	uint16_t decelerationRampTime = 300;
+	if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime)) return false;
+	*/
+	
+	
+	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
+	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
+	
+	return true;
+}
+
 bool ATV340::configureMotor(){
 	
 	//———— Unit Scaling Selection
 	
-	//Power Scaling: 0.01 Watt increments
-	uint16_t powerScaling = 30; //(20=0.001, 30=0.01, 40=0.1, 50=1.0, 60=10.0)
-	if(!writeSDO_U16(0x2044, 0x3, powerScaling)) return false;
+	uint16_t powerScalingCode;
+	if(!readSDO_U16(0x2044, 0x3, powerScalingCode)) return false;
+	double powerScaling;
+	switch(powerScalingCode){
+		case 20: powerScaling = 0.001; break;
+		case 30: powerScaling = 0.01; break;
+		case 40: powerScaling = 0.1; break;
+		case 50: powerScaling = 1.0; break;
+		case 60: powerScaling = 10.0; break;
+		default: powerScaling = 0.0; break;
+	}
 	
 	//Current Scaling: 0.01 Ampere increments
-	uint16_t currentScaling = 30; //(20=0.001, 30=0.01, 40=0.1, 50=1.0, 60=10.0)
-	if(!writeSDO_U16(0x2044, 0x2, currentScaling)) return false;
-	
-	//Ramp time Scaling: 0.01 second increments
-	uint16_t rampIncrement = 0; //(0=0.01, 1=0.1, 2=1.0)
-	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
-	
+	uint16_t currentScalingCode = 30; //(20=0.001, 30=0.01, 40=0.1, 50=1.0, 60=10.0)
+	if(!readSDO_U16(0x2044, 0x2, currentScalingCode)) return false;
+	double currentScaling;
+	switch(currentScalingCode){
+		case 20: currentScaling = 0.001; break;
+		case 30: currentScaling = 0.01; break;
+		case 40: currentScaling = 0.1; break;
+		case 50: currentScaling = 1.0; break;
+		case 60: currentScaling = 10.0; break;
+		default: currentScaling = 0.0; break;
+	}
 	
 	//———— Motor Standard
 	
@@ -59,15 +122,20 @@ bool ATV340::configureMotor(){
 	uint16_t motorParameterChoice = 0;
 	if(!writeSDO_U16(0x2042, 0xF, motorParameterChoice)) return false;
 	
-	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
-	uint16_t motor1CosinusPhi = 0;
-	if(!writeSDO_U16(0x2042, 0x7, motor1CosinusPhi)) return false;
+	
+	if(motorParameterChoice == 1){
+		//[cos] {Async} motor 1 cosinus phi (0.01 increments)
+		uint16_t motor1CosinusPhi = 0;
+		if(!writeSDO_U16(0x2042, 0x7, motor1CosinusPhi)) return false;
+	}
 	//	^
 	//	| one or the other depending on Motor Param Choise [mpc]
 	//	v
-	//[npr] {Async} nominal motor power (0.01 Watt increments)
-	uint16_t nominalMotorPower = 0;
-	if(!writeSDO_U16(0x2042, 0xE, nominalMotorPower)) return false;
+	if(motorParameterChoice == 0){
+		//[npr] {Async} nominal motor power (0.01 Watt increments)
+		uint16_t nominalMotorPower = 0;
+		if(!writeSDO_U16(0x2042, 0xE, nominalMotorPower)) return false;
+	}
 	
 	//[uns] {Async} nominal motor voltage (1v increments)
 	uint16_t nominalMotorVoltage = 0;
@@ -95,29 +163,7 @@ bool ATV340::configureMotor(){
 	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
 	uint16_t motorMaximumFrequency = 0;
 	if(!writeSDO_U16(0x2001, 0x4, motorMaximumFrequency)) return false;
-	
-	
-	//———— Dynamics and Limits
-	
-	//[lsp] low speed (0.1Hz Increments)
-	uint16_t lowSpeed = 0;
-	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
-	
-	//[hsp] high speed (0.1Hz Increments)
-	uint16_t highSpeed = 1000;
-	if(!writeSDO_U16(0x2001, 0x5, highSpeed)) return false;
-	
-	//[acc] acceleration ramp time (0.01 second increments)
-	uint16_t accelerationRampTime = 300;
-	if(!writeSDO_U16(0x203C, 0x2, accelerationRampTime)) return false;
-	
-	//[dec] deceleration ramp time (0.01 second increments)
-	uint16_t decelerationRampTime = 300;
-	if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime)) return false;
-	
-	
-	
-	
+
 	//———— Brake Logic Control
 	
 	//[blc] brake assignement
@@ -192,27 +238,6 @@ bool ATV340::configureMotor(){
 	return true;
 }
 
-bool ATV340::startupConfiguration() {
-	
-
-	//[fr1] configuration for reference frequency channel 1
-	uint16_t ref1configuration = 169; //169 = Communication Module
-	if(!writeSDO_U16(0x2036, 0xE, ref1configuration)) return false;
-
-	//[rfc] Frequency Switching assignement
-	uint16_t frequencySwitchingAssigment = 96; //96 = Reference Frequency Channel 1
-	if(!writeSDO_U16(0x2036, 0xC, frequencySwitchingAssigment)) return false;
-	
-	//[chcf] Control Mode
-	uint16_t controlMode = 1; //1=combined mode, ethercat has complete control of the drive
-	if(!writeSDO_U16(0x2036, 0x2, controlMode)) return false;
-	
-	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
-	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
-	
-	return true;
-}
-
 //==============================================================
 //======================= READING INPUTS =======================
 //==============================================================
@@ -227,6 +252,13 @@ void ATV340::readInputs() {
 //==============================================================
 
 void ATV340::writeOutputs() {
+	
+	logicOutputs = 0x0;
+	if(relayOut1)	logicOutputs |= 0x1 << 0;
+	if(relayOut2)	logicOutputs |= 0x1 << 1;
+	if(digitalOut1) logicOutputs |= 0x1 << 8;
+	if(digitalOut2) logicOutputs |= 0x1 << 9;
+	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }

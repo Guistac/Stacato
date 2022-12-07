@@ -2,7 +2,9 @@
 
 #include "EtherCatPDO.h"
 
-int8_t getOperatingModeInteger(DS402Axis::OperatingMode mode) {
+
+
+int8_t DS402Axis::getOperatingModeCode(DS402Axis::OperatingMode mode) {
 	switch(mode){
 		case DS402Axis::OperatingMode::NONE:												return 0;
 		case DS402Axis::OperatingMode::PROFILE_POSITION:									return 1;
@@ -18,8 +20,8 @@ int8_t getOperatingModeInteger(DS402Axis::OperatingMode mode) {
 	}
 }
 
-DS402Axis::OperatingMode getOperatingMode(int8_t i) {
-	switch(i){
+DS402Axis::OperatingMode DS402Axis::getOperatingMode(int8_t code) {
+	switch(code){
 		case 0: return DS402Axis::OperatingMode::NONE;
 		case 1: return DS402Axis::OperatingMode::PROFILE_POSITION;
 		case 2: return DS402Axis::OperatingMode::VELOCITY;
@@ -39,35 +41,49 @@ DS402Axis::OperatingMode getOperatingMode(int8_t i) {
 
 void DS402Axis::configureProcessData(){
 
+	int operatingModeCount = 0;
+	
 	///Configure Mandatory Objects for each configured operating mode
 	if(processDataConfiguration.operatingModes.frequency){
 		processDataConfiguration.targetFrequency = true;
 		processDataConfiguration.frequencyActualValue = true;
+		operatingModeCount++;
 	}
 	if(processDataConfiguration.operatingModes.cyclicSynchronousPosition){
 		processDataConfiguration.targetPosition = true;
 		processDataConfiguration.positionActualValue = true;
+		operatingModeCount++;
 	}
 	if(processDataConfiguration.operatingModes.cyclicSynchronousVelocity){
 		processDataConfiguration.targetVelocity = true;
 		processDataConfiguration.velocityActualValue = true;
+		operatingModeCount++;
 	}
 	if(processDataConfiguration.operatingModes.cyclicSynchronousTorque){
 		processDataConfiguration.targetTorque = true;
 		processDataConfiguration.torqueActualValue = true;
+		operatingModeCount++;
 	}
-	//if(processDataConfiguration.operatingModes.cyclicSycnhronousTorqueWithCommutationAngle){
-	//	processDataConfiguration.targetTorque = true;
-	//	processDataConfiguration.commutationAngle = true;
-	//}
+	if(processDataConfiguration.operatingModes.cyclicSycnhronousTorqueWithCommutationAngle){
+		assert("Cyclic Synchrinous Torque With Commutation Angle is not supported yet");
+		//processDataConfiguration.targetTorque = true;
+		//processDataConfiguration.commutationAngle = true;
+		operatingModeCount++;
+	}
+	if(processDataConfiguration.operatingModes.homing){
+		operatingModeCount++;
+	}
 	
 	//———— Drive Operation
 	
 	//mandatory objects
 	parentDevice->rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DS402 Control Word", &processData.controlWord);
-	parentDevice->rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DS402 Operating Mode Selection", &processData.operatingModeSelection);
 	parentDevice->txPdoAssignement.addEntry(0x6041, 0x0, 16, "DS402 Status Word", &processData.statusWord);
-	parentDevice->txPdoAssignement.addEntry(0x6061, 0x0, 8, "DS402 Operating Mode Display", &processData.operatingModeDisplay);
+	
+	if(operatingModeCount > 1){
+		parentDevice->rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DS402 Operating Mode Selection", &processData.operatingModeSelection);
+		parentDevice->txPdoAssignement.addEntry(0x6061, 0x0, 8, "DS402 Operating Mode Display", &processData.operatingModeDisplay);
+	}
 	
 	///603F.0 Error Code
 	if(processDataConfiguration.errorCode)
@@ -293,7 +309,7 @@ void DS402Axis::updateOutput(){
 	//Logger::error("control word: {:b}", processData.controlWord);
 	
 	//=== update operating mode target
-	processData.operatingModeSelection = getOperatingModeInteger(operatingModeTarget);
+	processData.operatingModeSelection = getOperatingModeCode(operatingModeTarget);
 }
 
 

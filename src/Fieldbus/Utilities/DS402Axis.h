@@ -60,7 +60,8 @@ public:
 			bool cyclicSynchronousPosition = false;
 			bool cyclicSynchronousVelocity = false;
 			bool cyclicSynchronousTorque = false;
-			//bool cyclicSycnhronousTorqueWithCommutationAngle = false;
+			bool cyclicSycnhronousTorqueWithCommutationAngle = false;
+			bool homing = false;
 		}operatingModes;
 		
 		//———— Errors
@@ -131,6 +132,17 @@ public:
 	//—————————————————————————————————————————————————
 	
 	//=== Drive Operation
+	
+	bool setOperatingMode(OperatingMode mode){
+		int8_t opMode = getOperatingModeCode(mode);
+		return parentDevice->writeSDO_S8(0x6060, 0x0, opMode);
+	}
+	
+	bool getOperatingMode(OperatingMode& output){
+		int8_t opMode;
+		if(!parentDevice->readSDO_S8(0x6061, 0x0, opMode)) return false;
+		output = getOperatingMode(opMode);
+	}
 	
 	///60C2.? Interpolation Time Period
 	bool setInterpolationTimePeriod(int milliseconds){
@@ -331,6 +343,9 @@ public:
 	bool getManufacturerSpecificStatusWordBit_15(){ return statusWord_ManSpecBit_15; }
 	
 private:
+	
+	static int8_t getOperatingModeCode(OperatingMode mode);
+	static OperatingMode getOperatingMode(int8_t code);
 	
 	struct ProcessData{
 		
