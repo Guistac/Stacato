@@ -14,8 +14,9 @@ void MicroFlex_e190::initialize() {
 	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
 	axis = DS402Axis::make(thisDevice);
 	
-	axis->processDataConfiguration.operatingModes.cyclicSynchronousPosition = true;
-	axis->processDataConfiguration.operatingModes.cyclicSynchronousVelocity = true;
+	axis->processDataConfiguration.enableCyclicSynchronousPositionMode();
+	axis->processDataConfiguration.enableCyclicSynchronousVelocityMode();
+	axis->processDataConfiguration.enableHomingMode();
 	axis->processDataConfiguration.errorCode = true;
 	axis->processDataConfiguration.currentActualValue = true;
 	axis->processDataConfiguration.digitalInputs = true;

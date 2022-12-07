@@ -43,36 +43,14 @@ void DS402Axis::configureProcessData(){
 
 	int operatingModeCount = 0;
 	
-	///Configure Mandatory Objects for each configured operating mode
-	if(processDataConfiguration.operatingModes.frequency){
-		processDataConfiguration.targetFrequency = true;
-		processDataConfiguration.frequencyActualValue = true;
-		operatingModeCount++;
-	}
-	if(processDataConfiguration.operatingModes.cyclicSynchronousPosition){
-		processDataConfiguration.targetPosition = true;
-		processDataConfiguration.positionActualValue = true;
-		operatingModeCount++;
-	}
-	if(processDataConfiguration.operatingModes.cyclicSynchronousVelocity){
-		processDataConfiguration.targetVelocity = true;
-		processDataConfiguration.velocityActualValue = true;
-		operatingModeCount++;
-	}
-	if(processDataConfiguration.operatingModes.cyclicSynchronousTorque){
-		processDataConfiguration.targetTorque = true;
-		processDataConfiguration.torqueActualValue = true;
-		operatingModeCount++;
-	}
-	if(processDataConfiguration.operatingModes.cyclicSycnhronousTorqueWithCommutationAngle){
-		assert("Cyclic Synchrinous Torque With Commutation Angle is not supported yet");
-		//processDataConfiguration.targetTorque = true;
-		//processDataConfiguration.commutationAngle = true;
-		operatingModeCount++;
-	}
-	if(processDataConfiguration.operatingModes.homing){
-		operatingModeCount++;
-	}
+	//count operating modes
+	//if there is only 1 operating mode, we don't need to configue the operating mode control as pdo data
+	if(processDataConfiguration.operatingModes.frequency) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousPosition) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousVelocity) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousTorque) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousTorqueWithCommutationAngle) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.homing) operatingModeCount++;
 	
 	//———— Drive Operation
 	

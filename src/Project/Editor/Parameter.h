@@ -38,7 +38,11 @@ public:
 	const char* getSaveString(){ return saveString.c_str(); }
 	
 	void setEditCallback(std::function<void(std::shared_ptr<Parameter>)> cb){ editCallback = cb; }
-	void onEdit(){ if(editCallback) editCallback(shared_from_this()); }
+	void addEditCallback(std::function<void()> callback){ editCallbacks.push_back(callback); }
+	void onEdit(){
+		if(editCallback) editCallback(shared_from_this());
+		for(auto& editCallback : editCallbacks) editCallback();
+	}
 	
 	void gui(){
 		bool drawInvalid = !b_valid;
@@ -67,12 +71,63 @@ public:
 	
 private:
 	std::function<void(std::shared_ptr<Parameter>)> editCallback;
+	std::vector<std::function<void()>> editCallbacks;
 	std::string name;
 	std::string saveString;
 	std::string imGuiID;
 	bool b_disabled = false;
 	bool b_valid = true;
 };
+
+using Param = std::shared_ptr<Parameter>;
+
+
+//===============================================================================
+//=================================== NUMBERS ===================================
+//===============================================================================
+
+class ParameterGroup{
+public:
+	
+	ParameterGroup(const char* saveName_, std::vector<Param> parameters_) : saveName(saveName_), parameters(parameters_){}
+	
+	const std::vector<std::shared_ptr<Parameter>>& get(){ return parameters; }
+	
+	bool save(tinyxml2::XMLElement* parentElement){
+		using namespace tinyxml2;
+		if(!parentElement) return false;
+		
+		XMLElement* xmlContainer = parentElement->InsertNewChildElement(saveName);
+		
+		bool anyError = false;
+		for(Param parameter : parameters){
+			if(!parameter->save(xmlContainer)) anyError = true;
+		}
+		return anyError;
+	}
+	
+	bool load(tinyxml2::XMLElement* parentElement){
+		using namespace tinyxml2;
+		if(!parentElement) return false;
+		
+		XMLElement* xmlContainer = parentElement->FirstChildElement(saveName);
+		if(!xmlContainer) {
+			Logger::warn("Could not load Parameter group element '{}'", saveName);
+			return false;
+		}
+		
+		bool anyError = false;
+		for(Param parameter : parameters){
+			if(!parameter->load(xmlContainer)) anyError = true;
+		}
+		return anyError;
+	}
+	
+private:
+	std::vector<std::shared_ptr<Parameter>> parameters;
+	const char* saveName;
+};
+
 
 
 
@@ -275,6 +330,9 @@ private:
 		virtual void onRedo(){ setNewValue(); }
 	};
 };
+
+template<typename T>
+using NumberParam = std::shared_ptr<NumberParameter<T>>;
 
 template<>
 inline ImGuiDataType NumberParameter<float>::getImGuiDataType(){ return ImGuiDataType_Float; }
@@ -600,7 +658,7 @@ public:
 };
 
 
-
+using BoolParam = std::shared_ptr<BooleanParameter>;
 
 //===============================================================================
 //=================================== STRINGS ===================================

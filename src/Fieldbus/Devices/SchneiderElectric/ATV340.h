@@ -3,6 +3,8 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/DS402Axis.h"
 
+#include "Project/Editor/Parameter.h"
+
 class ATV340 : public EtherCatDevice {
 public:
 
@@ -16,6 +18,7 @@ public:
 	uint16_t lastFaultCode;
 	uint16_t logicOutputs;
 	int16_t analogInput1;
+	int16_t analogInput2;
 	
 	bool digitalOut1 = false;
 	bool digitalOut2 = false;
@@ -23,6 +26,48 @@ public:
 	bool relayOut2 = false;
 	
 	bool configureMotor();
+	
+	std::shared_ptr<bool> digitalInput1_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput2_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput4_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput5_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "DI 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "DI 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "DI 3", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput4_Pin = std::make_shared<NodePin>(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "DI 4", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput5_Pin = std::make_shared<NodePin>(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "DI 5", NodePin::Flags::DisableDataField);
+	
+	std::shared_ptr<double> analogInput1_value = std::make_shared<double>(0.0);
+	std::shared_ptr<double> analogInput2_value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> analogInput1_pin = std::make_shared<NodePin>(analogInput1_value, NodePin::Direction::NODE_OUTPUT, "AI 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> analogInput2_pin = std::make_shared<NodePin>(analogInput2_value, NodePin::Direction::NODE_OUTPUT, "AI 2", NodePin::Flags::DisableDataField);
+	
+	std::shared_ptr<bool> digitalOutput1_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOutput2_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> relaisOutput1_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> relaisOutput2_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> digitalOutput1_Pin = std::make_shared<NodePin>(digitalOutput1_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 1");
+	std::shared_ptr<NodePin> digitalOutput2_Pin = std::make_shared<NodePin>(digitalOutput2_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 2");
+	std::shared_ptr<NodePin> relaisOutput1_Pin = std::make_shared<NodePin>(relaisOutput1_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 1");
+	std::shared_ptr<NodePin> relaisOutput2_Pin = std::make_shared<NodePin>(relaisOutput2_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 2");
+	
+	BoolParam pdo_digitalIn = BooleanParameter::make(false, "Read Digital Inputs", "ConfigDigitalInputs");
+	BoolParam pdo_digitalOut = BooleanParameter::make(false, "Write Digital Outputs", "ConfigDigitalOutputs");
+	BoolParam pdo_motorPower = BooleanParameter::make(false, "Read Motor Power", "ConfigMotorPower");
+	BoolParam pdo_readMotorSpeed = BooleanParameter::make(false, "Read Motor Speed", "ConfigMotorSpeed");
+	BoolParam pdo_readAnalogIn1 = BooleanParameter::make(false, "Read Analog Input 1", "ConfigAnalogInput1");
+	BoolParam pdo_readAnalogIn2 = BooleanParameter::make(false, "Read Analog Input 2", "ConfigAnalogInput2");
+	ParameterGroup pdoConfig = ParameterGroup("PDOconfig",{
+		pdo_digitalIn,
+		pdo_digitalOut,
+		pdo_readAnalogIn1,
+		pdo_readAnalogIn2,
+		pdo_motorPower,
+		pdo_readMotorSpeed
+	});
+		
+	void configureProcessData();
 	
 	const char* getErrorCodeString(){
 		switch(lastFaultCode){

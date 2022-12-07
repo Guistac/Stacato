@@ -10,20 +10,83 @@ void ATV340::onDisconnection() {}
 void ATV340::initialize() {
 	auto thisATV340 = std::static_pointer_cast<ATV340>(shared_from_this());
 	axis = DS402Axis::make(thisATV340);
+
+	
+	addNodePin(digitalInput1_Pin);
+	addNodePin(digitalInput2_Pin);
+	addNodePin(digitalInput3_Pin);
+	addNodePin(digitalInput4_Pin);
+	addNodePin(digitalInput5_Pin);
+	addNodePin(analogInput1_pin);
+	addNodePin(analogInput2_pin);
+	addNodePin(digitalOutput1_Pin);
+	addNodePin(digitalOutput2_Pin);
+	addNodePin(relaisOutput1_Pin);
+	addNodePin(relaisOutput2_Pin);
+	
+	pdo_digitalIn->addEditCallback([this](){
+		digitalInput1_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput2_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput3_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput4_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput5_Pin->setVisible(pdo_digitalIn->value);
+	});
+	pdo_digitalOut->addEditCallback([this](){
+		digitalOutput1_Pin->setVisible(pdo_digitalOut->value);
+		digitalOutput2_Pin->setVisible(pdo_digitalOut->value);
+		relaisOutput1_Pin->setVisible(pdo_digitalOut->value);
+		relaisOutput2_Pin->setVisible(pdo_digitalOut->value);
+	});
+	pdo_readAnalogIn1->addEditCallback([this](){
+		analogInput1_pin->setVisible(pdo_readAnalogIn1->value);
+	});
+	pdo_readAnalogIn2->addEditCallback([this](){
+		analogInput2_pin->setVisible(pdo_readAnalogIn2->value);
+	});
+	
+	for(auto parameter : pdoConfig.get()){
+		parameter->addEditCallback([this](){
+			configureProcessData();
+		});
+		parameter->onEdit();
+	}
+	
+}
+
+void ATV340::configureProcessData(){
+	
+	if(EtherCatFieldbus::isRunning()) return;
+	
+	rxPdoAssignement.clear();
+	txPdoAssignement.clear();
 	
 	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
-	axis->processDataConfiguration.operatingModes.frequency = true;
-	axis->configureProcessData();
+	axis->processDataConfiguration.enableFrequencyMode();
+	axis->processDataConfiguration.frequencyActualValue = false;
 	
-	rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
+	if(pdo_digitalIn->value){
+		txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
+	}
+	if(pdo_digitalOut->value){
+		rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
+	}
+	if(pdo_motorPower->value){
+		txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
+	}
+	if(pdo_readMotorSpeed->value){
+		axis->processDataConfiguration.frequencyActualValue = true;
+	}
+	if(pdo_readAnalogIn1->value){
+		txPdoAssignement.addEntry(0x2016, 0x17, 17, "AI1 Input Physical Image", &analogInput1);
+	}
+	if(pdo_readAnalogIn2->value){
+		txPdoAssignement.addEntry(0x2016, 0x17, 18, "AI2 Input Physical Image", &analogInput1);
+	}
 	
-	txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
+	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode); //might be smarter to thread request of this data once the fault flag is up
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "Safe torque Off function Status", &stoState);
-	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
-	//txPdoAssignement.addEntry(0x2016, 0x17, 16, "AI1 Input Physical Image", &analogInput1);
-	
-	//txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
+	axis->configureProcessData();
 }
 
 //==============================================================
@@ -32,7 +95,7 @@ void ATV340::initialize() {
 
 bool ATV340::startupConfiguration() {
 	
-	axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY);
+	if(!axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY)) return false;
 	
 	//———— Control Profile Settings
 	/*
@@ -267,10 +330,18 @@ void ATV340::writeOutputs() {
 
 bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	
+	if(!pdoConfig.save(xml)) return false;
+	
 	return true;
 }
 
 bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	
+	if(!pdoConfig.load(xml))
+	
+	for(auto parameter : pdoConfig.get()) parameter->onEdit();
+	
 	return true;
 }

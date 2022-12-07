@@ -55,14 +55,54 @@ public:
 	
 	struct ProcessDataConfiguration{
 		
+		void enableFrequencyMode(){
+			targetFrequency = true;
+			frequencyActualValue = true;
+			operatingModes.frequency = true;
+		}
+		
+		void enableCyclicSynchronousPositionMode(){
+			targetPosition = true;
+			positionActualValue = true;
+			operatingModes.cyclicSynchronousPosition = true;
+		}
+		
+		void enableCyclicSynchronousVelocityMode(){
+			targetVelocity = true;
+			velocityActualValue = true;
+			operatingModes.cyclicSynchronousVelocity = true;
+		}
+		
+		void enableCyclicSynchronousTorqueMode(){
+			targetTorque = true;
+			torqueActualValue = true;
+			operatingModes.cyclicSynchronousTorque = true;
+		}
+		
+		void enableCyclicSynchronousTorqueWithCommutationAngleMode(){
+			assert("Cyclic Synchronous Torque With Commutation Angle is not yet supported");
+			operatingModes.cyclicSynchronousTorqueWithCommutationAngle = true;
+		}
+		
+		void enableHomingMode(){
+			//no pdo data to configure
+			operatingModes.homing = true;
+		}
+		
+	private:
+		
+		friend class DS402Axis;
+		
 		struct OperatingModes{
 			bool frequency = false;
 			bool cyclicSynchronousPosition = false;
 			bool cyclicSynchronousVelocity = false;
 			bool cyclicSynchronousTorque = false;
-			bool cyclicSycnhronousTorqueWithCommutationAngle = false;
+			bool cyclicSynchronousTorqueWithCommutationAngle = false;
 			bool homing = false;
 		}operatingModes;
+		
+	public:
 		
 		//———— Errors
 		
