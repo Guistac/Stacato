@@ -73,7 +73,7 @@ public:
 		///6042.0 Target Velocity (frequency converter mode)
 		bool targetFrequency = false;
 		
-		///6044.0 Velocity Actual Value (frequency converter mode)
+		///6044.0 Velocity Actual Value (frequency converter mode) (or vl_control_effort)
 		bool frequencyActualValue = false;
 		
 		//———— Position
@@ -188,11 +188,20 @@ public:
 	
 	//=== Frequency
 	
-	///6046.? vl velocity min max amount
+	///6046.0 vl velocity min max amount
+	bool setMaxMinFrequency(){
+		//return parentDevice->writeSDO_U16(0x6046, 0x0, <#const uint16_t &data#>);
+	}
 	
-	///6048.? velocity acceleration
+	///6048.0 velocity acceleration
+	bool setFrequencyAcceleration(){
+		//return parentDevice->writeSDO_U16(0x6048, 0x0, <#const uint16_t &data#>);
+	}
 	
 	///6049.? velocity deceleration
+	bool setFrequencyDeceleration(){
+		//return parentDevice->writeSDO_U16(0x6049, 0x0, <#const uint16_t &data#>);
+	}
 	
 	//=== Position
 	

@@ -2,10 +2,10 @@
     <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:333)" UniqueID="31">
-                <NodeEditorPosition x="464" y="472"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340 (Alias:30303)" UniqueID="33">
+                <NodeEditorPosition x="496" y="416"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="333"/>
+                    <Identification Type="StationAlias" StationAlias="30303"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
