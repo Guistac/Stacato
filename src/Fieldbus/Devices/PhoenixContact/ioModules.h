@@ -66,9 +66,31 @@ public:
 
 }
 
-//=================================================================
-//============== 050-1BS00 Single SSI Encoder Input ===============
-//=================================================================
+//=======================================================
+//================== Relais Output x2 ===================
+//=======================================================
+
+namespace PhoenixContact{
+
+class IB_IL_24_48_DOR_2 : public EtherCAT::DeviceModule{
+public:
+	DEFINE_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
+	
+	//pdo data
+	uint8_t outputByte;
+	
+	//pin value
+	std::vector<std::shared_ptr<bool>> inputPinValues;
+	
+	//parameters
+	bool invertOutputs[2] = {false, false};
+};
+
+}
+
+//=======================================================
+//============== Single SSI Encoder Input ===============
+//=======================================================
 
 
 namespace PhoenixContact::SSI{

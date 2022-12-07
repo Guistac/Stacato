@@ -11,6 +11,7 @@ namespace ModuleFactory{
 		static std::vector<EtherCAT::DeviceModule*> moduleList = {
 			new IB_IL_24_DI_4(),
 			new IB_IL_24_DO_4(),
+			new IB_IL_24_48_DOR_2(),
 			new IB_IL_SSI_IN()
 		};
 		return moduleList;
@@ -191,6 +192,102 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 	}
 	return true;
 }
+
+
+//=======================================================
+//================== Relais Output x2 ===================
+//=======================================================
+
+
+
+void IB_IL_24_48_DOR_2::onConstruction(){
+	for(int i = 0; i < 2; i++){
+		static char pinName[64];
+		sprintf(pinName, "Relais Output %i", i);
+		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
+		pin->assignData(pinValue);
+		inputPinValues.push_back(pinValue);
+		inputPins.push_back(pin);
+	}
+}
+
+void IB_IL_24_48_DOR_2::onSetIndex(int i){
+	for(int i = 0; i < 2; i++){
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, i);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, i);
+	}
+}
+void IB_IL_24_48_DOR_2::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
+	//module has no txPdo
+}
+void IB_IL_24_48_DOR_2::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement){
+	rxPdoAssignement.addNewModule(0x1600 + moduleIndex);
+	rxPdoAssignement.addEntry(0x7000 + moduleIndex * 0x10, 0x1, 8, "Relais Outputs", &outputByte);
+}
+bool IB_IL_24_48_DOR_2::configureParameters(){ return true; }
+void IB_IL_24_48_DOR_2::readInputs(){}
+void IB_IL_24_48_DOR_2::writeOutputs(){
+	outputByte = 0x0;
+	for(int i = 0; i < 2; i++){
+		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
+		bool inputPinValue = *inputPinValues[i];
+		if(invertOutputs[i]) inputPinValue = !inputPinValue;
+		if(inputPinValue) outputByte |= (0x1 << i);
+	}
+}
+void IB_IL_24_48_DOR_2::moduleGui(){
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("All outputs return to open when fieldbus is stopped.");
+	ImGui::PopStyleColor();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Signal Inversion");
+	ImGui::PopFont();
+	for(int i = 0; i < 2; i++){
+		ImGui::PushID(i);
+		ImGui::Checkbox("##invert", &invertOutputs[i]);
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::PopFont();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
+		ImGui::SameLine();
+		ImGui::PopStyleVar();
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		if(invertOutputs[i]) ImGui::Text(" is inverted");
+		else ImGui::Text(" is not inverted");
+		ImGui::PopStyleColor();
+		ImGui::PopID();
+	}
+}
+bool IB_IL_24_48_DOR_2::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
+	char attributeName[64];
+	for(int i = 0; i < 2; i++){
+		sprintf(attributeName, "InvertOutput%i", i);
+		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
+	}
+	return true;
+}
+bool IB_IL_24_48_DOR_2::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
+	if(inversionXML == nullptr) {
+		return Logger::warn("could not find signal inversion attribute");
+	}
+	char attributeName[32];
+	for(int i = 0; i < 2; i++){
+		sprintf(attributeName, "InvertOutput%i", i);
+		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
+			return Logger::warn("could not find output %i inversion attribute", i);
+		}
+	}
+	return true;
+}
+
+
 
 
 //=================================================================

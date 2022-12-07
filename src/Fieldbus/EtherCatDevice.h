@@ -79,12 +79,13 @@ public:
     uint16_t getAssignedAddress() { return identity->configadr; } //configured station address
 
     //state machine
-    bool isStateNone()              { return (identity->state & 0xF) == EC_STATE_NONE; }
-    bool isStateInit()              { return (identity->state & 0xF) == EC_STATE_INIT; }
-    bool isStatePreOperational()    { return (identity->state & 0xF) == EC_STATE_PRE_OP; }
-    bool isStateBootstrap()         { return (identity->state & 0xF) == EC_STATE_BOOT; }
-    bool isStateSafeOperational()   { return (identity->state & 0xF) == EC_STATE_SAFE_OP; }
-    bool isStateOperational()       { return (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
+	bool isOffline()				{ return identity == nullptr;}
+    bool isStateNone()              { return identity != nullptr && (identity->state & 0xF) == EC_STATE_NONE; }
+    bool isStateInit()              { return identity != nullptr && (identity->state & 0xF) == EC_STATE_INIT; }
+    bool isStatePreOperational()    { return identity != nullptr && (identity->state & 0xF) == EC_STATE_PRE_OP; }
+    bool isStateBootstrap()         { return identity != nullptr && (identity->state & 0xF) == EC_STATE_BOOT; }
+    bool isStateSafeOperational()   { return identity != nullptr && (identity->state & 0xF) == EC_STATE_SAFE_OP; }
+    bool isStateOperational()       { return identity != nullptr && (identity->state & 0xF) == EC_STATE_OPERATIONAL; }
 
     const char* getEtherCatStateChar();
 	glm::vec4 getEtherCatStateColor();

@@ -23,7 +23,7 @@ namespace EtherCatError {
 		switch (error.Etype) {
 			case EC_ERR_TYPE_SDO_ERROR:
 				errorString = ec_sdoerror2string(error.AbortCode);
-				Logger::debug("SDO Error: Slave '{}' 0x{:X}:{:X} {}", slaveName, error.Index, error.SubIdx, errorString); break;
+				Logger::warn("SDO Error: Slave '{}' 0x{:X}:{:X} {}", slaveName, error.Index, error.SubIdx, errorString); break;
 			case EC_ERR_TYPE_PACKET_ERROR:
 				switch (error.AbortCode) {
 					case 1: errorString = "Unexpected Frame Returned"; break;

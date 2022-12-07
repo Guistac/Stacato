@@ -2,60 +2,62 @@
     <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="7">
-                <InputNodeEditorPosition x="840" y="486"/>
-                <OutputNodeEditorPosition x="312" y="450"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Freins Partie Basse (Alias 123)" UniqueID="35">
+                <NodeEditorPosition x="530" y="407"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="33"/>
+                    <Identification Type="StationAlias" StationAlias="123"/>
                     <ModularDeviceProfile>
                         <Modules>
+                            <Module Type="IB IL 24 DO 4-PAC">
+                                <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false"/>
+                            </Module>
                             <Module Type="IB IL 24 DI 4-PAC">
                                 <SignalInversion InvertInput0="false" InvertInput1="false" InvertInput2="false" InvertInput3="false"/>
                             </Module>
-                            <Module Type="IB IL 24 DO 4-PAC">
-                                <SignalInversion InvertOutput0="false" InvertOutput1="true" InvertOutput2="false" InvertOutput3="false"/>
-                            </Module>
-                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
                         </Modules>
                     </ModularDeviceProfile>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Module1DigitalOutput0" DisplayString="Module 1 Digital Output 0" DataType="Boolean" UniqueID="13" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="Module 1 Digital Output 1" DataType="Boolean" UniqueID="14" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Module 1 Digital Output 2" DataType="Boolean" UniqueID="15" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Module 1 Digital Output 3" DataType="Boolean" UniqueID="16" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput0" DisplayString="Out 0 Fermeture Frein" DataType="Boolean" UniqueID="37" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput1" DisplayString="Out 1 Ouverture Frein" DataType="Boolean" UniqueID="38" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput2" DisplayString="Out 2 Acquittement Défaut" DataType="Boolean" UniqueID="39" Visible="true"/>
+                    <InputPin SaveString="Module0DigitalOutput3" DisplayString="Out 3" DataType="Boolean" UniqueID="40" Visible="false"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="8" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module0DigitalInput0" DisplayString="Module 0 Digital Input 0" DataType="Boolean" UniqueID="9" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput1" DisplayString="Module 0 Digital Input 1" DataType="Boolean" UniqueID="10" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="11" Visible="true"/>
-                    <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="12" Visible="true"/>
-                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="17" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="18" Visible="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="36" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module1DigitalInput0" DisplayString="In 0 Fin de course frein fermé" DataType="Boolean" UniqueID="41" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput1" DisplayString="In 1 Fin de course frein ouvert" DataType="Boolean" UniqueID="42" Visible="true"/>
+                    <OutputPin SaveString="Module1DigitalInput2" DisplayString="In 2" DataType="Boolean" UniqueID="43" Visible="false"/>
+                    <OutputPin SaveString="Module1DigitalInput3" DisplayString="In 3" DataType="Boolean" UniqueID="44" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="20">
-                <NodeEditorPosition x="696" y="512"/>
-                <NodeSpecificData/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340" UniqueID="46">
+                <NodeEditorPosition x="592" y="610"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="false" ConfigMotorPower="true" ConfigMotorSpeed="false"/>
+                </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="21" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="47" Visible="true"/>
+                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="48" Visible="true"/>
+                    <InputPin SaveString="Relais Output 1" DisplayString="Relais Output 1" DataType="Boolean" UniqueID="49" Visible="true"/>
+                    <InputPin SaveString="Relais Output 2" DisplayString="Relais Output 2" DataType="Boolean" UniqueID="50" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="22" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI 1" DisplayString="DI 1" DataType="Boolean" UniqueID="51" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI 2" DisplayString="DI 2" DataType="Boolean" UniqueID="52" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI 3" DisplayString="DI 3" DataType="Boolean" UniqueID="53" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI 4" DisplayString="DI 4" DataType="Boolean" UniqueID="54" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI 5" DisplayString="DI 5" DataType="Boolean" UniqueID="55" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="AI 1" DisplayString="AI 1" DataType="Real" UniqueID="56" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="AI 2" DisplayString="AI 2" DataType="Real" UniqueID="57" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
-        <Links>
-            <Link UniqueID="23" StartPin="9" EndPin="21"/>
-            <Link UniqueID="24" StartPin="18" EndPin="21"/>
-            <Link UniqueID="25" StartPin="22" EndPin="15"/>
-            <Link UniqueID="27" StartPin="9" EndPin="13"/>
-            <Link UniqueID="29" StartPin="9" EndPin="14"/>
-        </Links>
+        <Links/>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="8" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="1" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>

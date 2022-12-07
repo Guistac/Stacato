@@ -500,6 +500,20 @@ void EtherCatDevice::sendReceiveCanOpenGui() {
         ImGui::Text(downloadCoeData.b_isTransfering ? "Downloading..." : (downloadCoeData.b_transferSuccessfull ? "Download Successfull" : "Download Failed"));
     }
 
+	
+	if(ImGui::Button("read OD list")){
+		ec_ODlistt odlist;
+		int ret = ec_readODlist(getSlaveIndex(), &odlist);
+		Logger::warn("read od list ret {}", ret);
+		
+		//ret = ec_readODdescription(0x6040, &odlist);
+		//Logger::warn("read od description ret {}", ret)
+		
+		//ec_readOE(<#uint16 Item#>, <#ec_ODlistt *pODlist#>, <#ec_OElistt *pOElist#>)
+		//ec_readOEsingle(<#uint16 Item#>, <#uint8 SubI#>, <#ec_ODlistt *pODlist#>, <#ec_OElistt *pOElist#>)
+	}
+	
+	
 	ImGui::EndDisabled();
 
     ImGui::PopID();

@@ -2,7 +2,9 @@
 
 #include "EtherCatPDO.h"
 
-int8_t getOperatingModeInteger(DS402Axis::OperatingMode mode) {
+
+
+int8_t DS402Axis::getOperatingModeCode(DS402Axis::OperatingMode mode) {
 	switch(mode){
 		case DS402Axis::OperatingMode::NONE:												return 0;
 		case DS402Axis::OperatingMode::PROFILE_POSITION:									return 1;
@@ -18,8 +20,8 @@ int8_t getOperatingModeInteger(DS402Axis::OperatingMode mode) {
 	}
 }
 
-DS402Axis::OperatingMode getOperatingMode(int8_t i) {
-	switch(i){
+DS402Axis::OperatingMode DS402Axis::getOperatingMode(int8_t code) {
+	switch(code){
 		case 0: return DS402Axis::OperatingMode::NONE;
 		case 1: return DS402Axis::OperatingMode::PROFILE_POSITION;
 		case 2: return DS402Axis::OperatingMode::VELOCITY;
@@ -37,201 +39,255 @@ DS402Axis::OperatingMode getOperatingMode(int8_t i) {
 
 
 
-void DS402Axis::configureProcessData(EtherCatPdoAssignement& rxPdo, EtherCatPdoAssignement& txPdo){
+void DS402Axis::configureProcessData(){
+
+	int operatingModeCount = 0;
 	
-	rxPdo.addEntry(0x6040, 0x0, 16, "DS402_controlWord", &controlWord);
-	rxPdo.addEntry(0x6060, 0x0, 8, "DS402_operatingModeSelection", &operatingModeSelection);
+	//count operating modes
+	//if there is only 1 operating mode, we don't need to configue the operating mode control as pdo data
+	if(processDataConfiguration.operatingModes.frequency) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousPosition) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousVelocity) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousTorque) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.cyclicSynchronousTorqueWithCommutationAngle) operatingModeCount++;
+	if(processDataConfiguration.operatingModes.homing) operatingModeCount++;
 	
-	txPdo.addEntry(0x6041, 0x0, 16, "DS402_statusWord", &statusWord);
-	txPdo.addEntry(0x6061, 0x0, 8, "DS402_operatingModeDisplay", &operatingModeDisplay);
+	//———— Drive Operation
 	
-	if(configure_Velocity){
-		rxPdo.addEntry(0x6042, 0x0, 16, "vl_velocityTarget", &vl_velocityTarget);
-		txPdo.addEntry(0x6044, 0x0, 16, "vl_velocityActual", &vl_velocityActual);
+	//mandatory objects
+	parentDevice->rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DS402 Control Word", &processData.controlWord);
+	parentDevice->txPdoAssignement.addEntry(0x6041, 0x0, 16, "DS402 Status Word", &processData.statusWord);
+	
+	if(operatingModeCount > 1){
+		parentDevice->rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DS402 Operating Mode Selection", &processData.operatingModeSelection);
+		parentDevice->txPdoAssignement.addEntry(0x6061, 0x0, 8, "DS402 Operating Mode Display", &processData.operatingModeDisplay);
 	}
-	if(configure_CyclicSynchronousPosition){
-		rxPdo.addEntry(0x607A, 0x0, 32, "csp_positionTarget", &csp_positionTarget);
-	}
-	if(configure_CyclicSynchronousVelocity){
-		rxPdo.addEntry(0x60FF, 0x0, 32, "csv_velocityTarget", &csv_velocityTarget);
-	}
-	if(configure_CyclicSynchronousTorque){
-		rxPdo.addEntry(0x6071, 0x0, 32, "cst_torqueTarget", &cst_torqueTarget);
-	}
-	if(configure_CyclicSynchronousPosition
-	   || configure_CyclicSynchronousVelocity
-	   || configure_CyclicSynchronousTorque){
-		txPdo.addEntry(0x6064, 0x0, 32, "csp_positionActual", &csp_positionActual);
-		txPdo.addEntry(0x606C, 0x0, 32, "csv_velocityActual", &csv_velocityActual);
-		txPdo.addEntry(0x6077, 0x0, 32, "cst_torqueActual", &cst_torqueActual);
-	}
+	
+	///603F.0 Error Code
+	if(processDataConfiguration.errorCode)
+		parentDevice->txPdoAssignement.addEntry(0x603F, 0x0, 16, "DS402 Error Code", &processData.errorCode);
+	
+	//———— Frequency Converter
+	
+	///6042.0 Target Velocity (frequency converter mode)
+	if(processDataConfiguration.targetFrequency)
+		parentDevice->rxPdoAssignement.addEntry(0x6042, 0x0, 16, "DS402 Target Frequency", &processData.targetFrequency);
+	
+	///6044.0 Velocity Actual Value (frequency converter mode)
+	if(processDataConfiguration.frequencyActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x6044, 0x0, 16, "DS402 Frequency Actual Value", &processData.frequencyActualValue);
+	
+	//———— Position
+	
+	///607A.0 Target Position
+	if(processDataConfiguration.targetPosition)
+		parentDevice->rxPdoAssignement.addEntry(0x607A, 0x0, 32, "DS402 Target Position", &processData.targetPosition);
+	
+	///6064.0 Position Actual Value
+	if(processDataConfiguration.positionActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x6064, 0x0, 32, "DS402 Position Actual Value", &processData.positionActualValue);
+	
+	///60F4.0 Following Error Actual Value (int32, position units)
+	if(processDataConfiguration.positionFollowingErrorActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x60F4, 0x0, 32, "DS402 Position Following Error Actual Value", &processData.positionFollowingErrorActualValue);
+	
+	//———— Velocity
+	
+	///60FF.0 Target Velocity
+	if(processDataConfiguration.targetVelocity)
+		parentDevice->rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "DS402 Target Velocity", &processData.targetVelocity);
+	
+	///606C.0 Velocity Actual Value
+	if(processDataConfiguration.velocityActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x606C, 0x0, 32, "DS402 Velocity Actual Value", &processData.velocityActualValue);
+	
+	//———— Torque
+	
+	///6071.0 Target Torque
+	if(processDataConfiguration.targetTorque)
+		parentDevice->rxPdoAssignement.addEntry(0x6071, 0x0, 16, "DS402 Target Torque", &processData.targetTorque);
+	
+	///6077.0 Torque Actual Value
+	if(processDataConfiguration.torqueActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x6077, 0x0, 16, "DS402 Torque Actual Value", &processData.torqueActualValue);
+	
+	///6078.0 Current Actual Value
+	if(processDataConfiguration.currentActualValue)
+		parentDevice->txPdoAssignement.addEntry(0x6078, 0x0, 16, "DS402 Current Actual Value", &processData.currentActualValue);
+	
+	///60EA.0 Commutation Angle
+	//bool commutationAngle = false;
+	
+	///60FA Control Effort
+	//bool controlEffort = false;
+	
+	//———— Inputs and Outputs
+	
+	///60FD.0 Digital Inputs
+	if(processDataConfiguration.digitalInputs)
+		parentDevice->txPdoAssignement.addEntry(0x60FD, 0x0, 32, "DS402 Digital Inputs", &processData.digitalInputs);
+	
+	///60FE.1 Digital Outputs
+	if(processDataConfiguration.digitalOutputs)
+		parentDevice->rxPdoAssignement.addEntry(0x60FE, 0x1, 32, "DS402 Digital Outputs", &processData.digitalOutputs);
+	
 }
 
 void DS402Axis::updateInputs(){
 	
-	//=== update actual power state
-	bool readyToSwitchOn_bit =	(statusWord >> 0) & 0x1;
-	bool switchedOn_bit =		(statusWord >> 1) & 0x1;
-	bool operationEnabled_bit = (statusWord >> 2) & 0x1;
-	bool fault_bit =			(statusWord >> 3) & 0x1;
-	bool quickstop_bit =		(statusWord >> 5) & 0x1;
-	bool switchOnDisabled_bit = (statusWord >> 6) & 0x1;
-	if (readyToSwitchOn_bit) {
-		if (fault_bit) 					powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
-		else if (!quickstop_bit) 		powerStateActual = DS402Axis::PowerState::QUICKSTOP_ACTIVE;
-		else if (operationEnabled_bit) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
-		else if (switchedOn_bit) 		powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
-		else 							powerStateActual = DS402Axis::PowerState::READY_TO_SWITCH_ON;
-	}
-	else {
-		if (fault_bit) 					powerStateActual = DS402Axis::PowerState::FAULT;
-		else if (switchOnDisabled_bit) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
-		else 							powerStateActual = DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON;
-	}
+	bool b_readyToSwitchOn		= (processData.statusWord >> 0) & 0x1;
+	bool b_switchedOn 			= (processData.statusWord >> 1) & 0x1;
+	bool b_operationEnabled 	= (processData.statusWord >> 2) & 0x1;
+	b_hasFault					= (processData.statusWord >> 3) & 0x1;
+	b_voltageEnabled 			= (processData.statusWord >> 4) & 0x1;
+	bool b_quickstop 			= (processData.statusWord >> 5) & 0x1;
+	bool b_switchOnDisabled 	= (processData.statusWord >> 6) & 0x1;
+	b_hasWarning 				= (processData.statusWord >> 7) & 0x1;
+	statusWord_ManSpecBit_8 	= (processData.statusWord >> 8) & 0x1;
+	b_remoteControlActive 		= (processData.statusWord >> 9) & 0x1;
+	statusWord_OpSpecBit_10 	= (processData.statusWord >> 10) & 0x1;
+	b_internalLimitReached 		= (processData.statusWord >> 11) & 0x1;
+	statusWord_OpSpecBit_12 	= (processData.statusWord >> 12) & 0x1;
+	statusWord_OpSpecBit_13 	= (processData.statusWord >> 13) & 0x1;
+	statusWord_ManSpecBit_14 	= (processData.statusWord >> 14) & 0x1;
+	statusWord_ManSpecBit_15 	= (processData.statusWord >> 15) & 0x1;
 	
-	//TODO: we should react to power state changes and change the state target accordingly
+	//Logger::warn("statusword: {:b}", processData.statusWord);
+	
+	
+	//——— old power state solver, we should compare that with future drives
+	//if (b_readyToSwitchOn) {
+	//	if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT_REACTION_ACTIVE;
+	//	else if (!b_quickstop)			powerStateActual = PowerState::QUICKSTOP_ACTIVE;
+	//	else if (b_operationEnabled) 	powerStateActual = DS402Axis::PowerState::OPERATION_ENABLED;
+	//	else if (b_switchedOn) 			powerStateActual = DS402Axis::PowerState::SWITCHED_ON;
+	//	else 							powerStateActual = DS402Axis::PowerState::READY_TO_SWITCH_ON;
+	//}
+	//else {
+	//	if (b_hasFault) 				powerStateActual = DS402Axis::PowerState::FAULT;
+	//	else if (b_switchOnDisabled) 	powerStateActual = DS402Axis::PowerState::SWITCH_ON_DISABLED;
+	//	else 							powerStateActual = DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON;
+	//}
+	
+
+	
+	//=== update actual power state
+	PowerState previousPowerState = powerStateActual;
+	if(b_hasFault && (!b_operationEnabled || !b_switchedOn || !b_readyToSwitchOn))
+		powerStateActual = PowerState::FAULT;
+	else if(b_hasFault)
+		powerStateActual = PowerState::FAULT_REACTION_ACTIVE;
+	else if(b_switchOnDisabled)
+		powerStateActual = PowerState::SWITCH_ON_DISABLED;
+	else if(!b_quickstop)
+		powerStateActual = PowerState::QUICKSTOP_ACTIVE;
+	else if(b_operationEnabled)
+		powerStateActual = PowerState::OPERATION_ENABLED;
+	else if(b_switchedOn)
+		powerStateActual = PowerState::SWITCHED_ON;
+	else if(b_readyToSwitchOn)
+		powerStateActual = PowerState::READY_TO_SWITCH_ON;
+	else
+		powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
+	
+	if(previousPowerState != powerStateActual)
+		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
 	
 	//=== update actual operating mode
-	operatingModeActual = getOperatingMode(operatingModeDisplay);
+	operatingModeActual = getOperatingMode(processData.operatingModeDisplay);
 	
-	//=== update axis state
-	b_isReady					= readyToSwitchOn_bit;
-	b_isEnabled					= operationEnabled_bit;
-	b_hasFault					= fault_bit;
-	b_voltageEnabled 			= (statusWord >> 4) & 0x1;
-	b_isQuickstop				= !quickstop_bit;
-	b_hasWarning 				= (statusWord >> 7) & 0x1;
-	b_isControlledRemotely 		= (statusWord >> 9) & 0x1;
-	b_internalLimitActive 		= (statusWord >> 11) & 0x1;
-	b_isFollowingCommandValue 	= (statusWord >> 12) & 0x1;
+	//Logger::warn("status word: {:b}", processData.statusWord);
 }
 
 void DS402Axis::updateOutput(){
 
 	//=== reset control word
-	controlWord = 0x0;
-	
-	//=== react to power stage commands
-	if(b_shouldEnable){
-		b_shouldEnable = false;
-		powerStateTarget = PowerState::OPERATION_ENABLED;
-	}
-	if(b_shouldDisable){
-		b_shouldDisable = false;
-		powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-	}
-	if(b_shouldQuickstop){
-		b_shouldQuickstop = false;
-		powerStateTarget = PowerState::QUICKSTOP_ACTIVE;
-	}
+	processData.controlWord = 0x0;
 	
 	//=== react to fault reset command
-	if(b_shouldFaultReset && !b_faultResetBusy){
-		controlWord |= (0x1 << 7);
+	if(b_doFaultReset && !b_faultResetBusy){
+		processData.controlWord |= (0x1 << 7);
 		b_faultResetBusy = true;
-		b_shouldFaultReset = false;
+		b_doFaultReset = false;
 	}else if(b_faultResetBusy){
 		b_faultResetBusy = false;
 	}
 	
+	
+	//Shutdown 			0110
+	//Switch On 		0111
+	//Disable Voltage	0100
+	//Quick Stop		0010
+	//Disable Operation	0111
+	//Enable Operation	1111
+	
 	//=== update power state target
 	switch(powerStateTarget){
-		case PowerState::QUICKSTOP_ACTIVE:{
-			//target: QUICKSTOP
+			
+		case TargetPowerState::DISABLED:{ //target: READY_TO_SWITCH_ON
 			switch(powerStateActual){
-				case PowerState::OPERATION_ENABLED:
-				case PowerState::QUICKSTOP_ACTIVE:
-					//go to QUICKSTOP_ACTIVE
-					controlWord |= 0b1011;
+				case PowerState::OPERATION_ENABLED: 	//transition 8
+				case PowerState::SWITCHED_ON:			//transition 6
+				case PowerState::SWITCH_ON_DISABLED:	//transition 2
+				case PowerState::READY_TO_SWITCH_ON:	//stay in state
+				case PowerState::QUICKSTOP_ACTIVE: 		//transition 12
+					processData.controlWord |= 0b0110; 	//Shutdown
 					break;
+				case PowerState::NOT_READY_TO_SWITCH_ON://transition 1
 				default:
-					//go to SWITCH_ON_DISABLED
-					controlWord |= 0b0000;
+					processData.controlWord |= 0b0100;	//Disable Voltage
 					break;
 			}
 		}break;
-		case PowerState::OPERATION_ENABLED:{
-			//target: OPERATION_ENABLED
+			
+		case TargetPowerState::ENABLED:{ //target: OPERATION_ENABLED
 			switch(powerStateActual){
-				case PowerState::SWITCHED_ON:
-				case PowerState::QUICKSTOP_ACTIVE:
-				case PowerState::OPERATION_ENABLED:
-					//go to OPERATION_ENABLED
-					controlWord |= 0b1111;
+				case PowerState::SWITCHED_ON:			//transition 4
+				case PowerState::QUICKSTOP_ACTIVE:		//transition 16
+				case PowerState::OPERATION_ENABLED:		//stay in state
+					processData.controlWord |= 0b1111; 	//Enable operation
 					break;
-				case PowerState::READY_TO_SWITCH_ON:
-					//go to SWITCHED_ON
-					controlWord |= 0b0111;
+				case PowerState::READY_TO_SWITCH_ON:	//transition 3
+					processData.controlWord |= 0b0111;	//Switch On
 					break;
+				case PowerState::SWITCH_ON_DISABLED:	//transition 2
+				case PowerState::NOT_READY_TO_SWITCH_ON://transition 1
 				default:
-					//go to READY_TO_SWITCH_ON
-					controlWord |= 0b0110;
+					processData.controlWord |= 0b0110;  //Shutdown
 					break;
 			}
 		}break;
-		case PowerState::READY_TO_SWITCH_ON:
-		default:{
-			//target: READY_TO_SWITCH_ON
+			
+		case TargetPowerState::QUICKSTOP_ACTIVE:{ //target: QUICKSTOP
 			switch(powerStateActual){
-				case PowerState::OPERATION_ENABLED:
-				case PowerState::SWITCHED_ON:
-				case PowerState::SWITCH_ON_DISABLED:
-				case PowerState::READY_TO_SWITCH_ON:
-					//go to READY_TO_SWITCH_ON
-					controlWord |= 0b0110;
+				case PowerState::OPERATION_ENABLED:		//transition 11
+				case PowerState::QUICKSTOP_ACTIVE:		//stay in state
+					processData.controlWord |= 0b0010;	//Quickstop
 					break;
 				default:
-					//go to SWITCH_ON_DISABLED
-					controlWord |= 0b0000;
+					//can't quickstop, go to READY_TO_SWITCH_ON
+					processData.controlWord |= 0b0110;
 					break;
 			}
 		}break;
 	}
 	
-	//update application specific control word bits
-	if(statusOpB4) controlWord |= 0x1 << 4;
-	if(statusOpB5) controlWord |= 0x1 << 5;
-	if(statusOpB6) controlWord |= 0x1 << 6;
-	if(statusOpB9) controlWord |= 0x1 << 9;
-	if(statusManB11) controlWord |= 0x1 << 11;
-	if(statusManB12) controlWord |= 0x1 << 12;
-	if(statusManB13) controlWord |= 0x1 << 13;
-	if(statusManB14) controlWord |= 0x1 << 14;
-	if(statusManB15) controlWord |= 0x1 << 15;
+	
+	
+	if(controlWord_OpSpecBit_4) 	processData.controlWord |= (0x1 << 4);
+	if(controlWord_OpSpecBit_5) 	processData.controlWord |= (0x1 << 5);
+	if(controlWord_OpSpecBit_6) 	processData.controlWord |= (0x1 << 6);
+	if(controlWord_OpSpecBit_9) 	processData.controlWord |= (0x1 << 9);
+	if(controlWord_ManSpecBit_11) 	processData.controlWord |= (0x1 << 11);
+	if(controlWord_ManSpecBit_12) 	processData.controlWord |= (0x1 << 12);
+	if(controlWord_ManSpecBit_13) 	processData.controlWord |= (0x1 << 13);
+	if(controlWord_ManSpecBit_14) 	processData.controlWord |= (0x1 << 14);
+	if(controlWord_ManSpecBit_15) 	processData.controlWord |= (0x1 << 15);
+	
+	//Logger::error("control word: {:b}", processData.controlWord);
 	
 	//=== update operating mode target
-	operatingModeSelection = getOperatingModeInteger(operatingModeTarget);
-	
-	//update cyclic targets if the modes are configured and not currently in use
-	if(configure_CyclicSynchronousPosition && operatingModeActual != OperatingMode::CYCLIC_SYNCHRONOUS_POSITION){
-		csp_positionTarget = csp_positionActual;
-	}
-	if(configure_CyclicSynchronousVelocity && operatingModeActual != OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY){
-		csv_velocityTarget = csv_velocityActual;
-	}
-	if(configure_CyclicSynchronousTorque && operatingModeActual != OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE){
-		cst_torqueTarget = cst_torqueActual;
-	}
-}
-
-void DS402Axis::setPosition(int32_t position){
-	csp_positionTarget = position;
-	operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
-}
-
-void DS402Axis::setVelocity(int32_t velocity){
-	csv_velocityTarget = velocity;
-	operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
-}
-
-void DS402Axis::setTorque(int32_t torque){
-	cst_torqueTarget = torque;
-	operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
-}
-
-void DS402Axis::setFrequency(int16_t frequency){
-	vl_velocityTarget = frequency;
-	operatingModeTarget = OperatingMode::VELOCITY;
+	processData.operatingModeSelection = getOperatingModeCode(operatingModeTarget);
 }
 
 
