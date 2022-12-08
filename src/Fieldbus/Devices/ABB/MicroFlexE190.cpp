@@ -11,6 +11,33 @@ void MicroFlex_e190::onDisconnection() {}
 
 void MicroFlex_e190::initialize() {
 	
+	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
+	
+	servo = std::make_shared<MicroFlexServoMotor>(thisMicroflex);
+	servoPin->assignData(std::static_pointer_cast<ServoActuatorDevice>(servo));
+	
+	gpio = std::make_shared<MicroFlexGpio>(thisMicroflex);
+	gpioPin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	
+	addNodePin(servoPin);
+	addNodePin(position_Pin);
+	addNodePin(velocity_Pin);
+	addNodePin(load_Pin);
+	addNodePin(gpioPin);
+	addNodePin(digitalIn0_Pin);
+	addNodePin(digitalIn1_Pin);
+	addNodePin(digitalIn2_Pin);
+	addNodePin(digitalIn3_Pin);
+	addNodePin(digitalOut0_Pin);
+	addNodePin(digitalOut1_Pin);
+	addNodePin(digitalOut2_Pin);
+	addNodePin(analogIn0_Pin);
+	addNodePin(analogOut0_Pin);
+	
+	velocityLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
+	accelerationLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
+	updateServoLimits();
+	
 	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
 	axis = DS402Axis::make(thisDevice);
 	
@@ -26,6 +53,7 @@ void MicroFlex_e190::initialize() {
 	txPdoAssignement.addNewModule(0x1A00);
 	axis->configureProcessData();
 	txPdoAssignement.addEntry(0x4022, 0x1, 16, "Analog Input 0", &AI0);
+	//rxPdoAssignement.addEntry(0x4022, 0x2, 16, "Analog Output 0", &AO0);
 }
 
 
@@ -49,29 +77,16 @@ bool MicroFlex_e190::startupConfiguration() {
 	//TODO: how do we set this? it seem the drive works best at 10ms cycle time and stutters at smaller cycle times
 	//if(!axis->setInterpolationTimePeriod(EtherCatFieldbus::processInterval_milliseconds)) return false;
 	
-	
-	//WHY IS THIS NOT WORKING ?
-	//6510.1 uint32 drive rated current, impossible to download a value (should be 6 amps)
-	//we keep getting error codes 10000 (motion aborted) and 149 (incorrect reference source) on enable
-	
-	//todo:
-	//current limiting
-	//drive units
-	
-	//checkout:
-	//6410.13 motor rated speed rpm
-	//5027.1 int32 drive current ???
-	
-	
-	
 	//———— Current Limitation
 	
-	double maxCurrentPercentage = 100.0;
-	
 	//as .1% increments of drive rated current
-	uint16_t maxCurrent = 10.0 * maxCurrentPercentage;
+	uint16_t maxCurrent = currentLimit_parameter->value * 10.0;
 	if(!axis->setMaxCurrent(maxCurrent)) return false;
 	
+	//———— Max Following Error
+	
+	uint32_t maxFollowingError = maxFollowingError_parameter->value * incrementsPerPositionUnit;
+	if(!axis->setPositionFollowingErrorWindow(maxFollowingError)) return false;
 	
 	//———— Error Reactions
 	
@@ -120,9 +135,9 @@ void MicroFlex_e190::readInputs() {
 	
 	
 	//Drive Status
-	b_estop = !isStateNone() && !axis->hasVoltage();
-	b_isReady = !isStateNone() && isStateOperational() && !b_estop && axis->isRemoteControlActive();
-	b_isEnabled = axis->isEnabled() && !b_waitingForEnable && axis->isRemoteControlActive();
+	bool b_estop = !isStateNone() && !axis->hasVoltage();
+	bool b_isReady = !isStateNone() && isStateOperational() && !b_estop && axis->isRemoteControlActive();
+	bool b_isEnabled = axis->isEnabled() && !b_waitingForEnable && axis->isRemoteControlActive();
 	
 	//fault logging
 	if(previousErrorCode != axis->getErrorCode()){
@@ -140,6 +155,28 @@ void MicroFlex_e190::readInputs() {
 	bool b_targetReached = axis->getOperatingModeSpeciricStatusWordBit_10();
 	bool b_homingAttainedOrFollowingTarget = axis->getOperatingModeSpeciricStatusWordBit_12();
 	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpeciricStatusWordBit_13();
+	
+	
+	//update servo state
+	servo->b_emergencyStopActive = b_estop;
+	if(isStateNone()) servo->state = MotionState::OFFLINE;
+	else if(b_isEnabled) servo->state = MotionState::ENABLED;
+	else if(b_isReady) servo->state = MotionState::READY;
+	else servo->state = MotionState::NOT_READY;
+	
+	
+	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;
+	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
+	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
+	
+	servo->position = actualPosition;
+	servo->velocity = actualVelocity;
+	servo->load = actualLoad;
+	
+	*position_Value = actualPosition;
+	*velocity_Value = actualVelocity;
+	*load_Value = actualLoad;
+	
 }
 
 
@@ -150,17 +187,16 @@ void MicroFlex_e190::writeOutputs() {
 	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	//handle enabling & disabling
-	if(b_shouldDisable){
-		b_shouldDisable = false;
-		b_shouldEnable = false;
+	if(servo->b_disable){
+		servo->b_disable = false;
+		servo->b_enable = false;
 		b_waitingForEnable = false;
 		axis->disable();
 	}
-	else if(b_shouldEnable){
-		if(axis->hasFault()) {
-			axis->doFaultReset();
-		}else{
-			b_shouldEnable = false;
+	else if(servo->b_enable){
+		if(axis->hasFault()) axis->doFaultReset();
+		else {
+			servo->b_enable = false;
 			b_waitingForEnable = true;
 			enableRequestTime_nanoseconds = now_nanoseconds;
 			axis->enable();
@@ -199,24 +235,27 @@ void MicroFlex_e190::writeOutputs() {
 	
 	
 	if(!axis->isEnabled()){
-		velocity = axis->getActualVelocity() / axisUnitsPerVel;
-		position = axis->getActualPosition() / axisUnitsPerPos;
-		axis->setPosition(position * axisUnitsPerPos);
+		profiler_velocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
+		profiler_position = double(axis->getActualPosition()) / incrementsPerPositionUnit;
+		axis->setPosition(axis->getActualPosition());
 	}else{
 		double deltaT_s = EtherCatFieldbus::getCycleTimeDelta_seconds();
+		double acceleration = accelerationLimit_parameter->value;
+		double velocityLimit = velocityLimit_parameter->value;
 		double deltaV = acceleration * deltaT_s;
-		if(manualVelocity > velocity) {
-			velocity += deltaV;
-			if(velocity > manualVelocity) velocity = manualVelocity;
+		if(manualVelocityTarget > profiler_velocity) {
+			profiler_velocity += deltaV;
+			if(profiler_velocity > manualVelocityTarget) profiler_velocity = manualVelocityTarget;
 		}
-		else if(manualVelocity < velocity) {
-			velocity -= deltaV;
-			if(velocity < manualVelocity) velocity = manualVelocity;
+		else if(manualVelocityTarget < profiler_velocity) {
+			profiler_velocity -= deltaV;
+			if(profiler_velocity < manualVelocityTarget) profiler_velocity = manualVelocityTarget;
 		}
-		velocity = std::clamp(velocity, -maxVelocity, maxVelocity);
-		double deltaP = velocity * deltaT_s;
-		position += deltaP;
-		axis->setPosition(position * axisUnitsPerPos);
+		profiler_velocity = std::clamp(profiler_velocity, -velocityLimit, velocityLimit);
+		double deltaP = profiler_velocity * deltaT_s;
+		profiler_position += deltaP;
+		//axis->setVelocity(profiler_velocity * incrementsPerVelocityUnit);
+		axis->setPosition(profiler_position * incrementsPerPositionUnit);
 	}
 	
 	axis->updateOutput();
@@ -229,11 +268,13 @@ void MicroFlex_e190::writeOutputs() {
 
 bool MicroFlex_e190::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	if(!axisParameters.save(xml)) return false;
     return true;
 }
 
 
 bool MicroFlex_e190::loadDeviceData(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
+	if(!axisParameters.load(xml)) return false;
     return true;
 }

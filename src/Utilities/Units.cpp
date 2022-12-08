@@ -38,6 +38,28 @@ namespace Units{
 		};
 	}
 
+	namespace Fraction{
+	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::FRACTION)
+		extern const UnitStructure* const Percent = new UnitStructure{
+			.unitType = Units::Type::FRACTION,
+			.singular = "Percent",
+			.plural = "Percent",
+			.abbreviated = "%",
+			.saveString = "Percent",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+		extern const UnitStructure* const Permille = new UnitStructure{
+			.unitType = Units::Type::FRACTION,
+			.singular = "Permille",
+			.plural = "Permille",
+			.abbreviated = "‰",
+			.saveString = "Permille",
+			.baseMultiplier = 10.0,
+			.baseOffset = 0.0
+		};
+	}
+
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::LINEAR_DISTANCE);
 		const UnitStructure* const Millimeter = new UnitStructure{
