@@ -67,7 +67,7 @@
                 <NodeEditorPosition x="488" y="29"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Axis VelocityLimit="60" AccelerationLimit="30" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
+                    <Axis VelocityLimit="60" AccelerationLimit="10" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="39" Visible="true"/>

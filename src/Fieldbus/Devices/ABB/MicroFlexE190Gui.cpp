@@ -68,11 +68,25 @@ void MicroFlex_e190::controlTab(){
 		manualVelocityTarget = 0.0;
 	}
 	
-	float loadProgress = *load_Value;
+	float loadProgress = servo->load;
+	while(loadProgress > 1.0) loadProgress -= 1.0;
 	char loadString[64];
 	sprintf(loadString, "Load: %.1f%%", servo->load * 100.0);
-	ImGui::ProgressBar(loadProgress, progressBarSize);
-
+	
+	if(*load_Value > 2.0) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::yellow);
+	}else if(*load_Value > 1.0){
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::green);
+	}else{
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_FrameBg));
+	}
+	ImGui::Text("Load: %.0f%%", servo->load * 100.0);
+	ImGui::ProgressBar(loadProgress, progressBarSize, "");
+	ImGui::PopStyleColor(2);
+	
 	//ImGui::InputFloat("Velocity Target", &manualVelocityTarget);
 	ImGui::Text("profiler position: %.3f", profiler_position);
 	ImGui::Text("actual position: %.3f", *position_Value);

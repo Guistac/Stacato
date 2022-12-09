@@ -44,6 +44,7 @@ void MicroFlex_e190::initialize() {
 	axis->processDataConfiguration.enableCyclicSynchronousPositionMode();
 	axis->processDataConfiguration.enableCyclicSynchronousVelocityMode();
 	axis->processDataConfiguration.enableHomingMode();
+	axis->processDataConfiguration.positionFollowingErrorActualValue = true;
 	axis->processDataConfiguration.errorCode = true;
 	axis->processDataConfiguration.currentActualValue = true;
 	axis->processDataConfiguration.digitalInputs = true;
@@ -91,6 +92,7 @@ bool MicroFlex_e190::startupConfiguration() {
 	//———— Error Reactions
 	
 	//ERRORDECEL
+	//uint32_t errorDeceleration = accelerationLimit_parameter->value * incrementsPerAccelerationUnit;
 	uint32_t errorDeceleration = 100;
 	if(!axis->setQuickstopDeceleration(errorDeceleration)) return false;
 	
