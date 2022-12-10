@@ -212,3 +212,187 @@ public:
 	//target data
 	double targetPosition;
 };
+
+
+
+
+
+
+
+
+
+
+//————————————— New Device Module classes
+// these are way simpled and more flexible
+
+class DeviceModule{
+public:
+	enum class Type{
+		GPIO,
+		MOTION_FEEDBACK,
+		ACTUATOR
+	};
+
+	enum class State{
+		OFFLINE,
+		NOT_READY,
+		READY,
+		ENABLING,
+		DISABLING,
+		ENABLED
+	};
+	
+	virtual Type getType() = 0;
+	
+	virtual std::string getName() { assert("DeviceModule::getName() : Method is not implemented"); }
+	virtual std::string getStatusString() { assert("DeviceModule::getStatusString() : Method is not implemented"); }
+	
+	State getState() { return state; }
+	
+protected:
+	State state = State::OFFLINE;
+};
+
+class GpioModule : public DeviceModule{
+public:
+	virtual Type getType() override { return Type::GPIO; }
+	
+	bool isOnline(){ return state != State::OFFLINE; }
+	bool isEnabled(){ return state == State::ENABLED; }
+};
+
+class MotionFeedbackModule : public GpioModule{
+public:
+	
+	virtual Type getType() override { return Type::MOTION_FEEDBACK; }
+
+	//supported data
+	bool supportsPosition(){	return feedbackConfig.b_supportsPosition; }
+	bool supportsVelocity(){ 	return feedbackConfig.b_suppportsVelocity; }
+	bool supportsForce(){		return feedbackConfig.b_supportsForce; }
+	bool supportsEffort(){ 		return feedbackConfig.b_supportsEffort; }
+	
+	//position feedback type
+	PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
+	
+	//position override
+	virtual void overridePosition(double newPosition){ 	assert("MotionFeedbackModule::overridePosition() : method is not implemented"); }
+	virtual bool isBusyOverridingPosition(){ 			assert("MotionFeedbackModule::isBusyOverridingPosition() : method is not implemented");  }
+	virtual bool didPositionOverrideSucceed(){			assert("MotionFeedbackModule::didPositionOverrideSucceed() : method is not implemented"); }
+	
+	//feedback data retrieval
+	Unit getPositionUnit(){ return positionUnit; }
+	double getPosition(){ 	return feedbackData.positionActual; }
+	double getVelocity(){ 	return feedbackData.velocityActual; }
+	double getForce(){ 		return feedbackData.forceActual; }
+	double getEffort(){ 	return feedbackData.effortActual; }
+	
+protected:
+	
+	Unit positionUnit = Units::None::None;
+	
+	struct FeedbackConfiguration{
+		bool b_supportsPosition = false;
+		bool b_suppportsVelocity = false;
+		bool b_supportsForce = false;
+		bool b_supportsEffort = false;
+		PositionFeedbackType positionFeedbackType = PositionFeedbackType::INCREMENTAL;
+		double positionLowerWorkingRangeBound = 0.0;	//lower position bound in position Units
+		double positionUpperWorkingRangeBound = 0.0;	//upper position bound in position Units
+	}feedbackConfig;
+	
+	struct Data{
+		double positionActual = 0.0; 	//actual position value in position Units
+		double velocityActual = 0.0;	//actual velocity value in position Units
+		double forceActual = 0.0;		//linear force in Newton or torque in Newton Meters
+		double effortActual = 0.0;		//control effort in a normalized range (1.0 = 100%)
+	}feedbackData;
+};
+
+class ActuatorModule : public MotionFeedbackModule{
+public:
+	
+	virtual Type getType() override {return Type::ACTUATOR; };
+	
+	bool isReady(){ return state != State::OFFLINE && state != State::NOT_READY; }
+	bool isEnabling(){ return state == State::ENABLING; }
+	bool isDisabling(){ return state == State::DISABLING; }
+	
+	virtual void enable() {		assert("ActuatorModule::enable() : method is not implemented"); }
+	virtual void disable() {	assert("ActuatorModule::disable() : method is not implemented"); }
+	
+	enum class ControlMode{
+		POSITION,
+		VELOCITY,
+		FORCE
+	};
+	
+	//supported control modes
+	bool supportsPositionControl(){ return actuatorConfig.b_supportsPosition = false; }
+	bool supportsVelocityControl(){ return actuatorConfig.b_supportsVelocity = false; }
+	bool supportsForceControl(){ 	return actuatorConfig.b_supportsForce = false; }
+	
+	//actuator limits
+	double getAccelerationLimit(){ 	return actuatorConfig.accelerationLimit; }
+	double getDecelerationLimit(){ 	return actuatorConfig.decelerationLimit; }
+	double getVelocityLimit(){ 		return actuatorConfig.velocityLimit; }
+	double getForceLimitPositive(){ return actuatorConfig.forceLimitPositive; }
+	double getForceLimitNegative(){ return actuatorConfig.forceLimitNegative; }
+	
+	//set motion targets
+	void setPositionTarget(double positionTarget){
+		actuatorControl.positionTarget = positionTarget;
+		actuatorControl.controlMode = ControlMode::POSITION;
+	}
+	void setVelocityTarget(double velocityTarget){
+		actuatorControl.velocityTarget = velocityTarget;
+		actuatorControl.controlMode = ControlMode::VELOCITY;
+	}
+	void setForceTarget(double forceTarget){
+		actuatorControl.forceTarget = forceTarget;
+		actuatorControl.controlMode = ControlMode::FORCE;
+	}
+	
+protected:
+	
+	struct ActuatorConfiguration{
+		bool b_supportsPosition = false;
+		bool b_supportsVelocity = false;
+		bool b_supportsForce = false;
+		double accelerationLimit = 0.0;		//in position units per second squared (absolute value)
+		double decelerationLimit = 0.0;		//in position units per second squared (absolute value)
+		double velocityLimit = 0.0;			//in position units per second (absolute value)
+		double forceLimitPositive = 0.0;	//in newton for linear actuators and newton meters for rotary actuators (absolute value)
+		double forceLimitNegative = 0.0;	//in newton for linear actuators and newton meters for rotary actuators (absolute value)
+	}actuatorConfig;
+	
+	struct ActuatorControl{
+		ControlMode controlMode = ControlMode::VELOCITY; //current control mode selection (not mode feedback)
+		double positionTarget = 0.0;	//in position units
+		double velocityTarget = 0.0;	//in position units per second
+		double forceTarget = 0.0;		//in newton for linear actuators and newton meters for rotary actuators
+	}actuatorControl;
+	
+};
+
+
+
+class TestActuator : public ActuatorModule{
+public:
+	
+	TestActuator(){
+		positionUnit = Units::AngularDistance::Revolution;
+		actuatorConfig.b_supportsPosition = true;
+		actuatorConfig.b_supportsVelocity = true;
+		actuatorConfig.accelerationLimit = 10.0;
+		actuatorConfig.decelerationLimit = 10.0;
+		actuatorConfig.velocityLimit = 50.0;
+		feedbackConfig.b_supportsPosition = true;
+		feedbackConfig.b_suppportsVelocity = true;
+		feedbackConfig.b_supportsEffort = true;
+		feedbackConfig.positionLowerWorkingRangeBound = -4096.0;
+		feedbackConfig.positionUpperWorkingRangeBound = 4096.0;
+		feedbackConfig.positionFeedbackType = PositionFeedbackType::ABSOLUTE;
+	}
+	
+};
