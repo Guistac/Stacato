@@ -12,6 +12,7 @@ namespace Units{
 		TEMPERATURE,
 		MASS,
 		DATA,
+		FRACTION,
 		NONE
 	};
 
@@ -40,6 +41,12 @@ namespace Units{
 	UNIT_TYPE_FUNCTIONS(Type::NONE);
 		extern const UnitStructure* const None;
 	}
+
+	namespace Fraction{
+	UNIT_TYPE_FUNCTIONS(Type::Fraction)
+		extern const UnitStructure* const Percent;
+		extern const UnitStructure* const Permille;
+	};
 
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS(Type::LINEAR_DISTANCE);

@@ -8,9 +8,17 @@ void ATV340::onConnection() {}
 void ATV340::onDisconnection() {}
 
 void ATV340::initialize() {
-	auto thisATV340 = std::static_pointer_cast<ATV340>(shared_from_this());
-	axis = DS402Axis::make(thisATV340);
+	
+	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 
+	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
+	motor_pin->assignData(std::static_pointer_cast<ActuatorDevice>(motor));
+	
+	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
+	gpio_pin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	
+	addNodePin(motor_pin);
+	addNodePin(gpio_pin);
 	
 	addNodePin(digitalInput1_Pin);
 	addNodePin(digitalInput2_Pin);
@@ -78,13 +86,14 @@ void ATV340::configureProcessData(){
 		axis->processDataConfiguration.frequencyActualValue = true;
 	}
 	if(pdo_readAnalogIn1->value){
-		txPdoAssignement.addEntry(0x2016, 0x17, 17, "AI1 Input Physical Image", &analogInput1);
+		txPdoAssignement.addEntry(0x2016, 0x2B, 16, "AI1 Input Physical Image", &analogInput1);
 	}
 	if(pdo_readAnalogIn2->value){
-		txPdoAssignement.addEntry(0x2016, 0x17, 18, "AI2 Input Physical Image", &analogInput1);
+		txPdoAssignement.addEntry(0x2016, 0x2C, 16, "AI2 Input Physical Image", &analogInput2);
 	}
 	
-	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode); //might be smarter to thread request of this data once the fault flag is up
+	//might be smarter to thread request of this data once the fault flag is up
+	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "Safe torque Off function Status", &stoState);
 	axis->configureProcessData();
 }
@@ -95,53 +104,201 @@ void ATV340::configureProcessData(){
 
 bool ATV340::startupConfiguration() {
 	
-	if(!axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY)) return false;
+	
+	if(!axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY)) {
+		return Logger::error("failed to set operating mode");
+	}
 	
 	//———— Control Profile Settings
-	/*
+	
 	//[fr1] configuration for reference frequency channel 1
 	uint16_t ref1configuration = 169; //169 = Communication Module
-	if(!writeSDO_U16(0x2036, 0xE, ref1configuration)) return false;
+	if(!writeSDO_U16(0x2036, 0xE, ref1configuration)) {
+		return Logger::error("failed to set velocity reference");
+	}
 
 	//[rfc] Frequency Switching assignement
-	uint16_t frequencySwitchingAssigment = 96; //96 = Reference Frequency Channel 1
-	if(!writeSDO_U16(0x2036, 0xC, frequencySwitchingAssigment)) return false;
+	uint16_t frequencySwitchingAssigment = 96; //96 = Fixed Reference Frequency Channel 1
+	if(!writeSDO_U16(0x2036, 0xC, frequencySwitchingAssigment)) {
+		return Logger::error("failed to set reference switching assignement");
+	}
 	
 	//[chcf] Control Mode
 	uint16_t controlMode = 1; //1=combined mode, ethercat has complete control of the drive
-	if(!writeSDO_U16(0x2036, 0x2, controlMode)) return false;
-	*/
+	if(!writeSDO_U16(0x2036, 0x2, controlMode)) {
+		return Logger::error("failed to set control mode");
+	}
 	
-	/*
 	//———— Dynamics and Limits
-	
-	//[inr] Ramp Time Increment: 0.01 second increments
-	uint16_t rampIncrement = 0; //(0=0.01, 1=0.1, 2=1.0)
-	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
 	
 	//[lsp] low speed (0.1Hz Increments)
 	uint16_t lowSpeed = 0;
 	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
 	
 	//[hsp] high speed (0.1Hz Increments)
-	uint16_t highSpeed = 1000;
+	uint16_t highSpeed = 500;
 	if(!writeSDO_U16(0x2001, 0x5, highSpeed)) return false;
 	
+	//[inr] Ramp Time Increment: 0.01 second increments
+	uint16_t rampIncrement = 0; //(0=0.01, 1=0.1, 2=1.0)
+	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
+	
 	//[acc] acceleration ramp time (0.01 second increments)
-	uint16_t accelerationRampTime = 300;
+	uint16_t accelerationRampTime = accelerationRampTime_param->value * 100;
 	if(!writeSDO_U16(0x203C, 0x2, accelerationRampTime)) return false;
 	
 	//[dec] deceleration ramp time (0.01 second increments)
-	uint16_t decelerationRampTime = 300;
+	uint16_t decelerationRampTime = decelerationRampTime_param->value * 100;
 	if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime)) return false;
-	*/
-	
 	
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
 	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
 	
 	return true;
 }
+
+//==============================================================
+//======================= READING INPUTS =======================
+//==============================================================
+
+void ATV340::readInputs() {
+	txPdoAssignement.pullDataFrom(identity->inputs);
+	axis->updateInputs();
+	
+	bool b_estop = !isOffline() && stoState != 0;
+	bool b_isReady = !isOffline() && isStateOperational() && !b_estop;// && axis->isRemoteControlActive();
+	bool b_isEnabled = axis->isEnabled() && !b_waitingForEnable;// && axis->isRemoteControlActive();
+	
+	if(motor->isEnabled() && !axis->isEnabled()) {
+		axis->disable();
+	}
+	
+	//update servo state
+	motor->b_emergencyStopActive = b_estop;
+	if(isStateNone()) motor->state = MotionState::OFFLINE;
+	else if(!axis->hasVoltage()) motor->state = MotionState::NOT_READY;
+	else if(b_isEnabled) motor->state = MotionState::ENABLED;
+	else if(b_isReady) motor->state = MotionState::READY;
+	else motor->state = MotionState::NOT_READY;
+	
+	//these are unconfirmed...
+	*digitalInput1_Signal = logicInputs & (0x1 << 0);
+	*digitalInput2_Signal = logicInputs & (0x1 << 1);
+	*digitalInput3_Signal = logicInputs & (0x1 << 2);
+	*digitalInput4_Signal = logicInputs & (0x1 << 3);
+	*digitalInput5_Signal = logicInputs & (0x1 << 4);
+	
+	//here there should be range remapping
+	*analogInput1_value = analogInput1;
+	*analogInput2_value = analogInput2;
+	
+	//servo->position = actualPosition;
+	//servo->velocity = actualVelocity;
+	//servo->load = actualLoad;
+}
+
+//==============================================================
+//====================== PREPARING OUTPUTS =====================
+//==============================================================
+
+void ATV340::writeOutputs() {
+	
+	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+	
+	//handle enabling & disabling
+	if(motor->b_disable){
+		motor->b_disable = false;
+		motor->b_enable = false;
+		b_waitingForEnable = false;
+		axis->disable();
+	}
+	else if(motor->b_enable){
+		if(axis->hasFault()) axis->doFaultReset();
+		else {
+			motor->b_enable = false;
+			b_waitingForEnable = true;
+			enableRequestTime_nanoseconds = now_nanoseconds;
+			axis->enable();
+		}
+	}
+	else if(b_waitingForEnable){
+		static const long long maxEnableTime_nanoseconds = 1000'000'000; //100ms
+		if(axis->isEnabled()) {
+			Logger::info("Drive Enabled");
+			b_waitingForEnable = false;
+		}
+		else if(now_nanoseconds - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
+			Logger::warn("Enable request timed out");
+			b_waitingForEnable = false;
+			axis->disable();
+		}
+	}
+	
+	//fault handling
+	if(axis->hasFault()){
+		//auto clear fault during enable
+		if(b_waitingForEnable) axis->doFaultReset();
+		else axis->disable();
+	}
+	
+	axis->setFrequency(manualVelocityTarget_rpm);
+	
+	
+	
+	logicOutputs = 0x0;
+	if(*relaisOutput1_Signal)	logicOutputs |= 0x1 << 0;
+	if(*relaisOutput2_Signal)	logicOutputs |= 0x1 << 1;
+	if(*digitalOutput1_Signal)	logicOutputs |= 0x1 << 8;
+	if(*digitalOutput2_Signal)	logicOutputs |= 0x1 << 9;
+	
+	axis->updateOutput();
+	rxPdoAssignement.pushDataTo(identity->outputs);
+}
+
+//============================= SAVING AND LOADING DEVICE DATA ============================
+
+bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	if(!pdoConfig.save(xml)) return false;
+	if(!kinematicsParameters.save(xml)) return false;
+	
+	return true;
+}
+
+bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	if(!pdoConfig.load(xml)) return false;
+	if(!kinematicsParameters.load(xml)) return false;
+	
+	for(auto parameter : pdoConfig.get()) parameter->onEdit();
+	
+	return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 bool ATV340::configureMotor(){
 	
@@ -297,51 +454,6 @@ bool ATV340::configureMotor(){
 	
 	if(autotuningStatus == 3) Logger::warn("Autotuning Failed");
 	else if(autotuningStatus == 4) Logger::warn("Autotuning Done");
-	
-	return true;
-}
-
-//==============================================================
-//======================= READING INPUTS =======================
-//==============================================================
-
-void ATV340::readInputs() {
-	txPdoAssignement.pullDataFrom(identity->inputs);
-	axis->updateInputs();
-}
-
-//==============================================================
-//====================== PREPARING OUTPUTS =====================
-//==============================================================
-
-void ATV340::writeOutputs() {
-	
-	logicOutputs = 0x0;
-	if(relayOut1)	logicOutputs |= 0x1 << 0;
-	if(relayOut2)	logicOutputs |= 0x1 << 1;
-	if(digitalOut1) logicOutputs |= 0x1 << 8;
-	if(digitalOut2) logicOutputs |= 0x1 << 9;
-	
-	axis->updateOutput();
-	rxPdoAssignement.pushDataTo(identity->outputs);
-}
-
-//============================= SAVING AND LOADING DEVICE DATA ============================
-
-bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	
-	if(!pdoConfig.save(xml)) return false;
-	
-	return true;
-}
-
-bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	
-	if(!pdoConfig.load(xml))
-	
-	for(auto parameter : pdoConfig.get()) parameter->onEdit();
 	
 	return true;
 }

@@ -4,6 +4,7 @@
 #include "Utilities/ScrollingBuffer.h"
 
 #include "Fieldbus/Utilities/DS402Axis.h"
+#include "Project/Editor/Parameter.h"
 
 class MicroFlex_e190 : public EtherCatDevice {
 public:
@@ -12,60 +13,100 @@ public:
 	
 	//Process data
 	std::shared_ptr<DS402Axis> axis;
+	uint32_t digitalInputs;
+	uint32_t digitalOutputs;
 	int16_t AI0;
+	int16_t AO0;
 	
-	//TODO: list
-	//figure out position velocity acceleration units and scaling
-	//adjust enable timings
+	class MicroFlexServoMotor : public ServoActuatorDevice{
+	public:
+		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) :
+		MotionDevice(Units::AngularDistance::Revolution),
+		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::INCREMENTAL),
+		drive(microflex){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
+		
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		std::shared_ptr<MicroFlex_e190> drive;
+		
+		virtual bool canHardReset() override { return true; }
+		virtual void executeHardReset() override { drive->b_resetEncoder = true; }
+		virtual bool isExecutingHardReset() override { return drive->b_encoderResetBusy; }
+	};
 	
-	//0x5062 : input pin function assignement (int16)
-	//values: -1 (function disabled) or 0-3 (input pin number)
-	//5062.1 error input
-	//5062.2 home input
-	//5062.3 limit forward input
-	//5062.4 limit reverse input
-	//5062.5 motor temperature input
-	//5062.6 phase search input
-	//5062.7 reset input
-	//5062.8 stop input
-	//5062.9 suspend input
-	//5062.A power ready input
+	class MicroFlexGpio : public GpioDevice{
+	public:
+		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) :
+		GpioDevice(),
+		drive(microflex){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
+		
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		std::shared_ptr<MicroFlex_e190> drive;
+	};
 	
-	//0x5061 : outpt pin function assignement (int16)
-	//values: -1 (function disabled) or 1-2 (output pin number)
-	//5061.1 drive enabled output
-	//5061.2 motor brake output
-	//5061.3 phase search output
-	//5061.4 power ready output
+	std::shared_ptr<MicroFlexServoMotor> servo;
+	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
 	
-	//0x4035.1 int32 Encoder Multiturn Resolution
-	//0x4036.1 int32 Encoder Singleturn Resolution ???
+	std::shared_ptr<MicroFlexGpio> gpio;
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
-	//status word:
-	//b10 : Target Reached (quickstop, halt ???)
-	//b12 :	homing mode 1 = homing attained
-	//		cyclic modes 0 = target ignored
-	//b13 : homing mode 1 = homing error
-	//		cyclic position 1 = following error
+	std::shared_ptr<double> position_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<double> load_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> position_Pin = std::make_shared<NodePin>(position_Value, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> velocity_Pin = std::make_shared<NodePin>(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> load_Pin = std::make_shared<NodePin>(load_Value, NodePin::Direction::NODE_OUTPUT, "Load", NodePin::Flags::DisableDataField);
 	
-	//control word:
-	//b4 : 	Homing = Start homing
-	//b11 : reset warnings
+	std::shared_ptr<bool> digitalIn0_Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn1_Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn2_Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalIn3_Value = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> digitalIn0_Pin = std::make_shared<NodePin>(digitalIn0_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 0", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn1_Pin = std::make_shared<NodePin>(digitalIn1_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn2_Pin = std::make_shared<NodePin>(digitalIn2_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn3_Pin = std::make_shared<NodePin>(digitalIn3_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
 	
+	std::shared_ptr<bool> digitalOut0_Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut1_Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalOut2_Value = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> digitalOut0_Pin = std::make_shared<NodePin>(digitalOut0_Value, NodePin::Direction::NODE_INPUT, "Digital Output 0");
+	std::shared_ptr<NodePin> digitalOut1_Pin = std::make_shared<NodePin>(digitalOut1_Value, NodePin::Direction::NODE_INPUT, "Digital Output 1");
+	std::shared_ptr<NodePin> digitalOut2_Pin = std::make_shared<NodePin>(digitalOut2_Value, NodePin::Direction::NODE_INPUT, "Digital Output 2");
 	
-	///When comissionning the drive through Mint Workbench, make sure the mint program is completely disabled or commented out
-	///It generated weird "incrorrect reference source" and "motion aborted" errors that were very unpredictable
+	std::shared_ptr<double> analogIn0_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> analogIn0_Pin = std::make_shared<NodePin>(analogIn0_Value, NodePin::Direction::NODE_OUTPUT, "Analog Input 0", NodePin::Flags::DisableDataField);
 	
+	std::shared_ptr<double> analogOut0_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> analogOut0_Pin = std::make_shared<NodePin>(analogOut0_Value, NodePin::Direction::NODE_INPUT, "Analog Output 0");
 	
+	//Parameters
+	NumberParam<double> velocityLimit_parameter = NumberParameter<double>::make(10.0, "Velocity Limit", "VelocityLimit", "%.1f",
+																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
+	NumberParam<double> accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
+																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
+	BoolParam  invertMotor_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	NumberParam<double> currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
+																			   Units::Fraction::Percent, false);
+	NumberParam<double> maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",
+																					Units::AngularDistance::Revolution, false);
 	
-	//commands
-	bool b_shouldEnable = false;
-	bool b_shouldDisable = false;
+	ParameterGroup axisParameters = ParameterGroup("Axis",{
+		velocityLimit_parameter,
+		accelerationLimit_parameter,
+		invertMotor_parameter,
+		currentLimit_parameter,
+		maxFollowingError_parameter
+	});
 	
-	//servo status
-	bool b_isEnabled = false;
-	bool b_isReady = false;
-	bool b_estop = false;
+	void updateServoLimits(){
+		servo->velocityLimit = velocityLimit_parameter->value;
+		servo->accelerationLimit = accelerationLimit_parameter->value;
+		servo->decelerationLimit = accelerationLimit_parameter->value;
+		servo->b_decelerationLimitEqualsAccelerationLimit = true;
+	}
 	
 	//for error logging
 	uint16_t previousErrorCode = 0x0;
@@ -74,6 +115,21 @@ public:
 	bool b_waitingForEnable = false;
 	long long enableRequestTime_nanoseconds;
 	
+	//encoder reset (DS402 Homing mode)
+	bool b_resetEncoder = false;
+	bool b_encoderResetBusy = false;
+	
+
+	//———— Drive Unit Conversion
+	
+	//Position Unit: Revolution
+	double incrementsPerPositionUnit = 10000;
+	//Velocity Unit: Revolution per second
+	double incrementsPerVelocityUnit = 10000;
+	//Acceleration Unit: Revolution per second squared
+	double incrementsPerAccelerationUnit = 10000;
+	//Torque Unit: Newton Meter
+	double incrementsPerTorqueUnit = 10000;
 		
 	const char* getErrorCodeString(){
 		switch(axis->getErrorCode()){
@@ -123,6 +179,10 @@ public:
 		}
 	}
 	
+	std::string getStatusString(){
+		return "no status string yet";
+	}
+	
 	
 	
 	
@@ -130,17 +190,61 @@ public:
 	
 	
 	void controlTab();
+	void settingsTab();
 	
-	double axisUnitsPerPos = 100.0;
-	double axisUnitsPerVel = 100.0;
-	double acceleration = 100.0;
-	double velocity = 0.0;
-	double position = 0.0;
-	double maxVelocity = 190.0;
-	float manualVelocity = 0.0;
+	double profiler_velocity = 0.0;
+	double profiler_position = 0.0;
+	float manualVelocityTarget = 0.0;
 	
 	
 	
 	
 	
 };
+
+
+//TODO: list
+//figure out position velocity acceleration units and scaling
+//adjust enable timings
+
+//0x5062 : input pin function assignement (int16)
+//values: -1 (function disabled) or 0-3 (input pin number)
+//5062.1 error input
+//5062.2 home input
+//5062.3 limit forward input
+//5062.4 limit reverse input
+//5062.5 motor temperature input
+//5062.6 phase search input
+//5062.7 reset input
+//5062.8 stop input
+//5062.9 suspend input
+//5062.A power ready input
+
+//0x5061 : outpt pin function assignement (int16)
+//values: -1 (function disabled) or 1-2 (output pin number)
+//5061.1 drive enabled output
+//5061.2 motor brake output
+//5061.3 phase search output
+//5061.4 power ready output
+
+//0x4035.1 int32 Encoder Multiturn Resolution
+//0x4036.1 int32 Encoder Singleturn Resolution ???
+
+//status word:
+//b10 : Target Reached (quickstop, halt ???)
+//b12 :	homing mode 1 = homing attained
+//		cyclic modes 0 = target ignored
+//b13 : homing mode 1 = homing error
+//		cyclic position 1 = following error
+
+//control word:
+//b4 : 	Homing = Start homing
+//b11 : reset warnings
+
+//unclear:
+//6410.13 motor rated speed rpm
+//5027.1 int32 drive current ???
+
+
+///When comissionning the drive through Mint Workbench, make sure the mint program is completely disabled or commented out
+///It generated weird "incrorrect reference source" and "motion aborted" errors that were very unpredictable

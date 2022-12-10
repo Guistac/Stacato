@@ -103,7 +103,7 @@ public:
 		for(Param parameter : parameters){
 			if(!parameter->save(xmlContainer)) anyError = true;
 		}
-		return anyError;
+		return !anyError;
 	}
 	
 	bool load(tinyxml2::XMLElement* parentElement){
@@ -120,7 +120,7 @@ public:
 		for(Param parameter : parameters){
 			if(!parameter->load(xmlContainer)) anyError = true;
 		}
-		return anyError;
+		return !anyError;
 	}
 	
 private:
@@ -151,7 +151,11 @@ public:
 	void setFormat(std::string f) { format = f; updateFormatString();  }
 	void setUnit(Unit u){ unit = u; updateFormatString(); }
 	void setSuffix(std::string s) { suffix = s; updateFormatString();  }
-	void updateFormatString(){ formatString = prefix + format + std::string(unit->abbreviated) + suffix; }
+	void updateFormatString(){
+		const char* unitAbbreviated = unit->abbreviated;
+		if(unit == Units::Fraction::Percent) unitAbbreviated = "%%";
+		formatString = prefix + format + std::string(unitAbbreviated) + suffix;
+	}
 	const char* getFormatString(){ return formatString.c_str(); }
 	
 	virtual bool validateRange(double rangeMin, double rangeMax, bool withMin = true, bool withMax = true) = 0;

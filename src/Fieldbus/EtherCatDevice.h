@@ -110,7 +110,7 @@ public:
     bool supportsCoE_upload()       { return identity->CoEdetails & ECT_COEDET_UPLOAD; }
     bool supportsCoE_SDOCA()        { return identity->CoEdetails & ECT_COEDET_SDOCA; }
 
-	
+	bool b_configurationSucceeded = false;
 	
 	
     //===== EVENTS =====

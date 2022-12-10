@@ -164,6 +164,7 @@ namespace EtherCatFieldbus {
 			pthread_setname_np("EtherCAT Process Starter Thread");
 			
 			if(!initializeNetwork()){
+				logAlStatusCodes();
 				Logger::error("failed to initialize network");
 				b_networkStarting = false;
 				return;
@@ -172,7 +173,8 @@ namespace EtherCatFieldbus {
 			stopPollingDiscoveredDevices(); //because intializeNetwork() started polling devices
 			
 			if(!configureDevices()){
-				Logger::error("Failed to configure devices.");
+				logAlStatusCodes();
+				Logger::error("Failed to start fieldbus.");
 				b_networkStarting = false;
 				return;
 			}
@@ -536,6 +538,8 @@ namespace EtherCatFieldbus {
             //return false;
         }
 
+		for(auto device : discoveredDevices) device->b_configurationSucceeded = false;
+		
         //assign slave startup hooks
         for (int i = 1; i <= ec_slavecount; i++) {
             //we don't use the PO2SOconfigx hook since it isn't supported by ec_reconfig_slave()
@@ -556,11 +560,13 @@ namespace EtherCatFieldbus {
 						Logger::debug("Configuring Slave '{}'", device->getName());
                         
                         if (device->startupConfiguration()) {
-                            Logger::debug("Successfully configured Slave '{}'", device->getName());
+							device->b_configurationSucceeded = true;
+                            Logger::info("Successfully configured Slave '{}'", device->getName());
                             return 1;
                         }
                         else {
-                            Logger::warn("Failed to configure slave '{}'", device->getName());
+							device->b_configurationSucceeded = false;
+                            Logger::error("Failed to configure slave '{}'", device->getName());
                             return 0;
                         }
                     }
@@ -575,15 +581,17 @@ namespace EtherCatFieldbus {
 		startupProgress.setProgress(0.01, "Configuring Devices");
         Logger::debug("===== Beginning Device Configuration and IOMap Building...");
         ioMapSize = ec_config_map(ioMap); //this function starts the configuration
-        if (ioMapSize <= 0) {
-			startupProgress.setFailure("Failed to configure devices");
-            Logger::error("===== Failed To Configure Devices. Check the Log for more detailed errors.", ioMapSize);
-            return false;
-		}else if(ioMapSize >= MAX_IO_MAP_SIZE){
-			Logger::critical("IoMap size is exceeded !");
+		
+		for(auto device : discoveredDevices) {
+			if(!device->b_configurationSucceeded){
+				startupProgress.setFailure("Failed to configure devices");
+				return Logger::warn("Failed to configure all devices");
+			}
 		}
+		if (ioMapSize <= 0) return Logger::error("EtherCAT ioMap size is zero");
+		else if(ioMapSize >= MAX_IO_MAP_SIZE) return Logger::critical("IoMap size is exceeded !");
+		
         Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);
-
 		
         for (auto device : discoveredDevices) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
@@ -1310,6 +1318,7 @@ namespace EtherCatFieldbus {
 	std::thread slaveDetectionThread;
 
 	void startPollingDiscoveredDevices() {
+		return;
 		if (b_detectionThreadRunning) {
 			Logger::error("Can't start Discovered Device Detection while it is running");
 			return;
@@ -1319,17 +1328,7 @@ namespace EtherCatFieldbus {
 			pthread_setname_np("EtherCAT Detection Handler Thread");
 			Logger::debug("Started EtherCAT Detection Handler");
 			while (b_detectionThreadRunning) {
-				
-				if(b_networkInitialized){
-					ec_readstate();
-					/*
-					if(!isActiveNicConnected()){
-						b_networkInitialized = false;
-						ec_close();
-						Logger::warn("Active Network Interface Card {} was disconnected.", activeNetworkInterfaceCard->name);
-					}
-					*/
-				}
+				if(b_networkInitialized) ec_readstate();
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				
 			}
@@ -1338,6 +1337,7 @@ namespace EtherCatFieldbus {
 	}
 
 	void stopPollingDiscoveredDevices() {
+		return;
 		if(b_detectionThreadRunning){
 			b_detectionThreadRunning = false;
 			slaveDetectionThread.join();

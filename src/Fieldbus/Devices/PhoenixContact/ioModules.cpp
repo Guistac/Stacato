@@ -27,7 +27,8 @@ namespace ModuleFactory{
 void IB_IL_24_DI_4::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
-		sprintf(pinName, "Digital Input %i", i);
+		int inputNumber = i + 1;
+		sprintf(pinName, "Digital Input %i", inputNumber);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -37,8 +38,9 @@ void IB_IL_24_DI_4::onConstruction(){
 }
 void IB_IL_24_DI_4::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, i);
-		sprintf((char*)outputPins[i]->getSaveString(), "Module%iDigitalInput%i", moduleIndex, i);
+		int inputNumber = i + 1;
+		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, inputNumber);
+		sprintf((char*)outputPins[i]->getSaveString(), "Module%iDigitalInput%i", moduleIndex, inputNumber);
 	}
 }
 void IB_IL_24_DI_4::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -82,7 +84,8 @@ bool IB_IL_24_DI_4::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertInput%i", i);
+		int inputNumber = i + 1;
+		sprintf(attributeName, "InvertInput%i", inputNumber);
 		inversionXML->SetAttribute(attributeName, invertInputs[i]);
 	}
 	return true;
@@ -95,9 +98,10 @@ bool IB_IL_24_DI_4::load(tinyxml2::XMLElement* xml){
 	}
 	char attributeName[32];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertInput%i", i);
+		int inputNumber = i + 1;
+		sprintf(attributeName, "InvertInput%i", inputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertInputs[i]) != XML_SUCCESS) {
-			return Logger::warn("could not find input %i inversion attribute", i);
+			return Logger::warn("could not find input %i inversion attribute", inputNumber);
 		}
 	}
 	return true;
@@ -110,7 +114,8 @@ bool IB_IL_24_DI_4::load(tinyxml2::XMLElement* xml){
 void IB_IL_24_DO_4::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
-		sprintf(pinName, "Digital Output %i", i);
+		int outputNumber = i + 1;
+		sprintf(pinName, "Digital Output %i", outputNumber);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -120,8 +125,9 @@ void IB_IL_24_DO_4::onConstruction(){
 }
 void IB_IL_24_DO_4::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, i);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iDigitalOutput%i", moduleIndex, i);
+		int outputNumber = i + 1;
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, outputNumber);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iDigitalOutput%i", moduleIndex, outputNumber);
 	}
 }
 void IB_IL_24_DO_4::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -172,7 +178,8 @@ bool IB_IL_24_DO_4::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		int outputNumber = i + 1;
+		sprintf(attributeName, "InvertOutput%i", outputNumber);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -185,9 +192,10 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 	}
 	char attributeName[32];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		int outputNumber = i + 1;
+		sprintf(attributeName, "InvertOutput%i", outputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
-			return Logger::warn("could not find output %i inversion attribute", i);
+			return Logger::warn("could not find output %i inversion attribute", outputNumber);
 		}
 	}
 	return true;
@@ -203,7 +211,8 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 void IB_IL_24_48_DOR_2::onConstruction(){
 	for(int i = 0; i < 2; i++){
 		static char pinName[64];
-		sprintf(pinName, "Relais Output %i", i);
+		int outputNumber = i + 1;
+		sprintf(pinName, "Relais Output %i", outputNumber);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -214,8 +223,9 @@ void IB_IL_24_48_DOR_2::onConstruction(){
 
 void IB_IL_24_48_DOR_2::onSetIndex(int i){
 	for(int i = 0; i < 2; i++){
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, i);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, i);
+		int outputNumber = i + 1;
+		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, outputNumber);
+		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, outputNumber);
 	}
 }
 void IB_IL_24_48_DOR_2::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -266,7 +276,8 @@ bool IB_IL_24_48_DOR_2::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 2; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		int outputNumber = i + 1;
+		sprintf(attributeName, "InvertOutput%i", outputNumber);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -279,9 +290,10 @@ bool IB_IL_24_48_DOR_2::load(tinyxml2::XMLElement* xml){
 	}
 	char attributeName[32];
 	for(int i = 0; i < 2; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		int outputNumber = i + 1;
+		sprintf(attributeName, "InvertOutput%i", outputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
-			return Logger::warn("could not find output %i inversion attribute", i);
+			return Logger::warn("could not find output %i inversion attribute", outputNumber);
 		}
 	}
 	return true;
