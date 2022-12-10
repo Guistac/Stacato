@@ -22,9 +22,7 @@ void ActuatorToServoActuator::inputProcess(){
 	
 	//abort if not all connections are made
 	if(!areAllPinsConnected()) {
-		servoActuator->b_online = false;
-		servoActuator->b_detected = false;
-		servoActuator->b_ready = false;
+		servoActuator->state = MotionState::OFFLINE;
 		return;
 	}
 	
@@ -33,12 +31,12 @@ void ActuatorToServoActuator::inputProcess(){
 	auto actuatorDevice = getActuatorDevice();
 	
 	//handle actuator state change requests enabling
-	if(servoActuator->b_setEnabled){
-		servoActuator->b_setEnabled = false;
+	if(servoActuator->b_enable){
+		servoActuator->b_enable = false;
 		enable();
 	}
-	if(servoActuator->b_setDisabled){
-		servoActuator->b_setDisabled = false;
+	if(servoActuator->b_disable){
+		servoActuator->b_disable = false;
 		disable();
 	}
 	

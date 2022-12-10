@@ -12,12 +12,26 @@ public:
 	
 	DEFINE_NODE(ActuatorToServoActuator, "Actuator To Servo Actuator", "ActuatorToServoActuator", Node::Type::PROCESSOR, "Adapters")
 	
+	class Servo : public ServoActuatorDevice{
+	public:
+		Servo() : MotionDevice(Units::AngularDistance::Revolution), ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE) {}
+		
+		virtual std::string getName() override { return "Servo Motor"; };
+		
+		virtual std::string getStatusString() override { return "no status string yet"; }
+		
+		virtual bool canHardReset() override { return false; }
+		virtual void executeHardReset() override { return false; }
+		virtual bool isExecutingHardReset() override { return false; }
+		
+	};
+	
 	//output data
-	std::shared_ptr<ServoActuatorDevice> servoActuator = std::make_shared<ServoActuatorDevice>("Servo Actuator", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
+	std::shared_ptr<Servo> servoActuator = std::make_shared<Servo>();
 	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(servoActuator, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Actuator");
 	
 	//input data
-	std::shared_ptr<NodePin> positionFeedbackPin = std::make_shared<NodePin>(NodePin::DataType::POSITIONFEEDBACK, NodePin::Direction::NODE_INPUT, "Position Feedback");
+	std::shared_ptr<NodePin> positionFeedbackPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_INPUT, "Position Feedback");
 	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
 	
 	//pin checking
@@ -35,12 +49,12 @@ public:
 	virtual void inputProcess() override;
 	virtual void outputProcess() override;
 	
-	virtual void onPinUpdate(std::shared_ptr<NodePin> pin);
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	void onDisable();
 	void onEnable();
 	
 	//gui stuff
-	virtual void nodeSpecificGui();
+	virtual void nodeSpecificGui() override;
 	void controlGui();
 	void settingsGui();
 	float manualVelocityDisplay = 0.0;
@@ -108,6 +122,6 @@ public:
 	
 
 	//saving & loading
-	virtual bool load(tinyxml2::XMLElement* xml);
-	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml) override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
 };

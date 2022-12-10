@@ -23,7 +23,9 @@ public:
 		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) :
 		MotionDevice(Units::AngularDistance::Revolution),
 		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::INCREMENTAL),
-		drive(microflex){}
+		drive(microflex){
+			setParentDevice(microflex);
+		}
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		
@@ -39,7 +41,9 @@ public:
 	public:
 		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) :
 		GpioDevice(),
-		drive(microflex){}
+		drive(microflex){
+			setParentDevice(microflex);
+		}
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
 		

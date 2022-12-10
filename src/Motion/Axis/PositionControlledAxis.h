@@ -48,6 +48,9 @@ private:
 	std::shared_ptr<NodePin> externalSurveillanceFaultResetPin = std::make_shared<NodePin>(externalSurveillanceFaultResetSignal,
 																						   NodePin::Direction::NODE_INPUT,
 																						   "External Surveillance Fault Reset", "ExternalSurveillanceFaultReset");
+	std::shared_ptr<NodePin> feedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK,
+																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+																		   "Feedback Device", "FeedbackDevice");
 	
 	
 	//Outputs
@@ -130,6 +133,11 @@ private:
 	HomingDirection homingDirection = HomingDirection::NEGATIVE;
 	double homingVelocityCoarse = 0.0;
 	double homingVelocityFine = 0.0;
+	
+	EnumParam<SignalApproach> signalApproach = EnumeratorParameter<SignalApproach>::make(SignalApproach::FIND_SIGNAL_EDGE,
+																						 "Homing Signal Approach",
+																						 "HomingSignalApproach");
+	
 	
 	//kinematic limits
 	double velocityLimit = 0.0;

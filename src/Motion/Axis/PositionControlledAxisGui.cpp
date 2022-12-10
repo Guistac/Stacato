@@ -826,6 +826,15 @@ void PositionControlledAxis::settingsGui() {
 			default:
 				break;
 		}
+		
+		switch(positionReferenceSignal){
+			case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+				ImGui::Text("Signal Approach");
+				signalApproach->gui();
+				break;
+			default:
+				break;
+		}
 
 
 	}
