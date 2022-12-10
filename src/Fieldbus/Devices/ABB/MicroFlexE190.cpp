@@ -47,14 +47,14 @@ void MicroFlex_e190::initialize() {
 	axis->processDataConfiguration.positionFollowingErrorActualValue = true;
 	axis->processDataConfiguration.errorCode = true;
 	axis->processDataConfiguration.currentActualValue = true;
-	axis->processDataConfiguration.digitalInputs = true;
-	axis->processDataConfiguration.digitalOutputs = true;
 	
 	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
 	axis->configureProcessData();
+	txPdoAssignement.addEntry(0x4020, 0x1, 32, "Digital Inputs", &digitalInputs);
+	rxPdoAssignement.addEntry(0x4021, 0x1, 32, "Digital Outputs", &digitalOutputs);
 	txPdoAssignement.addEntry(0x4022, 0x1, 16, "Analog Input 0", &AI0);
-	//rxPdoAssignement.addEntry(0x4022, 0x2, 16, "Analog Output 0", &AO0);
+	rxPdoAssignement.addEntry(0x4023, 0x1, 16, "Analog Output 0", &AO0);
 }
 
 
@@ -158,6 +158,10 @@ void MicroFlex_e190::readInputs() {
 	bool b_homingAttainedOrFollowingTarget = axis->getOperatingModeSpeciricStatusWordBit_12();
 	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpeciricStatusWordBit_13();
 	
+	//convert DS402 increments to our units
+	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;
+	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
+	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
 	
 	//update servo state
 	servo->b_emergencyStopActive = b_estop;
@@ -165,19 +169,18 @@ void MicroFlex_e190::readInputs() {
 	else if(b_isEnabled) servo->state = MotionState::ENABLED;
 	else if(b_isReady) servo->state = MotionState::READY;
 	else servo->state = MotionState::NOT_READY;
-	
-	
-	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;
-	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
-	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
-	
 	servo->position = actualPosition;
 	servo->velocity = actualVelocity;
 	servo->load = actualLoad;
 	
+	//update node pins
 	*position_Value = actualPosition;
 	*velocity_Value = actualVelocity;
 	*load_Value = actualLoad;
+	*digitalIn0_Value = axis->getDigitalInputs() & (0x1 << 16);
+	*digitalIn1_Value = axis->getDigitalInputs() & (0x1 << 17);
+	*digitalIn2_Value = axis->getDigitalInputs() & (0x1 << 18);
+	*digitalIn3_Value = axis->getDigitalInputs() & (0x1 << 19);
 	
 }
 
@@ -232,15 +235,18 @@ void MicroFlex_e190::writeOutputs() {
 	axis->setOperatingModeSpecificControlWorldBit_4(b_startHoming);
 	axis->setManufacturerSpecificControlWordBit_11(b_resetWarning);
 	
-	
-	
-	
-	
+	//if the drive is disabled, we copy the actual values to the profiler to be able to restart motion smoothly
 	if(!axis->isEnabled()){
 		profiler_velocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
 		profiler_position = double(axis->getActualPosition()) / incrementsPerPositionUnit;
 		axis->setPosition(axis->getActualPosition());
-	}else{
+	}
+	//copy the values from the servo pin
+	else if(servoPin->isConnected()){
+		axis->setPosition(servo->targetPosition * incrementsPerPositionUnit);
+	}
+	//if the servo pin is not connected, we allow manual velocity control of the axis
+	else{
 		double deltaT_s = EtherCatFieldbus::getCycleTimeDelta_seconds();
 		double acceleration = accelerationLimit_parameter->value;
 		double velocityLimit = velocityLimit_parameter->value;
@@ -256,7 +262,6 @@ void MicroFlex_e190::writeOutputs() {
 		profiler_velocity = std::clamp(profiler_velocity, -velocityLimit, velocityLimit);
 		double deltaP = profiler_velocity * deltaT_s;
 		profiler_position += deltaP;
-		//axis->setVelocity(profiler_velocity * incrementsPerVelocityUnit);
 		axis->setPosition(profiler_position * incrementsPerPositionUnit);
 	}
 	

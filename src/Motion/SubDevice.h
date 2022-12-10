@@ -90,7 +90,7 @@ public:
 	
 	//current data
 	bool b_isMoving = false;
-	double velocity;
+	double velocity = 0.0;
 };
 
 
@@ -127,7 +127,7 @@ public:
 	double maxWorkingRange;
 	
 	//current data
-	double position;
+	double position = 0.0;
 };
 
 

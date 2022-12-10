@@ -979,7 +979,6 @@ void endFrame(){
 
 
 
-
 void textAligned(const char* txt, ImVec2 position, TextAlignement alignement, ImVec2 minBounding, ImVec2 maxBounding){
 	if(txt == nullptr) return;
 	ImVec2 textSize = ImGui::CalcTextSize(txt);

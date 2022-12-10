@@ -88,6 +88,31 @@
                     <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="52" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340 (Alias:30303)" UniqueID="56">
+                <NodeEditorPosition x="155" y="454"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="30303"/>
+                    <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="true" ConfigMotorPower="false" ConfigMotorSpeed="false"/>
+                    <Kinematics VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="57" Visible="true"/>
+                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="58" Visible="true"/>
+                    <InputPin SaveString="Relais Output 1" DisplayString="Relais Output 1" DataType="Boolean" UniqueID="59" Visible="true"/>
+                    <InputPin SaveString="Relais Output 2" DisplayString="Relais Output 2" DataType="Boolean" UniqueID="60" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="61" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="62" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="63" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="64" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="65" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 4" DisplayString="Digital Input 4" DataType="Boolean" UniqueID="66" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 5" DisplayString="Digital Input 5" DataType="Boolean" UniqueID="67" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 1" DisplayString="Analog Input 1" DataType="Real" UniqueID="68" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 2" DisplayString="Analog Input 2" DataType="Real" UniqueID="69" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="54" StartPin="29" EndPin="27"/>

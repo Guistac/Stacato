@@ -20,28 +20,61 @@ public:
 	int16_t analogInput1;
 	int16_t analogInput2;
 	
-	bool digitalOut1 = false;
-	bool digitalOut2 = false;
-	bool relayOut1 = false;
-	bool relayOut2 = false;
+	class ATV340_Motor : public ActuatorDevice{
+	public:
+		
+		ATV340_Motor(std::shared_ptr<ATV340> drive_) :
+		MotionDevice(Units::AngularDistance::Revolution),
+		ActuatorDevice(Units::AngularDistance::Revolution),
+		drive(drive_){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		std::shared_ptr<ATV340> drive;
+	};
 	
-	bool configureMotor();
+	class ATV340_GPIO : public GpioDevice{
+	public:
+		
+		ATV340_GPIO(std::shared_ptr<ATV340> drive_) :
+		GpioDevice(),
+		drive(drive_){}
+		
+		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; };
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		std::shared_ptr<ATV340> drive;
+	};
+	
+	std::string getStatusString(){
+		return "not impleted...";
+	}
+	
+	int manualVelocityTarget_rpm = 0;
+	bool b_waitingForEnable = false;
+	long long enableRequestTime_nanoseconds = 0;
+	
+	//———— Node Pins
+	
+	std::shared_ptr<ATV340_Motor> motor;
+	std::shared_ptr<ATV340_GPIO> gpio;
+	std::shared_ptr<NodePin> motor_pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
+	std::shared_ptr<NodePin> gpio_pin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
 	std::shared_ptr<bool> digitalInput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput2_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput4_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput5_Signal = std::make_shared<bool>(false);
-	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "DI 1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "DI 2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "DI 3", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput4_Pin = std::make_shared<NodePin>(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "DI 4", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput5_Pin = std::make_shared<NodePin>(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "DI 5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput4_Pin = std::make_shared<NodePin>(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 4", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput5_Pin = std::make_shared<NodePin>(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 5", NodePin::Flags::DisableDataField);
 	
 	std::shared_ptr<double> analogInput1_value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> analogInput2_value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> analogInput1_pin = std::make_shared<NodePin>(analogInput1_value, NodePin::Direction::NODE_OUTPUT, "AI 1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> analogInput2_pin = std::make_shared<NodePin>(analogInput2_value, NodePin::Direction::NODE_OUTPUT, "AI 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> analogInput1_pin = std::make_shared<NodePin>(analogInput1_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 1", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> analogInput2_pin = std::make_shared<NodePin>(analogInput2_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 2", NodePin::Flags::DisableDataField);
 	
 	std::shared_ptr<bool> digitalOutput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalOutput2_Signal = std::make_shared<bool>(false);
@@ -51,6 +84,8 @@ public:
 	std::shared_ptr<NodePin> digitalOutput2_Pin = std::make_shared<NodePin>(digitalOutput2_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 2");
 	std::shared_ptr<NodePin> relaisOutput1_Pin = std::make_shared<NodePin>(relaisOutput1_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 1");
 	std::shared_ptr<NodePin> relaisOutput2_Pin = std::make_shared<NodePin>(relaisOutput2_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 2");
+	
+	//———— Parameters
 	
 	BoolParam pdo_digitalIn = BooleanParameter::make(false, "Read Digital Inputs", "ConfigDigitalInputs");
 	BoolParam pdo_digitalOut = BooleanParameter::make(false, "Write Digital Outputs", "ConfigDigitalOutputs");
@@ -66,7 +101,21 @@ public:
 		pdo_motorPower,
 		pdo_readMotorSpeed
 	});
-		
+	
+	NumberParam<int> velocityLimitRPM_param = NumberParameter<int>::make(1000, "Velocity Limits", "VelocityLimit", "%i rpm", Units::None::None, false);
+	NumberParam<double> accelerationRampTime_param = NumberParameter<double>::make(3.0, "Acceleration Ramp Time", "AccelerationRampTime", "%.1f", Units::Time::Second, false);
+	NumberParam<double> decelerationRampTime_param = NumberParameter<double>::make(3.0, "Deceleration Ramp Time", "DecelerationRampTime", "%.1f", Units::Time::Second, false);
+	BoolParam invertDirection_param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	
+	ParameterGroup kinematicsParameters = ParameterGroup("Kinematics",{
+		velocityLimitRPM_param,
+		accelerationRampTime_param,
+		decelerationRampTime_param,
+		invertDirection_param
+	});
+	
+	
+	
 	void configureProcessData();
 	
 	const char* getErrorCodeString(){
@@ -198,5 +247,10 @@ public:
 			default: return "unknown error";
 		}
 	}
+	
+	void controlTab();
+	void settingsTab();
+	
+	bool configureMotor();
 	
 };

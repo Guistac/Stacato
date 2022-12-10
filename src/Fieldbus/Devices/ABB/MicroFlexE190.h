@@ -13,6 +13,8 @@ public:
 	
 	//Process data
 	std::shared_ptr<DS402Axis> axis;
+	uint32_t digitalInputs;
+	uint32_t digitalOutputs;
 	int16_t AI0;
 	int16_t AO0;
 	
