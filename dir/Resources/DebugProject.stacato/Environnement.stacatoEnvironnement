@@ -35,7 +35,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Partie Basse (Alias: 123)" UniqueID="18">
-                <NodeEditorPosition x="336" y="484"/>
+                <NodeEditorPosition x="376" y="481"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="123"/>
                     <ModularDeviceProfile>
@@ -88,12 +88,15 @@
                     <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="52" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340 (Alias:30303)" UniqueID="56">
-                <NodeEditorPosition x="155" y="454"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340" UniqueID="56">
+                <NodeEditorPosition x="166" y="395"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="30303"/>
-                    <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="true" ConfigMotorPower="false" ConfigMotorSpeed="false"/>
-                    <Kinematics VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="false" ConfigMotorPower="true" ConfigMotorSpeed="false"/>
+                    <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="0" NominalMotorVoltage="0" NominalMotorCurrent="0" NominalMotorFrequency="0" NominalMotorSpeed="0" MotorThermalCurrent="0" MotorMaximumFrequency="0"/>
+                    <BrakeLogic BrakeOutputAssignement="0" BrakeMovementType="0"/>
+                    <EmbeddedEncoder EmbeddedEncoderType="0" EmbeddedEncoderVoltage="24" EmbeddedEncoderPulsesPerRevolution="0" InvertEmbeddedEncoderDirection="false" EmbeddedEncoderUsage="0"/>
+                    <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="57" Visible="true"/>
@@ -110,7 +113,7 @@
                     <OutputPin SaveString="Digital Input 4" DisplayString="Digital Input 4" DataType="Boolean" UniqueID="66" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="Digital Input 5" DisplayString="Digital Input 5" DataType="Boolean" UniqueID="67" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="Analog Input 1" DisplayString="Analog Input 1" DataType="Real" UniqueID="68" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 2" DisplayString="Analog Input 2" DataType="Real" UniqueID="69" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 2" DisplayString="Analog Input 2" DataType="Real" UniqueID="69" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>

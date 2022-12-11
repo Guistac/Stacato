@@ -261,7 +261,10 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
 	if(!pdoConfigParameters.save(xml)) return false;
-	if(!kinematicsParameters.save(xml)) return false;
+	if(!motorNameplateParameters.save(xml)) return false;
+	if(!brakeLogicParameters.save(xml)) return false;
+	if(!embeddedEncoderParameters.save(xml)) return false;
+	if(!motorControlParameters.save(xml)) return false;
 	
 	return true;
 }
@@ -270,7 +273,10 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
 	if(!pdoConfigParameters.load(xml)) return false;
-	if(!kinematicsParameters.load(xml)) return false;
+	if(!motorNameplateParameters.load(xml)) return false;
+	if(!brakeLogicParameters.load(xml)) return false;
+	if(!embeddedEncoderParameters.load(xml)) return false;
+	if(!motorControlParameters.load(xml)) return false;
 	
 	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
 	

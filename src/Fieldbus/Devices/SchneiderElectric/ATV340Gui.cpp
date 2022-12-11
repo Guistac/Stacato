@@ -13,8 +13,12 @@ void ATV340::deviceSpecificGui(){
 				controlTab();
 				ImGui::EndTabItem();
 			}
-			if(ImGui::BeginTabItem("Settings")){
-				settingsTab();
+			if(ImGui::BeginTabItem("Process Data")){
+				processDataConfigTab();
+				ImGui::EndTabItem();
+			}
+			if(ImGui::BeginTabItem("Drive Configuration")){
+				driveConfigTab();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -123,8 +127,28 @@ void ATV340::controlTab(){
 	ImGui::Text("Power State Actual: %s", Enumerator::getDisplayString(axis->getActualPowerState()));
 }
 
-void ATV340::settingsTab(){
-	
+
+
+void ATV340::processDataConfigTab(){
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Process Data Configuration");
+	ImGui::PopFont();
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::Text("4 options or less can be selected.");
+	ImGui::PopStyleColor();
+	for(auto parameter : pdoConfigParameters.get()){
+		parameter->gui();
+		ImGui::SameLine();
+		bool isEnabled = std::static_pointer_cast<BooleanParameter>(parameter)->value;
+		if(isEnabled) ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("%s", parameter->getName());
+		if(isEnabled) ImGui::PopFont();
+	}
+}
+
+void ATV340::driveConfigTab(){
+	if(ImGui::Button("Upload Configuration")) configureMotor();
+	ImGui::Separator();
 	auto drawParameterGroup = [](const char* groupName, ParameterGroup& group){
 		ImGui::PushFont(Fonts::sansBold15);
 		if(ImGui::CollapsingHeader(groupName)){
@@ -135,61 +159,13 @@ void ATV340::settingsTab(){
 				ImGui::PopFont();
 				parameter->gui();
 			}
+			ImGui::Spacing();
+			ImGui::Separator();
 		}else ImGui::PopFont();
 	};
-	
-	drawParameterGroup("Process Data", pdoConfigParameters);
-	drawParameterGroup("Kinematics", kinematicsParameters);
 	drawParameterGroup("Motor Configuration", motorNameplateParameters);
 	drawParameterGroup("Brake Logic", brakeLogicParameters);
 	drawParameterGroup("Embedded Encoder", embeddedEncoderParameters);
 	drawParameterGroup("Motor Control", motorControlParameters);
-	
-	/*
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Process Data Configuration");
-	ImGui::PopFont();
-	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("4 options or less can be selected.");
-	ImGui::PopStyleColor();
-	for(auto parameter : pdoConfig.get()){
-		parameter->gui();
-		ImGui::SameLine();
-		bool isEnabled = std::static_pointer_cast<BooleanParameter>(parameter)->value;
-		if(isEnabled) ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", parameter->getName());
-		if(isEnabled) ImGui::PopFont();
-	}
-	
-	ImGui::Separator();
-	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Kinematics Configuration");
-	ImGui::PopFont();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Velocity Limit");
-	ImGui::PopFont();
-	velocityLimitRPM_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Acceleration Ramp Time");
-	ImGui::PopFont();
-	accelerationRampTime_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Deceleration Ramp Time");
-	ImGui::PopFont();
-	decelerationRampTime_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Invert Direction");
-	ImGui::PopFont();
-	invertDirection_param->gui();
-	ImGui::SameLine();
-	ImGui::Text("Direction is%sinverted", invertDirection_param->value ? " " : " not ");
-	*/
-	
-	
 }
 

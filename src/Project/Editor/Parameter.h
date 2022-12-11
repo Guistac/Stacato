@@ -75,6 +75,7 @@ private:
 	std::string name;
 	std::string saveString;
 	std::string imGuiID;
+	std::string description;
 	bool b_disabled = false;
 	bool b_valid = true;
 };
@@ -1149,6 +1150,7 @@ public:
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value);
+		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml) override {
