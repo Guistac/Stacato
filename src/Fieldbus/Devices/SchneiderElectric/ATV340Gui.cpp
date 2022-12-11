@@ -124,6 +124,28 @@ void ATV340::controlTab(){
 }
 
 void ATV340::settingsTab(){
+	
+	auto drawParameterGroup = [](const char* groupName, ParameterGroup& group){
+		ImGui::PushFont(Fonts::sansBold15);
+		if(ImGui::CollapsingHeader(groupName)){
+			ImGui::PopFont();
+			for(auto parameter : group.get()){
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("%s", parameter->getName());
+				ImGui::PopFont();
+				parameter->gui();
+			}
+		}else ImGui::PopFont();
+	};
+	
+	drawParameterGroup("Process Data", pdoConfigParameters);
+	drawParameterGroup("Kinematics", kinematicsParameters);
+	drawParameterGroup("Motor Configuration", motorNameplateParameters);
+	drawParameterGroup("Brake Logic", brakeLogicParameters);
+	drawParameterGroup("Embedded Encoder", embeddedEncoderParameters);
+	drawParameterGroup("Motor Control", motorControlParameters);
+	
+	/*
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Process Data Configuration");
 	ImGui::PopFont();
@@ -166,6 +188,8 @@ void ATV340::settingsTab(){
 	invertDirection_param->gui();
 	ImGui::SameLine();
 	ImGui::Text("Direction is%sinverted", invertDirection_param->value ? " " : " not ");
+	*/
+	
 	
 }
 
