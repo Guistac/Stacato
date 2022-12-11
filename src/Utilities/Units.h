@@ -9,6 +9,7 @@ namespace Units{
 		FREQUENCY,
 		VOLTAGE,
 		CURRENT,
+		POWER,
 		TEMPERATURE,
 		MASS,
 		DATA,
@@ -94,6 +95,12 @@ namespace Units{
 		extern const UnitStructure* const Milliampere;
 		extern const UnitStructure* const Ampere;
 	}
+
+	namespace Power{
+	UNIT_TYPE_FUNCTIONS(Type::POWER);
+		extern const UnitStructure* const Watt;
+		extern const UnitStructure* const KiloWatt;
+	};
 
 	namespace Temperature{
 	UNIT_TYPE_FUNCTIONS(Type::TEMPERATURE);

@@ -52,7 +52,7 @@ void ATV340::initialize() {
 		analogInput2_pin->setVisible(pdo_readAnalogIn2->value);
 	});
 	
-	for(auto parameter : pdoConfig.get()){
+	for(auto parameter : pdoConfigParameters.get()){
 		parameter->addEditCallback([this](){
 			configureProcessData();
 		});
@@ -260,7 +260,7 @@ void ATV340::writeOutputs() {
 bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
-	if(!pdoConfig.save(xml)) return false;
+	if(!pdoConfigParameters.save(xml)) return false;
 	if(!kinematicsParameters.save(xml)) return false;
 	
 	return true;
@@ -269,10 +269,10 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
-	if(!pdoConfig.load(xml)) return false;
+	if(!pdoConfigParameters.load(xml)) return false;
 	if(!kinematicsParameters.load(xml)) return false;
 	
-	for(auto parameter : pdoConfig.get()) parameter->onEdit();
+	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
 	
 	return true;
 }

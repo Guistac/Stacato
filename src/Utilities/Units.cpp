@@ -291,6 +291,28 @@ namespace Units{
 		};
 	}
 
+	namespace Power{
+	UNIT_TYPE_FUNCTIONS(Type::POWER);
+		const UnitStructure* const Watt = new UnitStructure{
+			.unitType = Units::Type::POWER,
+			.singular = "Watt",
+			.plural = "Watts",
+			.abbreviated = "W",
+			.saveString = "Watt",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const KiloWatt = new UnitStructure{
+			.unitType = Units::Type::POWER,
+			.singular = "KiloWatt",
+			.plural = "KiloWatts",
+			.abbreviated = "KW",
+			.saveString = "KiloWatt",
+			.baseMultiplier = 1000.0,
+			.baseOffset = 0.0
+		};
+	};
+
 	namespace Temperature{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::TEMPERATURE);
 		const UnitStructure* const Kelvin = new UnitStructure{
