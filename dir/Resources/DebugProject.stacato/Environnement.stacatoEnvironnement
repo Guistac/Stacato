@@ -93,7 +93,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="false" ConfigMotorPower="true" ConfigMotorSpeed="false"/>
-                    <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="0" NominalMotorVoltage="0" NominalMotorCurrent="0" NominalMotorFrequency="0" NominalMotorSpeed="0" MotorThermalCurrent="0" MotorMaximumFrequency="0"/>
+                    <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="1" CosinusPhi="0.81000000000000005" NominalMotorPower="10" NominalMotorVoltage="0" NominalMotorCurrent="0" NominalMotorFrequency="0" NominalMotorSpeed="0" MotorThermalCurrent="0" MotorMaximumFrequency="0"/>
                     <BrakeLogic BrakeOutputAssignement="0" BrakeMovementType="0"/>
                     <EmbeddedEncoder EmbeddedEncoderType="0" EmbeddedEncoderVoltage="24" EmbeddedEncoderPulsesPerRevolution="0" InvertEmbeddedEncoderDirection="false" EmbeddedEncoderUsage="0"/>
                     <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>

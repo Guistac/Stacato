@@ -102,94 +102,139 @@ public:
 		pdo_readMotorSpeed
 	});
 	
+	
+	//———— Parameter for the following parameters
+	
+	struct ParameterOptions{
+		//[BFR]
+		Option Hz50 = Option(0, "50 Hz", "50Hz");
+		Option Hz60 = Option(1, "60 Hz", "60Hz");
+		std::vector<Option*> motorStandardFrequency_Options = {
+			&Hz50,
+			&Hz60
+		};
+
+		//[MPC]
+		Option NominalPower = Option(0, "Nominal Power", "NominalPower");
+		Option CosinusPhi = Option(1, "Cosinus Phi", "CosinusPhi");
+		std::vector<Option*> motorParameterChoice_Options = {
+			&NominalPower,
+			&CosinusPhi
+		};
+		
+		//[BLC]
+		Option NoDigitalOutput = Option(0, "None", "None");
+		Option R2 = Option(2, 	"R2", 	"R2");
+		Option DQ1 = Option(64, "DQ0", 	"DQ0");
+		Option DQ2 = Option(65, "DQ1", 	"DQ1");
+		std::vector<Option*> digitalOutput_Options = {
+			&NoDigitalOutput,
+			&R2,
+			&DQ1,
+			&DQ2
+		};
+		
+		//[BST]
+		Option HorizontalMovement = Option(0, "Horizontal Travel", "HorizontalTravel");
+		Option Hoisting = Option(1, "Hoisting", "Hoisting");
+		std::vector<Option*> brakeMovementType_Options = {
+			&HorizontalMovement,
+			&Hoisting
+		};
+		
+		//[EECP]
+		Option EmbeddedEncoderTypeNone = Option(0, "No Embedded Encoder", "None");
+		Option EmbeddedEncoderTypeAB = Option(1, "AB Incremental Encoder", "AB");
+		std::vector<Option*> embeddedEncoderType_Options = {
+			&EmbeddedEncoderTypeNone,
+			&EmbeddedEncoderTypeAB
+		};
+		
+		//[EECV]
+		Option EmbeddedEncoder5V = Option(5, "5V", "5V");
+		Option EmbeddedEncoder12V = Option(12, "12V", "12V");
+		Option EmbeddedEncoder24V = Option(24, "24V", "24V");
+		std::vector<Option*> embeddedEncoderVoltage_Options = {
+			&EmbeddedEncoder5V,
+			&EmbeddedEncoder12V,
+			&EmbeddedEncoder24V
+		};
+		
+		//[EENU] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
+		Option EmbeddedEncoderNoUsage = Option(0, "No Usage", "NoUsage");
+		Option EmbeddedEncoderSpeedMonitoring = Option(1, "Speed Monitoring", "SpeedMonitoring");
+		Option EmbeddedEncoderSpeedRegulation = Option(2, "Speed Regulation", "SpeedRegulation");
+		std::vector<Option*> embeddedEncoderUsage_Options = {
+			&EmbeddedEncoderNoUsage,
+			&EmbeddedEncoderSpeedMonitoring,
+			&EmbeddedEncoderSpeedRegulation
+		};
+		
+		//[CTT]
+		Option SensorlessFullFlux = Option(0, "Sensorless Full Flux (Open Loop)", "SensorlessFullFlux");
+		Option FullFluxVector = Option(2, "Full Flux Vector (Closed Loop)", "FullFluxVector");
+		std::vector<Option*> motorControlType_Options = {
+			&SensorlessFullFlux,
+			&FullFluxVector
+		};
+	};
+	static ParameterOptions options;
+	
+	
+	
+	
 	//———— Motor Nameplate
 	
-	//[BFR]
-	Option Hz50 = Option(0, "50 Hz", "50Hz");
-	Option Hz60 = Option(1, "60 Hz", "60Hz");
-	std::vector<Option*> motorStandardFrequency_Options = {
-		&Hz50,
-		&Hz60
-	};
-
-	//[MPC]
-	Option NominalPower = Option(0, "Nominal Power", "NominalPower");
-	Option CosinusPhi = Option(1, "Cosinus Phi", "CosinusPhi");
-	std::vector<Option*> motorParameterChoice_Options = {
-		&NominalPower,
-		&CosinusPhi
-	};
-	
 	//[bfr] {Async} motor standard frequency
-	OptionParam motorStandartFrequency_Param = OptionParameter::make(Hz50, motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
+	OptionParam motorStandartFrequency_Param = OptionParameter::make(options.Hz50, options.motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
 	
 	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
-	OptionParam motorParameterChoice_Param = OptionParameter::make(NominalPower, motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
+	OptionParam motorParameterChoice_Param = OptionParameter::make(options.NominalPower, options.motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
 	
 	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
 	NumberParam<double> cosinusPhi_Param = NumberParameter<double>::make(0.0, "Cosinus Phi", "CosinusPhi", "%.2f", Units::None::None, false);
 	
 	//[npr] {Async} nominal motor power (0.01 Watt increments)
-	NumberParam<double> nominalMotorPower = NumberParameter<double>::make(0.0, "Nominal Motor Power", "NominalMotorPower", "%.2f", Units::Power::Watt, false);
+	NumberParam<double> nominalMotorPower_Param = NumberParameter<double>::make(0.0, "Nominal Motor Power", "NominalMotorPower", "%.2f", Units::Power::Watt, false);
 	
 	//[uns] {Async} nominal motor voltage (1v increments)
-	NumberParam<int> nominalMotorVoltage = NumberParameter<int>::make(0, "Nominal Motor Voltage", "NominalMotorVoltage", "%i", Units::Power::Watt, false);
+	NumberParam<int> nominalMotorVoltage_Param = NumberParameter<int>::make(0, "Nominal Motor Voltage", "NominalMotorVoltage", "%i", Units::Power::Watt, false);
 	
 	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
-	NumberParam<double> nominalMotorCurrent = NumberParameter<double>::make(0.0, "Nominal Motor Current", "NominalMotorCurrent", "%.2f", Units::Current::Ampere, false);
+	NumberParam<double> nominalMotorCurrent_Param = NumberParameter<double>::make(0.0, "Nominal Motor Current", "NominalMotorCurrent", "%.2f", Units::Current::Ampere, false);
 
 	//[frs] {Async} nominal motor frequency (0.1Hz increments)
-	NumberParam<double> nominalMotorFrequency = NumberParameter<double>::make(0.0, "Nominal Motor Frequency", "NominalMotorFrequency", "%.2f", Units::Frequency::Hertz, false);
+	NumberParam<double> nominalMotorFrequency_Param = NumberParameter<double>::make(0.0, "Nominal Motor Frequency", "NominalMotorFrequency", "%.2f", Units::Frequency::Hertz, false);
 	
 	//[nsp] {Async} nominal motor speed (rpm)
-	NumberParam<int> nominalMotorSpeed = NumberParameter<int>::make(0, "Nominal Motor Speed", "NominalMotorSpeed", "%i rpm", Units::None::None, false);
+	NumberParam<int> nominalMotorSpeed_Param = NumberParameter<int>::make(0, "Nominal Motor Speed", "NominalMotorSpeed", "%i rpm", Units::None::None, false);
 	
 	//[ith] Motor Thermal Current (0.01 Ampere increments)
-	NumberParam<double> motorThermalCurrent = NumberParameter<double>::make(0.0, "Motor Thermal Current", "MotorThermalCurrent", "%.2f", Units::Current::Ampere, false);
+	NumberParam<double> motorThermalCurrent_Param = NumberParameter<double>::make(0.0, "Motor Thermal Current", "MotorThermalCurrent", "%.2f", Units::Current::Ampere, false);
 	
 	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
-	NumberParam<double> motorMaximumFrequency = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
+	NumberParam<double> motorMaximumFrequency_Param = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
 	
 	ParameterGroup motorNameplateParameters = ParameterGroup("MotorNameplate", {
 		motorStandartFrequency_Param,
 		motorParameterChoice_Param,
 		cosinusPhi_Param,
-		nominalMotorPower,
-		nominalMotorVoltage,
-		nominalMotorCurrent,
-		nominalMotorFrequency,
-		nominalMotorSpeed,
-		motorThermalCurrent,
-		motorMaximumFrequency
+		nominalMotorPower_Param,
+		nominalMotorVoltage_Param,
+		nominalMotorCurrent_Param,
+		nominalMotorFrequency_Param,
+		nominalMotorSpeed_Param,
+		motorThermalCurrent_Param,
+		motorMaximumFrequency_Param
 	});
 	
 	//———— Brake Logic
 	
-	//[BLC]
-	Option NoDigitalOutput = Option(0, "None", "None");
-	Option R2 = Option(2, 	"R2", 	"R2");
-	Option DQ1 = Option(64, "DQ0", 	"DQ0");
-	Option DQ2 = Option(65, "DQ1", 	"DQ1");
-	std::vector<Option*> digitalOutput_Options = {
-		&NoDigitalOutput,
-		&R2,
-		&DQ1,
-		&DQ2
-	};
-	
-	//[BST]
-	Option HorizontalMovement = Option(0, "Horizontal Travel", "HorizontalTravel");
-	Option Hoisting = Option(1, "Hoisting", "Hoisting");
-	std::vector<Option*> brakeMovementType_Options = {
-		&HorizontalMovement,
-		&Hoisting
-	};
-	
 	//[blc] brake assignement
-	OptionParam brakeOutputAssignement_Param = OptionParameter::make(NoDigitalOutput, digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
+	OptionParam brakeOutputAssignement_Param = OptionParameter::make(options.NoDigitalOutput, options.digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
 	
 	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
-	OptionParam brakeMovementType_Param = OptionParameter::make(HorizontalMovement, brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
+	OptionParam brakeMovementType_Param = OptionParameter::make(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
 	
 	ParameterGroup brakeLogicParameters = ParameterGroup("BrakeLogic", {
 		brakeOutputAssignement_Param,
@@ -198,87 +243,54 @@ public:
 	
 	//———— Embedded Encoder
 	
-	//[EECP]
-	Option NoEmbeddedEncoder = Option(0, "No Embedded Encoder", "None");
-	Option ABEmbeddedEncoder = Option(1, "AB Incremental Encoder", "AB");
-	std::vector<Option*> embeddedEncoderType_Options = {
-		&NoEmbeddedEncoder,
-		&ABEmbeddedEncoder
-	};
-	
-	//[EECV]
-	Option EmbeddedEncoder5V = Option(5, "5V", "5V");
-	Option EmbeddedEncoder12V = Option(12, "12V", "12V");
-	Option EmbeddedEncoder24V = Option(24, "24V", "24V");
-	std::vector<Option*> embeddedEncoderVoltage_Options = {
-		&EmbeddedEncoder5V,
-		&EmbeddedEncoder12V,
-		&EmbeddedEncoder24V
-	};
-	
-	//[EENU] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-	Option EmbeddedEncoderNoUsage = Option(0, "No Usage", "NoUsage");
-	Option EmbeddedEncoderSpeedMonitoring = Option(1, "Speed Monitoring", "SpeedMonitoring");
-	Option EmbeddedEncoderSpeedRegulation = Option(2, "Speed Regulation", "SpeedRegulation");
-	std::vector<Option*> embeddedEncoderUsage_Options = {
-		&EmbeddedEncoderNoUsage,
-		&EmbeddedEncoderSpeedMonitoring,
-		&EmbeddedEncoderSpeedRegulation
-	};
-	
 	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
-	OptionParam embeddedEncoderType_Param = OptionParameter::make(NoEmbeddedEncoder, embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
+	OptionParam embeddedEncoderType_Param = OptionParameter::make(options.EmbeddedEncoderTypeNone, options.embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
 	
 	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
-	OptionParam embeddedEncoderVoltage_Param = OptionParameter::make(EmbeddedEncoder24V, embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
+	OptionParam embeddedEncoderVoltage_Param = OptionParameter::make(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
 	
 	//[epg] pulses per encoder revolution
 	NumberParam<int> embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::make(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution", "%i", Units::None::None, false);
 	
 	//[eeri] embedded encoder revolution inversion (0=No, 1=Yes)
-	BoolParam embeddedEncoderInvertDirection = BooleanParameter::make(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
+	BoolParam embeddedEncoderInvertDirection_Param = BooleanParameter::make(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
 	
 	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-	OptionParam embeddedEncoderUsage_Param = OptionParameter::make(EmbeddedEncoderNoUsage, embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
+	OptionParam embeddedEncoderUsage_Param = OptionParameter::make(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
 	
 	ParameterGroup embeddedEncoderParameters = ParameterGroup("EmbeddedEncoder", {
 		embeddedEncoderType_Param,
 		embeddedEncoderVoltage_Param,
 		embeddedEncoderPulsesPerRevolution_Param,
-		embeddedEncoderInvertDirection,
+		embeddedEncoderInvertDirection_Param,
 		embeddedEncoderUsage_Param
 	});
 	
 	//———— Motor Control
 	
-	//[CTT]
-	Option SensorlessFullFlux = Option(0, "Sensorless Full Flux", "SensorlessFullFlux");
-	Option FullFluxVector = Option(2, "Full Flux Vector", "FullFluxVector");
-	std::vector<Option*> motorControlType_Options = {
-		&SensorlessFullFlux,
-		&FullFluxVector
-	};
-	
 	//[ctt] Motor Control Type
-	OptionParam motorControlType_Param = OptionParameter::make(SensorlessFullFlux, motorControlType_Options, "Motor Control Type", "MotorControlType");
+	OptionParam motorControlType_Param = OptionParameter::make(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
 	
-	NumberParam<int> velocityLimitRPM_param = NumberParameter<int>::make(1000, "Velocity Limits", "VelocityLimit", "%i rpm", Units::None::None, false);
+	NumberParam<int> velocityLimitRPM_Param = NumberParameter<int>::make(1000, "Velocity Limit", "VelocityLimit", "%i rpm", Units::None::None, false);
 	
-	NumberParam<double> accelerationRampTime_param = NumberParameter<double>::make(3.0, "Acceleration Ramp Time", "AccelerationRampTime", "%.1f", Units::Time::Second, false);
+	NumberParam<double> accelerationRampTime_Param = NumberParameter<double>::make(3.0, "Acceleration Ramp Time", "AccelerationRampTime", "%.1f", Units::Time::Second, false);
 	
-	NumberParam<double> decelerationRampTime_param = NumberParameter<double>::make(3.0, "Deceleration Ramp Time", "DecelerationRampTime", "%.1f", Units::Time::Second, false);
+	NumberParam<double> decelerationRampTime_Param = NumberParameter<double>::make(3.0, "Deceleration Ramp Time", "DecelerationRampTime", "%.1f", Units::Time::Second, false);
 	
-	BoolParam invertDirection_param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	BoolParam invertDirection_Param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 	
 	ParameterGroup motorControlParameters = ParameterGroup("MotorControl", {
 		motorControlType_Param,
-		velocityLimitRPM_param,
-		accelerationRampTime_param,
-		decelerationRampTime_param,
-		invertDirection_param
+		velocityLimitRPM_Param,
+		accelerationRampTime_Param,
+		decelerationRampTime_Param,
+		invertDirection_Param
 	});
 		
 	
+	bool startMotorTuning();
+	bool saveToEEPROM();
+	bool resetFactorySettings();
 	
 	
 	
@@ -289,47 +301,7 @@ public:
 	
 	
 	
-	enum class MotorStandardFrequency{
-		HZ_50,
-		HZ_60
-	};
-	
-	enum class MotorParameterChoice{
-		NOMINAL_POWER,
-		COSINUS_PHI
-	};
-	
-	enum class DigitalOutput{
-		NONE,
-		DQ0,
-		DQ1,
-		R1,
-		R2
-	};
-	
-	enum class BrakeMovementType{
-		HORIZONTAL_MOVEMENT,
-		HOISTING
-	};
-	
-	enum class EmbeddedEncoderSupplyVoltage{
-		V5,
-		V12,
-		V24
-	};
-	
-	enum class EmbeddedEncoderUsage{
-		NONE,
-		SPEED_MONITORING,
-		SPEED_REGULATION,
-		SPEED_REFERENCE
-	};
-	
-	enum class MotorControlType{
-		SENSORLESS_FLUX_VECTOR,
-		FULL_FLUX_VECTOR
-	};
-	
+
 	
 	
 	

@@ -1107,6 +1107,7 @@ public:
 		void enable(){ b_enabled = true; }
 		void disable(){ b_enabled = false; }
 		bool isEnabled(){ return b_enabled; }
+		int getInt(){ return enumerator; }
 	private:
 		friend class OptionParameter;
 		int enumerator;

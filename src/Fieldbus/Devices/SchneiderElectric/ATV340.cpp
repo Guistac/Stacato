@@ -3,23 +3,24 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+ATV340::ParameterOptions ATV340::options;
+
 void ATV340::onConnection() {}
 
 void ATV340::onDisconnection() {}
 
 void ATV340::initialize() {
 	
+	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
-
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
 	motor_pin->assignData(std::static_pointer_cast<ActuatorDevice>(motor));
-	
 	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
 	gpio_pin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
 	
+	//add node pins
 	addNodePin(motor_pin);
 	addNodePin(gpio_pin);
-	
 	addNodePin(digitalInput1_Pin);
 	addNodePin(digitalInput2_Pin);
 	addNodePin(digitalInput3_Pin);
@@ -32,6 +33,7 @@ void ATV340::initialize() {
 	addNodePin(relaisOutput1_Pin);
 	addNodePin(relaisOutput2_Pin);
 	
+	//configure parameter callbacks
 	pdo_digitalIn->addEditCallback([this](){
 		digitalInput1_Pin->setVisible(pdo_digitalIn->value);
 		digitalInput2_Pin->setVisible(pdo_digitalIn->value);
@@ -59,6 +61,43 @@ void ATV340::initialize() {
 		parameter->onEdit();
 	}
 	
+	motorParameterChoice_Param->addEditCallback([this](){
+		if(motorParameterChoice_Param->value == options.NominalPower.getInt()){
+			cosinusPhi_Param->setDisabled(true);
+			nominalMotorPower_Param->setDisabled(false);
+		}else if(motorParameterChoice_Param->value == options.CosinusPhi.getInt()){
+			cosinusPhi_Param->setDisabled(false);
+			nominalMotorPower_Param->setDisabled(true);
+		}else{
+			cosinusPhi_Param->setDisabled(false);
+			nominalMotorPower_Param->setDisabled(false);
+		}
+	});
+	motorParameterChoice_Param->onEdit();
+	
+	embeddedEncoderType_Param->addEditCallback([this](){
+		if(embeddedEncoderType_Param->value == options.EmbeddedEncoderTypeAB.getInt()){
+			embeddedEncoderVoltage_Param->setDisabled(false);
+			embeddedEncoderPulsesPerRevolution_Param->setDisabled(false);
+			embeddedEncoderInvertDirection_Param->setDisabled(false);
+			embeddedEncoderUsage_Param->setDisabled(false);
+		}else{
+			embeddedEncoderVoltage_Param->setDisabled(true);
+			embeddedEncoderPulsesPerRevolution_Param->setDisabled(true);
+			embeddedEncoderInvertDirection_Param->setDisabled(true);
+			embeddedEncoderUsage_Param->setDisabled(true);
+		}
+	});
+	embeddedEncoderType_Param->onEdit();
+	
+	brakeOutputAssignement_Param->addEditCallback([this](){
+		if(brakeOutputAssignement_Param->value == options.NoDigitalOutput.getInt()){
+			brakeMovementType_Param->setDisabled(true);
+		}else{
+			brakeMovementType_Param->setDisabled(false);
+		}
+	});
+	brakeOutputAssignement_Param->onEdit();
 }
 
 void ATV340::configureProcessData(){
@@ -144,11 +183,11 @@ bool ATV340::startupConfiguration() {
 	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
 	
 	//[acc] acceleration ramp time (0.01 second increments)
-	uint16_t accelerationRampTime = accelerationRampTime_param->value * 100;
+	uint16_t accelerationRampTime = accelerationRampTime_Param->value * 100;
 	if(!writeSDO_U16(0x203C, 0x2, accelerationRampTime)) return false;
 	
 	//[dec] deceleration ramp time (0.01 second increments)
-	uint16_t decelerationRampTime = decelerationRampTime_param->value * 100;
+	uint16_t decelerationRampTime = decelerationRampTime_Param->value * 100;
 	if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime)) return false;
 	
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
@@ -279,6 +318,10 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!motorControlParameters.load(xml)) return false;
 	
 	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
+	for(auto parameter : motorNameplateParameters.get()) parameter->onEdit();
+	for(auto parameter : brakeLogicParameters.get()) parameter->onEdit();
+	for(auto parameter : embeddedEncoderParameters.get()) parameter->onEdit();
+	for(auto parameter : motorControlParameters.get()) parameter->onEdit();
 	
 	return true;
 }
@@ -307,6 +350,8 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 
 bool ATV340::configureMotor(){
+	
+	if(isOffline()) return;
 	
 	//———— Unit Scaling Selection
 	
@@ -338,109 +383,100 @@ bool ATV340::configureMotor(){
 	//———— Motor Standard
 	
 	//[bfr] {Async} motor standard frequency
-	uint16_t motorStandard = 0; // (0=50Hz,1=60Hz)
+	uint16_t motorStandard = motorStandartFrequency_Param->value;
 	if(!writeSDO_U16(0x2000, 0x10, motorStandard)) return false;
 	
 	
 	//———— Motor Nameplate
 	
 	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
-	uint16_t motorParameterChoice = 0;
+	uint16_t motorParameterChoice = motorParameterChoice_Param->value;
 	if(!writeSDO_U16(0x2042, 0xF, motorParameterChoice)) return false;
 	
-	
-	if(motorParameterChoice == 1){
-		//[cos] {Async} motor 1 cosinus phi (0.01 increments)
-		uint16_t motor1CosinusPhi = 0;
-		if(!writeSDO_U16(0x2042, 0x7, motor1CosinusPhi)) return false;
-	}
-	//	^
-	//	| one or the other depending on Motor Param Choise [mpc]
-	//	v
-	if(motorParameterChoice == 0){
-		//[npr] {Async} nominal motor power (0.01 Watt increments)
-		uint16_t nominalMotorPower = 0;
+	if(motorParameterChoice == options.NominalPower.getInt()){
+		//[npr] {Async} nominal motor power
+		uint16_t nominalMotorPower = nominalMotorPower_Param->value / powerScaling;
 		if(!writeSDO_U16(0x2042, 0xE, nominalMotorPower)) return false;
+	}else if(motorParameterChoice == options.CosinusPhi.getInt()){
+		//[cos] {Async} motor 1 cosinus phi (0.01 increments)
+		uint16_t motor1CosinusPhi = cosinusPhi_Param->value * 100.0;
+		if(!writeSDO_U16(0x2042, 0x7, motor1CosinusPhi)) return false;
 	}
 	
 	//[uns] {Async} nominal motor voltage (1v increments)
-	uint16_t nominalMotorVoltage = 0;
+	uint16_t nominalMotorVoltage = nominalMotorVoltage_Param->value * 100.0;
 	if(!writeSDO_U16(0x2042, 0x2, nominalMotorVoltage)) return false;
 	
-	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
-	uint16_t nominalMotorCurrent = 0;
+	//[ncr] {Async} nominal motor current
+	uint16_t nominalMotorCurrent = nominalMotorCurrent_Param->value / currentScaling;
 	if(!writeSDO_U16(0x2042, 0x4, nominalMotorCurrent)) return false;
 	
 	//[frs] {Async} nominal motor frequency (0.1Hz increments)
-	uint16_t nominalMotorFrequency = 0;
+	uint16_t nominalMotorFrequency = nominalMotorFrequency_Param->value * 10.0;
 	if(!writeSDO_S16(0x2042, 0x3, nominalMotorFrequency)) return false;
 	
 	//[nsp] {Async} nominal motor speed (rpm)
-	uint16_t nominalMotorSpeed = 0;
+	uint16_t nominalMotorSpeed = nominalMotorSpeed_Param->value;
 	if(!writeSDO_U16(0x2042, 0x5, nominalMotorSpeed)) return false;
 	
-	//[ith] Motor Thermal Current (0.01 Ampere increments)
-	uint16_t motorThermalCurrent = 0;
+	//[ith] Motor Thermal Current
+	uint16_t motorThermalCurrent = motorThermalCurrent_Param->value / currentScaling;
 	if(!writeSDO_U16(0x2042, 0x17, motorThermalCurrent)) return false;
 	
 	
 	//———— Maximum Motor Frequency
 	
 	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
-	uint16_t motorMaximumFrequency = 0;
+	uint16_t motorMaximumFrequency = motorMaximumFrequency_Param->value * 10.0;
 	if(!writeSDO_U16(0x2001, 0x4, motorMaximumFrequency)) return false;
 
 	//———— Brake Logic Control
 	
 	//[blc] brake assignement
-	//0 = None
-	//2 = R2
-	//64 = DQ1
-	//65 = DQ2
-	uint16_t brakeAssignement = 2;
+	uint16_t brakeAssignement = brakeOutputAssignement_Param->value;
 	if(!writeSDO_U16(0x2046, 0x2, brakeAssignement)) return false;
 	
-	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
-	uint16_t brakeMovementType = 0;
+	//[bst] movement type
+	uint16_t brakeMovementType = brakeMovementType_Param->value;
 	if(!writeSDO_U16(0x2046, 0x9, brakeMovementType)) return false;
-	
-	//... other brake parameters
 	
 	
 	//———— Embedded Encoder
 	
-	//[eecp] embedde encoder etype (0=None, 1=AB, 2=SinCos)
-	uint16_t encoderType = 1;
+	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
+	uint16_t encoderType = embeddedEncoderType_Param->value;
 	if(!writeSDO_U16(0x201A, 0x47, encoderType)) return false;
 	
-	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
-	uint16_t encoderSupplyVoltage = 24;
-	if(!writeSDO_U16(0x201A, 0x50, encoderSupplyVoltage)) return false;
-	
-	//[epg] pulses per encoder revolution
-	uint16_t pulsesPerEncoderRevolution = 1024;
-	if(!writeSDO_U16(0x201A, 0x48, pulsesPerEncoderRevolution)) return false;
-	
-	//[eeri] emebedded encoder revolution inversion (0=No, 1=Yes)
-	uint16_t encoderinvertion = 0;
-	if(!writeSDO_U16(0x201A, 0x4F, encoderinvertion)) return false;
-	
-	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-	uint16_t embeddedEncoderUsage = 2;
-	if(!writeSDO_U16(0x201A, 0x4E, embeddedEncoderUsage)) return false;
-	
-	
-
+	if(encoderType == options.EmbeddedEncoderTypeAB.getInt()){
+		//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
+		uint16_t encoderSupplyVoltage = embeddedEncoderVoltage_Param->value;
+		if(!writeSDO_U16(0x201A, 0x50, encoderSupplyVoltage)) return false;
+		
+		//[epg] pulses per encoder revolution
+		uint16_t pulsesPerEncoderRevolution = embeddedEncoderPulsesPerRevolution_Param->value;
+		if(!writeSDO_U16(0x201A, 0x48, pulsesPerEncoderRevolution)) return false;
+		
+		//[eeri] emebedded encoder revolution inversion (0=No, 1=Yes)
+		uint16_t encoderinvertion = embeddedEncoderInvertDirection_Param->value ? 1 : 0;
+		if(!writeSDO_U16(0x201A, 0x4F, encoderinvertion)) return false;
+		
+		//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
+		uint16_t embeddedEncoderUsage = embeddedEncoderUsage_Param->value;
+		if(!writeSDO_U16(0x201A, 0x4E, embeddedEncoderUsage)) return false;
+	}
+		
 	//———— Motor Control Type
 	
 	//[ctt] Motor Control Type
-	uint16_t motorControlType = 2;
+	uint16_t motorControlType = motorControlType_Param->value;
 	//0 = Sensorless flux vector V (no encoder feedback, multiple identical motors supported)
 	//2 = Full flux Vector (encoder feedback necessary)
 	if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
 	
-	
-	
+	return saveToEEPROM();
+}
+
+bool ATV340::startMotorTuning(){
 	//———— Standstill motor tune after motor parameter assignement
 	
 	//[tun] autotuning (0=NoAction; 1=ApplyAutotuning; 2=EraseAutotuning)
@@ -451,26 +487,61 @@ bool ATV340::configureMotor(){
 	uint16_t autotuningSelection = 1;
 	if(!writeSDO_U16(0x2042, 0x12, autotuningSelection)) return false;
 	
-	uint16_t autotuningStatus = 0;
-	while(autotuning != 3 && autotuning != 4){
+	Timing::Timer autotuneTimer;
+	autotuneTimer.setExpirationSeconds(5.0);
+	
+	while(true){
 		//[tus] autotuning status (0=NotDone; 1=Pending; 2=InProgress; 3=Fail; 4=Done)
+		uint16_t autotuningStatus = 0;
 		readSDO_U16(0x2042, 0xA, autotuningStatus);
+		if(autotuningStatus == 3) {
+			Logger::info("auto tune failed");
+			return false;
+		}
+		else if(autotuningStatus == 4) {
+			Logger::info("auto tune succeeded");
+			return saveToEEPROM();
+		}
+		else if(autotuneTimer.isExpired()) {
+			Logger::warn("auto tune timed out (took more than 5 seconds)");
+			return false;
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	
-	if(autotuningStatus == 3) Logger::warn("Autotuning Failed");
-	else if(autotuningStatus == 4) Logger::warn("Autotuning Done");
+	return false;
+}
+
+bool ATV340::saveToEEPROM(){
 	
-	
+	//———— Method 1
 	uint16_t saveConfiguration = 1; //save to congiration #0
 	if(!writeSDO_U16(0x2032, 0x2, saveConfiguration)) return false;
 	
+	Timing::Timer saveTimer;
+	saveTimer.setExpirationSeconds(5.0);
+	
 	while(true){
 		uint16_t savestate;
-		if(readSDO_U16(0x2032, 0x2, savestate) && savestate == 0x0) break;
+		if(readSDO_U16(0x2032, 0x2, savestate) && savestate == 0x0) {
+			Logger::info("Motor Parameters saved on drive");
+			return true;
+		}
+		else if(saveTimer.isExpired()) {
+			Logger::warn("configuration save timed out (took more than 5 seconds)");
+			return false;
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
-	Logger::info("Motor Parameters saved on drive");
 	
-	return true;
+	/*
+	//———— Method 2
+	uint16_t extendedCommandWord = 0x2;
+	return writeSDO_U16(0x2037, 0x5, extendedCommandWord);
+	*/
+}
+
+bool ATV340::resetFactorySettings(){
+	uint16_t extendedCommandWord = 0x1;
+	return writeSDO_U16(0x2037, 0x5, extendedCommandWord);
 }
