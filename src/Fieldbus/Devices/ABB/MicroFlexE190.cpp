@@ -14,10 +14,10 @@ void MicroFlex_e190::initialize() {
 	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
 	
 	servo = std::make_shared<MicroFlexServoMotor>(thisMicroflex);
-	servoPin->assignData(std::static_pointer_cast<ServoActuatorDevice>(servo));
+	servoPin->assignData(std::static_pointer_cast<ActuatorModule>(servo));
 	
 	gpio = std::make_shared<MicroFlexGpio>(thisMicroflex);
-	gpioPin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	gpioPin->assignData(std::static_pointer_cast<GpioModule>(gpio));
 	
 	addNodePin(servoPin);
 	addNodePin(position_Pin);
@@ -34,9 +34,9 @@ void MicroFlex_e190::initialize() {
 	addNodePin(analogIn0_Pin);
 	addNodePin(analogOut0_Pin);
 	
-	velocityLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
-	accelerationLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
-	updateServoLimits();
+	velocityLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
+	accelerationLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
+	configureSubmodules();
 	
 	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
 	axis = DS402Axis::make(thisDevice);
@@ -163,15 +163,23 @@ void MicroFlex_e190::readInputs() {
 	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
 	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
 	
-	//update servo state
-	servo->b_emergencyStopActive = b_estop;
-	if(isStateNone()) servo->state = MotionState::OFFLINE;
-	else if(b_isEnabled) servo->state = MotionState::ENABLED;
-	else if(b_isReady) servo->state = MotionState::READY;
-	else servo->state = MotionState::NOT_READY;
-	servo->position = actualPosition;
-	servo->velocity = actualVelocity;
-	servo->load = actualLoad;
+	//update device modules data
+	if(isStateNone()) servo->state = DeviceModule::State::OFFLINE;
+	else if(b_isEnabled) servo->state = DeviceModule::State::ENABLED;
+	else if(b_isReady) servo->state = DeviceModule::State::READY;
+	else servo->state = DeviceModule::State::NOT_READY;
+	
+	if(isOffline()) gpio->state = DeviceModule::State::OFFLINE;
+	else if(isStateSafeOperational()) gpio->state = DeviceModule::State::READY;
+	else if(isStateOperational()) gpio->state = DeviceModule::State::ENABLED;
+	else gpio->state = DeviceModule::State::NOT_READY;
+	
+	servo->actuatorProcessData.b_isEmergencyStopActive = b_estop;
+	auto& fbPd = servo->feedbackProcessData;
+	fbPd.positionActual = actualPosition;
+	fbPd.velocityActual = actualVelocity;
+	fbPd.effortActual = actualLoad;
+	fbPd.forceActual = 0.0;
 	
 	//update node pins
 	*position_Value = actualPosition;
@@ -192,17 +200,17 @@ void MicroFlex_e190::writeOutputs() {
 	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	//handle enabling & disabling
-	if(servo->b_disable){
-		servo->b_disable = false;
-		servo->b_enable = false;
-		b_waitingForEnable = false;
+	if(servo->b_disableRequest){
+		servo->b_disableRequest = false;
+		servo->b_enableRequest = false;
+		servo->b_waitingForEnable = false;
 		axis->disable();
 	}
-	else if(servo->b_enable){
+	else if(servo->b_enableRequest){
 		if(axis->hasFault()) axis->doFaultReset();
 		else {
-			servo->b_enable = false;
-			b_waitingForEnable = true;
+			servo->b_enableRequest = false;
+			servo->b_waitingForEnable = true;
 			enableRequestTime_nanoseconds = now_nanoseconds;
 			axis->enable();
 		}
@@ -243,7 +251,7 @@ void MicroFlex_e190::writeOutputs() {
 	}
 	//copy the values from the servo pin
 	else if(servoPin->isConnected()){
-		axis->setPosition(servo->targetPosition * incrementsPerPositionUnit);
+		axis->setPosition(servo->actuatorProcessData.positionTarget * incrementsPerPositionUnit);
 	}
 	//if the servo pin is not connected, we allow manual velocity control of the axis
 	else{

@@ -282,10 +282,10 @@ public:
 	
 	//feedback data retrieval
 	Unit getPositionUnit(){ return positionUnit; }
-	double getPosition(){ 	return feedbackData.positionActual; }
-	double getVelocity(){ 	return feedbackData.velocityActual; }
-	double getForce(){ 		return feedbackData.forceActual; }
-	double getEffort(){ 	return feedbackData.effortActual; }
+	double getPosition(){ 	return feedbackProcessData.positionActual; }
+	double getVelocity(){ 	return feedbackProcessData.velocityActual; }
+	double getForce(){ 		return feedbackProcessData.forceActual; }
+	double getEffort(){ 	return feedbackProcessData.effortActual; }
 	
 protected:
 	
@@ -306,7 +306,7 @@ protected:
 		double velocityActual = 0.0;	//actual velocity value in position Units
 		double forceActual = 0.0;		//linear force in Newton or torque in Newton Meters
 		double effortActual = 0.0;		//control effort in a normalized range (1.0 = 100%)
-	}feedbackData;
+	}feedbackProcessData;
 };
 
 class ActuatorModule : public MotionFeedbackModule{
@@ -339,18 +339,21 @@ public:
 	double getForceLimitPositive(){ return actuatorConfig.forceLimitPositive; }
 	double getForceLimitNegative(){ return actuatorConfig.forceLimitNegative; }
 	
+	//get Estop state
+	bool isEmergencyStopActive(){ return actuatorProcessData.b_isEmergencyStopActive; }
+	
 	//set motion targets
 	void setPositionTarget(double positionTarget){
-		actuatorControl.positionTarget = positionTarget;
-		actuatorControl.controlMode = ControlMode::POSITION;
+		actuatorProcessData.positionTarget = positionTarget;
+		actuatorProcessData.controlMode = ControlMode::POSITION;
 	}
 	void setVelocityTarget(double velocityTarget){
-		actuatorControl.velocityTarget = velocityTarget;
-		actuatorControl.controlMode = ControlMode::VELOCITY;
+		actuatorProcessData.velocityTarget = velocityTarget;
+		actuatorProcessData.controlMode = ControlMode::VELOCITY;
 	}
 	void setForceTarget(double forceTarget){
-		actuatorControl.forceTarget = forceTarget;
-		actuatorControl.controlMode = ControlMode::FORCE;
+		actuatorProcessData.forceTarget = forceTarget;
+		actuatorProcessData.controlMode = ControlMode::FORCE;
 	}
 	
 protected:
@@ -371,28 +374,17 @@ protected:
 		double positionTarget = 0.0;	//in position units
 		double velocityTarget = 0.0;	//in position units per second
 		double forceTarget = 0.0;		//in newton for linear actuators and newton meters for rotary actuators
-	}actuatorControl;
+		bool b_isEmergencyStopActive = false;
+	}actuatorProcessData;
 	
 };
 
 
+//virtual std::string getName() override;
+//virtual std::string getStatusString() override;
+//virtual void overridePosition(double newPosition) override;
+//virtual bool isBusyOverridingPosition() override;
+//virtual bool didPositionOverrideSucceed() override;
+//virtual void enable() override;
+//virtual void disable() override;
 
-class TestActuator : public ActuatorModule{
-public:
-	
-	TestActuator(){
-		positionUnit = Units::AngularDistance::Revolution;
-		actuatorConfig.b_supportsPosition = true;
-		actuatorConfig.b_supportsVelocity = true;
-		actuatorConfig.accelerationLimit = 10.0;
-		actuatorConfig.decelerationLimit = 10.0;
-		actuatorConfig.velocityLimit = 50.0;
-		feedbackConfig.b_supportsPosition = true;
-		feedbackConfig.b_suppportsVelocity = true;
-		feedbackConfig.b_supportsEffort = true;
-		feedbackConfig.positionLowerWorkingRangeBound = -4096.0;
-		feedbackConfig.positionUpperWorkingRangeBound = 4096.0;
-		feedbackConfig.positionFeedbackType = PositionFeedbackType::ABSOLUTE;
-	}
-	
-};

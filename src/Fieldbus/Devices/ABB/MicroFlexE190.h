@@ -18,40 +18,51 @@ public:
 	int16_t AI0;
 	int16_t AO0;
 	
-	class MicroFlexServoMotor : public ServoActuatorDevice{
+	class MicroFlexServoMotor : public ActuatorModule{
 	public:
-		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::INCREMENTAL),
-		drive(microflex){}
+		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) : drive(microflex){}
+		std::shared_ptr<MicroFlex_e190> drive;
+		friend class MicroFlex_e190;
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
-		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		std::shared_ptr<MicroFlex_e190> drive;
+		virtual void overridePosition(double newPosition) override {
+			encoderResetPosition = newPosition;
+			b_encoderResetRequest = true;
+		}
+		virtual bool isBusyOverridingPosition() override { return b_encoderResetBusy; }
+		virtual bool didPositionOverrideSucceed() override { return b_encoderResetSucceeded; }
+		virtual void enable() override{ b_enableRequest = true; }
+		virtual void disable() override{ b_disableRequest = true; }
 		
-		virtual bool canHardReset() override { return true; }
-		virtual void executeHardReset() override { drive->b_resetEncoder = true; }
-		virtual bool isExecutingHardReset() override { return drive->b_encoderResetBusy; }
+		//power stage control
+		bool b_enableRequest = false;
+		bool b_disableRequest = false;
+		bool b_waitingForEnable = false;
+		long long enableRequestTime_nanoseconds;
+		//encoder reset request
+		bool b_encoderResetRequest = false;
+		double encoderResetPosition = false;
+		bool b_encoderResetBusy = false;
+		bool b_encoderResetSucceeded = false;
+		
 	};
 	
-	class MicroFlexGpio : public GpioDevice{
+	class MicroFlexGpio : public GpioModule{
 	public:
-		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) :
-		GpioDevice(),
-		drive(microflex){}
+		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) : drive(microflex){}
+		std::shared_ptr<MicroFlex_e190> drive;
+		friend class MicroFlex_e190;
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
-		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		std::shared_ptr<MicroFlex_e190> drive;
 	};
 	
 	std::shared_ptr<MicroFlexServoMotor> servo;
-	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
+	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
 	
 	std::shared_ptr<MicroFlexGpio> gpio;
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
 	std::shared_ptr<double> position_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
@@ -101,11 +112,25 @@ public:
 		maxFollowingError_parameter
 	});
 	
-	void updateServoLimits(){
-		servo->velocityLimit = velocityLimit_parameter->value;
-		servo->accelerationLimit = accelerationLimit_parameter->value;
-		servo->decelerationLimit = accelerationLimit_parameter->value;
-		servo->b_decelerationLimitEqualsAccelerationLimit = true;
+	void configureSubmodules(){
+		auto& ac = servo->actuatorConfig;
+		ac.b_supportsPosition = true;
+		ac.b_supportsVelocity = true;
+		ac.b_supportsForce = true;
+		ac.accelerationLimit = accelerationLimit_parameter->value;
+		ac.decelerationLimit = accelerationLimit_parameter->value;
+		ac.velocityLimit = velocityLimit_parameter->value;
+		ac.forceLimitPositive = 0.0;
+		ac.forceLimitNegative = 0.0;
+		
+		auto& fc = servo->feedbackConfig;
+		fc.b_supportsPosition = true;
+		fc.b_suppportsVelocity = true;
+		fc.b_supportsForce = true;
+		fc.b_supportsEffort = true;
+		fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
+		fc.positionLowerWorkingRangeBound = 0.0;
+		fc.positionUpperWorkingRangeBound = 1.0;
 	}
 	
 	//for error logging

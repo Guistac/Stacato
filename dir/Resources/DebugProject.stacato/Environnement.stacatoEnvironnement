@@ -63,31 +63,6 @@
                     <OutputPin SaveString="Module1DigitalInput4" DisplayString="DI4" DataType="Boolean" UniqueID="37" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias: 3333)" UniqueID="38">
-                <NodeEditorPosition x="488" y="29"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Axis VelocityLimit="60" AccelerationLimit="10" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="39" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="40" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="41" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="42" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ServoActuatorDeviceLink" UniqueID="43" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="44" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="45" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="46" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="47" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="48" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="49" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="50" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="51" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="52" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340 (Alias:30303)" UniqueID="56">
                 <NodeEditorPosition x="155" y="454"/>
                 <NodeSpecificData>

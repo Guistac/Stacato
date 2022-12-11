@@ -9,6 +9,10 @@ class VelocityControlledAxis;
 class PositionControlledAxis;
 class DeadMansSwitch;
 
+class GpioModule;
+class MotionFeedbackModule;
+class ActuatorModule;
+
 class Node;
 class NodeLink;
 
@@ -29,7 +33,10 @@ public:
 		SERVO_ACTUATOR,
 		VELOCITY_CONTROLLED_AXIS,
 		POSITION_CONTROLLED_AXIS,
-		DEAD_MANS_SWITCH
+		DEAD_MANS_SWITCH,
+		GPIO_MODULE,
+		MOTIONFEEDBACK_MODULE,
+		ACTUATOR_MODULE
 	};
 	
 	enum class Direction {
@@ -251,7 +258,10 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	{NodePin::DataType::SERVO_ACTUATOR, 			.displayString = "Servo Actuator", 				.saveString = "ServoActuatorDeviceLink"},\
 	{NodePin::DataType::VELOCITY_CONTROLLED_AXIS, 	.displayString = "Velocity Controlled Axis", 	.saveString = "VelocityControlledAxisLink"},\
 	{NodePin::DataType::POSITION_CONTROLLED_AXIS, 	.displayString = "Position Controlled Axis", 	.saveString = "PositionControlledAxisLink"},\
-	{NodePin::DataType::DEAD_MANS_SWITCH, 			.displayString = "Dead Man's Switch", 			.saveString = "DeadMansSwitchLink"}\
+	{NodePin::DataType::DEAD_MANS_SWITCH, 			.displayString = "Dead Man's Switch", 			.saveString = "DeadMansSwitchLink"},\
+	{NodePin::DataType::GPIO_MODULE,				.displayString = "Gpio Module",					.saveString = "GpioModule"},\
+	{NodePin::DataType::MOTIONFEEDBACK_MODULE,		.displayString = "Motion Feedback Module",		.saveString = "MotionFeedbackModule"},\
+	{NodePin::DataType::ACTUATOR_MODULE,			.displayString = "Actuator Module",				.saveString = "ActuatorModule"}\
 
 DEFINE_ENUMERATOR(NodePin::DataType, NodePinDataTypes)
 
@@ -414,6 +424,15 @@ template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) { return DataType::DEAD_MANS_SWITCH; }
 
 
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioModule> ptr) { return DataType::GPIO_MODULE; }
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<MotionFeedbackModule> ptr) { return DataType::MOTIONFEEDBACK_MODULE; }
+
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorModule> ptr) { return DataType::ACTUATOR_MODULE; }
+
 //==============================================================
 //====================== Data Assignement ======================
 //==============================================================
@@ -482,5 +501,25 @@ inline void NodePin::assignData(std::shared_ptr<PositionControlledAxis> ptr) {
 template<>
 inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> ptr) {
 	if(dataType != DataType::DEAD_MANS_SWITCH) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
+	if(dataType != DataType::GPIO_MODULE) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<MotionFeedbackModule> ptr) {
+	if(dataType != DataType::MOTIONFEEDBACK_MODULE) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<ActuatorModule> ptr) {
+	if(dataType != DataType::ACTUATOR_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
