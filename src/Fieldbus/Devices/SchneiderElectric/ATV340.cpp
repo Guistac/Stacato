@@ -455,5 +455,16 @@ bool ATV340::configureMotor(){
 	if(autotuningStatus == 3) Logger::warn("Autotuning Failed");
 	else if(autotuningStatus == 4) Logger::warn("Autotuning Done");
 	
+	
+	uint16_t saveConfiguration = 1; //save to congiration #0
+	if(!writeSDO_U16(0x2032, 0x2, saveConfiguration)) return false;
+	
+	while(true){
+		uint16_t savestate;
+		if(readSDO_U16(0x2032, 0x2, savestate) && savestate == 0x0) break;
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	Logger::info("Motor Parameters saved on drive");
+	
 	return true;
 }

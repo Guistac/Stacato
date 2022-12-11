@@ -116,6 +116,103 @@ public:
 	
 	
 	
+	
+	
+	
+	enum class MotorStandardFrequency{
+		HZ_50,
+		HZ_60
+	};
+	
+	enum class MotorParameterChoice{
+		NOMINAL_POWER,
+		COSINUS_PHI
+	};
+	
+	enum class DigitalOutput{
+		NONE,
+		DQ0,
+		DQ1,
+		R1,
+		R2
+	};
+	
+	enum class BrakeMovementType{
+		HORIZONTAL_MOVEMENT,
+		HOISTING
+	};
+	
+	enum class EmbeddedEncoderSupplyVoltage{
+		V5,
+		V12,
+		V24
+	};
+	
+	enum class EmbeddedEncoderUsage{
+		NONE,
+		SPEED_MONITORING,
+		SPEED_REGULATION,
+		SPEED_REFERENCE
+	};
+	
+	enum class MotorControlType{
+		SENSORLESS_FLUX_VECTOR,
+		FULL_FLUX_VECTOR
+	};
+	
+
+	/*
+	#define MotorStandardFrequencyStrings \
+	{MotorStandardFrequency::HZ_50, "50 Hz", "50Hz"},\
+	{MotorStandardFrequency::HZ_60, "60 Hz", "60Hz"}\
+	
+	DEFINE_ENUMERATOR(ATV340::MotorStandardFrequency, MotorStandardFrequencyStrings)
+	
+	
+	EnumParam<MotorStandardFrequency> motorStandardFrequency_Param = EnumeratorParameter<MotorStandardFrequency>::make(MotorStandardFrequency::HZ_50,
+																													   "Motor Standard Frequency",
+																													   "MotorStandardFrequency");
+	*/
+	 
+	//——— Motor Parameters
+	//[bfr] {Async} motor standard frequency
+	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
+	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
+	//[npr] {Async} nominal motor power (0.01 Watt increments)
+	//[uns] {Async} nominal motor voltage (1v increments)
+	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
+	//[frs] {Async} nominal motor frequency (0.1Hz increments)
+	//[nsp] {Async} nominal motor speed (rpm)
+	//[ith] Motor Thermal Current (0.01 Ampere increments)
+	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
+	
+	//———— Brake Logic Control
+	//[blc] brake digital output assignement
+	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
+	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
+
+	//———— Embedded Encoder
+	
+	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
+	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
+	//[epg] pulses per encoder revolution
+	//[eeri] emebedded encoder revolution inversion (0=No, 1=Yes)
+	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
+
+	//———— Motor Control Type
+	
+	//[ctt] Motor Control Type
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	void configureProcessData();
 	
 	const char* getErrorCodeString(){
