@@ -295,14 +295,14 @@ public:
 	
 	NumberParam<double> decelerationRampTime_Param = NumberParameter<double>::make(3.0, "Deceleration Ramp Time", "DecelerationRampTime", "%.1f", Units::Time::Second, false);
 	
-	BoolParam invertDirection_Param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	NumberParam<double> switchingFrequency_Param = NumberParameter<double>::make(16, "Switching Frequency", "SwitchingFrequeny", "%.1f", Units::Frequency::Kilohertz, false);
 	
 	ParameterGroup motorControlParameters = ParameterGroup("MotorControl", {
 		motorControlType_Param,
 		velocityLimitRPM_Param,
 		accelerationRampTime_Param,
 		decelerationRampTime_Param,
-		invertDirection_Param
+		switchingFrequency_Param
 	});
 	
 	//———— IO Configuration

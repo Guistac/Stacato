@@ -96,7 +96,7 @@
                     <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="2.2000000000000002" NominalMotorVoltage="380" NominalMotorCurrent="4.5499999999999998" NominalMotorFrequency="50" NominalMotorSpeed="2850" MotorThermalCurrent="4.5499999999999998" MotorMaximumFrequency="50"/>
                     <BrakeLogic BrakeOutputAssignement="2" BrakeMovementType="0"/>
                     <EmbeddedEncoder EmbeddedEncoderType="1" EmbeddedEncoderVoltage="24" EmbeddedEncoderPulsesPerRevolution="1024" InvertEmbeddedEncoderDirection="false" EmbeddedEncoderUsage="0"/>
-                    <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>
+                    <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" SwitchingFrequeny="16"/>
                     <IOConfig AnalogInput1Type="2" AnalogInput2Type="1" AnalogInputMinimumCurrentValue="4" AnalogInputMaximumCurrentValue="20" AnalogInputMinimumVoltageValue="0" AnalogInputMaximumVoltageValue="10"/>
                 </NodeSpecificData>
                 <InputPins>

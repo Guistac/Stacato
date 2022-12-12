@@ -486,6 +486,11 @@ void ATV340::configureDrive(){
 		uint16_t decelerationRampTime = decelerationRampTime_Param->value * 100;
 		if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime, "Deceleration Ramp Time")) return;
 		
+		//[sfr] switching frequency (0.1KHz increments)
+		uint16_t switchingFrequency = switchingFrequency_Param->value * 10.0;
+		if(!writeSDO_U16(0x2001, 0x3, switchingFrequency, "Switching Frequency")) return;
+		
+		
 		//———— IO Config
 		
 		//[AI1T]
