@@ -21,6 +21,8 @@ void ATV340::initialize() {
 	//add node pins
 	addNodePin(motor_pin);
 	addNodePin(gpio_pin);
+	addNodePin(velocity_Pin);
+	addNodePin(load_Pin);
 	addNodePin(digitalInput1_Pin);
 	addNodePin(digitalInput2_Pin);
 	addNodePin(digitalInput3_Pin);
@@ -91,11 +93,13 @@ void ATV340::initialize() {
 	embeddedEncoderType_Param->onEdit();
 	
 	brakeOutputAssignement_Param->addEditCallback([this](){
-		if(brakeOutputAssignement_Param->value == options.NoDigitalOutput.getInt()){
-			brakeMovementType_Param->setDisabled(true);
-		}else{
-			brakeMovementType_Param->setDisabled(false);
-		}
+		bool brakeOutputUnassigned = brakeOutputAssignement_Param->value == options.NoDigitalOutput.getInt();
+		brakeMovementType_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseTime_Param->setDisabled(brakeOutputUnassigned);
+		brakeEngageTime_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseCurrent_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseFrequency_Param->setDisabled(brakeOutputUnassigned);
+		brakeEngageFrequency_Param->setDisabled(brakeOutputUnassigned);
 	});
 	brakeOutputAssignement_Param->onEdit();
 }
@@ -112,26 +116,12 @@ void ATV340::configureProcessData(){
 	axis->processDataConfiguration.enableFrequencyMode();
 	axis->processDataConfiguration.frequencyActualValue = false;
 	
-	if(pdo_digitalIn->value){
-		txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
-	}
-	if(pdo_digitalOut->value){
-		rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
-	}
-	if(pdo_motorPower->value){
-		txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
-	}
-	if(pdo_readMotorSpeed->value){
-		axis->processDataConfiguration.frequencyActualValue = true;
-	}
-	if(pdo_readAnalogIn1->value){
-		txPdoAssignement.addEntry(0x2016, 0x21, 16, "AI1 standardized value", &analogInput1);
-		//txPdoAssignement.addEntry(0x2016, 0x2B, 16, "AI1 physical value", &analogInput1);
-	}
-	if(pdo_readAnalogIn2->value){
-		txPdoAssignement.addEntry(0x2016, 0x22, 16, "AI2 standardized value", &analogInput2);
-		//txPdoAssignement.addEntry(0x2016, 0x2C, 16, "AI2 physical value", &analogInput2);
-	}
+	if(pdo_digitalIn->value) 		txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
+	if(pdo_digitalOut->value) 		rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
+	if(pdo_motorEffort->value) 		txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorEffort);
+	if(pdo_motorVelocity->value)	axis->processDataConfiguration.frequencyActualValue = true;
+	if(pdo_readAnalogIn1->value)	txPdoAssignement.addEntry(0x2016, 0x21, 16, "AI1 standardized value", &analogInput1);
+	if(pdo_readAnalogIn2->value) 	txPdoAssignement.addEntry(0x2016, 0x22, 16, "AI2 standardized value", &analogInput2);
 	
 	//might be smarter to thread request of this data once the fault flag is up
 	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
@@ -200,6 +190,14 @@ void ATV340::readInputs() {
 	else if(b_isReady) motor->state = MotionState::READY;
 	else motor->state = MotionState::NOT_READY;
 	
+	//effort is reported in 1% increments
+	double effort = double(motorEffort) / 100.0;
+	motor->load = effort;
+	*load_Value = effort;
+	
+	//in rpm for now...
+	*velocity_Value = axis->getActualFrequency();
+	
 	//these are unconfirmed...
 	*digitalInput1_Signal = logicInputs & (0x1 << 0);
 	*digitalInput2_Signal = logicInputs & (0x1 << 1);
@@ -211,10 +209,6 @@ void ATV340::readInputs() {
 	//to normalize the value to a 0-1 range we divide by 10000
 	*analogInput1_value = double(analogInput1) / 10000.0;
 	*analogInput2_value = double(analogInput2) / 10000.0;
-	
-	//servo->position = actualPosition;
-	//servo->velocity = actualVelocity;
-	//servo->load = actualLoad;
 }
 
 //==============================================================
@@ -263,7 +257,10 @@ void ATV340::writeOutputs() {
 	
 	axis->setFrequency(manualVelocityTarget_rpm);
 	
-	
+	if(relaisOutput1_Pin->isConnected()) relaisOutput1_Pin->copyConnectedPinValue();
+	if(relaisOutput2_Pin->isConnected()) relaisOutput2_Pin->copyConnectedPinValue();
+	if(digitalOutput1_Pin->isConnected()) digitalOutput1_Pin->copyConnectedPinValue();
+	if(digitalOutput2_Pin->isConnected()) digitalOutput2_Pin->copyConnectedPinValue();
 	
 	logicOutputs = 0x0;
 	if(*relaisOutput1_Signal)	logicOutputs |= 0x1 << 0;
@@ -433,6 +430,29 @@ void ATV340::configureDrive(){
 		uint16_t brakeMovementType = brakeMovementType_Param->value;
 		if(!writeSDO_U16(0x2046, 0x9, brakeMovementType, "Brake Movement Type")) return;
 		
+		//[brt] brake release time (int 0.01s increments)
+		uint16_t brakeReleaseTime = brakeReleaseTime_Param->value * 100.0;
+		if(!writeSDO_U16(0x2046, 0x5, brakeReleaseTime, "Brake Release Time")) return;
+
+		//[bet] brake engage time
+		uint16_t brakeEngageTime = brakeEngageTime_Param->value * 100.0;
+		if(!writeSDO_U16(0x2046, 0x6, brakeEngageTime, "Brake Engage Time")) return;
+		
+		//[ibr] brake release current (default is nominal motor current)
+		uint16_t brakeReleaseCurrent = brakeReleaseCurrent_Param->value / currentScaling;
+		if(!writeSDO_U16(0x2046, 0x7, brakeReleaseCurrent, "Brake Release Current")) return;
+		
+		//[bir] brake release frequency (default is 0Hz, in 0.1Hz increments)
+		uint16_t brakeReleaseFrequency = brakeReleaseFrequency_Param->value * 10.0;
+		if(!writeSDO_U16(0x2046, 0xD, brakeReleaseFrequency, "Brake Release Frequency")) return;
+		
+		//[ben] brake engage frequency (default is 0Hz, in 0.1Hz increments)
+		uint16_t brakeEngageFrequency = brakeEngageFrequency_Param->value * 10.0;
+		if(!writeSDO_U16(0x2046, 0x4, brakeEngageFrequency, "Brake Release Engage Frequency")) return;
+		
+		
+		//TODO: encoder verification
+		
 		
 		//———— Embedded Encoder
 		
@@ -563,7 +583,7 @@ void ATV340::startMotorTuning(){
 					case 1: Logger::info("Autotuning Pending"); break;
 					case 2: break;
 					case 3: Logger::error("Autotuning Failed"); return;
-					case 4: Logger::info("Autotuning Done"); return;
+					case 4: Logger::info("Autotuning Succeeded !"); return;
 				}
 			}
 			if(autotuneTimer.isExpired()) {

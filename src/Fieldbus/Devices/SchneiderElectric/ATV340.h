@@ -12,13 +12,13 @@ public:
 	
 	//Process Data
 	std::shared_ptr<DS402Axis> axis;
-	uint16_t motorPower;
-	uint16_t logicInputs;
-	uint16_t stoState;
-	uint16_t lastFaultCode;
-	uint16_t logicOutputs;
-	int16_t analogInput1;
-	int16_t analogInput2;
+	int16_t motorEffort = 0;
+	uint16_t logicInputs = 0;
+	uint16_t stoState = 0;
+	uint16_t lastFaultCode = 0;
+	uint16_t logicOutputs = 0;
+	int16_t analogInput1 = 0;
+	int16_t analogInput2 = 0;
 	
 	class ATV340_Motor : public ActuatorDevice{
 	public:
@@ -60,6 +60,11 @@ public:
 	std::shared_ptr<NodePin> motor_pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
 	std::shared_ptr<NodePin> gpio_pin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
+	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<double> load_Value = std::make_shared<double>(0.0);
+	std::shared_ptr<NodePin> velocity_Pin = std::make_shared<NodePin>(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> load_Pin = std::make_shared<NodePin>(load_Value, NodePin::Direction::NODE_OUTPUT, "Effort", NodePin::Flags::DisableDataField);
+	
 	std::shared_ptr<bool> digitalInput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput2_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
@@ -89,17 +94,17 @@ public:
 	
 	BoolParam pdo_digitalIn = BooleanParameter::make(false, "Read Digital Inputs", "ConfigDigitalInputs");
 	BoolParam pdo_digitalOut = BooleanParameter::make(false, "Write Digital Outputs", "ConfigDigitalOutputs");
-	BoolParam pdo_motorPower = BooleanParameter::make(false, "Read Motor Power", "ConfigMotorPower");
-	BoolParam pdo_readMotorSpeed = BooleanParameter::make(false, "Read Motor Speed", "ConfigMotorSpeed");
 	BoolParam pdo_readAnalogIn1 = BooleanParameter::make(false, "Read Analog Input 1", "ConfigAnalogInput1");
 	BoolParam pdo_readAnalogIn2 = BooleanParameter::make(false, "Read Analog Input 2", "ConfigAnalogInput2");
+	BoolParam pdo_motorVelocity = BooleanParameter::make(false, "Read Output Velocity", "ConfigMotorOutputVelocity");
+	BoolParam pdo_motorEffort = BooleanParameter::make(false, "Read Motor Effort", "ConfigMotorEffort");
 	ParameterGroup pdoConfigParameters = ParameterGroup("PDOconfig",{
 		pdo_digitalIn,
 		pdo_digitalOut,
 		pdo_readAnalogIn1,
 		pdo_readAnalogIn2,
-		pdo_motorPower,
-		pdo_readMotorSpeed
+		pdo_motorVelocity,
+		pdo_motorEffort
 	});
 	
 	
@@ -254,9 +259,29 @@ public:
 	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
 	OptionParam brakeMovementType_Param = OptionParameter::make(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
 	
+	//[brt] brake release time
+	NumberParam<double> brakeReleaseTime_Param = NumberParameter<double>::make(0.1, "Brake Release Time", "BrakeReleaseTime", "%.2f", Units::Time::Second, false);
+
+	//[bet] brake engage time
+	NumberParam<double> brakeEngageTime_Param = NumberParameter<double>::make(0.5, "Brake Engage Time", "BrakeEngageTime", "%.2f", Units::Time::Second, false);
+
+	//[ibr] brake release current (default is nominal motor current)
+	NumberParam<double> brakeReleaseCurrent_Param = NumberParameter<double>::make(1.0, "Brake Release Current", "BrakeReleaseCurrent", "%.2f", Units::Current::Ampere, false);
+	
+	//[bir] brake release frequency (default is 0Hz)
+	NumberParam<double> brakeReleaseFrequency_Param = NumberParameter<double>::make(0.0, "Brake Release Frequency", "BrakeReleaseFrequency", "%.1f", Units::Frequency::Hertz, false);
+	
+	//[ben] brake engage frequency (default is 0Hz)
+	NumberParam<double> brakeEngageFrequency_Param = NumberParameter<double>::make(0.0, "Brake Engage Frequency", "BrakeEngageFrequency", "%.1f", Units::Frequency::Hertz, false);
+	
 	ParameterGroup brakeLogicParameters = ParameterGroup("BrakeLogic", {
 		brakeOutputAssignement_Param,
-		brakeMovementType_Param
+		brakeMovementType_Param,
+		brakeReleaseTime_Param,
+		brakeEngageTime_Param,
+		brakeReleaseCurrent_Param,
+		brakeReleaseFrequency_Param,
+		brakeEngageFrequency_Param
 	});
 	
 	//———— Embedded Encoder
