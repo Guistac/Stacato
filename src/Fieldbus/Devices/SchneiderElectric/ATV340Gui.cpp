@@ -127,5 +127,6 @@ void ATV340::driveConfigTab(){
 	drawParameterGroup("Brake Logic", brakeLogicParameters);
 	drawParameterGroup("Embedded Encoder", embeddedEncoderParameters);
 	drawParameterGroup("Motor Control", motorControlParameters);
+	drawParameterGroup("IO Configuration", ioConfigParameters);
 }
 

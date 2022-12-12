@@ -98,6 +98,40 @@ void ATV340::initialize() {
 		}
 	});
 	brakeOutputAssignement_Param->onEdit();
+	
+	analogInput1Type_Param->addEditCallback([this](){
+		if(analogInput1Type_Param->value == options.AnalogInputTypeVoltage.getInt()){
+			analogInput1MinValue_Param->setSuffix("V");
+			analogInput1MaxValue_Param->setSuffix("V");
+			analogInput1MinValue_Param->setDisabled(false);
+			analogInput1MaxValue_Param->setDisabled(false);
+		}else if(analogInput1Type_Param->value == options.AnalogInputTypeCurrent.getInt()){
+			analogInput1MinValue_Param->setSuffix("mA");
+			analogInput1MaxValue_Param->setSuffix("mA");
+			analogInput1MinValue_Param->setDisabled(false);
+			analogInput1MaxValue_Param->setDisabled(false);
+		}else{
+			analogInput1MinValue_Param->setSuffix("");
+			analogInput1MaxValue_Param->setSuffix("");
+			analogInput1MinValue_Param->setDisabled(true);
+			analogInput1MaxValue_Param->setDisabled(true);
+		}
+	});
+	analogInput1Type_Param->onEdit();
+	
+	analogInput2Type_Param->addEditCallback([this](){
+		if(analogInput2Type_Param->value == options.AnalogInputTypeVoltage.getInt()){
+			analogInput2MinValue_Param->setSuffix("V");
+			analogInput2MaxValue_Param->setSuffix("V");
+		}else if(analogInput2Type_Param->value == options.AnalogInputTypeCurrent.getInt()){
+			analogInput2MinValue_Param->setSuffix("mA");
+			analogInput2MaxValue_Param->setSuffix("mA");
+		}else{
+			analogInput2MinValue_Param->setSuffix("");
+			analogInput2MaxValue_Param->setSuffix("");
+		}
+	});
+	analogInput2Type_Param->onEdit();
 }
 
 void ATV340::configureProcessData(){
@@ -304,6 +338,7 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	if(!brakeLogicParameters.save(xml)) return false;
 	if(!embeddedEncoderParameters.save(xml)) return false;
 	if(!motorControlParameters.save(xml)) return false;
+	if(!ioConfigParameters.save(xml)) return false;
 	
 	return true;
 }
@@ -316,12 +351,14 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!brakeLogicParameters.load(xml)) return false;
 	if(!embeddedEncoderParameters.load(xml)) return false;
 	if(!motorControlParameters.load(xml)) return false;
+	if(!ioConfigParameters.load(xml)) return false;
 	
 	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
 	for(auto parameter : motorNameplateParameters.get()) parameter->onEdit();
 	for(auto parameter : brakeLogicParameters.get()) parameter->onEdit();
 	for(auto parameter : embeddedEncoderParameters.get()) parameter->onEdit();
 	for(auto parameter : motorControlParameters.get()) parameter->onEdit();
+	for(auto parameter : ioConfigParameters.get()) parameter->onEdit();
 	
 	return true;
 }

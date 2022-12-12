@@ -177,6 +177,17 @@ public:
 			&SensorlessFullFlux,
 			&FullFluxVector
 		};
+		
+		
+		//[AIOT]
+		Option AnalogInputTypeVoltage = Option(1, "Measure Voltage", "MeasureVoltage");
+		Option AnalogInputTypeCurrent = Option(2, "Measure Current", "MeasureCurrent");
+		std::vector<Option*> analogInputType_Options = {
+			&AnalogInputTypeVoltage,
+			&AnalogInputTypeCurrent
+		};
+		
+		
 	};
 	static ParameterOptions options;
 	
@@ -286,7 +297,31 @@ public:
 		decelerationRampTime_Param,
 		invertDirection_Param
 	});
-		
+	
+	//———— IO Configuration
+	
+	//[AI1T]
+	OptionParam analogInput1Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInputType_Options, "Analog Input 1 Type", "AnalogInput1Type");
+	//[UIL1] [CrL1]
+	NumberParam<double> analogInput1MinValue_Param = NumberParameter<double>::make(0.0, "Analog Input 1 Minimum Value", "AnalogInput1MinimumValue", "%.1f");
+	//[UIH1] [CrH1]
+	NumberParam<double> analogInput1MaxValue_Param = NumberParameter<double>::make(10.0, "Analog Input 1 Maximum Value", "AnalogInput1MaximumValue", "%.1f");
+	
+	//[AI2T]
+	OptionParam analogInput2Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInputType_Options, "Analog Input 2 Type", "AnalogInput2Type");
+	//[UIL2] [CrL2]
+	NumberParam<double> analogInput2MinValue_Param = NumberParameter<double>::make(0.0, "Analog Input 2 Minimum Value", "AnalogInput2MinimumValue", "%.1f");
+	//[UIH2] [CrH2]
+	NumberParam<double> analogInput2MaxValue_Param = NumberParameter<double>::make(10.0, "Analog Input 2 Maximum Value", "AnalogInput2MaximumValue", "%.1f");
+	
+	ParameterGroup ioConfigParameters = ParameterGroup("IOConfig", {
+		analogInput1Type_Param,
+		analogInput1MinValue_Param,
+		analogInput1MaxValue_Param,
+		analogInput2Type_Param,
+		analogInput2MinValue_Param,
+		analogInput2MaxValue_Param
+	});
 	
 	bool startMotorTuning();
 	bool saveToEEPROM();
