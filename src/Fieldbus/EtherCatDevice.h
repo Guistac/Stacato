@@ -91,12 +91,6 @@ public:
 	glm::vec4 getEtherCatStateColor();
     bool hasStateError();
     uint16_t previousState = -1;
-
-	//TODO: improve this
-	struct ProcessData{
-		EtherCatPdoAssignement masterToDevice;
-		EtherCatPdoAssignement deviceToMaster;
-	};
 	
     //public display of raw pdo data
     EtherCatPdoAssignement txPdoAssignement;
