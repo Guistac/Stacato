@@ -101,7 +101,7 @@ void ATV340::driveConfigTab(){
 	ImGui::Text("Drive Configuration");
 	ImGui::PopFont();
 	
-	if(ImGui::Button("Upload Configuration")) configureMotor();
+	if(ImGui::Button("Upload Configuration")) configureDrive();
 	ImGui::SameLine();
 	if(ImGui::Button("Standstill Motor Tuning")) startMotorTuning();
 	ImGui::SameLine();

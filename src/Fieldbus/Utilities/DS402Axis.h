@@ -175,12 +175,12 @@ public:
 	
 	bool setOperatingMode(OperatingMode mode){
 		int8_t opMode = getOperatingModeCode(mode);
-		return parentDevice->writeSDO_S8(0x6060, 0x0, opMode);
+		return parentDevice->writeSDO_S8(0x6060, 0x0, opMode, "DS402 Operating Mode");
 	}
 	
 	bool getOperatingMode(OperatingMode& output){
 		int8_t opMode;
-		if(!parentDevice->readSDO_S8(0x6061, 0x0, opMode)) return false;
+		if(!parentDevice->readSDO_S8(0x6061, 0x0, opMode, "DS402 Operating Mode")) return false;
 		output = getOperatingMode(opMode);
 	}
 	
@@ -194,15 +194,15 @@ public:
 	}
 
 	///607E.0 Polarity
-	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity); }
-	bool getPolarity(uint8_t& output){ return parentDevice->readSDO_U8(0x607E, 0x0, output); }
+	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity, "DS402 Polarity"); }
+	bool getPolarity(uint8_t& output){ return parentDevice->readSDO_U8(0x607E, 0x0, output, "DS402 Polarity"); }
 
 	///6073.0 Max Current
-	bool setMaxCurrent(uint16_t current){ return parentDevice->writeSDO_U16(0x6073, 0x0, current); }
-	bool getMaxCurrent(uint16_t& output){ return parentDevice->readSDO_U16(0x6073, 0x0, output); }
+	bool setMaxCurrent(uint16_t current){ return parentDevice->writeSDO_U16(0x6073, 0x0, current, "DS402 Max Current"); }
+	bool getMaxCurrent(uint16_t& output){ return parentDevice->readSDO_U16(0x6073, 0x0, output, "DS402 Max Current"); }
 	
 	///6075.0 Motor Rated Current (mA)
-	bool getMotorRatedCurrent(uint32_t& output) { return parentDevice->readSDO_U32(0x6075, 0x0, output); }
+	bool getMotorRatedCurrent(uint32_t& output) { return parentDevice->readSDO_U32(0x6075, 0x0, output, "DS402 Motor Rated Current"); }
 	
 	///6076.? Motor Rated Torque
 	

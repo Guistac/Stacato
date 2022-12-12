@@ -182,10 +182,17 @@ public:
 		//[AIOT]
 		Option AnalogInputTypeVoltage = Option(1, "Measure Voltage", "MeasureVoltage");
 		Option AnalogInputTypeCurrent = Option(2, "Measure Current", "MeasureCurrent");
-		std::vector<Option*> analogInputType_Options = {
+		Option AnalogInputTypeVoltageBipolar = Option(5, "Measure Voltage ±10V", "MeasureVoltageBipolar10V");
+		std::vector<Option*> analogInput1Type_Options = {
 			&AnalogInputTypeVoltage,
 			&AnalogInputTypeCurrent
 		};
+		std::vector<Option*> analogInput2Type_Options = {
+			&AnalogInputTypeVoltage,
+			&AnalogInputTypeVoltageBipolar
+		};
+		
+		
 		
 		
 	};
@@ -206,10 +213,10 @@ public:
 	NumberParam<double> cosinusPhi_Param = NumberParameter<double>::make(0.0, "Cosinus Phi", "CosinusPhi", "%.2f", Units::None::None, false);
 	
 	//[npr] {Async} nominal motor power (0.01 Watt increments)
-	NumberParam<double> nominalMotorPower_Param = NumberParameter<double>::make(0.0, "Nominal Motor Power", "NominalMotorPower", "%.2f", Units::Power::Watt, false);
+	NumberParam<double> nominalMotorPower_Param = NumberParameter<double>::make(0.0, "Nominal Motor Power", "NominalMotorPower", "%.2f", Units::Power::KiloWatt, false);
 	
 	//[uns] {Async} nominal motor voltage (1v increments)
-	NumberParam<int> nominalMotorVoltage_Param = NumberParameter<int>::make(0, "Nominal Motor Voltage", "NominalMotorVoltage", "%i", Units::Power::Watt, false);
+	NumberParam<int> nominalMotorVoltage_Param = NumberParameter<int>::make(0, "Nominal Motor Voltage", "NominalMotorVoltage", "%i", Units::Voltage::Volt, false);
 	
 	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
 	NumberParam<double> nominalMotorCurrent_Param = NumberParameter<double>::make(0.0, "Nominal Motor Current", "NominalMotorCurrent", "%.2f", Units::Current::Ampere, false);
@@ -301,31 +308,37 @@ public:
 	//———— IO Configuration
 	
 	//[AI1T]
-	OptionParam analogInput1Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInputType_Options, "Analog Input 1 Type", "AnalogInput1Type");
-	//[UIL1] [CrL1]
-	NumberParam<double> analogInput1MinValue_Param = NumberParameter<double>::make(0.0, "Analog Input 1 Minimum Value", "AnalogInput1MinimumValue", "%.1f");
-	//[UIH1] [CrH1]
-	NumberParam<double> analogInput1MaxValue_Param = NumberParameter<double>::make(10.0, "Analog Input 1 Maximum Value", "AnalogInput1MaximumValue", "%.1f");
+	OptionParam analogInput1Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
 	
 	//[AI2T]
-	OptionParam analogInput2Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInputType_Options, "Analog Input 2 Type", "AnalogInput2Type");
-	//[UIL2] [CrL2]
-	NumberParam<double> analogInput2MinValue_Param = NumberParameter<double>::make(0.0, "Analog Input 2 Minimum Value", "AnalogInput2MinimumValue", "%.1f");
-	//[UIH2] [CrH2]
-	NumberParam<double> analogInput2MaxValue_Param = NumberParameter<double>::make(10.0, "Analog Input 2 Maximum Value", "AnalogInput2MaximumValue", "%.1f");
+	OptionParam analogInput2Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
+	
+	//[CrL1]
+	NumberParam<double> analogInputMinCurrent_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Current Value", "AnalogInputMinimumCurrentValue", "%.1f", Units::Current::Milliampere, false);
+	
+	//[CrH1]
+	NumberParam<double> analogInputMaxCurrent_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Current Value", "AnalogInputMaximumCurrentValue", "%.1f", Units::Current::Milliampere, false);
+	
+	//[UIL1] = [UIL2] if voltage is selected
+	NumberParam<double> analogInputMinVoltage_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Voltage Value", "AnalogInputMinimumVoltageValue", "%.1f", Units::Voltage::Volt, false);
+	
+	//[UIH1] = [UIH2] if voltage is selected
+	NumberParam<double> analogInputMaxVoltage_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Voltage Value", "AnalogInputMaximumVoltageValue", "%.1f", Units::Voltage::Volt, false);
 	
 	ParameterGroup ioConfigParameters = ParameterGroup("IOConfig", {
 		analogInput1Type_Param,
-		analogInput1MinValue_Param,
-		analogInput1MaxValue_Param,
 		analogInput2Type_Param,
-		analogInput2MinValue_Param,
-		analogInput2MaxValue_Param
+		analogInputMinCurrent_Param,
+		analogInputMaxCurrent_Param,
+		analogInputMinVoltage_Param,
+		analogInputMaxVoltage_Param
 	});
 	
-	bool startMotorTuning();
+	void configureDrive();
+	void startMotorTuning();
+	void resetFactorySettings();
+	
 	bool saveToEEPROM();
-	bool resetFactorySettings();
 	
 	
 	
@@ -482,7 +495,5 @@ public:
 	void controlTab();
 	void processDataConfigTab();
 	void driveConfigTab();
-	
-	bool configureMotor();
 	
 };
