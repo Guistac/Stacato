@@ -89,7 +89,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Plotter" CustomName="Load Cell Weight" UniqueID="86">
-                <NodeEditorPosition x="568" y="736"/>
+                <NodeEditorPosition x="584" y="736"/>
                 <NodeSpecificData>
                     <Plotter BufferSize="512" DisplayLengthSeconds="5"/>
                 </NodeSpecificData>
@@ -110,34 +110,34 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340" UniqueID="97">
-                <NodeEditorPosition x="139" y="431"/>
+                <NodeEditorPosition x="120" y="389"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="30303"/>
                     <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="false" ConfigMotorOutputVelocity="true" ConfigMotorEffort="false"/>
                     <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="2.2000000000000002" NominalMotorVoltage="380" NominalMotorCurrent="4.5499999999999998" NominalMotorFrequency="50" NominalMotorSpeed="2850" MotorThermalCurrent="4.5499999999999998" MotorMaximumFrequency="50"/>
-                    <BrakeLogic BrakeOutputAssignement="2" BrakeMovementType="0" BrakeReleaseTime="0.10000000000000001" BrakeEngageTime="0.5" BrakeReleaseCurrent="0" BrakeReleaseFrequency="0" BrakeEngageFrequency="0"/>
-                    <EmbeddedEncoder EmbeddedEncoderType="1" EmbeddedEncoderVoltage="24" EmbeddedEncoderPulsesPerRevolution="1024" InvertEmbeddedEncoderDirection="false" EmbeddedEncoderUsage="0"/>
-                    <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" SwitchingFrequeny="16"/>
-                    <IOConfig AnalogInput1Type="2" AnalogInput2Type="1" AnalogInputMinimumCurrentValue="4" AnalogInputMaximumCurrentValue="20" AnalogInputMinimumVoltageValue="0" AnalogInputMaximumVoltageValue="10"/>
+                    <BrakeLogic BrakeOutputAssignement="2" BrakeMovementType="1" BrakeReleaseTime="0.10000000000000001" BrakeEngageTime="0.5" BrakeReleaseCurrent="0" BrakeReleaseFrequency="0" BrakeEngageFrequency="0"/>
+                    <EmbeddedEncoder EmbeddedEncoderType="1" EmbeddedEncoderVoltage="24" EmbeddedEncoderPulsesPerRevolution="1024" InvertEmbeddedEncoderDirection="true" EmbeddedEncoderUsage="2"/>
+                    <MotorControl MotorControlType="2" VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" SwitchingFrequeny="16"/>
+                    <IOConfig AnalogInput1Type="2" AnalogInput2Type="1" AnalogInputMinimumCurrentValue="4" AnalogInputMaximumCurrentValue="20" AnalogInputMinimumVoltageValue="0" AnalogInputMaximumVoltageValue="10" ForwardLimitSignal="0" ReverseLimitSignal="0" InvertDigitalInput1="true" InvertDigitalInput2="true" InvertDigitalInput3="true" InvertDigitalInput4="true" InvertDigitalInput5="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Digital Output 1" DisplayString="DO 1 Autorisation Frein" DataType="Boolean" UniqueID="98" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="99" Visible="true"/>
-                    <InputPin SaveString="Relais Output 1" DisplayString="Relais Output 1" DataType="Boolean" UniqueID="100" Visible="true"/>
-                    <InputPin SaveString="Relais Output 2" DisplayString="Relais Output 2" DataType="Boolean" UniqueID="101" Visible="true"/>
+                    <InputPin SaveString="Digital Output 1" DisplayString="DO1 Ouverture Frein" DataType="Boolean" UniqueID="98" Visible="true"/>
+                    <InputPin SaveString="Digital Output 2" DisplayString="DO2" DataType="Boolean" UniqueID="99" Visible="true"/>
+                    <InputPin SaveString="Relais Output 1" DisplayString="R1" DataType="Boolean" UniqueID="100" Visible="true"/>
+                    <InputPin SaveString="Relais Output 2" DisplayString="R2" DataType="Boolean" UniqueID="101" Visible="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="102" Visible="true" NoDataField="true"/>
                     <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="103" Visible="true" NoDataField="true"/>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="104" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="Effort" DisplayString="Effort" DataType="Real" UniqueID="105" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="106" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="107" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="108" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 4" DisplayString="Digital Input 4" DataType="Boolean" UniqueID="109" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 5" DisplayString="Digital Input 5" DataType="Boolean" UniqueID="110" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 1" DisplayString="Analog Input 1" DataType="Real" UniqueID="111" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 2" DisplayString="Analog Input 2" DataType="Real" UniqueID="112" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 1" DisplayString="DI1 Surcourse Haut" DataType="Boolean" UniqueID="106" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 2" DisplayString="DI2 Fin de course Haut" DataType="Boolean" UniqueID="107" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 3" DisplayString="DI3 Fin de course Bas" DataType="Boolean" UniqueID="108" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 4" DisplayString="DI4 Surcourse Bas" DataType="Boolean" UniqueID="109" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 5" DisplayString="DI5" DataType="Boolean" UniqueID="110" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 1" DisplayString="AI1" DataType="Real" UniqueID="111" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 2" DisplayString="AI2" DataType="Real" UniqueID="112" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Constant" CustomName="Max Weight" UniqueID="116">
@@ -148,21 +148,12 @@
                     <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="117" Visible="true" ForceDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="120">
-                <NodeEditorPosition x="144" y="348"/>
-                <NodeSpecificData ConstantValue="1"/>
-                <InputPins/>
-                <OutputPins>
-                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="121" Visible="true" ForceDataField="true"/>
-                </OutputPins>
-            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="54" StartPin="29" EndPin="27"/>
             <Link UniqueID="95" StartPin="93" EndPin="87"/>
             <Link UniqueID="114" StartPin="111" EndPin="91"/>
             <Link UniqueID="118" StartPin="117" EndPin="91"/>
-            <Link UniqueID="122" StartPin="121" EndPin="98"/>
         </Links>
     </NodeGraph>
 </Environnement>

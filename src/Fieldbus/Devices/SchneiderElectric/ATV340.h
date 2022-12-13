@@ -90,7 +90,7 @@ public:
 	std::shared_ptr<NodePin> relaisOutput1_Pin = std::make_shared<NodePin>(relaisOutput1_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 1");
 	std::shared_ptr<NodePin> relaisOutput2_Pin = std::make_shared<NodePin>(relaisOutput2_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 2");
 	
-	//———— PDO Parameters
+	//———— Process Data
 	
 	BoolParam pdo_digitalIn = BooleanParameter::make(false, "Read Digital Inputs", "ConfigDigitalInputs");
 	BoolParam pdo_digitalOut = BooleanParameter::make(false, "Write Digital Outputs", "ConfigDigitalOutputs");
@@ -105,6 +105,28 @@ public:
 		pdo_readAnalogIn2,
 		pdo_motorVelocity,
 		pdo_motorEffort
+	});
+	
+	
+	BoolParam invertDigitalInput1_Param = BooleanParameter::make(false, "Invert Digital Input 1", "InvertDigitalInput1");
+	BoolParam invertDigitalInput2_Param = BooleanParameter::make(false, "Invert Digital Input 2", "InvertDigitalInput2");
+	BoolParam invertDigitalInput3_Param = BooleanParameter::make(false, "Invert Digital Input 3", "InvertDigitalInput3");
+	BoolParam invertDigitalInput4_Param = BooleanParameter::make(false, "Invert Digital Input 4", "InvertDigitalInput4");
+	BoolParam invertDigitalInput5_Param = BooleanParameter::make(false, "Invert Digital Input 5", "InvertDigitalInput5");
+	BoolParam invertDigitalOutput1_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	BoolParam invertDigitalOutput2_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	BoolParam invertRelay1_Param = BooleanParameter::make(false, "Invert Relay 1", "InvertRelay1");
+	BoolParam invertRelay2_Param = BooleanParameter::make(false, "Invert Relay 2", "InvertRelay1");
+	ParameterGroup digitalSignalInversion = ParameterGroup("Digital Signal Inversion", {
+		invertDigitalInput1_Param,
+		invertDigitalInput2_Param,
+		invertDigitalInput3_Param,
+		invertDigitalInput4_Param,
+		invertDigitalInput5_Param,
+		invertDigitalOutput1_Param,
+		invertDigitalOutput2_Param,
+		invertRelay1_Param,
+		invertRelay2_Param
 	});
 	
 	
@@ -197,6 +219,31 @@ public:
 			&AnalogInputTypeVoltageBipolar
 		};
 		
+		//[PSLIN]
+		Option NoDigitalInput = Option(0, "None", "NoInputAssignement");
+		Option DI1_High = Option(129, "DI1 (High Level)", "DI1High");
+		Option DI2_High = Option(130, "DI2 (High Level)", "DI2High");
+		Option DI3_High = Option(131, "DI3 (High Level)", "DI3High");
+		Option DI4_High = Option(132, "DI4 (High Level)", "DI4High");
+		Option DI5_High = Option(133, "DI5 (High Level)", "DI5High");
+		Option DI1_Low = Option(272, "DI1 (Low Level)", "DI1Low");
+		Option DI2_Low = Option(273, "DI2 (Low Level)", "DI2Low");
+		Option DI3_Low = Option(274, "DI3 (Low Level)", "DI3Low");
+		Option DI4_Low = Option(275, "DI4 (Low Level)", "DI4Low");
+		Option DI5_Low = Option(276, "DI5 (Low Level)", "DI5Low");
+		std::vector<Option*> digitalInput_Options = {
+			&NoDigitalInput,
+			&DI1_High,
+			&DI1_Low,
+			&DI2_High,
+			&DI2_Low,
+			&DI3_High,
+			&DI3_Low,
+			&DI4_High,
+			&DI4_Low,
+			&DI5_High,
+			&DI5_Low
+		};
 		
 		
 		
@@ -330,7 +377,7 @@ public:
 		switchingFrequency_Param
 	});
 	
-	//———— IO Configuration
+	//———— Analog IO Configuration
 	
 	//[AI1T]
 	OptionParam analogInput1Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
@@ -339,24 +386,37 @@ public:
 	OptionParam analogInput2Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
 	
 	//[CrL1]
-	NumberParam<double> analogInputMinCurrent_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Current Value", "AnalogInputMinimumCurrentValue", "%.1f", Units::Current::Milliampere, false);
+	NumberParam<double> analogInputMinCurrent_Param = NumberParameter<double>::make(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue", "%.1f", Units::Current::Milliampere, false);
 	
 	//[CrH1]
-	NumberParam<double> analogInputMaxCurrent_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Current Value", "AnalogInputMaximumCurrentValue", "%.1f", Units::Current::Milliampere, false);
+	NumberParam<double> analogInputMaxCurrent_Param = NumberParameter<double>::make(20.0, "Analog Input Maximum Current", "AnalogInputMaximumCurrentValue", "%.1f", Units::Current::Milliampere, false);
 	
 	//[UIL1] = [UIL2] if voltage is selected
-	NumberParam<double> analogInputMinVoltage_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Voltage Value", "AnalogInputMinimumVoltageValue", "%.1f", Units::Voltage::Volt, false);
+	NumberParam<double> analogInputMinVoltage_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Voltage", "AnalogInputMinimumVoltageValue", "%.1f", Units::Voltage::Volt, false);
 	
 	//[UIH1] = [UIH2] if voltage is selected
-	NumberParam<double> analogInputMaxVoltage_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Voltage Value", "AnalogInputMaximumVoltageValue", "%.1f", Units::Voltage::Volt, false);
+	NumberParam<double> analogInputMaxVoltage_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue", "%.1f", Units::Voltage::Volt, false);
 	
-	ParameterGroup ioConfigParameters = ParameterGroup("IOConfig", {
+	ParameterGroup analogIoConfigParameters = ParameterGroup("AnalogIOConfig", {
 		analogInput1Type_Param,
 		analogInput2Type_Param,
 		analogInputMinCurrent_Param,
 		analogInputMaxCurrent_Param,
 		analogInputMinVoltage_Param,
 		analogInputMaxVoltage_Param
+	});
+	
+	//———— Digital IO Configuration
+	
+	//[LAF] Stop forward limit assignement
+	OptionParam forwardLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
+	
+	//[LAR] Stop Reverse limit assignement
+	OptionParam reverseLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
+	
+	ParameterGroup digitalIoConfigParameters = ParameterGroup("DigitalIOConfig", {
+		forwardLimitSignal_Param,
+		reverseLimitSignal_Param
 	});
 	
 	void configureDrive();

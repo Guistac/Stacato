@@ -77,22 +77,48 @@ void ATV340::controlTab(){
 }
 
 
+static void drawParameterGroup(const char* groupName, ParameterGroup& group){
+	ImGui::PushFont(Fonts::sansBold20);
+	if(ImGui::CollapsingHeader(groupName)){
+		ImGui::PopFont();
+		
+		if(ImGui::BeginTable("##parameters", 2, ImGuiTableFlags_RowBg)){
+			
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Value");
+			
+			float frameHeight = ImGui::GetFrameHeight();
+			ImGui::PushFont(Fonts::sansBold15);
+			ImVec2 offset(ImGui::GetStyle().CellPadding.y, (frameHeight - ImGui::GetTextLineHeight()) / 2.0);
+			ImGui::PopFont();
+			
+			for(auto parameter : group.get()){
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImVec2 cursorPos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + offset.x, cursorPos.y + offset.y));
+				
+				ImGui::BeginDisabled(parameter->isDisabled());
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("%s", parameter->getName());
+				ImGui::PopFont();
+				ImGui::EndDisabled();
+				
+				ImGui::TableSetColumnIndex(1);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().CellPadding.y);
+				parameter->gui();
+			}
+			
+			ImGui::EndTable();
+		}
+		ImGui::Spacing();
+	}else ImGui::PopFont();
+}
+
 
 void ATV340::processDataConfigTab(){
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Process Data Configuration");
-	ImGui::PopFont();
-	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("4 options or less can be selected.");
-	ImGui::PopStyleColor();
-	for(auto parameter : pdoConfigParameters.get()){
-		parameter->gui();
-		ImGui::SameLine();
-		bool isEnabled = std::static_pointer_cast<BooleanParameter>(parameter)->value;
-		if(isEnabled) ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", parameter->getName());
-		if(isEnabled) ImGui::PopFont();
-	}
+	drawParameterGroup("Process Data Selection", pdoConfigParameters);
+	drawParameterGroup("Digital Signal Inversion", digitalSignalInversion);
 }
 
 void ATV340::driveConfigTab(){
@@ -108,25 +134,12 @@ void ATV340::driveConfigTab(){
 	if(ImGui::Button("Restore Factory Settings")) resetFactorySettings();
 	
 	ImGui::Separator();
-	auto drawParameterGroup = [](const char* groupName, ParameterGroup& group){
-		ImGui::PushFont(Fonts::sansBold20);
-		if(ImGui::CollapsingHeader(groupName)){
-			ImGui::PopFont();
-			for(auto parameter : group.get()){
-				ImGui::PushFont(Fonts::sansBold15);
-				ImGui::Text("%s", parameter->getName());
-				ImGui::PopFont();
-				parameter->gui();
-			}
-			ImGui::Spacing();
-			ImGui::Separator();
-		}else ImGui::PopFont();
-	};
 	
-	drawParameterGroup("Motor Configuration", motorNameplateParameters);
+	drawParameterGroup("Motor", motorNameplateParameters);
 	drawParameterGroup("Brake Logic", brakeLogicParameters);
 	drawParameterGroup("Embedded Encoder", embeddedEncoderParameters);
-	drawParameterGroup("Motor Control", motorControlParameters);
-	drawParameterGroup("IO Configuration", ioConfigParameters);
+	drawParameterGroup("Motion Control", motorControlParameters);
+	drawParameterGroup("Digital IO", digitalIoConfigParameters);
+	drawParameterGroup("Analog IO", analogIoConfigParameters);
 }
 

@@ -42,24 +42,37 @@ void ATV340::initialize() {
 		digitalInput3_Pin->setVisible(pdo_digitalIn->value);
 		digitalInput4_Pin->setVisible(pdo_digitalIn->value);
 		digitalInput5_Pin->setVisible(pdo_digitalIn->value);
+		if(!pdo_digitalIn->value){
+			digitalInput1_Pin->disconnectAllLinks();
+			digitalInput2_Pin->disconnectAllLinks();
+			digitalInput3_Pin->disconnectAllLinks();
+			digitalInput4_Pin->disconnectAllLinks();
+			digitalInput5_Pin->disconnectAllLinks();
+		}
 	});
 	pdo_digitalOut->addEditCallback([this](){
 		digitalOutput1_Pin->setVisible(pdo_digitalOut->value);
 		digitalOutput2_Pin->setVisible(pdo_digitalOut->value);
 		relaisOutput1_Pin->setVisible(pdo_digitalOut->value);
 		relaisOutput2_Pin->setVisible(pdo_digitalOut->value);
+		if(!pdo_digitalOut->value){
+			digitalOutput1_Pin->disconnectAllLinks();
+			digitalOutput2_Pin->disconnectAllLinks();
+			relaisOutput1_Pin->disconnectAllLinks();
+			relaisOutput2_Pin->disconnectAllLinks();
+		}
 	});
 	pdo_readAnalogIn1->addEditCallback([this](){
 		analogInput1_pin->setVisible(pdo_readAnalogIn1->value);
+		if(!pdo_readAnalogIn1->value) analogInput1_pin->disconnectAllLinks();
 	});
 	pdo_readAnalogIn2->addEditCallback([this](){
 		analogInput2_pin->setVisible(pdo_readAnalogIn2->value);
+		if(!pdo_readAnalogIn2->value) analogInput2_pin->disconnectAllLinks();
 	});
 	
 	for(auto parameter : pdoConfigParameters.get()){
-		parameter->addEditCallback([this](){
-			configureProcessData();
-		});
+		parameter->addEditCallback([this](){ configureProcessData(); });
 		parameter->onEdit();
 	}
 	
@@ -195,15 +208,20 @@ void ATV340::readInputs() {
 	motor->load = effort;
 	*load_Value = effort;
 	
-	//in rpm for now...
-	*velocity_Value = axis->getActualFrequency();
+	//actual control velocity
+	*velocity_Value = double(axis->getActualFrequency()) / 60.0;
+		
+	bool DI1 = logicInputs & (0x1 << 0);
+	bool DI2 = logicInputs & (0x1 << 1);
+	bool DI3 = logicInputs & (0x1 << 2);
+	bool DI4 = logicInputs & (0x1 << 3);
+	bool DI5 = logicInputs & (0x1 << 4);
 	
-	//these are unconfirmed...
-	*digitalInput1_Signal = logicInputs & (0x1 << 0);
-	*digitalInput2_Signal = logicInputs & (0x1 << 1);
-	*digitalInput3_Signal = logicInputs & (0x1 << 2);
-	*digitalInput4_Signal = logicInputs & (0x1 << 3);
-	*digitalInput5_Signal = logicInputs & (0x1 << 4);
+	*digitalInput1_Signal = invertDigitalInput1_Param->value ? !DI1 : DI1;
+	*digitalInput2_Signal = invertDigitalInput2_Param->value ? !DI2 : DI2;
+	*digitalInput3_Signal = invertDigitalInput3_Param->value ? !DI3 : DI3;
+	*digitalInput4_Signal = invertDigitalInput4_Param->value ? !DI4 : DI4;
+	*digitalInput5_Signal = invertDigitalInput5_Param->value ? !DI5 : DI5;
 	
 	//for standardized values, the value seems to be in 0.01% increments
 	//to normalize the value to a 0-1 range we divide by 10000
@@ -263,10 +281,10 @@ void ATV340::writeOutputs() {
 	if(digitalOutput2_Pin->isConnected()) digitalOutput2_Pin->copyConnectedPinValue();
 	
 	logicOutputs = 0x0;
-	if(*relaisOutput1_Signal)	logicOutputs |= 0x1 << 0;
-	if(*relaisOutput2_Signal)	logicOutputs |= 0x1 << 1;
-	if(*digitalOutput1_Signal)	logicOutputs |= 0x1 << 8;
-	if(*digitalOutput2_Signal)	logicOutputs |= 0x1 << 9;
+	if(*relaisOutput1_Signal != invertRelay1_Param->value)			logicOutputs |= 0x1 << 0;
+	if(*relaisOutput2_Signal != invertRelay2_Param->value)			logicOutputs |= 0x1 << 1;
+	if(*digitalOutput1_Signal != invertDigitalOutput1_Param->value)	logicOutputs |= 0x1 << 8;
+	if(*digitalOutput2_Signal != invertDigitalOutput2_Param->value)	logicOutputs |= 0x1 << 9;
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
@@ -282,7 +300,8 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	if(!brakeLogicParameters.save(xml)) return false;
 	if(!embeddedEncoderParameters.save(xml)) return false;
 	if(!motorControlParameters.save(xml)) return false;
-	if(!ioConfigParameters.save(xml)) return false;
+	if(!analogIoConfigParameters.save(xml)) return false;
+	if(!digitalIoConfigParameters.save(xml)) return false;
 	
 	return true;
 }
@@ -295,14 +314,16 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!brakeLogicParameters.load(xml)) return false;
 	if(!embeddedEncoderParameters.load(xml)) return false;
 	if(!motorControlParameters.load(xml)) return false;
-	if(!ioConfigParameters.load(xml)) return false;
+	//if(!analogIoConfigParameters.load(xml)) return false;
+	//if(!digitalIoConfigParameters.load(xml)) return false;
 	
 	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
 	for(auto parameter : motorNameplateParameters.get()) parameter->onEdit();
 	for(auto parameter : brakeLogicParameters.get()) parameter->onEdit();
 	for(auto parameter : embeddedEncoderParameters.get()) parameter->onEdit();
 	for(auto parameter : motorControlParameters.get()) parameter->onEdit();
-	for(auto parameter : ioConfigParameters.get()) parameter->onEdit();
+	for(auto parameter : digitalIoConfigParameters.get()) parameter->onEdit();
+	for(auto parameter : analogIoConfigParameters.get()) parameter->onEdit();
 	
 	return true;
 }
@@ -538,6 +559,14 @@ void ATV340::configureDrive(){
 			//[UIH1]
 			if(!writeSDO_U16(0x200E, 0x17, analog2MaxVoltage, "Analog Input 1 Max Voltage")) return;
 		}
+		
+		//[LAF] Stop forward limit assignement
+		uint16_t forwardLimitSignal = forwardLimitSignal_Param->value;
+		if(!writeSDO_U16(0x2056, 0x2, forwardLimitSignal, "Forward Limit Signal")) return;
+		
+		//[LAR] Stop Reverse limit assignement
+		uint16_t reverseLimitSignal = reverseLimitSignal_Param->value;
+		if(!writeSDO_U16(0x2056, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
 
 		if(!saveToEEPROM()) Logger::error("Failed to save configuration to EEPROM");
 		else Logger::info("Configuration uploaded and saved to EEPROM");
