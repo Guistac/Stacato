@@ -71,7 +71,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias: 3333)" UniqueID="38">
-                <NodeEditorPosition x="421" y="34"/>
+                <NodeEditorPosition x="408" y="34"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
                     <Axis VelocityLimit="60" AccelerationLimit="10" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
@@ -185,6 +185,48 @@
                     <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="146" Visible="true"/>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="147" Visible="true"/>
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="148" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:333)" UniqueID="155">
+                <NodeEditorPosition x="844" y="-54"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="333"/>
+                    <ModularDeviceProfile>
+                        <Modules>
+                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
+                        </Modules>
+                    </ModularDeviceProfile>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GPIODeviceLink" UniqueID="156" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="PositionFeedbackDeviceLink" UniqueID="157" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="158" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="false" CustomName="ATV340 (Alias:30303)" UniqueID="159">
+                <NodeEditorPosition x="688" y="-133"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="30303"/>
+                    <PDOconfig ConfigDigitalInputs="false" ConfigDigitalOutputs="false" ConfigAnalogInput1="false" ConfigAnalogInput2="false" ConfigMotorPower="false" ConfigMotorSpeed="false"/>
+                    <Kinematics VelocityLimit="1000" AccelerationRampTime="3" DecelerationRampTime="3" InvertDirection="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="160" Visible="false"/>
+                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="161" Visible="false"/>
+                    <InputPin SaveString="Relais Output 1" DisplayString="Relais Output 1" DataType="Boolean" UniqueID="162" Visible="false"/>
+                    <InputPin SaveString="Relais Output 2" DisplayString="Relais Output 2" DataType="Boolean" UniqueID="163" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorDeviceLink" UniqueID="164" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="165" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="166" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="167" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="168" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 4" DisplayString="Digital Input 4" DataType="Boolean" UniqueID="169" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 5" DisplayString="Digital Input 5" DataType="Boolean" UniqueID="170" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 1" DisplayString="Analog Input 1" DataType="Real" UniqueID="171" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog Input 2" DisplayString="Analog Input 2" DataType="Real" UniqueID="172" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
