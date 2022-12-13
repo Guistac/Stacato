@@ -128,9 +128,8 @@ void ATV340::driveConfigTab(){
 	ImGui::PopFont();
 	
 	if(ImGui::Button("Upload Configuration")) configureDrive();
-	ImGui::SameLine();
-	if(ImGui::Button("Standstill Motor Tuning")) startMotorTuning();
-	ImGui::SameLine();
+	if(ImGui::Button("Standstill Motor Tuning")) startStandardTuning();
+	if(ImGui::Button("Rotation Motor Tuning")) startRotationTuning();
 	if(ImGui::Button("Restore Factory Settings")) resetFactorySettings();
 	
 	ImGui::Separator();

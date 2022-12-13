@@ -420,7 +420,8 @@ public:
 	});
 	
 	void configureDrive();
-	void startMotorTuning();
+	void startStandardTuning();
+	void startRotationTuning();
 	void resetFactorySettings();
 	
 	bool saveToEEPROM();

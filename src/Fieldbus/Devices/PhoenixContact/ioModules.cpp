@@ -400,6 +400,7 @@ void IB_IL_SSI_IN::readInputs(){
 	uint8_t status = (word0 >> 9) & 0x7F;
 	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
 	int32_t actualPositionSigned = actualPosition;
+	positionRaw = actualPosition;
 	
 	if(status == 0x0) statusCode = SSI::StatusCode::OFFLINE;
 	else if(status == 0x1) statusCode = SSI::StatusCode::OPERATION;
@@ -573,6 +574,8 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::PopStyleColor();
 	
 	if(ImGui::Button("Hard Reset")) b_doHardReset = true;
+	
+	ImGui::Text("Raw SSI Position : %i", positionRaw);
 	
 }
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){

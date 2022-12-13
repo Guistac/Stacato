@@ -573,26 +573,22 @@ void ATV340::configureDrive(){
 			
 	});
 	driveConfigurationHandler.detach();
-	
 }
 
-void ATV340::startMotorTuning(){
+void ATV340::startStandardTuning(){
 	
-	if(isOffline()){
-		Logger::warn("Can't start motor Tuning while drive is offline");
-		return;
-	}
-	else if(!isStateOperational()) {
-		Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
-		return;
-	}else if(!motor->isEnabled()){
-		Logger::warn("Can't start motor Tuning while the drive is not enabled");
-		return;
-	}else Logger::info("Starting Motor Tuning");
+	if(isOffline()) Logger::warn("Can't start motor Tuning while drive is offline");
+	else if(!isStateOperational()) return Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
+	else if(!motor->isEnabled()) return Logger::warn("Can't start motor Tuning while the drive is not enabled");
+	else Logger::info("Starting Motor Tuning");
 	
 	std::thread motorTuningHandler = std::thread([this](){
 		
 		//———— Standstill motor tune after motor parameter assignement
+		
+		//[tunt] tuning type
+		uint16_t tuningType = 2; //2 = Standart; 3 = Rotation
+		if(!writeSDO_U16(0x2042, 0x1B, tuningType, "Tuning Type")) return;
 		
 		//[tun] autotuning (0=NoAction; 1=ApplyAutotuning; 2=EraseAutotuning)
 		uint16_t autotuning = 1;
@@ -624,7 +620,63 @@ void ATV340::startMotorTuning(){
 	
 	});
 	motorTuningHandler.detach();
+}
+
+void ATV340::startRotationTuning(){
+	
+	if(isOffline()) return Logger::warn("Can't start motor Tuning while drive is offline");
+	else if(!isStateOperational()) return Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
+	else if(!motor->isEnabled()) return Logger::warn("Can't start motor Tuning while the drive is not enabled");
+	else Logger::info("Starting Motor Tuning");
+	
+	std::thread motorTuningHandler = std::thread([this](){
 		
+		//———— Standstill motor tune after motor parameter assignement
+		
+		//[LAC] access level
+		uint16_t accessLevel = 3; //0 = basic; 1 = Standard; //3 = Expert
+		if(!writeSDO_U16(0x2000, 0x7, accessLevel, "Access Level")) return;
+		
+		//[tunt] tuning type
+		uint16_t tuningType = 3; //2 = Standart; 3 = Rotation
+		if(!writeSDO_U16(0x2042, 0x1B, tuningType, "Tuning Type")) return;
+		
+		//[tun] autotuning (0=NoAction; 1=ApplyAutotuning; 2=EraseAutotuning)
+		
+		//erase autotunins
+		uint16_t autotuning = 2;
+		if(!writeSDO_U16(0x2042, 0x9, autotuning, "Autotuning Control")) return;
+		
+		//apply autotuning
+		autotuning = 1;
+		if(!writeSDO_U16(0x2042, 0x9, autotuning, "Autotuning Control")) return;
+		
+		Logger::info("Started Autotuning");
+		
+		Timing::Timer autotuneTimer;
+		autotuneTimer.setExpirationSeconds(5.0);
+		
+		while(true){
+			//[tus] autotuning status (0=NotDone; 1=Pending; 2=InProgress; 3=Fail; 4=Done)
+			uint16_t autotuningStatus;
+			if(readSDO_U16(0x2042, 0xA, autotuningStatus)){
+				switch(autotuningStatus){
+					case 0: Logger::info("Autotuning Not Done"); return;
+					case 1: Logger::info("Autotuning Pending"); break;
+					case 2: break;
+					case 3: Logger::error("Autotuning Failed"); return;
+					case 4: Logger::info("Autotuning Succeeded !"); return;
+				}
+			}
+			if(autotuneTimer.isExpired()) {
+				Logger::warn("auto tune timed out (took more than 5 seconds)");
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+	
+	});
+	motorTuningHandler.detach();
 }
 
 bool ATV340::saveToEEPROM(){
