@@ -37,24 +37,33 @@ void Brake::inputProcess(){
 	if(brakeOpenStatus_Pin->isConnected()) brakeOpenStatus_Pin->copyConnectedPinValue();
 	if(brakeClosedStatus_Pin->isConnected()) brakeClosedStatus_Pin->copyConnectedPinValue();
 	
-	if(*brakeOpenStatus_Signal && *brakeClosedStatus_Signal) state = State::ERROR;
-	else if(*brakeOpenStatus_Signal) state = State::OPEN;
-	else if(*brakeClosedControl_Signal) state = State::CLOSED;
+	bool b_isOpen = *brakeOpenStatus_Signal;
+	bool b_isClosed = *brakeClosedStatus_Signal;
+	
+	if(b_isClosed && b_isOpen) state = State::ERROR;
+	else if(b_isOpen) state = State::OPEN;
+	else if(b_isClosed) state = State::CLOSED;
 	else state = State::NOT_CLOSED;
+	
+	bool b_open = false;
+	bool b_close = false;
 	
 	switch(target){
 		case Target::OPEN:
-			*brakeOpenStatus_Signal = true;
-			*brakeClosedStatus_Signal = false;
+			b_open = true;
+			b_close = false;
 			break;
 		case Target::CLOSED:
-			*brakeOpenStatus_Signal = false;
-			*brakeClosedStatus_Signal = true;
+			b_open = false;
+			b_close = true;
 			break;
 		case Target::STOPPED:
-			*brakeOpenStatus_Signal = false;
-			*brakeClosedStatus_Signal = false;
+			b_open = false;
+			b_close = false;
+			break;
 	}
+	*brakeOpenControl_Signal = b_open;
+	*brakeClosedControl_Signal = b_close;
 	
 }
 

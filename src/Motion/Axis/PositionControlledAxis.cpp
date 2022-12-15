@@ -1229,23 +1229,43 @@ void PositionControlledAxis::homingControl(){
 								case SignalApproach::FIND_SIGNAL_EDGE:
 								
 								{
-									auto servoActuator = getServoActuatorDevice();
-									//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-									if(servoActuator->canHardReset()) {
-										servoActuator->executeHardReset();
-										motionProfile.setPosition(0.0);
-										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-										Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+									
+									
+									
+									if(useFeedbackDevice_Param->value){
+										auto feedbackDevice = getFeedbackDevice();
+										
+										if(feedbackDevice->canHardReset()){
+											feedbackDevice->executeHardReset();
+											motionProfile.setPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+											Logger::info("Homing Axis {} : Waiting For hard Reset of {}", getName(), feedbackDevice->getName());
+										}
+										
 									}else{
-										servoActuator->softOverridePosition(0.0);
-										//else we set a software offset in the encoder object
-										setCurrentPosition(0.0);
+										auto servoActuator = getServoActuatorDevice();
+										//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+										if(servoActuator->canHardReset()) {
+											servoActuator->executeHardReset();
+											motionProfile.setPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+											Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+										}else{
+											servoActuator->softOverridePosition(0.0);
+											//else we set a software offset in the encoder object
+											setCurrentPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+										}
+										
 										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 									}
 									
-									homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+									
+									
+
 								}
 									
 									break;
@@ -1304,15 +1324,33 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
 						motionProfile.setPosition(0.0);
-						if(getServoActuatorDevice()->canHardReset()){
-							//if the servo actuator can hard reset its encoder, check if we are done resetting
-							if(!getServoActuatorDevice()->isExecutingHardReset()) {
-								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+						
+						
+						
+						if(useFeedbackDevice_Param->value){
+							auto feedbackDevice = getFeedbackDevice();
+							if(feedbackDevice->canHardReset()){
+								if(!feedbackDevice->isExecutingHardReset()){
+									double feedbackPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+									motionProfile.setPosition(feedbackPosition);
+									onHomingSuccess();
+								}
+							}else{
 								onHomingSuccess();
 							}
 						}else{
-							onHomingSuccess();
+							if(getServoActuatorDevice()->canHardReset()){
+								//if the servo actuator can hard reset its encoder, check if we are done resetting
+								if(!getServoActuatorDevice()->isExecutingHardReset()) {
+									motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+									onHomingSuccess();
+								}
+							}else{
+								onHomingSuccess();
+							}
 						}
+						
+						
 						break;
 					default:
 						break;
