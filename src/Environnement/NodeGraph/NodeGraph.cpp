@@ -34,7 +34,7 @@ namespace Environnement::NodeGraph{
 	}
 
 
-	bool b_showOutputValues = false;
+	bool b_showOutputValues = true;
 	bool& getShowOutputValues(){ return b_showOutputValues; }
 
 	bool b_justLoaded = false;
@@ -174,7 +174,7 @@ namespace Environnement::NodeGraph{
 		selectedNodes.clear();
 		selectedLinks.clear();
 		int uniqueID = 1;
-		bool b_showOutputValues = false;
+		bool b_showOutputValues = true;
 		bool b_justLoaded = false;
 	}
 

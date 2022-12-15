@@ -105,13 +105,6 @@ public:
 		maxFollowingError_parameter
 	});
 	
-	void updateServoLimits(){
-		servo->velocityLimit = velocityLimit_parameter->value;
-		servo->accelerationLimit = accelerationLimit_parameter->value;
-		servo->decelerationLimit = accelerationLimit_parameter->value;
-		servo->b_decelerationLimitEqualsAccelerationLimit = true;
-	}
-	
 	//for error logging
 	uint16_t previousErrorCode = 0x0;
 	
@@ -122,6 +115,8 @@ public:
 	//encoder reset (DS402 Homing mode)
 	bool b_resetEncoder = false;
 	bool b_encoderResetBusy = false;
+	
+	double actualPositionFollowingError = 0.0;
 	
 
 	//———— Drive Unit Conversion
@@ -199,6 +194,8 @@ public:
 	double profiler_velocity = 0.0;
 	double profiler_position = 0.0;
 	float manualVelocityTarget = 0.0;
+	
+	void updateServoConfiguration();
 	
 	
 	
