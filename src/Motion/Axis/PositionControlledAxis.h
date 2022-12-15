@@ -111,6 +111,16 @@ private:
 	bool isSurveillanceFeedbackDeviceConnected(){ return surveillanceFeedbackDevicePin->isConnected(); }
 	std::shared_ptr<PositionFeedbackDevice> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
 	
+	
+	//——————— ONEGIN
+	bool isFeedbackDeviceConnected(){ return feedbackDevicePin->isConnected(); }
+	std::shared_ptr<PositionFeedbackDevice> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
+	BoolParam useFeedbackDevice_Param = BooleanParameter::make(false, "Use Feedback Device", "UseFeedbackDevice");
+	NumberParam<double> feedbackUnitsPerAxisUnits_Param = NumberParameter<double>::make(0.0, "Feedback units per axis unit", "FeedbackUnitsPerAxisUnit", "%.5f");
+	double feedbackUnitsToAxisUnits(double feedbackValue) { return feedbackValue / feedbackUnitsPerAxisUnits_Param->value; }
+	double axisUnitsToFeedbackUnits(double axisValue) { return axisValue * feedbackUnitsPerAxisUnits_Param->value; }
+	double actuatorToFeedbackPositionOffset = 0.0;
+	
 public:
 	void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	

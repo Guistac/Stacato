@@ -12,7 +12,7 @@
                             <Module Type="IB IL 24 DO 4-PAC">
                                 <SignalInversion InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false"/>
                             </Module>
-                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="false" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
+                            <Module Type="IB IL SSI-IN-PAC" Resolution="24" SingleturnResolution="12" Parity="None" Invert="true" Baudrate="400KHz" Code="Gray" CenterWorkingRangeOnZero="true" HasResetSignal="true" ResetTime="10"/>
                             <Module Type="IB IL 24 DI 4-PAC">
                                 <SignalInversion InvertInput1="true" InvertInput2="true" InvertInput3="false" InvertInput4="false"/>
                             </Module>
@@ -66,7 +66,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias: 3333)" UniqueID="38">
-                <NodeEditorPosition x="421" y="145"/>
+                <NodeEditorPosition x="437" y="81"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
                     <Axis VelocityLimit="60" AccelerationLimit="40" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
@@ -84,28 +84,29 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="46" Visible="true" DisableDataField="true"/>
                     <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GPIODeviceLink" UniqueID="47" Visible="true" NoDataField="true"/>
                     <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="48" Visible="false" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="49" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="50" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 1" DisplayString="DI1 Homing" DataType="Boolean" UniqueID="49" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="50" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="51" Visible="false" DisableDataField="true"/>
                     <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="52" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="56">
-                <NodeEditorPosition x="728" y="93"/>
+                <NodeEditorPosition x="820" y="94"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
-                    <UnitConversion ActuatorUnitsPerMachineUnit="14.4"/>
+                    <UnitConversion ActuatorUnitsPerMachineUnit="15.322666666666667"/>
                     <KinematicLimits VelocityLimit="3" AccelerationLimit="2" ManualAcceleration="2"/>
-                    <PositionReferenceSignals Type="None" HomingVelocityCoarse="0" HomingVelocityFine="0" HomingDirection="Negative" HomingSignalApproach="FindSignalEdge"/>
-                    <PositionLimits LowLimit="0" EnableLowLimit="false" LowLimitClearance="0" HighLimit="0" EnableHighLimit="false" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionReferenceSignals Type="OriginSignal" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative" HomingSignalApproach="FindSignalEdge"/>
+                    <PositionLimits LowLimit="-1.45" EnableLowLimit="true" LowLimitClearance="0" HighLimit="88.549999999999997" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
+                    <Feedback UseFeedbackDevice="true" FeedbackUnitsPerAxisUnit="0.21667"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="ServoActuator" DisplayString="Servo Actuator" DataType="ServoActuatorDeviceLink" UniqueID="57" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="ReferenceDevice" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="58" Visible="false" NoDataField="true"/>
+                    <InputPin SaveString="ReferenceDevice" DisplayString="Reference Device" DataType="GPIODeviceLink" UniqueID="58" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="LowLimitSignal" DisplayString="Low Limit Signal" DataType="Boolean" UniqueID="59" Visible="false"/>
                     <InputPin SaveString="HighLimitSignal" DisplayString="High Limit Signal" DataType="Boolean" UniqueID="60" Visible="false"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="61" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="61" Visible="true"/>
                     <InputPin SaveString="SurveillanceValidInput" DisplayString="Surveillance Valid Input" DataType="Boolean" UniqueID="62" Visible="false"/>
                     <InputPin SaveString="SurveillanceFeedbackDevice" DisplayString="Surveillance Feedback Device" DataType="PositionFeedbackDeviceLink" UniqueID="63" Visible="false" NoDataField="true"/>
                     <InputPin SaveString="ExternalSurveillanceFaultReset" DisplayString="External Surveillance Fault Reset" DataType="Boolean" UniqueID="64" Visible="false"/>
@@ -120,10 +121,24 @@
                     <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="71" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="76">
+                <NodeEditorPosition x="685" y="192"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="77" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="78" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="54" StartPin="29" EndPin="27"/>
             <Link UniqueID="74" StartPin="43" EndPin="57"/>
+            <Link UniqueID="79" StartPin="49" EndPin="77"/>
+            <Link UniqueID="80" StartPin="78" EndPin="61"/>
+            <Link UniqueID="81" StartPin="47" EndPin="58"/>
+            <Link UniqueID="83" StartPin="28" EndPin="65"/>
         </Links>
     </NodeGraph>
 </Environnement>

@@ -86,6 +86,7 @@ void PositionControlledAxis::updateAxisState(){
 	}
 	checkState(servoActuatorDevice->getState());
 	if(isSurveilled()) checkState(getSurveillanceFeedbackDevice()->getState());
+	if(useFeedbackDevice_Param->value) checkState(getFeedbackDevice()->getState());
 	
 	//handle transition from enabled state
 	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
@@ -95,8 +96,16 @@ void PositionControlledAxis::updateAxisState(){
 	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
 	
 	//get actual realtime axis motion values
-	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
-	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	if(useFeedbackDevice_Param->value){
+		//————— ONEGIN extra feedback device
+		//if we use an extra feedback device, the real position and velocity units come from this device
+		auto feedbackDevice = getFeedbackDevice();
+		*actualPositionValue = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+		*actualVelocityValue = feedbackUnitsToAxisUnits(feedbackDevice->getVelocity());
+	}else{
+		*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
+		*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	}
 	*actualLoadValue = getServoActuatorDevice()->getLoad();
 }
 
@@ -232,13 +241,34 @@ void PositionControlledAxis::outputProcess(){
 		motionProfile.setPosition(*actualPositionValue);
 		motionProfile.setVelocity(*actualVelocityValue);
 		motionProfile.setAcceleration(0.0);
+		
+		
+		if(useFeedbackDevice_Param->value){
+			//————— ONEGIN extra feedback device
+			//while the axis is disabled we update the offset between the incremental actuator position and the absolute encoder position
+			//this offset will be applied to generate correct position commands for the actuator while maintaining absolute position
+			auto servoActuator = getServoActuatorDevice();
+			auto feedbackDevice = getFeedbackDevice();
+			double actuatorAxisPosition = servoActuatorUnitsToAxisUnits(servoActuator->getPosition());
+			double feedbackAxisPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+			actuatorToFeedbackPositionOffset = actuatorAxisPosition - feedbackAxisPosition;
+		}
 	}
 	
 	//send commands to the actuator
-	double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
-	double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
-	double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
-	getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	if(useFeedbackDevice_Param->value){
+		//————— ONEGIN
+		//apply an offset to actuator position commands that is calculated when axis is disabled
+		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition() + actuatorToFeedbackPositionOffset);
+		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
+		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
+		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	}else{
+		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
+		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
+		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
+		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	}
 	updateMetrics();
 }
 
@@ -358,9 +388,7 @@ bool PositionControlledAxis::areAllPinsConnected(){
 		case PositionReferenceSignal::NO_SIGNAL:
 			break;
 	}
-	if(isSurveilled()){
-		
-	}
+	if(useFeedbackDevice_Param->value && !feedbackDevicePin->isConnected()) return false;
 	return true;
 }
 
@@ -1366,6 +1394,10 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	maxVelocityDeviation->save(surveillanceXML);
 	maxSurveillanceErrorClearTime->save(surveillanceXML);
 	
+	XMLElement* feedbackXML = xml->InsertNewChildElement("Feedback");
+	useFeedbackDevice_Param->save(feedbackXML);
+	feedbackUnitsPerAxisUnits_Param->save(feedbackXML);
+	
 	return true;
 }
 
@@ -1436,6 +1468,16 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if(!maxVelocityDeviation->load(surveillanceXML)) return false;
 	if(!maxSurveillanceErrorClearTime->load(surveillanceXML)) return false;
 	 
+	XMLElement* feedbackXML = xml->FirstChildElement("Feedback");
+	if(feedbackXML){
+		if(!useFeedbackDevice_Param->load(feedbackXML)) return false;
+		if(!feedbackUnitsPerAxisUnits_Param->load(feedbackXML)) return false;
+	}else{
+		Logger::warn("Could not load Surveillance Attribute");
+		return false;
+	}
+
+	
 	return true;
 }
 

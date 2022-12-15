@@ -182,6 +182,12 @@ void MicroFlex_e190::readInputs() {
 	else if(b_isEnabled) servo->state = MotionState::ENABLED;
 	else if(b_isReady) servo->state = MotionState::READY;
 	else servo->state = MotionState::NOT_READY;
+	
+	if(isOffline()) gpio->state = MotionState::OFFLINE;
+	else if(isStateSafeOperational()) gpio->state = MotionState::READY;
+	else if(isStateOperational()) gpio->state = MotionState::ENABLED;
+	else gpio->state = MotionState::NOT_READY;
+	
 	servo->position = actualPosition;
 	servo->velocity = actualVelocity;
 	servo->load = actualLoad;
