@@ -74,7 +74,7 @@
                 <NodeEditorPosition x="406" y="176"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Axis VelocityLimit="60" AccelerationLimit="40" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
+                    <Axis VelocityLimit="60" AccelerationLimit="30" InvertDirection="false" MaxCurrent="300" MaxFollowingError="5"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="39" Visible="false"/>
@@ -100,9 +100,9 @@
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
                     <UnitConversion ActuatorUnitsPerMachineUnit="15.322666666666667"/>
-                    <KinematicLimits VelocityLimit="3" AccelerationLimit="2" ManualAcceleration="2"/>
+                    <KinematicLimits VelocityLimit="3.3999999999999999" AccelerationLimit="1.7" ManualAcceleration="1.7"/>
                     <PositionReferenceSignals Type="OriginSignal" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative" HomingSignalApproach="FindSignalEdge"/>
-                    <PositionLimits LowLimit="-1.45" EnableLowLimit="true" LowLimitClearance="0" HighLimit="85.049999999999997" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionLimits LowLimit="-1.45" EnableLowLimit="true" LowLimitClearance="0" HighLimit="88.549999999999997" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
                     <Feedback UseFeedbackDevice="true" FeedbackUnitsPerAxisUnit="0.21667"/>
                 </NodeSpecificData>
@@ -169,7 +169,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Levage" UniqueID="110">
                 <NodeEditorPosition x="1049" y="272"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="-1.45" LowerPositionLimit="0" UpperPositionLimit="86.5"/>
+                    <Limits InvertAxis="false" AxisOffset="-1.45" LowerPositionLimit="0" UpperPositionLimit="90"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="3"/>
                 </NodeSpecificData>
