@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.1527301" OffsetX="1097.2538" OffsetY="-1461.9786" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Frein Haut" UniqueID="2" PositionX="-1063.6104" PositionY="1476.1239" SizeX="157.49997" SizeY="106.48302"/>
-        <Widget Name="Frein Bas" UniqueID="1" PositionX="-1064" PositionY="1585" SizeX="157.49997" SizeY="106.04514"/>
-        <Widget Name="AU" UniqueID="4" PositionX="-1058" PositionY="1734" SizeX="157.49997" SizeY="110.79868"/>
-        <Widget Name="Levage" UniqueID="3" PositionX="-878" PositionY="1464" SizeX="134.39989" SizeY="399.88379"/>
+    <Dashboard Scale="2.3149204" OffsetX="1067.9524" OffsetY="-1461.974" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Frein Haut" UniqueID="2" PositionX="-1064" PositionY="1476" SizeX="157.49998" SizeY="106.13076"/>
+        <Widget Name="Frein Bas" UniqueID="1" PositionX="-1064" PositionY="1585" SizeX="157.49998" SizeY="105.98979"/>
+        <Widget Name="AU" UniqueID="4" PositionX="-1058" PositionY="1734" SizeX="157.49998" SizeY="110.95854"/>
+        <Widget Name="Levage" UniqueID="3" PositionX="-878" PositionY="1464" SizeX="134.39999" SizeY="401.2616"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -102,7 +102,7 @@
                     <UnitConversion ActuatorUnitsPerMachineUnit="15.322666666666667"/>
                     <KinematicLimits VelocityLimit="3.3999999999999999" AccelerationLimit="1.7" ManualAcceleration="1.7"/>
                     <PositionReferenceSignals Type="OriginSignal" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" HomingDirection="Negative" HomingSignalApproach="FindSignalEdge"/>
-                    <PositionLimits LowLimit="-1.45" EnableLowLimit="true" LowLimitClearance="0" HighLimit="88.549999999999997" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
+                    <PositionLimits LowLimit="-1" EnableLowLimit="true" LowLimitClearance="0" HighLimit="88.549999999999997" EnableHighLimit="true" HighLimitClearance="0" LimitToFeedbackWorkingRange="false"/>
                     <Surveillance AxisIsSurveilled="false" SurveillanceFeedbackUnitsPerAxisUnits="0" MaxSurveillanceVelocityDeviation="0" MaxSurveillanceErrorClearTime="0"/>
                     <Feedback UseFeedbackDevice="true" FeedbackUnitsPerAxisUnit="0.21667"/>
                 </NodeSpecificData>
@@ -169,7 +169,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Levage" UniqueID="110">
                 <NodeEditorPosition x="1049" y="272"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="-1.45" LowerPositionLimit="0" UpperPositionLimit="90"/>
+                    <Limits InvertAxis="false" AxisOffset="-1" LowerPositionLimit="0" UpperPositionLimit="89.549999999999997"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="3"/>
                 </NodeSpecificData>
@@ -216,10 +216,10 @@
             <Link UniqueID="107" StartPin="21" EndPin="101"/>
             <Link UniqueID="108" StartPin="103" EndPin="25"/>
             <Link UniqueID="109" StartPin="104" EndPin="24"/>
-            <Link UniqueID="115" StartPin="68" EndPin="112"/>
             <Link UniqueID="122" StartPin="19" EndPin="117"/>
             <Link UniqueID="125" StartPin="120" EndPin="32"/>
             <Link UniqueID="126" StartPin="36" EndPin="119"/>
+            <Link UniqueID="128" StartPin="68" EndPin="112"/>
         </Links>
     </NodeGraph>
 </Environnement>
