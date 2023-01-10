@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="2.3149204" OffsetX="1067.9524" OffsetY="-1461.974" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Frein Haut" UniqueID="2" PositionX="-1064" PositionY="1476" SizeX="157.49998" SizeY="106.13076"/>
-        <Widget Name="Frein Bas" UniqueID="1" PositionX="-1064" PositionY="1585" SizeX="157.49998" SizeY="105.98979"/>
-        <Widget Name="AU" UniqueID="4" PositionX="-1058" PositionY="1734" SizeX="157.49998" SizeY="110.95854"/>
-        <Widget Name="Levage" UniqueID="3" PositionX="-878" PositionY="1464" SizeX="134.39999" SizeY="401.2616"/>
+    <Dashboard Scale="0.89754611" OffsetX="1063.4819" OffsetY="-1432.2019" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Levage Mur" UniqueID="3" PositionX="-903" PositionY="1475" SizeX="134.39996" SizeY="399.76901"/>
+        <Widget Name="AU" UniqueID="4" PositionX="-1062" PositionY="1762" SizeX="157.50006" SizeY="109.42654"/>
+        <Widget Name="Fr. Socle" UniqueID="6" PositionX="-1062" PositionY="1649" SizeX="157.50006" SizeY="105.98434"/>
+        <Widget Name="Fr. Plateforme" UniqueID="5" PositionX="-1062" PositionY="1541" SizeX="157.50006" SizeY="105.91192"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -70,7 +70,7 @@
                     <OutputPin SaveString="Module1DigitalInput4" DisplayString="DI4" DataType="Boolean" UniqueID="37" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias: 3333)" UniqueID="38">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 Levage (Alias: 3333)" UniqueID="38">
                 <NodeEditorPosition x="406" y="176"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
@@ -95,7 +95,7 @@
                     <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="52" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Position Controlled Axis" UniqueID="56">
+            <Node NodeType="Axis" ClassName="PositionControlledAxis" CustomName="Axe Levage" UniqueID="56">
                 <NodeEditorPosition x="789" y="189"/>
                 <NodeSpecificData>
                     <Units UnitType="Rotary" Unit="Degree"/>
@@ -136,40 +136,10 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="78" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="Brake" CustomName="Frein Bas" UniqueID="85">
-                <NodeEditorPosition x="728" y="718"/>
-                <NodeSpecificData>
-                    <ControlWidget UniqueID="1"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="86" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="BrakeOpenStatus" DisplayString="Brake Open Status" DataType="Boolean" UniqueID="87" Visible="true" DisableDataField="true"/>
-                    <InputPin SaveString="BrakeClosedStatus" DisplayString="Brake Closed Status" DataType="Boolean" UniqueID="88" Visible="true" DisableDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="BrakeOpenControl" DisplayString="Brake Open Control" DataType="Boolean" UniqueID="89" Visible="true"/>
-                    <OutputPin SaveString="BrakeClosedControl" DisplayString="Brake Closed Control" DataType="Boolean" UniqueID="90" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Brake" CustomName="Frein Haut" UniqueID="99">
-                <NodeEditorPosition x="712" y="481"/>
-                <NodeSpecificData>
-                    <ControlWidget UniqueID="2"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="100" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="BrakeOpenStatus" DisplayString="Brake Open Status" DataType="Boolean" UniqueID="101" Visible="true" DisableDataField="true"/>
-                    <InputPin SaveString="BrakeClosedStatus" DisplayString="Brake Closed Status" DataType="Boolean" UniqueID="102" Visible="true" DisableDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="BrakeOpenControl" DisplayString="Brake Open Control" DataType="Boolean" UniqueID="103" Visible="true"/>
-                    <OutputPin SaveString="BrakeClosedControl" DisplayString="Brake Closed Control" DataType="Boolean" UniqueID="104" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Levage" UniqueID="110">
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Levage Mur" UniqueID="110">
                 <NodeEditorPosition x="1049" y="272"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="-1" LowerPositionLimit="0" UpperPositionLimit="89.549999999999997"/>
+                    <Limits InvertAxis="false" AxisOffset="-1" LowerPositionLimit="0" UpperPositionLimit="89.200000000000003"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="3"/>
                 </NodeSpecificData>
@@ -198,6 +168,38 @@
                     <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="121" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="Brake" CustomName="Fr. Plateforme" UniqueID="132">
+                <NodeEditorPosition x="734" y="462"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="133" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="134" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="BrakeOpenStatus" DisplayString="Brake Open Status" DataType="Boolean" UniqueID="135" Visible="true" DisableDataField="true"/>
+                    <InputPin SaveString="BrakeClosedStatus" DisplayString="Brake Closed Status" DataType="Boolean" UniqueID="136" Visible="true" DisableDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="BrakeOpenControl" DisplayString="Brake Open Control" DataType="Boolean" UniqueID="137" Visible="true"/>
+                    <OutputPin SaveString="BrakeClosedControl" DisplayString="Brake Closed Control" DataType="Boolean" UniqueID="138" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="Brake" CustomName="Fr. Socle" UniqueID="139">
+                <NodeEditorPosition x="728" y="696"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="6"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="140" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GPIODeviceLink" UniqueID="141" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="BrakeOpenStatus" DisplayString="Brake Open Status" DataType="Boolean" UniqueID="142" Visible="true" DisableDataField="true"/>
+                    <InputPin SaveString="BrakeClosedStatus" DisplayString="Brake Closed Status" DataType="Boolean" UniqueID="143" Visible="true" DisableDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="BrakeOpenControl" DisplayString="Brake Open Control" DataType="Boolean" UniqueID="144" Visible="true"/>
+                    <OutputPin SaveString="BrakeClosedControl" DisplayString="Brake Closed Control" DataType="Boolean" UniqueID="145" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="54" StartPin="29" EndPin="27"/>
@@ -206,20 +208,20 @@
             <Link UniqueID="80" StartPin="78" EndPin="61"/>
             <Link UniqueID="81" StartPin="47" EndPin="58"/>
             <Link UniqueID="83" StartPin="28" EndPin="65"/>
-            <Link UniqueID="91" StartPin="19" EndPin="86"/>
-            <Link UniqueID="94" StartPin="89" EndPin="31"/>
-            <Link UniqueID="95" StartPin="90" EndPin="30"/>
-            <Link UniqueID="96" StartPin="34" EndPin="88"/>
-            <Link UniqueID="97" StartPin="35" EndPin="87"/>
-            <Link UniqueID="105" StartPin="6" EndPin="100"/>
-            <Link UniqueID="106" StartPin="20" EndPin="102"/>
-            <Link UniqueID="107" StartPin="21" EndPin="101"/>
-            <Link UniqueID="108" StartPin="103" EndPin="25"/>
-            <Link UniqueID="109" StartPin="104" EndPin="24"/>
             <Link UniqueID="122" StartPin="19" EndPin="117"/>
             <Link UniqueID="125" StartPin="120" EndPin="32"/>
             <Link UniqueID="126" StartPin="36" EndPin="119"/>
-            <Link UniqueID="128" StartPin="68" EndPin="112"/>
+            <Link UniqueID="130" StartPin="68" EndPin="112"/>
+            <Link UniqueID="146" StartPin="6" EndPin="134"/>
+            <Link UniqueID="147" StartPin="19" EndPin="141"/>
+            <Link UniqueID="148" StartPin="20" EndPin="136"/>
+            <Link UniqueID="149" StartPin="21" EndPin="135"/>
+            <Link UniqueID="150" StartPin="137" EndPin="25"/>
+            <Link UniqueID="151" StartPin="138" EndPin="24"/>
+            <Link UniqueID="152" StartPin="34" EndPin="143"/>
+            <Link UniqueID="153" StartPin="35" EndPin="142"/>
+            <Link UniqueID="154" StartPin="144" EndPin="31"/>
+            <Link UniqueID="155" StartPin="145" EndPin="30"/>
         </Links>
     </NodeGraph>
 </Environnement>

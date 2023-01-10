@@ -179,7 +179,14 @@ public:
 	}
 	
 	std::string getStatusString(){
-		return "no status string yet";
+		std::string status;
+		if(!isConnected()) {
+			status = "Device is Offline.\n";
+			return status;
+		}
+		if(servo->isEmergencyStopped()) status += "STO is Active.\n";
+		if(axis->hasFault()) status += "Fault : " + std::string(getErrorCodeString()) + " (Fault will be cleared when enabling)\n";
+		return status;
 	}
 	
 	
@@ -202,11 +209,6 @@ public:
 	
 	
 };
-
-
-//TODO: list
-//figure out position velocity acceleration units and scaling
-//adjust enable timings
 
 //0x5062 : input pin function assignement (int16)
 //values: -1 (function disabled) or 0-3 (input pin number)

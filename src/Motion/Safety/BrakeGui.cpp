@@ -5,37 +5,6 @@
 
 #include <imgui.h>
 
-void Brake::nodeSpecificGui(){
-	if(ImGui::BeginTabItem("Brake")){
-		
-		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("Controls");
-		ImGui::PopFont();
-		
-		widgetGui(false);
-		
-		switch(state){
-			case State::OFFLINE:
-				ImGui::Text("Brake is Offline");
-				break;
-			case State::ERROR:
-				ImGui::Text("Brake is Offline");
-				break;
-			case State::OPEN:
-				ImGui::Text("Brake is Fully Opened");
-				break;
-			case State::CLOSED:
-				ImGui::Text("Brake is Fully Closed");
-				break;
-			case State::NOT_CLOSED:
-				ImGui::Text("Brake is not closed");
-				break;
-		}
-		
-		ImGui::EndTabItem();
-	}
-}
-
 void Brake::widgetGui(bool b_withTitle){
 	
 	glm::vec2 blockSize(ImGui::GetTextLineHeight() * 7.0, ImGui::GetTextLineHeight() * 1.5);
@@ -54,7 +23,7 @@ void Brake::widgetGui(bool b_withTitle){
 	ImVec4 lowerButtonColor;
 	bool upperButtonDisabled;
 	bool lowerButtonDisabled;
-	switch(state){
+	switch(actualState){
 		case State::OFFLINE:
 			upperButtonString = "Offline";
 			lowerButtonString = "Offline";
@@ -63,7 +32,7 @@ void Brake::widgetGui(bool b_withTitle){
 			upperButtonDisabled = true;
 			lowerButtonDisabled = true;
 			break;
-		case State::ERROR:
+		case State::UNKNOWN:
 			upperButtonString = "Open";
 			lowerButtonString = "Close";
 			upperButtonColor = Colors::red;
@@ -87,7 +56,8 @@ void Brake::widgetGui(bool b_withTitle){
 			upperButtonDisabled = false;
 			lowerButtonDisabled = true;
 			break;
-		case State::NOT_CLOSED:
+		case State::STOPPED:
+		case State::IN_BETWEEN:
 			upperButtonString = "Open";
 			lowerButtonString = "Close";
 			upperButtonColor = Colors::yellow;
@@ -96,6 +66,8 @@ void Brake::widgetGui(bool b_withTitle){
 			lowerButtonDisabled = false;
 			break;
 	}
+	
+	ImGui::BeginDisabled(b_halted);
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(1.f, 1.f));
 	ImGui::BeginDisabled(upperButtonDisabled);
@@ -106,30 +78,12 @@ void Brake::widgetGui(bool b_withTitle){
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
 	
-	if(upperButtonPressed){
-		switch(state){
-			case State::OFFLINE:
-				break;
-			case State::ERROR:
-			case State::OPEN:
-			case State::CLOSED:
-			case State::NOT_CLOSED:
-				target = Target::OPEN;
-				break;
-		}
-	}
+	ImGui::EndDisabled();
 	
-	if(lowerButtonPressed){
-		switch(state){
-			case State::OFFLINE:
-				break;
-			case State::ERROR:
-			case State::OPEN:
-			case State::CLOSED:
-			case State::NOT_CLOSED:
-				target = Target::CLOSED;
-				break;
-		}
+	
+	if(actualState != State::OFFLINE){
+		if(upperButtonPressed) requestState(State::OPEN);
+		else if(lowerButtonPressed) requestState(State::CLOSED);
 	}
 
 	ImGui::PopFont();
@@ -138,3 +92,36 @@ void Brake::widgetGui(bool b_withTitle){
 void Brake::ControlWidget::gui(){
 	brake->widgetGui(true);
 }
+
+
+void Brake::metricsGui(){}
+void Brake::controlsGui(){
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Controls");
+	ImGui::PopFont();
+	
+	widgetGui(false);
+	
+	switch(actualState){
+		case State::OFFLINE:
+			ImGui::Text("Brake is Offline");
+			break;
+		case State::UNKNOWN:
+			ImGui::Text("Brake is in unknown state");
+			break;
+		case State::OPEN:
+			ImGui::Text("Brake is Fully Opened");
+			break;
+		case State::CLOSED:
+			ImGui::Text("Brake is Fully Closed");
+			break;
+		case State::STOPPED:
+		case State::IN_BETWEEN:
+			ImGui::Text("Brake is not closed or open");
+			break;
+	}
+}
+void Brake::settingsGui(){}
+
+void Brake::axisGui(){}
+void Brake::deviceGui(){}
