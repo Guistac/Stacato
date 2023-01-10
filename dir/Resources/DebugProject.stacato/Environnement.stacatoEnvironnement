@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.89754611" OffsetX="1063.4819" OffsetY="-1432.2019" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Levage Mur" UniqueID="3" PositionX="-903" PositionY="1475" SizeX="134.39996" SizeY="399.76901"/>
-        <Widget Name="AU" UniqueID="4" PositionX="-1062" PositionY="1762" SizeX="157.50006" SizeY="109.42654"/>
-        <Widget Name="Fr. Socle" UniqueID="6" PositionX="-1062" PositionY="1649" SizeX="157.50006" SizeY="105.98434"/>
-        <Widget Name="Fr. Plateforme" UniqueID="5" PositionX="-1062" PositionY="1541" SizeX="157.50006" SizeY="105.91192"/>
+    <Dashboard Scale="2.3142192" OffsetX="1079.5022" OffsetY="-1472.9734" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Levage Mur" UniqueID="3" PositionX="-903" PositionY="1475" SizeX="134.40002" SizeY="401.38312"/>
+        <Widget Name="AU" UniqueID="4" PositionX="-1062" PositionY="1762" SizeX="157.49998" SizeY="110.92622"/>
+        <Widget Name="Fr. Socle" UniqueID="6" PositionX="-1062" PositionY="1649" SizeX="157.49998" SizeY="105.77455"/>
+        <Widget Name="Fr. Plateforme" UniqueID="5" PositionX="-1062" PositionY="1541" SizeX="157.49998" SizeY="105.74674"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
