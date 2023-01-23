@@ -109,6 +109,14 @@ void MicroFlex_e190::controlTab(){
 					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
 	textAligned(loadString, textPos, TextAlignement::LEFT_MIDDLE);
 	
+	float followingErrorProgress = std::abs(actualPositionFollowingError) / maxFollowingError_parameter->value;
+	char folErrString[64];
+	sprintf(folErrString, "Following Error: %.3f rev", actualPositionFollowingError);
+	ImGui::ProgressBar(followingErrorProgress, progressBarSize, "");
+	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
+					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
+	textAligned(folErrString, textPos, TextAlignement::LEFT_MIDDLE);
+	
 	ImGui::Separator();
 	
 	ImGui::Text("Fault: %i %s", axis->hasFault(), getErrorCodeString());
@@ -135,13 +143,15 @@ void MicroFlex_e190::settingsTab(){
 	ImGui::PopFont();
 	accelerationLimit_parameter->gui();
 	
+	/*
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Invert Direction");
 	ImGui::PopFont();
 	invertMotor_parameter->gui();
 	ImGui::SameLine();
 	ImGui::Text("Motor direction is%s inverted", invertMotor_parameter->value ? "" : " not");
-	
+	*/
+	 
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Current Limit");
 	ImGui::PopFont();

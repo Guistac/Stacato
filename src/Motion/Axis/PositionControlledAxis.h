@@ -48,6 +48,9 @@ private:
 	std::shared_ptr<NodePin> externalSurveillanceFaultResetPin = std::make_shared<NodePin>(externalSurveillanceFaultResetSignal,
 																						   NodePin::Direction::NODE_INPUT,
 																						   "External Surveillance Fault Reset", "ExternalSurveillanceFaultReset");
+	std::shared_ptr<NodePin> feedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK,
+																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+																		   "Feedback Device", "FeedbackDevice");
 	
 	
 	//Outputs
@@ -108,6 +111,16 @@ private:
 	bool isSurveillanceFeedbackDeviceConnected(){ return surveillanceFeedbackDevicePin->isConnected(); }
 	std::shared_ptr<PositionFeedbackDevice> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
 	
+	
+	//——————— ONEGIN
+	bool isFeedbackDeviceConnected(){ return feedbackDevicePin->isConnected(); }
+	std::shared_ptr<PositionFeedbackDevice> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
+	BoolParam useFeedbackDevice_Param = BooleanParameter::make(false, "Use Feedback Device", "UseFeedbackDevice");
+	NumberParam<double> feedbackUnitsPerAxisUnits_Param = NumberParameter<double>::make(0.0, "Feedback units per axis unit", "FeedbackUnitsPerAxisUnit", "%.5f");
+	double feedbackUnitsToAxisUnits(double feedbackValue) { return feedbackValue / feedbackUnitsPerAxisUnits_Param->value; }
+	double axisUnitsToFeedbackUnits(double axisValue) { return axisValue * feedbackUnitsPerAxisUnits_Param->value; }
+	double actuatorToFeedbackPositionOffset = 0.0;
+	
 public:
 	void getDevices(std::vector<std::shared_ptr<Device>>& output);
 	
@@ -130,6 +143,11 @@ private:
 	HomingDirection homingDirection = HomingDirection::NEGATIVE;
 	double homingVelocityCoarse = 0.0;
 	double homingVelocityFine = 0.0;
+	
+	EnumParam<SignalApproach> signalApproach = EnumeratorParameter<SignalApproach>::make(SignalApproach::FIND_SIGNAL_EDGE,
+																						 "Homing Signal Approach",
+																						 "HomingSignalApproach");
+	
 	
 	//kinematic limits
 	double velocityLimit = 0.0;
@@ -206,6 +224,7 @@ public:
 		double high = getHighPositionLimit();
 		return (*actualPositionValue - low) / (high - low);
 	}
+	double getActualEffort(){ return *actualLoadValue; }
 	
 	//============== AXIS SETUP
 private:

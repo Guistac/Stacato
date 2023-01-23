@@ -149,6 +149,7 @@ private:
 			case 0xB610: return "B610 : Fieldbus Watchdog";
 			case 0xB103: return "B103 : Fieldbus Communication Closed";
 			case 0x733F: return "733F : Amplitude of encoder analog signals too low";
+			case 0x7344: return "7344 : Absolute position is different from incremental position";
 			case 0x5200: return "5200 : Error detected at connection to motor encoder";
 			case 0x1300: return "1300 : Safety Function STO was Enabled";
 			case 0x1301: return "1301 : STO_A and STO_B different level";

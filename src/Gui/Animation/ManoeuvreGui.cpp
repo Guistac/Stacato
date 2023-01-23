@@ -464,7 +464,16 @@ void Manoeuvre::sheetEditor(){
 				ImGui::Separator();
 				for (auto& machine : Environnement::getMachines()) {
 					if(machine->getAnimatables().empty()) continue;
-					if (ImGui::BeginMenu(machine->getName())) {
+					
+					if(machine->getAnimatables().size() == 1){
+						auto animatable = machine->getAnimatables().front();
+						if (animatable->hasParentComposite()) continue;
+						bool isSelected = hasAnimation(animatable);
+						if(ImGui::MenuItem(machine->getName(), nullptr, isSelected)){
+							if(!isSelected) addAnimation(animatable);
+							else removeAnimation(animatable);
+						}
+					}else if (ImGui::BeginMenu(machine->getName())) {
 						for (auto& animatable : machine->getAnimatables()) {
 							if (animatable->hasParentComposite()) continue;
 							bool isSelected = hasAnimation(animatable);
@@ -475,6 +484,7 @@ void Manoeuvre::sheetEditor(){
 						}
 						ImGui::EndMenu();
 					}
+
 				}
 				ImGui::EndPopup();
 			}

@@ -180,6 +180,7 @@ public:
 	
 	uint64_t previousReadingTime_nanoseconds = 0;
 	double previousPosition_revolutions = 0.0;
+	uint32_t rawPositionData = 0x0;
 	
 	bool b_doHardReset = false;
 	bool b_hardResetBusy = false;
