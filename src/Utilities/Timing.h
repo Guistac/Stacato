@@ -56,4 +56,14 @@ namespace Timing {
           return oss.str();
     }
 
+	class Timer{
+	public:
+		void setExpirationSeconds(double seconds){ expirationProgramTime = getProgramTime_seconds() + seconds; }
+		void setExpirationMilliseconds(double milliseconds){ expirationProgramTime = getProgramTime_seconds() + milliseconds / 1000.0; }
+		void setExpirationMicroseconds(double microseconds){ expirationProgramTime = getProgramTime_seconds() + microseconds / 1000000.0; }
+		bool isExpired(){ return getProgramTime_seconds() > expirationProgramTime; }
+	private:
+		double expirationProgramTime = 0.0;
+	};
+
 };

@@ -576,6 +576,8 @@ void IB_IL_SSI_IN::moduleGui(){
 	
 	if(ImGui::Button("Hard Reset")) b_doHardReset = true;
 	
+	ImGui::Text("Raw SSI Position : %i", positionRaw);
+	
 }
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;

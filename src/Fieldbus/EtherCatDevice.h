@@ -204,6 +204,8 @@ public:
 	virtual bool save(tinyxml2::XMLElement* xml) override;
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
+	int sdoServiceTimeout_nanoseconds = 10;
+	
 	
 	struct ErrorCounters{
 		struct PortErrors{

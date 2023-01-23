@@ -2,6 +2,7 @@
 
 #include "EtherCatDevice.h"
 #include "EtherCatFieldbus.h"
+#include "Fieldbus/Utilities/EtherCatError.h"
 
 #include <imgui.h>
 #include <tinyxml2.h>
@@ -108,68 +109,70 @@ void EtherCatDevice::clearEventList() {
 //===== Read SDO Data
 
 static void logSDOreadResult(int workingCounter, uint16_t objectIndex, uint8_t objectSubindex, std::string objectName){
-	if(objectName.empty()) Logger::warn("Failed to read SDO 0x{:x}.{:x}", objectIndex, objectSubindex);
-	else Logger::warn("Failed to read SDO '{}' 0x{:x}.{:x}", objectName, objectIndex, objectSubindex);
+	if(workingCounter > 0) return;
+	if(objectName.empty()) Logger::error("Failed to read SDO 0x{:x}.{:x}", objectIndex, objectSubindex);
+	else Logger::error("Failed to read SDO '{}' 0x{:x}.{:x}", objectName, objectIndex, objectSubindex);
+	while(EtherCatError::hasError()) EtherCatError::logError();
 }
 
 bool EtherCatDevice::readSDO_U8(uint16_t index, uint8_t subindex, uint8_t& data, std::string objectName) {
 	int size = 1;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 bool EtherCatDevice::readSDO_S8(uint16_t index, uint8_t subindex, int8_t& data, std::string objectName) {
 	int size = 1;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_U16(uint16_t index, uint8_t subindex, uint16_t& data, std::string objectName) {
 	int size = 2;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_S16(uint16_t index, uint8_t subindex, int16_t& data, std::string objectName) {
 	int size = 2;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_U32(uint16_t index, uint8_t subindex, uint32_t& data, std::string objectName) {
 	int size = 4;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_S32(uint16_t index, uint8_t subindex, int32_t& data, std::string objectName) {
 	int size = 4;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_U64(uint16_t index, uint8_t subindex, uint64_t& data, std::string objectName) {
 	int size = 8;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_S64(uint16_t index, uint8_t subindex, int64_t& data, std::string objectName) {
 	int size = 8;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, &data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::readSDO_String(uint16_t index, uint8_t subindex, char* data, int bufferSize, std::string objectName) {
 	int size = bufferSize;
-	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, (void*)data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOread(slaveIndex, index, subindex, false, &size, (void*)data, EC_TIMEOUTRXM);
 	logSDOreadResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
@@ -177,60 +180,62 @@ bool EtherCatDevice::readSDO_String(uint16_t index, uint8_t subindex, char* data
 //===== Write SDO Data
 
 static void logSDOwriteResult(int workingCounter, uint16_t objectIndex, uint8_t objectSubindex, std::string objectName){
+	if(workingCounter > 0) return;
 	if(objectName.empty()) Logger::warn("Failed to write SDO 0x{:x}.{:x}", objectIndex, objectSubindex);
 	else Logger::warn("Failed to write SDO '{}' 0x{:x}.{:x}", objectName, objectIndex, objectSubindex);
+	while(EtherCatError::hasError()) EtherCatError::logError();
 }
 
 bool EtherCatDevice::writeSDO_U8(uint16_t index, uint8_t subindex, const uint8_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 1, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 1, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_S8(uint16_t index, uint8_t subindex, const int8_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 1, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 1, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_U16(uint16_t index, uint8_t subindex, const uint16_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 2, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 2, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_S16(uint16_t index, uint8_t subindex, const int16_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 2, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 2, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_U32(uint16_t index, uint8_t subindex, const uint32_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 4, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 4, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_S32(uint16_t index, uint8_t subindex, const int32_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 4, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 4, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 8, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 8, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 8, (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, 8, (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }
 
 bool EtherCatDevice::writeSDO_String(uint16_t index, uint8_t subindex, const char* data, std::string objectName) {
-	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, strlen(data), (void*)&data, EC_TIMEOUTSAFE);
+	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, strlen(data), (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
 }

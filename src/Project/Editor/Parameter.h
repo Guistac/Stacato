@@ -75,6 +75,7 @@ private:
 	std::string name;
 	std::string saveString;
 	std::string imGuiID;
+	std::string description;
 	bool b_disabled = false;
 	bool b_valid = true;
 };
@@ -880,7 +881,8 @@ public:
 
 template<typename T>
 using EnumParam = std::shared_ptr<EnumeratorParameter<T>>;
-
+template<typename T>
+using EnumParam = std::shared_ptr<EnumeratorParameter<T>>;
 
 
 //===================================================================================
@@ -1091,3 +1093,139 @@ inline bool loadXMLElement(std::string elementName, tinyxml2::XMLElement* parent
 	output = element;
 	return true;
 }
+
+
+class OptionParameter : public Parameter{
+public:
+
+	class Option{
+	public:
+		Option(int enumerator_, std::string displayString_, std::string saveString_, bool b_enabled_ = true){
+			enumerator = enumerator_;
+			displayString = displayString_;
+			saveString = saveString_;
+			b_enabled = b_enabled_;
+		}
+		void enable(){ b_enabled = true; }
+		void disable(){ b_enabled = false; }
+		bool isEnabled(){ return b_enabled; }
+		int getInt(){ return enumerator; }
+	private:
+		friend class OptionParameter;
+		int enumerator;
+		std::string displayString;
+		std::string saveString;
+		bool b_enabled = true;
+	};
+	
+
+	
+	
+	int value;
+	Option* displayValue;
+	std::vector<Option*>* optionList = nullptr;
+	
+	OptionParameter(Option& value, std::vector<Option*>& options, std::string name, std::string saveString_) : Parameter(name, saveString_){
+		optionList = &options;
+		overwrite(&value);
+	}
+	
+	static std::shared_ptr<OptionParameter> make(Option& value, std::vector<Option*>& options, std::string name, std::string saveString) {
+		return std::make_shared<OptionParameter>(value, options, name, saveString);
+	}
+	
+	virtual void onGui() override {
+		ImGui::BeginDisabled(isDisabled());
+		const char* previewString = "";
+		if(displayValue) previewString = displayValue->displayString.c_str();
+		if(ImGui::BeginCombo(getImGuiID(), previewString)){
+			for(auto& option : *optionList){
+				ImGui::BeginDisabled(!option->b_enabled);
+				if(ImGui::Selectable(option->displayString.c_str(), value == option->enumerator)){
+					overwriteWithHistory(option);
+				}
+				ImGui::EndDisabled();
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::EndDisabled();
+	}
+	
+	virtual bool save(tinyxml2::XMLElement* xml) override {
+		xml->SetAttribute(getSaveString(), value);
+		return true;
+	}
+	
+	virtual bool load(tinyxml2::XMLElement* xml) override {
+		using namespace tinyxml2;
+		XMLError result = xml->QueryIntAttribute(getSaveString(), &value);
+		if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
+		return overwrite(value);
+	}
+	
+	std::shared_ptr<TimeParameter> makeCopy() {
+		return std::make_shared<TimeParameter>(value, getName(), getSaveString());
+	}
+	
+	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };
+	
+	Option* findOption(int enumerator){
+		if(optionList == nullptr) return nullptr;
+		for(auto option : *optionList){
+			if(option->enumerator == enumerator) return option;
+		}
+		Logger::error("Parameter {} : option with enumerator {} not found", getName(), enumerator);
+		return nullptr;
+	}
+	
+	void overwrite(Option* newValue){
+		value = newValue->enumerator;
+		displayValue = newValue;
+	}
+	
+	bool overwrite(int newEnumerator){
+		value = newEnumerator;
+		displayValue = findOption(newEnumerator);
+		return displayValue != nullptr;
+	}
+	
+	void overwriteWithHistory(Option* newValue){
+		if(value == newValue->enumerator) return;
+		displayValue = newValue;
+		std::string previousValueString = "";
+		if(displayValue) previousValueString = displayValue->displayString;
+		std::string name = "Change " + std::string(getName()) + " from " + previousValueString + " to " + newValue->displayString;
+		std::make_shared<EditCommand>(std::static_pointer_cast<OptionParameter>(shared_from_this()), name)->execute();
+	}
+	
+	class EditCommand : public UndoableCommand{
+	public:
+		std::shared_ptr<OptionParameter> parameter;
+		int oldValue;
+		int newValue;
+		
+		EditCommand(std::shared_ptr<OptionParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
+			parameter = parameter_;
+			oldValue = parameter->value;
+			newValue = parameter->displayValue->enumerator;
+		}
+		void setNewValue(){
+			parameter->lockMutex();
+			parameter->overwrite(newValue);
+			parameter->unlockMutex();
+		}
+		void setOldValue(){
+			parameter->lockMutex();
+			parameter->overwrite(oldValue);
+			parameter->unlockMutex();
+		}
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
+	};
+	
+};
+
+using OptionParam = std::shared_ptr<OptionParameter>;
+using Option = OptionParameter::Option;
+

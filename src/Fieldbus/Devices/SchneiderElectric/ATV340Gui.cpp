@@ -13,8 +13,12 @@ void ATV340::deviceSpecificGui(){
 				controlTab();
 				ImGui::EndTabItem();
 			}
-			if(ImGui::BeginTabItem("Settings")){
-				settingsTab();
+			if(ImGui::BeginTabItem("Process Data")){
+				processDataConfigTab();
+				ImGui::EndTabItem();
+			}
+			if(ImGui::BeginTabItem("Drive Configuration")){
+				driveConfigTab();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -57,63 +61,12 @@ void ATV340::controlTab(){
 	
 	if(ImGui::Button("Fault Reset")) axis->doFaultReset();
 	
-	ImGui::SliderInt("##manualvel", &manualVelocityTarget_rpm, -velocityLimitRPM_param->value, velocityLimitRPM_param->value);
+	ImGui::SliderInt("##manualvel", &manualVelocityTarget_rpm, -velocityLimitRPM_Param->value, velocityLimitRPM_Param->value);
 	if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget_rpm = 0.0;
-	
-	
-	/*
-	double maxVel = velocityLimit_parameter->value;
-	char manualVelocityString[64];
-	sprintf(manualVelocityString, "Velocity Target: %.2f rev/s", manualVelocityTarget);
-	ImGui::SliderFloat("##vel", &manualVelocityTarget, -maxVel, maxVel, manualVelocityString);
-	if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
-	
-	ImVec2 progressBarSize = ImGui::GetItemRectSize();
-	
-	double positionNormalized = std::fmod(servo->position, 1.0);
-	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-	ImGui::ProgressBar(positionNormalized, progressBarSize, "");
-	ImGui::PopStyleColor();
-	char positionString[64];
-	sprintf(positionString, "Position: %.3f rev", servo->position);
-	ImVec2 textPos(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
-				   ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
-	textAligned(positionString, textPos, TextAlignement::LEFT_MIDDLE);
-	
-	double velNormalized = std::abs(servo->velocity) / velocityLimit_parameter->value;
-	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, servo->velocity > 0.0 ? Colors::green : Colors::red);
-	ImGui::ProgressBar(velNormalized, progressBarSize, "");
-	ImGui::PopStyleColor();
-	char velocityString[64];
-	sprintf(velocityString, "Velocity: %.2f rev/s", servo->velocity);
-	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
-					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
-	textAligned(velocityString, textPos, TextAlignement::LEFT_MIDDLE);
-	
-	float loadProgress = servo->load;
-	while(loadProgress > 1.0) loadProgress -= 1.0;
-	if(*load_Value > 2.0) {
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::yellow);
-	}else if(*load_Value > 1.0){
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::green);
-	}else{
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_FrameBg));
-	}
-	ImGui::ProgressBar(loadProgress, progressBarSize, "");
-	ImGui::PopStyleColor(2);
-	char loadString[64];
-	sprintf(loadString, "Load: %.1f%%", servo->load * 100.0);
-	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
-					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
-	textAligned(loadString, textPos, TextAlignement::LEFT_MIDDLE);
-	 */
 	
 	ImGui::Separator();
 	
-	ImGui::Text("Fault: %i %s", axis->hasFault(), getErrorCodeString());
+	ImGui::Text("Fault: %i %s", axis->hasFault(), axis->hasFault() ? getErrorCodeString() : "No Fault");
 	ImGui::Text("Voltage: %i", axis->hasVoltage());
 	ImGui::Text("Warning: %i", axis->hasWarning());
 	ImGui::Text("Remote Control: %i", axis->isRemoteControlActive());
@@ -123,49 +76,69 @@ void ATV340::controlTab(){
 	ImGui::Text("Power State Actual: %s", Enumerator::getDisplayString(axis->getActualPowerState()));
 }
 
-void ATV340::settingsTab(){
+
+static void drawParameterGroup(const char* groupName, ParameterGroup& group){
 	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Process Data Configuration");
+	if(ImGui::CollapsingHeader(groupName)){
+		ImGui::PopFont();
+		
+		if(ImGui::BeginTable("##parameters", 2, ImGuiTableFlags_RowBg)){
+			
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Value");
+			
+			float frameHeight = ImGui::GetFrameHeight();
+			ImGui::PushFont(Fonts::sansBold15);
+			ImVec2 offset(ImGui::GetStyle().CellPadding.y, (frameHeight - ImGui::GetTextLineHeight()) / 2.0);
+			ImGui::PopFont();
+			
+			for(auto parameter : group.get()){
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImVec2 cursorPos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + offset.x, cursorPos.y + offset.y));
+				
+				ImGui::BeginDisabled(parameter->isDisabled());
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("%s", parameter->getName());
+				ImGui::PopFont();
+				ImGui::EndDisabled();
+				
+				ImGui::TableSetColumnIndex(1);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().CellPadding.y);
+				parameter->gui();
+			}
+			
+			ImGui::EndTable();
+		}
+		ImGui::Spacing();
+	}else ImGui::PopFont();
+}
+
+
+void ATV340::processDataConfigTab(){
+	drawParameterGroup("Process Data Selection", pdoConfigParameters);
+	drawParameterGroup("Digital Signal Inversion", digitalSignalInversion);
+}
+
+void ATV340::driveConfigTab(){
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Drive Configuration");
 	ImGui::PopFont();
-	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("4 options or less can be selected.");
-	ImGui::PopStyleColor();
-	for(auto parameter : pdoConfig.get()){
-		parameter->gui();
-		ImGui::SameLine();
-		bool isEnabled = std::static_pointer_cast<BooleanParameter>(parameter)->value;
-		if(isEnabled) ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", parameter->getName());
-		if(isEnabled) ImGui::PopFont();
-	}
+	
+	if(ImGui::Button("Upload Configuration")) configureDrive();
+	if(ImGui::Button("Standstill Motor Tuning")) startStandardTuning();
+	if(ImGui::Button("Rotation Motor Tuning")) startRotationTuning();
+	if(ImGui::Button("Restore Factory Settings")) resetFactorySettings();
 	
 	ImGui::Separator();
 	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Kinematics Configuration");
-	ImGui::PopFont();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Velocity Limit");
-	ImGui::PopFont();
-	velocityLimitRPM_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Acceleration Ramp Time");
-	ImGui::PopFont();
-	accelerationRampTime_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Deceleration Ramp Time");
-	ImGui::PopFont();
-	decelerationRampTime_param->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Invert Direction");
-	ImGui::PopFont();
-	invertDirection_param->gui();
-	ImGui::SameLine();
-	ImGui::Text("Direction is%sinverted", invertDirection_param->value ? " " : " not ");
-	
+	drawParameterGroup("Motor", motorNameplateParameters);
+	drawParameterGroup("Brake Logic", brakeLogicParameters);
+	drawParameterGroup("Embedded Encoder", embeddedEncoderParameters);
+	drawParameterGroup("Motion Control", motorControlParameters);
+	drawParameterGroup("Digital IO", digitalIoConfigParameters);
+	drawParameterGroup("Analog IO", analogIoConfigParameters);
 }
 
