@@ -69,7 +69,9 @@ void MicroFlex_e190::controlTab(){
 	
 	ImVec2 progressBarSize = ImGui::GetItemRectSize();
 	
-	double positionNormalized = std::fmod(servo->position, 1.0);
+	double positionNormalized;
+	if(servo->position > 0) positionNormalized = std::fmod(servo->position, 1.0);
+	else positionNormalized = std::fmod(1.0 - std::abs(servo->position), 1.0);
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 	ImGui::ProgressBar(positionNormalized, progressBarSize, "");
 	ImGui::PopStyleColor();
@@ -104,10 +106,18 @@ void MicroFlex_e190::controlTab(){
 	ImGui::ProgressBar(loadProgress, progressBarSize, "");
 	ImGui::PopStyleColor(2);
 	char loadString[64];
-	sprintf(loadString, "Load: %.1f%%", servo->load * 100.0);
+	sprintf(loadString, "Effort: %.1f%%", servo->load * 100.0);
 	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
 					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
 	textAligned(loadString, textPos, TextAlignement::LEFT_MIDDLE);
+	
+	float followingErrorProgress = std::abs(actualPositionFollowingError) / maxFollowingError_parameter->value;
+	char folErrString[64];
+	sprintf(folErrString, "Following Error: %.3f rev", actualPositionFollowingError);
+	ImGui::ProgressBar(followingErrorProgress, progressBarSize, "");
+	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
+					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
+	textAligned(folErrString, textPos, TextAlignement::LEFT_MIDDLE);
 	
 	ImGui::Separator();
 	
@@ -135,13 +145,15 @@ void MicroFlex_e190::settingsTab(){
 	ImGui::PopFont();
 	accelerationLimit_parameter->gui();
 	
+	/*
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Invert Direction");
 	ImGui::PopFont();
 	invertMotor_parameter->gui();
 	ImGui::SameLine();
 	ImGui::Text("Motor direction is%s inverted", invertMotor_parameter->value ? "" : " not");
-	
+	*/
+	 
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Current Limit");
 	ImGui::PopFont();

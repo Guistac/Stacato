@@ -348,6 +348,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignal.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignal.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/SafetySignalGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/Brake.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/Brake.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Safety/BrakeGui.cpp
+
 
     #========================== PROCESSOR NODES ========================
 

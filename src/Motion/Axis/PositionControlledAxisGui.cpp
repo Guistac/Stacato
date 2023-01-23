@@ -646,6 +646,52 @@ void PositionControlledAxis::settingsGui() {
 		ImGui::TextWrapped("No Servo Actuator device connected.");
 		ImGui::PopStyleColor();
 	}
+	
+	//——————————————————————— EXTRA FEEDBACK DEVICE —————————————————————————
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Feedback Device");
+	ImGui::PopFont();
+	
+	useFeedbackDevice_Param->gui();
+	ImGui::SameLine();
+	ImGui::Text("%s", useFeedbackDevice_Param->value ? "Using feedback device" : "Not using feedback device");
+	
+	if (useFeedbackDevice_Param->value) {
+		if( isFeedbackDeviceConnected()){
+			auto feedbackDevice = getFeedbackDevice();
+			PositionFeedbackType feedbackType = feedbackDevice->getPositionFeedbackType();
+			const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
+			std::shared_ptr<Device> parentDevice = feedbackDevice->parentDevice;
+
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Device:");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::Text("%s", feedbackDevice->getName().c_str());
+
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position Unit:");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::Text("%s", feedbackDevice->getPositionUnit()->singular);
+
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Feedback Type:");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::Text("%s", feedbackTypeString);
+
+			ImGui::Text("%s %s per Axis %s :", feedbackDevice->getName().c_str(), feedbackDevice->getPositionUnit()->plural, positionUnit->singular);
+			feedbackUnitsPerAxisUnits_Param->gui();
+		}else{
+			ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
+			ImGui::TextWrapped("No Feedback device connected.");
+			ImGui::PopStyleColor();
+		}
+	}
 
 	//-------------------------- KINEMATIC LIMITS ----------------------------
 
@@ -822,6 +868,15 @@ void PositionControlledAxis::settingsGui() {
 					}
 					ImGui::EndCombo();
 				}
+				break;
+			default:
+				break;
+		}
+		
+		switch(positionReferenceSignal){
+			case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
+				ImGui::Text("Signal Approach");
+				signalApproach->gui();
 				break;
 			default:
 				break;

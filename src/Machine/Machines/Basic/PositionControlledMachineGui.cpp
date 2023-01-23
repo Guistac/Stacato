@@ -187,6 +187,29 @@ void PositionControlledMachine::widgetGui(){
 	
 	ImGui::SameLine();
 	
+	float actualEffort = getAxis()->getActualEffort();
+	float effortProgress = actualEffort;
+	while(effortProgress > 1.0) effortProgress -= 1.0;
+	if(actualEffort > 2.0) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::yellow);
+	}else if(actualEffort > 1.0){
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::green);
+	}else{
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_FrameBg));
+	}
+	
+	verticalProgressBar(effortProgress, ImVec2(ImGui::GetTextLineHeight() * .5f, controlsHeight));
+	ImGui::PopStyleColor(2);
+	
+	
+	
+	
+	
+	ImGui::SameLine();
+	
 	//draw feedback background
 	float feedbackWidth = ImGui::GetTextLineHeight() * 3.0;
 	ImGui::InvisibleButton("feedback", glm::vec2(feedbackWidth, controlsHeight));

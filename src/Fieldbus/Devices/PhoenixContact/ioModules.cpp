@@ -353,11 +353,10 @@ bool IB_IL_SSI_IN::configureParameters(){
 		case SSI::Parity::EVEN:	parity = 0x2; break;
 	}
 	
-	uint8_t rev;
+	uint8_t rev = 0x0;
 	if(invertDirectionParameter->value) rev = 0x1;
-	else rev = 0x0;
 	
-	uint8_t resolution = std::clamp(resolutionParameter->value, 8, 25) - 8;
+	uint8_t resolution = std::clamp(resolutionParameter->value, 8, 25) - 7;
 	
 	uint8_t speed;
 	switch(baudrateParameter->value){
@@ -395,13 +394,11 @@ void IB_IL_SSI_IN::readInputs(){
 	uint8_t byte1 = (encoderData >> 8) & 0xFF;
 	uint8_t byte2 = (encoderData >> 16) & 0xFF;
 	uint8_t byte3 = (encoderData >> 24) & 0xFF;
-	uint16_t word0 = (byte0 << 8) | byte1;
-	uint16_t word1 = (byte2 << 8) | byte3;
-	uint8_t status = (word0 >> 9) & 0x7F;
-	uint32_t actualPosition = ((word0 << 16) | word1) & 0x1FFFFFF;
-	int32_t actualPositionSigned = actualPosition;
-	positionRaw = actualPosition;
 	
+	uint8_t status = (byte0 >> 1) & 0x7F;
+	rawPositionData = byte3 | (byte2 << 8) | (byte1 << 16) | ((byte0 & 0x1) << 24);
+	int32_t positionSigned = rawPositionData;
+	 
 	if(status == 0x0) statusCode = SSI::StatusCode::OFFLINE;
 	else if(status == 0x1) statusCode = SSI::StatusCode::OPERATION;
 	else if(status & 0x8000) statusCode = SSI::StatusCode::ACKNOWLEDGE_FAULT;
@@ -414,9 +411,9 @@ void IB_IL_SSI_IN::readInputs(){
 	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
 	uint32_t incrementsTotal = 0x1 << resolutionParameter->value;
 	
-	if(centerWorkingRangeOnZeroParameter->value && actualPosition >= incrementsTotal / 2) actualPositionSigned -= incrementsTotal;
+	if(centerWorkingRangeOnZeroParameter->value && rawPositionData >= incrementsTotal / 2) positionSigned -= incrementsTotal;
 	
-	double position_revolutions = double(actualPositionSigned) / double(incrementsPerRevolution);
+	double position_revolutions = double(positionSigned) / double(incrementsPerRevolution);
 	uint64_t readingTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	double deltaT_seconds = double(readingTime_nanoseconds - previousReadingTime_nanoseconds) / 1000000000.0;
@@ -453,7 +450,7 @@ void IB_IL_SSI_IN::writeOutputs(){
 			break;
 	}
 	controlData |= (controlCode << 1);
-	 
+	
 	//do encoder position reset
 	uint64_t time_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	if(b_doHardReset){
@@ -492,6 +489,10 @@ void IB_IL_SSI_IN::updateEncoderWorkingRange(){
 
 
 void IB_IL_SSI_IN::moduleGui(){
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("The bus coupler needs to be power cycled after applying the settings to make them take effect.");
+	ImGui::PopStyleColor();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Overall Resolution");

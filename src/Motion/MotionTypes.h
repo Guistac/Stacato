@@ -106,6 +106,19 @@ enum class HomingDirection{
 
 DEFINE_ENUMERATOR(HomingDirection, HomingDirectionTypeStrings)
 
+//===============================
+
+enum class SignalApproach{
+	FIND_SIGNAL_EDGE,
+	FIND_SIGNAL_CENTER
+};
+
+#define SignalApproachStrings \
+{SignalApproach::FIND_SIGNAL_EDGE, 		"Find Signal Edge",		"FindSignalEdge"},\
+{SignalApproach::FIND_SIGNAL_CENTER,	"Find Signal Center",	"FindSignalCenter"}
+
+DEFINE_ENUMERATOR(SignalApproach, SignalApproachStrings)
+
 //================================================================================================================================
 
 enum class HomingStep{

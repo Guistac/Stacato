@@ -1,0 +1,26 @@
+<Plot Name="Conduite">
+    <ManoeuvreList>
+        <Manoeuvre Name="Mise acte 1" Description="mur plateforme a plat &amp; frein plateforme on &amp; frein socle on" Type="Target"/>
+        <Manoeuvre Name="Manoeuvre 1 " Description="mur plateforme a plat &amp; frein plateforme off &amp; frein socle on" Type="Target"/>
+        <Manoeuvre Name="Manoeuvre 6 " Description="desolidariser socle de la plateforme frein plateforme on &amp; frein socle off" Type="Target"/>
+        <Manoeuvre Name="Manoeuvre 9" Description="resolidariser socle avec plateforme a programmer frein plateforme on &amp; frein socle on" Type="Target"/>
+        <Manoeuvre Name="Manoeuvre 13" Description="mur plateforme monte a 90°" Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="89" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.10000000000000001" EndAcceleration="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Manoeuvre 22" Description="mur plateforme a plat " Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="400" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise act 2" Description="mur plateforme a 90°, frein socle on &amp; plateforme on" Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="89" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Manoeuvre 31" Description="Mur plateforme a plat" Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Manoeuvre 34" Description="frein socle on &amp; montée a 8.8°" Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="8.7998700778552088" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise act 3" Description="mur plateforme a plat &amp; frein plateforme on &amp;  frein socle off" Type="Target">
+            <Animation Machine="Levage Mur" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+    </ManoeuvreList>
+</Plot>

@@ -881,6 +881,8 @@ public:
 
 template<typename T>
 using EnumParam = std::shared_ptr<EnumeratorParameter<T>>;
+template<typename T>
+using EnumParam = std::shared_ptr<EnumeratorParameter<T>>;
 
 
 //===================================================================================

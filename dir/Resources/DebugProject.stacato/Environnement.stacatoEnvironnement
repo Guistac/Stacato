@@ -1,5 +1,10 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.45207956" OffsetX="1671.49" OffsetY="-1013.1226" AutoFit="true" DrawGrid="false" LockEdit="true"/>
+    <Dashboard Scale="0.89970791" OffsetX="1063.5562" OffsetY="-1153.0999" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Levage Mur" UniqueID="3" PositionX="-903" PositionY="1475" SizeX="149.10002" SizeY="399.69504"/>
+        <Widget Name="AU" UniqueID="4" PositionX="-1062" PositionY="1762" SizeX="157.5" SizeY="109.36068"/>
+        <Widget Name="Fr. Socle" UniqueID="6" PositionX="-1062" PositionY="1649" SizeX="157.5" SizeY="106.21017"/>
+        <Widget Name="Fr. Plateforme" UniqueID="5" PositionX="-1062" PositionY="1541" SizeX="157.5" SizeY="106.39745"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="Processor" ClassName="Plotter" CustomName="Load Cell Weight" UniqueID="86">

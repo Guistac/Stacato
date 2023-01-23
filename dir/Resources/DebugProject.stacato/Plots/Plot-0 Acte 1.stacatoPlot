@@ -1,3 +1,7 @@
 <Plot Name="Acte 1">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="Livre 1 fevfe" Description="le livre va monter tres tres tres vite " Type="Target">
+            <Animation Machine="Levage" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="8" ConstraintType="Time" Time="0" Velocity="400" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>
