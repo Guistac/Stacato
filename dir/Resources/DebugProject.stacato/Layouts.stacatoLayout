@@ -1,25 +1,11 @@
 <Layouts>
-    <Layout Name="Maintenance">
+    <Layout Name="Maintenance" IsDefault="true">
         <OpenWindows>
             <Window Name="Node Editor"/>
             <Window Name="Log"/>
             <Window Name="Dashboard"/>
         </OpenWindows>
         <ImGuiIniString>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -105,7 +91,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=1440,763
+Size=1728,967
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -200,7 +186,7 @@ Collapsed=0
 
 [Window][Dashboard]
 Pos=0,29
-Size=472,734
+Size=280,938
 Collapsed=0
 DockId=0x00000002,0
 
@@ -211,8 +197,8 @@ Collapsed=0
 DockId=0x00000003,3
 
 [Window][Toolbar]
-Pos=0,763
-Size=1440,84
+Pos=0,967
+Size=1728,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -244,8 +230,8 @@ Collapsed=0
 DockId=0x0000000C,0
 
 [Window][Node Editor]
-Pos=474,29
-Size=966,456
+Pos=282,29
+Size=1446,583
 Collapsed=0
 DockId=0x00000007,0
 
@@ -266,8 +252,8 @@ Size=997,480
 Collapsed=0
 
 [Window][Log]
-Pos=474,487
-Size=966,276
+Pos=282,614
+Size=1446,353
 Collapsed=0
 DockId=0x00000008,0
 
@@ -418,21 +404,21 @@ Column 5  Weight=-1.0000
 DockSpace       ID=0x0B88F6CB Pos=0,146 Size=2056,967 Split=X Selected=0x20B12C37
   DockNode      ID=0x00000003 Parent=0x0B88F6CB SizeRef=1029,484 CentralNode=1 Selected=0x20B12C37
   DockNode      ID=0x00000004 Parent=0x0B88F6CB SizeRef=1025,484 Selected=0x3E6B10D2
-DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split=X Selected=0xAE98FAB7
-  DockNode      ID=0x00000001 Parent=0xD5272B65 SizeRef=760,938 Split=X
+DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
+  DockNode      ID=0x00000001 Parent=0xD5272B65 SizeRef=280,938 Split=X
     DockNode    ID=0x0000000A Parent=0x00000001 SizeRef=436,938 Split=X
       DockNode  ID=0x0000000B Parent=0x0000000A SizeRef=500,939 Selected=0xEBD2820B
       DockNode  ID=0x0000000C Parent=0x0000000A SizeRef=2058,939 HiddenTabBar=1 Selected=0xEE7B11E9
     DockNode    ID=0x0000000E Parent=0x00000001 SizeRef=802,938 Split=Y Selected=0x47C7A3F3
       DockNode  ID=0x00000002 Parent=0x0000000E SizeRef=1290,733 CentralNode=1 HiddenTabBar=1 Selected=0xB00214C9
       DockNode  ID=0x00000005 Parent=0x0000000E SizeRef=1290,203 HiddenTabBar=1 Selected=0x8506A884
-  DockNode      ID=0x00000006 Parent=0xD5272B65 SizeRef=966,938 Split=Y Selected=0x64F50EE5
+  DockNode      ID=0x00000006 Parent=0xD5272B65 SizeRef=1446,938 Split=Y Selected=0x64F50EE5
     DockNode    ID=0x00000007 Parent=0x00000006 SizeRef=966,583 HiddenTabBar=1 Selected=0xAE98FAB7
     DockNode    ID=0x00000008 Parent=0x00000006 SizeRef=966,353 HiddenTabBar=1 Selected=0x64F50EE5
 
 </ImGuiIniString>
     </Layout>
-    <Layout Name="Nico" IsDefault="true">
+    <Layout Name="Nico">
         <OpenWindows>
             <Window Name="Log"/>
             <Window Name="Dashboard"/>
@@ -441,6 +427,14 @@ DockSpace       ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split=X S
             <Window Name="Curve Editor"/>
         </OpenWindows>
         <ImGuiIniString>
+
+
+
+
+
+
+
+
 
 
 

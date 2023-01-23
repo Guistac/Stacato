@@ -35,12 +35,16 @@ function update()
 	bookAxisConstraint:setEnabled(upperBrakeActualState ~= brakeStateClosed)
 
 	--constraint the brake if the book axis is too high
-	upperBrakeHaltConstraint:setEnabled(bookAxisActualPos > bookAxisLimit)
+	upperBrakeHaltConstraint:setEnabled(bookAxisActualPos > bookAxisLimit + .5)
 
 end
 
 function exit()
 end
+
+
+
+
 
 
 

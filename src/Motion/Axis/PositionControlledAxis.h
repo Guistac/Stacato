@@ -224,6 +224,7 @@ public:
 		double high = getHighPositionLimit();
 		return (*actualPositionValue - low) / (high - low);
 	}
+	double getActualEffort(){ return *actualLoadValue; }
 	
 	//============== AXIS SETUP
 private:
