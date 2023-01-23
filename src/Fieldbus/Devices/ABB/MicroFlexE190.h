@@ -23,7 +23,9 @@ public:
 		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) :
 		MotionDevice(Units::AngularDistance::Revolution),
 		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::INCREMENTAL),
-		drive(microflex){}
+		drive(microflex){
+			setParentDevice(microflex);
+		}
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		
@@ -39,7 +41,9 @@ public:
 	public:
 		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) :
 		GpioDevice(),
-		drive(microflex){}
+		drive(microflex){
+			setParentDevice(microflex);
+		}
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
 		
@@ -101,13 +105,6 @@ public:
 		maxFollowingError_parameter
 	});
 	
-	void updateServoLimits(){
-		servo->velocityLimit = velocityLimit_parameter->value;
-		servo->accelerationLimit = accelerationLimit_parameter->value;
-		servo->decelerationLimit = accelerationLimit_parameter->value;
-		servo->b_decelerationLimitEqualsAccelerationLimit = true;
-	}
-	
 	//for error logging
 	uint16_t previousErrorCode = 0x0;
 	
@@ -118,6 +115,8 @@ public:
 	//encoder reset (DS402 Homing mode)
 	bool b_resetEncoder = false;
 	bool b_encoderResetBusy = false;
+	
+	double actualPositionFollowingError = 0.0;
 	
 
 	//———— Drive Unit Conversion
@@ -180,7 +179,14 @@ public:
 	}
 	
 	std::string getStatusString(){
-		return "no status string yet";
+		std::string status;
+		if(!isConnected()) {
+			status = "Device is Offline.\n";
+			return status;
+		}
+		if(servo->isEmergencyStopped()) status += "STO is Active.\n";
+		if(axis->hasFault()) status += "Fault : " + std::string(getErrorCodeString()) + " (Fault will be cleared when enabling)\n";
+		return status;
 	}
 	
 	
@@ -196,16 +202,13 @@ public:
 	double profiler_position = 0.0;
 	float manualVelocityTarget = 0.0;
 	
+	void updateServoConfiguration();
+	
 	
 	
 	
 	
 };
-
-
-//TODO: list
-//figure out position velocity acceleration units and scaling
-//adjust enable timings
 
 //0x5062 : input pin function assignement (int16)
 //values: -1 (function disabled) or 0-3 (input pin number)

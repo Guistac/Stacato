@@ -20,6 +20,7 @@ void PositionControlledAxis::initialize() {
 	addNodePin(surveillanceValidInputPin);
 	addNodePin(surveillanceFeedbackDevicePin);
 	addNodePin(externalSurveillanceFaultResetPin);
+	addNodePin(feedbackDevicePin);
 	
 	//outputs
 	addNodePin(surveillanceValidOutputPin);
@@ -85,6 +86,7 @@ void PositionControlledAxis::updateAxisState(){
 	}
 	checkState(servoActuatorDevice->getState());
 	if(isSurveilled()) checkState(getSurveillanceFeedbackDevice()->getState());
+	if(useFeedbackDevice_Param->value) checkState(getFeedbackDevice()->getState());
 	
 	//handle transition from enabled state
 	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
@@ -94,8 +96,16 @@ void PositionControlledAxis::updateAxisState(){
 	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
 	
 	//get actual realtime axis motion values
-	*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
-	*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	if(useFeedbackDevice_Param->value){
+		//————— ONEGIN extra feedback device
+		//if we use an extra feedback device, the real position and velocity units come from this device
+		auto feedbackDevice = getFeedbackDevice();
+		*actualPositionValue = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+		*actualVelocityValue = feedbackUnitsToAxisUnits(feedbackDevice->getVelocity());
+	}else{
+		*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
+		*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
+	}
 	*actualLoadValue = getServoActuatorDevice()->getLoad();
 }
 
@@ -231,13 +241,34 @@ void PositionControlledAxis::outputProcess(){
 		motionProfile.setPosition(*actualPositionValue);
 		motionProfile.setVelocity(*actualVelocityValue);
 		motionProfile.setAcceleration(0.0);
+		
+		
+		if(useFeedbackDevice_Param->value){
+			//————— ONEGIN extra feedback device
+			//while the axis is disabled we update the offset between the incremental actuator position and the absolute encoder position
+			//this offset will be applied to generate correct position commands for the actuator while maintaining absolute position
+			auto servoActuator = getServoActuatorDevice();
+			auto feedbackDevice = getFeedbackDevice();
+			double actuatorAxisPosition = servoActuatorUnitsToAxisUnits(servoActuator->getPosition());
+			double feedbackAxisPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+			actuatorToFeedbackPositionOffset = actuatorAxisPosition - feedbackAxisPosition;
+		}
 	}
 	
 	//send commands to the actuator
-	double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
-	double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
-	double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
-	getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	if(useFeedbackDevice_Param->value){
+		//————— ONEGIN
+		//apply an offset to actuator position commands that is calculated when axis is disabled
+		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition() + actuatorToFeedbackPositionOffset);
+		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
+		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
+		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	}else{
+		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
+		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
+		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
+		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+	}
 	updateMetrics();
 }
 
@@ -357,9 +388,7 @@ bool PositionControlledAxis::areAllPinsConnected(){
 		case PositionReferenceSignal::NO_SIGNAL:
 			break;
 	}
-	if(isSurveilled()){
-		
-	}
+	if(useFeedbackDevice_Param->value && !feedbackDevicePin->isConnected()) return false;
 	return true;
 }
 
@@ -1105,10 +1134,39 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE:
 						if (!isMoving()) {
-							setCurrentPosition(0.0);
-							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
-							setVelocityTarget(homingVelocityFine);
-							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							
+							switch(signalApproach->value){
+								case SignalApproach::FIND_SIGNAL_EDGE:
+								
+								{
+									auto servoActuator = getServoActuatorDevice();
+									//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+									if(servoActuator->canHardReset()) {
+										servoActuator->executeHardReset();
+										motionProfile.setPosition(0.0);
+										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+										Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+									}else{
+										servoActuator->softOverridePosition(0.0);
+										//else we set a software offset in the encoder object
+										setCurrentPosition(0.0);
+										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+									}
+									
+									homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+								}
+								break;
+									
+								case SignalApproach::FIND_SIGNAL_CENTER:
+									setCurrentPosition(0.0);
+									homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE;
+									setVelocityTarget(homingVelocityFine);
+									Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+									break;
+							}
+							
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
@@ -1165,9 +1223,59 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE:
 						if (!isMoving()) {
 							setCurrentPosition(0.0);
-							homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
-							setVelocityTarget(-homingVelocityFine);
-							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							
+							
+							switch(signalApproach->value){
+								case SignalApproach::FIND_SIGNAL_EDGE:
+								
+								{
+									
+									
+									
+									if(useFeedbackDevice_Param->value){
+										auto feedbackDevice = getFeedbackDevice();
+										
+										if(feedbackDevice->canHardReset()){
+											feedbackDevice->executeHardReset();
+											motionProfile.setPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+											Logger::info("Homing Axis {} : Waiting For hard Reset of {}", getName(), feedbackDevice->getName());
+										}
+										
+									}else{
+										auto servoActuator = getServoActuatorDevice();
+										//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
+										if(servoActuator->canHardReset()) {
+											servoActuator->executeHardReset();
+											motionProfile.setPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+											Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+										}else{
+											servoActuator->softOverridePosition(0.0);
+											//else we set a software offset in the encoder object
+											setCurrentPosition(0.0);
+											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+										}
+										
+										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+									}
+									
+									
+									
+
+								}
+									
+									break;
+								case SignalApproach::FIND_SIGNAL_CENTER:
+									homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE;
+									setVelocityTarget(-homingVelocityFine);
+									Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+									break;
+							}
+							
 						}
 						break;
 					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
@@ -1216,15 +1324,33 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
 						motionProfile.setPosition(0.0);
-						if(getServoActuatorDevice()->canHardReset()){
-							//if the servo actuator can hard reset its encoder, check if we are done resetting
-							if(!getServoActuatorDevice()->isExecutingHardReset()) {
-								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+						
+						
+						
+						if(useFeedbackDevice_Param->value){
+							auto feedbackDevice = getFeedbackDevice();
+							if(feedbackDevice->canHardReset()){
+								if(!feedbackDevice->isExecutingHardReset()){
+									double feedbackPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+									motionProfile.setPosition(feedbackPosition);
+									onHomingSuccess();
+								}
+							}else{
 								onHomingSuccess();
 							}
 						}else{
-							onHomingSuccess();
+							if(getServoActuatorDevice()->canHardReset()){
+								//if the servo actuator can hard reset its encoder, check if we are done resetting
+								if(!getServoActuatorDevice()->isExecutingHardReset()) {
+									motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
+									onHomingSuccess();
+								}
+							}else{
+								onHomingSuccess();
+							}
 						}
+						
+						
 						break;
 					default:
 						break;
@@ -1289,6 +1415,7 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	positionReferenceXML->SetAttribute("HomingVelocityCoarse", homingVelocityCoarse);
 	positionReferenceXML->SetAttribute("HomingVelocityFine", homingVelocityFine);
 	positionReferenceXML->SetAttribute("HomingDirection", Enumerator::getSaveString(homingDirection));
+	signalApproach->save(positionReferenceXML);
 
 	XMLElement* positionLimitsXML = xml->InsertNewChildElement("PositionLimits");
 	positionLimitsXML->SetAttribute("LowLimit", lowPositionLimit);
@@ -1304,6 +1431,10 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 	surveillancefeedbackUnitsPerAxisUnits->save(surveillanceXML);
 	maxVelocityDeviation->save(surveillanceXML);
 	maxSurveillanceErrorClearTime->save(surveillanceXML);
+	
+	XMLElement* feedbackXML = xml->InsertNewChildElement("Feedback");
+	useFeedbackDevice_Param->save(feedbackXML);
+	feedbackUnitsPerAxisUnits_Param->save(feedbackXML);
 	
 	return true;
 }
@@ -1363,7 +1494,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionReferenceXML->QueryStringAttribute("HomingDirection", &homingDirectionString)) return Logger::warn("Could not load homing direction");
 	if (!Enumerator::isValidSaveName<HomingDirection>(homingDirectionString)) return Logger::warn("Could not read homing direction");
 	homingDirection = Enumerator::getEnumeratorFromSaveString<HomingDirection>(homingDirectionString);
-	
+	signalApproach->load(positionReferenceXML);
 	
 	XMLElement* surveillanceXML = xml->FirstChildElement("Surveillance");
 	if(surveillanceXML == nullptr){
@@ -1375,6 +1506,16 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if(!maxVelocityDeviation->load(surveillanceXML)) return false;
 	if(!maxSurveillanceErrorClearTime->load(surveillanceXML)) return false;
 	 
+	XMLElement* feedbackXML = xml->FirstChildElement("Feedback");
+	if(feedbackXML){
+		if(!useFeedbackDevice_Param->load(feedbackXML)) return false;
+		if(!feedbackUnitsPerAxisUnits_Param->load(feedbackXML)) return false;
+	}else{
+		Logger::warn("Could not load Surveillance Attribute");
+		return false;
+	}
+
+	
 	return true;
 }
 

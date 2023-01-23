@@ -34,9 +34,10 @@ void MicroFlex_e190::initialize() {
 	addNodePin(analogIn0_Pin);
 	addNodePin(analogOut0_Pin);
 	
-	velocityLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
-	accelerationLimit_parameter->addEditCallback([this](){ updateServoLimits(); });
-	updateServoLimits();
+	velocityLimit_parameter->addEditCallback([this](){ updateServoConfiguration(); });
+	accelerationLimit_parameter->addEditCallback([this](){ updateServoConfiguration(); });
+	maxFollowingError_parameter->addEditCallback([this](){ updateServoConfiguration(); });
+	updateServoConfiguration();
 	
 	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
 	axis = DS402Axis::make(thisDevice);
@@ -55,9 +56,20 @@ void MicroFlex_e190::initialize() {
 	rxPdoAssignement.addEntry(0x4021, 0x1, 32, "Digital Outputs", &digitalOutputs);
 	txPdoAssignement.addEntry(0x4022, 0x1, 16, "Analog Input 0", &AI0);
 	rxPdoAssignement.addEntry(0x4023, 0x1, 16, "Analog Output 0", &AO0);
+	
 }
 
 
+void MicroFlex_e190::updateServoConfiguration(){
+	servo->velocityLimit = velocityLimit_parameter->value;
+	servo->accelerationLimit = accelerationLimit_parameter->value;
+	servo->decelerationLimit = accelerationLimit_parameter->value;
+	servo->b_decelerationLimitEqualsAccelerationLimit = true;
+	servo->maxFollowingError = maxFollowingError_parameter->value;
+	servo->minWorkingRange = 0.0;
+	servo->maxWorkingRange = 0.0;
+	servoPin->updateConnectedPins();
+}
 
 
 
@@ -162,6 +174,7 @@ void MicroFlex_e190::readInputs() {
 	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;
 	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
 	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
+	actualPositionFollowingError = axis->getActualPositionFollowingError() / incrementsPerPositionUnit;
 	
 	//update servo state
 	servo->b_emergencyStopActive = b_estop;
@@ -169,6 +182,12 @@ void MicroFlex_e190::readInputs() {
 	else if(b_isEnabled) servo->state = MotionState::ENABLED;
 	else if(b_isReady) servo->state = MotionState::READY;
 	else servo->state = MotionState::NOT_READY;
+	
+	if(isOffline()) gpio->state = MotionState::OFFLINE;
+	else if(isStateSafeOperational()) gpio->state = MotionState::READY;
+	else if(isStateOperational()) gpio->state = MotionState::ENABLED;
+	else gpio->state = MotionState::NOT_READY;
+	
 	servo->position = actualPosition;
 	servo->velocity = actualVelocity;
 	servo->load = actualLoad;
@@ -177,10 +196,10 @@ void MicroFlex_e190::readInputs() {
 	*position_Value = actualPosition;
 	*velocity_Value = actualVelocity;
 	*load_Value = actualLoad;
-	*digitalIn0_Value = axis->getDigitalInputs() & (0x1 << 16);
-	*digitalIn1_Value = axis->getDigitalInputs() & (0x1 << 17);
-	*digitalIn2_Value = axis->getDigitalInputs() & (0x1 << 18);
-	*digitalIn3_Value = axis->getDigitalInputs() & (0x1 << 19);
+	*digitalIn0_Value = digitalInputs & (0x1 << 0);
+	*digitalIn1_Value = digitalInputs & (0x1 << 1);
+	*digitalIn2_Value = digitalInputs & (0x1 << 2);
+	*digitalIn3_Value = digitalInputs & (0x1 << 3);
 	
 }
 
@@ -262,6 +281,7 @@ void MicroFlex_e190::writeOutputs() {
 		profiler_velocity = std::clamp(profiler_velocity, -velocityLimit, velocityLimit);
 		double deltaP = profiler_velocity * deltaT_s;
 		profiler_position += deltaP;
+		//axis->setVelocity(profiler_velocity * incrementsPerVelocityUnit);
 		axis->setPosition(profiler_position * incrementsPerPositionUnit);
 	}
 	
@@ -283,5 +303,8 @@ bool MicroFlex_e190::saveDeviceData(tinyxml2::XMLElement* xml) {
 bool MicroFlex_e190::loadDeviceData(tinyxml2::XMLElement* xml) {
     using namespace tinyxml2;
 	if(!axisParameters.load(xml)) return false;
+	velocityLimit_parameter->onEdit();
+	accelerationLimit_parameter->onEdit();
+	maxFollowingError_parameter->onEdit();
     return true;
 }

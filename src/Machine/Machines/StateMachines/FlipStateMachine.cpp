@@ -496,8 +496,9 @@ bool FlipStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> 
 
 //========= ANIMATABLE OWNER ==========
 
-void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){}
-
+void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+	
+}
 
 void FlipStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);

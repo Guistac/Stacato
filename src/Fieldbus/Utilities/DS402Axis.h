@@ -340,6 +340,7 @@ public:
 	int32_t getActualVelocity(){ return processData.velocityActualValue; }
 	int16_t getActualTorque(){ return processData.torqueActualValue; }
 	int16_t getActualCurrent(){ return processData.currentActualValue; }
+	int32_t getActualPositionFollowingError(){ return processData.positionFollowingErrorActualValue; }
 	
 	uint32_t getDigitalInputs(){ return processData.digitalInputs; }
 	void setDigitalOutputs(uint32_t digitalOutputs){ processData.digitalOutputs = digitalOutputs; }

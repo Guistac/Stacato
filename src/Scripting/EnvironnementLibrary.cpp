@@ -313,16 +313,11 @@ namespace Scripting::EnvironnementLibrary{
 
 
 
-
-
-
-
 	//—————————— Animatable Position ——————————
-
 
 	namespace Lua_AnimatablePosition{
 		//create, enable, disable, modify parameter constraints
-	
+
 		int createKeepoutConstraint(lua_State* L){
 			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
 			const char* constraintName = luaL_checkstring(L, 2);
@@ -332,8 +327,8 @@ namespace Scripting::EnvironnementLibrary{
 			animatablePosition->addConstraint(constraint);
 			lua_AnimatablePosition_KeepoutConstraint.push(L, constraint);
 			return 1;
-		};
-	
+		}
+
 		int getConstraints(lua_State* L){
 			auto animatablePosition = lua_AnimatablePosition.checkDerivedArgument(L, 1);
 			auto& constraints = animatablePosition->getConstraints();
@@ -346,14 +341,14 @@ namespace Scripting::EnvironnementLibrary{
 			}
 			return 1;
 		}
-	
+
 		int getBrakingPosition(lua_State* L){
 			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
 			double brakingPosition = animatablePosition->getBrakingPosition();
 			lua_pushnumber(L, brakingPosition);
 			return 1;
 		}
-	
+
 	};
 	
 	namespace Lua_AnimatablePosition_KeepoutConstraint{

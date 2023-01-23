@@ -164,7 +164,6 @@ namespace EtherCatFieldbus {
 			pthread_setname_np("EtherCAT Process Starter Thread");
 			
 			if(!initializeNetwork()){
-				logAlStatusCodes();
 				Logger::error("failed to initialize network");
 				b_networkStarting = false;
 				return;
