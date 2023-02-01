@@ -16,7 +16,7 @@ namespace tinyxml2{ struct XMLElement; }
 
 
 namespace PhoenixContact::ModuleFactory{
-	std::vector<EtherCAT::DeviceModule*>& getModules();
+	std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& getModules();
 }
 
 
@@ -28,9 +28,9 @@ namespace PhoenixContact::ModuleFactory{
 
 namespace PhoenixContact{
 
-class IB_IL_24_DI_4 : public EtherCAT::DeviceModule{
+class IB_IL_24_DI_4 : public EtherCAT::ModularDeviceProfile::ChildModule{
 public:
-	DEFINE_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4-PAC", "Digital Input x4 (24V)", 0x41BE)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4-PAC", "Digital Input x4 (24V)", 0x41BE)
 	
 	//pdo data
 	uint8_t inputByte;
@@ -50,9 +50,9 @@ public:
 
 namespace PhoenixContact{
 
-class IB_IL_24_DO_4 : public EtherCAT::DeviceModule{
+class IB_IL_24_DO_4 : public EtherCAT::ModularDeviceProfile::ChildModule{
 public:
-	DEFINE_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4-PAC", "Digital Output x4 (24V 500mA)", 0x41BD)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4-PAC", "Digital Output x4 (24V 500mA)", 0x41BD)
 	
 	//pdo data
 	uint8_t outputByte;
@@ -72,9 +72,9 @@ public:
 
 namespace PhoenixContact{
 
-class IB_IL_24_48_DOR_2 : public EtherCAT::DeviceModule{
+class IB_IL_24_48_DOR_2 : public EtherCAT::ModularDeviceProfile::ChildModule{
 public:
-	DEFINE_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
 	
 	//pdo data
 	uint8_t outputByte;
@@ -159,9 +159,9 @@ DEFINE_ENUMERATOR(PhoenixContact::SSI::Code, CodeTypeStrings)
 
 namespace PhoenixContact{
 
-class IB_IL_SSI_IN : public EtherCAT::DeviceModule{
+class IB_IL_SSI_IN : public EtherCAT::ModularDeviceProfile::ChildModule{
 public:
-	DEFINE_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN-PAC", "SSI input", 0x25F)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN-PAC", "SSI input", 0x25F)
 	
 	//————— Node Pins ———————
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
@@ -201,25 +201,25 @@ public:
 	
 	//————— SubDevice ——————
 	
-	class SsiEncoder : public PositionFeedbackDevice{
+	class SsiEncoder : public MotionFeedbackModule{
 	public:
-		SsiEncoder(std::shared_ptr<IB_IL_SSI_IN> module) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		PositionFeedbackDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
-		encoderModule(module){}
+		SsiEncoder(std::shared_ptr<IB_IL_SSI_IN> module) : encoderModule(module){}
 		
 		virtual std::string getName() override {
 			return std::string(encoderModule->parentDevice->getName()) + " SSI Encoder";
 		};
 		
 		virtual std::string getStatusString() override {
-			if(state == MotionState::OFFLINE) {
+			if(state == DeviceState::OFFLINE) {
 				std::string message = "Encoder is Offline: parent device " + std::string(encoderModule->parentDevice->getName()) + " is Offline";
 				return message;
-			}else if(!encoderModule->parentDevice->isStateOperational()){
+			}
+			/*
+			 else if(!encoderModule->parentDevice->isStateOperational()){
 				std::string message = "Enoder is Not Ready : parent device " + std::string(encoderModule->parentDevice->getName()) + " is not in operational state";
 				return message;
 			}
+			 */
 			switch(encoderModule->statusCode){
 				case SSI::StatusCode::UNKNOWN:
 					return "Encoder is not ready : unknown state";
@@ -240,15 +240,17 @@ public:
 			}
 		}
 		
-		virtual bool canHardReset() override {
-			return encoderModule->hasResetSignalParameter->value && encoderModule->resetPin->isConnected();
+		/*
+		virtual void overridePosition(double newPosition) override {
+			if(encoderModule->hasResetSignalParameter->value) encoderModule->b_doHardReset = true;
 		}
-		virtual void executeHardReset() override {
-			encoderModule->b_doHardReset = true;
-		}
-		virtual bool isExecutingHardReset() override {
+		virtual bool isBusyOverridingPosition() override {
 			return encoderModule->b_hardResetBusy;
 		}
+		virtual bool didPositionOverrideSucceed() override {
+			return encoderModule->b_hardResetBusy = false;
+		}
+		*/
 						
 		std::shared_ptr<IB_IL_SSI_IN> encoderModule;
 	};
@@ -258,11 +260,7 @@ public:
 	void updateEncoderWorkingRange();
 	
 	virtual void onDisconnection() override {
-		encoder->state = MotionState::OFFLINE;
-	}
-	
-	virtual void onSetParentDevice(std::shared_ptr<EtherCAT::ModularDevice> busCoupler) override{
-		encoder->setParentDevice(busCoupler);
+		encoder->state = DeviceState::OFFLINE;
 	}
 };
 

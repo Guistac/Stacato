@@ -85,14 +85,14 @@ void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin)
 bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
-	if(axis->getState() != MotionState::READY) return false;
+	if(axis->getState() != DeviceState::READY) return false;
 	return true;
 }
 
 bool PositionControlledMachine::isMoving() {
     if (isAxisConnected()) {
         auto axis = getAxis();
-        return axis->isMoving() && axis->getState() == MotionState::ENABLED;
+        return axis->isMoving() && axis->getState() == DeviceState::ENABLED;
     }
 	return false;
 }
@@ -106,8 +106,8 @@ void PositionControlledMachine::enableHardware() {
 			time_point enableRequestTime = system_clock::now();
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
 				std::this_thread::sleep_for(milliseconds(10));
-				if (axis->getState() == MotionState::ENABLED) {
-					state = MotionState::ENABLED;
+				if (axis->getState() == DeviceState::ENABLED) {
+					state = DeviceState::ENABLED;
 					//b_enabled = true;
 					onEnableHardware();
 					break;
@@ -119,7 +119,7 @@ void PositionControlledMachine::enableHardware() {
 }
 
 void PositionControlledMachine::disableHardware() {
-	state = MotionState::READY;
+	state = DeviceState::READY;
 	if (isAxisConnected()) getAxis()->disable();
 	onDisableHardware();
 }
@@ -149,18 +149,18 @@ void PositionControlledMachine::onDisableSimulation() {
 std::string PositionControlledMachine::getStatusString(){
 	std::string status;
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			status = "Machine is Offline : ";
 			if(!isAxisConnected()) status += "No Axis is Connected";
 			else status += "\n" + getAxis()->getStatusString();
 			return status;
-		case MotionState::NOT_READY:
+		case DeviceState::NOT_READY:
 			status = "Machine is not ready : " + getAxis()->getStatusString();
 			return status;
-		case MotionState::READY:
+		case DeviceState::READY:
 			status = "Machine is ready to enable.";
 			return status;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
 			status = "Machine is enabled.";
 			if(b_halted){
 				if(!isSimulating()){
@@ -183,24 +183,24 @@ std::string PositionControlledMachine::getStatusString(){
 
 void PositionControlledMachine::inputProcess() {
 	if (!isAxisConnected()) {
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		return;
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	
 	//update machine state
-	if (isEnabled() && axis->getState() != MotionState::ENABLED) disable();
+	if (isEnabled() && axis->getState() != DeviceState::ENABLED) disable();
 	else state = axis->getState();
 	
 	//update estop state
-	b_emergencyStopActive = axis->isEmergencyStopActive() && axis->getState() != MotionState::OFFLINE;
+	b_emergencyStopActive = axis->isEmergencyStopActive() && axis->getState() != DeviceState::OFFLINE;
 	
 	//update halt state
 	b_halted = isEnabled() && !isMotionAllowed();
 	
 	//update animatable state
-	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
-    else if(state == MotionState::ENABLED){
+	if(state == DeviceState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
+    else if(state == DeviceState::ENABLED){
         if(b_halted) animatablePosition->state = Animatable::State::HALTED;
         else animatablePosition->state = Animatable::State::READY;
     }
@@ -260,17 +260,17 @@ void PositionControlledMachine::outputProcess(){
 void PositionControlledMachine::simulateInputProcess() {
 	
 	//update machine state
-	if(state == MotionState::ENABLED) { /* do nothing*/ }
-	else if(isAxisConnected()) state = MotionState::READY;
-	else state = MotionState::OFFLINE;
+	if(state == DeviceState::ENABLED) { /* do nothing*/ }
+	else if(isAxisConnected()) state = DeviceState::READY;
+	else state = DeviceState::OFFLINE;
 	
 	//update halt and estop state
 	b_emergencyStopActive = false;
 	b_halted = false;
 		
 	//update animatable state
-	if(state == MotionState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
-	else if(state == MotionState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
+	if(state == DeviceState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
+	else if(state == DeviceState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
 }
 

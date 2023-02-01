@@ -7,6 +7,8 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
+/*
+
 class AxisStateMachine : public Machine {
 public:
 
@@ -122,3 +124,5 @@ public:
 {.enumerator = AxisStateMachine::State::AT_NEGATIVE_LIMIT,        .displayString = "", .saveString = ""}\
 
 DEFINE_ENUMERATOR(AxisStateMachine::State, axisStateMachineStrings)
+
+*/

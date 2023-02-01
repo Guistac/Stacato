@@ -5,9 +5,9 @@
 
 #include <tinyxml2.h>
 
-namespace EtherCAT{
+namespace EtherCAT::ModularDeviceProfile{
 
-bool ModularDevice::discoverDeviceModules(){
+bool ParentDevice::discoverChildModules(){
 	
 	moduleDiscoveryStatus = DataTransferState::TRANSFERRING;
 	
@@ -32,7 +32,7 @@ bool ModularDevice::discoverDeviceModules(){
 		Logger::info("Detected {} modules", detectedModuleCount);
 	}
 	
-	std::vector<std::shared_ptr<DeviceModule>> detectedModules = {};
+	std::vector<std::shared_ptr<ChildModule>> detectedModules = {};
 	
 	for(int i = 0; i < detectedModuleCount; i++){
 		uint8_t moduleNumber = i + 1;
@@ -44,7 +44,7 @@ bool ModularDevice::discoverDeviceModules(){
 			return false;
 		}
 		
-		std::shared_ptr<DeviceModule> detectedModule = createModule(detectedModuleIdent);
+		std::shared_ptr<ChildModule> detectedModule = createModule(detectedModuleIdent);
 		if(detectedModule == nullptr){
 			moduleDiscoveryStatus = EtherCatDevice::DataTransferState::FAILED;
 			Logger::error("Could not identify module {}", moduleNumber);
@@ -56,7 +56,7 @@ bool ModularDevice::discoverDeviceModules(){
 		detectedModules.push_back(createModule(detectedModuleIdent));
 	}
 	
-	for(int i = modules.size() - 1; i >= 0; i--) removeModule(modules[i]);
+	for(size_t i = modules.size() - 1; i >= 0; i--) removeModule(modules[i]);
 	
 	for(auto& module : detectedModules) addModule(module);
 	
@@ -64,7 +64,7 @@ bool ModularDevice::discoverDeviceModules(){
 }
 
 
-std::shared_ptr<EtherCAT::DeviceModule> ModularDevice::createModule(uint32_t identifier){
+std::shared_ptr<ChildModule> ParentDevice::createModule(uint32_t identifier){
 	for(auto factoryModule : getModuleFactory()){
 		if(factoryModule->getIdentifier() == identifier){
 			return factoryModule->getNewInstance();
@@ -73,7 +73,7 @@ std::shared_ptr<EtherCAT::DeviceModule> ModularDevice::createModule(uint32_t ide
 	return nullptr;
 }
 
-std::shared_ptr<EtherCAT::DeviceModule> ModularDevice::createModule(const char* saveString){
+std::shared_ptr<ChildModule> ParentDevice::createModule(const char* saveString){
 	for(auto factoryModule : getModuleFactory()){
 		if(strcmp(factoryModule->getSaveName(), saveString) == 0){
 			return factoryModule->getNewInstance();
@@ -83,7 +83,7 @@ std::shared_ptr<EtherCAT::DeviceModule> ModularDevice::createModule(const char* 
 }
 
 
-bool ModularDevice::configureModules(){
+bool ParentDevice::configureModules(){
 	
 	for(int i = 0; i < modules.size(); i++){
 		auto module = modules[i];
@@ -116,19 +116,19 @@ bool ModularDevice::configureModules(){
 }
 
 
-void ModularDevice::readModuleInputs(){
+void ParentDevice::readModuleInputs(){
 	for(auto& module : modules) module->readInputs();
 }
 
-void ModularDevice::writeModuleOutputs(){
+void ParentDevice::writeModuleOutputs(){
 	for(auto& module : modules) module->writeOutputs();
 }
 
 
-void ModularDevice::addModule(std::shared_ptr<DeviceModule> module){
+void ParentDevice::addModule(std::shared_ptr<ChildModule> module){
 	if(modules.empty()) beforeModuleReordering();
 	
-	std::shared_ptr<ModularDevice> thisDevice = std::static_pointer_cast<ModularDevice>(shared_from_this());
+	std::shared_ptr<ParentDevice> thisDevice = std::static_pointer_cast<ParentDevice>(shared_from_this());
 	module->setParentDevice(thisDevice);
 	module->setIndex(modules.size());
 	modules.push_back(module);
@@ -140,7 +140,7 @@ void ModularDevice::addModule(std::shared_ptr<DeviceModule> module){
 	module->addRxPdoMappingModule(rxPdoAssignement);
 }
 
-void ModularDevice::removeModule(std::shared_ptr<DeviceModule> module){
+void ParentDevice::removeModule(std::shared_ptr<ChildModule> module){
 	for(int i = modules.size() - 1; i >= 0; i--){
 		if(modules[i] == module){
 			modules.erase(modules.begin() + i);
@@ -159,9 +159,9 @@ void ModularDevice::removeModule(std::shared_ptr<DeviceModule> module){
 	}
 }
 
-void ModularDevice::reorderModule(int oldIndex, int newIndex){
+void ParentDevice::reorderModule(int oldIndex, int newIndex){
 	//stored the moved module in a temporary buffer
-	std::shared_ptr<DeviceModule> temp = modules[oldIndex];
+	std::shared_ptr<ChildModule> temp = modules[oldIndex];
 	
 	//erase the module and insert it at the new index
 	modules.erase(modules.begin() + oldIndex);
@@ -189,7 +189,7 @@ void ModularDevice::reorderModule(int oldIndex, int newIndex){
 	}
 }
 
-void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> module){
+void ParentDevice::moveModuleUp(std::shared_ptr<ChildModule> module){
 	int oldIndex;
 	for(int i = 0; i < modules.size(); i++){
 		if(module == modules[i]){
@@ -201,7 +201,7 @@ void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> module){
 	else reorderModule(oldIndex, oldIndex - 1);
 }
 
-void ModularDevice::moveModuleDown(std::shared_ptr<DeviceModule> module){
+void ParentDevice::moveModuleDown(std::shared_ptr<ChildModule> module){
 	int oldIndex;
 	for(int i = 0; i < modules.size(); i++){
 		if(module == modules[i]){
@@ -213,7 +213,7 @@ void ModularDevice::moveModuleDown(std::shared_ptr<DeviceModule> module){
 	else reorderModule(oldIndex, oldIndex + 1);
 }
 
-bool ModularDevice::saveModules(tinyxml2::XMLElement* xml){
+bool ParentDevice::saveModules(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* modularDeviceProfileXML = xml->InsertNewChildElement("ModularDeviceProfile");
@@ -228,7 +228,7 @@ bool ModularDevice::saveModules(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-bool ModularDevice::loadModules(tinyxml2::XMLElement* xml){
+bool ParentDevice::loadModules(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* modularDeviceProfileXML = xml->FirstChildElement("ModularDeviceProfile");
@@ -241,7 +241,7 @@ bool ModularDevice::loadModules(tinyxml2::XMLElement* xml){
 	while(moduleXML != nullptr){
 		const char* moduleTypeString;
 		if(moduleXML->QueryStringAttribute("Type", &moduleTypeString) != XML_SUCCESS) return Logger::warn("Failed to load module type");
-		std::shared_ptr<DeviceModule> loadedModule = createModule(moduleTypeString);
+		std::shared_ptr<ChildModule> loadedModule = createModule(moduleTypeString);
 		if(loadedModule == nullptr) return Logger::warn("Failed to identify module type '{}'", moduleTypeString);
 		if(!loadedModule->load(moduleXML)) return Logger::warn("Failed to load module {}", moduleTypeString);
 		addModule(loadedModule);

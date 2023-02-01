@@ -12,11 +12,10 @@ void ATV320::initialize() {
 	
 	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
 	actuator = std::make_shared<ATV_Motor>(thisDrive);
-	actuator->b_decelerationLimitEqualsAccelerationLimit = false;
 	gpio = std::make_shared<ATV_GPIO>(thisDrive);
 	
-	actuatorPin->assignData(std::static_pointer_cast<ActuatorDevice>(actuator));
-	gpioPin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	actuatorPin->assignData(std::static_pointer_cast<ActuatorModule>(actuator));
+	gpioPin->assignData(std::static_pointer_cast<GpioModule>(gpio));
 	
 	addNodePin(actuatorPin);
 	addNodePin(gpioPin);
@@ -32,13 +31,13 @@ void ATV320::initialize() {
 
 
 	maxVelocityRPM->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->velocityLimit = maxVelocityRPM->value / 60.0;
+		actuator->actuatorConfig.velocityLimit = maxVelocityRPM->value / 60.0;
 	});
 	accelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->accelerationLimit = actuator->velocityLimit / accelerationRampTime->value;
+		actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
 	});
 	decelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->decelerationLimit = actuator->velocityLimit / decelerationRampTime->value;
+		actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
 	});
 	
 	
@@ -226,30 +225,25 @@ void ATV320::readInputs() {
 	*digitalInput6Signal = logicInputs & 0x20;
 	
 	//update subdevices
-	if(!isConnected()) 														actuator->state = MotionState::OFFLINE;
-	if(!b_remoteControlEnabled)												actuator->state = MotionState::NOT_READY;
-	else if(b_stoActive) 													actuator->state = MotionState::NOT_READY;
-	else if(!b_motorVoltagePresent) 										actuator->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	actuator->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		actuator->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		actuator->state = MotionState::ENABLED;
-	else 																	actuator->state = MotionState::READY;
+	if(!isConnected()) 														actuator->state = DeviceState::OFFLINE;
+	if(!b_remoteControlEnabled)												actuator->state = DeviceState::NOT_READY;
+	else if(b_stoActive) 													actuator->state = DeviceState::NOT_READY;
+	else if(!b_motorVoltagePresent) 										actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		actuator->state = DeviceState::ENABLED;
+	else 																	actuator->state = DeviceState::READY;
 
-	if(!isConnected()) 					gpio->state = MotionState::OFFLINE;
-	else if(b_stoActive)				gpio->state = MotionState::NOT_READY;
-	else if(isStateSafeOperational()) 	gpio->state = MotionState::READY;
-	else if(isStateOperational()) 		gpio->state = MotionState::ENABLED;
-	else 								gpio->state = MotionState::NOT_READY;
+	if(!isConnected()) 					gpio->state = DeviceState::OFFLINE;
+	else if(b_stoActive)				gpio->state = DeviceState::NOT_READY;
+	else if(isStateSafeOperational()) 	gpio->state = DeviceState::READY;
+	else if(isStateOperational()) 		gpio->state = DeviceState::ENABLED;
+	else 								gpio->state = DeviceState::NOT_READY;
 	
-	actuator->b_emergencyStopActive = b_stoActive;
-	actuator->load = (double)motorPower / 100.0;
+	actuator->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
+	actuator->actuatorProcessData.effortActual = (double)motorPower / 100.0;
 	//actuator->actualVelocity = velocityActual_rpm;
-	actuator->b_hasHoldingBrake = false;
-	actuator->b_hasFault = b_hasFault;
-	
-	gpio->b_hasFault = b_hasFault;
-	gpio->b_emergencyStopActive = b_stoActive;
-	
+	actuator->actuatorConfig.b_supportsHoldingBrakeControl = false;
 }
 
 //==============================================================
@@ -282,8 +276,8 @@ void ATV320::writeOutputs() {
 	ds402Control.updateControlWord();
 	
 	//set target velocity
-	if(b_reverseDirection) velocityTarget_rpm = -actuator->targetVelocity * 60.0;
-	else velocityTarget_rpm = actuator->targetVelocity * 60.0;
+	if(b_reverseDirection) velocityTarget_rpm = -actuator->actuatorProcessData.velocityTarget * 60.0;
+	else velocityTarget_rpm = actuator->actuatorProcessData.velocityTarget * 60.0;
 	
 	
 	//Logger::warn("{}", velocityTarget_rpm);

@@ -62,7 +62,7 @@ void FlipStateMachine::initialize() {
 std::string FlipStateMachine::getStatusString(){
 	std::string status;
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			status = "Machine is Offline:";
 			if(!areAllPinsConnected()) {
 				status += "\nNode Pins are not connected correctly.";
@@ -80,17 +80,17 @@ std::string FlipStateMachine::getStatusString(){
 				status += "\n Flip state is unknown...";
 				return status;
 			}
-		case MotionState::NOT_READY:
+		case DeviceState::NOT_READY:
 			status = "Machine is not ready :";
 			if(b_emergencyStopActive) status += "\nEmergency Stop is active.";
 			if(*localControlEnabledSignal) status += "\nLocal Controls are enabled.";
 			if(*liftMotorCircuitBreakerSignal) status += "\nLift Motor Circuit breakezr is faulty";
 			if(*hoodMotorCircuitBreakerSignal) status += "\nHood Motor Circuit breakezr is faulty";
 			return status;
-		case MotionState::READY:
+		case DeviceState::READY:
 			status = "Machine is ready.";
 			return status;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
 			status = "Machine is Enabled.";
 			if(b_halted){
 				if(!isSimulating()){
@@ -113,8 +113,8 @@ std::string FlipStateMachine::getStatusString(){
 
 void FlipStateMachine::inputProcess() {
 		
-	if(!areAllPinsConnected() || getGpioDevice()->getState() != MotionState::ENABLED){
-		state = MotionState::OFFLINE;
+	if(!areAllPinsConnected() || getGpioDevice()->getState() != DeviceState::ENABLED){
+		state = DeviceState::OFFLINE;
 		actualState = State::UNKNOWN;
 		b_emergencyStopActive = false;
 		b_halted = false;
@@ -152,22 +152,22 @@ void FlipStateMachine::inputProcess() {
 	b_emergencyStopActive = !*emergencyStopClearSignal;
 	
 	//update machine state
-	MotionState newState;
-	if(actualState == State::UNKNOWN) newState = MotionState::OFFLINE;
-	else if (b_emergencyStopActive) newState = MotionState::NOT_READY;
-	else if (*localControlEnabledSignal) newState = MotionState::NOT_READY;
-	else if (*liftMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
-	else if (*hoodMotorCircuitBreakerSignal) newState = MotionState::NOT_READY;
-	else if (!isEnabled()) newState = MotionState::READY;
-	else newState = MotionState::ENABLED;
+	DeviceState newState;
+	if(actualState == State::UNKNOWN) newState = DeviceState::OFFLINE;
+	else if (b_emergencyStopActive) newState = DeviceState::NOT_READY;
+	else if (*localControlEnabledSignal) newState = DeviceState::NOT_READY;
+	else if (*liftMotorCircuitBreakerSignal) newState = DeviceState::NOT_READY;
+	else if (*hoodMotorCircuitBreakerSignal) newState = DeviceState::NOT_READY;
+	else if (!isEnabled()) newState = DeviceState::READY;
+	else newState = DeviceState::ENABLED;
 	
 	//handle transition from enabled state
-	if(isEnabled() && newState != MotionState::ENABLED) disable();
+	if(isEnabled() && newState != DeviceState::ENABLED) disable();
 	state = newState;
 	
 	//update state of animatable
-	if(state == MotionState::OFFLINE) animatableState->state = Animatable::State::OFFLINE;
-    else if(state == MotionState::ENABLED) {
+	if(state == DeviceState::OFFLINE) animatableState->state = Animatable::State::OFFLINE;
+    else if(state == DeviceState::ENABLED) {
         if(b_halted) animatableState->state = Animatable::State::HALTED;
         else animatableState->state = Animatable::State::READY;
     }
@@ -264,14 +264,14 @@ bool FlipStateMachine::isHardwareReady() {
 void FlipStateMachine::enableHardware() {
 	if (!isEnabled() && isReady()) {
 		requestedState = State::STOPPED;
-		state = MotionState::ENABLED;
+		state = DeviceState::ENABLED;
 		onEnableHardware();
 	}
 }
 
 void FlipStateMachine::disableHardware() {
 	if(isEnabled()){
-		state = MotionState::READY;
+		state = DeviceState::READY;
 		requestedState = State::STOPPED;
 		onDisableHardware();
 	}
@@ -285,7 +285,7 @@ void FlipStateMachine::onDisableHardware() {}
 void FlipStateMachine::simulateInputProcess() {
 	
 	//update machine state
-	if(state != MotionState::ENABLED) state = MotionState::READY;
+	if(state != DeviceState::ENABLED) state = DeviceState::READY;
 	
 	//update animatable state
 	if(isEnabled()) animatableState->state = Animatable::State::READY;
@@ -347,8 +347,8 @@ bool FlipStateMachine::isGpioDeviceConnected() {
 	return gpioDeviceLink->isConnected();
 }
 
-std::shared_ptr<GpioDevice> FlipStateMachine::getGpioDevice() {
-	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioDevice>();
+std::shared_ptr<GpioModule> FlipStateMachine::getGpioDevice() {
+	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioModule>();
 }
 
 bool FlipStateMachine::areAllPinsConnected() {
@@ -501,7 +501,7 @@ void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animatio
 }
 
 void FlipStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
+	//if (isGpioDeviceConnected()) output.push_back(getGpioDevice()->parentDevice);
 }
 
 

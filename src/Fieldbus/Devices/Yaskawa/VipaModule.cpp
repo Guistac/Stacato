@@ -364,7 +364,7 @@ bool VIPA_022_1BF00::load(tinyxml2::XMLElement* xml){
 void VIPA_050_1BS00::onConstruction(){
 	auto thisEncoderModule = std::static_pointer_cast<VIPA_050_1BS00>(shared_from_this());
 	encoder = std::make_shared<VIPA_050_1BS00::SsiEncoder>(thisEncoderModule);
-	auto abstractEncoder = std::static_pointer_cast<PositionFeedbackDevice>(encoder);
+	auto abstractEncoder = std::static_pointer_cast<MotionFeedbackModule>(encoder);
 	encoderPin->assignData(abstractEncoder);
 	outputPins.push_back(encoderPin);
 	resetPin->assignData(resetPinValue);
@@ -379,7 +379,7 @@ void VIPA_050_1BS00::onConstruction(){
 }
 
 void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler){
-	encoder->setParentDevice(busCoupler);
+	//encoder->setParentDevice(busCoupler);
 }
 
 void VIPA_050_1BS00::onSetIndex(int i){
@@ -446,28 +446,27 @@ void VIPA_050_1BS00::readInputs(){
 	previousReadingTime_microseconds = time_microseconds;
 	previousEncoderPosition_revolutions = encoderPosition_revolutions;
 	
-	encoder->position = encoderPosition_revolutions;
-	encoder->velocity = encoderVelocity_revolutionsPerSecond;
+	encoder->feedbackProcessData.positionActual = encoderPosition_revolutions;
+	encoder->feedbackProcessData.velocityActual = encoderVelocity_revolutionsPerSecond;
 	
-	if(parentBusCoupler->isStateOperational()) encoder->state = MotionState::ENABLED;
-	else encoder->state = MotionState::OFFLINE;
+	if(parentBusCoupler->isStateOperational()) encoder->state = DeviceState::ENABLED;
+	else encoder->state = DeviceState::OFFLINE;
 	
 	if(encoder->b_doHardReset){
 		encoder->b_doHardReset = false;
-		if(encoder->canHardReset()){
+		//if(encoder->canHardReset()){
 			encoder->b_hardResetBusy = true;
 			*resetPinValue = true;
 			resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 			Logger::warn("Hard Resetting {}", encoder->getName());
-		}
+		//}
 	}
 	
 	if(encoder->b_hardResetBusy){
-		encoder->velocity = 0.0;
+		encoder->feedbackProcessData.velocityActual = 0.0;
 		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
 		if(time > resetStartTime_seconds + (double)resetTime_milliseconds / 1000.0){
 			encoder->b_hardResetBusy = false;
-			encoder->positionOffset = 0.0;
 			*resetPinValue = false;
 		}
 	}
@@ -477,7 +476,7 @@ void VIPA_050_1BS00::readInputs(){
 void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
 
 void VIPA_050_1BS00::onDisconnection(){
-	encoder->state = MotionState::OFFLINE;
+	encoder->state = DeviceState::OFFLINE;
 }
 
 void VIPA_050_1BS00::moduleParameterGui(){
@@ -559,13 +558,16 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::Text("Encoder position in working range (%.3f to %.3f revolutions)", encoder->getMinPosition(), encoder->getMaxPosition());
+	double pos = encoder->getPosition();
+	double min = encoder->getPositionLowerWorkingRangeBound();
+	double max = encoder->getPositionUpperWorkingRangeBound();
+	ImGui::Text("Encoder position in working range (%.3f to %.3f revolutions)", min, max);
 	
 	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
 	
 	static char encoderRangeProgressString[64];
-	sprintf(encoderRangeProgressString, "%.3f revolutions", encoder->getPosition());
-	ImGui::ProgressBar((float)encoder->getPositionInWorkingRange(), progressBarSize, encoderRangeProgressString);
+	sprintf(encoderRangeProgressString, "%.3f revolutions", pos);
+	ImGui::ProgressBar((float)encoder->getPositionNormalizedToWorkingRange(), progressBarSize, encoderRangeProgressString);
 	   
 	static char encoderVelocityString[64];
 	sprintf(encoderVelocityString, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
@@ -574,7 +576,7 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	
 	bool disableResetButton = !b_hasResetSignal;
 	ImGui::BeginDisabled(disableResetButton);
-	if(ImGui::Button("Reset Encoder")) encoder->executeHardReset();
+	if(ImGui::Button("Reset Encoder")) encoder->overridePosition(0.0);
 	ImGui::EndDisabled();
 }
 
@@ -582,11 +584,11 @@ void VIPA_050_1BS00::updateEncoderWorkingRange(){
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
 	if(b_centerRangeOnZero){
-		encoder->minWorkingRange = -maxRevolutions / 2.0;
-		encoder->maxWorkingRange = maxRevolutions / 2.0;
+		encoder->feedbackConfig.positionLowerWorkingRangeBound = -maxRevolutions / 2.0;
+		encoder->feedbackConfig.positionUpperWorkingRangeBound = maxRevolutions / 2.0;
 	}else{
-		encoder->minWorkingRange = 0.0;
-		encoder->maxWorkingRange = maxRevolutions;
+		encoder->feedbackConfig.positionLowerWorkingRangeBound = 0;
+		encoder->feedbackConfig.positionUpperWorkingRangeBound = maxRevolutions;
 	}
 }
 
@@ -606,7 +608,7 @@ bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
 	xml->SetAttribute("BitShiftDirection", Enumerator::getSaveString(bitshiftDirection));
 	xml->SetAttribute("ClockEdge", Enumerator::getSaveString(clockEdge));
-	xml->SetAttribute("Zero_revolutions", encoder->positionOffset);
+	//xml->SetAttribute("Zero_revolutions", encoder->positionOffset);
 	return true;
 }
 
@@ -640,7 +642,7 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	if(xml->QueryStringAttribute("ClockEdge", &clockEdgeString) != XML_SUCCESS) return Logger::warn("Could not find Clock Edge attribute");
 	if(!Enumerator::isValidSaveName<ClockEdge>(clockEdgeString)) return Logger::warn("Could not identify Clock Edge Attribute");
 	clockEdge = Enumerator::getEnumeratorFromSaveString<ClockEdge>(clockEdgeString);
-	if(xml->QueryDoubleAttribute("Zero_revolutions", &encoder->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
+	//if(xml->QueryDoubleAttribute("Zero_revolutions", &encoder->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
 	updateEncoderWorkingRange();
 	return true;
 }

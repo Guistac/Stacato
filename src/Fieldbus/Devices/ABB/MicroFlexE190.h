@@ -114,9 +114,10 @@ public:
 	
 	void configureSubmodules(){
 		auto& ac = servo->actuatorConfig;
-		ac.b_supportsPosition = true;
-		ac.b_supportsVelocity = true;
-		ac.b_supportsForce = true;
+		ac.b_supportsPositionControl = true;
+		ac.b_supportsVelocityControl = true;
+		ac.b_supportsForceControl = true;
+		ac.b_supportsEffortFeedback = true;
 		ac.accelerationLimit = accelerationLimit_parameter->value;
 		ac.decelerationLimit = accelerationLimit_parameter->value;
 		ac.velocityLimit = velocityLimit_parameter->value;
@@ -124,13 +125,13 @@ public:
 		ac.forceLimitNegative = 0.0;
 		
 		auto& fc = servo->feedbackConfig;
-		fc.b_supportsPosition = true;
-		fc.b_suppportsVelocity = true;
-		fc.b_supportsForce = true;
-		fc.b_supportsEffort = true;
+		fc.b_supportsPositionFeedback = true;
+		fc.b_suppportsVelocityFeedback = true;
+		fc.b_supportsForceFeedback = true;
 		fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
 		fc.positionLowerWorkingRangeBound = 0.0;
 		fc.positionUpperWorkingRangeBound = 1.0;
+		
 	}
 	
 	//for error logging
@@ -212,7 +213,7 @@ public:
 			status = "Device is Offline.\n";
 			return status;
 		}
-		if(servo->isEmergencyStopped()) status += "STO is Active.\n";
+		if(servo->isEmergencyStopActive()) status += "STO is Active.\n";
 		if(axis->hasFault()) status += "Fault : " + std::string(getErrorCodeString()) + " (Fault will be cleared when enabling)\n";
 		return status;
 	}

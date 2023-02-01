@@ -18,6 +18,8 @@
 
 #include "Motion/Curve/Profile.h"
 
+/*
+
 void SharedAxisMachine::initialize() {
 	//inputs
 	addNodePin(axis1Pin);
@@ -165,8 +167,8 @@ bool SharedAxisMachine::isHardwareReady() {
 	if (!areAxesConnected()) return false;
 	auto axis1 = getAxis1();
 	auto axis2 = getAxis2();
-	if(axis1->getState() != MotionState::READY) return false;
-	if(axis2->getState() != MotionState::READY) return false;
+	if(axis1->getState() != DeviceState::READY) return false;
+	if(axis2->getState() != DeviceState::READY) return false;
 	return true;
 }
 
@@ -186,8 +188,8 @@ void SharedAxisMachine::enableHardware() {
 			time_point enableRequestTime = system_clock::now();
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
 				std::this_thread::sleep_for(milliseconds(10));
-				if (axis1->getState() == MotionState::ENABLED && axis2->getState() == MotionState::ENABLED) {
-					state = MotionState::ENABLED;
+				if (axis1->getState() == DeviceState::ENABLED && axis2->getState() == DeviceState::ENABLED) {
+					state = DeviceState::ENABLED;
 					onEnableHardware();
 					break;
 				}
@@ -198,7 +200,7 @@ void SharedAxisMachine::enableHardware() {
 }
 
 void SharedAxisMachine::disableHardware() {
-	state = MotionState::READY;
+	state = DeviceState::READY;
 	if (areAxesConnected()) {
 		getAxis1()->disable();
 		getAxis2()->disable();
@@ -233,7 +235,7 @@ void SharedAxisMachine::onDisableSimulation() {
 std::string SharedAxisMachine::getStatusString(){
 	std::string output;
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			output = "Machine is Offline:\n";
 			if(!areAxesConnected()) {
 				output += "Axes are not connected.\n";
@@ -243,22 +245,22 @@ std::string SharedAxisMachine::getStatusString(){
 				output += "Axes don't have the same position unit.\n";
 				return output;
 			}
-			if(getAxis1()->getState() == MotionState::OFFLINE)
+			if(getAxis1()->getState() == DeviceState::OFFLINE)
 				output += "Axis 1 \"" + std::string(getAxis1()->getName()) + "\" is Offline :\n" + getAxis1()->getStatusString() + "\n";
-			if(getAxis2()->getState() == MotionState::OFFLINE)
+			if(getAxis2()->getState() == DeviceState::OFFLINE)
 				output += "Axis 2 \"" + std::string(getAxis2()->getName()) + "\" is Offline :\n" + getAxis2()->getStatusString() + "\n";
 			return output;
-		case MotionState::NOT_READY:
+		case DeviceState::NOT_READY:
 			output = "Machine is Not Ready :";
-			if(getAxis1()->getState() == MotionState::NOT_READY)
+			if(getAxis1()->getState() == DeviceState::NOT_READY)
 				output += "Axis 1 \"" + std::string(getAxis1()->getName()) + "\" is Not Ready :\n" + getAxis1()->getStatusString() + "\n";
-			if(getAxis2()->getState() == MotionState::NOT_READY)
+			if(getAxis2()->getState() == DeviceState::NOT_READY)
 				output += "Axis 2 \"" + std::string(getAxis2()->getName()) + "\" is Not Ready :\n" + getAxis2()->getStatusString() + "\n";
 			return output;
-		case MotionState::READY:
+		case DeviceState::READY:
 			output = "Machine is Ready.\n";
 			return output;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
 			output = "Machine is Enabled.\n";
 			if(b_halted){
 				if(!isSimulating()){
@@ -277,15 +279,15 @@ std::string SharedAxisMachine::getStatusString(){
 
 void SharedAxisMachine::inputProcess() {
 	if (!areAxesConnected() || !axesHaveSamePositionUnit()) {
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		b_halted = false;
 		b_emergencyStopActive = false;
 		return;
 	}
 	
 	//update machine state
-	MotionState newState = MotionState::ENABLED;
-	auto checkState = [&](MotionState checkedState){ if(int(checkedState) < int(newState)) newState = checkedState; };
+	DeviceState newState = DeviceState::ENABLED;
+	auto checkState = [&](DeviceState checkedState){ if(int(checkedState) < int(newState)) newState = checkedState; };
 	
 	auto axis1 = getAxis1();
 	auto axis2 = getAxis2();
@@ -294,39 +296,39 @@ void SharedAxisMachine::inputProcess() {
 	checkState(axis2->getState());
 	
 	//handle transition from enabled state
-	if(state == MotionState::ENABLED && newState != MotionState::ENABLED) disable();
+	if(state == DeviceState::ENABLED && newState != DeviceState::ENABLED) disable();
 	state = newState;
 	
-	if(state == MotionState::OFFLINE){
+	if(state == DeviceState::OFFLINE){
 		b_emergencyStopActive = false;
 		b_halted = false;
 	}
 	
 	//update animatable states
 	switch(axis1->getState()){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			axis1Animatable->state = Animatable::State::OFFLINE;
 			break;
-		case MotionState::NOT_READY:
-		case MotionState::READY:
+		case DeviceState::NOT_READY:
+		case DeviceState::READY:
             if(b_halted) axis1Animatable->state = Animatable::State::HALTED;
             else axis1Animatable->state = Animatable::State::NOT_READY;
             break;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
             if(b_halted) axis1Animatable->state = Animatable::State::HALTED;
 			else axis1Animatable->state = Animatable::State::READY;
 			break;
 	}
 	switch(axis2->getState()){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			axis2Animatable->state = Animatable::State::OFFLINE;
 			break;
-		case MotionState::NOT_READY:
-		case MotionState::READY:
+		case DeviceState::NOT_READY:
+		case DeviceState::READY:
             if(b_halted) axis2Animatable->state = Animatable::State::HALTED;
             else axis2Animatable->state = Animatable::State::NOT_READY;
             break;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
 			axis2Animatable->state = Animatable::State::READY;
 			break;
 	}
@@ -577,21 +579,21 @@ void SharedAxisMachine::simulateInputProcess() {
 	
 	
 	//update machine state
-	if(state == MotionState::ENABLED) { /* do nothing*/ }
-	else if(areAxesConnected() && axesHaveSamePositionUnit()) state = MotionState::READY;
-	else state = MotionState::OFFLINE;
+	if(state == DeviceState::ENABLED) { do nothing }
+	else if(areAxesConnected() && axesHaveSamePositionUnit()) state = DeviceState::READY;
+	else state = DeviceState::OFFLINE;
 	
 	//update halt and estop state
 	b_emergencyStopActive = false;
 	b_halted = false;
 		
 	//update animatable state
-	if(state == MotionState::OFFLINE) {
+	if(state == DeviceState::OFFLINE) {
 		axis1Animatable->state = Animatable::State::OFFLINE;
 		axis2Animatable->state = Animatable::State::OFFLINE;
 		synchronizedAnimatable->state = Animatable::State::OFFLINE;
 	}
-	else if(state == MotionState::ENABLED && !b_halted){
+	else if(state == DeviceState::ENABLED && !b_halted){
 		axis1Animatable->state = Animatable::State::READY;
 		axis2Animatable->state = Animatable::State::READY;
 		synchronizedAnimatable->state = Animatable::State::READY;
@@ -830,3 +832,5 @@ double SharedAxisMachine::machineToAxis2Conversion(double machineAxis2Value){
 	if(invertAxis2->value) return machineAxis2Value * -1.0;
 	return machineAxis2Value;
 }
+
+*/

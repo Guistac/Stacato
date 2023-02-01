@@ -6,12 +6,14 @@
 
 #include <tinyxml2.h>
 
+/*
+
 bool PositionFeedback::isFeedbackConnected(){
 	return positionFeedbackDevicePin->isConnected();
 }
 
-std::shared_ptr<PositionFeedbackDevice> PositionFeedback::getFeedbackDevice(){
-	return positionFeedbackDevicePin->getConnectedPins().front()->getSharedPointer<PositionFeedbackDevice>();
+std::shared_ptr<MotionFeedbackModule> PositionFeedback::getFeedbackDevice(){
+	return positionFeedbackDevicePin->getConnectedPins().front()->getSharedPointer<MotionFeedbackModule>();
 }
 
 double PositionFeedback::feedbackPositionToMachinePosition(double feedbackPosition){
@@ -120,3 +122,5 @@ bool PositionFeedback::load(tinyxml2::XMLElement* xml){
 	
 	return true;
 }
+
+*/

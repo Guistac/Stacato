@@ -34,15 +34,15 @@ namespace NodeFactory{
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
 		allAxisNodes = {
-			new VelocityControlledAxis(),
+			//new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
 		
 		allMachineNodes = {
 			new PositionControlledMachine(),
-			new SharedAxisMachine(),
+			//new SharedAxisMachine(),
 			new FlipStateMachine(),
-			new AxisStateMachine()
+			//new AxisStateMachine()
 		};
 		
 		allSafetyNodes = {
@@ -54,7 +54,7 @@ namespace NodeFactory{
 		allMotionUtilityNodes = {
 			//new GpioActuator(),
 			//new ActuatorToServoActuator(),
-			new PositionFeedback()
+			//new PositionFeedback()
 		};
 		
 		//sort machine nodes by category

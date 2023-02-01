@@ -43,7 +43,7 @@ void ATV340::controlTab(){
 	
 	if(isOffline()) backgroundText("Offline", statusBoxSize, Colors::blue);
 	else if(!isStateOperational()) backgroundText("Not Ready", statusBoxSize, Colors::red);
-	else if(motor->isEmergencyStopped()) backgroundText("Safe Torque Off", statusBoxSize, Timing::getBlink(.5) ? Colors::red : Colors::yellow);
+	else if(motor->isEmergencyStopActive()) backgroundText("Safe Torque Off", statusBoxSize, Timing::getBlink(.5) ? Colors::red : Colors::yellow);
 	else if(!axis->hasVoltage()) backgroundText("No Motor Voltage", statusBoxSize, Colors::orange);
 	else if(axis->hasFault()) {
 		static char faultString[256];

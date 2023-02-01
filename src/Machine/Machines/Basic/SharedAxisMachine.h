@@ -10,6 +10,8 @@
 
 #include "Project/Editor/Parameter.h"
 
+/*
+
 class SharedAxisMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(SharedAxisMachine, "Shared Axis Machine", "SharedAxisMachine", "Basic")
@@ -137,3 +139,6 @@ class SharedAxisMachine : public Machine{
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 };
+
+
+*/

@@ -15,6 +15,8 @@
 
 #include "Environnement/Environnement.h"
 
+/*
+
 static bool b_invalidValue = false;
 static void pushInvalidValue(bool doit){
 	if(doit){
@@ -300,7 +302,6 @@ void SharedAxisMachine::axisGui() {
 }
 
 void SharedAxisMachine::deviceGui() {
-	/*
 	std::vector<std::shared_ptr<Device>> devices;
 	getDevices(devices);
 
@@ -326,18 +327,15 @@ void SharedAxisMachine::deviceGui() {
 			ImGui::EndTabBar();
 		}
 	}
-	 */
 }
 
 void SharedAxisMachine::metricsGui() {
-	/*
 	if (!isAxisConnected()) {
 		ImGui::Text("No Axis Connected");
 		return;
 	}
 	std::shared_ptr<PositionControlledAxis> axis = getAxis();
 	axis->metricsGui();
-	 */
 }
 
 
@@ -418,7 +416,7 @@ void SharedAxisMachine::widgetGui(){
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
 			ImGui::PushClipRect(min, max, true);
 			
-			if(getState() == MotionState::OFFLINE){
+			if(getState() == DeviceState::OFFLINE){
 				drawing->AddRectFilled(min, max, ImColor(Colors::blue));
 			}else{
 				
@@ -571,7 +569,7 @@ void SharedAxisMachine::widgetGui(){
 			glm::vec2 size = max - min;
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
 			
-			if(getState() == MotionState::OFFLINE){
+			if(getState() == DeviceState::OFFLINE){
 				drawing->AddRectFilled(min, max, ImColor(Colors::blue));
 			}else{
 				drawing->AddRectFilled(min, max, ImColor(Colors::gray));
@@ -643,7 +641,7 @@ void SharedAxisMachine::widgetGui(){
 		};
 		
 		
-		if(getState() == MotionState::OFFLINE){
+		if(getState() == DeviceState::OFFLINE){
 			drawing->AddCircleFilled(middle, size.x * .5f, ImColor(Colors::blue));
 		}else{
 			
@@ -715,7 +713,7 @@ void SharedAxisMachine::widgetGui(){
 				
 		}
 		
-        /*
+        
 		ImGui::Checkbox("##forceSync", &b_forceSynchronousControl);
 		ImGui::SameLine();
 		ImGui::Text("Force Sync");
@@ -723,7 +721,7 @@ void SharedAxisMachine::widgetGui(){
 		if(controlMode == ControlMode::NONE) ImGui::Text("None");
 		else if(controlMode == ControlMode::SYNCHRONOUS) ImGui::Text("Synchronous");
 		else if(controlMode == ControlMode::INDIVIDUAL) ImGui::Text("Individual");
-		 */
+		 
 	}
 	ImGui::EndGroup();
 	
@@ -795,3 +793,5 @@ void SharedAxisMachine::setupGui(){
 	ImGui::PopStyleVar();
 	
 }
+
+*/

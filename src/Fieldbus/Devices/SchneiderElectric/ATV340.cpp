@@ -14,9 +14,9 @@ void ATV340::initialize() {
 	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	motor_pin->assignData(std::static_pointer_cast<ActuatorDevice>(motor));
+	motor_pin->assignData(std::static_pointer_cast<ActuatorModule>(motor));
 	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	gpio_pin->assignData(std::static_pointer_cast<GpioDevice>(gpio));
+	gpio_pin->assignData(std::static_pointer_cast<GpioModule>(gpio));
 	
 	//add node pins
 	addNodePin(motor_pin);
@@ -196,16 +196,16 @@ void ATV340::readInputs() {
 	}
 	
 	//update servo state
-	motor->b_emergencyStopActive = b_estop;
-	if(isStateNone()) motor->state = MotionState::OFFLINE;
-	else if(!axis->hasVoltage()) motor->state = MotionState::NOT_READY;
-	else if(b_isEnabled) motor->state = MotionState::ENABLED;
-	else if(b_isReady) motor->state = MotionState::READY;
-	else motor->state = MotionState::NOT_READY;
+	motor->actuatorProcessData.b_isEmergencyStopActive = b_estop;
+	if(isStateNone()) motor->state = DeviceState::OFFLINE;
+	else if(!axis->hasVoltage()) motor->state = DeviceState::NOT_READY;
+	else if(b_isEnabled) motor->state = DeviceState::ENABLED;
+	else if(b_isReady) motor->state = DeviceState::READY;
+	else motor->state = DeviceState::NOT_READY;
 	
 	//effort is reported in 1% increments
 	double effort = double(motorEffort) / 100.0;
-	motor->load = effort;
+	motor->actuatorProcessData.effortActual = effort;
 	*load_Value = effort;
 	
 	//actual control velocity

@@ -23,7 +23,7 @@ void FlipStateMachine::controlsGui() {
 	float quadWidgetWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 3.0) / 4.0;
 	glm::vec2 quadButtonSize(quadWidgetWidth, ImGui::GetTextLineHeight() * 2.0);
 
-	bool inputsAreValid = state != MotionState::OFFLINE;
+	bool inputsAreValid = state != DeviceState::OFFLINE;
 
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 	if (inputsAreValid) {
@@ -143,7 +143,7 @@ void FlipStateMachine::widgetGui(){
 	ImGui::BeginDisabled(b_disableControls);
     if(b_disableControls) ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 	
-	if(getState() == MotionState::OFFLINE){
+	if(getState() == DeviceState::OFFLINE){
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		float rounding = ImGui::GetStyle().FrameRounding;
 		

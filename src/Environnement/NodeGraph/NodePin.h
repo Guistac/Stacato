@@ -1,11 +1,5 @@
 #pragma once
 
-class ActuatorDevice;
-class VelocityFeedbackDevice;
-class PositionFeedbackDevice;
-class GpioDevice;
-class ServoActuatorDevice;
-class VelocityControlledAxis;
 class PositionControlledAxis;
 class DeadMansSwitch;
 
@@ -400,24 +394,6 @@ template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) { return DataType::REAL; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorDevice> ptr) { return DataType::ACTUATOR; }
-
-template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityFeedbackDevice> ptr) { return DataType::VELOCITY_FEEDBACK; }
-
-template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionFeedbackDevice> ptr) { return DataType::POSITION_FEEDBACK; }
-
-template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioDevice> ptr) { return DataType::GPIO; }
-
-template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<ServoActuatorDevice> ptr) { return DataType::SERVO_ACTUATOR; }
-
-template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<VelocityControlledAxis> ptr) { return DataType::VELOCITY_CONTROLLED_AXIS; }
-
-template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionControlledAxis> ptr) { return DataType::POSITION_CONTROLLED_AXIS; }
 
 template<>
@@ -457,38 +433,20 @@ inline void NodePin::assignData(std::shared_ptr<double> ptr) {
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<ActuatorDevice> ptr) {
-	if(dataType != DataType::ACTUATOR) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<ActuatorModule> ptr) {
+	if(dataType != DataType::ACTUATOR_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<VelocityFeedbackDevice> ptr) {
-	if(dataType != DataType::VELOCITY_FEEDBACK) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<MotionFeedbackModule> ptr) {
+	if(dataType != DataType::MOTIONFEEDBACK_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<PositionFeedbackDevice> ptr) {
-	if(dataType != DataType::POSITION_FEEDBACK) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<GpioDevice> ptr) {
-	if(dataType != DataType::GPIO) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<ServoActuatorDevice> ptr) {
-	if(dataType != DataType::SERVO_ACTUATOR) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<VelocityControlledAxis> ptr) {
-	if(dataType != DataType::VELOCITY_CONTROLLED_AXIS) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
+	if(dataType != DataType::GPIO_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
@@ -501,25 +459,5 @@ inline void NodePin::assignData(std::shared_ptr<PositionControlledAxis> ptr) {
 template<>
 inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> ptr) {
 	if(dataType != DataType::DEAD_MANS_SWITCH) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
-	if(dataType != DataType::GPIO_MODULE) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<MotionFeedbackModule> ptr) {
-	if(dataType != DataType::MOTIONFEEDBACK_MODULE) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<ActuatorModule> ptr) {
-	if(dataType != DataType::ACTUATOR_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }

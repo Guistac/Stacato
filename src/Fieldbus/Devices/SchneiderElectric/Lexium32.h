@@ -9,42 +9,37 @@
 
 class Lexium32 : public EtherCatDevice {
 public:
-
-	//EXPERIMENTAL
-	bool b_autoClearingFault = false;
-	bool b_autoReenable = false;
 	
     DEFINE_ETHERCAT_DEVICE(Lexium32, "Lexium32M", "Lexium32M", "Schneider Electric", "Servo Drives", 0x800005A, 0x16440)
 
-	class LexiumServoMotor : public ServoActuatorDevice{
+	class LexiumServoMotor : public ActuatorModule{
 	public:
-		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		ServoActuatorDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
-		drive(lexium32){}
+		LexiumServoMotor(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
+		std::shared_ptr<Lexium32> drive;
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
-		
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		std::shared_ptr<Lexium32> drive;
 		
-		virtual bool canHardReset() override { return !drive->b_encoderIsMultiturn; }
-		virtual void executeHardReset() override {
-			drive->b_startHoming = true;
-		}
-		virtual bool isExecutingHardReset() override { return drive->b_isHoming; }
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_quickstop = false;
+		bool b_releaseHoldingBrake = false;
+		bool b_applyHoldingBrake = false;
+		double positionOffset = 0.0;
+		
+		virtual void enable() override { b_enable = true; }
+		virtual void disable() override { b_disable = true; }
+		virtual void quickstop() override { b_quickstop = true; }
+		virtual void applyHoldingBrake() override { b_releaseHoldingBrake = true; }
+		virtual void releaseHoldingBrake() override { b_applyHoldingBrake = true; }
 	};
 	
-	class LexiumGpio : public GpioDevice{
+	class LexiumGpio : public GpioModule{
 	public:
-		LexiumGpio(std::shared_ptr<Lexium32> lexium32) :
-		GpioDevice(),
-		drive(lexium32){}
-		
-		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
-		
-		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		LexiumGpio(std::shared_ptr<Lexium32> lexium32) : drive(lexium32){}
 		std::shared_ptr<Lexium32> drive;
+		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; }
+		virtual std::string getStatusString() override { return drive->getStatusString(); }
 	};
 	
 	
@@ -177,7 +172,7 @@ private:
 			if(b_faultNeedsRestart) status += getErrorCodeString(_LastError) + "(Drive Restart needed to reset fault.)\n";
 			else status += getErrorCodeString(_LastError) + "(Fault will be cleared when enabling.)\n";
 		}
-		if(servoMotor->b_emergencyStopActive) return "STO is Active\n";
+		if(servoMotor->isEmergencyStopActive()) return "STO is Active\n";
 		if(servoMotor->isHoldingBrakeReleased()) return "Motor holding brake is manually released.\n";
 		if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive Restart Needed.\n";
 		return status;
@@ -186,7 +181,7 @@ private:
 	std::string getShortStatusString(){
 		if(!isConnected()) return "Device Offline";
 		else if(!b_motorVoltagePresent) return "No Motor Voltage";
-		else if(servoMotor->b_emergencyStopActive) return "STO Active";
+		else if(servoMotor->isEmergencyStopActive()) return "STO Active";
 		else if(b_hasFault) {
 			static char hexFaultCodeString[16];
 			sprintf(hexFaultCodeString, "%X", _LastError);
@@ -200,7 +195,7 @@ private:
 	 
 	glm::vec4 getStatusColor(){
 		if(!isConnected()) return Colors::blue;
-		else if(servoMotor->b_emergencyStopActive) return Colors::red;
+		else if(servoMotor->isEmergencyStopActive()) return Colors::red;
 		else if(!b_motorVoltagePresent) return Colors::red;
 		else if(b_hasFault) {
 			if(b_faultNeedsRestart) return Colors::red;

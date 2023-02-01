@@ -19,7 +19,7 @@ void DeadMansSwitch::initialize(){
 
 bool DeadMansSwitch::areAllInputsReady(){
 	if(!gpioDevicePin->isConnected()) return false;
-	auto gpioDevice = gpioDevicePin->getConnectedPin()->getSharedPointer<GpioDevice>();
+	auto gpioDevice = gpioDevicePin->getConnectedPin()->getSharedPointer<GpioModule>();
 	if(!gpioDevice->isReady()) return false;
 	if(!switchPressedPin->isConnected()) return false;
 	return true;

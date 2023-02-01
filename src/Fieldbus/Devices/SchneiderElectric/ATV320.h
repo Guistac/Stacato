@@ -12,26 +12,26 @@ public:
 	
 	DEFINE_ETHERCAT_DEVICE(ATV320, "ATV320", "ATV320", "Schneider Electric", "Motor Drives", 0x800005A, 0x389)
 	
-	class ATV_Motor : public ActuatorDevice{
+	class ATV_Motor : public ActuatorModule{
 	public:
-		
-		ATV_Motor(std::shared_ptr<ATV320> drive_) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		ActuatorDevice(Units::AngularDistance::Revolution),
-		drive(drive_){}
-		
+		ATV_Motor(std::shared_ptr<ATV320> drive_) : drive(drive_){}
 		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<ATV320> drive;
+		
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_quickstop = false;
+		
+		virtual void enable() override { b_enable = true; }
+		virtual void disable() override { b_disable = true; }
+		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
-	class ATV_GPIO : public GpioDevice{
+	class ATV_GPIO : public GpioModule{
 	public:
 		
-		ATV_GPIO(std::shared_ptr<ATV320> drive_) :
-		GpioDevice(),
-		drive(drive_){}
-		
+		ATV_GPIO(std::shared_ptr<ATV320> drive_) : drive(drive_){}
 		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<ATV320> drive;

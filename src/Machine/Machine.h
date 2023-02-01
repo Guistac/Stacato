@@ -63,8 +63,8 @@ public:
 	char shortName[16] = "M";
 	const char* getShortName() { return shortName; }
 	
-	MotionState getState(){ return state; }
-	MotionState state = MotionState::OFFLINE;
+	DeviceState getState(){ return state; }
+	DeviceState state = DeviceState::OFFLINE;
 	virtual std::string getStatusString() = 0;
 	
 	bool b_emergencyStopActive = false;
@@ -122,7 +122,6 @@ public:
 	bool isMotionAllowed();
 	
 	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes(){}
-	virtual std::vector<std::shared_ptr<VelocityControlledAxis>> getVelocityControlledAxes(){}
 	
 	//===== GUI STUFF =====
 	virtual void nodeSpecificGui() override;

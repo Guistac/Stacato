@@ -10,6 +10,7 @@
 
 #include "Motion/Axis/VelocityControlledAxis.h"
 
+/*
 AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
 AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
 AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{-2, "Moving To Negative Limit", "MovingToNegativeLimit"};
@@ -53,7 +54,7 @@ std::string AxisStateMachine::getStatusString(){
 void AxisStateMachine::inputProcess() {
 		
 	if(!areAllPinsConnected()){
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		actualState = State::UNKNOWN;
 		b_emergencyStopActive = false;
 		b_halted = false;
@@ -66,22 +67,22 @@ void AxisStateMachine::inputProcess() {
 	b_emergencyStopActive = axis->isEmergencyStopActive();
 	
 	//handle transition from enabled state
-	MotionState newState = axis->getState();
-	if(isEnabled() && newState != MotionState::ENABLED) disable();
+	DeviceState newState = axis->getState();
+	if(isEnabled() && newState != DeviceState::ENABLED) disable();
 	state = newState;
 	
 	//update state of animatables
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			animatableState->state = Animatable::State::OFFLINE;
 			animatableVelocity->state = Animatable::State::OFFLINE;
 			break;
-		case MotionState::NOT_READY:
-		case MotionState::READY:
+		case DeviceState::NOT_READY:
+		case DeviceState::READY:
             animatableState->state = Animatable::State::NOT_READY;
             animatableVelocity->state = Animatable::State::NOT_READY;
             break;
-		case MotionState::ENABLED:
+		case DeviceState::ENABLED:
 			animatableState->state = Animatable::State::READY;
 			animatableVelocity->state = Animatable::State::READY;
 			break;
@@ -122,7 +123,7 @@ void AxisStateMachine::outputProcess(){
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	
 	//update outputs signals
-	if (getState() != MotionState::ENABLED) {
+	if (getState() != DeviceState::ENABLED) {
 		
 		animatableState->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 		animatableVelocity->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
@@ -161,7 +162,7 @@ void AxisStateMachine::outputProcess(){
 bool AxisStateMachine::isHardwareReady() {
     if (!isAxisConnected()) return false;
     auto axis = getAxis();
-    if(axis->getState() != MotionState::READY) return false;
+    if(axis->getState() != DeviceState::READY) return false;
     return true;
 }
 
@@ -174,8 +175,8 @@ void AxisStateMachine::enableHardware() {
             time_point enableRequestTime = system_clock::now();
             while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
                 std::this_thread::sleep_for(milliseconds(10));
-                if (axis->getState() == MotionState::ENABLED) {
-                    state = MotionState::ENABLED;
+                if (axis->getState() == DeviceState::ENABLED) {
+                    state = DeviceState::ENABLED;
                     onEnableHardware();
                     break;
                 }
@@ -186,7 +187,7 @@ void AxisStateMachine::enableHardware() {
 }
 
 void AxisStateMachine::disableHardware() {
-    state = MotionState::READY;
+    state = DeviceState::READY;
     if (isAxisConnected()) getAxis()->disable();
     onDisableHardware();
 }
@@ -200,9 +201,10 @@ void AxisStateMachine::onDisableHardware() {
     requestState(State::STOPPED);
 }
 
+ 
 void AxisStateMachine::simulateInputProcess() {
-	/*
-	if(state != MotionState::ENABLED) state = MotionState::READY;
+	
+	if(state != DeviceState::ENABLED) state = DeviceState::READY;
 	
 	*stateIntegerValue = getStateInteger(actualState);
 	
@@ -217,11 +219,11 @@ void AxisStateMachine::simulateInputProcess() {
 		case State::RAISED:				actualValue->value = &stateRaised; break;
 	}
 	animatableState->updateActualValue(actualValue);
-	 */
+	 
 }
 
 void AxisStateMachine::simulateOutputProcess() {
-	/*
+	
 	//update outputs signals
 	if (isEnabled()) {
 		
@@ -241,7 +243,7 @@ void AxisStateMachine::simulateOutputProcess() {
 		if(requestedState == State::STOPPED) actualState = State::CLOSED;
 		else actualState = requestedState;
 	}
-	*/
+	
 }
 
 bool AxisStateMachine::isSimulationReady(){
@@ -356,3 +358,5 @@ bool AxisStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;
 }
+
+ */

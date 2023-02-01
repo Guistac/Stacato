@@ -10,21 +10,18 @@ void Lexium32i::onConnection() {
 
 void Lexium32i::onDisconnection() {
 	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-	servoMotor->state = MotionState::OFFLINE;
-	gpioDevice->state = MotionState::OFFLINE;
+	servoMotor->state = DeviceState::OFFLINE;
+	gpioDevice->state = DeviceState::OFFLINE;
 }
 
 void Lexium32i::initialize() {
 
 	auto thisLexiumDrive = std::dynamic_pointer_cast<Lexium32i>(shared_from_this());
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
-	servoMotor->setParentDevice(thisLexiumDrive);
-	servoMotor->b_decelerationLimitEqualsAccelerationLimit = true;
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
-	gpioDevice->setParentDevice(thisLexiumDrive);
 		
-	servoMotorPin->assignData(std::static_pointer_cast<ServoActuatorDevice>(servoMotor));
-	gpioDevicePin->assignData(std::static_pointer_cast<GpioDevice>(gpioDevice));
+	servoMotorPin->assignData(std::static_pointer_cast<ActuatorModule>(servoMotor));
+	gpioDevicePin->assignData(std::static_pointer_cast<GpioModule>(gpioDevice));
 	
 	//working range
 	updateEncoderWorkingRange();
@@ -189,7 +186,6 @@ void Lexium32i::readInputs() {
 	if(b_isHoming){
 		if(_p_act == 0) b_isHoming = false;
 		_p_act = 0;
-		servoMotor->positionOffset = 0.0;
 	}
 	
 	//read power state
@@ -231,26 +227,25 @@ void Lexium32i::readInputs() {
 	
 	//read STO State
 	bool b_stoActive = _IO_STO_act == 0;
-	if (b_stoActive != servoMotor->b_emergencyStopActive) {
+	if (b_stoActive != servoMotor->actuatorProcessData.b_isEmergencyStopActive) {
 		if (b_stoActive) pushEvent("STO Activated", false);
 		else pushEvent("STO Released", false);
 	}
-	servoMotor->b_emergencyStopActive = b_stoActive;
+	servoMotor->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
 	
 	b_faultNeedsRestart = _actionStatus & 0x10;
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 		
-    //set the encoder position in revolution units and velocity in revolutions per second
-	servoMotor->position = (double)_p_act / (double)positionUnitsPerRevolution;
-	servoMotor->velocity = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
-	servoMotor->load = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
-	servoMotor->followingError = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
-	servoMotor->b_isMoving = std::abs(servoMotor->velocity) > 0.03;
+	//set the encoder position in revolution units and velocity in revolutions per second
+	servoMotor->feedbackProcessData.positionActual = (double)_p_act / (double)positionUnitsPerRevolution;
+	servoMotor->feedbackProcessData.velocityActual = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
+	servoMotor->actuatorProcessData.effortActual = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
+	servoMotor->actuatorProcessData.followingErrorActual = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
 	
     //assign public input data
 	*actualPositionValue = servoMotor->getPosition();
 	*actualVelocityValue = servoMotor->getVelocity();
-	*actualLoadValue = servoMotor->getLoad();
+	*actualLoadValue = servoMotor->getEffort();
 	
     bool DI0 = (_IO_act & 0x1) != 0x0;
     bool DI1 = (_IO_act & 0x2) != 0x0;
@@ -263,19 +258,19 @@ void Lexium32i::readInputs() {
 	*digitalIn3Value = b_invertDI3 ? !DI3 : DI3;
 	
 	
-	if(!isConnected()) 														servoMotor->state = MotionState::OFFLINE;
-	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = MotionState::OFFLINE;
-	else if(b_stoActive) 													servoMotor->state = MotionState::NOT_READY;
-	else if(!b_motorVoltagePresent) 										servoMotor->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	servoMotor->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		servoMotor->state = MotionState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		servoMotor->state = MotionState::ENABLED;
-	else 																	servoMotor->state = MotionState::READY;
+	if(!isConnected()) 														servoMotor->state = DeviceState::OFFLINE;
+	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = DeviceState::OFFLINE;
+	else if(b_stoActive) 													servoMotor->state = DeviceState::NOT_READY;
+	else if(!b_motorVoltagePresent) 										servoMotor->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	servoMotor->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		servoMotor->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		servoMotor->state = DeviceState::ENABLED;
+	else 																	servoMotor->state = DeviceState::READY;
 
-	if(!isConnected()) gpioDevice->state = MotionState::OFFLINE;
-	else if(isStateSafeOperational()) gpioDevice->state = MotionState::READY;
-	else if(isStateOperational()) gpioDevice->state = MotionState::ENABLED;
-	else gpioDevice->state = MotionState::NOT_READY;
+	if(!isConnected()) gpioDevice->state = DeviceState::OFFLINE;
+	else if(isStateSafeOperational()) gpioDevice->state = DeviceState::READY;
+	else if(isStateOperational()) gpioDevice->state = DeviceState::ENABLED;
+	else gpioDevice->state = DeviceState::NOT_READY;
 	
 }
 
@@ -298,31 +293,40 @@ void Lexium32i::writeOutputs() {
 	}
 	
 	if(b_isHoming){
-		servoMotor->setPositionCommand(servoMotor->getPosition(), servoMotor->getVelocity(), 0.0);
+		servoMotor->setPositionTarget(servoMotor->getPosition());
 	}
 	else if(!servoMotorPin->isConnected()){
 		if(!servoMotor->isEnabled()){
 			//------ motor profile follows actual data ------
-			servoMotor->setPositionCommand(servoMotor->getPosition(), servoMotor->getVelocity(), 0.0);
+			servoMotor->setPositionTarget(servoMotor->getPosition());
 		}else{
 			//------ internal profile generator ------
 			double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
 			
-			double previousVelocityCommand = servoMotor->targetVelocity;
+			double previousVelocityCommand = servoMotor->actuatorProcessData.velocityTarget;
 			double newVelocityCommand;
-			double accelerationCommand;
 			if (manualVelocityCommand_rps > previousVelocityCommand) {
 				newVelocityCommand = std::min(previousVelocityCommand + deltaV_rps, (double)manualVelocityCommand_rps);
-				accelerationCommand = manualAcceleration_rpsps;
 			}
 			else if (manualVelocityCommand_rps < previousVelocityCommand) {
 				newVelocityCommand = std::max(previousVelocityCommand - deltaV_rps, (double)manualVelocityCommand_rps);
-				accelerationCommand = -manualAcceleration_rpsps;
 			}else newVelocityCommand = previousVelocityCommand;
-			double deltaP_r = deltaT_seconds * (previousVelocityCommand + newVelocityCommand) / 2.0;
-			servoMotor->setPositionCommand(servoMotor->targetPosition + deltaP_r, newVelocityCommand, accelerationCommand);
+			servoMotor->setVelocityTarget(newVelocityCommand);
 		}
+	}
+	
+	
+	//update the target fields of inactive control modes
+	//this allows us to switch between modes seamlessly
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::POSITION){
+		servoMotor->actuatorProcessData.positionTarget = servoMotor->getPosition();
+	}
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::VELOCITY){
+		servoMotor->actuatorProcessData.velocityTarget = servoMotor->getVelocity();
+	}
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::FORCE){
+		servoMotor->actuatorProcessData.forceTarget = servoMotor->getForce();
 	}
 	
     //handle power state transitions
@@ -347,16 +351,16 @@ void Lexium32i::writeOutputs() {
 			case DS402::PowerState::SWITCH_ON_DISABLED:
 			case DS402::PowerState::READY_TO_SWITCH_ON:
 			case DS402::PowerState::FAULT:
-				servoMotor->b_holdingBrakeIsReleased = true;
+				servoMotor->actuatorProcessData.b_holdingBrakeIsReleased = true;
 				break;
 			default: break;
 		}
 	}
 	if(servoMotor->b_applyHoldingBrake){
 		servoMotor->b_applyHoldingBrake = false;
-		servoMotor->b_holdingBrakeIsReleased = false;
+		servoMotor->actuatorProcessData.b_holdingBrakeIsReleased = false;
 	}
-	BRK_release = servoMotor->b_holdingBrakeIsReleased ? 1 : 0;
+	BRK_release = servoMotor->actuatorProcessData.b_holdingBrakeIsReleased ? 1 : 0;
 	
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
@@ -382,7 +386,7 @@ void Lexium32i::writeOutputs() {
 	else ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
 	
 	//PPp_target
-	PPp_target = (int32_t)(servoMotor->targetPosition * positionUnitsPerRevolution);
+	PPp_target = (int32_t)(servoMotor->actuatorProcessData.positionTarget * positionUnitsPerRevolution);
 	
 	//IO_DQ_set
     IO_DQ_set = 0;
@@ -430,7 +434,7 @@ void Lexium32i::uploadGeneralParameters() {
 		return false;
 	};
 	
-	int32_t MON_p_dif_load_usr = servoMotor->maxFollowingError * positionUnitsPerRevolution;
+	int32_t MON_p_dif_load_usr = servoMotor->actuatorConfig.followingErrorLimit * positionUnitsPerRevolution;
 	if(!writeSDO_S32(0x3006, 0x3E, MON_p_dif_load_usr)) return onFailure();
 	
 	uint16_t CTRL_I_max = maxCurrent_amps * 100.0;
@@ -488,7 +492,7 @@ void Lexium32i::downloadGeneralParameters() {
 	
 	uint16_t _M_HoldingBrake;
 	if(!readSDO_U16(0x300D, 0x20, _M_HoldingBrake)) return onFailure();
-	servoMotor->b_hasHoldingBrake = _M_HoldingBrake == 1;
+	servoMotor->actuatorConfig.b_supportsHoldingBrakeControl = _M_HoldingBrake == 1;
 	
 	uint16_t _M_Encoder;
 	if(!readSDO_U16(0x300D, 0x3, _M_Encoder)) return onFailure();
@@ -503,7 +507,7 @@ void Lexium32i::downloadGeneralParameters() {
 	
 	int32_t MON_p_dif_load_usr;
 	if(!readSDO_S32(0x3006, 0x3E, MON_p_dif_load_usr)) return onFailure();
-	servoMotor->maxFollowingError = (float)MON_p_dif_load_usr / positionUnitsPerRevolution;
+	servoMotor->actuatorConfig.followingErrorLimit = (float)MON_p_dif_load_usr / positionUnitsPerRevolution;
 
 	int16_t LIM_QStopReact;
 	if(!readSDO_S16(0x3006, 0x18, LIM_QStopReact)) return onFailure();
@@ -679,12 +683,12 @@ void Lexium32i::uploadManualAbsoluteEncoderPosition() {
 
 void Lexium32i::updateEncoderWorkingRange() {
 	if (b_encoderRangeShifted) {
-		servoMotor->minWorkingRange = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-		servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
 	}
 	else {
-		servoMotor->minWorkingRange = 0.0;
-		servoMotor->maxWorkingRange = (float)(0x1 << encoder1_multiTurnResolutionBits);
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = 0.0;
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits);
 	}
 }
 
@@ -877,15 +881,15 @@ bool Lexium32i::saveDeviceData(tinyxml2::XMLElement* xml) {
 	motorPropertiesXML->SetAttribute("EncoderIsMultiturn", b_encoderIsMultiturn);
 	
     XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
-    kinematicLimitsXML->SetAttribute("velocityLimit_rps", servoMotor->velocityLimit);
-    kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", servoMotor->accelerationLimit);
+    kinematicLimitsXML->SetAttribute("velocityLimit_rps", servoMotor->getVelocityLimit());
+    kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", servoMotor->getAccelerationLimit());
     kinematicLimitsXML->SetAttribute("manualAcceleration_rpsps", manualAcceleration_rpsps);
 
     XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 	
 	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
-	maxFollowingErrorXML->SetAttribute("revolutions", servoMotor->maxFollowingError);
+	maxFollowingErrorXML->SetAttribute("revolutions", servoMotor->getFollowingErrorLimit());
 
     XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
@@ -920,7 +924,7 @@ bool Lexium32i::saveDeviceData(tinyxml2::XMLElement* xml) {
     encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotor->positionOffset);
 	
 	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
-	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->hasManualHoldingBrake());
+	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->supportsHoldingBrakeControl());
 
     return true;
 }
@@ -939,8 +943,8 @@ bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
     if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
 	
-    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &servoMotor->velocityLimit) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
-    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &servoMotor->accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
+    if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &servoMotor->actuatorConfig.accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
     if (kinematicLimitsXML->QueryFloatAttribute("manualAcceleration_rpsps", &manualAcceleration_rpsps) != XML_SUCCESS) return Logger::warn("Could not read manual acceleration attribute");
 	 
     XMLElement* invertDirectionOfMovementXML = xml->FirstChildElement("InvertDirectionOfMovement");
@@ -949,7 +953,7 @@ bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
-	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotor->maxFollowingError) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
+	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotor->actuatorConfig.followingErrorLimit) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
 	 
     XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
@@ -1008,7 +1012,7 @@ bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
 	
 	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");
 	if(holdingBrakeXML == nullptr) return Logger::warn("Could not find holding brake attribute");
-	if(holdingBrakeXML->QueryBoolAttribute("HasHoldingBrake", &servoMotor->b_hasHoldingBrake) != XML_SUCCESS) return Logger::warn("could not find has holdin brake attribute");
+	if(holdingBrakeXML->QueryBoolAttribute("HasHoldingBrake", &servoMotor->actuatorConfig.b_supportsHoldingBrakeControl) != XML_SUCCESS) return Logger::warn("could not find has holdin brake attribute");
 	 
     return true;
 }

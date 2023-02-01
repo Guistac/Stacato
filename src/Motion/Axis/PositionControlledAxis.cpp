@@ -10,6 +10,7 @@
 
 #include <tinyxml2.h>
 
+
 void PositionControlledAxis::initialize() {
 	//inputs
 	addNodePin(servoActuatorPin);
@@ -43,7 +44,7 @@ void PositionControlledAxis::initialize() {
 std::string PositionControlledAxis::getStatusString(){
 	std::string statusString;
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			if(!areAllPinsConnected()) {
 				statusString = "Axis pins are not connected correctly.\n";
 				return statusString;
@@ -52,36 +53,36 @@ std::string PositionControlledAxis::getStatusString(){
 				statusString += "Servo Actuator \"" + getServoActuatorDevice()->getName() + "\" is Offline.\n";
 			}
 			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioDevice>();
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioModule>();
 				if(!gpioDevice->isOnline()) statusString += "Gpio Device \"" + gpioDevice->getName() + "\" is Offline.\n";
 			}
 			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isOnline()) {
 				statusString += "Surveillance Feedback Device \"" + getSurveillanceFeedbackDevice()->getName() + "\" is Offline.\n";
 			}
 			break;
-		case MotionState::NOT_READY:
+		case DeviceState::NOT_READY:
 			if(b_hasSurveillanceError) statusString += "Axis has Surveillance Error\n";
 			if(!getServoActuatorDevice()->isReady()) return "Servo Actuator is not ready : " + getServoActuatorDevice()->getStatusString() + "\n";
 			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioDevice>();
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioModule>();
 				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
 			}
-			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isReady()) return "Surveillance Feedback device is not ready : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
-		case MotionState::READY:	return "Axis is ready\n";
-		case MotionState::ENABLED: 	return "Axis is enabled\n";
+			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isEnabled()) return "Surveillance Feedback device is not ready : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
+		case DeviceState::READY:	return "Axis is ready\n";
+		case DeviceState::ENABLED: 	return "Axis is enabled\n";
 	}
 	return statusString;
 }
 
 void PositionControlledAxis::updateAxisState(){
 	
-	MotionState newAxisState = MotionState::ENABLED;
-	auto checkState = [&](MotionState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
+	DeviceState newAxisState = DeviceState::ENABLED;
+	auto checkState = [&](DeviceState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
 	
 	auto servoActuatorDevice = getServoActuatorDevice();
 	
 	for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioDevice>()->getState();
+		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioModule>()->getState();
 		checkState(gpioDeviceState);
 	}
 	checkState(servoActuatorDevice->getState());
@@ -89,11 +90,11 @@ void PositionControlledAxis::updateAxisState(){
 	if(useFeedbackDevice_Param->value) checkState(getFeedbackDevice()->getState());
 	
 	//handle transition from enabled state
-	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
+	if(state == DeviceState::ENABLED && newAxisState != DeviceState::ENABLED) disable();
 	state = newAxisState;
 	
 	//update estop state
-	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopped();
+	b_emergencyStopActive = servoActuatorDevice->isEmergencyStopActive();
 	
 	//get actual realtime axis motion values
 	if(useFeedbackDevice_Param->value){
@@ -106,13 +107,13 @@ void PositionControlledAxis::updateAxisState(){
 		*actualPositionValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getPosition());
 		*actualVelocityValue = servoActuatorUnitsToAxisUnits(servoActuatorDevice->getVelocity());
 	}
-	*actualLoadValue = getServoActuatorDevice()->getLoad();
+	*actualLoadValue = getServoActuatorDevice()->getEffort();
 }
 
 void PositionControlledAxis::reactToReferenceSignals(){
 	//update and react to reference signals
 	updateReferenceSignals();
-	if(state == MotionState::ENABLED && !isHoming()){
+	if(state == DeviceState::ENABLED && !isHoming()){
 		switch(positionReferenceSignal){
 			case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 				if(*highLimitSignal && motionProfile.getVelocity() > 0.0) {
@@ -134,7 +135,7 @@ void PositionControlledAxis::reactToReferenceSignals(){
 void PositionControlledAxis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) {
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		b_emergencyStopActive = false;
 		b_hasSurveillanceError = false;
 		if(isSurveilled()) *surveillanceValidOutputSignal = false;
@@ -205,7 +206,7 @@ void PositionControlledAxis::outputProcess(){
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
 	//update profile generator
-	if (state == MotionState::ENABLED) {
+	if (state == DeviceState::ENABLED) {
 		if (b_isHoming) homingControl();
 		switch (controlMode) {
 			case ControlMode::VELOCITY_TARGET:
@@ -262,12 +263,12 @@ void PositionControlledAxis::outputProcess(){
 		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition() + actuatorToFeedbackPositionOffset);
 		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
 		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
-		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+		getServoActuatorDevice()->setPositionTarget(actuatorPosition);
 	}else{
 		double actuatorPosition = axisUnitsToServoActuatorUnits(motionProfile.getPosition());
 		double actuatorVelocity = axisUnitsToServoActuatorUnits(motionProfile.getVelocity());
 		double actuatorAcceleration = axisUnitsToServoActuatorUnits(motionProfile.getAcceleration());
-		getServoActuatorDevice()->setPositionCommand(actuatorPosition, actuatorVelocity, actuatorAcceleration);
+		getServoActuatorDevice()->setPositionTarget(actuatorPosition);
 	}
 	updateMetrics();
 }
@@ -284,7 +285,7 @@ void PositionControlledAxis::enable() {
 		servoActuator->enable();
 		while(system_clock::now() - start < milliseconds(500)){
 			if(servoActuator->isEnabled()){
-				state = MotionState::ENABLED;
+				state = DeviceState::ENABLED;
 				onEnable();
 				return;
 			}
@@ -292,7 +293,7 @@ void PositionControlledAxis::enable() {
 		}
 			
 		servoActuator->disable();
-		state = MotionState::READY;
+		state = DeviceState::READY;
 		Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName());
 
 	});
@@ -324,7 +325,7 @@ bool PositionControlledAxis::isReadyToEnable() {
 		//is that the gpio devices are enabled and the servo actuator be online
 		//the servo actuator can be in sto state and we can still can request enabling of the axis
 		for(auto gpioPin : gpioPin->getConnectedPins()){
-			auto gpioDevice = gpioPin->getSharedPointer<GpioDevice>();
+			auto gpioDevice = gpioPin->getSharedPointer<GpioModule>();
 			if(!gpioDevice->isEnabled()) return false;
 		}
 		if(!getServoActuatorDevice()->isOnline()) return false;
@@ -395,7 +396,7 @@ bool PositionControlledAxis::areAllPinsConnected(){
 bool PositionControlledAxis::areAllDevicesReady(){
 	if(needsReferenceDevice()){
 		for(auto referenceDevicePin : gpioPin->getConnectedPins()){
-			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioDevice>();
+			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioModule>();
 			if(!gpioDevice->isEnabled()) return false;
 		}
 	}
@@ -580,14 +581,14 @@ double PositionControlledAxis::getRange() {
 }
 
 double PositionControlledAxis::getLowFeedbackPositionLimit() {
-	if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getMinPosition() / servoActuatorUnitsPerAxisUnits;
+	if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getPositionLowerWorkingRangeBound() / servoActuatorUnitsPerAxisUnits;
 	else return -std::numeric_limits<double>::infinity();
 }
 
 double PositionControlledAxis::getHighFeedbackPositionLimit() {
 	if (isServoActuatorDeviceConnected()) {
 		auto actuator = getServoActuatorDevice();
-		double maxServoPosition = actuator->getMaxPosition();
+		double maxServoPosition = actuator->getPositionUpperWorkingRangeBound();
 		return maxServoPosition / servoActuatorUnitsPerAxisUnits;
 	}
 	else return std::numeric_limits<double>::infinity();
@@ -598,16 +599,16 @@ double PositionControlledAxis::getActualFollowingError(){
 }
 
 float PositionControlledAxis::getActualFollowingErrorNormalized(){
-	return getServoActuatorDevice()->getFollowingErrorInRange();
+	return getServoActuatorDevice()->getFollowingErrorNormalized();
 }
 
 double PositionControlledAxis::getFollowingErrorLimit(){
-	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getMaxFollowingError());
+	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getFollowingErrorLimit());
 }
 
 void PositionControlledAxis::setCurrentPosition(double distance) {
 	auto servo = getServoActuatorDevice();
-	servo->softOverridePosition(distance * servoActuatorUnitsPerAxisUnits);
+	servo->overridePosition(distance * servoActuatorUnitsPerAxisUnits);
 	motionProfile.setPosition(distance);
 }
 
@@ -814,12 +815,14 @@ float PositionControlledAxis::getHomingProgress() {
 	}
 }
 
+
 void PositionControlledAxis::homingControl(){
 	
 	switch (positionReferenceSignal) {
 
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 
+			
 			switch (homingStep) {
 				case HomingStep::NOT_STARTED:
 					homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
@@ -854,40 +857,27 @@ void PositionControlledAxis::homingControl(){
 				case HomingStep::FOUND_LOW_LIMIT_FINE:
 					if (!isMoving()) {
 						auto servoActuator = getServoActuatorDevice();
-						//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-						if(servoActuator->canHardReset()) {
-							servoActuator->executeHardReset();
-							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-							Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
-						}else{
-							servoActuator->softOverridePosition(0.0);
-							//else we set a software offset in the encoder object
-							setCurrentPosition(0.0);
-							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-						}
+						servoActuator->overridePosition(0.0);;
+						homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+						Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+						Logger::info("Homing Axis {} : Waiting For Encoder Position Override", getName());
 					}
 					break;
 				case HomingStep::RESETTING_POSITION_FEEDBACK:
-					if(getServoActuatorDevice()->canHardReset()){
-						//if the servo actuator can hard reset its encoder, check if we are done resetting
-						if(!getServoActuatorDevice()->isExecutingHardReset()) {
-							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
-							onHomingSuccess();
-						}
-					}else{
+					if(!getServoActuatorDevice()->isBusyOverridingPosition()){
+						motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 						onHomingSuccess();
 					}
 					break;
 				default: break;
 				}
-				break;
-
+			break;
+			
+			 
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
 
+			
 			if (homingDirection == HomingDirection::NEGATIVE) {
-
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
@@ -924,32 +914,17 @@ void PositionControlledAxis::homingControl(){
 						break;
 					case HomingStep::FOUND_LOW_LIMIT_FINE:
 						if (!isMoving()) {
-							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-							if(getServoActuatorDevice()->canHardReset()) {
-								getServoActuatorDevice()->executeHardReset();
-								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
-							}else{
-								//else we set a software offset in the encoder object
-								getServoActuatorDevice()->softOverridePosition(0.0);
-								setCurrentPosition(0.0);
-								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-							}
+							getServoActuatorDevice()->overridePosition(0.0);
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							Logger::info("Homing Axis {} : Overriding Position Feedback", getName());
 						}
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
 						//if the servo actuator can hard reset its encoder, check if we are done resetting
-						if(getServoActuatorDevice()->canHardReset()){
-							if(!getServoActuatorDevice()->isExecutingHardReset()) {
-								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
-								homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
-								setVelocityTarget(homingVelocityCoarse);
-								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-							}
-						}else{
-							setVelocityTarget(homingVelocityCoarse);
+						if(!getServoActuatorDevice()->isBusyOverridingPosition()) {
+							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 							homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+							setVelocityTarget(homingVelocityCoarse);
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
@@ -993,10 +968,8 @@ void PositionControlledAxis::homingControl(){
 					default:
 						break;
 				}
-
 			}
 			else if (homingDirection == HomingDirection::POSITIVE) {
-
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
@@ -1071,38 +1044,28 @@ void PositionControlledAxis::homingControl(){
 					case HomingStep::FOUND_LOW_LIMIT_FINE:
 						if (!isMoving()) {
 							highPositionLimit = std::abs(*actualPositionValue);
-							//if we can hard reset the servo actuator encoder here, do it
-							if(getServoActuatorDevice()->canHardReset()) {
-								getServoActuatorDevice()->executeHardReset();
-								Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
-							}else{
-								setCurrentPosition(0.0);
-							}
+							getServoActuatorDevice()->overridePosition(0.0);
+							Logger::info("Homing Axis {} : Hard Reset Position Feedback", getName());
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
 						break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:
-						if(getServoActuatorDevice()->canHardReset()){
-							if(!getServoActuatorDevice()->isExecutingHardReset()){
-								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
-								onHomingSuccess();
-							}
-						}else{
+						if(!getServoActuatorDevice()->isBusyOverridingPosition()){
+							motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 							onHomingSuccess();
 						}
 						break;
 					default:
 						break;
 				}
-
 			}
 			break;
-
+			 
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
 
+			
 			if (homingDirection == HomingDirection::POSITIVE) {
-
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE;
@@ -1137,24 +1100,13 @@ void PositionControlledAxis::homingControl(){
 							
 							switch(signalApproach->value){
 								case SignalApproach::FIND_SIGNAL_EDGE:
-								
 								{
 									auto servoActuator = getServoActuatorDevice();
-									//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-									if(servoActuator->canHardReset()) {
-										servoActuator->executeHardReset();
-										motionProfile.setPosition(0.0);
-										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-										Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
-									}else{
-										servoActuator->softOverridePosition(0.0);
-										//else we set a software offset in the encoder object
-										setCurrentPosition(0.0);
-										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-									}
-									
+									servoActuator->overridePosition(0.0);
+									motionProfile.setPosition(0.0);
+									homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+									Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+									Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 									homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 								}
 								break;
@@ -1187,10 +1139,8 @@ void PositionControlledAxis::homingControl(){
 					default:
 						break;
 				}
-
 			}
 			else if (homingDirection == HomingDirection::NEGATIVE) {
-
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED:
 						homingStep = HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE;
@@ -1235,30 +1185,20 @@ void PositionControlledAxis::homingControl(){
 									if(useFeedbackDevice_Param->value){
 										auto feedbackDevice = getFeedbackDevice();
 										
-										if(feedbackDevice->canHardReset()){
-											feedbackDevice->executeHardReset();
-											motionProfile.setPosition(0.0);
-											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-											Logger::info("Homing Axis {} : Waiting For hard Reset of {}", getName(), feedbackDevice->getName());
-										}
+										feedbackDevice->overridePosition(0.0);
+										motionProfile.setPosition(0.0);
+										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+										Logger::info("Homing Axis {} : Waiting For hard Reset of {}", getName(), feedbackDevice->getName());
 										
 									}else{
 										auto servoActuator = getServoActuatorDevice();
 										//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-										if(servoActuator->canHardReset()) {
-											servoActuator->executeHardReset();
-											motionProfile.setPosition(0.0);
-											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-											Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
-										}else{
-											servoActuator->softOverridePosition(0.0);
-											//else we set a software offset in the encoder object
-											setCurrentPosition(0.0);
-											homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-											Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-										}
+										servoActuator->overridePosition(0.0);
+										motionProfile.setPosition(0.0);
+										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+										Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+										Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 										
 										homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 									}
@@ -1293,31 +1233,18 @@ void PositionControlledAxis::homingControl(){
 							homingStep = HomingStep::MOVING_TO_REFERENCE_MIDDLE;
 							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
 						}
-						/*
-						if (!isMoving()) {
-							//TODO: need to return to center and hard reset encoder if possible
-							setCurrentPosition(*actualPositionValue / 2.0);
-							onHomingSuccess();
-						}
-						 */
 						break;
 					case HomingStep::MOVING_TO_REFERENCE_MIDDLE:
 						if(motionProfile.getInterpolationProgress(profileTime_seconds) >= 1.0){
 							auto servoActuator = getServoActuatorDevice();
 							//if the servo actuator can hard reset its encoder, do it and wait for the procedure to finish
-							if(servoActuator->canHardReset()) {
-								servoActuator->executeHardReset();
-								motionProfile.setPosition(0.0);
-								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-								Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
-							}else{
-								servoActuator->softOverridePosition(0.0);
-								//else we set a software offset in the encoder object
-								setCurrentPosition(0.0);
-								homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
-								Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
-							}
+							
+							servoActuator->overridePosition(0.0);
+							motionProfile.setPosition(0.0);
+							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+							Logger::info("Homing Axis {} : {}", getName(), Enumerator::getDisplayString(homingStep));
+							Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
+							
 							
 							homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 						}
@@ -1329,23 +1256,17 @@ void PositionControlledAxis::homingControl(){
 						
 						if(useFeedbackDevice_Param->value){
 							auto feedbackDevice = getFeedbackDevice();
-							if(feedbackDevice->canHardReset()){
-								if(!feedbackDevice->isExecutingHardReset()){
+							
+								if(!feedbackDevice->isBusyOverridingPosition()){
 									double feedbackPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
 									motionProfile.setPosition(feedbackPosition);
 									onHomingSuccess();
 								}
-							}else{
-								onHomingSuccess();
-							}
+
 						}else{
-							if(getServoActuatorDevice()->canHardReset()){
-								//if the servo actuator can hard reset its encoder, check if we are done resetting
-								if(!getServoActuatorDevice()->isExecutingHardReset()) {
-									motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
-									onHomingSuccess();
-								}
-							}else{
+								
+							if(!getServoActuatorDevice()->isBusyOverridingPosition()) {
+								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 								onHomingSuccess();
 							}
 						}
@@ -1355,16 +1276,18 @@ void PositionControlledAxis::homingControl(){
 					default:
 						break;
 				}
-
 			}
 			break;
-
+			 
 		default:
 			homingError = HomingError::HOMING_NOT_SUPORTED;
 			onHomingError(); //homing should not be started for modes that don't support homing
 			break;
 	}
+ 
 }
+ 
+
 
 void PositionControlledAxis::sanitizeParameters(){
 	interpolationPositionTarget = std::min(interpolationPositionTarget, getHighPositionLimit());
@@ -1392,6 +1315,7 @@ void PositionControlledAxis::sanitizeParameters(){
 }
 
 //==================================== SAVING AND LOADING =========================================
+
 
 
 bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
@@ -1524,8 +1448,8 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 
 
 void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
-	if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
+	//if (isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
+	//if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
 }
 
 

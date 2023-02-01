@@ -60,6 +60,7 @@ void MicroFlex_e190::initialize() {
 
 
 void MicroFlex_e190::updateServoConfiguration(){
+	/*
 	servo->velocityLimit = velocityLimit_parameter->value;
 	servo->accelerationLimit = accelerationLimit_parameter->value;
 	servo->decelerationLimit = accelerationLimit_parameter->value;
@@ -68,6 +69,7 @@ void MicroFlex_e190::updateServoConfiguration(){
 	servo->minWorkingRange = 0.0;
 	servo->maxWorkingRange = 0.0;
 	servoPin->updateConnectedPins();
+	*/
 }
 
 
@@ -176,22 +178,24 @@ void MicroFlex_e190::readInputs() {
 	actualPositionFollowingError = axis->getActualPositionFollowingError() / incrementsPerPositionUnit;
 	
 	//update device modules data
-	if(isStateNone()) servo->state = DeviceModule::State::OFFLINE;
-	else if(b_isEnabled) servo->state = DeviceModule::State::ENABLED;
-	else if(b_isReady) servo->state = DeviceModule::State::READY;
-	else servo->state = DeviceModule::State::NOT_READY;
+	if(isStateNone()) servo->state = DeviceState::OFFLINE;
+	else if(b_isEnabled) servo->state = DeviceState::ENABLED;
+	else if(b_isReady) servo->state = DeviceState::READY;
+	else servo->state = DeviceState::NOT_READY;
 	
-	if(isOffline()) gpio->state = DeviceModule::State::OFFLINE;
-	else if(isStateSafeOperational()) gpio->state = DeviceModule::State::READY;
-	else if(isStateOperational()) gpio->state = DeviceModule::State::ENABLED;
-	else gpio->state = DeviceModule::State::NOT_READY;
+	if(isOffline()) gpio->state = DeviceState::OFFLINE;
+	else if(isStateSafeOperational()) gpio->state = DeviceState::READY;
+	else if(isStateOperational()) gpio->state = DeviceState::ENABLED;
+	else gpio->state = DeviceState::NOT_READY;
 	
 	servo->actuatorProcessData.b_isEmergencyStopActive = b_estop;
 	auto& fbPd = servo->feedbackProcessData;
 	fbPd.positionActual = actualPosition;
 	fbPd.velocityActual = actualVelocity;
-	fbPd.effortActual = actualLoad;
 	fbPd.forceActual = 0.0;
+	
+	auto& acPd = servo->actuatorProcessData;
+	acPd.effortActual = actualLoad;
 	
 	//update node pins
 	*position_Value = actualPosition;

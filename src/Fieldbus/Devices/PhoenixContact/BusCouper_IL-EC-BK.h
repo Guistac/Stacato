@@ -2,33 +2,26 @@
 
 
 #include "Fieldbus/Utilities/ModularDevice.h"
-//#include "Fieldbus/Utilities/DeviceModule.h"
 
 namespace PhoenixContact{
 
-	class BusCoupler : public EtherCAT::ModularDevice{
+	class BusCoupler : public EtherCAT::ModularDeviceProfile::ParentDevice{
 	public:
 		DEFINE_ETHERCAT_DEVICE(BusCoupler, "Phoenix Contact Bus Coupler", "IL_EC_BK_BusCoupler", "Phoenix Contact", "I/O", 0x84, 0x293CAB)
 		
-		class PhoenixContactGpioDevice : public GpioDevice{
+		class PhoenixContactGpioDevice : public GpioModule{
 		public:
-			
-			PhoenixContactGpioDevice(std::shared_ptr<BusCoupler> busCoupler) : GpioDevice(), coupler(busCoupler){}
-			
-			virtual std::string getName() override{ return std::string(coupler->getName()) + " Gpio"; };
-			
-			virtual std::string getStatusString() override{
-				return "";
-			}
-			
+			PhoenixContactGpioDevice(std::shared_ptr<BusCoupler> busCoupler) : coupler(busCoupler){}
 			std::shared_ptr<BusCoupler> coupler;
+			virtual std::string getName() override{ return std::string(coupler->getName()) + " Gpio"; };
+			virtual std::string getStatusString() override{ return "";}
 		};
 		
 		//master GPIO Subdevice
 		std::shared_ptr<PhoenixContactGpioDevice> gpioDevice;
 		std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
 		
-		virtual std::vector<EtherCAT::DeviceModule*>& getModuleFactory() override;
+		virtual std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& getModuleFactory() override;
 		
 		virtual void beforeModuleReordering() override;
 		

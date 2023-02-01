@@ -10,6 +10,8 @@
 #include "Motion/SubDevice.h"
 #include "Environnement/NodeGraph/DeviceNode.h"
 
+/*
+
 void PositionFeedback::nodeSpecificGui(){
 	if(ImGui::BeginTabItem("Controls")){
 		controlsGui();
@@ -194,6 +196,7 @@ void PositionFeedback::settingsGui(){
 	}
 }
 
+ */
 
 /*
 float PositionFeedback::getMiniatureWidth(){

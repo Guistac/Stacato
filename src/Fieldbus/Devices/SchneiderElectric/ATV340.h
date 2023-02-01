@@ -20,29 +20,30 @@ public:
 	int16_t analogInput1 = 0;
 	int16_t analogInput2 = 0;
 	
-	class ATV340_Motor : public ActuatorDevice{
+	class ATV340_Motor : public ActuatorModule{
 	public:
-		
-		ATV340_Motor(std::shared_ptr<ATV340> drive_) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		ActuatorDevice(Units::AngularDistance::Revolution),
-		drive(drive_){}
+		ATV340_Motor(std::shared_ptr<ATV340> drive_) : drive(drive_){}
+		std::shared_ptr<ATV340> drive;
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		std::shared_ptr<ATV340> drive;
+		
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_quickstop = false;
+		
+		virtual void enable() override { b_enable = true; }
+		virtual void disable() override { b_disable = true; }
+		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
-	class ATV340_GPIO : public GpioDevice{
+	class ATV340_GPIO : public GpioModule{
 	public:
-		
-		ATV340_GPIO(std::shared_ptr<ATV340> drive_) :
-		GpioDevice(),
-		drive(drive_){}
+		ATV340_GPIO(std::shared_ptr<ATV340> drive_) : drive(drive_){}
+		std::shared_ptr<ATV340> drive;
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " GPIO"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		std::shared_ptr<ATV340> drive;
 	};
 	
 	std::string getStatusString(){

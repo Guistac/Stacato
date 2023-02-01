@@ -25,8 +25,8 @@ void SafetySignal::inputProcess(){
 	}
 	else{
 		for(auto connectedGpioPin : gpioPin->getConnectedPins()){
-			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioDevice>();
-			if(gpioDevice->getState() != MotionState::ENABLED) {
+			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioModule>();
+			if(gpioDevice->getState() != DeviceState::ENABLED) {
 				safetyState = State::OFFLINE;
 				return;
 			}

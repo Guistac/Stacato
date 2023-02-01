@@ -7,8 +7,8 @@ namespace PhoenixContact{
 
 
 namespace ModuleFactory{
-	std::vector<EtherCAT::DeviceModule*>& getModules(){
-		static std::vector<EtherCAT::DeviceModule*> moduleList = {
+	std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& getModules(){
+		static std::vector<EtherCAT::ModularDeviceProfile::ChildModule*> moduleList = {
 			new IB_IL_24_DI_4(),
 			new IB_IL_24_DO_4(),
 			new IB_IL_24_48_DOR_2(),
@@ -28,7 +28,7 @@ void IB_IL_24_DI_4::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		int inputNumber = i + 1;
-		sprintf(pinName, "Digital Input %i", inputNumber);
+		snprintf(pinName, 64, "Digital Input %i", inputNumber);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -310,7 +310,7 @@ void IB_IL_SSI_IN::onConstruction(){
 	
 	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
 	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
-	encoderPin->assignData(std::static_pointer_cast<PositionFeedbackDevice>(encoder));
+	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackModule>(encoder));
 	
 	outputPins.push_back(encoderPin);
 	outputPins.push_back(resetPin);
@@ -422,13 +422,13 @@ void IB_IL_SSI_IN::readInputs(){
 	previousReadingTime_nanoseconds = readingTime_nanoseconds;
 	previousPosition_revolutions = position_revolutions;
 	
-	encoder->position = position_revolutions;
-	encoder->velocity = deltaP_revolutions / deltaT_seconds;
+	encoder->feedbackProcessData.positionActual = position_revolutions;
+	encoder->feedbackProcessData.velocityActual = deltaP_revolutions / deltaT_seconds;
 	
-	if(!parentDevice->isStateOperational()) encoder->state = MotionState::NOT_READY;
-	else if(parentDevice->isStateInit()) encoder->state = MotionState::OFFLINE;
-	else if(statusCode != SSI::StatusCode::OPERATION) encoder->state = MotionState::NOT_READY;
-	else encoder->state = MotionState::ENABLED;
+	if(!parentDevice->isStateOperational()) encoder->state = DeviceState::NOT_READY;
+	else if(parentDevice->isStateInit()) encoder->state = DeviceState::OFFLINE;
+	else if(statusCode != SSI::StatusCode::OPERATION) encoder->state = DeviceState::NOT_READY;
+	else encoder->state = DeviceState::ENABLED;
 }
 void IB_IL_SSI_IN::writeOutputs(){
 
@@ -461,10 +461,9 @@ void IB_IL_SSI_IN::writeOutputs(){
 		Logger::info("Start Hard Reset of Encoder {}", encoder->getName());
 	}
 	if(b_hardResetBusy){
-		encoder->velocity = 0.0;
+		encoder->feedbackProcessData.velocityActual = 0.0;
 		if(time_nanoseconds > resetStartTime_nanoseconds + resetSignalTimeParameter->value * 1000000){
 			b_hardResetBusy = false;
-			encoder->positionOffset = 0.0;
 			*resetPinValue = false;
 		}
 	}
@@ -482,8 +481,8 @@ void IB_IL_SSI_IN::updateEncoderWorkingRange(){
 		workingRangeMax -= workingRangeDelta / 2.0;
 	}
 	
-	encoder->minWorkingRange = workingRangeMin;
-	encoder->maxWorkingRange = workingRangeMax;
+	encoder->feedbackConfig.positionLowerWorkingRangeBound = workingRangeMin;
+	encoder->feedbackConfig.positionUpperWorkingRangeBound = workingRangeMax;
 }
 
 
@@ -540,6 +539,11 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::SameLine();
 	ImGui::Text("Direction is %sinverted", invertDirectionParameter->value ? "" : "not ");
 	
+	float minRange = encoder->feedbackConfig.positionLowerWorkingRangeBound;
+	float maxRange = encoder->feedbackConfig.positionUpperWorkingRangeBound;
+	float pos = encoder->feedbackProcessData.positionActual;
+	float vel = encoder->feedbackProcessData.velocityActual;
+	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Working range adjustement");
 	ImGui::PopFont();
@@ -548,7 +552,7 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::Text("Working range is %scentered on zero", centerWorkingRangeOnZeroParameter->value ? "" : "not ");
 	ImGui::SameLine();
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-	ImGui::Text("(%.f to %.f revolutions)", encoder->minWorkingRange, encoder->maxWorkingRange);
+	ImGui::Text("(%.f to %.f revolutions)", minRange, maxRange);
 	ImGui::PopStyleColor();
 	
 	ImGui::PushFont(Fonts::sansBold15);
@@ -560,23 +564,23 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::TextWrapped("%s", encoder->getStatusString().c_str());
 	ImGui::PopStyleColor();
 	
-	float positionInWorkingRange = (encoder->position - encoder->minWorkingRange) / (encoder->maxWorkingRange - encoder->minWorkingRange);
-	float velocityNormalized = encoder->velocity / 10.0;
+	float positionInWorkingRange = (pos - minRange) / (maxRange - minRange);
+	float velocityNormalized = vel / 10.0;
 	
 	ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 	
 	static char statusString[64];
-	sprintf(statusString, "%.3f rev", encoder->position);
+	sprintf(statusString, "%.3f rev", pos);
 	ImGui::ProgressBar(positionInWorkingRange, progressSize, statusString);
 	
-	sprintf(statusString, "%.2f rev/s", encoder->velocity);
+	sprintf(statusString, "%.2f rev/s", vel);
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized > 0.0 ? Colors::green : Colors::red);
 	ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, statusString);
 	ImGui::PopStyleColor();
 	
 	if(ImGui::Button("Hard Reset")) b_doHardReset = true;
 	
-	ImGui::Text("Raw SSI Position : %i", positionRaw);
+	ImGui::Text("Raw SSI Position : %i", rawPositionData);
 	
 }
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){

@@ -126,25 +126,25 @@ void Machine::machineStateControlGui(float width){
 		statusTextFont = Fonts::sansBold15;
 	}else{
 		switch(getState()){
-			case MotionState::OFFLINE:
+			case DeviceState::OFFLINE:
 				statusColor = Colors::blue;
 				statusString = "Offline";
 				statusTextColor = Colors::white;
 				statusTextFont = Fonts::sansRegular15;
 				break;
-			case MotionState::NOT_READY:
+			case DeviceState::NOT_READY:
 				statusColor = Colors::red;
 				statusString = "Not Ready";
 				statusTextColor = Colors::black;
 				statusTextFont = Fonts::sansRegular15;
 				break;
-			case MotionState::READY:
+			case DeviceState::READY:
 				statusColor = Colors::yellow;
 				statusString = "Ready";
 				statusTextColor = Colors::black;
 				statusTextFont = Fonts::sansRegular15;
 				break;
-			case MotionState::ENABLED:
+			case DeviceState::ENABLED:
 				if(b_halted){
 					statusColor = Colors::orange;
 					statusString = "Halted";
@@ -175,7 +175,7 @@ void Machine::machineStateControlGui(float width){
 	}
 	
 	ImGui::SameLine(.0f, .0f);
-	ImGui::BeginDisabled(state != MotionState::READY && state != MotionState::ENABLED);
+	ImGui::BeginDisabled(state != DeviceState::READY && state != DeviceState::ENABLED);
 	if (isEnabled()) {
 		if(customRoundedButton("Disable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) disable();
 	}

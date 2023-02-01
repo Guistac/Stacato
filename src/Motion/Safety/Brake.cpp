@@ -52,8 +52,8 @@ void Brake::inputProcess(){
 	auto isBrakeOnline = [this]() -> bool{
 		if(!gpio_Pin->isConnected()) return false;
 		for(auto connectedGpioPin : gpio_Pin->getConnectedPins()){
-			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioDevice>();
-			if(gpioDevice->getState() != MotionState::ENABLED) return false;
+			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioModule>();
+			if(gpioDevice->getState() != DeviceState::ENABLED) return false;
 		}
 		if(!brakeOpenStatus_Pin->isConnected()) return false;
 		if(!brakeClosedStatus_Pin->isConnected()) return false;
@@ -63,11 +63,11 @@ void Brake::inputProcess(){
 	if(!isBrakeOnline()){
 		actualState = State::OFFLINE;
 		//targetState = State::STOPPED;
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		animatableState->state = Animatable::State::OFFLINE;
 		return;
 	}else{
-		state = MotionState::ENABLED;
+		state = DeviceState::ENABLED;
 		animatableState->state = Animatable::State::READY;
 	}
 	

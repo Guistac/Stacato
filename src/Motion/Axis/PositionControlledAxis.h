@@ -81,12 +81,12 @@ private:
 	
 	
 public:
-	MotionState getState(){ return state; }
+	DeviceState getState(){ return state; }
 	std::string getStatusString();
 	bool isEmergencyStopActive(){ return b_emergencyStopActive; }
 	
 private:
-	MotionState state = MotionState::OFFLINE;
+	DeviceState state = DeviceState::OFFLINE;
 	bool b_emergencyStopActive = false;
 	
 	//============= CHECK CONNECTIONS ==============
@@ -99,22 +99,21 @@ private:
 
 	bool needsReferenceDevice();
 	bool isReferenceDeviceConnected(){ return gpioPin->isConnected(); }
-	std::shared_ptr<GpioDevice> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioDevice>(); }
+	std::shared_ptr<GpioModule> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioModule>(); }
 
 	void updateAxisState();
 	void reactToReferenceSignals();
 	
 	bool isServoActuatorDeviceConnected(){ return servoActuatorPin->isConnected(); }
-	std::shared_ptr<ServoActuatorDevice> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ServoActuatorDevice>(); }
+	std::shared_ptr<ActuatorModule> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ActuatorModule>(); }
 
 	bool needsSurveillanceFeedbackDevice(){ return b_isSurveilled->value; }
 	bool isSurveillanceFeedbackDeviceConnected(){ return surveillanceFeedbackDevicePin->isConnected(); }
-	std::shared_ptr<PositionFeedbackDevice> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
-	
+	std::shared_ptr<MotionFeedbackModule> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackModule>(); }
 	
 	//——————— ONEGIN
 	bool isFeedbackDeviceConnected(){ return feedbackDevicePin->isConnected(); }
-	std::shared_ptr<PositionFeedbackDevice> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<PositionFeedbackDevice>(); }
+	std::shared_ptr<MotionFeedbackModule> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackModule>(); }
 	BoolParam useFeedbackDevice_Param = BooleanParameter::make(false, "Use Feedback Device", "UseFeedbackDevice");
 	NumberParam<double> feedbackUnitsPerAxisUnits_Param = NumberParameter<double>::make(0.0, "Feedback units per axis unit", "FeedbackUnitsPerAxisUnit", "%.5f");
 	double feedbackUnitsToAxisUnits(double feedbackValue) { return feedbackValue / feedbackUnitsPerAxisUnits_Param->value; }

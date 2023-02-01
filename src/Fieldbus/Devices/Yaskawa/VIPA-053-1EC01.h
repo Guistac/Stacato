@@ -11,10 +11,10 @@ public:
 
     DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "VIPA Bus Coupler", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O", 0x22B, 0x531EC01)
 	
-	class VipaGpioDevice : public GpioDevice{
+	class VipaGpioDevice : public GpioModule{
 	public:
 		
-		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : GpioDevice(), coupler(busCoupler){}
+		VipaGpioDevice(std::shared_ptr<VipaBusCoupler_053_1EC01> busCoupler) : coupler(busCoupler){}
 		
 		virtual std::string getName() override{ return std::string(coupler->getName()) + " Gpio"; };
 		

@@ -8,6 +8,8 @@
 
 #include "Project/Editor/Parameter.h"
 
+
+/*
 class Device;
 
 class VelocityControlledAxis : public Node {
@@ -40,11 +42,11 @@ public:
 	std::shared_ptr<NodePin> loadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
 	
-	MotionState getState(){ return state; }
+	DeviceState getState(){ return state; }
 	std::string getStatusString();
 	bool isEmergencyStopActive(){ return b_emergencyStopActive; }
 	
-	MotionState state = MotionState::OFFLINE;
+	DeviceState state = DeviceState::OFFLINE;
 	bool b_emergencyStopActive = false;
 	
 	//========= DEVICES ========
@@ -99,7 +101,7 @@ public:
 
 	//========= STATE ==========
 
-	bool isEnabled() { return state == MotionState::ENABLED; }
+	bool isEnabled() { return state == DeviceState::ENABLED; }
 	void enable();
 	void disable();
 	bool isMoving();
@@ -155,3 +157,4 @@ public:
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 
 };
+*/

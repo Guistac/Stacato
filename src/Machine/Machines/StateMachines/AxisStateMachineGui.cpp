@@ -12,6 +12,8 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+/*
+
 void AxisStateMachine::controlsGui() {
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Manual Controls");
@@ -50,7 +52,7 @@ void AxisStateMachine::widgetGui(){
 	
 	ImGui::BeginGroup();
 	
-	if(getState() == MotionState::OFFLINE){
+	if(getState() == DeviceState::OFFLINE){
 		float rounding = ImGui::GetStyle().FrameRounding;
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
@@ -139,3 +141,5 @@ void AxisStateMachine::widgetGui(){
 	machineHeaderGui(headerCursor, widgetWidth);
 	machineStateControlGui(widgetWidth);
 }
+
+*/

@@ -38,12 +38,9 @@ void ATV320::controlsGui(){
 	float velocityTarget_rps = 0.0;
 	float maxVel = maxVelocityRPM->value / 60.0;
 	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, maxVel, -maxVel);
-	if(ImGui::IsItemActive()){
-		actuator->setVelocityCommand(velocityTarget_rps, 0.0);
-	}
-	else if(ImGui::IsItemDeactivatedAfterEdit()) {
-		actuator->setVelocityCommand(0.0, 0.0);
-	}
+	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rpm);
+	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
+
 	
 	ImGui::InvisibleButton("velocityIndicator", ImGui::GetItemRectSize());
 	glm::vec2 minIndicator = ImGui::GetItemRectMin();
@@ -82,9 +79,9 @@ void ATV320::settingsGui(){
     ImGui::Text("Low Speed");
     lowSpeedHertz->gui();
 	
-	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->velocityLimit);
-	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->accelerationLimit);
-	ImGui::TextWrapped("Max Decleration is %.1f rev/s\xc2\xb2", actuator->decelerationLimit);
+	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
+	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->getAccelerationLimit());
+	ImGui::TextWrapped("Max Decleration is %.1f rev/s\xc2\xb2", actuator->getDecelerationLimit());
 	
 	invertDirection->gui();
 	ImGui::SameLine();

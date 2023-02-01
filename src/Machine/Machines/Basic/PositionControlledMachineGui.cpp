@@ -220,7 +220,7 @@ void PositionControlledMachine::widgetGui(){
 	
 	ImGui::PushClipRect(min, max, true);
 	
-	if(getState() == MotionState::OFFLINE){
+	if(getState() == DeviceState::OFFLINE){
 		drawing->AddRectFilled(min, max, ImColor(Colors::blue));
 	}else{
 		

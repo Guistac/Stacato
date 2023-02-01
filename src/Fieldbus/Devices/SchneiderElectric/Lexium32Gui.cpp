@@ -134,8 +134,8 @@ void Lexium32::statusGui() {
 	else {
 		if (ImGui::Button("Enable", commandButtonSize)) servoMotor->enable();
 	}
-	ImGui::SameLine();
-	if (ImGui::Button("Quick Stop", commandButtonSize)) servoMotor->quickstop();
+	//ImGui::SameLine();
+	//if (ImGui::Button("Quick Stop", commandButtonSize)) servoMotor->quickstop();
 	ImGui::EndDisabled();
     
 }
@@ -155,9 +155,6 @@ void Lexium32::controlsGui() {
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Device Control");
 	ImGui::PopFont();
-    
-    ImGui::Text("b_autoClearingFault: %s", b_autoClearingFault ? "YES" : "NO");
-    ImGui::Text("b_autoReenable: %s", b_autoReenable ? "YES" : "NO");
 	
 	ImGui::BeginDisabled(!servoMotor->isEnabled());
 	
@@ -169,16 +166,19 @@ void Lexium32::controlsGui() {
 		
 		float velocityTarget = manualVelocityCommand_rps;
 		
-		ImGui::SliderFloat("##manualVelocity", &velocityTarget, -servoMotor->velocityLimit, servoMotor->velocityLimit, "%.1f rev/s");
+		double maxVel = servoMotor->actuatorConfig.velocityLimit;
+		double maxAcc = servoMotor->actuatorConfig.accelerationLimit;
+		
+		ImGui::SliderFloat("##manualVelocity", &velocityTarget, -maxVel, maxVel, "%.1f rev/s");
 		if (!ImGui::IsItemActive()) velocityTarget = 0.0; //only set the command if the slider is held down
-		velocityTarget = std::min(velocityTarget, (float)servoMotor->velocityLimit);
-		velocityTarget = std::max(velocityTarget, -(float)servoMotor->velocityLimit);
+		velocityTarget = std::min(velocityTarget, (float)maxVel);
+		velocityTarget = std::max(velocityTarget, -(float)maxVel);
 		manualVelocityCommand_rps = velocityTarget;
 		
 		static char accelerationString[32];
 		sprintf(accelerationString, "Acceleration: %.2f rev/s\xc2\xb2", manualAcceleration_rpsps);
-		ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, servoMotor->accelerationLimit, accelerationString);
-		if (manualAcceleration_rpsps > servoMotor->accelerationLimit) manualAcceleration_rpsps = servoMotor->accelerationLimit;
+		ImGui::InputFloat("##manualAcceleration", &manualAcceleration_rpsps, 0.0, maxAcc, accelerationString);
+		if (manualAcceleration_rpsps > maxAcc) manualAcceleration_rpsps = maxAcc;
 	}
 	
 	float widgetWidth = ImGui::GetItemRectSize().x;
@@ -204,7 +204,7 @@ void Lexium32::controlsGui() {
     else {
         double velocity = servoMotor->getVelocity();
         sprintf(actualVelocityString, "%.2f rev/s", velocity);
-        velocityFraction = std::abs(velocity) / servoMotor->velocityLimit;
+        velocityFraction = std::abs(velocity) / servoMotor->getVelocityLimit();
         if(velocityFraction >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
         else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
     }
@@ -213,7 +213,7 @@ void Lexium32::controlsGui() {
     ImGui::PopStyleColor();
 
     char encoderPositionString[64];
-    double range = servoMotor->getPositionInWorkingRange();
+    double range = servoMotor->getPositionNormalizedToWorkingRange();
     if (!servoMotor->isOnline()) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
         range = 1.0;
@@ -225,12 +225,17 @@ void Lexium32::controlsGui() {
     }
     else {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, (int)(1000 * Timing::getProgramTime_seconds()) % 500 > 250 ? Colors::red : Colors::darkRed);
-        double distanceOutsideRange = range > 1.0 ? servoMotor->getPosition() - servoMotor->getMaxPosition() : servoMotor->getPosition() - servoMotor->getMinPosition();
+		double min = servoMotor->getPositionLowerWorkingRangeBound();
+		double max = servoMotor->getPositionUpperWorkingRangeBound();
+		double pos = servoMotor->getPosition();
+        double distanceOutsideRange = range > 1.0 ? pos - max : pos - min;
         sprintf(encoderPositionString, "Encoder Outside Working Range by %.3f rev)", distanceOutsideRange);
         range = 1.0;
     }
 	
-    ImGui::Text("Encoder Position in Working Range : (%.2f rev to %.2f rev)", servoMotor->getMinPosition(), servoMotor->getMaxPosition());
+    ImGui::Text("Encoder Position in Working Range : (%.2f rev to %.2f rev)",
+				servoMotor->getPositionLowerWorkingRangeBound(),
+				servoMotor->getPositionUpperWorkingRangeBound());
     ImGui::ProgressBar(range, glm::vec2(widgetWidth, ImGui::GetTextLineHeightWithSpacing()), encoderPositionString);
     ImGui::PopStyleColor();
 
@@ -246,8 +251,8 @@ void Lexium32::controlsGui() {
 		sprintf(loadString, "Offline");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 	}else{
-		sprintf(loadString, "%.1f%%", servoMotor->getLoad() * 100.0);
-		loadProgress = servoMotor->getLoad();
+		sprintf(loadString, "%.1f%%", servoMotor->getEffort() * 100.0);
+		loadProgress = servoMotor->getEffort();
 		if(loadProgress >= 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
 		else if(loadProgress > 0.8) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
@@ -264,8 +269,8 @@ void Lexium32::controlsGui() {
 		sprintf(followingErrorString, "Offline");
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 	}else{
-		sprintf(followingErrorString, "%.2f revs", servoMotor->followingError);
-		followingErrorProgress = servoMotor->getFollowingErrorInRange();
+		sprintf(followingErrorString, "%.2f revs", servoMotor->getFollowingError());
+		followingErrorProgress = servoMotor->getFollowingErrorNormalized();
 		followingErrorProgress = std::min(followingErrorProgress, 1.0f);
 		followingErrorProgress = std::max(followingErrorProgress, 0.0f);
 		if(followingErrorProgress > 0.95) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
@@ -283,13 +288,13 @@ void Lexium32::controlsGui() {
 	ImGui::Text("Encoder Override");
 	ImGui::PopFont();
 	
-	ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotor->positionOffset);
-	ImGui::SetNextItemWidth(tripleWidgetWidth);
-	ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
-	ImGui::SameLine();
-	if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->softOverridePosition(newEncoderPosition);
-	ImGui::SameLine();
-	if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->positionOffset = 0.0;
+	//ImGui::Text("Soft Setting of Encoder Position (Current Offset: %.2f)", servoMotor->positionOffset);
+	//ImGui::SetNextItemWidth(tripleWidgetWidth);
+	//ImGui::InputDouble("##encoderPosition", &newEncoderPosition, 0.0, 0.0, "%.3f rev");
+	//ImGui::SameLine();
+	//if (ImGui::Button("Set", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->softOverridePosition(newEncoderPosition);
+	//ImGui::SameLine();
+	//if (ImGui::Button("Reset", glm::vec2(tripleWidgetWidth, widgetHeight))) servoMotor->positionOffset = 0.0;
 	
 	if(!b_encoderIsMultiturn){
 		if(ImGui::Button("Start Homing")) b_startHoming = true;
@@ -299,7 +304,7 @@ void Lexium32::controlsGui() {
 	}
 	
 
-	if(servoMotor->hasManualHoldingBrake()){
+	if(servoMotor->supportsHoldingBrakeControl()){
 		ImGui::Separator();
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -352,9 +357,9 @@ void Lexium32::generalSettingsGui() {
 
 
     ImGui::Text("Velocity Limit");
-    ImGui::InputDouble("##maxV", &servoMotor->velocityLimit, 0.0, 0.0, "%.1f rev/s");
+    ImGui::InputDouble("##maxV", &servoMotor->actuatorConfig.velocityLimit, 0.0, 0.0, "%.1f rev/s");
     ImGui::Text("Acceleration Limit");
-    ImGui::InputDouble("##maxA", &servoMotor->accelerationLimit, 0.0, 0.0, "%.1f rev/s\xc2\xb2");
+    ImGui::InputDouble("##maxA", &servoMotor->actuatorConfig.accelerationLimit, 0.0, 0.0, "%.1f rev/s\xc2\xb2");
 
     ImGui::Separator();
 
@@ -395,8 +400,8 @@ void Lexium32::generalSettingsGui() {
 	
 	ImGui::Text("Max Motor Velocity: %.3f rev/s", maxMotorVelocity);
 	ImGui::Text("Max Motor Current: %.1f Amperes", maxMotorCurrent_amps);
-	ImGui::Text("Motor has %s Holding Brake", servoMotor->b_hasHoldingBrake ? "a" : "no");
-	if (servoMotor->getVelocityLimit() > maxMotorVelocity) servoMotor->velocityLimit = maxMotorVelocity;
+	ImGui::Text("Motor has %s Holding Brake", servoMotor->supportsHoldingBrakeControl() ? "a" : "no");
+	if (servoMotor->getVelocityLimit() > maxMotorVelocity) servoMotor->actuatorConfig.velocityLimit = maxMotorVelocity;
 	
 	ImGui::Separator();
 	
@@ -409,7 +414,7 @@ void Lexium32::generalSettingsGui() {
     ImGui::Text("Invert Direction of Movement");
 
 	ImGui::Text("Max Position Following Error");
-	if (ImGui::InputDouble("##MaxError", &servoMotor->maxFollowingError, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
+	if (ImGui::InputDouble("##MaxError", &servoMotor->actuatorConfig.followingErrorLimit, 0.0, 0.0, "%.3f revolutions")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
 	
     ImGui::Text("Max Current");
     if (ImGui::InputDouble("##maxI", &maxCurrent_amps, 0.0, 0.0, "%.1f Amperes")) generalParameterUploadState = DataTransferState::NO_TRANSFER;
@@ -476,7 +481,9 @@ void Lexium32::generalSettingsGui() {
 		if(ImGui::Checkbox("##shifting", &b_encoderRangeShifted)) updateEncoderWorkingRange();
 		ImGui::SameLine();
 		ImGui::TextWrapped("Center the encoder working range around 0.");
-		ImGui::TextWrapped("Working Range : %.1f to %.1f motor revolutions", servoMotor->minWorkingRange, servoMotor->maxWorkingRange);
+		ImGui::TextWrapped("Working Range : %.1f to %.1f motor revolutions",
+						   servoMotor->getPositionLowerWorkingRangeBound(),
+						   servoMotor->getPositionUpperWorkingRangeBound());
 	}
 		
 	ImGui::Separator();

@@ -94,11 +94,11 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::BeginDisabled(isAxisPinConnected());
 	
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if (state == MotionState::ENABLED) {
+	if (state == DeviceState::ENABLED) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		ImGui::Button("Enabled", largeDoubleButtonSize);
 	}
-	else if (state == MotionState::READY) {
+	else if (state == DeviceState::READY) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
 		ImGui::Button("Ready", largeDoubleButtonSize);
 	}
@@ -110,10 +110,10 @@ void PositionControlledAxis::controlsGui() {
 	ImGui::PopItemFlag();
 
 	ImGui::SameLine();
-	if (state == MotionState::ENABLED) {
+	if (state == DeviceState::ENABLED) {
 		if (ImGui::Button("Disable Axis", largeDoubleButtonSize)) disable();
 	}else{
-		ImGui::BeginDisabled(state != MotionState::READY);
+		ImGui::BeginDisabled(state != DeviceState::READY);
 		if (ImGui::Button("Enable Axis", largeDoubleButtonSize)) enable();
 		ImGui::EndDisabled();
 	}
@@ -123,7 +123,7 @@ void PositionControlledAxis::controlsGui() {
 	
 	if(isSurveilled()){
 		
-		if(state == MotionState::OFFLINE){
+		if(state == DeviceState::OFFLINE){
 			backgroundText("Axis Offline", largeDoubleButtonSize, Colors::blue);
 		}
 		else if(b_hasSurveillanceError){
@@ -145,7 +145,7 @@ void PositionControlledAxis::controlsGui() {
 	
 	//------------------- VELOCITY CONTROLS ------------------------
 
-	ImGui::BeginDisabled(state != MotionState::ENABLED);
+	ImGui::BeginDisabled(state != DeviceState::ENABLED);
 	ImGui::BeginDisabled(isHoming());
 	
 	ImGui::PushFont(Fonts::sansBold20);
@@ -283,7 +283,7 @@ void PositionControlledAxis::controlsGui() {
 		default: break;
 	}
 
-	bool b_disableCaptureButtons = state != MotionState::ENABLED || isMoving() || isHoming();
+	bool b_disableCaptureButtons = state != DeviceState::ENABLED || isMoving() || isHoming();
 	bool disableCaptureLowerLimit = *actualPositionValue > 0.0;
 	bool disableCaptureHigherLimit = *actualPositionValue < 0.0;
 	ImGui::BeginDisabled(b_disableCaptureButtons);
@@ -370,7 +370,7 @@ void PositionControlledAxis::controlsGui() {
 	double maxPosition = 0.0;
 	double positionProgress = 0.0;
 	static char positionString[32];
-	if (state == MotionState::OFFLINE) {
+	if (state == DeviceState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionProgress = 1.0;
 		sprintf(positionString, "Axis Offline");
@@ -403,7 +403,7 @@ void PositionControlledAxis::controlsGui() {
 	//actual velocity
 	float velocityProgress;
 	static char velocityString[32];
-	if (state == MotionState::OFFLINE) {
+	if (state == DeviceState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		velocityProgress = 1.0;
 		sprintf(velocityString, "Axis Offline");
@@ -422,16 +422,16 @@ void PositionControlledAxis::controlsGui() {
 	float positionErrorProgress;
 	float maxfollowingError = 0.0;
 	static char positionErrorString[32];
-	if(state == MotionState::OFFLINE){
+	if(state == DeviceState::OFFLINE){
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		positionErrorProgress = 1.0;
 		sprintf(positionErrorString, "Axis Disabled");
 	}else{
 		auto servoActuator = getServoActuatorDevice();
-		positionErrorProgress = std::abs(servoActuator->getFollowingErrorInRange());
+		positionErrorProgress = servoActuator->getFollowingErrorNormalized();
 		if(positionErrorProgress < 1.0) ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
 		else ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
-		maxfollowingError = servoActuatorUnitsToAxisUnits(servoActuator->getMaxFollowingError());
+		maxfollowingError = servoActuator->getFollowingErrorLimit();
 		double followingError = servoActuatorUnitsToAxisUnits(servoActuator->getFollowingError());
 		sprintf(positionErrorString, "%.3f %s", followingError, positionUnit->abbreviated);
 	}
@@ -441,7 +441,7 @@ void PositionControlledAxis::controlsGui() {
 		
 		float surveillanceVelocityProgress;
 		static char surveillanceVelocityString[32];
-		if(state == MotionState::OFFLINE){
+		if(state == DeviceState::OFFLINE){
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 			surveillanceVelocityProgress = 1.0;
 			sprintf(surveillanceVelocityString, "Axis Offline");
@@ -458,7 +458,7 @@ void PositionControlledAxis::controlsGui() {
 		
 		float surveillanceErrorProgress;
 		static char surveillanceErrorString[32];
-		if(state == MotionState::OFFLINE){
+		if(state == DeviceState::OFFLINE){
 			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 			surveillanceErrorProgress = 1.0;
 			sprintf(surveillanceErrorString, "Axis Offline");
@@ -482,7 +482,7 @@ void PositionControlledAxis::controlsGui() {
 	float targetProgress;
 	double movementSecondsLeft = 0.0;
 	static char movementProgressChar[32];
-	if (state == MotionState::OFFLINE) {
+	if (state == DeviceState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(movementProgressChar, "Axis Offline");
 		targetProgress = 1.0;
@@ -516,14 +516,14 @@ void PositionControlledAxis::controlsGui() {
 	Unit feedbackPositionUnit = Units::None::None;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
-		rangeProgress = servo->getPositionInWorkingRange();
-		rangeMin = servo->getMinPosition();
-		rangeMax = servo->getMaxPosition();
+		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
+		rangeProgress = servo->getPositionNormalizedToWorkingRange();
+		rangeMin = servo->getPositionLowerWorkingRangeBound();
+		rangeMax = servo->getPositionUpperWorkingRangeBound();
 		feedbackPositionUnit = servo->getPositionUnit();
 		feedbackPosition = servo->getPosition();
 	}
-	if (state == MotionState::OFFLINE) {
+	if (state == DeviceState::OFFLINE) {
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::blue);
 		sprintf(rangeString, "Axis Offline");
 		rangeProgress = 1.0;
@@ -601,17 +601,17 @@ void PositionControlledAxis::settingsGui() {
 
 	if (isServoActuatorDeviceConnected()) {
 
-		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
 		PositionFeedbackType feedbackType = servo->getPositionFeedbackType();
 		const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
-		std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
+		//std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
 
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName().c_str(), servo->parentDevice->getName());
-		else ImGui::Text("%s on Node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->getNode()->getName());
+		//if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName().c_str(), servo->parentDevice->getName());
+		/*else*/ ImGui::Text("%s on Node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
@@ -664,7 +664,7 @@ void PositionControlledAxis::settingsGui() {
 			auto feedbackDevice = getFeedbackDevice();
 			PositionFeedbackType feedbackType = feedbackDevice->getPositionFeedbackType();
 			const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
-			std::shared_ptr<Device> parentDevice = feedbackDevice->parentDevice;
+			//std::shared_ptr<Device> parentDevice = feedbackDevice->parentDevice;
 
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Device:");
@@ -702,7 +702,7 @@ void PositionControlledAxis::settingsGui() {
 	ImGui::PopFont();
 
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ServoActuatorDevice> servoActuator = getServoActuatorDevice();
+		std::shared_ptr<ActuatorModule> servoActuator = getServoActuatorDevice();
 		Unit servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -810,12 +810,12 @@ void PositionControlledAxis::settingsGui() {
 			ImGui::PopStyleColor();
 		}
 		else {
-			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
+			std::shared_ptr<GpioModule> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Reference Device:");
 			ImGui::PopFont();
 			ImGui::SameLine();
-			ImGui::Text("%s on %s", gpioDevice->getName().c_str(), gpioDevice->parentDevice->getName());
+			ImGui::Text("%s", gpioDevice->getName().c_str());
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Text, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -1009,7 +1009,7 @@ void PositionControlledAxis::settingsGui() {
 	if(b_isSurveilled->value){
 		
 		bool surveillanceDeviceConnected = isSurveillanceFeedbackDeviceConnected();
-		std::shared_ptr<PositionFeedbackDevice> surveillanceDevice;
+		std::shared_ptr<MotionFeedbackModule> surveillanceDevice;
 		
 		if(!surveillanceDeviceConnected){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -1067,10 +1067,9 @@ void PositionControlledAxis::devicesGui() {
 	ImGui::Text("Servo Actuator:");
 	ImGui::PopFont();
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ServoActuatorDevice> servo = getServoActuatorDevice();
+		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
 		ImGui::PushFont(Fonts::sansBold15);
-		if(servo->parentDevice) ImGui::Text("'%s' on device %s", servo->getName().c_str(), servo->parentDevice->getName());
-		else ImGui::Text("'%s' on node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->parentNode->getName());
+		ImGui::Text("'%s' on node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->parentNode->getName());
 		ImGui::PopFont();
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleColor(ImGuiCol_Button, servo->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));
@@ -1095,9 +1094,9 @@ void PositionControlledAxis::devicesGui() {
 		ImGui::Text("Position Reference: ");
 		ImGui::PopFont();
 		if (isReferenceDeviceConnected()) {
-			std::shared_ptr<GpioDevice> gpioDevice = getReferenceDevice();
+			std::shared_ptr<GpioModule> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::sansBold15);
-			ImGui::Text("'%s' on device %s", gpioDevice->getName().c_str(), gpioDevice->parentDevice->getName());
+			ImGui::Text("'%s'", gpioDevice->getName().c_str());
 			ImGui::PopFont();
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleColor(ImGuiCol_Button, gpioDevice->isOnline() ? glm::vec4(0.3, 0.7, 0.1, 1.0) : glm::vec4(0.7, 0.1, 0.1, 1.0));

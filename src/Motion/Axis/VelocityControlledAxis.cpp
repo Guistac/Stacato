@@ -8,6 +8,7 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+/*
 void VelocityControlledAxis::initialize() {
 	//inputs
 	addNodePin(actuatorPin);
@@ -27,13 +28,13 @@ void VelocityControlledAxis::initialize() {
 
 std::string VelocityControlledAxis::getStatusString(){
 	switch(state){
-		case MotionState::OFFLINE:
+		case DeviceState::OFFLINE:
 			if(!isActuatorDeviceConnected()) return "Actuator device pin is not connected";
 			else return "Actuator is Offline : " + getActuatorDevice()->getStatusString();
-		case MotionState::NOT_READY:
+		case DeviceState::NOT_READY:
 			return "Actuator is not ready : " + getActuatorDevice()->getStatusString();
-		case MotionState::READY:	return "Axis is ready to enable";
-		case MotionState::ENABLED: 	return "Axis is enabled";
+		case DeviceState::READY:	return "Axis is ready to enable";
+		case DeviceState::ENABLED: 	return "Axis is enabled";
 	}
 }
 
@@ -56,8 +57,8 @@ bool VelocityControlledAxis::areAllDeviceReady(){
 }
 
 void VelocityControlledAxis::updateAxisState(){
-	MotionState newAxisState = MotionState::ENABLED;
-	auto checkState = [&](MotionState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
+	DeviceState newAxisState = DeviceState::ENABLED;
+	auto checkState = [&](DeviceState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
 		
 	auto actuatorDevice = getActuatorDevice();
 	
@@ -68,7 +69,7 @@ void VelocityControlledAxis::updateAxisState(){
 	checkState(actuatorDevice->getState());
 	
 	//handle transition from enabled state
-	if(state == MotionState::ENABLED && newAxisState != MotionState::ENABLED) disable();
+	if(state == DeviceState::ENABLED && newAxisState != DeviceState::ENABLED) disable();
 	state = newAxisState;
 	
 	//update estop state
@@ -96,7 +97,7 @@ void VelocityControlledAxis::setVelocityCommand(double velocity, double accelera
 void VelocityControlledAxis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) {
-		state = MotionState::OFFLINE;
+		state = DeviceState::OFFLINE;
 		b_emergencyStopActive = false;
 		return;
 	}	
@@ -202,7 +203,7 @@ bool VelocityControlledAxis::isMoving() {
 }
 
 void VelocityControlledAxis::enable() {
-	if(state != MotionState::READY) return;
+	if(state != DeviceState::READY) return;
 	std::thread axisEnabler([this]() {
 		using namespace std::chrono;
 		system_clock::time_point enableTime = system_clock::now();
@@ -211,14 +212,14 @@ void VelocityControlledAxis::enable() {
 		actuator->enable();
 		while(system_clock::now() - enableTime < milliseconds(500)){
 			if(actuator->isEnabled()){
-				state = MotionState::ENABLED;
+				state = DeviceState::ENABLED;
 				onEnable();
 				Logger::info("Velocity Controlled Axis '{}' Enabled", getName());
 				return;
 			}
 			std::this_thread::sleep_for(milliseconds(10));
 		}
-		state = MotionState::NOT_READY;
+		state = DeviceState::NOT_READY;
 		actuator->disable();
 		Logger::warn("Could not enable velocity controlled axis '{}'", getName());
 	});
@@ -227,7 +228,7 @@ void VelocityControlledAxis::enable() {
 
 void VelocityControlledAxis::disable() {
 	getActuatorDevice()->disable();
-	state = MotionState::NOT_READY;
+	state = DeviceState::NOT_READY;
     onDisable();
 }
 
@@ -340,3 +341,5 @@ bool VelocityControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if(!slowdownVelocity->load(kinematicLimitsXML)) return false;
 	return true;
 }
+
+*/

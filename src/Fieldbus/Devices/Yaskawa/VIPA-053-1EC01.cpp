@@ -9,12 +9,12 @@
 //TODO: this onConnection & onDisconnection Methods don't get called at the operational state transition and this might cause issues with subdevice readyness state
 void VipaBusCoupler_053_1EC01::onDisconnection() {
 	for(auto& module : modules) module->onDisconnection();
-	gpioDevice->state = MotionState::OFFLINE;
+	gpioDevice->state = DeviceState::OFFLINE;
 }
 
 void VipaBusCoupler_053_1EC01::onConnection() {
 	for(auto& module : modules) module->onConnection();
-	gpioDevice->state = MotionState::ENABLED;
+	gpioDevice->state = DeviceState::ENABLED;
 }
 
 void VipaBusCoupler_053_1EC01::initialize() {
@@ -22,8 +22,7 @@ void VipaBusCoupler_053_1EC01::initialize() {
     //no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());
 	gpioDevice = std::make_shared<VipaGpioDevice>(thisCoupler);
-    gpioDevice->setParentDevice(thisCoupler);
-	auto abstractGpioDevice = std::static_pointer_cast<GpioDevice>(gpioDevice);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioModule>(gpioDevice);
 	gpioDeviceLink->assignData(abstractGpioDevice);
     //gpio device link pin
     addNodePin(gpioDeviceLink);

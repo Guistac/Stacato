@@ -187,24 +187,23 @@ public:
 	
 	//————— SubDevice ——————
 	
-	class SsiEncoder : public PositionFeedbackDevice{
+	class SsiEncoder : public MotionFeedbackModule{
 	public:
-		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) :
-		MotionDevice(Units::AngularDistance::Revolution),
-		PositionFeedbackDevice(Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE),
-		encoderModule(module){}
+		SsiEncoder(std::shared_ptr<VIPA_050_1BS00> module) : encoderModule(module){}
 		
 		virtual std::string getName() override { return std::string(encoderModule->parentBusCoupler->getName()) + " SSI Encoder"; };
 		
 		virtual std::string getStatusString() override { return ""; }
 		
+		/*
 		virtual bool canHardReset() override { return encoderModule->b_hasResetSignal && encoderModule->resetPin->isConnected(); }
 		virtual void executeHardReset() override {
 			b_doHardReset = true;
 			b_hardResetBusy = true;
 		}
 		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
-						
+		*/
+		 
 		std::shared_ptr<VIPA_050_1BS00> encoderModule;
 		bool b_doHardReset = false;
 		bool b_hardResetBusy = false;

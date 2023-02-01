@@ -251,7 +251,8 @@ DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
 //================================================================================================================================
 
 
-enum class MotionState{
+/*
+enum class DeviceState{
 	OFFLINE = 0,
 	NOT_READY = 1,
 	READY = 2,
@@ -259,10 +260,23 @@ enum class MotionState{
 };
 
 
-#define MotionStateStrings \
-{MotionState::OFFLINE, 		"Offline", "Offline"},\
-{MotionState::NOT_READY, 	"Not Ready", "NotReady"},\
-{MotionState::READY, 		"Ready", "Ready"},\
-{MotionState::ENABLED, 		"Enabled", "Enabled"}\
+#define DeviceStateStrings \
+{DeviceState::OFFLINE, 		"Offline", "Offline"},\
+{DeviceState::NOT_READY, 	"Not Ready", "NotReady"},\
+{DeviceState::READY, 		"Ready", "Ready"},\
+{DeviceState::ENABLED, 		"Enabled", "Enabled"}\
 
-DEFINE_ENUMERATOR(MotionState, MotionStateStrings)
+DEFINE_ENUMERATOR(DeviceState, DeviceStateStrings)
+*/
+
+
+//================================================================================================================================
+
+enum class DeviceState{
+	OFFLINE,
+	NOT_READY,
+	READY,
+	ENABLING,
+	DISABLING,
+	ENABLED
+};

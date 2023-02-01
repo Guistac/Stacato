@@ -7,9 +7,9 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
-namespace EtherCAT{
+namespace EtherCAT::ModularDeviceProfile{
 
-void ModularDevice::moduleManagerGui(){
+void ParentDevice::moduleManagerGui(){
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Modules");
@@ -17,7 +17,7 @@ void ModularDevice::moduleManagerGui(){
 	
 	ImGui::SameLine();
 	ImGui::BeginDisabled(!isDetected());
-	if(ImGui::Button("Discover Modules")) discoverDeviceModules();
+	if(ImGui::Button("Discover Modules")) discoverChildModules();
 	ImGui::EndDisabled();
 	
 	ImGui::SameLine();
@@ -33,9 +33,9 @@ void ModularDevice::moduleManagerGui(){
 		ImGui::TableSetupColumn("Name");
 		ImGui::TableHeadersRow();
 		
-		std::shared_ptr<DeviceModule> deletedModule = nullptr;
-		std::shared_ptr<DeviceModule> movedUpModule = nullptr;
-		std::shared_ptr<DeviceModule> movedDownModule = nullptr;
+		std::shared_ptr<ChildModule> deletedModule = nullptr;
+		std::shared_ptr<ChildModule> movedUpModule = nullptr;
+		std::shared_ptr<ChildModule> movedDownModule = nullptr;
 		
 		float rowHeight = ImGui::GetFrameHeight() + ImGui::GetTextLineHeight() * 0.2;
 		
@@ -43,37 +43,37 @@ void ModularDevice::moduleManagerGui(){
 			
 			ImGui::PushID(i);
 			
-			std::shared_ptr<DeviceModule> module = modules[i];
+			std::shared_ptr<ChildModule> deviceModule = modules[i];
 			ImGui::TableNextRow();
-			if(module == selectedModule) ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImColor(Colors::blue));
+			if(deviceModule == selectedModule) ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImColor(Colors::blue));
 			
 			ImGui::TableSetColumnIndex(0);
 			float spacing = ImGui::GetTextLineHeight() * 0.1;
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(spacing));
-			if (buttonCross("##remove")) deletedModule = module;
+			if (buttonCross("##remove")) deletedModule = deviceModule;
 			ImGui::SameLine();
 			bool disableButton = i == 0;
 			ImGui::BeginDisabled(disableButton);
-			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = module;
+			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = deviceModule;
 			ImGui::EndDisabled();
 			ImGui::SameLine();
 			disableButton = i == modules.size() - 1;
 			ImGui::BeginDisabled(disableButton);
-			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = module;
+			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = deviceModule;
 			ImGui::EndDisabled();
 			ImGui::PopStyleVar();
 			
 			ImGui::TableSetColumnIndex(1);
 			static char indexLabelString[16];
-			sprintf(indexLabelString, "%i", module->moduleIndex);
+			sprintf(indexLabelString, "%i", deviceModule->moduleIndex);
 			ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns;
 			if (ImGui::Selectable(indexLabelString, false, selectable_flags, ImVec2(0.0, 0.0))){
-				selectedModule = module;
+				selectedModule = deviceModule;
 			}
 			ImGui::TableSetColumnIndex(2);
-			ImGui::Text("%s", module->getDisplayName());
+			ImGui::Text("%s", deviceModule->getDisplayName());
 			ImGui::TableSetColumnIndex(3);
-			ImGui::Text("%s", module->getSaveName());
+			ImGui::Text("%s", deviceModule->getSaveName());
 			
 			ImGui::PopID();
 		}
@@ -84,11 +84,11 @@ void ModularDevice::moduleManagerGui(){
 		if(ImGui::Button("Add Module")) ImGui::OpenPopup("ModuleAdderPopup");
 		
 		if (ImGui::BeginPopup("ModuleAdderPopup")) {
-			for (auto module : getModuleFactory()) {
+			for (auto deviceModule : getModuleFactory()) {
 				static char moduleItemString[128];
-				sprintf(moduleItemString, "%s (%s)", module->getDisplayName(), module->getSaveName());
+				sprintf(moduleItemString, "%s (%s)", deviceModule->getDisplayName(), deviceModule->getSaveName());
 				if(ImGui::MenuItem(moduleItemString)){
-					addModule(module->getNewInstance());
+					addModule(deviceModule->getNewInstance());
 				}
 			}
 			ImGui::EndPopup();

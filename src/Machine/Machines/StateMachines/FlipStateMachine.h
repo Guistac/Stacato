@@ -65,7 +65,7 @@ public:
 	
 	bool areAllPinsConnected();
 	bool isGpioDeviceConnected();
-	std::shared_ptr<GpioDevice> getGpioDevice();
+	std::shared_ptr<GpioModule> getGpioDevice();
 	
 	//————— State Machine —————
 	

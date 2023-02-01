@@ -9,7 +9,7 @@
 namespace PhoenixContact{
 
 
-std::vector<EtherCAT::DeviceModule*>& BusCoupler::getModuleFactory(){
+std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& BusCoupler::getModuleFactory(){
 	return ModuleFactory::getModules();
 }
 
@@ -24,12 +24,12 @@ void BusCoupler::beforeModuleReordering(){
 
 void BusCoupler::onDisconnection() {
 	for(auto& module : modules) module->onDisconnection();
-	gpioDevice->state = MotionState::OFFLINE;
+	gpioDevice->state = DeviceState::OFFLINE;
 }
 
 void BusCoupler::onConnection() {
 	for(auto& module : modules) module->onConnection();
-	gpioDevice->state = MotionState::ENABLED;
+	gpioDevice->state = DeviceState::ENABLED;
 }
 
 void BusCoupler::initialize() {
@@ -37,8 +37,7 @@ void BusCoupler::initialize() {
 	//no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());
 	gpioDevice = std::make_shared<PhoenixContactGpioDevice>(thisCoupler);
-	gpioDevice->setParentDevice(thisCoupler);
-	auto abstractGpioDevice = std::static_pointer_cast<GpioDevice>(gpioDevice);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioModule>(gpioDevice);
 	gpioDeviceLink->assignData(abstractGpioDevice);
 	//gpio device link pin
 	addNodePin(gpioDeviceLink);

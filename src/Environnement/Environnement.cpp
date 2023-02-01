@@ -181,7 +181,7 @@ namespace Environnement {
             Script::stop();
             
 			for(auto machine : getMachines()){
-				machine->state = MotionState::OFFLINE;
+				machine->state = DeviceState::OFFLINE;
 			}
 			
 			Environnement::StageVisualizer::stop();

@@ -14,6 +14,7 @@
 #include "Environnement/NodeGraph/DeviceNode.h"
 
 
+/*
 
 void VelocityControlledAxis::nodeSpecificGui() {
 	if (ImGui::BeginTabItem("Controls")) {
@@ -74,16 +75,16 @@ void VelocityControlledAxis::controlsGui() {
 		backgroundText("E-Stop", largeDoubleButtonSize, blink ? Colors::yellow : Colors::red);
 	}else{
 		switch(state){
-			case MotionState::OFFLINE:
+			case DeviceState::OFFLINE:
 				backgroundText("Offline", largeDoubleButtonSize, Colors::blue);
 				break;
-			case MotionState::NOT_READY:
+			case DeviceState::NOT_READY:
 				backgroundText("Not Ready", largeDoubleButtonSize, Colors::red);
 				break;
-			case MotionState::READY:
+			case DeviceState::READY:
 				backgroundText("Ready", largeDoubleButtonSize, Colors::yellow);
 				break;
-			case MotionState::ENABLED:
+			case DeviceState::ENABLED:
 				backgroundText("Enabled", largeDoubleButtonSize, Colors::green);
 				break;
 		}
@@ -93,7 +94,7 @@ void VelocityControlledAxis::controlsGui() {
 	if(isEnabled()){
 		if(ImGui::Button("Disable", largeDoubleButtonSize)) disable();
 	}else{
-		ImGui::BeginDisabled(state != MotionState::READY);
+		ImGui::BeginDisabled(state != DeviceState::READY);
 		if(ImGui::Button("Enable", largeDoubleButtonSize)) enable();
 		ImGui::EndDisabled();
 	}
@@ -261,3 +262,5 @@ void VelocityControlledAxis::settingsGui() {
 
 void VelocityControlledAxis::metricsGui() {}
 void VelocityControlledAxis::devicesGui() {}
+
+*/
