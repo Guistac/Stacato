@@ -1,7 +1,6 @@
 #include <pch.h>
 
-#include "ModularDevice.h"
-#include "DeviceModule.h"
+#include "ModularDeviceProfile.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
@@ -9,7 +8,7 @@
 
 namespace EtherCAT::ModularDeviceProfile{
 
-void ParentDevice::moduleManagerGui(){
+void ModularDevice::moduleManagerGui(){
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Modules");
@@ -17,7 +16,7 @@ void ParentDevice::moduleManagerGui(){
 	
 	ImGui::SameLine();
 	ImGui::BeginDisabled(!isDetected());
-	if(ImGui::Button("Discover Modules")) discoverChildModules();
+	if(ImGui::Button("Discover Modules")) discoverDeviceModules();
 	ImGui::EndDisabled();
 	
 	ImGui::SameLine();
@@ -33,9 +32,9 @@ void ParentDevice::moduleManagerGui(){
 		ImGui::TableSetupColumn("Name");
 		ImGui::TableHeadersRow();
 		
-		std::shared_ptr<ChildModule> deletedModule = nullptr;
-		std::shared_ptr<ChildModule> movedUpModule = nullptr;
-		std::shared_ptr<ChildModule> movedDownModule = nullptr;
+		std::shared_ptr<DeviceModule> deletedModule = nullptr;
+		std::shared_ptr<DeviceModule> movedUpModule = nullptr;
+		std::shared_ptr<DeviceModule> movedDownModule = nullptr;
 		
 		float rowHeight = ImGui::GetFrameHeight() + ImGui::GetTextLineHeight() * 0.2;
 		
@@ -43,7 +42,7 @@ void ParentDevice::moduleManagerGui(){
 			
 			ImGui::PushID(i);
 			
-			std::shared_ptr<ChildModule> deviceModule = modules[i];
+			std::shared_ptr<DeviceModule> deviceModule = modules[i];
 			ImGui::TableNextRow();
 			if(deviceModule == selectedModule) ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImColor(Colors::blue));
 			

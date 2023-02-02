@@ -7,8 +7,8 @@ namespace PhoenixContact{
 
 
 namespace ModuleFactory{
-	std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& getModules(){
-		static std::vector<EtherCAT::ModularDeviceProfile::ChildModule*> moduleList = {
+	std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModules(){
+		static std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*> moduleList = {
 			new IB_IL_24_DI_4(),
 			new IB_IL_24_DO_4(),
 			new IB_IL_24_48_DOR_2(),

@@ -215,10 +215,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleIODevice.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/ConsoleIODevice.h
 
-    #${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.h
-    #${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ButtonBoard.h
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ConsoleStarmania.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ConsoleStarmaniaGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/ConsoleStarmania.h
@@ -244,11 +240,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DS402Axis.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDevice.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDevice.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DeviceModule.h
-    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/DeviceModule.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfileGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
@@ -298,20 +292,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachine.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachine.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/SharedAxisMachineGui.cpp
-
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6x.h
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/BinaryOscillator6xGui.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3x.h
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Animated/Oscillator3xGui.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClaw.h
-    #${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/LinearMecanumClawGui.cpp
-
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachineGui.cpp
@@ -324,21 +304,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxisGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxis.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/VelocityControlledAxisGui.cpp
-
-    #========================== MOTION UTILITIES =======================
-
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuator.h
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/ActuatorToServoActuatorGui.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.cpp
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuator.h
-    #${STACATO_SOURCE_DIRECTORY}/Motion/Adapters/GpioActuatorGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedback.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Utilities/PositionFeedbackGui.cpp
 
     #========================== SAFETY NODES ======================
 

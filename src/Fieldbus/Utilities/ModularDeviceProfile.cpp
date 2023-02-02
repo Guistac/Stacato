@@ -1,13 +1,12 @@
 #include <pch.h>
 
-#include "ModularDevice.h"
-#include "DeviceModule.h"
+#include "ModularDeviceProfile.h"
 
 #include <tinyxml2.h>
 
 namespace EtherCAT::ModularDeviceProfile{
 
-bool ParentDevice::discoverChildModules(){
+bool ModularDevice::discoverDeviceModules(){
 	
 	moduleDiscoveryStatus = DataTransferState::TRANSFERRING;
 	
@@ -32,7 +31,7 @@ bool ParentDevice::discoverChildModules(){
 		Logger::info("Detected {} modules", detectedModuleCount);
 	}
 	
-	std::vector<std::shared_ptr<ChildModule>> detectedModules = {};
+	std::vector<std::shared_ptr<DeviceModule>> detectedModules = {};
 	
 	for(int i = 0; i < detectedModuleCount; i++){
 		uint8_t moduleNumber = i + 1;
@@ -44,7 +43,7 @@ bool ParentDevice::discoverChildModules(){
 			return false;
 		}
 		
-		std::shared_ptr<ChildModule> detectedModule = createModule(detectedModuleIdent);
+		std::shared_ptr<DeviceModule> detectedModule = createModule(detectedModuleIdent);
 		if(detectedModule == nullptr){
 			moduleDiscoveryStatus = EtherCatDevice::DataTransferState::FAILED;
 			Logger::error("Could not identify module {}", moduleNumber);
@@ -64,7 +63,7 @@ bool ParentDevice::discoverChildModules(){
 }
 
 
-std::shared_ptr<ChildModule> ParentDevice::createModule(uint32_t identifier){
+std::shared_ptr<DeviceModule> ModularDevice::createModule(uint32_t identifier){
 	for(auto factoryModule : getModuleFactory()){
 		if(factoryModule->getIdentifier() == identifier){
 			return factoryModule->getNewInstance();
@@ -73,7 +72,7 @@ std::shared_ptr<ChildModule> ParentDevice::createModule(uint32_t identifier){
 	return nullptr;
 }
 
-std::shared_ptr<ChildModule> ParentDevice::createModule(const char* saveString){
+std::shared_ptr<DeviceModule> ModularDevice::createModule(const char* saveString){
 	for(auto factoryModule : getModuleFactory()){
 		if(strcmp(factoryModule->getSaveName(), saveString) == 0){
 			return factoryModule->getNewInstance();
@@ -83,7 +82,7 @@ std::shared_ptr<ChildModule> ParentDevice::createModule(const char* saveString){
 }
 
 
-bool ParentDevice::configureModules(){
+bool ModularDevice::configureModules(){
 	
 	for(int i = 0; i < modules.size(); i++){
 		auto module = modules[i];
@@ -116,40 +115,40 @@ bool ParentDevice::configureModules(){
 }
 
 
-void ParentDevice::readModuleInputs(){
+void ModularDevice::readModuleInputs(){
 	for(auto& module : modules) module->readInputs();
 }
 
-void ParentDevice::writeModuleOutputs(){
+void ModularDevice::writeModuleOutputs(){
 	for(auto& module : modules) module->writeOutputs();
 }
 
 
-void ParentDevice::addModule(std::shared_ptr<ChildModule> module){
+void ModularDevice::addModule(std::shared_ptr<DeviceModule> deviceModule){
 	if(modules.empty()) beforeModuleReordering();
 	
-	std::shared_ptr<ParentDevice> thisDevice = std::static_pointer_cast<ParentDevice>(shared_from_this());
-	module->setParentDevice(thisDevice);
-	module->setIndex(modules.size());
-	modules.push_back(module);
-	selectedModule = module;
-	for(auto& inputPin : module->inputPins) addNodePin(inputPin);
-	for(auto& outputPin : module->outputPins) addNodePin(outputPin);
+	std::shared_ptr<ModularDevice> thisDevice = std::static_pointer_cast<ModularDevice>(shared_from_this());
+	deviceModule->setParentDevice(thisDevice);
+	deviceModule->setIndex(modules.size());
+	modules.push_back(deviceModule);
+	selectedModule = deviceModule;
+	for(auto& inputPin : deviceModule->inputPins) addNodePin(inputPin);
+	for(auto& outputPin : deviceModule->outputPins) addNodePin(outputPin);
 	
-	module->addTxPdoMappingModule(txPdoAssignement);
-	module->addRxPdoMappingModule(rxPdoAssignement);
+	deviceModule->addTxPdoMappingModule(txPdoAssignement);
+	deviceModule->addRxPdoMappingModule(rxPdoAssignement);
 }
 
-void ParentDevice::removeModule(std::shared_ptr<ChildModule> module){
+void ModularDevice::removeModule(std::shared_ptr<DeviceModule> deviceModule){
 	for(int i = modules.size() - 1; i >= 0; i--){
-		if(modules[i] == module){
+		if(modules[i] == deviceModule){
 			modules.erase(modules.begin() + i);
 			break;
 		}
 	}
-	if(selectedModule == module) selectedModule = nullptr;
-	for(auto& inputPin : module->inputPins) removeIoData(inputPin);
-	for(auto& outputPin : module->outputPins) removeIoData(outputPin);
+	if(selectedModule == deviceModule) selectedModule = nullptr;
+	for(auto& inputPin : deviceModule->inputPins) removeIoData(inputPin);
+	for(auto& outputPin : deviceModule->outputPins) removeIoData(outputPin);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	for(int i = 0; i < modules.size(); i++) {
@@ -159,9 +158,9 @@ void ParentDevice::removeModule(std::shared_ptr<ChildModule> module){
 	}
 }
 
-void ParentDevice::reorderModule(int oldIndex, int newIndex){
+void ModularDevice::reorderModule(int oldIndex, int newIndex){
 	//stored the moved module in a temporary buffer
-	std::shared_ptr<ChildModule> temp = modules[oldIndex];
+	std::shared_ptr<DeviceModule> temp = modules[oldIndex];
 	
 	//erase the module and insert it at the new index
 	modules.erase(modules.begin() + oldIndex);
@@ -189,7 +188,7 @@ void ParentDevice::reorderModule(int oldIndex, int newIndex){
 	}
 }
 
-void ParentDevice::moveModuleUp(std::shared_ptr<ChildModule> module){
+void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> module){
 	int oldIndex;
 	for(int i = 0; i < modules.size(); i++){
 		if(module == modules[i]){
@@ -201,7 +200,7 @@ void ParentDevice::moveModuleUp(std::shared_ptr<ChildModule> module){
 	else reorderModule(oldIndex, oldIndex - 1);
 }
 
-void ParentDevice::moveModuleDown(std::shared_ptr<ChildModule> module){
+void ModularDevice::moveModuleDown(std::shared_ptr<DeviceModule> module){
 	int oldIndex;
 	for(int i = 0; i < modules.size(); i++){
 		if(module == modules[i]){
@@ -213,7 +212,7 @@ void ParentDevice::moveModuleDown(std::shared_ptr<ChildModule> module){
 	else reorderModule(oldIndex, oldIndex + 1);
 }
 
-bool ParentDevice::saveModules(tinyxml2::XMLElement* xml){
+bool ModularDevice::saveModules(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* modularDeviceProfileXML = xml->InsertNewChildElement("ModularDeviceProfile");
@@ -228,7 +227,7 @@ bool ParentDevice::saveModules(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-bool ParentDevice::loadModules(tinyxml2::XMLElement* xml){
+bool ModularDevice::loadModules(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
 	XMLElement* modularDeviceProfileXML = xml->FirstChildElement("ModularDeviceProfile");
@@ -241,7 +240,7 @@ bool ParentDevice::loadModules(tinyxml2::XMLElement* xml){
 	while(moduleXML != nullptr){
 		const char* moduleTypeString;
 		if(moduleXML->QueryStringAttribute("Type", &moduleTypeString) != XML_SUCCESS) return Logger::warn("Failed to load module type");
-		std::shared_ptr<ChildModule> loadedModule = createModule(moduleTypeString);
+		std::shared_ptr<DeviceModule> loadedModule = createModule(moduleTypeString);
 		if(loadedModule == nullptr) return Logger::warn("Failed to identify module type '{}'", moduleTypeString);
 		if(!loadedModule->load(moduleXML)) return Logger::warn("Failed to load module {}", moduleTypeString);
 		addModule(loadedModule);

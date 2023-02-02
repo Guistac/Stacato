@@ -9,7 +9,7 @@ public:\
 	virtual const char* getDisplayName() override { return displayName; }\
 	virtual uint32_t getIdentifier() override { return u32_identifier; }\
 	\
-	virtual std::shared_ptr<EtherCAT::ModularDeviceProfile::ChildModule> getNewInstance() override {\
+	virtual std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule> getNewInstance() override {\
 	   auto newModule = std::make_shared<className>();\
 	   newModule->onConstruction();\
 	   return newModule;\
@@ -31,25 +31,25 @@ public:\
 
 namespace EtherCAT::ModularDeviceProfile{
 
-	class ChildModule;
+	class DeviceModule;
 
-	class ParentDevice : public EtherCatDevice{
+	class ModularDevice : public EtherCatDevice{
 	public:
 		
 		//modules and module management
-		std::vector<std::shared_ptr<ChildModule>> modules = {};
+		std::vector<std::shared_ptr<DeviceModule>> modules = {};
 		
 		//module list management
-		void addModule(std::shared_ptr<ChildModule> module);
-		void removeModule(std::shared_ptr<ChildModule> module);
+		void addModule(std::shared_ptr<DeviceModule> module);
+		void removeModule(std::shared_ptr<DeviceModule> module);
 		void reorderModule(int oldIndex, int newIndex);
-		void moveModuleUp(std::shared_ptr<ChildModule> module);
-		void moveModuleDown(std::shared_ptr<ChildModule> module);
+		void moveModuleUp(std::shared_ptr<DeviceModule> module);
+		void moveModuleDown(std::shared_ptr<DeviceModule> module);
 		
 		virtual void beforeModuleReordering(){}
 		
 		//module configuration
-		bool discoverChildModules();
+		bool discoverDeviceModules();
 		DataTransferState moduleDiscoveryStatus = DataTransferState::NO_TRANSFER;
 		bool configureModules();
 		
@@ -61,17 +61,17 @@ namespace EtherCAT::ModularDeviceProfile{
 		bool loadModules(tinyxml2::XMLElement* xml);
 		
 		//module factory
-		virtual std::vector<ChildModule*>& getModuleFactory() = 0;
-		std::shared_ptr<ChildModule> createModule(uint32_t identifier);
-		std::shared_ptr<ChildModule> createModule(const char* saveString);
+		virtual std::vector<DeviceModule*>& getModuleFactory() = 0;
+		std::shared_ptr<DeviceModule> createModule(uint32_t identifier);
+		std::shared_ptr<DeviceModule> createModule(const char* saveString);
 		
 		//module management gui
 		void moduleManagerGui();
-		std::shared_ptr<ChildModule> selectedModule = nullptr;
+		std::shared_ptr<DeviceModule> selectedModule = nullptr;
 	};
 
 
-	class ChildModule : public std::enable_shared_from_this<ChildModule>{
+	class DeviceModule : public std::enable_shared_from_this<DeviceModule>{
 	public:
 
 		//module name as reported by the bus coupler
@@ -81,15 +81,15 @@ namespace EtherCAT::ModularDeviceProfile{
 		//module u32 identifier
 		virtual uint32_t getIdentifier() = 0;
 		
-		virtual std::shared_ptr<ChildModule> getNewInstance() = 0;
+		virtual std::shared_ptr<DeviceModule> getNewInstance() = 0;
 		virtual void onConstruction() = 0;
 
-		std::shared_ptr<ParentDevice> parentDevice = nullptr;
-		void setParentDevice(std::shared_ptr<ParentDevice> parent){
+		std::shared_ptr<ModularDevice> parentDevice = nullptr;
+		void setParentDevice(std::shared_ptr<ModularDevice> parent){
 			parentDevice = parent;
 			onSetParentDevice(parent);
 		}
-		virtual void onSetParentDevice(std::shared_ptr<ParentDevice> parent) {}
+		virtual void onSetParentDevice(std::shared_ptr<ModularDevice> parent) {}
 		
 		int moduleIndex = -1;
 		void setIndex(int i){

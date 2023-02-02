@@ -8,8 +8,6 @@
 
 #include "Animation/Animation.h"
 
-#include "Motion/Axis/VelocityControlledAxis.h"
-
 /*
 AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
 AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};

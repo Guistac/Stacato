@@ -9,7 +9,7 @@
 namespace PhoenixContact{
 
 
-std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& BusCoupler::getModuleFactory(){
+std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& BusCoupler::getModuleFactory(){
 	return ModuleFactory::getModules();
 }
 

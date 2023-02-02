@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Fieldbus/Utilities/DeviceModule.h"
-#include "Fieldbus/Utilities/ModularDevice.h"
+#include "Fieldbus/Utilities/ModularDeviceProfile.h"
 
 #include "Motion/SubDevice.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
@@ -16,7 +15,7 @@ namespace tinyxml2{ struct XMLElement; }
 
 
 namespace PhoenixContact::ModuleFactory{
-	std::vector<EtherCAT::ModularDeviceProfile::ChildModule*>& getModules();
+	std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModules();
 }
 
 
@@ -28,7 +27,7 @@ namespace PhoenixContact::ModuleFactory{
 
 namespace PhoenixContact{
 
-class IB_IL_24_DI_4 : public EtherCAT::ModularDeviceProfile::ChildModule{
+class IB_IL_24_DI_4 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4-PAC", "Digital Input x4 (24V)", 0x41BE)
 	
@@ -50,7 +49,7 @@ public:
 
 namespace PhoenixContact{
 
-class IB_IL_24_DO_4 : public EtherCAT::ModularDeviceProfile::ChildModule{
+class IB_IL_24_DO_4 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4-PAC", "Digital Output x4 (24V 500mA)", 0x41BD)
 	
@@ -72,7 +71,7 @@ public:
 
 namespace PhoenixContact{
 
-class IB_IL_24_48_DOR_2 : public EtherCAT::ModularDeviceProfile::ChildModule{
+class IB_IL_24_48_DOR_2 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
 	
@@ -159,7 +158,7 @@ DEFINE_ENUMERATOR(PhoenixContact::SSI::Code, CodeTypeStrings)
 
 namespace PhoenixContact{
 
-class IB_IL_SSI_IN : public EtherCAT::ModularDeviceProfile::ChildModule{
+class IB_IL_SSI_IN : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN-PAC", "SSI input", 0x25F)
 	

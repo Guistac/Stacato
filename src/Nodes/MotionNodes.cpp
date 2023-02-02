@@ -3,15 +3,11 @@
 #include "NodeFactory.h"
 
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
-#include "Machine/Machines/Basic/SharedAxisMachine.h"
 
 #include "Machine/Machines/StateMachines/FlipStateMachine.h"
 #include "Machine/Machines/StateMachines/AxisStateMachine.h"
 
-#include "Motion/Axis/VelocityControlledAxis.h"
 #include "Motion/Axis/PositionControlledAxis.h"
-
-#include "Motion/Utilities/PositionFeedback.h"
 
 #include "Motion/Safety/DeadMansSwitch.h"
 #include "Motion/Safety/SafetySignal.h"
@@ -34,15 +30,12 @@ namespace NodeFactory{
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
 		allAxisNodes = {
-			//new VelocityControlledAxis(),
 			new PositionControlledAxis()
 		};
 		
 		allMachineNodes = {
 			new PositionControlledMachine(),
-			//new SharedAxisMachine(),
 			new FlipStateMachine(),
-			//new AxisStateMachine()
 		};
 		
 		allSafetyNodes = {
