@@ -2,7 +2,7 @@
 
 #include "PositionControlledMachine.h"
 
-#include "Motion/Axis/PositionControlledAxis.h"
+#include "Motion/Axis/Axis.h"
 #include "Animation/Animatable.h"
 #include "Animation/Animation.h"
 
@@ -66,8 +66,8 @@ bool PositionControlledMachine::isAxisConnected() {
 	return positionControlledAxisPin->isConnected();
 }
 
-std::shared_ptr<PositionControlledAxis> PositionControlledMachine::getAxis() {
-	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<PositionControlledAxis>();
+std::shared_ptr<Motion::Axis> PositionControlledMachine::getAxis() {
+	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<Motion::Axis>();
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
@@ -84,7 +84,7 @@ void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin)
 
 bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	std::shared_ptr<Motion::Axis> axis = getAxis();
 	if(axis->getState() != DeviceState::READY) return false;
 	return true;
 }
@@ -101,7 +101,7 @@ void PositionControlledMachine::enableHardware() {
 	if (isReady()) {
 		std::thread machineEnabler([this]() {
 			using namespace std::chrono;
-			std::shared_ptr<PositionControlledAxis> axis = getAxis();
+			std::shared_ptr<Motion::Axis> axis = getAxis();
 			axis->enable();
 			time_point enableRequestTime = system_clock::now();
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
@@ -186,7 +186,7 @@ void PositionControlledMachine::inputProcess() {
 		state = DeviceState::OFFLINE;
 		return;
 	}
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	std::shared_ptr<Motion::Axis> axis = getAxis();
 	
 	//update machine state
 	if (isEnabled() && axis->getState() != DeviceState::ENABLED) disable();
@@ -276,7 +276,7 @@ void PositionControlledMachine::simulateInputProcess() {
 
 void PositionControlledMachine::simulateOutputProcess(){
 	if (!isAxisConnected()) return;
-	std::shared_ptr<PositionControlledAxis> axis = getAxis();
+	std::shared_ptr<Motion::Axis> axis = getAxis();
 	 
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();

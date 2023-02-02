@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "PositionControlledAxis.h"
+#include "Axis.h"
 #include "Environnement/NodeGraph/DeviceNode.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Curve.h"
@@ -10,8 +10,9 @@
 
 #include <tinyxml2.h>
 
+namespace Motion{
 
-void PositionControlledAxis::initialize() {
+void Axis::initialize() {
 	//inputs
 	addNodePin(servoActuatorPin);
 	addNodePin(gpioPin);
@@ -26,7 +27,7 @@ void PositionControlledAxis::initialize() {
 	//outputs
 	addNodePin(surveillanceValidOutputPin);
 	addNodePin(surveillanceFaultResetPin);
-	axisPin->assignData(std::static_pointer_cast<PositionControlledAxis>(shared_from_this()));
+	axisPin->assignData(std::static_pointer_cast<Axis>(shared_from_this()));
 	addNodePin(axisPin);
 	addNodePin(positionPin);
 	addNodePin(velocityPin);
@@ -41,7 +42,7 @@ void PositionControlledAxis::initialize() {
 	});
 }
 
-std::string PositionControlledAxis::getStatusString(){
+std::string Axis::getStatusString(){
 	std::string statusString;
 	switch(state){
 		case DeviceState::OFFLINE:
@@ -74,7 +75,7 @@ std::string PositionControlledAxis::getStatusString(){
 	return statusString;
 }
 
-void PositionControlledAxis::updateAxisState(){
+void Axis::updateAxisState(){
 	
 	DeviceState newAxisState = DeviceState::ENABLED;
 	auto checkState = [&](DeviceState deviceState){ if(int(deviceState) < int(newAxisState)) newAxisState = deviceState; };
@@ -110,7 +111,7 @@ void PositionControlledAxis::updateAxisState(){
 	*actualLoadValue = getServoActuatorDevice()->getEffort();
 }
 
-void PositionControlledAxis::reactToReferenceSignals(){
+void Axis::reactToReferenceSignals(){
 	//update and react to reference signals
 	updateReferenceSignals();
 	if(state == DeviceState::ENABLED && !isHoming()){
@@ -132,7 +133,7 @@ void PositionControlledAxis::reactToReferenceSignals(){
 	}
 }
 
-void PositionControlledAxis::inputProcess() {
+void Axis::inputProcess() {
 	//check connection requirements and abort processing if the requirements are not met
 	if(!areAllPinsConnected()) {
 		state = DeviceState::OFFLINE;
@@ -147,7 +148,7 @@ void PositionControlledAxis::inputProcess() {
 	if(isSurveilled()) updateSurveillance();
 }
 
-void PositionControlledAxis::updateSurveillance(){
+void Axis::updateSurveillance(){
 	
 	auto surveillanceFeedbackDevice = getSurveillanceFeedbackDevice();
 	surveillanceValidInputPin->copyConnectedPinValue();
@@ -193,14 +194,14 @@ void PositionControlledAxis::updateSurveillance(){
 	
 }
 
-void PositionControlledAxis::setMotionCommand(double position, double velocity, double acceleration){
+void Axis::setMotionCommand(double position, double velocity, double acceleration){
 	motionProfile.setPosition(position);
 	motionProfile.setVelocity(velocity);
 	motionProfile.setAcceleration(acceleration);
 	controlMode = ControlMode::EXTERNAL;
 }
 
-void PositionControlledAxis::outputProcess(){
+void Axis::outputProcess(){
 	//update timing
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
@@ -216,11 +217,11 @@ void PositionControlledAxis::outputProcess(){
 														   manualAcceleration);
 				//but respect them when moving manually
 				else motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds,
-																	manualVelocityTarget,
-																	manualAcceleration,
-																	getLowPositionLimit(),
-																	getHighPositionLimit(),
-																	getAccelerationLimit());
+																		 manualVelocityTarget,
+																		 manualAcceleration,
+																		 getLowPositionLimit(),
+																		 getHighPositionLimit(),
+																		 getAccelerationLimit());
 				break;
 			case ControlMode::FAST_STOP:
 				motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, manualAcceleration);
@@ -231,7 +232,7 @@ void PositionControlledAxis::outputProcess(){
 				motionProfile.setVelocity(interpolationPoint.velocity);
 				motionProfile.setAcceleration(interpolationPoint.acceleration);
 				if(motionProfile.isInterpolationFinished(profileTime_seconds)) setVelocityTarget(0.0);
-				}break;
+			}break;
 			case ControlMode::EXTERNAL:
 				//here the motion profile is expected to be controlled by the setMotionCommand() method
 				break;
@@ -275,7 +276,7 @@ void PositionControlledAxis::outputProcess(){
 
 //=================================== STATE CONTROL ============================================
 
-void PositionControlledAxis::enable() {
+void Axis::enable() {
 	std::thread machineEnabler([this]() {
 		using namespace std::chrono;
 		system_clock::time_point start = system_clock::now();
@@ -291,16 +292,16 @@ void PositionControlledAxis::enable() {
 			}
 			std::this_thread::sleep_for(milliseconds(10));
 		}
-			
+		
 		servoActuator->disable();
 		state = DeviceState::READY;
 		Logger::warn("Could not enable Axis '{}', servo actuator did not enable on time", getName());
-
+		
 	});
 	machineEnabler.detach();
 }
 
-void PositionControlledAxis::onEnable() {
+void Axis::onEnable() {
 	setVelocityTarget(0.0);
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
@@ -308,16 +309,16 @@ void PositionControlledAxis::onEnable() {
 	Logger::info("Axis {} was enabled", getName());
 }
 
-void PositionControlledAxis::disable() {
+void Axis::disable() {
 	if(isServoActuatorDeviceConnected()) getServoActuatorDevice()->disable();
 	onDisable();
 }
 
-void PositionControlledAxis::onDisable() {
+void Axis::onDisable() {
 	Logger::info("Axis was {} disabled", getName());
 }
 
-bool PositionControlledAxis::isReadyToEnable() {
+bool Axis::isReadyToEnable() {
 	if(!areAllPinsConnected()) return false;
 	if(isSurveilled()){
 		//if the axis is surveilled
@@ -334,7 +335,7 @@ bool PositionControlledAxis::isReadyToEnable() {
 }
 
 
-void PositionControlledAxis::clearSurveillanceFault(){
+void Axis::clearSurveillanceFault(){
 	std::thread surveillanceErrorClearer([this]() {
 		using namespace std::chrono;
 		system_clock::time_point start = system_clock::now();
@@ -360,18 +361,18 @@ void PositionControlledAxis::clearSurveillanceFault(){
 		b_isClearingSurveillanceError = false;
 		
 		Logger::warn("Failed to clear surveillance fault");
-
+		
 	});
 	surveillanceErrorClearer.detach();
 }
 
-void PositionControlledAxis::triggerSurveillanceFault(){
+void Axis::triggerSurveillanceFault(){
 	b_hasSurveillanceError = true;
 }
 
 //========================== DEVICES =============================
 
-bool PositionControlledAxis::areAllPinsConnected(){
+bool Axis::areAllPinsConnected(){
 	if(needsReferenceDevice() && !isReferenceDeviceConnected()) return false;
 	if(isSurveilled() && !isSurveillanceFeedbackDeviceConnected()) return false;
 	if(!isServoActuatorDeviceConnected()) return false;
@@ -393,7 +394,7 @@ bool PositionControlledAxis::areAllPinsConnected(){
 	return true;
 }
 
-bool PositionControlledAxis::areAllDevicesReady(){
+bool Axis::areAllDevicesReady(){
 	if(needsReferenceDevice()){
 		for(auto referenceDevicePin : gpioPin->getConnectedPins()){
 			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioModule>();
@@ -404,7 +405,7 @@ bool PositionControlledAxis::areAllDevicesReady(){
 	if(!getServoActuatorDevice()->isReady()) return false;
 }
 
-bool PositionControlledAxis::needsReferenceDevice() {
+bool Axis::needsReferenceDevice() {
 	if(isSurveilled()) return true;
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
@@ -417,7 +418,7 @@ bool PositionControlledAxis::needsReferenceDevice() {
 
 //============================= DEVICE AND SIGNAL LINKS ================================
 
-void PositionControlledAxis::setMovementType(MovementType type){
+void Axis::setMovementType(MovementType type){
 	movementType = type;
 	switch(type){
 		case MovementType::ROTARY:
@@ -451,13 +452,13 @@ void PositionControlledAxis::setMovementType(MovementType type){
 	axisPin->updateConnectedPins();
 }
 
-void PositionControlledAxis::setPositionUnit(Unit u){
+void Axis::setPositionUnit(Unit u){
 	positionUnit = u;
 	sanitizeParameters();
 	axisPin->updateConnectedPins();
 }
 
-void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSignal type) {
+void Axis::setPositionReferenceSignalType(PositionReferenceSignal type) {
 	switch (type) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 			gpioPin->setVisible(true);
@@ -503,7 +504,7 @@ void PositionControlledAxis::setPositionReferenceSignalType(PositionReferenceSig
 	axisPin->updateConnectedPins();
 }
 
-void PositionControlledAxis::setSurveillance(bool isSurveilled){
+void Axis::setSurveillance(bool isSurveilled){
 	if(isSurveilled){
 		surveillanceValidInputPin->setVisible(true);
 		surveillanceFeedbackDevicePin->setVisible(true);
@@ -528,7 +529,7 @@ void PositionControlledAxis::setSurveillance(bool isSurveilled){
 
 //============================== LIMITS, ORIGIN AND REFERENCES ================================
 
-void PositionControlledAxis::updateReferenceSignals() {
+void Axis::updateReferenceSignals() {
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
 			previousLowLimitSignal = *lowLimitSignal;
@@ -548,44 +549,44 @@ void PositionControlledAxis::updateReferenceSignals() {
 	}
 }
 
-bool PositionControlledAxis::isMoving() {
+bool Axis::isMoving() {
 	return motionProfile.getVelocity() != 0.0;
 	//TODO: this needs a threshold setting
 	//return getServoActuatorDevice()->isMoving();
 }
 
-double PositionControlledAxis::getLowPositionLimit() {
+double Axis::getLowPositionLimit() {
 	return getLowPositionLimitWithoutClearance() + lowLimitClearance;
 }
 
-double PositionControlledAxis::getHighPositionLimit() {
+double Axis::getHighPositionLimit() {
 	return getHighPositionLimitWithoutClearance() - highLimitClearance;
 }
 
-double PositionControlledAxis::getLowPositionLimitWithoutClearance() {
+double Axis::getLowPositionLimitWithoutClearance() {
 	double lowLimit = -std::numeric_limits<double>::infinity();
 	if (b_enableLowLimit) lowLimit = lowPositionLimit;
 	if (limitToFeedbackWorkingRange) lowLimit = std::max(lowLimit, getLowFeedbackPositionLimit());
 	return lowLimit;
 }
 
-double PositionControlledAxis::getHighPositionLimitWithoutClearance() {
+double Axis::getHighPositionLimitWithoutClearance() {
 	double highLimit = std::numeric_limits<double>::infinity();
 	if (b_enableHighLimit) highLimit = highPositionLimit;
 	if (limitToFeedbackWorkingRange) highLimit = std::min(highLimit, getHighFeedbackPositionLimit());
 	return highLimit;
 }
 
-double PositionControlledAxis::getRange() {
+double Axis::getRange() {
 	return getHighPositionLimit() - getLowPositionLimit();
 }
 
-double PositionControlledAxis::getLowFeedbackPositionLimit() {
+double Axis::getLowFeedbackPositionLimit() {
 	if (isServoActuatorDeviceConnected()) return getServoActuatorDevice()->getPositionLowerWorkingRangeBound() / servoActuatorUnitsPerAxisUnits;
 	else return -std::numeric_limits<double>::infinity();
 }
 
-double PositionControlledAxis::getHighFeedbackPositionLimit() {
+double Axis::getHighFeedbackPositionLimit() {
 	if (isServoActuatorDeviceConnected()) {
 		auto actuator = getServoActuatorDevice();
 		double maxServoPosition = actuator->getPositionUpperWorkingRangeBound();
@@ -594,33 +595,33 @@ double PositionControlledAxis::getHighFeedbackPositionLimit() {
 	else return std::numeric_limits<double>::infinity();
 }
 
-double PositionControlledAxis::getActualFollowingError(){
+double Axis::getActualFollowingError(){
 	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getFollowingError());
 }
 
-float PositionControlledAxis::getActualFollowingErrorNormalized(){
+float Axis::getActualFollowingErrorNormalized(){
 	return getServoActuatorDevice()->getFollowingErrorNormalized();
 }
 
-double PositionControlledAxis::getFollowingErrorLimit(){
+double Axis::getFollowingErrorLimit(){
 	return servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getFollowingErrorLimit());
 }
 
-void PositionControlledAxis::setCurrentPosition(double distance) {
+void Axis::setCurrentPosition(double distance) {
 	auto servo = getServoActuatorDevice();
 	servo->overridePosition(distance * servoActuatorUnitsPerAxisUnits);
 	motionProfile.setPosition(distance);
 }
 
-void PositionControlledAxis::setCurrentPositionAsNegativeLimit() {
+void Axis::setCurrentPositionAsNegativeLimit() {
 	lowPositionLimit = getServoActuatorDevice()->getPosition() / servoActuatorUnitsPerAxisUnits;
 }
 
-void PositionControlledAxis::setCurrentPositionAsPositiveLimit() {
+void Axis::setCurrentPositionAsPositiveLimit() {
 	highPositionLimit = getServoActuatorDevice()->getPosition() / servoActuatorUnitsPerAxisUnits;
 }
 
-void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUnits) {
+void Axis::scaleFeedbackToMatchPosition(double position_axisUnits) {
 	double servoActuatorPosition_actuatorUnits = getServoActuatorDevice()->getPosition();
 	//this recalculates unit scaling based on the distance from zero position
 	//TODO: is this not working anymore ???
@@ -630,17 +631,17 @@ void PositionControlledAxis::scaleFeedbackToMatchPosition(double position_axisUn
 
 //================================= MANUAL CONTROL ===================================
 
-void PositionControlledAxis::setVelocityTarget(double velocity_axisUnits) {
+void Axis::setVelocityTarget(double velocity_axisUnits) {
 	manualVelocityTarget = velocity_axisUnits;
 	controlMode = ControlMode::VELOCITY_TARGET;
 }
 
-void PositionControlledAxis::fastStop(){
+void Axis::fastStop(){
 	manualVelocityTarget = 0.0;
 	controlMode = ControlMode::FAST_STOP;
 }
 
-void PositionControlledAxis::moveToPositionWithVelocity(double targetPosition, double targetVelocity) {
+void Axis::moveToPositionWithVelocity(double targetPosition, double targetVelocity) {
 	targetPosition = std::min(targetPosition, getHighPositionLimit());
 	targetPosition = std::max(targetPosition, getLowPositionLimit());
 	targetVelocity = std::min(std::abs(targetVelocity), getVelocityLimit());
@@ -652,7 +653,7 @@ void PositionControlledAxis::moveToPositionWithVelocity(double targetPosition, d
 	else setVelocityTarget(0.0);
 }
 
-void PositionControlledAxis::moveToPositionInTime(double targetPosition, double targetTime) {
+void Axis::moveToPositionInTime(double targetPosition, double targetTime) {
 	targetPosition = std::min(targetPosition, getHighPositionLimit());
 	targetPosition = std::max(targetPosition, getLowPositionLimit());
 	bool success = motionProfile.moveToPositionInTime(profileTime_seconds,
@@ -667,63 +668,63 @@ void PositionControlledAxis::moveToPositionInTime(double targetPosition, double 
 
 //==================================== HOMING =====================================
 
-bool PositionControlledAxis::isHomeable() {
+bool Axis::isHomeable() {
 	switch (positionReferenceSignal) {
 		case PositionReferenceSignal::NO_SIGNAL:
 			return false;
-		default: 
+		default:
 			return true;
 	}
 }
 
-void PositionControlledAxis::startHoming() {
+void Axis::startHoming() {
 	b_isHoming = true;
 	homingStep = HomingStep::NOT_STARTED;
 	homingError = HomingError::NONE;
 }
 
-void PositionControlledAxis::cancelHoming() {
+void Axis::cancelHoming() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	controlMode = ControlMode::VELOCITY_TARGET;
 	setVelocityTarget(0.0);
 }
 
-bool PositionControlledAxis::isHoming() {
+bool Axis::isHoming() {
 	return b_isHoming;
 }
 
-bool PositionControlledAxis::didHomingSucceed() {
+bool Axis::didHomingSucceed() {
 	return !isHoming() && homingStep == HomingStep::FINISHED;
 }
 
-bool PositionControlledAxis::didHomingFail() {
+bool Axis::didHomingFail() {
 	return homingError != HomingError::NONE;
 }
 
-HomingStep PositionControlledAxis::getHomingStep(){
+HomingStep Axis::getHomingStep(){
 	return homingStep;
 }
 
-void PositionControlledAxis::onHomingSuccess() {
+void Axis::onHomingSuccess() {
 	b_isHoming = false;
 	homingStep = HomingStep::FINISHED;
 	Logger::info("Homing Axis {} Success !", getName());
 }
 
-void PositionControlledAxis::onHomingError() {
+void Axis::onHomingError() {
 	b_isHoming = false;
 	homingStep = HomingStep::NOT_STARTED;
 	disable();
 	Logger::info("Homing Axis {} Failure : {}", getName(), Enumerator::getDisplayString(homingError));
 }
 
-float PositionControlledAxis::getHomingProgress() {
+float Axis::getHomingProgress() {
 	
 	switch (positionReferenceSignal) {
-
+			
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-
+			
 			switch (homingStep) {
 				case HomingStep::NOT_STARTED: return 0.0;
 				case HomingStep::SEARCHING_LOW_LIMIT_COARSE: return 0.1;
@@ -735,11 +736,11 @@ float PositionControlledAxis::getHomingProgress() {
 				default: return 0.0;
 			}
 			break;
-
+			
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-
+			
 			if (homingDirection == HomingDirection::NEGATIVE) {
-
+				
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED: return 0.0;
 					case HomingStep::SEARCHING_LOW_LIMIT_COARSE: return 0.1;
@@ -755,10 +756,10 @@ float PositionControlledAxis::getHomingProgress() {
 					case HomingStep::FINISHED: return 1.0;
 					default: return 0.0;
 				}
-
+				
 			}
 			else if (homingDirection == HomingDirection::POSITIVE) {
-
+				
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED: return 0.0;
 					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE: return 0.1;
@@ -774,13 +775,13 @@ float PositionControlledAxis::getHomingProgress() {
 					case HomingStep::FINISHED: return 1.0;
 					default: return 0.0;
 				}
-
+				
 			}
-
+			
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-
+			
 			if (homingDirection == HomingDirection::POSITIVE) {
-
+				
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED: return 0.0;
 					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE: return 0.1;
@@ -792,10 +793,10 @@ float PositionControlledAxis::getHomingProgress() {
 					case HomingStep::FINISHED: return 1.0;
 					default: return 0.0;
 				}
-
+				
 			}
 			else if (homingDirection == HomingDirection::NEGATIVE) {
-
+				
 				switch (homingStep) {
 					case HomingStep::NOT_STARTED: return 0.0;
 					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE: return 0.1;
@@ -807,21 +808,21 @@ float PositionControlledAxis::getHomingProgress() {
 					case HomingStep::FINISHED: return 1.0;
 					default: return 0.0;
 				}
-
+				
 			}
 			break;
-
+			
 		default: break;
 	}
 }
 
 
-void PositionControlledAxis::homingControl(){
+void Axis::homingControl(){
 	
 	switch (positionReferenceSignal) {
-
+			
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_LIMIT:
-
+			
 			
 			switch (homingStep) {
 				case HomingStep::NOT_STARTED:
@@ -870,12 +871,12 @@ void PositionControlledAxis::homingControl(){
 					}
 					break;
 				default: break;
-				}
+			}
 			break;
 			
-			 
+			
 		case PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT:
-
+			
 			
 			if (homingDirection == HomingDirection::NEGATIVE) {
 				switch (homingStep) {
@@ -1061,9 +1062,9 @@ void PositionControlledAxis::homingControl(){
 				}
 			}
 			break;
-			 
+			
 		case PositionReferenceSignal::SIGNAL_AT_ORIGIN:
-
+			
 			
 			if (homingDirection == HomingDirection::POSITIVE) {
 				switch (homingStep) {
@@ -1109,7 +1110,7 @@ void PositionControlledAxis::homingControl(){
 									Logger::info("Homing Axis {} : Waiting For Encoder Hard Reset", getName());
 									homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 								}
-								break;
+									break;
 									
 								case SignalApproach::FIND_SIGNAL_CENTER:
 									setCurrentPosition(0.0);
@@ -1177,7 +1178,7 @@ void PositionControlledAxis::homingControl(){
 							
 							switch(signalApproach->value){
 								case SignalApproach::FIND_SIGNAL_EDGE:
-								
+									
 								{
 									
 									
@@ -1205,7 +1206,7 @@ void PositionControlledAxis::homingControl(){
 									
 									
 									
-
+									
 								}
 									
 									break;
@@ -1257,14 +1258,14 @@ void PositionControlledAxis::homingControl(){
 						if(useFeedbackDevice_Param->value){
 							auto feedbackDevice = getFeedbackDevice();
 							
-								if(!feedbackDevice->isBusyOverridingPosition()){
-									double feedbackPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
-									motionProfile.setPosition(feedbackPosition);
-									onHomingSuccess();
-								}
-
+							if(!feedbackDevice->isBusyOverridingPosition()){
+								double feedbackPosition = feedbackUnitsToAxisUnits(feedbackDevice->getPosition());
+								motionProfile.setPosition(feedbackPosition);
+								onHomingSuccess();
+							}
+							
 						}else{
-								
+							
 							if(!getServoActuatorDevice()->isBusyOverridingPosition()) {
 								motionProfile.setPosition(servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getPosition()));
 								onHomingSuccess();
@@ -1278,23 +1279,23 @@ void PositionControlledAxis::homingControl(){
 				}
 			}
 			break;
-			 
+			
 		default:
 			homingError = HomingError::HOMING_NOT_SUPORTED;
 			onHomingError(); //homing should not be started for modes that don't support homing
 			break;
 	}
- 
+	
 }
- 
 
 
-void PositionControlledAxis::sanitizeParameters(){
+
+void Axis::sanitizeParameters(){
 	interpolationPositionTarget = std::min(interpolationPositionTarget, getHighPositionLimit());
 	interpolationPositionTarget = std::max(interpolationPositionTarget, getLowPositionLimit());
 	interpolationVelocityTarget = std::min(std::abs(interpolationVelocityTarget), getVelocityLimit());
 	interpolationTimeTarget = std::abs(interpolationTimeTarget);
-
+	
 	servoActuatorUnitsPerAxisUnits = std::abs(servoActuatorUnitsPerAxisUnits);
 	
 	homingVelocityCoarse = std::abs(homingVelocityCoarse);
@@ -1307,7 +1308,7 @@ void PositionControlledAxis::sanitizeParameters(){
 	if(isServoActuatorDeviceConnected()) accelerationLimit = std::min(accelerationLimit, servoActuatorUnitsToAxisUnits(getServoActuatorDevice()->getAccelerationLimit()));
 	
 	manualAcceleration = std::min(std::abs(manualAcceleration), accelerationLimit);
-
+	
 	lowPositionLimit = std::min(lowPositionLimit, highPositionLimit - highLimitClearance);
 	highPositionLimit = std::max(highPositionLimit, lowPositionLimit + lowLimitClearance);
 	lowLimitClearance = std::abs(lowLimitClearance);
@@ -1318,29 +1319,29 @@ void PositionControlledAxis::sanitizeParameters(){
 
 
 
-bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
-
+bool Axis::save(tinyxml2::XMLElement* xml) {
+	
 	using namespace tinyxml2;
-
+	
 	XMLElement* unitsXML = xml->InsertNewChildElement("Units");
 	unitsXML->SetAttribute("UnitType", Enumerator::getSaveString(movementType));
 	unitsXML->SetAttribute("Unit", positionUnit->saveString);
-
+	
 	XMLElement* unitConversionXML = xml->InsertNewChildElement("UnitConversion");
 	unitConversionXML->SetAttribute("ActuatorUnitsPerMachineUnit", servoActuatorUnitsPerAxisUnits);
-
+	
 	XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
 	kinematicLimitsXML->SetAttribute("VelocityLimit", velocityLimit);
 	kinematicLimitsXML->SetAttribute("AccelerationLimit", accelerationLimit);
 	kinematicLimitsXML->SetAttribute("ManualAcceleration", manualAcceleration);
-
+	
 	XMLElement* positionReferenceXML = xml->InsertNewChildElement("PositionReferenceSignals");
 	positionReferenceXML->SetAttribute("Type", Enumerator::getSaveString(positionReferenceSignal));
 	positionReferenceXML->SetAttribute("HomingVelocityCoarse", homingVelocityCoarse);
 	positionReferenceXML->SetAttribute("HomingVelocityFine", homingVelocityFine);
 	positionReferenceXML->SetAttribute("HomingDirection", Enumerator::getSaveString(homingDirection));
 	signalApproach->save(positionReferenceXML);
-
+	
 	XMLElement* positionLimitsXML = xml->InsertNewChildElement("PositionLimits");
 	positionLimitsXML->SetAttribute("LowLimit", lowPositionLimit);
 	positionLimitsXML->SetAttribute("EnableLowLimit", b_enableLowLimit);
@@ -1365,9 +1366,9 @@ bool PositionControlledAxis::save(tinyxml2::XMLElement* xml) {
 
 
 
-bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
+bool Axis::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-
+	
 	XMLElement* unitsXML = xml->FirstChildElement("Units");
 	if (!unitsXML) return Logger::warn("Could not load Units Attributes");
 	const char* axisUnitTypeString;
@@ -1385,7 +1386,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 			break;
 	}
 	setPositionUnit(Units::fromSaveString(axisUnitString));
-
+	
 	XMLElement* unitConversionXML = xml->FirstChildElement("UnitConversion");
 	if (!unitConversionXML) return Logger::warn("Could not load Unit Conversion");
 	if (unitConversionXML->QueryDoubleAttribute("ActuatorUnitsPerMachineUnit", &servoActuatorUnitsPerAxisUnits) != XML_SUCCESS) return Logger::warn("Could not load Actuator Units Per Machine Unit");
@@ -1395,7 +1396,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (kinematicLimitsXML->QueryDoubleAttribute("VelocityLimit", &velocityLimit)) Logger::warn("Could not load velocity limit");
 	if (kinematicLimitsXML->QueryDoubleAttribute("AccelerationLimit", &accelerationLimit) != XML_SUCCESS) Logger::warn("Could not load acceleration limit");
 	if (kinematicLimitsXML->QueryDoubleAttribute("ManualAcceleration", &manualAcceleration) != XML_SUCCESS) Logger::warn("Could not load manual Acceleration");
-
+	
 	XMLElement* positionLimitsXML = xml->FirstChildElement("PositionLimits");
 	if (positionLimitsXML == nullptr) return Logger::warn("Could not load Position Limits Attribute");
 	if (positionLimitsXML->QueryDoubleAttribute("LowLimit", &lowPositionLimit) != XML_SUCCESS) return Logger::warn("Could not load max negative deviation attribute");
@@ -1405,7 +1406,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if (positionLimitsXML->QueryBoolAttribute("EnableHighLimit", &b_enableHighLimit) != XML_SUCCESS) return Logger::warn("Could not load enable positive limit attribute");
 	if (positionLimitsXML->QueryDoubleAttribute("HighLimitClearance", &highLimitClearance) != XML_SUCCESS) Logger::warn("Could not load high limit clearnce attribute");
 	if (positionLimitsXML->QueryBoolAttribute("LimitToFeedbackWorkingRange", &limitToFeedbackWorkingRange) != XML_SUCCESS) return Logger::warn("Could not load limit to feedback working range attribute");
-
+	
 	XMLElement* positionReferenceXML = xml->FirstChildElement("PositionReferenceSignals");
 	if (!positionReferenceXML) return Logger::warn("Could not load Machine Position Reference");
 	const char* positionLimitTypeString;
@@ -1429,7 +1430,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 	if(!surveillancefeedbackUnitsPerAxisUnits->load(surveillanceXML)) return false;
 	if(!maxVelocityDeviation->load(surveillanceXML)) return false;
 	if(!maxSurveillanceErrorClearTime->load(surveillanceXML)) return false;
-	 
+	
 	XMLElement* feedbackXML = xml->FirstChildElement("Feedback");
 	if(feedbackXML){
 		if(!useFeedbackDevice_Param->load(feedbackXML)) return false;
@@ -1438,7 +1439,7 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 		Logger::warn("Could not load Surveillance Attribute");
 		return false;
 	}
-
+	
 	
 	return true;
 }
@@ -1447,16 +1448,18 @@ bool PositionControlledAxis::load(tinyxml2::XMLElement* xml) {
 
 
 
-void PositionControlledAxis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
+void Axis::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	//if (isServoActuatorDeviceConnected()) output.push_back(getServoActuatorDevice()->parentDevice);
 	//if (needsReferenceDevice() && isReferenceDeviceConnected())output.push_back(getReferenceDevice()->parentDevice);
 }
 
 
-void PositionControlledAxis::updateMetrics() {
+void Axis::updateMetrics() {
 	positionHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getPosition()));
 	actualPositionHistory.addPoint(glm::vec2(profileTime_seconds, *actualPositionValue));
 	velocityHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getVelocity()));
 	accelerationHistory.addPoint(glm::vec2(profileTime_seconds, motionProfile.getAcceleration()));
 	loadHistory.addPoint(glm::vec2(profileTime_seconds, *actualLoadValue));
 }
+
+};

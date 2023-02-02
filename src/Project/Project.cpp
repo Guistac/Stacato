@@ -5,6 +5,9 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 
+#include "Component.h"
+#include "Serializable.h"
+
 namespace Project {
 
 	std::vector<std::shared_ptr<Plot>> plots;

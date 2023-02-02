@@ -121,8 +121,6 @@ public:
 	
 	bool isMotionAllowed();
 	
-	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes(){}
-	
 	//===== GUI STUFF =====
 	virtual void nodeSpecificGui() override;
 	virtual void stateControlGui();

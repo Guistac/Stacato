@@ -301,9 +301,9 @@ set(STACATO_SOURCE_FILES
 
     #========================= AXIS TYPES =========================
 
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxis.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/PositionControlledAxisGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/Axis.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/Axis.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisGui.cpp
 
     #========================== SAFETY NODES ======================
 

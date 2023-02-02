@@ -170,12 +170,10 @@ enum class HomingStep{
 	{HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE,		.displayString = "Found Reference From Below Coarse"},\
 	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE,	.displayString = "Searching Reference From Below Fine"},\
 	{HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE,		.displayString = "Found Reference From Below Fine"},\
-	/*{HomingStep::SETTING_REFERENCE_LOW,					.displayString = "Setting Reference Low"},*/\
 	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	.displayString = "Searching Reference From Above Coarse"},\
 	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE,		.displayString = "Found Reference From Above Coarse"},\
 	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE,	.displayString = "Searching Reference From Above Fine"},\
 	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE,		.displayString = "Found Reference From Above Fine"},\
-	/*{HomingStep::SETTING_REFERENCE_HIGH,				.displayString = "Setting Reference High"},*/\
 	{HomingStep::MOVING_TO_REFERENCE_MIDDLE,			.displayString = "Moving To Reference Middle"},\
 	{HomingStep::FINISHED,								.displayString = "Finished"}\
 
@@ -247,27 +245,6 @@ enum class ManoeuvreType{
 	{ManoeuvreType::SEQUENCE,	"Sequence",			"Sequence"}\
 
 DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
-
-//================================================================================================================================
-
-
-/*
-enum class DeviceState{
-	OFFLINE = 0,
-	NOT_READY = 1,
-	READY = 2,
-	ENABLED = 3
-};
-
-
-#define DeviceStateStrings \
-{DeviceState::OFFLINE, 		"Offline", "Offline"},\
-{DeviceState::NOT_READY, 	"Not Ready", "NotReady"},\
-{DeviceState::READY, 		"Ready", "Ready"},\
-{DeviceState::ENABLED, 		"Enabled", "Enabled"}\
-
-DEFINE_ENUMERATOR(DeviceState, DeviceStateStrings)
-*/
 
 
 //================================================================================================================================

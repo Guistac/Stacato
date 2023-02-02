@@ -8,13 +8,15 @@
 #include "Project/Editor/Parameter.h"
 
 class Device;
-namespace Motion { class Interpolation; }
+namespace Motion {
 
-class PositionControlledAxis : public Node {
+class Interpolation;
+
+class Axis : public Node {
 public:
-
-	DEFINE_NODE(PositionControlledAxis, "Position Controlled Axis", "PositionControlledAxis", Node::Type::AXIS, "")
-
+	
+	DEFINE_NODE(Axis, "Position Controlled Axis", "PositionControlledAxis", Node::Type::AXIS, "")
+	
 	//============ PINS ==============
 private:
 	//Inputs
@@ -66,7 +68,7 @@ private:
 	std::shared_ptr<NodePin> surveillanceFaultResetPin = std::make_shared<NodePin>(surveillanceFaultResetSignal,
 																				   NodePin::Direction::NODE_OUTPUT,
 																				   "Surveillance Fault Reset", "SurveillanceFaultReset");
-	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS,
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS,
 																 NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 																 "Position Controlled Axis", "PositionControlledAxis");
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(actualPositionValue,
@@ -96,17 +98,17 @@ private:
 	
 	bool areAllPinsConnected();
 	bool areAllDevicesReady();
-
+	
 	bool needsReferenceDevice();
 	bool isReferenceDeviceConnected(){ return gpioPin->isConnected(); }
 	std::shared_ptr<GpioModule> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioModule>(); }
-
+	
 	void updateAxisState();
 	void reactToReferenceSignals();
 	
 	bool isServoActuatorDeviceConnected(){ return servoActuatorPin->isConnected(); }
 	std::shared_ptr<ActuatorModule> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ActuatorModule>(); }
-
+	
 	bool needsSurveillanceFeedbackDevice(){ return b_isSurveilled->value; }
 	bool isSurveillanceFeedbackDeviceConnected(){ return surveillanceFeedbackDevicePin->isConnected(); }
 	std::shared_ptr<MotionFeedbackModule> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackModule>(); }
@@ -136,7 +138,7 @@ private:
 	MovementType movementType = MovementType::ROTARY;
 	Unit positionUnit = Units::AngularDistance::Degree;
 	double servoActuatorUnitsPerAxisUnits = 0.0;
-
+	
 	//Reference Signals and Homing
 	PositionReferenceSignal positionReferenceSignal = PositionReferenceSignal::SIGNAL_AT_LOWER_AND_UPPER_LIMIT;
 	HomingDirection homingDirection = HomingDirection::NEGATIVE;
@@ -183,7 +185,7 @@ public:
 public:
 	bool isReadyToEnable();
 	bool isMoving();
-
+	
 	void enable();
 	void disable();
 	
@@ -207,7 +209,7 @@ private:
 	
 	//actuator update
 	void sendActuatorCommands();
-
+	
 	//======= MOTION INTERFACE
 public:
 	double getProfileVelocity() { return motionProfile.getVelocity(); }
@@ -249,7 +251,7 @@ private:
 	void homingControl();
 	void onHomingSuccess();
 	void onHomingError();
-
+	
 	//============ POSITION REFERENCES AND LIMITS ==============
 private:
 	//limit and reference signals
@@ -257,14 +259,14 @@ private:
 	bool previousLowLimitSignal = false;
 	bool previousHighLimitSignal = false;
 	bool previousReferenceSignal = false;
-
+	
 	//feedback position limits
 	double getLowPositionLimitWithoutClearance();
 	double getHighPositionLimitWithoutClearance();
 	double getLowFeedbackPositionLimit();
 	double getHighFeedbackPositionLimit();
 	double getRange();
-		
+	
 	//================ SURVEILLANCE ==================
 	
 	bool b_hasSurveillanceError = true;
@@ -286,7 +288,7 @@ private:
 																										   "MaxSurveillanceErrorClearTime",
 																										   "%.3f",
 																										   Units::Time::Second);
-
+	
 	double surveillanceUnitsToAxisUnits(double surveillanceValue) { return surveillanceValue / surveillancefeedbackUnitsPerAxisUnits->value; }
 	double axisUnitsToSurveillanceUnits(double axisValue) { return axisValue * surveillancefeedbackUnitsPerAxisUnits->value; }
 	
@@ -302,7 +304,7 @@ private:
 	void setSurveillance(bool isSurveilled);
 	
 	//============= METRICS ============
-
+	
 	void updateMetrics();
 	const size_t historyLength = 2048;
 	CircularBuffer positionHistory = CircularBuffer(historyLength);
@@ -316,9 +318,9 @@ private:
 public:
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool save(tinyxml2::XMLElement* xml) override;
-
+	
 	//============== GUI ================
-
+	
 	virtual void nodeSpecificGui() override;
 	virtual void controlsGui();
 	virtual void settingsGui();
@@ -329,5 +331,7 @@ public:
 	double interpolationVelocityTarget = 0.0;
 	double interpolationTimeTarget = 0.0;
 	double axisScalingPosition = 0.0;
+	
+};
 
 };

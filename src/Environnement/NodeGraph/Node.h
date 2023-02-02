@@ -64,6 +64,7 @@ public:
 	virtual void restoreSavedPosition();
 	
 	//processing
+	virtual bool canStartProcessing(){ return true; }
 	virtual void inputProcess(){}
 	virtual void outputProcess(){}
 	

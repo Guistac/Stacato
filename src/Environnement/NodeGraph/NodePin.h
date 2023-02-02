@@ -1,6 +1,7 @@
 #pragma once
 
-class PositionControlledAxis;
+namespace Motion{ class Axis; }
+
 class DeadMansSwitch;
 
 class GpioModule;
@@ -25,8 +26,7 @@ public:
 		POSITION_FEEDBACK,
 		GPIO,
 		SERVO_ACTUATOR,
-		VELOCITY_CONTROLLED_AXIS,
-		POSITION_CONTROLLED_AXIS,
+		AXIS,
 		DEAD_MANS_SWITCH,
 		GPIO_MODULE,
 		MOTIONFEEDBACK_MODULE,
@@ -250,8 +250,7 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	{NodePin::DataType::POSITION_FEEDBACK, 			.displayString = "Position Feedback", 			.saveString = "PositionFeedbackDeviceLink"},\
 	{NodePin::DataType::GPIO, 						.displayString = "GPIO", 						.saveString = "GPIODeviceLink"},\
 	{NodePin::DataType::SERVO_ACTUATOR, 			.displayString = "Servo Actuator", 				.saveString = "ServoActuatorDeviceLink"},\
-	{NodePin::DataType::VELOCITY_CONTROLLED_AXIS, 	.displayString = "Velocity Controlled Axis", 	.saveString = "VelocityControlledAxisLink"},\
-	{NodePin::DataType::POSITION_CONTROLLED_AXIS, 	.displayString = "Position Controlled Axis", 	.saveString = "PositionControlledAxisLink"},\
+	{NodePin::DataType::AXIS, 						.displayString = "Axis", 						.saveString = "AxisLink"},\
 	{NodePin::DataType::DEAD_MANS_SWITCH, 			.displayString = "Dead Man's Switch", 			.saveString = "DeadMansSwitchLink"},\
 	{NodePin::DataType::GPIO_MODULE,				.displayString = "Gpio Module",					.saveString = "GpioModule"},\
 	{NodePin::DataType::MOTIONFEEDBACK_MODULE,		.displayString = "Motion Feedback Module",		.saveString = "MotionFeedbackModule"},\
@@ -394,7 +393,7 @@ template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) { return DataType::REAL; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<PositionControlledAxis> ptr) { return DataType::POSITION_CONTROLLED_AXIS; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<Motion::Axis> ptr) { return DataType::AXIS; }
 
 template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) { return DataType::DEAD_MANS_SWITCH; }
@@ -451,8 +450,8 @@ inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<PositionControlledAxis> ptr) {
-	if(dataType != DataType::POSITION_CONTROLLED_AXIS) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<Motion::Axis> ptr) {
+	if(dataType != DataType::AXIS) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 

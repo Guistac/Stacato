@@ -19,9 +19,9 @@ class PositionControlledMachine : public Machine{
 	
 	//———————— Input Pins ——————————
 	
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_CONTROLLED_AXIS, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
 	bool isAxisConnected();
-	std::shared_ptr<PositionControlledAxis> getAxis();
+	std::shared_ptr<Motion::Axis> getAxis();
 	
 	//——————— Output Pins ——————————
 	
@@ -36,12 +36,6 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
 	
 	void updateAnimatableParameters();
-	
-	virtual std::vector<std::shared_ptr<PositionControlledAxis>> getPositionControlledAxes() override {
-		std::vector<std::shared_ptr<PositionControlledAxis>> output;
-		if(isAxisConnected()) output.push_back(getAxis());
-		return output;
-	}
 
 	//————————— Settings ——————————
 	

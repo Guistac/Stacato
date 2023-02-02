@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "PositionControlledMachine.h"
-#include "Motion/Axis/PositionControlledAxis.h"
+#include "Motion/Axis/Axis.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
