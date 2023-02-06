@@ -5,8 +5,10 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 
-#include "Component.h"
-#include "Serializable.h"
+#include "Base/Component.h"
+#include "Base/Serializable.h"
+#include "Base/Parameter.h"
+#include "Base/PrototypeBase.h"
 
 namespace Project {
 
