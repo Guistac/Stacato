@@ -1,94 +1,45 @@
 #pragma once
 
-#include "Serializable.h"
-#include "PrototypeBase.h"
+#include "Component.h"
 
-class NewStringParameter;
+class BaseParameter : public Component{
+	
+	DECLARE_PROTOTYPE_DUPLICATE_METHOD(BaseParameter)
+	DECLARE_PROTOTYPE_DEFAULT_CONSTRUCTOR(BaseParameter)
 
-class BaseParameter : public PrototypeBase, public Serializable{
-
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(BaseParameter)
-	
-protected:
-	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
-	
-	virtual bool onSerialization() override;
-	virtual bool onDeserialization() override;
-	
 public:
-	
-	void setName(std::string name);
-	std::string getName();
 	
 	virtual void gui() = 0;
 	
-	void addEditCallback(std::function<void()> callback){
-		editCallbacks.push_back(callback);
-	}
-	
+	void addEditCallback(std::function<void()> callback){ editCallbacks.push_back(callback); }
 	
 protected:
 	
-	virtual void onEdit(){
-		for(auto& editCallback : editCallbacks) editCallback();
-	}
-	
-	BaseParameter(bool createNameParameter){
-		b_createNameParameter = false;
-	}
-	
-private:
-	std::vector<std::function<void()>> editCallbacks;
-	bool b_createNameParameter = true;
-	std::shared_ptr<NewStringParameter> nameParameter;
-};
-
-
-
-class NewStringParameter : public BaseParameter{
-	
-	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NewStringParameter)
-	
-public:
-	
-	static std::shared_ptr<NewStringParameter> createInstanceWithoutName(){
-		return std::shared_ptr<NewStringParameter>(new NewStringParameter(false));
-	}
-	
-	const std::string getValue(){ return value; }
-	
-	void setValue(std::string newValue){ value = newValue; }
-	
-	virtual void gui() override {}
-	
-private:
-	
 	virtual void onConstruction() override {
-		BaseParameter::onConstruction();
-		value = "Default Value";
+		Component::onConstruction();
 	}
+	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		BaseParameter::onCopyFrom(source);
-		auto original = std::static_pointer_cast<NewStringParameter>(source);
-		value = original->value;
+		Component::onCopyFrom(source);
+	}
+	
+	virtual bool onSerialization() override {
+		return Component::onSerialization();
 	}
 	
 	virtual bool onDeserialization() override {
-		bool success = true;
-		success &= BaseParameter::onDeserialization();
-		success &= deserializeAttribute("Value", value);
-		return success;
+		return Component::onDeserialization();
 	}
-	virtual bool onSerialization() override {
-		bool success = true;
-		success &= BaseParameter::onSerialization();
-		success &= serializeAttribute("Value", value.c_str());
-		return success;
+	
+	virtual void onEdit(){
+		for(auto& editCallback : editCallbacks) {
+			editCallback();
+		}
 	}
+	
+	BaseParameter(bool withoutNameParameter) : Component(withoutNameParameter){}
 	
 private:
-	std::string value;
 	
-	NewStringParameter(bool createNameParameter) : BaseParameter(createNameParameter){}
+	std::vector<std::function<void()>> editCallbacks;
 };

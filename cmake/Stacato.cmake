@@ -189,11 +189,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/List.h
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/Component.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Base/Component.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/Document.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/SerializableList.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/Parameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Base/Parameter.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/ListParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Base/PrototypeBase.h
 
