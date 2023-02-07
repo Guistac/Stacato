@@ -48,9 +48,14 @@ private:
 	}
 	
 private:
+	
 	std::string value;
-	bool b_isComponentNameParameter = false;
-	NewStringParameter(bool withoutNameParameter) : BaseParameter(withoutNameParameter){
-		b_isComponentNameParameter = true;
-	}
+	NewStringParameter(bool withoutNameParameter) : BaseParameter(withoutNameParameter){}
 };
+
+
+/*
+class ParameterNameParameter{
+	public:
+};
+*/

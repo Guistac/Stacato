@@ -61,15 +61,6 @@ public:
 	
 	bool writeFile(){
 		
-		if(fileName.empty()){
-			Logger::error("Failed to write document : No file name provided");
-			return false;
-		}
-		if(filePath.empty()){
-			Logger::error("Failed to write document '{}' : No file path provided", fileName);
-			return false;
-		}
-		
 		using namespace tinyxml2;
 		
 		XMLDocument xmlDocument;
@@ -77,6 +68,15 @@ public:
 		
 		if(!onSerialization()) {
 			Logger::warn("Failed to write document '{}' : serialization failed", fullFilePath);
+			return false;
+		}
+		
+		if(fileName.empty()){
+			Logger::error("Failed to write document : No file name provided");
+			return false;
+		}
+		if(filePath.empty()){
+			Logger::error("Failed to write document '{}' : No file path provided", fileName);
 			return false;
 		}
 		

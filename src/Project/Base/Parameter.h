@@ -4,8 +4,7 @@
 
 class BaseParameter : public Component{
 	
-	DECLARE_PROTOTYPE_DUPLICATE_METHOD(BaseParameter)
-	DECLARE_PROTOTYPE_DEFAULT_CONSTRUCTOR(BaseParameter)
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(BaseParameter)
 
 public:
 	

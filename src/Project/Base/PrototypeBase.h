@@ -55,13 +55,11 @@ IMPLEMENTATION EXAMPLE
 
  ————————————————————————————————————————————————————————————————*/
 
-#define DECLARE_PROTOTYPE_DUPLICATE_METHOD(Typename)\
+#define DECLARE_PROTOTYPE_INTERFACE_METHODS(Typename)\
 public:\
 	std::shared_ptr<Typename> duplicate(){\
 		return std::static_pointer_cast<Typename>(duplicatePrototype());\
 	}\
-
-#define DECLARE_PROTOTYPE_DEFAULT_CONSTRUCTOR(Typename)\
 protected:\
 	Typename(){}\
 
