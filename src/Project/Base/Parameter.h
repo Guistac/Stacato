@@ -47,9 +47,20 @@ private:
 
 
 class NewStringParameter : public BaseParameter{
-public:
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NewStringParameter)
+	
+public:
+	
+	static std::shared_ptr<NewStringParameter> createInstanceWithoutName(){
+		return std::shared_ptr<NewStringParameter>(new NewStringParameter(false));
+	}
+	
+	const std::string getValue(){ return value; }
+	
+	void setValue(std::string newValue){ value = newValue; }
+	
+	virtual void gui() override {}
 	
 private:
 	
@@ -62,14 +73,6 @@ private:
 		auto original = std::static_pointer_cast<NewStringParameter>(source);
 		value = original->value;
 	}
-	
-public:
-	
-	const std::string get(){ return value; }
-	void set(std::string newValue){ value = newValue; }
-	
-
-	virtual void gui() override {}
 	
 	virtual bool onDeserialization() override {
 		bool success = true;
@@ -88,10 +91,4 @@ private:
 	std::string value;
 	
 	NewStringParameter(bool createNameParameter) : BaseParameter(createNameParameter){}
-	
-private:
-	friend class BaseParameter;
-	static std::shared_ptr<NewStringParameter> createInstanceWithoutName(){
-		return std::shared_ptr<NewStringParameter>(new NewStringParameter(false));
-	}
 };

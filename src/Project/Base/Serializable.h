@@ -13,41 +13,22 @@ USAGE
 	- Call its deserialization method and provide a deserialization source
 
 IMPLEMENTATION
-- protected virtual method:
-		bool onSerialization()
-- protected virtual method:
-		bool onDeserialization()
+ - mandatory virtual protected methods:
+	bool onSerialization()
+	bool onDeserialization()
 */
 
 class Serializable{
 public:
 	
-	Serializable(){}
-	Serializable(tinyxml2::XMLElement* xmlElement_) : xmlElement(xmlElement_){}
-	
 	void setSaveString(std::string saveString_){
 		saveString = saveString_;
 	}
 	
-	
-protected:
-	
-	//———— VIRTUAL METHODS
-	
-	virtual bool onSerialization(){
-		Logger::warn("Serializable <{}> has no specific serialisation method", saveString);
-		return false;
-	}
-	virtual bool onDeserialization(){
-		Logger::warn("Serializable <{}> has no specific deserialisation method", saveString);
-		return false;
-	}
-	
-	
 	//———— SERIALISATION
 	
 	//if a serializable needs to be serialized into another serializable
-	bool serializeIntoParent(Serializable& parent){
+	virtual bool serializeIntoParent(Serializable& parent){
 		if(parent.xmlElement == nullptr){
 			Logger::warn("Failed to save element <{}>, parent element <{}> was not saved first", saveString, parent.saveString);
 			return false;
@@ -59,10 +40,10 @@ protected:
 		xmlElement = parent.xmlElement->InsertNewChildElement(saveString.c_str());
 		return onSerialization();
 	}
-	bool serializeIntoParent(Serializable* parent){
+	virtual bool serializeIntoParent(Serializable* parent){
 		return serializeIntoParent(*parent);
 	}
-	bool serializeIntoParent(std::shared_ptr<Serializable> parent){
+	virtual bool serializeIntoParent(std::shared_ptr<Serializable> parent){
 		return serializeIntoParent(*parent.get());
 	}
 	
@@ -71,7 +52,7 @@ protected:
 	//———— DESERIALIZATION
 	
 	//in a serializable wants to find its content inside another serializable
-	bool deserializeFromParent(Serializable& parent){
+	virtual bool deserializeFromParent(Serializable& parent){
 		if(parent.xmlElement == nullptr){
 			Logger::warn("Failed to load element <{}>, parent element <{}> was not deserialized first", saveString, parent.saveString);
 			return false;
@@ -87,10 +68,10 @@ protected:
 		}
 		return onDeserialization();
 	}
-	bool deserializeFromParent(Serializable* parent){
+	virtual bool deserializeFromParent(Serializable* parent){
 		return deserializeFromParent(*parent);
 	}
-	bool deserializeFromParent(std::shared_ptr<Serializable> parent){
+	virtual bool deserializeFromParent(std::shared_ptr<Serializable> parent){
 		deserializeFromParent(*parent.get());
 	}
 	
@@ -167,6 +148,9 @@ protected:
 protected:
 	std::string saveString;
 	tinyxml2::XMLElement* xmlElement = nullptr;
+	
+	virtual bool onSerialization() = 0;
+	virtual bool onDeserialization() = 0;
 	
 	void setXmlElement(tinyxml2::XMLElement* xmlElement_){
 		xmlElement = xmlElement_;

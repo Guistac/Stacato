@@ -9,6 +9,7 @@
 #include "Base/Serializable.h"
 #include "Base/Parameter.h"
 #include "Base/PrototypeBase.h"
+#include "Base/Document.h"
 
 namespace Project {
 

@@ -1,40 +1,42 @@
 #pragma once
 
+#include "PrototypeBase.h"
 #include "Serializable.h"
+#include "Parameter.h"
 
-class Component : public Serializable{
+class Component : public PrototypeBase, public Serializable{
 public:
 	
-	Component(std::string saveString_) {}
-	
-	virtual void initializeImpl() = 0;
-	virtual Component* duplicateImpl() = 0;
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
 	
 	virtual bool onSerialization() override {
-		serializeAttribute("UniqueID", uniqueID);
-		//name.serialize(this);
-		return true;
+		bool success = true;
+		success &= serializeAttribute("UniqueID", uniqueID);
+		success &= nameParameter->serializeIntoParent(this);
+		return success;
 	}
+	
 	virtual bool onDeserialization() override {
-		if(!deserializeAttribute("UniqueID", uniqueID)) return false;
-		//if(!name.deserializeFromParent(this)) return false;
-		return true;
+		bool success = true;
+		success &= deserializeAttribute("UniqueID", uniqueID);
+		success &= nameParameter->deserializeFromParent(this);
+		return success;
 	}
 	
-	void initialize(){
-		initializeImpl();
+	virtual void onConstruction() override {
+		nameParameter = NewStringParameter::createInstanceWithoutName();
+		nameParameter->setValue("Default Component Name");
+		nameParameter->setName("Component Name");
+		nameParameter->setSaveString("Name");
 	}
 	
-	Component* duplicate(){
-		Component* copy = duplicateImpl();
-		//copy name parameter value
-		//generate new uniqueID or do this later ?
-		return copy;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		auto original = std::static_pointer_cast<Component>(source);
+		nameParameter->setValue(original->nameParameter->getValue());
+		//don't duplicate the unique id
 	}
-	
-	
+
 private:
-	//Parameter name;
-	std::vector<Serializable*> attributes;
+	std::shared_ptr<NewStringParameter> nameParameter;
 	unsigned long long uniqueID = -1;
 };

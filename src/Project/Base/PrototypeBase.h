@@ -14,10 +14,14 @@ USAGE
 IMPLEMENTATION
  
  each class implementation derived from PrototypeBase has to implement the following
- -Macro:
+ -One of two macros:
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS()
 		Only use in a completely implemented type, no virtual classes and interfaces
 		Declares the basic methods which allow duplication and force shared_ptr instancing
+	DECLARE_PROTOTYPE_INTERFACE_METHODS()
+		Only use in incomplete interface types
+		Allows duplication at the interface level
+ 
  -Optional protected virtual methods:
 	void onConstruction()
 		In this method the object can initialize itself
@@ -29,21 +33,25 @@ IMPLEMENTATION
 
 IMPLEMENTATION EXAMPLE
  
-class PrototypeImplementation : public PrototypeBase{
-	DECLARE_PROTOTYPE_BASE_METHODS(PrototypeImplementation)
-protected:
-	virtual void onConstruction() override {
-		ParentClass::onConstruction(); //optional
-		field = 1238;
-	}
-	virtual void copyFrom(std::shared_ptr<PrototypeBase> source) override {
-		ParentClass::copyFrom(source); //optional
-		auto original = std::static_pointer_cast<PrototypeImplementation>(source);
-		field = field->number;
-	}
-private:
-	int field;
-};
+	class PrototypeImplementation : public PrototypeBase{
+		DECLARE_PROTOTYPE_BASE_METHODS(PrototypeImplementation)
+ 
+	protected:
+ 
+		virtual void onConstruction() override {
+			ParentClass::onConstruction(); //optional
+			field = 1238;
+		}
+ 
+		virtual void copyFrom(std::shared_ptr<PrototypeBase> source) override {
+			ParentClass::copyFrom(source); //optional
+			auto original = std::static_pointer_cast<PrototypeImplementation>(source);
+			field = field->number;
+		}
+ 
+	private:
+		int field;
+	};
 
  ————————————————————————————————————————————————————————————————*/
 
@@ -87,6 +95,7 @@ protected:
 	}
 	
 	virtual void onConstruction() {}
+	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
 	
 private:
