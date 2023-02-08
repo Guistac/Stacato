@@ -5,13 +5,8 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 
-#include "Base/Component.h"
-#include "Base/Serializable.h"
-#include "Base/Parameter.h"
-#include "Base/PrototypeBase.h"
-#include "Base/Document.h"
-#include "Base/Project.h"
-#include "Base/Workspace.h"
+#include "Workspace/StringParameter.h"
+#include "Workspace/Workspace.h"
 
 namespace Project {
 
