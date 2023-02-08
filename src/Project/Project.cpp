@@ -10,6 +10,8 @@
 #include "Base/Parameter.h"
 #include "Base/PrototypeBase.h"
 #include "Base/Document.h"
+#include "Base/Project.h"
+#include "Base/Workspace.h"
 
 namespace Project {
 
