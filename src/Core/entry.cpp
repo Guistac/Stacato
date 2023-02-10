@@ -19,17 +19,29 @@ void setProcessPriority(){
     
 }
 
+#include "Project/Workspace/Application.h"
+#include "Project/Stacato.h"
+
 #ifdef STACATO_WIN32_APPLICATION
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
 int main(int argcount, const char ** args){
 #endif
 	
+	
+	Application::setInitializationFunction(Stacato::Application::initialize);
+	Application::setTerminationFunction(Stacato::Application::terminate);
+	Workspace::setFileOpenCallback(Stacato::Application::openFile);
+	NewGui::setInitializationFunction(Stacato::Gui::initialize);
+	NewGui::setPreFrameFunction(Stacato::Gui::preFrame);
+	NewGui::setPostFrameFunction(Stacato::Gui::postFrame);
+	NewGui::setTerminationFunction(Stacato::Gui::terminate);
+	Application::run();
+	
+	
     //initialize application
 	ApplicationWindow::init();
-    
-    //setProcessPriority();
-		
+	
 	//initialize node factory modules
 	NodeFactory::load();
 	

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "File.h"
 #include "Component.h"
 
 /*
@@ -11,24 +12,11 @@
  
  IMPLEMENTATION EXAMPLE
  
-class ProjectImplementation : public Project{
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(ProjectImplementation)
+class ProjectImplementation : public NewProject{
+ 
+ DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ProjectImplementation)
  
 protected:
-	 
-	virtual bool onSerialization() override {
-		bool success = true;
-		success &= Component::onSerialization();
-		//save project content
-		return success;
-	}
-	 
-	virtual bool onDeserialization() override {
-		bool success = true;
-		success &= Component::onDeserialization();
-		//load project content
-		return success;
-	}
 	 
 	virtual void onConstruction() override {
 		Component::onConstruction();
@@ -38,6 +26,14 @@ protected:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		Component::onCopyFrom(source);
 		//copy project content
+	}
+ 
+	virtual bool onWriteFile() override {
+		return true;
+	};
+ 
+	virtual bool onReadFile() override {
+		return true;
 	}
  
 	virtual bool canClose() override {
@@ -51,23 +47,31 @@ protected:
 	virtual void onClose() override {
 		//deinitialize some project variables?
 	};
- 
  };
  
  */
 
+
+//TODO: components can report loading and saving errors to the project
+
+
 class UndoableAction;
 
-class NewProject : public Component{
+class NewProject : public Component, public File{
+	
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(NewProject)
+	
 public:
 	
 	virtual bool canClose() = 0;
 	
 	void close(){
-		onOpen();
+		Logger::info("Closing Project");
+		onClose();
 	}
 	void open(){
-		onClose();
+		Logger::info("Opening Project");
+		onOpen();
 	}
 	
 	void registerAction(std::shared_ptr<UndoableAction> action);
@@ -100,4 +104,19 @@ private:
 	
 	std::shared_ptr<UndoableAction> actionHistory;
 	
+	virtual bool onSerialization() override { return throwSerializationError(); }
+	virtual bool onDeserialization() override { return throwSerializationError(); }
+	virtual bool serializeIntoParent(Serializable& parent) override { return throwSerializationError(); }
+	virtual bool serializeIntoParent(Serializable* parent) override { return throwSerializationError(); }
+	virtual bool serializeIntoParent(std::shared_ptr<Serializable> parent) override { return throwSerializationError(); }
+	virtual bool deserializeFromParent(Serializable& parent) override { return throwSerializationError(); }
+	virtual bool deserializeFromParent(Serializable* parent) override { return throwSerializationError(); }
+	virtual bool deserializeFromParent(std::shared_ptr<Serializable> parent) override { return throwSerializationError(); }
+	
+	bool throwSerializationError(){
+		Logger::warn("[Project] cannot serialize or deserialize a project, use readFile() and writeFile()");
+		return false;
+	}
+	
 };
+

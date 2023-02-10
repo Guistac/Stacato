@@ -83,6 +83,25 @@ namespace ApplicationWindow {
 		
 		Logger::init(); //Logger is initialized after working directory is defined to have log file access
 		Logger::info("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
+		
+		/*
+		Workspace::setFileOpenCallback(Stacato::openFile);
+		
+	#ifdef STACATO_DEBUG
+			//for debug builds, always try to load the debug project in the debug directory
+		if(!Workspace::openFile("DebugProject.stacato")){
+			Workspace::openProject(StacatoProject::createInstance());
+		}
+	#endif
+		
+		if(wasLaunchedByOpeningFile()){
+			std::filesystem::path path = getOpenedFilePath();
+			if(!Workspace::openFile(path)){
+				Workspace::openProject(StacatoProject::createInstance());
+			}
+		}
+		 */
+
 	}
 
 

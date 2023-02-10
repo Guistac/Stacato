@@ -190,15 +190,26 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/SerializableList.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Document.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/PrototypeBase.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Component.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Component.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/FileComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/ListParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/StringParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Project.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Project/Stacato.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoWorkspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoApplication.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.h
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h
