@@ -8,6 +8,8 @@
 #include "Environnement/Environnement.h"
 #include "Console/ConsoleHandler.h"
 
+#include "Project/Project.h"
+
 namespace Stacato::Application{
 
 
@@ -28,6 +30,9 @@ bool initialize(){
 	
 	//start looking for consoles, and load profile for previously connected ones
 	ConsoleHandler::initialize();
+	
+	//load environnement and plots, configure ethercat network interfaces
+	Project::loadStartup();
 	
 }
 

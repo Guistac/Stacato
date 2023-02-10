@@ -3,8 +3,7 @@
 namespace NewGui{
 
 void setInitializationFunction(std::function<void()> fn);
-void setPreFrameFunction(std::function<void()> fn);
-void setPostFrameFunction(std::function<void()> fn);
+void setGuiSubmitFunction(std::function<void()> fn);
 void setTerminationFunction(std::function<void()> fn);
 
 class WindowA;

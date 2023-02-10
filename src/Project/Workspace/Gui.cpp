@@ -20,24 +20,15 @@
 
 #include <imgui_internal.h>
 
-#include "Gui.h"
-#include "Gui/Utilities/FileDialog.h"
-#include "Project/Project.h"
-
-#include "Visualizer/Visualizer.h"
-
 
 
 namespace NewGui{
 
 std::function<void()> userInitializationFunction;
-std::function<void()> userPreFrameFunction;
-std::function<void()> userPostFrameFunction;
+std::function<void()> userGuiSubmitFunction;
 std::function<void()> userTerminationFunction;
-
 void setInitializationFunction(std::function<void()> fn){ userInitializationFunction = fn; }
-void setPreFrameFunction(std::function<void()> fn){ userPreFrameFunction = fn; }
-void setPostFrameFunction(std::function<void()> fn){ userPostFrameFunction = fn; }
+void setGuiSubmitFunction(std::function<void()> fn){ userGuiSubmitFunction = fn; }
 void setTerminationFunction(std::function<void()> fn){ userTerminationFunction = fn; }
 
 GLFWwindow* window;
@@ -127,19 +118,11 @@ void drawFrame(){
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	
-	//execute out gui
-	userPreFrameFunction();
+	//execute user gui
+	userGuiSubmitFunction();
 	
+	//we should do WindowManager update here
 	
-	//udpate gui !!
-	ImGui::Begin("Hello");
-	if(ImGui::Button("TEST")){}
-	ImGui::TextWrapped("zepfijz oijz epoijf zmoif m oirmohrazmo iazmo arz hoimr a omzgarhomgar omi garhiogra iohgr a omrgqmo igrzmo igqmogiqm ogqloh rqmougwhrl iuhqrl iuqrl uivrhl iurli uqgrhl qgiruh‡");
-	ImGui::End();
-	
-	
-	userPostFrameFunction();
-
 	//render and display the gui
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -159,7 +142,6 @@ void terminate(){
 	userTerminationFunction();
 	
 	//Gui Shutdown
-	Environnement::StageVisualizer::terminate();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImPlot::DestroyContext();
