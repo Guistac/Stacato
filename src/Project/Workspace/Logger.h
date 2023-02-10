@@ -2,8 +2,12 @@
 
 namespace NewLogger{
 
-void initialize(){}
-void terminate(){}
+void initialize(){
+	Logger::init();
+}
+void terminate(){
+	Logger::terminate();
+}
 
 bool trace();
 bool info();

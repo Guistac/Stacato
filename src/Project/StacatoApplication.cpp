@@ -2,10 +2,46 @@
 
 #include "Stacato.h"
 
+#include "config.h"
+
+#include "Nodes/NodeFactory.h"
+#include "Environnement/Environnement.h"
+#include "Console/ConsoleHandler.h"
+
 namespace Stacato::Application{
 
-bool initialize(){}
-bool terminate(){}
+
+
+bool initialize(){
+	
+	#ifdef STACATO_MACOS
+	//we delete this file on each startup since we don't use it and it sometimes causes loading problems with imguinodeeditor
+	std::filesystem::path nodeEditorJsonFile = "NodeEditor.json";
+	std::filesystem::remove(nodeEditorJsonFile);
+	#endif
+	
+	//initialize node factory modules
+	NodeFactory::load();
+	
+	//load network interfaces, initialize networking, open ethercat network interface
+	Environnement::initialize();
+	
+	//start looking for consoles, and load profile for previously connected ones
+	ConsoleHandler::initialize();
+	
+}
+
+
+
+bool terminate(){
+	
+	//terminate serial communications
+	ConsoleHandler::terminate();
+	
+	//stop hardware or simulation and terminate fieldbus
+	Environnement::terminate();
+	
+}
 
 };
 

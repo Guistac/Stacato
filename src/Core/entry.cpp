@@ -1,34 +1,13 @@
 #include <pch.h>
 
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
-#include "Nodes/NodeFactory.h"
-#include "Project/Project.h"
-#include "Environnement/Environnement.h"
-#include "Console/ConsoleHandler.h"
-
-#include <sys/resource.h>
-
-void setProcessPriority(){
-    errno = 0;
-    setpriority(PRIO_PROCESS, 0, -20);
-    if(errno == EACCES) Logger::info("could not set process priority : permission denied.");
-    else if(errno == 0) Logger::warn("successfully set process priority");
-    else Logger::info("failed to set process priority : error#{}", errno);
-    int p = getpriority(PRIO_PROCESS, 0);
-    Logger::info("======== Process Priority : {} (highest: -20, lowest: 20)", p);
-    
-}
-
 #include "Project/Workspace/Application.h"
 #include "Project/Stacato.h"
 
-#ifdef STACATO_WIN32_APPLICATION
+#if defined(STACATO_WIN32_APPLICATION)
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
 int main(int argcount, const char ** args){
 #endif
-	
-	
 	Application::setInitializationFunction(Stacato::Application::initialize);
 	Application::setTerminationFunction(Stacato::Application::terminate);
 	Workspace::setFileOpenCallback(Stacato::Application::openFile);
@@ -36,10 +15,40 @@ int main(int argcount, const char ** args){
 	NewGui::setPreFrameFunction(Stacato::Gui::preFrame);
 	NewGui::setPostFrameFunction(Stacato::Gui::postFrame);
 	NewGui::setTerminationFunction(Stacato::Gui::terminate);
+	
 	Application::run();
+}
+
+
+
+
+
+
+	/*
+	 
+	 #include "Gui/ApplicationWindow/ApplicationWindow.h"
+	 #include "Nodes/NodeFactory.h"
+	 #include "Project/Project.h"
+	 #include "Environnement/Environnement.h"
+	 #include "Console/ConsoleHandler.h"
+	 
+	 #include <sys/resource.h>
+
+	 void setProcessPriority(){
+		 errno = 0;
+		 setpriority(PRIO_PROCESS, 0, -20);
+		 if(errno == EACCES) Logger::info("could not set process priority : permission denied.");
+		 else if(errno == 0) Logger::warn("successfully set process priority");
+		 else Logger::info("failed to set process priority : error#{}", errno);
+		 int p = getpriority(PRIO_PROCESS, 0);
+		 Logger::info("======== Process Priority : {} (highest: -20, lowest: 20)", p);
+		 
+	 }
+	 */
 	
-	
-    //initialize application
+
+	/*
+	//initialize application
 	ApplicationWindow::init();
 	
 	//initialize node factory modules
@@ -65,4 +74,4 @@ int main(int argcount, const char ** args){
 
 	//terminate application
 	ApplicationWindow::terminate();
-}
+	*/

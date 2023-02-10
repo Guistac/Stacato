@@ -201,8 +201,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Logger.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Stacato.h

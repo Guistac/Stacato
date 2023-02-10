@@ -12,5 +12,8 @@ void run();
 
 void requestQuit();
 void quitImmediately();
+
+float getTrackpadRotationDelta();
+float getTrackpadZoomDelta();
 	
 };
