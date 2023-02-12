@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 
 #include "ApplicationWindow.h"
-#include "Project/Project.h"
 #include "Environnement/Environnement.h"
 
 #include "Gui/Assets/Fonts.h"

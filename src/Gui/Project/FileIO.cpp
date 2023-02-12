@@ -6,22 +6,25 @@
 #include <GLFW/glfw3.h>
 #include "Gui/Utilities/FileDialog.h"
 
-#include "Project/Project.h"
-
 namespace Project::Gui{
 
 	void load(){
+		/*
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
 		if(FileDialog::load(path, filter)) Project::load(path.path);
+		 */
 	}
 
 	bool save(){
+		/*
 		if(hasFilePath()) return Project::save();
 		return saveAs();
+		 */
 	}
 
 	bool saveAs(){
+		/*
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
 		if(FileDialog::save(path, filter, "project")) {
@@ -29,6 +32,7 @@ namespace Project::Gui{
 			return true;
 		}
 		return false;
+		 */
 	}
 
 	void CloseProjectPopup::drawContent(){
@@ -37,7 +41,7 @@ namespace Project::Gui{
 		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();
 		ImGui::SameLine();
 		if (ImGui::Button("Close without saving")) {
-			Project::confirmNewProjectRequest();
+			//Project::confirmNewProjectRequest();
 			close();
 		}
 		ImGui::SameLine();
@@ -46,7 +50,7 @@ namespace Project::Gui{
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
 			bool b_saved = Project::Gui::save();
-			if(b_saved) Project::confirmNewProjectRequest();
+			//if(b_saved) Project::confirmNewProjectRequest();
 			close();
 		}
 		ImGui::PopStyleColor(3);

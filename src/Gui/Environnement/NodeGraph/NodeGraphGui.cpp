@@ -8,7 +8,6 @@
 #include <GLFW/glfw3.h>
 
 #include "Environnement/NodeGraph/NodeGraph.h"
-#include "Project/Project.h"
 #include "Environnement/Environnement.h"
 #include "Nodes/NodeFactory.h"
 
@@ -54,7 +53,7 @@ namespace Environnement::NodeGraph::Gui{
 		
 		
 		
-		if (Project::isEditingAllowed()) {
+		if (!Environnement::isRunning()) {
 
 			//===== link creation, returns true if editor want to create new link
 
@@ -261,7 +260,7 @@ namespace Environnement::NodeGraph::Gui{
 		ax::NodeEditor::End();
 
 		//====== Accept new dragged nodes ======
-		if (Project::isEditingAllowed()) {
+		if (!Environnement::isRunning()) {
 			if (std::shared_ptr<Node> newDraggedNode = NodeGraph::Gui::acceptDraggedNode()) {
 				Environnement::addNode(newDraggedNode);
 				ax::NodeEditor::SetNodePosition(newDraggedNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));

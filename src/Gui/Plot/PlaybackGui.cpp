@@ -3,7 +3,6 @@
 
 #include <imgui.h>
 
-#include "Project/Project.h"
 #include "Plot/Plot.h"
 #include "Plot/ManoeuvreList.h"
 #include "Animation/Manoeuvre.h"
@@ -17,11 +16,14 @@
 #include "Animation/Animation.h"
 #include "Machine/Machine.h"
 
+#include "Project/StacatoEditor.h"
+#include "Project/StacatoProject.h"
+
 namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
-	auto currentPlot = Project::getCurrentPlot();
+	auto currentPlot = StacatoEditor::getCurrentProject()->getCurrentPlot();
 	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
 	//Manoeuvre Selection Buttons

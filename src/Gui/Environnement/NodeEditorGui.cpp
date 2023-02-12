@@ -9,7 +9,6 @@
 
 #include "Environnement/Environnement.h"
 #include "Environnement/NodeGraph/NodeGraph.h"
-#include "Project/Project.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
 
@@ -116,7 +115,7 @@ void NodeEditorWindow::drawContent(){
 		ImGui::SameLine();
 		ImGui::Checkbox("Show Output Values", &Environnement::NodeGraph::getShowOutputValues());
 		ImGui::SameLine();
-		if (!Project::isEditingAllowed()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
+		if (!Environnement::isRunning()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
 	 
 	 ImGui::EndChild();
 

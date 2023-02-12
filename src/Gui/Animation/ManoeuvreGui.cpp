@@ -25,7 +25,8 @@
 
 #include "Gui/Utilities/ReorderableList.h"
 
-#include "Project/Project.h"
+#include "Project/StacatoEditor.h"
+#include "Project/StacatoProject.h"
 
 
 //inside draggable list element: InvisibleButton/ClipRectangle
@@ -303,9 +304,9 @@ void Manoeuvre::playbackGui(float height){
 void Manoeuvre::sheetEditor(){
 	
 	
+	auto currentProject = StacatoEditor::getCurrentProject();
 	
-	
-	if(Project::isPlotEditLocked()){
+	if(!currentProject->isPlotEditLocked()){
 		
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		ImDrawListSplitter layers;
@@ -406,7 +407,7 @@ void Manoeuvre::sheetEditor(){
 			ImGui::TableNextRow();
 			
 			
-			if(Project::isPlotEditLocked()){
+			if(currentProject->isPlotEditLocked()){
 				
 				//[1] "Playback"
 				ImGui::TableSetColumnIndex(0);
@@ -451,7 +452,7 @@ void Manoeuvre::sheetEditor(){
 			ImGui::PopID();
 		}
 		
-		if(!Project::isPlotEditLocked()){
+		if(!currentProject->isPlotEditLocked()){
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 			glm::vec2 addTrackButtonSize(ImGui::GetFrameHeight() * 3.0, ImGui::GetFrameHeight());

@@ -1,8 +1,6 @@
 #include <pch.h>
 #include "CommandHistory.h"
 
-#include "Project/Project.h"
-
 
 namespace CommandHistory{
 	
@@ -45,7 +43,7 @@ namespace CommandHistory{
 		Logger::trace("Undoing Command: {}", command->getName());
 		command->onUndo();
 		
-		Project::setModified();
+		//Project::setModified();
 	}
 
 	void redo(){
@@ -63,7 +61,7 @@ namespace CommandHistory{
 		
 		
 		undoableCommandCount++;
-		Project::setModified();
+		//Project::setModified();
 	}
 
 

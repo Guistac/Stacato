@@ -1,13 +1,14 @@
 #pragma once
 
 
+class File;
 
 namespace Stacato::Application{
 
 bool initialize();
 bool terminate();
 
-bool openFile(std::filesystem::path path);
+std::shared_ptr<File> openFile(std::filesystem::path path);
 
 };
 

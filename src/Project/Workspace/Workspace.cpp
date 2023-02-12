@@ -4,64 +4,48 @@
 
 namespace Workspace{
 
-	std::vector<std::shared_ptr<NewProject>> projects;
-	std::shared_ptr<NewProject> currentProject = nullptr;
+	std::vector<std::shared_ptr<File>> files;
 
-	const std::vector<std::shared_ptr<NewProject>>& getProjects(){ return projects; }
+	const std::vector<std::shared_ptr<File>>& getFiels(){ return files; }
 
-	void addProject(std::shared_ptr<NewProject> project){
-		projects.push_back(project);
+	void addFile(std::shared_ptr<File> file){
+		files.push_back(file);
 	}
 
-	void removeProject(std::shared_ptr<NewProject> project){
-		if(project == currentProject){
-			Logger::warn("[Workspace] Cannot remove current project");
-			return;
-		}
-		for(size_t i = projects.size() - 1; i >= 0; i--){
-			if(project == projects[i]){
-				projects.erase(projects.begin() + i);
+	void removeFile(std::shared_ptr<File> file){
+		for(size_t i = files.size() - 1; i >= 0; i--){
+			if(file == files[i]){
+				files.erase(files.begin() + i);
 				break;
 			}
 		}
 	}
 
-	bool hasProject(std::shared_ptr<NewProject> project){
-		std::filesystem::path queriedPath = project->getFilePath();
-		for(auto listedProject : projects){
-			if(listedProject->getFilePath() == queriedPath) return true;
+	bool hasFile(std::shared_ptr<File> file){
+		std::filesystem::path queriedPath = file->getFilePath();
+		for(auto listedFile : files){
+			if(listedFile->getFilePath() == queriedPath) return true;
 		}
 		return false;
 	}
 
-	std::shared_ptr<NewProject> getCurrentProject(){ return currentProject; }
-   
-	bool hasCurrentProject(){ return getCurrentProject() != nullptr; }
-   
-	bool openProject(std::shared_ptr<NewProject> project){
-		//add the project to the list if it isn't in there yet
-		if(!hasProject(project)) addProject(project);
-		//if the project can be opened
-		if(hasCurrentProject() && !getCurrentProject()->canClose()){
-			Logger::warn("[Workspace] Could not open project : current project must be closed first");
-			return false;
-		}else{
-			//close current project
-			if(hasCurrentProject()) getCurrentProject()->close();
-			//make new project current
-			currentProject = project;
-			project->open();
-			return true;
+	std::function<std::shared_ptr<File>(std::filesystem::path)> openFileCallback;
+
+	bool openFile(std::filesystem::path path){
+		std::shared_ptr<File> openedFile = openFileCallback(path);
+		if(openedFile != nullptr){
+			if(hasFile(openedFile)){
+				//decide how we handle files that are already open
+				Logger::warn("File is already open");
+				return false;
+			}else{
+				addFile(openedFile);
+				return true;
+			}
 		}
 	}
 
-	std::function<bool(std::filesystem::path)> openFileCallback;
-
-	bool openFile(std::filesystem::path path){
-		return openFileCallback(path);
-	}
-
-	void setFileOpenCallback(std::function<bool(std::filesystem::path)> callback){
+	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback){
 		openFileCallback = callback;
 	}
    

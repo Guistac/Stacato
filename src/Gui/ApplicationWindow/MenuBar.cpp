@@ -17,7 +17,6 @@
 #include "Environnement/Environnement.h"
 #include "Plot/Plot.h"
 #include "Gui/Plot/PlotGui.h"
-#include "Project/Project.h"
 #include "Project/Editor/CommandHistory.h"
 
 #include "Animation/Manoeuvre.h"
@@ -29,10 +28,15 @@
 
 #include "SnakeGame.h"
 
+#include "Project/StacatoEditor.h"
+#include "Project/StacatoProject.h"
+
 namespace Gui {
 
 	void menuBar() {
 
+		auto currentProject = StacatoEditor::getCurrentProject();
+		
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
 			if (ImGui::MenuItem("About")) Gui::AboutPopup::get()->open();
@@ -42,21 +46,22 @@ namespace Gui {
 		}
 		if (ImGui::BeginMenu("File")) {
 			
-			if (ImGui::MenuItem("New Project", "Cmd N")) Project::createNew();
+			if (ImGui::MenuItem("New Project", "Cmd N")) StacatoEditor::createNewProject();
 			if (ImGui::MenuItem("Open Project...", "Cmd O")) Project::Gui::load();
 			
 			ImGui::Separator();
 			 
-			ImGui::BeginDisabled(!Project::hasFilePath());
-			if (ImGui::MenuItem("Save", "Cmd S")) Project::save();
+			
+			ImGui::BeginDisabled(currentProject == nullptr || !currentProject->hasFilePath());
+			if (ImGui::MenuItem("Save", "Cmd S")) currentProject->writeFile();
 			ImGui::EndDisabled();
 			
 			if (ImGui::MenuItem("Save As...", "Cmd Shift S")) Project::Gui::saveAs();
 			 
 			ImGui::Separator();
 			
-			ImGui::BeginDisabled(!Project::hasFilePath());
-			if (ImGui::MenuItem("Reload Saved", "Cmd Shift R")) Project::reloadSaved();
+			ImGui::BeginDisabled(currentProject == nullptr || !currentProject->hasFilePath());
+			if (ImGui::MenuItem("Reload Saved", "Cmd Shift R")) {/*Project::reloadSaved();*/}
 			ImGui::EndDisabled();
 
 			ImGui::EndMenu();
@@ -87,24 +92,24 @@ namespace Gui {
 		}
 		if(ImGui::BeginMenu("Plot")){
 			
-			if(ImGui::MenuItem("Lock Plot Editing", nullptr, Project::isPlotEditLocked())){
-				if(Project::isPlotEditLocked()) Project::unlockPlotEdit();
-				else Project::lockPlotEdit();
+			if(ImGui::MenuItem("Lock Plot Editing", nullptr, currentProject->isPlotEditLocked())){
+				if(currentProject->isPlotEditLocked()) currentProject->unlockPlotEdit();
+				else currentProject->lockPlotEdit();
 			}
 			
-            if(!Project::isPlotEditLocked()){
+            if(!currentProject->isPlotEditLocked()){
                 if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
             }
 			
 			ImGui::Separator();
 			
-			auto& plots = Project::getPlots();
+			auto& plots = StacatoEditor::getCurrentProject()->getPlots();
 			
 			ImGui::BeginDisabled();
 			ImGui::Text("Current Plot:");
 			ImGui::EndDisabled();
 			
-			if(Project::isPlotEditLocked()){
+			if(currentProject->isPlotEditLocked()){
 				
 				for(int i = 0; i < plots.size(); i++){
 					auto plot = plots[i];
@@ -113,7 +118,7 @@ namespace Gui {
 					bool b_current = plot->isCurrent();
 					
 					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Project::setCurrentPlot(plot);
+					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) StacatoEditor::getCurrentProject()->setCurrentPlot(plot);
 					if(b_current) ImGui::PopStyleColor();
 					
 					ImGui::PopID();
@@ -132,14 +137,14 @@ namespace Gui {
 						if(b_current) ImGui::PopStyleColor();
 						
 						if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
-							Project::setCurrentPlot(plot);
+							StacatoEditor::getCurrentProject()->setCurrentPlot(plot);
 						}
 						
 						if(ImGui::MenuItem("Rename")) {
 							PlotGui::PlotEditorPopup::open(plot);
 						}
 						if(ImGui::MenuItem("Duplicate")){
-							Project::duplicatePlot(plot);
+							StacatoEditor::getCurrentProject()->duplicatePlot(plot);
 						}
 						if(ImGui::MenuItem("Delete")) {
 							PlotGui::PlotDeletePopup::open(plot);
@@ -151,7 +156,8 @@ namespace Gui {
 				}
 			}
 			
-            if(!Project::isPlotEditLocked()){
+			/*
+            if(!currentProject->isPlotEditLocked()){
             
                 ImGui::Separator();
                 
@@ -166,7 +172,7 @@ namespace Gui {
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
                 
-                auto currentPlot = Project::getCurrentPlot();
+				auto currentPlot = StacatoEditor::getCurrentProject()->getCurrentPlot();
                 
                 ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
                 if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
@@ -174,12 +180,13 @@ namespace Gui {
                 
                 ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
                 if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
-                    auto manoeuvreList = Project::getCurrentPlot()->getManoeuvreList();
+                    auto manoeuvreList = StacatoEditor::getCurrentProject()->getCurrentPlot()->getManoeuvreList();
                     manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
                 }
                 ImGui::EndDisabled();
                 
             }
+			 */
 			
 			ImGui::EndMenu();
 		}
@@ -260,7 +267,7 @@ namespace Gui {
 		if(quitShortcut.isTriggered()) ApplicationWindow::requestQuit();
 		
 		static KeyboardShortcut newProjectShortcut(GLFW_KEY_N, KeyboardShortcut::Modifier::SUPER);
-		if(newProjectShortcut.isTriggered()) Project::createNew();
+		if(newProjectShortcut.isTriggered()) StacatoEditor::createNewProject();
 		
 		static KeyboardShortcut openProjectShortcut(GLFW_KEY_O, KeyboardShortcut::Modifier::SUPER);
 		if(openProjectShortcut.isTriggered()) Project::Gui::load();
@@ -271,8 +278,8 @@ namespace Gui {
 		static KeyboardShortcut saveShortcut(GLFW_KEY_S, KeyboardShortcut::Modifier::SUPER);
 		if(saveShortcut.isTriggered()) Project::Gui::save();
 		
-		static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
-		if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
+		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
 		
 		static KeyboardShortcut undoShortcut(GLFW_KEY_W, KeyboardShortcut::Modifier::SUPER);
 		if(undoShortcut.isTriggered()) CommandHistory::undo();

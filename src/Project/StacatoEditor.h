@@ -1,6 +1,6 @@
 #pragma once
 
-class StacatoProject;
+#include "StacatoProject.h"
 
 namespace StacatoEditor{
 
@@ -9,5 +9,7 @@ namespace StacatoEditor{
 
 	void openProject(std::shared_ptr<StacatoProject> project);
 	void closeCurrentProject();
+
+	void createNewProject();
 
 };

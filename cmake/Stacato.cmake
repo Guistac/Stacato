@@ -179,10 +179,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Nodes/NetworkNodes.cpp
     ${STACATO_SOURCE_DIRECTORY}/Nodes/ProcessorNodes.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Project/Project.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Project.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/ProjectSaveFile.cpp
-
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/CommandHistory.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/CommandHistory.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/Parameter.h
@@ -209,7 +205,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Stacato.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoWorkspace.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoApplication.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.h

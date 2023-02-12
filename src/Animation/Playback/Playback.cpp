@@ -2,7 +2,6 @@
 
 #include "Playback.h"
 
-#include "Project/Project.h"
 #include "Plot/Plot.h"
 #include "Animation/Manoeuvre.h"
 #include "Animation/Animation.h"

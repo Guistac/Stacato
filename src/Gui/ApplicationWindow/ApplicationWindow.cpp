@@ -22,7 +22,6 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Images.h"
-#include "Project/Project.h"
 
 #include "Visualizer/Visualizer.h"
 
@@ -243,8 +242,8 @@ namespace ApplicationWindow {
 
 	//request the app to quit, will open popup
 	void requestQuit() {
-		if(Project::canCloseImmediately()) quit();
-		else Gui::QuitApplicationPopup::get()->open();
+		//if(Project::canCloseImmediately()) quit();
+		//else Gui::QuitApplicationPopup::get()->open();
 	}
 
 	//definitely close the app
@@ -258,7 +257,7 @@ namespace ApplicationWindow {
 	//get the opened file path
 	const char* getOpenedFilePath(){ return openedFilePath; }
 
-	void onFileOpen(const char* filePath){ Project::load(filePath); }
+	void onFileOpen(const char* filePath){/* Project::load(filePath);*/ }
 
 	//get trackpad gesture delta values
 	double getMacOsTrackpadZoom(){ return macOsTrackpadZoomDelta; }

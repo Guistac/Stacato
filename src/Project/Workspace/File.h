@@ -8,6 +8,8 @@ public:
 	
 	std::filesystem::path getFilePath(){ return filePath; }
 	
+	bool hasFilePath(){ return !filePath.empty(); }
+	
 	bool writeFile(){
 		if(filePath.empty()){
 			Logger::warn("[File] could not write file : path is empty");

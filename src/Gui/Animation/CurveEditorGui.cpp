@@ -9,11 +9,14 @@
 #include "Animation/Animatable.h"
 #include "Machine/Machine.h"
 
-#include "Project/Project.h"
-
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Project/StacatoEditor.h"
+#include "Project/StacatoProject.h"
+
 void Manoeuvre::curveEditor(){
+	
+	auto currentProject = StacatoEditor::getCurrentProject();
 	
 	//——————————— Curve List and point editor ——————————————
 	
@@ -21,7 +24,7 @@ void Manoeuvre::curveEditor(){
 	float sequenceEditorHeight = ImGui::GetContentRegionAvail().y;
 	ImGui::BeginChild("SequenceEditor", glm::vec2(sequenceEditorWidth, sequenceEditorHeight));
 	
-	if(!Project::isPlotEditLocked()){
+	if(!currentProject->isPlotEditLocked()){
 	
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
 		float inputFieldWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * .5f;
@@ -205,7 +208,7 @@ void Manoeuvre::curveEditor(){
 		//draw animation curves
 		for (auto& animation : getAnimations()) animation->drawCurves();
 		
-		if(!Project::isPlotEditLocked()){
+		if(!currentProject->isPlotEditLocked()){
 			if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
 		}
         
@@ -255,7 +258,7 @@ void Manoeuvre::curveEditor(){
 
 		if(ImPlot::IsPlotHovered()){
 		
-			if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !Project::isPlotEditLocked()){
+			if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !currentProject->isPlotEditLocked()){
 				auto selectedCurve = getSelectedEditorCurve();
 				auto selectedAnimation = getSelectedEditorAnimation();
 				if(selectedCurve != nullptr && selectedAnimation != nullptr){
@@ -268,7 +271,7 @@ void Manoeuvre::curveEditor(){
 			}
 		}
 		
-		if(!Project::isPlotEditLocked() && ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
+		if(!currentProject->isPlotEditLocked() && ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
 			deletedControlPointSelection();
 			selectedEditorCurve->refresh();
 		}

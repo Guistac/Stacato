@@ -5,7 +5,6 @@
 #include "Gui/Utilities/ReorderableList.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "Project/Project.h"
 #include "Plot/Plot.h"
 #include "Animation/Manoeuvre.h"
 
@@ -22,13 +21,19 @@
 
 #include "Gui/Assets/Images.h"
 
+#include "Project/StacatoEditor.h"
+#include "Project/StacatoProject.h"
+
+
 namespace PlotGui{
 
 	void manoeuvreList() {
 		
+		auto currentProject = StacatoEditor::getCurrentProject();
+		
 		//================= MANOEUVRE LIST =======================
 
-		std::shared_ptr<Plot> plot = Project::getCurrentPlot();
+		std::shared_ptr<Plot> plot = StacatoEditor::getCurrentProject()->getCurrentPlot();
 		float width = ImGui::GetContentRegionAvail().x;
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -52,7 +57,7 @@ namespace PlotGui{
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 			ImGui::Separator();
-			auto& plots = Project::getPlots();
+			auto& plots = StacatoEditor::getCurrentProject()->getPlots();
 			for(int i = 0; i < plots.size(); i++){
 				auto plot = plots[i];
 				ImGui::PushID(i);
@@ -62,8 +67,7 @@ namespace PlotGui{
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
 				}
                 if(ImGui::Selectable(plot->getName())) {
-                    Project::setCurrentPlot(plot);
-                    
+					StacatoEditor::getCurrentProject()->setCurrentPlot(plot);
                 }
 				if(b_isCurrent) {
 					ImGui::PopFont();
@@ -82,13 +86,13 @@ namespace PlotGui{
 		
 		float managerHeight = managerButtonSize.y + ImGui::GetStyle().ItemSpacing.y;
 		glm::vec2 manoeuvreListSize = ImGui::GetContentRegionAvail();
-        if(!Project::isPlotEditLocked()) manoeuvreListSize.y -= managerHeight;
+        if(!currentProject->isPlotEditLocked()) manoeuvreListSize.y -= managerHeight;
 		
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
 		
-		if(ReorderableList::begin("CueList", manoeuvreListSize, !Project::isPlotEditLocked())){
+		if(ReorderableList::begin("CueList", manoeuvreListSize, !currentProject->isPlotEditLocked())){
 		
 			//0 horizontal padding is to display the header background strip up to the edge of the cue window
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0, ImGui::GetTextLineHeight() * 0.2));
@@ -147,7 +151,7 @@ namespace PlotGui{
 		}
 
         
-        if(!Project::isPlotEditLocked()){
+        if(!currentProject->isPlotEditLocked()){
         
             //================== MANOEUVER MANAGER BUTTONS ========================
 
@@ -244,7 +248,7 @@ namespace PlotGui{
 
 
 bool noSelectionDisplay(){
-	if (Project::getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
+	if (StacatoEditor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("No Manoeuvre Selected.");
@@ -258,17 +262,17 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Project::getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
+	StacatoEditor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Project::getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
+	StacatoEditor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Project::getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
+	StacatoEditor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
 
 
@@ -280,7 +284,7 @@ void NewPlotPopup::drawContent(){
 	ImGui::Text("Enter a name for the new Plot:");
 	ImGui::InputText("##plotName", newNameBuffer, 256);
 	if(ImGui::Button("Confirm")){
-		auto newPlot = Project::createNewPlot();
+		auto newPlot = StacatoEditor::getCurrentProject()->createNewPlot();
 		newPlot->setName(newNameBuffer);
 		close();
 	}
@@ -315,7 +319,7 @@ void PlotDeletePopup::drawContent(){
 	ImGui::PopStyleColor();
 	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
 	if(ImGui::Button("Delete")) {
-		Project::deletePlot(plot);
+		StacatoEditor::getCurrentProject()->deletePlot(plot);
 		close();
 	}
 	ImGui::PopStyleColor();

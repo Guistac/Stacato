@@ -1,8 +1,6 @@
 #include <pch.h>
 #include "NodeGraph.h"
 
-#include "Project/Project.h"
-
 namespace Environnement::NodeGraph{
 
 	std::vector<std::shared_ptr<Node>> nodes;
@@ -57,7 +55,7 @@ namespace Environnement::NodeGraph{
 		}
 		newNode->b_isInNodeGraph = true;
 		newNode->onAddToNodeGraph();
-		Project::setModified();
+		//Project::setModified();
 	}
 
 	void removeNode(std::shared_ptr<Node> removedNode) {
@@ -80,7 +78,7 @@ namespace Environnement::NodeGraph{
 		}
 		removedNode->b_isInNodeGraph = false;
 		removedNode->onRemoveFromNodeGraph();
-		Project::setModified();
+		//Project::setModified();
 	}
 
 
@@ -114,7 +112,7 @@ namespace Environnement::NodeGraph{
 		newIoLink->inputData->parentNode->onPinConnection(newIoLink->inputData);
 		newIoLink->outputData->parentNode->onPinConnection(newIoLink->outputData);
 		links.push_back(newIoLink);
-		Project::setModified();
+		//Project::setModified();
 		return newIoLink;
 	}
 
@@ -143,7 +141,7 @@ namespace Environnement::NodeGraph{
 				break;
 			}
 		}
-		Project::setModified();
+		//Project::setModified();
 	}
 
 	std::shared_ptr<Node> getNode(int Id) {

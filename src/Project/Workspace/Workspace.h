@@ -18,18 +18,13 @@
 
 namespace Workspace{
 
-	const std::vector<std::shared_ptr<NewProject>>& getProjects();
-	bool hasProject(std::shared_ptr<NewProject> project);
-	void addProject(std::shared_ptr<NewProject> project);
-	void removeProject(std::shared_ptr<NewProject> project);
-
-	bool hasCurrentProject();
-	std::shared_ptr<NewProject> getCurrentProject();
-
-	bool openProject(std::shared_ptr<NewProject> project);
+	const std::vector<std::shared_ptr<File>>& getFiles();
+	bool hasFile(std::shared_ptr<File> file);
+	void addFile(std::shared_ptr<File> file);
+	void removeFile(std::shared_ptr<File> file);
 	
 	bool openFile(std::filesystem::path file);
-	void setFileOpenCallback(std::function<bool(std::filesystem::path)> callback);
+	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback);
 
 	std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
 	void pushToClipboard(std::shared_ptr<PrototypeBase> object);
