@@ -213,6 +213,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoApplication.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoEditor.h
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoEditor.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h

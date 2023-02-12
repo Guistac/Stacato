@@ -8,6 +8,8 @@
 #include "Environnement/Environnement.h"
 #include "Console/ConsoleHandler.h"
 
+#include "StacatoEditor.h"
+
 #include "Project/Project.h"
 
 namespace Stacato::Application{

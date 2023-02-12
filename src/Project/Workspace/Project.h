@@ -85,7 +85,7 @@ public:
 	std::shared_ptr<UndoableAction> getLastAction();
 	std::vector<std::shared_ptr<UndoableAction>> getActionList();
 	
-	bool hasUnsavedModifications();
+	bool hasUnsavedModifications(){ return false; }
 	
 protected:
 	

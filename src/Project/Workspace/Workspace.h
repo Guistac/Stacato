@@ -10,6 +10,8 @@
  the workspace handles loading files and opening projects
  it can have a single active project and switch between multiple projects
  There should be only a single workspace
+ 
+ Workspace also should handle clipboard
 
  };
 */
@@ -29,5 +31,8 @@ namespace Workspace{
 	bool openFile(std::filesystem::path file);
 	void setFileOpenCallback(std::function<bool(std::filesystem::path)> callback);
 
+	std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
+	void pushToClipboard(std::shared_ptr<PrototypeBase> object);
+	void pushToClipboard(std::vector<std::shared_ptr<PrototypeBase>> objects);
 };
 
