@@ -4,8 +4,6 @@
 #include <GLFW/glfw3.h>
 #include <imgui_internal.h>
 
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
-
 namespace SequencerLibrary{
 
 Context* context = nullptr;
@@ -229,7 +227,7 @@ bool begin(const char* ID, ImVec2 size_arg){
 
 	if(b_mouseOverTrackList){
 		context->panY += ImGui::GetIO().MouseWheel * 10.0;
-		context->zoomY *= 1.0 + ApplicationWindow::getMacOsTrackpadZoom();
+		//context->zoomY *= 1.0 + ApplicationWindow::getMacOsTrackpadZoom();
 		if(context->zoomY < 0.5) context->zoomY = 0.5;
 		if(context->zoomY > 5.0) context->zoomY = 5.0;
 	}
@@ -242,7 +240,7 @@ bool begin(const char* ID, ImVec2 size_arg){
 	if(b_mouseOverEditor || b_mouseOverTimeline){
 		//handle zooming, taking care of maintaining position under mouse
 		//even in sub-integer time division
-		float zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
+		float zoomDelta = 0.0;//ApplicationWindow::getMacOsTrackpadZoom();
 		if(zoomDelta){
 			double screenPositionBeforeZoom = ImGui::GetMousePos().x;
 			long long int screenTimeBeforeZoom = screenToTime(screenPositionBeforeZoom);

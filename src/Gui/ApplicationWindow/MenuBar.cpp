@@ -1,7 +1,5 @@
 #include <pch.h>
 
-#include "ApplicationWindow.h"
-
 #include <imgui.h>
 #include <implot.h>
 #include <GLFW/glfw3.h>
@@ -28,25 +26,25 @@
 
 #include "SnakeGame.h"
 
-#include "Project/StacatoEditor.h"
+#include "Project/Stacato.h"
 #include "Project/StacatoProject.h"
 
 namespace Gui {
 
 	void menuBar() {
 
-		auto currentProject = StacatoEditor::getCurrentProject();
+		auto currentProject = Stacato::Workspace::getCurrentProject();
 		
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
 			if (ImGui::MenuItem("About")) Gui::AboutPopup::get()->open();
 			ImGui::Separator();
-			if (ImGui::MenuItem("Quit", "Cmd Q")) ApplicationWindow::requestQuit();
+			//if (ImGui::MenuItem("Quit", "Cmd Q")) ApplicationWindow::requestQuit();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
 			
-			if (ImGui::MenuItem("New Project", "Cmd N")) StacatoEditor::createNewProject();
+			if (ImGui::MenuItem("New Project", "Cmd N")) Stacato::Workspace::createNewProject();
 			if (ImGui::MenuItem("Open Project...", "Cmd O")) Project::Gui::load();
 			
 			ImGui::Separator();
@@ -103,7 +101,7 @@ namespace Gui {
 			
 			ImGui::Separator();
 			
-			auto& plots = StacatoEditor::getCurrentProject()->getPlots();
+			auto& plots = Stacato::Workspace::getCurrentProject()->getPlots();
 			
 			ImGui::BeginDisabled();
 			ImGui::Text("Current Plot:");
@@ -118,7 +116,7 @@ namespace Gui {
 					bool b_current = plot->isCurrent();
 					
 					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) StacatoEditor::getCurrentProject()->setCurrentPlot(plot);
+					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
 					if(b_current) ImGui::PopStyleColor();
 					
 					ImGui::PopID();
@@ -137,14 +135,14 @@ namespace Gui {
 						if(b_current) ImGui::PopStyleColor();
 						
 						if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
-							StacatoEditor::getCurrentProject()->setCurrentPlot(plot);
+							Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
 						}
 						
 						if(ImGui::MenuItem("Rename")) {
 							PlotGui::PlotEditorPopup::open(plot);
 						}
 						if(ImGui::MenuItem("Duplicate")){
-							StacatoEditor::getCurrentProject()->duplicatePlot(plot);
+							Stacato::Workspace::getCurrentProject()->duplicatePlot(plot);
 						}
 						if(ImGui::MenuItem("Delete")) {
 							PlotGui::PlotDeletePopup::open(plot);
@@ -264,10 +262,10 @@ namespace Gui {
 		ImGui::EndMenuBar();
 		
 		static KeyboardShortcut quitShortcut(GLFW_KEY_A, KeyboardShortcut::Modifier::SUPER);
-		if(quitShortcut.isTriggered()) ApplicationWindow::requestQuit();
+		//if(quitShortcut.isTriggered()) ApplicationWindow::requestQuit();
 		
 		static KeyboardShortcut newProjectShortcut(GLFW_KEY_N, KeyboardShortcut::Modifier::SUPER);
-		if(newProjectShortcut.isTriggered()) StacatoEditor::createNewProject();
+		if(newProjectShortcut.isTriggered()) Stacato::Workspace::createNewProject();
 		
 		static KeyboardShortcut openProjectShortcut(GLFW_KEY_O, KeyboardShortcut::Modifier::SUPER);
 		if(openProjectShortcut.isTriggered()) Project::Gui::load();

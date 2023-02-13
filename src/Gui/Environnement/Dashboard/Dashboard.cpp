@@ -5,7 +5,6 @@
 #include "Managers.h"
 
 #include "Gui/Environnement/EnvironnementGui.h"
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
 
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
@@ -134,7 +133,7 @@ void Dashboard::canvas(){
 	//panning & zooming
 	if(!b_autoFit){
 		if(ImGui::IsWindowHovered()){
-			double zoomDelta = ApplicationWindow::getMacOsTrackpadZoom();
+			double zoomDelta = 0.0;// ApplicationWindow::getMacOsTrackpadZoom();
 			if(zoomDelta != 0.0) zoom(ImGui::GetMousePos(), zoomDelta);
 			ImGuiIO& io = ImGui::GetIO();
 			glm::vec2 scrollDelta = glm::vec2(io.MouseWheelH, io.MouseWheel);

@@ -16,14 +16,14 @@
 #include "Animation/Animation.h"
 #include "Machine/Machine.h"
 
-#include "Project/StacatoEditor.h"
+#include "Project/Stacato.h"
 #include "Project/StacatoProject.h"
 
 namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
-	auto currentPlot = StacatoEditor::getCurrentProject()->getCurrentPlot();
+	auto currentPlot = Stacato::Workspace::getCurrentProject()->getCurrentPlot();
 	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
 	//Manoeuvre Selection Buttons

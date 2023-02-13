@@ -163,4 +163,16 @@ void gui(){
 	
 }
 
+
+/*
+ void setFloatingPointComma(){
+	 char* l = setlocale(LC_NUMERIC, "fr_FR.UTF-8");
+	 ImGui::GetCurrentContext()->PlatformLocaleDecimalPoint = *localeconv()->decimal_point;
+ }
+ void setFloatingPointPeriod(){
+	 char* l = setlocale(LC_NUMERIC, "C");
+	 ImGui::GetCurrentContext()->PlatformLocaleDecimalPoint = *localeconv()->decimal_point;
+ }
+ */
+
 };

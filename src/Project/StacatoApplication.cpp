@@ -8,12 +8,11 @@
 #include "Environnement/Environnement.h"
 #include "Console/ConsoleHandler.h"
 
-#include "StacatoEditor.h"
+#include "Stacato.h"
 
 #include "Workspace/Workspace.h"
 
 #include "StacatoProject.h"
-#include "StacatoEditor.h"
 
 namespace Stacato::Application{
 
@@ -39,7 +38,7 @@ bool initialize(){
 	//for debug builds, always try to load the debug project in the debug directory
 	#ifdef STACATO_DEBUG
 	std::filesystem::path debugFilePath = "DebugProject.stacato";
-	Workspace::openFile(debugFilePath);
+	::Workspace::openFile(debugFilePath);
 	#endif
 	
 }
@@ -54,37 +53,6 @@ bool terminate(){
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();
 	
-}
-
-
-std::shared_ptr<File> openFile(std::filesystem::path path){
-
-	if(!path.has_filename()){
-		Logger::error("[Stacato Workspace] Could not open file : Path has no File Name");
-		return nullptr;
-	}
-	
-	if(!path.has_extension()){
-		Logger::error("[Stacato Workspace] Could not open file : File has no extension");
-		return nullptr;
-	}
-	
-	std::string fileName = path.filename().string();
-	std::string fileExtension = path.extension().string();
-	
-	if(fileExtension == ".stacato"){
-		auto loadedProject = StacatoProject::createInstance();
-		loadedProject->setFilePath(path);
-		if(!loadedProject->readFile()){
-			Logger::error("[Stacato Workspace] Failed to open stacato project {}", fileName);
-			return nullptr;
-		}
-		StacatoEditor::openProject(loadedProject);
-		return loadedProject;
-	}
-	
-	Logger::error("[Stacato Workspace] Could not open file '{}' : Unsupported file type", fileName);
-	return nullptr;
 }
 
 

@@ -25,10 +25,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Scripting/ArtNetLibrary.h
     ${STACATO_SOURCE_DIRECTORY}/Scripting/ArtNetLibrary.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ApplicationWindow.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/MenuBar.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Toolbar.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Popups.cpp
@@ -209,8 +206,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.h
     ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoEditor.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoEditor.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoWorkspace.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h

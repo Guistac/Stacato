@@ -1,14 +1,10 @@
 #pragma once
 
 
-class File;
-
 namespace Stacato::Application{
 
 bool initialize();
 bool terminate();
-
-std::shared_ptr<File> openFile(std::filesystem::path path);
 
 };
 
@@ -21,3 +17,28 @@ void terminate();
 void gui();
 
 };
+
+
+class File;
+class StacatoProject;
+
+
+namespace Stacato::Workspace{
+
+std::shared_ptr<File> openFile(std::filesystem::path path);
+
+bool hasCurrentProject();
+std::shared_ptr<StacatoProject> getCurrentProject();
+void createNewProject();
+void openProject(std::shared_ptr<StacatoProject> project);
+void closeCurrentProject();
+
+};
+
+//Stacato::Workspace
+//	Stacato::Editor
+//		contains unique windows that display gui to modify the project
+//	Stacato::Runner
+//		has methods to start and stop the project environnement
+//		contains the environnement update loops
+

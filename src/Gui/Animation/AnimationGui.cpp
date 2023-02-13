@@ -16,7 +16,8 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "Project/StacatoEditor.h"
+#include "Project/Stacato.h"
+#include "Project/StacatoProject.h"
 
 bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags){
 	switch(type){
@@ -30,7 +31,7 @@ bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFl
 }
 
 bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		if(ImGui::BeginTable("##TrackParameters", 5, tableFlags)){
 			ImGui::TableSetupColumn("Playback");
 			ImGui::TableSetupColumn("Machine");
@@ -56,7 +57,7 @@ bool AnimationKey::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 
 bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 	
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		if(ImGui::BeginTable("##TrackParameters", 7, tableFlags)){
 			ImGui::TableSetupColumn("Playback");
 			ImGui::TableSetupColumn("Machine");
@@ -88,7 +89,7 @@ bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 }
 
 bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		if(ImGui::BeginTable("##TrackParameters", 8, tableFlags)){
 			ImGui::TableSetupColumn("Playback");
 			ImGui::TableSetupColumn("Machine");
@@ -121,7 +122,7 @@ bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 
 void Animation::baseTrackSheetRowGui(){
 	
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		//[1] "Machine"
 		ImGui::TableSetColumnIndex(1);
 		auto machine = animatable->getMachine();
@@ -243,7 +244,7 @@ void SequenceAnimation::playbackGui(){
 
 void AnimationKey::trackSheetRowGui(){
 	
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		
@@ -270,7 +271,7 @@ void AnimationKey::trackSheetRowGui(){
 void TargetAnimation::trackSheetRowGui(){
 	
 	
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		
 		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -353,7 +354,7 @@ void TargetAnimation::trackSheetRowGui(){
 
 void SequenceAnimation::trackSheetRowGui(){
 	
-	if(StacatoEditor::getCurrentProject()->isPlotEditLocked()){
+	if(Stacato::Workspace::getCurrentProject()->isPlotEditLocked()){
 		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		

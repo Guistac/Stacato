@@ -4,7 +4,6 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-#include "ApplicationWindow.h"
 #include "Environnement/Environnement.h"
 
 #include "Gui/Assets/Fonts.h"
@@ -28,14 +27,14 @@ namespace Gui{
 		ImGui::SameLine();
 		if (ImGui::Button("Quit without Saving")) {
 			close();
-			ApplicationWindow::quit();
+			//ApplicationWindow::quit();
 		}
 		ImGui::SameLine();
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.5, 0.0, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-			if(Project::Gui::save()) ApplicationWindow::quit();
+			//if(Project::Gui::save()) ApplicationWindow::quit();
 			close();
 		}
 		ImGui::PopStyleColor(3);

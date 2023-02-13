@@ -7,7 +7,6 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Machine/Machine.h"
 
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
 #include "Gui/Environnement/NodeGraph/NodeGraphGui.h"
 
 #include "Animation/Playback/Playback.h"
@@ -437,7 +436,7 @@ namespace Environnement {
 	}
 
 	void updateName(){
-		ApplicationWindow::setWindowName(name);
+		//ApplicationWindow::setWindowName(name);
 	}
 
 	const char* getName() { return name; }

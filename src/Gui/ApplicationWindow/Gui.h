@@ -3,14 +3,9 @@
 #include "Window.h"
 
 namespace Gui{
-
-	void initialize();
-	void draw();
 	
 	void menuBar();
 	void toolbar(float height);
-
-	void setDefaultLayout();
 
 	class QuitApplicationPopup : public Popup{
 	public:
@@ -25,8 +20,5 @@ namespace Gui{
 		virtual void drawContent() override;
 		SINGLETON_GET_METHOD(AboutPopup);
 	};
-
-	void setFloatingPointComma();
-	void setFloatingPointPeriod();
 
 }

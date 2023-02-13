@@ -3,7 +3,6 @@
 #include <ofxLua.h>
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "Gui/ApplicationWindow/ApplicationWindow.h"
 
 namespace Scripting::CanvasLibrary{
 
@@ -149,13 +148,13 @@ namespace Scripting::CanvasLibrary{
 
 	int getZoomDelta(lua_State* L){
 		if(lua_gettop(L) > 0) luaL_error(L, "Too many arguments provided to Canvas.getZoomDelta(), expected 0");
-		lua_pushnumber(L, ApplicationWindow::getMacOsTrackpadZoom());
+		//lua_pushnumber(L, ApplicationWindow::getMacOsTrackpadZoom());
 		return 1;
 	}
 
 	int getRotationDelta(lua_State* L){
 		if(lua_gettop(L) > 0) luaL_error(L, "Too many arguments provided to Canvas.getRotationDelta(), expected 0");
-		lua_pushnumber(L, ApplicationWindow::getMacOsTrackpadRotate());
+		//lua_pushnumber(L, ApplicationWindow::getMacOsTrackpadRotate());
 		return 1;
 	}
 
