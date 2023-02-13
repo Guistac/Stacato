@@ -12,6 +12,7 @@ int main(int argcount, const char ** args){
 	//configure application
 	Application::setInitializationFunction(Stacato::Application::initialize);
 	Application::setTerminationFunction(Stacato::Application::terminate);
+	Application::setQuitRequestFunction(Stacato::Workspace::onQuitRequest);
 	Workspace::setFileOpenCallback(Stacato::Workspace::openFile);
 	NewGui::setInitializationFunction(Stacato::Gui::initialize);
 	NewGui::setGuiSubmitFunction(Stacato::Gui::gui);

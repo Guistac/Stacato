@@ -26,6 +26,7 @@ class StacatoProject;
 namespace Stacato::Workspace{
 
 std::shared_ptr<File> openFile(std::filesystem::path path);
+bool onQuitRequest();
 
 bool hasCurrentProject();
 std::shared_ptr<StacatoProject> getCurrentProject();

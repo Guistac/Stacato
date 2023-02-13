@@ -28,6 +28,7 @@
 
 #include "Project/Stacato.h"
 #include "Project/StacatoProject.h"
+#include "Project/Workspace/Application.h"
 
 namespace Gui {
 
@@ -39,7 +40,7 @@ namespace Gui {
 		if (ImGui::BeginMenu("Stacato")) {
 			if (ImGui::MenuItem("About")) Gui::AboutPopup::get()->open();
 			ImGui::Separator();
-			//if (ImGui::MenuItem("Quit", "Cmd Q")) ApplicationWindow::requestQuit();
+			if (ImGui::MenuItem("Quit", "Cmd Q")) Application::requestQuit();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
@@ -262,7 +263,7 @@ namespace Gui {
 		ImGui::EndMenuBar();
 		
 		static KeyboardShortcut quitShortcut(GLFW_KEY_A, KeyboardShortcut::Modifier::SUPER);
-		//if(quitShortcut.isTriggered()) ApplicationWindow::requestQuit();
+		if(quitShortcut.isTriggered()) Application::requestQuit();
 		
 		static KeyboardShortcut newProjectShortcut(GLFW_KEY_N, KeyboardShortcut::Modifier::SUPER);
 		if(newProjectShortcut.isTriggered()) Stacato::Workspace::createNewProject();

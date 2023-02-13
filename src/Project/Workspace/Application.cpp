@@ -15,9 +15,11 @@ namespace Application{
 	
 	std::function<bool()> userInitializationFunction;
 	std::function<bool()> userTerminationFunction;
+	std::function<bool()> quitRequestFunction;
 	void setInitializationFunction(std::function<bool()> fn){ userInitializationFunction = fn; }
 	void setTerminationFunction(std::function<bool()> fn){ userTerminationFunction = fn; }
-	
+	void setQuitRequestFunction(std::function<bool()> fn){ quitRequestFunction = fn; }
+
 	bool b_running = false;
 	
 	float trackpadZoomDelta = 0.0;
@@ -122,11 +124,11 @@ namespace Application{
 	
 	
 	void requestQuit(){
-		//if the current project can close, quit immediately
-		//else should send some signal to gui library to make qui popup come up
+		if(quitRequestFunction()) quitImmediately();
 	}
 	
 	
 	void quitImmediately(){ b_running = false; }
 	
 };
+	
