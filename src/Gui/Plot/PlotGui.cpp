@@ -29,6 +29,11 @@ namespace PlotGui{
 
 	void manoeuvreList() {
 		
+		if(!Stacato::Workspace::hasCurrentProject()){
+			ImGui::Text("No Project Loaded");
+			return;
+		}
+		
 		auto currentProject = Stacato::Workspace::getCurrentProject();
 		
 		//================= MANOEUVRE LIST =======================
@@ -248,6 +253,12 @@ namespace PlotGui{
 
 
 bool noSelectionDisplay(){
+	
+	if(!Stacato::Workspace::hasCurrentProject()){
+		ImGui::Text("No Project Loaded");
+		return true;
+	}
+	
 	if (Stacato::Workspace::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::PushFont(Fonts::sansBold15);

@@ -12,7 +12,9 @@
 
 #include "Workspace/Workspace.h"
 
+#include "Stacato.h"
 #include "StacatoProject.h"
+
 
 namespace Stacato::Application{
 
@@ -34,6 +36,8 @@ bool initialize(){
 	
 	//start looking for consoles, and load profile for previously connected ones
 	ConsoleHandler::initialize();
+	
+	Stacato::Workspace::createNewProject();
 	
 	//for debug builds, always try to load the debug project in the debug directory
 	#ifdef STACATO_DEBUG

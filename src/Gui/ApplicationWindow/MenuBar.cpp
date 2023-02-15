@@ -91,101 +91,107 @@ namespace Gui {
 		}
 		if(ImGui::BeginMenu("Plot")){
 			
-			if(ImGui::MenuItem("Lock Plot Editing", nullptr, currentProject->isPlotEditLocked())){
-				if(currentProject->isPlotEditLocked()) currentProject->unlockPlotEdit();
-				else currentProject->lockPlotEdit();
-			}
-			
-            if(!currentProject->isPlotEditLocked()){
-                if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
-            }
-			
-			ImGui::Separator();
-			
-			auto& plots = Stacato::Workspace::getCurrentProject()->getPlots();
-			
-			ImGui::BeginDisabled();
-			ImGui::Text("Current Plot:");
-			ImGui::EndDisabled();
-			
-			if(currentProject->isPlotEditLocked()){
+			if(!Stacato::Workspace::hasCurrentProject()){
+				ImGui::Text("No Project Loaded");
+			}else{
 				
-				for(int i = 0; i < plots.size(); i++){
-					auto plot = plots[i];
-					ImGui::PushID(i);
-					
-					bool b_current = plot->isCurrent();
-					
-					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-					if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
-					if(b_current) ImGui::PopStyleColor();
-					
-					ImGui::PopID();
+				
+				if(ImGui::MenuItem("Lock Plot Editing", nullptr, currentProject->isPlotEditLocked())){
+					if(currentProject->isPlotEditLocked()) currentProject->unlockPlotEdit();
+					else currentProject->lockPlotEdit();
 				}
 				
-			}else{
-			
-				for(int i = 0; i < plots.size(); i++){
-					auto plot = plots[i];
-					ImGui::PushID(i);
+				if(!currentProject->isPlotEditLocked()){
+					if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
+				}
+				
+				ImGui::Separator();
+				
+				auto& plots = Stacato::Workspace::getCurrentProject()->getPlots();
+				
+				ImGui::BeginDisabled();
+				ImGui::Text("Current Plot:");
+				ImGui::EndDisabled();
+				
+				if(currentProject->isPlotEditLocked()){
 					
-					bool b_current = plot->isCurrent();
-					
-					if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-					if(ImGui::BeginMenu(plot->getName())){
+					for(int i = 0; i < plots.size(); i++){
+						auto plot = plots[i];
+						ImGui::PushID(i);
+						
+						bool b_current = plot->isCurrent();
+						
+						if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+						if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
 						if(b_current) ImGui::PopStyleColor();
 						
-						if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
-							Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
-						}
+						ImGui::PopID();
+					}
+					
+				}else{
+					
+					for(int i = 0; i < plots.size(); i++){
+						auto plot = plots[i];
+						ImGui::PushID(i);
 						
-						if(ImGui::MenuItem("Rename")) {
-							PlotGui::PlotEditorPopup::open(plot);
-						}
-						if(ImGui::MenuItem("Duplicate")){
-							Stacato::Workspace::getCurrentProject()->duplicatePlot(plot);
-						}
-						if(ImGui::MenuItem("Delete")) {
-							PlotGui::PlotDeletePopup::open(plot);
-						}
+						bool b_current = plot->isCurrent();
 						
-						ImGui::EndMenu();
-					} else if(b_current) ImGui::PopStyleColor();
-					ImGui::PopID();
+						if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+						if(ImGui::BeginMenu(plot->getName())){
+							if(b_current) ImGui::PopStyleColor();
+							
+							if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
+								Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
+							}
+							
+							if(ImGui::MenuItem("Rename")) {
+								PlotGui::PlotEditorPopup::open(plot);
+							}
+							if(ImGui::MenuItem("Duplicate")){
+								Stacato::Workspace::getCurrentProject()->duplicatePlot(plot);
+							}
+							if(ImGui::MenuItem("Delete")) {
+								PlotGui::PlotDeletePopup::open(plot);
+							}
+							
+							ImGui::EndMenu();
+						} else if(b_current) ImGui::PopStyleColor();
+						ImGui::PopID();
+					}
 				}
+				
+				/*
+				 if(!currentProject->isPlotEditLocked()){
+				 
+				 ImGui::Separator();
+				 
+				 ImGui::PushFont(Fonts::sansBold15);
+				 if(Project::getClipboardManeouvre() == nullptr) {
+				 ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				 ImGui::Text("Clipboard empty.");
+				 }else{
+				 ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+				 ImGui::Text("Clipboard: %s", Project::getClipboardManeouvre()->getName());
+				 }
+				 ImGui::PopStyleColor();
+				 ImGui::PopFont();
+				 
+				 auto currentPlot = StacatoEditor::getCurrentProject()->getCurrentPlot();
+				 
+				 ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
+				 if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
+				 ImGui::EndDisabled();
+				 
+				 ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
+				 if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
+				 auto manoeuvreList = StacatoEditor::getCurrentProject()->getCurrentPlot()->getManoeuvreList();
+				 manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
+				 }
+				 ImGui::EndDisabled();
+				 
+				 }
+				 */
 			}
-			
-			/*
-            if(!currentProject->isPlotEditLocked()){
-            
-                ImGui::Separator();
-                
-                ImGui::PushFont(Fonts::sansBold15);
-                if(Project::getClipboardManeouvre() == nullptr) {
-                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-                    ImGui::Text("Clipboard empty.");
-                }else{
-                    ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-                    ImGui::Text("Clipboard: %s", Project::getClipboardManeouvre()->getName());
-                }
-                ImGui::PopStyleColor();
-                ImGui::PopFont();
-                
-				auto currentPlot = StacatoEditor::getCurrentProject()->getCurrentPlot();
-                
-                ImGui::BeginDisabled(currentPlot->getSelectedManoeuvre() == nullptr);
-                if(ImGui::MenuItem("Copy Manoeuvre", "Cmd+C")) Project::pushManoeuvreToClipboard(currentPlot->getSelectedManoeuvre());
-                ImGui::EndDisabled();
-                
-                ImGui::BeginDisabled(Project::getClipboardManeouvre() == nullptr);
-                if(ImGui::MenuItem("Paste Manoeuvre", "Cmd+V")) {
-                    auto manoeuvreList = StacatoEditor::getCurrentProject()->getCurrentPlot()->getManoeuvreList();
-                    manoeuvreList->pasteManoeuvre(Project::getClipboardManeouvre());
-                }
-                ImGui::EndDisabled();
-                
-            }
-			 */
 			
 			ImGui::EndMenu();
 		}

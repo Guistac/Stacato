@@ -23,6 +23,11 @@ namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
+	if(!Stacato::Workspace::hasCurrentProject()){
+		ImGui::Text("No Project Loaded");
+		return;
+	}
+	
 	auto currentPlot = Stacato::Workspace::getCurrentProject()->getCurrentPlot();
 	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
