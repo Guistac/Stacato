@@ -7,7 +7,7 @@
 #include "Gui/Assets/Images.h"
 #include "Visualizer/Visualizer.h"
 
-#include "Workspace/Gui.h"
+#include "Application/Gui/Gui.h"
 
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 1

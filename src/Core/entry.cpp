@@ -1,7 +1,7 @@
 #include <pch.h>
 
-#include "Project/Workspace/Application.h"
-#include "Project/Stacato.h"
+#include "Application/Application.h"
+#include "Stacato/Stacato.h"
 
 #if defined(STACATO_WIN32_APPLICATION)
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {

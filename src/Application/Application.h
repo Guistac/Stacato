@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui.h"
+#include "Gui/Gui.h"
 #include "Workspace.h"
 
 namespace Application{

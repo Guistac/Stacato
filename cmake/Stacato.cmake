@@ -181,32 +181,40 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/List.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Serializable.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/SerializableList.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/PrototypeBase.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Component.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Component.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/FileComponent.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Parameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/ListParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/StringParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Project.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Workspace.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application_Private.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Application.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Logger.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui_Private.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/Workspace/Gui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Project/Stacato.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoApplication.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.h
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoProject.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/StacatoWorkspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Workspace.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Workspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Application.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Application_Private.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Application.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Logger.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Serializable.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/SerializableList.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/PrototypeBase.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Component.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Component.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/FileComponent.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Parameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/ListParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/StringParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Project.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui_Private.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Window.h
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Window.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/WindowManager.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/Stacato.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
+
+
 
     ${STACATO_SOURCE_DIRECTORY}/Utilities/CircularBuffer.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Enumerator.h

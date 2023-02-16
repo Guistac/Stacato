@@ -2,7 +2,7 @@
 
 #include "Stacato.h"
 #include "StacatoProject.h"
-#include "Workspace/Workspace.h"
+#include "Application/Workspace.h"
 
 
 

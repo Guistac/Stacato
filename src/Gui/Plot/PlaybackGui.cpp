@@ -16,8 +16,8 @@
 #include "Animation/Animation.h"
 #include "Machine/Machine.h"
 
-#include "Project/Stacato.h"
-#include "Project/StacatoProject.h"
+#include "Stacato/Stacato.h"
+#include "Stacato/StacatoProject.h"
 
 namespace Playback::Gui{
 

@@ -1,8 +1,8 @@
 #include <pch.h>
 #include "Gui.h"
 
-#include "Application.h"
-#include "Application_Private.h"
+#include "Application/Application.h"
+#include "Application/Application_Private.h"
 
 #include "config.h"
 
@@ -147,6 +147,8 @@ void terminate(){
 	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
+
+
 
 
 };

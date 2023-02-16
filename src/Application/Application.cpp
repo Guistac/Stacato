@@ -4,7 +4,7 @@
 #include "Application_Private.h"
 #include "Logger.h"
 
-#include "Gui_Private.h"
+#include "Gui/Gui_Private.h"
 
 #include "config.h"
 #include "Gui/Utilities/FileDialog.h"
