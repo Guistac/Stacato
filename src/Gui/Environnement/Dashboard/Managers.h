@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/Gui/Window.h"
+#include "Legato/Gui/Window.h"
 
 namespace tinyxml2{ struct XMLElement; }
 class Dashboard;

@@ -7,14 +7,14 @@
 #include "Gui/Assets/Images.h"
 #include "Visualizer/Visualizer.h"
 
-#include "Application/Gui/Gui.h"
+#include "Legato/Gui/Gui.h"
 
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 1
 #define OPENGL_VERSION_STRING "#version 410 core"
 
 
-#include "Application/Gui/Layout.h"
+#include "Legato/Gui/Layout.h"
 
 #include "Gui/Project/ProjectGui.h"
 #include "Environnement/Environnement.h"

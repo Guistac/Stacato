@@ -2,7 +2,7 @@
 
 #include "Layout.h"
 #include "Gui.h"
-#include "Application/Gui/Window.h"
+#include "Legato/Gui/Window.h"
 
 std::shared_ptr<Layout> Layout::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;

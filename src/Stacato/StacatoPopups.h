@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/Gui/Window.h"
+#include "Legato/Gui/Window.h"
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>
@@ -13,7 +13,7 @@
 #include "Gui/Project/ProjectGui.h"
 #include "Gui/Environnement/EnvironnementGui.h"
 
-#include "Application/Gui/Layout.h"
+#include "Legato/Gui/Layout.h"
 
 #include "Gui/Fieldbus/EtherCatGui.h"
 

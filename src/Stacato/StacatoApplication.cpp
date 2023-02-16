@@ -10,7 +10,7 @@
 
 #include "Stacato.h"
 
-#include "Application/Workspace.h"
+#include "Legato/Workspace.h"
 
 #include "Stacato.h"
 #include "StacatoProject.h"

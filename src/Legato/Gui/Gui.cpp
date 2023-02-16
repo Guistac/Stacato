@@ -1,8 +1,8 @@
 #include <pch.h>
 #include "Gui.h"
 
-#include "Application/Application.h"
-#include "Application/Application_Private.h"
+#include "Legato/Application.h"
+#include "Legato/Application_Private.h"
 
 #include "config.h"
 

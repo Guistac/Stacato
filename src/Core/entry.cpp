@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "Application/Application.h"
+#include "Legato/Application.h"
 #include "Stacato/Stacato.h"
 
 #if defined(STACATO_WIN32_APPLICATION)

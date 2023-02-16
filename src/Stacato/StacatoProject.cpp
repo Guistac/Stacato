@@ -3,7 +3,7 @@
 
 #include "Plot/Plot.h"
 #include "Environnement/Environnement.h"
-#include "Application/Gui/Layout.h"
+#include "Legato/Gui/Layout.h"
 #include "Visualizer/Visualizer.h"
 #include "Environnement/EnvironnementScript.h"
 

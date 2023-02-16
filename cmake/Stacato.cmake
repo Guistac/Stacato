@@ -28,11 +28,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Gui.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/MenuBar.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Toolbar.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Popups.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Layout.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Layout.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Window.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/Window.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/ApplicationWindow/ImGuiCustomConfiguration.h
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.h
@@ -181,31 +176,30 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/List.h
 
-
-    ${STACATO_SOURCE_DIRECTORY}/Application/Workspace.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Workspace.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Application/Application.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Application_Private.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Application.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Application/Logger.h
-
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Serializable.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/SerializableList.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/PrototypeBase.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Component.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Component.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/FileComponent.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Parameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/ListParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/StringParameter.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Editor/Project.h
-
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui_Private.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Gui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Window.h
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/Window.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Application/Gui/WindowManager.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Workspace.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Workspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Application.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Application_Private.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Application.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Logger.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/PrototypeBase.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/FileComponent.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/StringParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Project.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui_Private.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Window.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Window.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/WindowManager.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Stacato/Stacato.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.cpp
@@ -213,6 +207,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoPopups.h
+    
 
 
 

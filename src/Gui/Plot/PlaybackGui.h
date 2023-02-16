@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/Gui/Window.h"
+#include "Legato/Gui/Window.h"
 
 namespace Playback::Gui{
 

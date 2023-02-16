@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-#include "Application/Gui/Window.h"
+#include "Legato/Gui/Window.h"
 
 class Layout : public std::enable_shared_from_this<Layout>{
 public:

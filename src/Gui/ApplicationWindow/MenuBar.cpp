@@ -22,13 +22,13 @@
 
 #include "KeyboardShortcut.h"
 
-#include "Application/Gui/Layout.h"
+#include "Legato/Gui/Layout.h"
 
 #include "SnakeGame.h"
 
 #include "Stacato/Stacato.h"
 #include "Stacato/StacatoProject.h"
-#include "Application/Application.h"
+#include "Legato/Application.h"
 #include "Stacato/StacatoPopups.h"
 
 namespace Gui {
