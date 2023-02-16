@@ -2,26 +2,21 @@
 
 
 namespace Stacato::Application{
-
 	bool initialize();
 	bool terminate();
-
 };
 
 
 
 namespace Stacato::Gui{
-
 	void initialize();
 	void terminate();
 	void gui();
-
 };
 
 
 class File;
 class StacatoProject;
-
 
 namespace Stacato::Workspace{
 
@@ -35,9 +30,3 @@ namespace Stacato::Workspace{
 	void closeCurrentProject();
 
 };
-
-
-//Stacato::Workspace
-//	Stacato::Editor
-//		contains unique windows that display gui to modify the project
-//		there is only one editor and only one project can be edited at one time

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace PlotGui{
 
@@ -13,28 +13,28 @@ namespace PlotGui{
 	class ManoeuvreListWindow : public Window{
 	public:
 		ManoeuvreListWindow() : Window("Manoeuvre List", true){}
-		virtual void drawContent() override { manoeuvreList(); };
+		virtual void onDraw() override { manoeuvreList(); };
 		SINGLETON_GET_METHOD(ManoeuvreListWindow)
 	};
 
 	class TrackSheetEditorWindow : public Window{
 	public:
 		TrackSheetEditorWindow() : Window("Track Sheet Editor", true){}
-		virtual void drawContent() override { trackSheetEditor(); };
+		virtual void onDraw() override { trackSheetEditor(); };
 		SINGLETON_GET_METHOD(TrackSheetEditorWindow)
 	};
 
 	class CurveEditorWindow : public Window{
 	public:
 		CurveEditorWindow() : Window("Curve Editor", true){}
-		virtual void drawContent() override { curveEditor(); };
+		virtual void onDraw() override { curveEditor(); };
 		SINGLETON_GET_METHOD(CurveEditorWindow)
 	};
 
 	class SpatialEditorWindow : public Window{
 	public:
 		SpatialEditorWindow() : Window("Spatial Editor", true){}
-		virtual void drawContent() override { spatialEditor(); };
+		virtual void onDraw() override { spatialEditor(); };
 		SINGLETON_GET_METHOD(SpatialEditorWindow)
 	};
 
@@ -42,8 +42,8 @@ namespace PlotGui{
 	class NewPlotPopup : public Popup{
 	public:
 		NewPlotPopup() : Popup("New Plot", true, true){}
-		virtual void onPopupOpen() override;
-		virtual void drawContent() override;
+		virtual void onOpen() override;
+		virtual void onDraw() override;
 		char newNameBuffer[256];
 		SINGLETON_GET_METHOD(NewPlotPopup);
 	};
@@ -51,8 +51,8 @@ namespace PlotGui{
 	class PlotEditorPopup : public Popup{
 	public:
 		PlotEditorPopup(std::shared_ptr<Plot> editedPlot) : Popup("Edit Plot", true, true), plot(editedPlot){}
-		virtual void onPopupOpen() override;
-		virtual void drawContent() override;
+		virtual void onOpen() override;
+		virtual void onDraw() override;
 		std::shared_ptr<Plot> plot;
 		char newNameBuffer[256];
 		static void open(std::shared_ptr<Plot> plot){
@@ -64,7 +64,7 @@ namespace PlotGui{
 	class PlotDeletePopup : public Popup{
 	public:
 		PlotDeletePopup(std::shared_ptr<Plot> deletedPlot) : Popup("Delete Plot", true, true), plot(deletedPlot){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		std::shared_ptr<Plot> plot;
 		static void open(std::shared_ptr<Plot> plot){
 			auto popup = std::make_shared<PlotDeletePopup>(plot);

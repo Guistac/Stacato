@@ -241,7 +241,7 @@ void displayNodeContent(std::shared_ptr<DocumentNode> node, bool topNode = true)
 }
 
 
-void EsiReaderWindow::drawContent(){
+void EsiReaderWindow::onDraw(){
 	
 	static FileDialog::FilePath filePath;
 	if(ImGui::Button("Open ESI File")) {

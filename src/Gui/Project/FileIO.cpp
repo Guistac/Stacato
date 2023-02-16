@@ -35,7 +35,7 @@ namespace Project::Gui{
 		 */
 	}
 
-	void CloseProjectPopup::drawContent(){
+	void CloseProjectPopup::onDraw(){
 		ImGui::Text("Do you really want to close the current project ?");
 		ImGui::Text("Proceeding will stop motion and discard any unsaved changes");
 		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();

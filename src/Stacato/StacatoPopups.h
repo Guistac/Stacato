@@ -1,6 +1,7 @@
-#include <pch.h>
+#pragma once
 
-#include "Gui.h"
+#include "Application/Gui/Window.h"
+
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
@@ -12,15 +13,20 @@
 #include "Gui/Project/ProjectGui.h"
 #include "Gui/Environnement/EnvironnementGui.h"
 
-#include "Layout.h"
+#include "Application/Gui/Layout.h"
 
 #include "Gui/Fieldbus/EtherCatGui.h"
 
 #include "Gui/Assets/Images.h"
 
-namespace Gui{
+namespace Stacato{
 
-	void QuitApplicationPopup::drawContent(){
+class QuitApplicationPopup : public Popup{
+public:
+	QuitApplicationPopup() : Popup("Quit Application", true, true){}
+	SINGLETON_GET_METHOD(QuitApplicationPopup);
+	
+	virtual void onDraw() override {
 		ImGui::Text("Do you really want to exit the application ?");
 		ImGui::Text("Proceeding will stop motion and discard any unsaved changes");
 		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();
@@ -39,9 +45,14 @@ namespace Gui{
 		}
 		ImGui::PopStyleColor(3);
 	}
+};
 
-	void AboutPopup::drawContent(){
-				
+class AboutPopup : public Popup{
+public:
+	AboutPopup() : Popup("About", true, true){}
+	SINGLETON_GET_METHOD(AboutPopup);
+	
+	virtual void onDraw() override {
 		float iconSize = ImGui::GetTextLineHeight() * 7.0;
 		float textSize = Fonts::sansBold42->FontSize + Fonts::sansBold20->FontSize + ImGui::GetTextLineHeight() + 2.0 * ImGui::GetStyle().ItemSpacing.y;
 		
@@ -80,5 +91,6 @@ namespace Gui{
 		ImGui::Text("Leo Becker - L'Atelier Artefact - 2021");
 		ImGui::EndGroup();
 	}
-	
+};
+
 }

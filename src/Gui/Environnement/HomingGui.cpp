@@ -17,7 +17,7 @@
 
 namespace Environnement::Gui{
 
-void SetupWindow::drawContent(){
+void SetupWindow::onDraw(){
 
 	/*
 	

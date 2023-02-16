@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace Project::Gui{
 
@@ -12,7 +12,7 @@ namespace Project::Gui{
 	class CloseProjectPopup : public Popup{
 	public:
 		CloseProjectPopup() : Popup("Close Project", true, true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(CloseProjectPopup);
 	};
 	

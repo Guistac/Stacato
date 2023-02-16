@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace tinyxml2{ struct XMLElement; }
 class Dashboard;
@@ -19,7 +19,7 @@ namespace DashboardManager{
 class DashboardWindow : public Window{
 public:
 	DashboardWindow() : Window("Dashboard", false){}
-	virtual void drawContent() override;
+	virtual void onDraw() override;
 	SINGLETON_GET_METHOD(DashboardWindow);
 };
 

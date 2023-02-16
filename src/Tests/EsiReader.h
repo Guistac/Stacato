@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 class EsiReaderWindow : public Window{
 public:
 	EsiReaderWindow() : Window("ESI Reader", true){}
-	virtual void drawContent() override;
+	virtual void onDraw() override;
 	SINGLETON_GET_METHOD(EsiReaderWindow);
 };

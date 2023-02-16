@@ -6,7 +6,7 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 double map(double x, double in_min, double in_max, double out_min, double out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -403,6 +403,7 @@ void Ball::draw(ImDrawList* drawing){
 
 class PongGameWindow : public Window{
 public:
+	
     PongGameWindow(std::shared_ptr<ConsoleStarmania> c) : Window("Pong", true), console(c) {
         pongGame = PongGame::make();
         pongGame->intialize(console->joystickLeft, console->joystickRight);
@@ -410,7 +411,7 @@ public:
     
     std::shared_ptr<PongGame> pongGame;
     
-    virtual void drawContent() override{
+    virtual void onDraw() override{
         float left = console->joystickLeft->getPosition().y;
         float right = console->joystickRight->getPosition().y;
         

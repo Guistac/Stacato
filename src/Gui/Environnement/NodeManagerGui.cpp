@@ -21,7 +21,7 @@
 
 namespace Environnement::Gui{
 
-void NodeManagerWindow::drawContent(){
+void NodeManagerWindow::onDraw(){
 
 	static float listWidth = ImGui::GetTextLineHeight() * 20.0;
 	static float minlistWidth = ImGui::GetTextLineHeight() * 15.0;

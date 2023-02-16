@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace Sequencer::Gui{
 	
@@ -11,7 +11,7 @@ namespace Sequencer::Gui{
 	class SequencerWindow : public Window{
 	public:
 		SequencerWindow() : Window("Sequencer", false){}
-		virtual void drawContent() override { Sequencer::Gui::editor(); };
+		virtual void onDraw() override { Sequencer::Gui::editor(); };
 		SINGLETON_GET_METHOD(SequencerWindow);
 	};
 

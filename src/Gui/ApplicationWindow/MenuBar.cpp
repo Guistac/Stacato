@@ -22,13 +22,14 @@
 
 #include "KeyboardShortcut.h"
 
-#include "Layout.h"
+#include "Application/Gui/Layout.h"
 
 #include "SnakeGame.h"
 
 #include "Stacato/Stacato.h"
 #include "Stacato/StacatoProject.h"
 #include "Application/Application.h"
+#include "Stacato/StacatoPopups.h"
 
 namespace Gui {
 
@@ -38,7 +39,7 @@ namespace Gui {
 		
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
-			if (ImGui::MenuItem("About")) Gui::AboutPopup::get()->open();
+			if (ImGui::MenuItem("About")) Stacato::AboutPopup::get()->open();
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", "Cmd Q")) Application::requestQuit();
 			ImGui::EndMenu();
@@ -243,6 +244,8 @@ namespace Gui {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("Windows :");
 			ImGui::PopStyleColor();
+			assert("UNIMPLEMENTED");
+			/*
 			for(auto& window : WindowManager::getWindowDictionnary()){
 				bool b_open = window->isOpen();
 				if(ImGui::MenuItem(window->name.c_str(), nullptr, &b_open)){
@@ -250,6 +253,7 @@ namespace Gui {
 					else window->close();
 				}
 			}
+			 */
 			
 			ImGui::EndMenu();
 		}

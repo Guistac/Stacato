@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace Environnement::Gui{
 
@@ -10,42 +10,42 @@ namespace Environnement::Gui{
 	class UnlockEditorPopup : public Popup{
 	public:
 		UnlockEditorPopup() : Popup("Unlock Environnement Editor", true, true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(UnlockEditorPopup);
 	};
 
 	class NodeEditorWindow : public Window{
 	public:
 		NodeEditorWindow() : Window("Node Editor", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(NodeEditorWindow);
 	};
 
 	class NodeManagerWindow : public Window{
 	public:
 		NodeManagerWindow() : Window("Node Manager", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(NodeManagerWindow);
 	};
 
 	class VisualizerScriptWindow : public Window{
 	public:
 		VisualizerScriptWindow() : Window("Visualizer Script", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(VisualizerScriptWindow);
 	};
 
 	class EtherCATWindow : public Window{
 	public:
 		EtherCATWindow() : Window("EtherCAT Fieldbus", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(EtherCATWindow);
 	};
 
 	class ScriptEditorWindow : public Window{
 	public:
 		ScriptEditorWindow() : Window("Environnement Script", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(ScriptEditorWindow);
 	};
 
@@ -55,21 +55,21 @@ namespace Environnement::Gui{
 	class SetupWindow : public Window{
 	public:
 		SetupWindow() : Window("Setup", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(SetupWindow);
 	};
 
 	class VisualizerWindow : public Window{
 	public:
 		VisualizerWindow() : Window("Visualizer", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(VisualizerWindow);
 	};
 
 	class LogWindow : public Window{
 	public:
 		LogWindow() : Window("Log", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(LogWindow);
 	};
 
@@ -91,12 +91,14 @@ namespace Environnement::Gui{
 
 	inline void restrictEditorWindows(){
 		for(auto& editorWindow : getEditorWindows()) {
-			editorWindow->removeFromDictionnary();
+			assert("ERROR");
+			//editorWindow->removeFromDictionnary();
 		}
 	}
 	inline void allowEditorWindows(){
 		for(auto& editorWindow : getEditorWindows()) {
-			editorWindow->addToDictionnary();
+			assert("ERROR");
+			//editorWindow->addToDictionnary();
 		}
 	}
 

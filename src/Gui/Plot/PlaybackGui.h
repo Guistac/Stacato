@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 namespace Playback::Gui{
 
@@ -11,7 +11,7 @@ namespace Playback::Gui{
 	class PlaybackManagerWindow : public Window{
 	public:
 		PlaybackManagerWindow() : Window("Playback Manager", true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(PlaybackManagerWindow)
 	};
 

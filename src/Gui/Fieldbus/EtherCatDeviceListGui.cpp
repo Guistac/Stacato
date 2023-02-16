@@ -66,7 +66,7 @@ void etherCatSlaves() {
 }
 
 
-void EtherCatDevicesWindow::drawContent(){
+void EtherCatDevicesWindow::onDraw(){
 	
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	glm::vec2 deviceSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());

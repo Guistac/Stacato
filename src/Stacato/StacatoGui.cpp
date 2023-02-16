@@ -14,7 +14,7 @@
 #define OPENGL_VERSION_STRING "#version 410 core"
 
 
-#include "Gui/ApplicationWindow/Layout.h"
+#include "Application/Gui/Layout.h"
 
 #include "Gui/Project/ProjectGui.h"
 #include "Environnement/Environnement.h"
@@ -35,6 +35,7 @@ namespace Stacato::Gui{
 ImGuiID dockspaceID;
 
 void setDefaultLayout(){
+	/*
 	WindowManager::closeAllWindows();
 	for(auto& window : WindowManager::getWindowDictionnary()) window->open();
 	ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
@@ -47,6 +48,7 @@ void setDefaultLayout(){
 #else
 	DashboardWindow::get()->focus();
 #endif
+	 */
 }
 
 void initialize(){
@@ -57,6 +59,7 @@ void initialize(){
 	Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
 	
 	
+	/*
 	//editor windows
 	Environnement::Gui::NodeEditorWindow::get()->addToDictionnary();
 	Environnement::Gui::NodeManagerWindow::get()->addToDictionnary();
@@ -76,6 +79,7 @@ void initialize(){
 	EtherCatNetworkWindow::get()->addToDictionnary();
 	EtherCatDevicesWindow::get()->addToDictionnary();
 	Environnement::Gui::LogWindow::get()->addToDictionnary();
+	 */
 	
 	#if defined(STACATO_DEBUG)
 	Environnement::unlockEditor();
@@ -158,8 +162,8 @@ void gui(){
 	ImGui::End();
 	ImGui::PopStyleVar();
 	
-	WindowManager::manage();
-	LayoutManager::manage();
+	//WindowManager::manage();
+	//LayoutManager::manage();
 	
 }
 

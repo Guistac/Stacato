@@ -16,7 +16,7 @@
 
 namespace Environnement::Gui{
 
-void NodeEditorWindow::drawContent(){
+void NodeEditorWindow::onDraw(){
 	
 	//========= NODE INSPECTOR AND ADDER PANEL =========
 

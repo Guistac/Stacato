@@ -151,7 +151,7 @@ void sequencerPlaybackControls(float height){}
 
 
 
-void PlaybackManagerWindow::drawContent(){
+void PlaybackManagerWindow::onDraw(){
 	
 	auto drawing = ImGui::GetWindowDrawList();
 	ImDrawListSplitter drawingLayers;

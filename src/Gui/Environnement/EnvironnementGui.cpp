@@ -19,15 +19,15 @@
 
 namespace Environnement::Gui{
 
-	void VisualizerScriptWindow::drawContent() {
+	void VisualizerScriptWindow::onDraw() {
 		StageVisualizer::editor(ImGui::GetContentRegionAvail());
 	}
 
-	void EtherCATWindow::drawContent() {
+	void EtherCATWindow::onDraw() {
 		etherCatGui();
 	}
 
-	void ScriptEditorWindow::drawContent(){
+	void ScriptEditorWindow::onDraw(){
 		ImGui::BeginDisabled(!Script::canCompile());
 		if(ImGui::Button("Compile")) Script::compile();
 		ImGui::SameLine();
@@ -36,15 +36,15 @@ namespace Environnement::Gui{
 		Script::editor(ImGui::GetContentRegionAvail());
 	}
 	
-	void LogWindow::drawContent() {
+	void LogWindow::onDraw() {
 		Utilies::Gui::log();
 	}
 
-	void VisualizerWindow::drawContent() {
+	void VisualizerWindow::onDraw() {
 		StageVisualizer::canvas(ImGui::GetContentRegionAvail(), 1.0, ImGui::GetStyle().FrameRounding);
 	}
 
-	void UnlockEditorPopup::drawContent(){
+	void UnlockEditorPopup::onDraw(){
 		ImGui::Text("Enter password to unlock the environnement editor.\n"
 					"Only proceed if you know what you're doing.");
 		

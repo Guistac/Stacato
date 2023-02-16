@@ -17,7 +17,7 @@ glm::vec2 EtherCatStartPopup::getSize(){
 	return glm::vec2(ImGui::GetTextLineHeight() * 30.0, .0f);
 }
 
-void EtherCatStartPopup::drawContent(){
+void EtherCatStartPopup::onDraw(){
 	ProgressIndicator& progress = EtherCatFieldbus::startupProgress;
 	
 	ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());

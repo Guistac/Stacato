@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
-
 namespace Environnement{
 
 namespace Script{

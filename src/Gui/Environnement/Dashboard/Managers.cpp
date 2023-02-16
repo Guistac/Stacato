@@ -7,7 +7,7 @@
 #include <tinyxml2.h>
 
 
-void DashboardWindow::drawContent(){ DashboardManager::getDashboard()->gui(); }
+void DashboardWindow::onDraw(){ DashboardManager::getDashboard()->gui(); }
 
 
 

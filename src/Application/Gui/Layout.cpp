@@ -2,7 +2,7 @@
 
 #include "Layout.h"
 #include "Gui.h"
-#include "Window.h"
+#include "Application/Gui/Window.h"
 
 std::shared_ptr<Layout> Layout::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
@@ -74,9 +74,12 @@ bool Layout::save(tinyxml2::XMLElement* xml){
 void Layout::overwrite(){
 	layoutString = ImGui::SaveIniSettingsToMemory();
 	openWindowIds.clear();
+	assert("UNIMPLEMENTED");
+	/*
 	for(auto& window : WindowManager::getOpenWindows()) {
 		openWindowIds.push_back(window->name);
 	}
+	 */
 }
 
 void Layout::makeActive(){
@@ -195,13 +198,15 @@ namespace LayoutManager{
 		defaultLayout = nullptr;
 	}
 
-	void LayoutEditorPopup::drawContent(){
+	void LayoutEditorPopup::onDraw(){
 		ImGui::Text("Layout Name :");
 		editedLayout->nameEditField();
 		if (ImGui::Button("Close") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE) || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) close();
 	}
 
 	void manage(){
+		assert("UNIMPLEMENTED");
+		/*
 		if(layoutToApply == nullptr) return;
 		WindowManager::closeAllWindows();
 		for(auto& openWindowName : layoutToApply->openWindowIds){
@@ -215,6 +220,7 @@ namespace LayoutManager{
 		ImGui::LoadIniSettingsFromMemory(layoutToApply->layoutString.c_str());
 		currentLayout = layoutToApply;
 		layoutToApply = nullptr;
+		 */
 	}
 
 }

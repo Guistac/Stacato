@@ -1,24 +1,10 @@
 #pragma once
 
-#include "Window.h"
+#include "Application/Gui/Window.h"
 
 namespace Gui{
 	
 	void menuBar();
 	void toolbar(float height);
-
-	class QuitApplicationPopup : public Popup{
-	public:
-		QuitApplicationPopup() : Popup("Quit Application", true, true){}
-		virtual void drawContent() override;
-		SINGLETON_GET_METHOD(QuitApplicationPopup);
-	};
-
-	class AboutPopup : public Popup{
-	public:
-		AboutPopup() : Popup("About", true, true){}
-		virtual void drawContent() override;
-		SINGLETON_GET_METHOD(AboutPopup);
-	};
 
 }

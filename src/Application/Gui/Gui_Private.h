@@ -1,6 +1,6 @@
 #pragma once
 
-class NewWindow;
+class Window;
 
 namespace NewGui{
 
@@ -10,7 +10,7 @@ void drawFrame();
 
 void terminate();
 
-void openWindow(std::shared_ptr<NewWindow> window);
-void closeWindow(std::shared_ptr<NewWindow> window);
+void openWindow(std::shared_ptr<Window> window);
+void closeWindow(std::shared_ptr<Window> window);
 
 };

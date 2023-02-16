@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>
@@ -10,7 +10,7 @@ public:
 	
 	SnakeGameWindow() : Window("Snake", true){}
 	
-	virtual void drawContent() override {
+	virtual void onDraw() override {
 		
 		
 		updateSnake();

@@ -600,7 +600,7 @@ void unfoldNetwork(){
 
 
 
-void EtherCatNetworkWindow::drawContent(){
+void EtherCatNetworkWindow::onDraw(){
 		
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("EtherCAT Network");

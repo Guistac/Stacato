@@ -287,11 +287,11 @@ void spatialEditor(){
 }
 
 
-void NewPlotPopup::onPopupOpen(){
+void NewPlotPopup::onOpen(){
 	sprintf(newNameBuffer, "New Plot");
 }
 
-void NewPlotPopup::drawContent(){
+void NewPlotPopup::onDraw(){
 	ImGui::Text("Enter a name for the new Plot:");
 	ImGui::InputText("##plotName", newNameBuffer, 256);
 	if(ImGui::Button("Confirm")){
@@ -306,11 +306,11 @@ void NewPlotPopup::drawContent(){
 }
 
 
-void PlotEditorPopup::onPopupOpen(){
+void PlotEditorPopup::onOpen(){
 	strcpy(newNameBuffer, plot->getName());
 }
 
-void PlotEditorPopup::drawContent(){
+void PlotEditorPopup::onDraw(){
 	ImGui::Text("Plot Name:");
 	ImGui::InputText("##plotName", newNameBuffer, 256);
 	if(ImGui::Button("Confirm")){
@@ -324,7 +324,7 @@ void PlotEditorPopup::drawContent(){
 }
 
 
-void PlotDeletePopup::drawContent(){
+void PlotDeletePopup::onDraw(){
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 	ImGui::Text("Do you really want to delete %s ?", plot->getName());
 	ImGui::PopStyleColor();

@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-#include "Gui/ApplicationWindow/Window.h"
+#include "Application/Gui/Window.h"
 
 class Layout : public std::enable_shared_from_this<Layout>{
 public:
@@ -57,7 +57,7 @@ namespace LayoutManager{
 	class LayoutEditorPopup : public Popup{
 	public:
 		LayoutEditorPopup() : Popup("Edit Layout", true, true){}
-		virtual void drawContent() override;
+		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(LayoutEditorPopup);
 	};
 
