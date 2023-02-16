@@ -14,9 +14,9 @@ int main(int argcount, const char ** args){
 	Application::setTerminationFunction(Stacato::Application::terminate);
 	Application::setQuitRequestFunction(Stacato::Workspace::onQuitRequest);
 	Workspace::setFileOpenCallback(Stacato::Workspace::openFile);
-	NewGui::setInitializationFunction(Stacato::Gui::initialize);
-	NewGui::setGuiSubmitFunction(Stacato::Gui::gui);
-	NewGui::setTerminationFunction(Stacato::Gui::terminate);
+	Legato::Gui::setInitializationFunction(Stacato::Gui::initialize);
+	Legato::Gui::setGuiSubmitFunction(Stacato::Gui::gui);
+	Legato::Gui::setTerminationFunction(Stacato::Gui::terminate);
 	
 	//launch application
 	Application::run();

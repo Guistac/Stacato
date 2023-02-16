@@ -75,7 +75,7 @@ namespace Application{
 		FileDialog::init();
 		
 		//——— Gui Initialization
-		NewGui::initialize();
+		Legato::Gui::initialize();
 		
 		//——— User Initialization
 		userInitializationFunction();
@@ -101,7 +101,7 @@ namespace Application{
 		b_running = true;
 		while(b_running) {
 			updateInputs();
-			NewGui::drawFrame();
+			Legato::Gui::drawFrame();
 		}
 		
 		
@@ -111,7 +111,7 @@ namespace Application{
 		userTerminationFunction();
 		
 		//——— Gui termination
-		NewGui::terminate();
+		Legato::Gui::terminate();
 		
 		//——— Core library termination
 		FileDialog::terminate();

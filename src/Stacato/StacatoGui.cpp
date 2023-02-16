@@ -32,10 +32,21 @@
 
 namespace Stacato::Gui{
 
+std::vector<std::shared_ptr<Window>> userWindows;
+std::vector<std::shared_ptr<Window>> administratorWindows;
+std::vector<std::shared_ptr<Window>>& getUserWindows(){ return userWindows; }
+std::vector<std::shared_ptr<Window>>& getAdministratorWindows(){ return administratorWindows; }
+
+
+
+
+
+
+
 ImGuiID dockspaceID;
 
+/*
 void setDefaultLayout(){
-	/*
 	WindowManager::closeAllWindows();
 	for(auto& window : WindowManager::getWindowDictionnary()) window->open();
 	ImGui::DockBuilderRemoveNodeDockedWindows(dockspaceID);
@@ -48,38 +59,34 @@ void setDefaultLayout(){
 #else
 	DashboardWindow::get()->focus();
 #endif
-	 */
 }
+ */
 
 void initialize(){
-	Fonts::load(NewGui::getScale());
+	Fonts::load(Legato::Gui::getScale());
 	Images::load();
 	ImGui::StyleColorsDark();
 	
 	Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
 	
+	//admin windows
+	administratorWindows.push_back(Environnement::Gui::NodeEditorWindow::get());
+	administratorWindows.push_back(Environnement::Gui::NodeManagerWindow::get());
+	administratorWindows.push_back(Environnement::Gui::VisualizerScriptWindow::get());
+	administratorWindows.push_back(Environnement::Gui::EtherCATWindow::get());
+	administratorWindows.push_back(Environnement::Gui::ScriptEditorWindow::get());
 	
-	/*
-	//editor windows
-	Environnement::Gui::NodeEditorWindow::get()->addToDictionnary();
-	Environnement::Gui::NodeManagerWindow::get()->addToDictionnary();
-	Environnement::Gui::VisualizerScriptWindow::get()->addToDictionnary();
-	Environnement::Gui::EtherCATWindow::get()->addToDictionnary();
-	Environnement::Gui::ScriptEditorWindow::get()->addToDictionnary();
-	
-	//performance windows
-	Environnement::Gui::SetupWindow::get()->addToDictionnary();
-	Environnement::Gui::VisualizerWindow::get()->addToDictionnary();
-	PlotGui::ManoeuvreListWindow::get()->addToDictionnary();
-	PlotGui::TrackSheetEditorWindow::get()->addToDictionnary();
-	PlotGui::CurveEditorWindow::get()->addToDictionnary();
-	//Sequencer::Gui::SequencerWindow::get()->addToDictionnary();
-	DashboardWindow::get()->addToDictionnary();
-	Playback::Gui::PlaybackManagerWindow::get()->addToDictionnary();
-	EtherCatNetworkWindow::get()->addToDictionnary();
-	EtherCatDevicesWindow::get()->addToDictionnary();
-	Environnement::Gui::LogWindow::get()->addToDictionnary();
-	 */
+	//user windows
+	userWindows.push_back(Environnement::Gui::SetupWindow::get());
+	userWindows.push_back(Environnement::Gui::VisualizerWindow::get());
+	userWindows.push_back(PlotGui::ManoeuvreListWindow::get());
+	userWindows.push_back(PlotGui::TrackSheetEditorWindow::get());
+	userWindows.push_back(PlotGui::CurveEditorWindow::get());
+	userWindows.push_back(DashboardWindow::get());
+	userWindows.push_back(Playback::Gui::PlaybackManagerWindow::get());
+	userWindows.push_back(EtherCatNetworkWindow::get());
+	userWindows.push_back(EtherCatDevicesWindow::get());
+	userWindows.push_back(Environnement::Gui::LogWindow::get());
 	
 	#if defined(STACATO_DEBUG)
 	Environnement::unlockEditor();
@@ -112,8 +119,8 @@ void gui(){
 		style.GrabRounding = rounding;
 		
 		dockspaceID = ImGui::GetID("MainDockspace");
-		if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
-		else setDefaultLayout();
+		//if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
+		//else setDefaultLayout();
 		
 		b_initialized = true;
 	}

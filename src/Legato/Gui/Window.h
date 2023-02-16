@@ -24,6 +24,8 @@ public:
 	void setName(std::string name_){ name = name_; }
 	void setPadding(float padding = -1.0);
 	
+	std::string& getName(){ return name; }
+	
 	virtual void onOpen(){}
 	virtual void onDraw() = 0;
 	virtual void onClose(){}
@@ -48,9 +50,9 @@ public:
 	bool b_isModal = false;
 	bool b_canClose = false;
 		
-	void open(){}
-	void close(){}
-	void draw(){}
+	void open();
+	void close();
+	void draw();
 	
 	virtual void onOpen(){}
 	virtual void onDraw() = 0;

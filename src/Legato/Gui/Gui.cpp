@@ -3,6 +3,7 @@
 
 #include "Legato/Application.h"
 #include "Legato/Application_Private.h"
+#include "Gui_Private.h"
 
 #include "config.h"
 
@@ -22,7 +23,7 @@
 
 
 
-namespace NewGui{
+namespace Legato::Gui{
 
 std::function<void()> userInitializationFunction;
 std::function<void()> userGuiSubmitFunction;
@@ -120,6 +121,11 @@ void drawFrame(){
 	
 	//execute user gui
 	userGuiSubmitFunction();
+	
+	
+		
+	drawWindows();
+	drawPopups();
 	
 	//we should do WindowManager update here
 	

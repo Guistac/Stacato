@@ -241,19 +241,28 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("Window")){
+			
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			ImGui::Text("Windows :");
+			ImGui::Text("User Windows :");
 			ImGui::PopStyleColor();
-			assert("UNIMPLEMENTED");
-			/*
-			for(auto& window : WindowManager::getWindowDictionnary()){
-				bool b_open = window->isOpen();
-				if(ImGui::MenuItem(window->name.c_str(), nullptr, &b_open)){
-					if(b_open) window->open();
-					else window->close();
+			for(auto userWindow : Stacato::Gui::getUserWindows()){
+				bool b_open = userWindow->isOpen();
+				if(ImGui::MenuItem(userWindow->getName().c_str(), nullptr, &b_open)){
+					if(userWindow->isOpen()) userWindow->close();
+					else userWindow->open();
 				}
 			}
-			 */
+
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::Text("Administrator Windows :");
+			ImGui::PopStyleColor();
+			for(auto adminWindow : Stacato::Gui::getAdministratorWindows()){
+				bool b_open = adminWindow->isOpen();
+				if(ImGui::MenuItem(adminWindow->getName().c_str(), nullptr, &b_open)){
+					if(b_open) adminWindow->open();
+					else adminWindow->close();
+				}
+			}
 			
 			ImGui::EndMenu();
 		}

@@ -3,22 +3,15 @@
 #include "Gui_Private.h"
 #include "Window.h"
 
-namespace NewGui{
+namespace Legato::Gui{
 
 std::vector<std::shared_ptr<Window>> openWindows;
 std::vector<std::shared_ptr<Window>> openingWindows;
 std::vector<std::shared_ptr<Window>> closingWindows;
-
-void openWindow(std::shared_ptr<Window> window){
-	openWindows.push_back(window);
-}
-
-void closeWindow(std::shared_ptr<Window> window){
-	closingWindows.push_back(window);
-}
+void openWindow(std::shared_ptr<Window> window){ openingWindows.push_back(window); }
+void closeWindow(std::shared_ptr<Window> window){ closingWindows.push_back(window); }
 
 void drawWindows(){
-	
 	for(auto closingWindow : closingWindows){
 		closingWindow->b_isOpen = false;
 		closingWindow->onClose();
@@ -29,18 +22,49 @@ void drawWindows(){
 			}
 		}
 	}
+	closingWindows.clear();
 	
 	for(auto openingWindow : openingWindows){
 		openingWindow->b_isOpen = true;
 		openingWindow->onOpen();
 		openWindows.push_back(openingWindow);
 	}
+	openingWindows.clear();
 	
-	for(auto openWindow : openWindows){
-		openWindow->draw();
-	}
-	
+	for(auto openWindow : openWindows) openWindow->draw();
 }
+
+std::vector<std::shared_ptr<Popup>> openPopups;
+std::vector<std::shared_ptr<Popup>> openingPopups;
+std::vector<std::shared_ptr<Popup>> closingPopups;
+
+void openPopup(std::shared_ptr<Popup> popup){ openingPopups.push_back(popup); }
+void closePopup(std::shared_ptr<Popup> popup){ closingPopups.push_back(popup); }
+
+void drawPopups(){
+	for(auto closingPopup : closingPopups){
+		closingPopup->b_isOpen = false;
+		closingPopup->onClose();
+		for(size_t i = openWindows.size() - 1; i >= 0; i--){
+			if(openPopups[i] == closingPopup){
+				openPopups.erase(openPopups.begin() + i);
+				break;
+			}
+		}
+	}
+	closingPopups.clear();
+	
+	for(auto openingPopup : openingPopups){
+		openingPopup->b_isOpen = true;
+		openingPopup->onOpen();
+		openPopups.push_back(openingPopup);
+	}
+	openingPopups.clear();
+	
+	for(auto openPopup : openPopups) openPopup->draw();
+}
+
+
 
 };
 
