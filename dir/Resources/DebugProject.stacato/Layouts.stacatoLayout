@@ -1,4 +1,5 @@
-<LayoutList DefaultLayout="Nico" HELLo="1234">
+<LayoutList HELLo="1234">
+    <DefaultLayout Name="Dual Screen"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>

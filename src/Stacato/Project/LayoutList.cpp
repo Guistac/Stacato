@@ -6,7 +6,14 @@
 
 bool LayoutList::onSerialization() {
 	bool success = true;
-	if(defaultLayout != nullptr) serializeAttribute("DefaultLayout", defaultLayout->getName());
+	
+	if(defaultLayout != nullptr){
+		Serializable defaultLayoutSerializable;
+		defaultLayoutSerializable.setSaveString("DefaultLayout");
+		defaultLayoutSerializable.serializeIntoParent(this);
+		defaultLayoutSerializable.serializeAttribute("Name", defaultLayout->getName());
+	}
+		
 	success &= layouts.serializeIntoParent(this);
 	return success;
 }
@@ -14,16 +21,22 @@ bool LayoutList::onSerialization() {
 bool LayoutList::onDeserialization() {
 	bool success = true;
 	success &= layouts.deserializeFromParent(this);
-	std::string defaultLayoutName;
-	if(deserializeAttribute("DefaultLayout", defaultLayoutName)){
-		for(auto layout : layouts.get()){
-			if(layout->getName() == defaultLayoutName){
-				defaultLayout = layout;
-				makeCurrent(layout);
-				break;
+	
+	Serializable defaultLayoutSerializable;
+	defaultLayoutSerializable.setSaveString("DefaultLayout");
+	if(defaultLayoutSerializable.deserializeFromParent(this)){
+		std::string defaultLayoutName;
+		if(defaultLayoutSerializable.deserializeAttribute("Name", defaultLayoutName)){
+			for(auto layout : layouts.get()){
+				if(layout->getName() == defaultLayoutName){
+					defaultLayout = layout;
+					makeCurrent(layout);
+					break;
+				}
 			}
 		}
 	}
+	
 	return success;
 }
 

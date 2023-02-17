@@ -53,17 +53,55 @@ namespace Gui {
 			ImGui::Separator();
 			 
 			
-			ImGui::BeginDisabled(currentProject == nullptr || !currentProject->hasFilePath());
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::PushFont(Fonts::sansBold15);
+			if(currentProject == nullptr) ImGui::Text("No Project Loaded.");
+			else ImGui::Text("Current Project : %s", currentProject->getFilePath().c_str());
+			ImGui::PopFont();
+			ImGui::PopStyleColor();
+			
+			ImGui::BeginDisabled(currentProject == nullptr);
+			
+			ImGui::BeginDisabled(!currentProject->hasFilePath());
 			if (ImGui::MenuItem("Save", "Cmd S")) currentProject->writeFile();
 			ImGui::EndDisabled();
 			
 			if (ImGui::MenuItem("Save As...", "Cmd Shift S")) Stacato::Gui::saveAs();
-			 
-			ImGui::Separator();
 			
-			ImGui::BeginDisabled(currentProject == nullptr || !currentProject->hasFilePath());
+			ImGui::BeginDisabled(!currentProject->hasFilePath());
 			if (ImGui::MenuItem("Reload Saved", "Cmd Shift R")) {/*Project::reloadSaved();*/}
 			ImGui::EndDisabled();
+			
+			if(ImGui::MenuItem("Close")){
+				
+			}
+			
+			ImGui::EndDisabled();
+			
+			ImGui::Separator();
+			
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Loaded Files :");
+			ImGui::PopFont();
+			ImGui::PopStyleColor();
+			
+			auto& files = ::Workspace::getFiles();
+			auto currentProject = Stacato::Workspace::getCurrentProject();
+			for(int i = 0; i < files.size(); i++){
+				ImGui::PushID(i);
+				auto file = files[i];
+				bool isCurrent = currentProject == file;
+				std::string name = file->getFilePath().string();
+				if(name.empty()) name = "[Unsaved Project]";
+				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
+					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){
+						Stacato::Workspace::openProject(project);
+					}
+				}
+				ImGui::PopID();
+			}
+			
 
 			ImGui::EndMenu();
 		}
@@ -86,29 +124,8 @@ namespace Gui {
 			ImGui::Separator();
 			*/
 			
-			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			ImGui::Text("Open Files");
-			ImGui::PopStyleColor();
 			
-			auto& files = ::Workspace::getFiles();
-			auto currentProject = Stacato::Workspace::getCurrentProject();
-			for(int i = 0; i < files.size(); i++){
-				ImGui::PushID(i);
-				auto file = files[i];
-				bool isCurrent = currentProject == file;
-				std::string name = file->getFilePath().string();
-				if(name.empty()) name = "[Unsaved Project]";
-				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
-					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){
-						Stacato::Workspace::openProject(project);
-					}
-				}
-				ImGui::PopID();
-			}
-			
-			
-			
-			ImGui::Separator();
+			//ImGui::Separator();
 			
 			if(Environnement::isEditorLocked()) {
 				if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::Gui::UnlockEditorPopup::get()->open();
@@ -245,7 +262,6 @@ namespace Gui {
 				
 				ImGui::Separator();
 				if(ImGui::MenuItem("Capture New Layout")) layoutList->captureNew();
-				ImGui::BeginDisabled(layoutList->getCurrent() == nullptr);
 				
 				
 				ImGui::Separator();
@@ -275,7 +291,8 @@ namespace Gui {
 				else ImGui::Text("No Layout Active.");
 				ImGui::PopFont();
 				ImGui::PopStyleColor();
-				
+			
+				ImGui::BeginDisabled(layoutList->getCurrent() == nullptr);
 				if(ImGui::MenuItem("Make Default Layout")) layoutList->makeCurrentDefault();
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
 				if(ImGui::MenuItem("Rename Layout")) {}
