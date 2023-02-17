@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Legato/Editor/Serializable.h"
+
 struct ImGuiWindow;
 
 #define SINGLETON_GET_METHOD(ClassName) \

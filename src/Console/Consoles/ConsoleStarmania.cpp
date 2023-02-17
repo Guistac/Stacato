@@ -7,7 +7,7 @@
 #include "Plot/ManoeuvreList.h"
 #include "Animation/Manoeuvre.h"
 
-#include "Stacato/Stacato.h"
+#include "Stacato/StacatoWorkspace.h"
 #include "Stacato/StacatoProject.h"
 
 //TODO: using glm::vec3 arithmetic such as end - start causes the stage visualize to malfunction. figure out why this happens !

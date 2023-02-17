@@ -75,7 +75,8 @@ private:
 			//create an abstract Serializable to be supplied to the entry constructor function
 			//this allow the user to query the abstract object for attributes
 			//and gives them flexibility to decide how each entry should be constructed
-			std::shared_ptr<Serializable> abstractLoadedEntry = std::make_shared<Serializable>(entryXML);
+			std::shared_ptr<Serializable> abstractLoadedEntry = std::make_shared<Serializable>();
+			abstractLoadedEntry->xmlElement = entryXML;
 			std::shared_ptr<T> loadedEntry = constructor(abstractLoadedEntry);
 
 			if(loadedEntry->onDeserialization()) content.push_back(loadedEntry);

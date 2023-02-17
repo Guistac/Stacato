@@ -21,7 +21,7 @@
 
 #include "Gui/Assets/Images.h"
 
-#include "Stacato/Stacato.h"
+#include "Stacato/StacatoWorkspace.h"
 #include "Stacato/StacatoProject.h"
 
 

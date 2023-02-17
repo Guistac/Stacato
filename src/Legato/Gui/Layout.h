@@ -6,11 +6,19 @@
 
 #include "Legato/Gui/Window.h"
 
-class Layout : public std::enable_shared_from_this<Layout>{
+#include "Legato/Editor/Component.h"
+#include "Legato/Editor/SerializableList.h"
+
+class Layout : public Component{
+
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(Layout)
+	
 public:
 	
-	static std::shared_ptr<Layout> load(tinyxml2::XMLElement* xml);
-	bool save(tinyxml2::XMLElement* xml);
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
 	void makeActive();
 	bool isActive();
@@ -25,6 +33,7 @@ public:
 	
 	std::string layoutString;
 	std::vector<std::string> openWindowIds;
+	
 	char name[256];
 	
 	void nameEditField(){
@@ -35,35 +44,25 @@ public:
 
 
 
-namespace LayoutManager{
-	
-	std::vector<std::shared_ptr<Layout>>& getLayouts();
-	std::shared_ptr<Layout> getCurrentLayout();
-	std::shared_ptr<Layout> getDefaultLayout();
-	std::shared_ptr<Layout> getEditedLayout();
+namespace Legato::Gui::LayoutManager{
 
-	bool save(const char* filePath);
-	bool load(const char* filePath);
+	void registerWindow(std::shared_ptr<Window> window);
+	void unregisterWindow(std::shared_ptr<Window> window);
 
-	void clearAll();
+	std::shared_ptr<Layout> captureCurentLayout();
 
-	void capture();
-	void edit(std::shared_ptr<Layout> editedLayout);
-	void makeActive(std::shared_ptr<Layout> layout);
-	void makeDefault(std::shared_ptr<Layout> layout);
-	void setDefault();
-	void remove(std::shared_ptr<Layout> removedLayout);
-
-	class LayoutEditorPopup : public Popup{
-	public:
-		LayoutEditorPopup() : Popup("Edit Layout", true, true){}
-		virtual void onDraw() override;
-		SINGLETON_GET_METHOD(LayoutEditorPopup);
-	};
-
-	void manage();
-
-    extern bool b_lockLayout;
+	bool isLayoutLocked();
+	bool unlockLayout();
+	bool lockLayout();
 
 };
 
+
+/*
+ class LayoutEditorPopup : public Popup{
+ public:
+	 LayoutEditorPopup() : Popup("Edit Layout", true, true){}
+	 virtual void onDraw() override;
+	 SINGLETON_GET_METHOD(LayoutEditorPopup);
+ };
+ */

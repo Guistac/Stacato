@@ -200,15 +200,19 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/WindowManager.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/LayoutManager.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Stacato/Stacato.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoGui.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoPopups.h
-    
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/LayoutList.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/LayoutList.cpp
 
 
 

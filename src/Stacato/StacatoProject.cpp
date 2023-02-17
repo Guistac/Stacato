@@ -14,7 +14,10 @@ void StacatoProject::onConstruction() {
 	setCurrentPlot(defaultPlot);
 	
 	Environnement::createNew();
-	LayoutManager::clearAll();
+	//LayoutManager::clearAll();
+	
+	layouts = LayoutList::createInstance();
+	layouts->setSaveString("Layouts");
 }
 
 void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
@@ -39,8 +42,11 @@ bool StacatoProject::onWriteFile() {
 	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
 	if (!Environnement::save(environnementFilePath.c_str())) return false;
 	
-	std::string layoutFilePath = projectFolderPath + "/Layouts.stacatoLayout";
-	if(!LayoutManager::save(layoutFilePath.c_str())) return false;
+	
+	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
+	if(!layouts->writeFile()) return false;
+	
+	
 
 	std::string scriptsFolderPath = projectFolderPath + "/Scripts";
 	if(!std::filesystem::exists(std::filesystem::path(scriptsFolderPath))) std::filesystem::create_directory(std::filesystem::path(scriptsFolderPath));
@@ -96,20 +102,11 @@ bool StacatoProject::onReadFile() {
 		return false;
 	}
 	
-	//look for the Layout file
-	bool b_loadedLayoutFile = false;
-	for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
-		if(entry.path().filename() == "Layouts.stacatoLayout"){
-			std::string entryPath = entry.path().string();
-			b_loadedLayoutFile = LayoutManager::load(entryPath.c_str());
-			break;
-		}
-	}
-	if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
-	if(!b_loadedLayoutFile) {
-		Logger::warn("Could not load layout file in project {}", filePath.filename().string());
-		return false;
-	}
+	
+	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
+	if(!layouts->readFile()) return false;
+	//TODO: make default layout active
+	
 	
 	//look for the stage folder
 	std::string scriptFolderPath = projectFolderPath + "/Scripts";

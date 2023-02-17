@@ -1,6 +1,7 @@
 #include <pch.h>
 
-#include "Stacato.h"
+#include "StacatoApplication.h"
+#include "StacatoWorkspace.h"
 
 #include "config.h"
 
@@ -8,11 +9,8 @@
 #include "Environnement/Environnement.h"
 #include "Console/ConsoleHandler.h"
 
-#include "Stacato.h"
-
 #include "Legato/Workspace.h"
 
-#include "Stacato.h"
 #include "StacatoProject.h"
 
 

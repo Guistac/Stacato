@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Parameter.h"
+#include "SerializableList.h"
 
 template<typename T>
 class ListParameter : public SerializableList<T>{

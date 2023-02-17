@@ -26,7 +26,8 @@
 
 #include "SnakeGame.h"
 
-#include "Stacato/Stacato.h"
+#include "Stacato/StacatoGui.h"
+#include "Stacato/StacatoWorkspace.h"
 #include "Stacato/StacatoProject.h"
 #include "Legato/Application.h"
 #include "Stacato/StacatoPopups.h"
@@ -39,7 +40,7 @@ namespace Gui {
 		
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
-			if (ImGui::MenuItem("About")) Stacato::AboutPopup::get()->open();
+			if (ImGui::MenuItem("About")) Stacato::Gui::AboutPopup::get()->open();
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", "Cmd Q")) Application::requestQuit();
 			ImGui::EndMenu();
@@ -47,7 +48,7 @@ namespace Gui {
 		if (ImGui::BeginMenu("File")) {
 			
 			if (ImGui::MenuItem("New Project", "Cmd N")) Stacato::Workspace::createNewProject();
-			if (ImGui::MenuItem("Open Project...", "Cmd O")) Project::Gui::load();
+			if (ImGui::MenuItem("Open Project...", "Cmd O")) Stacato::Gui::load();
 			
 			ImGui::Separator();
 			 
@@ -56,7 +57,7 @@ namespace Gui {
 			if (ImGui::MenuItem("Save", "Cmd S")) currentProject->writeFile();
 			ImGui::EndDisabled();
 			
-			if (ImGui::MenuItem("Save As...", "Cmd Shift S")) Project::Gui::saveAs();
+			if (ImGui::MenuItem("Save As...", "Cmd Shift S")) Stacato::Gui::saveAs();
 			 
 			ImGui::Separator();
 			
@@ -196,11 +197,22 @@ namespace Gui {
 			
 			ImGui::EndMenu();
 		}
+		
 		if(ImGui::BeginMenu("View")){
-			if(ImGui::MenuItem("New layout")) LayoutManager::capture();
-            
-            ImGui::MenuItem("Lock Current Layout", nullptr, &LayoutManager::b_lockLayout);
-            
+			
+			if(ImGui::MenuItem("Lock Window Positions", nullptr, Legato::Gui::LayoutManager::isLayoutLocked())){
+				if(Legato::Gui::LayoutManager::isLayoutLocked()){
+					Legato::Gui::LayoutManager::unlockLayout();
+				}else{
+					Legato::Gui::LayoutManager::lockLayout();
+				}
+			}
+			
+			ImGui::Separator();
+			
+			//if(ImGui::MenuItem("New layout")) LayoutManager::capture();
+			
+			/*
 			ImGui::Separator();
 			
 			if(auto defaultLayout = LayoutManager::getDefaultLayout()){
@@ -237,9 +249,10 @@ namespace Gui {
 				}else if(b_active) ImGui::PopStyleColor();
 			}
 			if(removedLayout) removedLayout->remove();
-			
+			*/
 			ImGui::EndMenu();
 		}
+		 
 		if(ImGui::BeginMenu("Window")){
 			
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -288,13 +301,13 @@ namespace Gui {
 		if(newProjectShortcut.isTriggered()) Stacato::Workspace::createNewProject();
 		
 		static KeyboardShortcut openProjectShortcut(GLFW_KEY_O, KeyboardShortcut::Modifier::SUPER);
-		if(openProjectShortcut.isTriggered()) Project::Gui::load();
+		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();
 		
 		static KeyboardShortcut saveAsShortcut(GLFW_KEY_S, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
-		if(saveAsShortcut.isTriggered()) Project::Gui::saveAs();
+		if(saveAsShortcut.isTriggered()) Stacato::Gui::saveAs();
 		
 		static KeyboardShortcut saveShortcut(GLFW_KEY_S, KeyboardShortcut::Modifier::SUPER);
-		if(saveShortcut.isTriggered()) Project::Gui::save();
+		if(saveShortcut.isTriggered()) Stacato::Gui::save();
 		
 		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();

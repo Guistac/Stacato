@@ -145,12 +145,17 @@ public:
 		return true;
 	}
 
-protected:
-	std::string saveString;
+	
+public:
+	
 	tinyxml2::XMLElement* xmlElement = nullptr;
 	
-	virtual bool onSerialization() = 0;
-	virtual bool onDeserialization() = 0;
+protected:
+	
+	std::string saveString;
+	
+	virtual bool onSerialization() {}
+	virtual bool onDeserialization() {}
 	
 	void setXmlElement(tinyxml2::XMLElement* xmlElement_){
 		xmlElement = xmlElement_;

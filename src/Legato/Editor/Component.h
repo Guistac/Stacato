@@ -30,16 +30,11 @@ IMPLEMENTATION EXAMPLE
 	 }
 	 
 	 virtual void onConstruction() override {
-		 nameParameter = NewStringParameter::createInstanceWithoutName();
-		 nameParameter->setValue("Default Component Name");
-		 nameParameter->setName("Component Name");
-		 nameParameter->setSaveString("Name");
+		 Component::onConstruction();
 	 }
 	 
 	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		 auto original = std::static_pointer_cast<Component>(source);
-		 nameParameter->setValue(original->nameParameter->getValue());
-		 //don't duplicate the unique id
+		 Component::onCopyFrom(source);
 	 }
 	 
  };

@@ -20,15 +20,11 @@ IMPLEMENTATION
 		 Only use in a completely implemented type, no virtual classes and interfaces
 		 Declares the basic methods which allow duplication and force shared_ptr instancing
  -Mandatory protected virtual methods:
-	 bool onSerialization()
-	 bool onDeserialization()
- -Optional protected virtual methods:
-	 bool onSerialization()
-	 bool onDeserialization()
- -Optional protected virtual methods:
-	bool onWriteFile();
-	bool onReadFile();
- 
+	bool onSerialization()
+	bool onDeserialization()
+	void onConstruction()
+	void onCopyFrom(std::shared_ptr<PrototypeBase> source);
+
 IMPLEMENTATION EXAMPLE
  
 	class FileComponentImplementation : public FileComponent{

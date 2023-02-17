@@ -7,4 +7,14 @@ namespace Legato::Gui{
 	void setTerminationFunction(std::function<void()> fn);
 
 	float getScale();
+
+};
+
+class Window;
+
+namespace Legato::Gui::LayoutManager{
+
+	void registerWindow(std::shared_ptr<Window> window);
+	void unregisterWindow(std::shared_ptr<Window> window);
+
 };

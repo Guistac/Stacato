@@ -1,26 +1,5 @@
 #pragma once
 
-
-namespace Stacato::Application{
-	bool initialize();
-	bool terminate();
-};
-
-
-
-class Window;
-
-namespace Stacato::Gui{
-	void initialize();
-	void terminate();
-	void gui();
-
-	std::vector<std::shared_ptr<Window>>& getUserWindows();
-	std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
-
-};
-
-
 class File;
 class StacatoProject;
 

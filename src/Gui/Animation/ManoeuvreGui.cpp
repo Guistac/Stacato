@@ -25,7 +25,7 @@
 
 #include "Gui/Utilities/ReorderableList.h"
 
-#include "Stacato/Stacato.h"
+#include "Stacato/StacatoWorkspace.h"
 #include "Stacato/StacatoProject.h"
 
 

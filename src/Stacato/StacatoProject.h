@@ -2,6 +2,7 @@
 
 #include "Legato/Editor/Project.h"
 
+#include "Project/LayoutList.h"
 
 
 class Plot;
@@ -28,6 +29,8 @@ class Manoeuvre;
 	 
 	 virtual bool canClose() override;
 	 
+	 std::shared_ptr<LayoutList> getLayouts(){ return layouts; }
+	 
 protected:
 	 
 	 virtual void onConstruction() override;
@@ -38,6 +41,8 @@ protected:
 	 virtual void onClose() override;
 	 
  private:
+	 
+	 std::shared_ptr<LayoutList> layouts;
 	 
 	 std::vector<std::shared_ptr<Plot>> plots;
 	 std::shared_ptr<Plot> currentPlot;
