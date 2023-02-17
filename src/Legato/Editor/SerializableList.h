@@ -13,9 +13,7 @@ public:
 		entrySaveString = entrySaveString_;
 	}
 	
-	typedef std::function<std::shared_ptr<T>(std::shared_ptr<Serializable> loadedEntry)> listEntryContructor;
-	
-	void setEntryConstructor(listEntryContructor entryConstructor_){
+	void setEntryConstructor(std::function<std::shared_ptr<T>(void)> entryConstructor_){
 		constructor = entryConstructor_;
 	}
 	
@@ -27,13 +25,9 @@ private:
 	
 	std::vector<std::shared_ptr<T>> content;
 	std::string entrySaveString;
-	listEntryContructor constructor;
+	std::function<std::shared_ptr<T>(void)> constructor;
 	
 	virtual bool onSerialization() override {
-		if(saveString.empty()){
-			Logger::error("Could not save list : no save string provided");
-			return false;
-		}
 		if(entrySaveString.empty()){
 			Logger::error("Could not save list <{}> : no entry save string provided", saveString);
 			return false;
@@ -52,11 +46,6 @@ private:
 	}
 	
 	virtual bool onDeserialization() override {
-		
-		if(saveString.empty()){
-			Logger::error("Could not load list : no save string provided");
-			return false;
-		}
 		if(entrySaveString.empty()){
 			Logger::error("Could not load list <{}> : no entry save string provided", saveString);
 			return false;
@@ -72,13 +61,9 @@ private:
 		tinyxml2::XMLElement* entryXML = xmlElement->FirstChildElement(entrySaveString.c_str());
 		while(entryXML != nullptr){
 			
-			//create an abstract Serializable to be supplied to the entry constructor function
-			//this allow the user to query the abstract object for attributes
-			//and gives them flexibility to decide how each entry should be constructed
-			std::shared_ptr<Serializable> abstractLoadedEntry = std::make_shared<Serializable>();
-			abstractLoadedEntry->xmlElement = entryXML;
-			std::shared_ptr<T> loadedEntry = constructor(abstractLoadedEntry);
-
+			std::shared_ptr<T> loadedEntry = constructor();
+			loadedEntry->xmlElement = entryXML;
+			
 			if(loadedEntry->onDeserialization()) content.push_back(loadedEntry);
 			else b_allEntriesLoaded = false;
 		

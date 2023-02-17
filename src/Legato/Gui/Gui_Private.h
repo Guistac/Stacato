@@ -17,3 +17,7 @@ void drawWindows();
 void drawPopups();
 
 };
+
+namespace Legato::Gui::LayoutManager{
+	void update();
+};

@@ -19,15 +19,16 @@ public:
 	std::shared_ptr<Layout> getCurrent(){ return currentLayout; }
 	std::shared_ptr<Layout> getDefault(){ return defaultLayout; }
 
-	void makeDefault(std::shared_ptr<Layout> layout){ defaultLayout = layout; }
-	void makeCurrent(std::shared_ptr<Layout> layout){ currentLayout = layout; }
+	void captureNew();
+	void makeCurrentDefault(){ if(currentLayout) defaultLayout = currentLayout; }
+	void makeCurrent(std::shared_ptr<Layout> layout);
 	
 	void add(std::shared_ptr<Layout> layout){
 		layouts.get().push_back(layout);
 	}
 	
 	void remove(std::shared_ptr<Layout> layout){
-		/*
+		if(layout == currentLayout) currentLayout = nullptr;
 		auto& list = layouts.get();
 		for(int i = 0; i < list.size(); i++){
 			if(list[i] == layout){
@@ -35,7 +36,6 @@ public:
 				return;
 			}
 		}
-		 */
 	}
 	
 	virtual bool onSerialization() override;

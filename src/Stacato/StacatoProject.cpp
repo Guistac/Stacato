@@ -17,7 +17,6 @@ void StacatoProject::onConstruction() {
 	//LayoutManager::clearAll();
 	
 	layouts = LayoutList::createInstance();
-	layouts->setSaveString("Layouts");
 }
 
 void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {

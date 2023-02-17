@@ -1,10 +1,12 @@
 #include <pch.h>
 
 #include "Layout.h"
+#include "Gui_Private.h"
 
 namespace Legato::Gui::LayoutManager{
 
 	std::vector<std::shared_ptr<Window>> registeredWindows;
+	std::shared_ptr<Layout> queuedLayout;
 
 	void registerWindow(std::shared_ptr<Window> window){
 		for(auto registeredWindow : registeredWindows){
@@ -34,6 +36,20 @@ namespace Legato::Gui::LayoutManager{
 	bool isLayoutLocked(){ return b_isLayoutLocked; }
 	bool unlockLayout() { b_isLayoutLocked = false; }
 	bool lockLayout() { b_isLayoutLocked = true; }
+
+
+	void applyLayout(std::shared_ptr<Layout> layout){
+		queuedLayout = layout;
+	}
+
+	void update(){
+		if(queuedLayout){
+			
+			//apply layout here
+			
+			queuedLayout = nullptr;
+		}
+	}
 
 
 /*

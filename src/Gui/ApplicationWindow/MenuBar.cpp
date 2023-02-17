@@ -68,7 +68,7 @@ namespace Gui {
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit")) {
-			
+			/*
 			static char undoMenuString[256];
 			if(CommandHistory::canUndo()) sprintf(undoMenuString, "Undo %s", CommandHistory::getUndoableCommand()->getName().c_str());
 			else sprintf(undoMenuString, "Undo");
@@ -82,6 +82,31 @@ namespace Gui {
 			ImGui::BeginDisabled(!CommandHistory::canRedo());
 			if(ImGui::MenuItem(redoMenuString, "Cmd Shift Z")) CommandHistory::redo();
 			ImGui::EndDisabled();
+			
+			ImGui::Separator();
+			*/
+			
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::Text("Open Files");
+			ImGui::PopStyleColor();
+			
+			auto& files = ::Workspace::getFiles();
+			auto currentProject = Stacato::Workspace::getCurrentProject();
+			for(int i = 0; i < files.size(); i++){
+				ImGui::PushID(i);
+				auto file = files[i];
+				bool isCurrent = currentProject == file;
+				std::string name = file->getFilePath().string();
+				if(name.empty()) name = "[Unsaved Project]";
+				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
+					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){
+						Stacato::Workspace::openProject(project);
+					}
+				}
+				ImGui::PopID();
+			}
+			
+			
 			
 			ImGui::Separator();
 			
@@ -208,7 +233,55 @@ namespace Gui {
 				}
 			}
 			
-			ImGui::Separator();
+			
+			
+			if(Stacato::Workspace::hasCurrentProject()){
+				
+				auto project = Stacato::Workspace::getCurrentProject();
+				auto layoutList = project->getLayouts();
+				auto& layouts = layoutList->get();
+				auto currentLayout = layoutList->getCurrent();
+				auto defaultLayout = layoutList->getDefault();
+				
+				ImGui::Separator();
+				if(ImGui::MenuItem("Capture New Layout")) layoutList->captureNew();
+				ImGui::BeginDisabled(layoutList->getCurrent() == nullptr);
+				
+				
+				ImGui::Separator();
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::PushFont(Fonts::sansBold15);
+				ImGui::Text("Project Layouts :");
+				ImGui::PopFont();
+				ImGui::PopStyleColor();
+				
+				for(int i = 0; i < layouts.size(); i++){
+					auto& layout = layouts[i];
+					bool isCurrent = layout == currentLayout;
+					bool isDefault = layout == defaultLayout;
+					ImGui::PushID(i);
+					if(isCurrent) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
+					if(ImGui::MenuItem(layout->getName().c_str(), isDefault ? "Default" : "", isCurrent, !isCurrent)){
+						layoutList->makeCurrent(layout);
+					}
+					if(isCurrent) ImGui::PopStyleColor();
+					ImGui::PopID();
+				}
+			
+				ImGui::Separator();
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::PushFont(Fonts::sansBold15);
+				if(currentLayout) ImGui::Text("Current Layout : %s", currentLayout->getName().c_str());
+				else ImGui::Text("No Layout Active.");
+				ImGui::PopFont();
+				ImGui::PopStyleColor();
+				
+				if(ImGui::MenuItem("Make Default Layout")) layoutList->makeCurrentDefault();
+				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
+				if(ImGui::MenuItem("Rename Layout")) {}
+				ImGui::EndDisabled();
+			}
+			
 			
 			//if(ImGui::MenuItem("New layout")) LayoutManager::capture();
 			

@@ -141,7 +141,7 @@ public:
 		const char* buffer;
 		tinyxml2::XMLError result = xmlElement->QueryStringAttribute(idString.c_str(), &buffer);
 		if(!logAttributeDeserializationResult(result, idString)) return false;
-		idString = buffer;
+		data = buffer;
 		return true;
 	}
 

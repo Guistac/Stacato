@@ -6,7 +6,9 @@
 
 
 bool Layout::onSerialization(){
-	Component::onSerialization();
+	bool success = true;
+	
+	success &= Component::onSerialization();
 	
 	using namespace tinyxml2;
 	
@@ -20,11 +22,12 @@ bool Layout::onSerialization(){
 	iniStringXML->InsertNewText("\n\n");
 	iniStringXML->InsertNewText(layoutString.c_str());
 	
-	return true;
+	return success;
 }
 
 bool Layout::onDeserialization(){
-	Component::onDeserialization();
+	bool success = true;
+	success &= Component::onDeserialization();
 	
 	using namespace tinyxml2;
 			
@@ -51,14 +54,17 @@ bool Layout::onDeserialization(){
 		return false;
 	}
 	
-	const char* iniString = iniStringXML->GetText();
-	layoutString = iniString;
+	layoutString = iniStringXML->GetText();
+	int i = 0;
+	while(layoutString[i] == '\n') i++;
+	layoutString = layoutString.substr(i);
 	 
-	return true;
+	return success;
 }
 
 void Layout::onConstruction() {
 	Component::onConstruction();
+	setSaveString("Layout");
 }
 
 void Layout::onCopyFrom(std::shared_ptr<PrototypeBase> source) {

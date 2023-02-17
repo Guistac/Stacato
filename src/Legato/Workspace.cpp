@@ -6,7 +6,7 @@ namespace Workspace{
 
 	std::vector<std::shared_ptr<File>> files;
 
-	const std::vector<std::shared_ptr<File>>& getFiels(){ return files; }
+	const std::vector<std::shared_ptr<File>>& getFiles(){ return files; }
 
 	void addFile(std::shared_ptr<File> file){
 		files.push_back(file);

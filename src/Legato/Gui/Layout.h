@@ -55,6 +55,8 @@ namespace Legato::Gui::LayoutManager{
 	bool unlockLayout();
 	bool lockLayout();
 
+	void applyLayout(std::shared_ptr<Layout> layout);
+
 };
 
 

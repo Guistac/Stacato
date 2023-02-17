@@ -58,12 +58,12 @@ void openProject(std::shared_ptr<StacatoProject> project){
 }
 
 void createNewProject(){
-	if(hasCurrentProject() && currentProject->canClose()){
-		closeCurrentProject();
-		auto newProject = StacatoProject::createInstance();
-		openProject(newProject);
-		::Workspace::addFile(newProject);
-	}
+	if(hasCurrentProject() && !currentProject->canClose()) return;
+	
+	closeCurrentProject();
+	auto newProject = StacatoProject::createInstance();
+	openProject(newProject);
+	::Workspace::addFile(newProject);
 }
 
 };

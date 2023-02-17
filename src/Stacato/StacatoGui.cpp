@@ -193,13 +193,6 @@ void gui(){
 
 
 
-
-
-
-
-
-
-
 	void load(){
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");

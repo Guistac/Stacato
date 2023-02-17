@@ -29,7 +29,7 @@ void Component::onConstruction() {
 	if(b_hasNameParameter){
 		nameParameter = NewStringParameter::createInstanceWithoutNameParameter();
 		nameParameter->setValue("Default Component Name");
-		nameParameter->setSaveString("Component Name");
+		nameParameter->setSaveString("ComponentName");
 	}else{
 		nonParametricName = "Name";
 	}

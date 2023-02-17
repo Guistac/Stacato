@@ -11,6 +11,7 @@ namespace Stacato::Gui{
 	std::vector<std::shared_ptr<Window>>& getUserWindows();
 	std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
 
+	void newProject();
 	void load();
 	bool save();
 	bool saveAs();

@@ -123,7 +123,7 @@ void drawFrame(){
 	userGuiSubmitFunction();
 	
 	
-		
+	Gui::LayoutManager::update();
 	drawWindows();
 	drawPopups();
 	

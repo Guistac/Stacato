@@ -72,14 +72,17 @@ public:
 	virtual bool onWriteFile() override {
 		
 		using namespace tinyxml2;
-		
+
 		XMLDocument xmlDocument;
 		xmlElement = xmlDocument.NewElement(saveString.c_str());
+		xmlDocument.InsertEndChild(xmlElement);
 		
 		if(!onSerialization()) {
 			Logger::warn("Failed to write document '{}' : serialization failed", filePath.string());
 			return false;
 		}
+		
+		xmlElement->SetAttribute("HELLo", 1234);
 		
 		XMLError result = xmlDocument.SaveFile(filePath.c_str());
 		switch(result){

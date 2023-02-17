@@ -2,45 +2,51 @@
 
 #include "LayoutList.h"
 
-#include <tinyxml2.h>
+#include "Legato/Gui/Layout.h"
 
 bool LayoutList::onSerialization() {
-	using namespace tinyxml2;
 	bool success = true;
-	/*
-	for(auto& layout : layouts){
-		XMLElement* layoutXML = xmlElement->InsertNewChildElement("Layout");
-		//success &= layout->save(layoutXML);
-	}
-	 */
+	if(defaultLayout != nullptr) serializeAttribute("DefaultLayout", defaultLayout->getName());
+	success &= layouts.serializeIntoParent(this);
 	return success;
 }
 
 bool LayoutList::onDeserialization() {
-	using namespace tinyxml2;
-	
-	layouts.deserializeFromParent(this);
-	
-	/*
-	XMLElement* layoutXML = ->FirstChildElement("Layout");
-	while(layoutXML){
-		auto newLayout = Layout::load(layoutXML);
-		if(newLayout == nullptr) {
-			Logger::warn("Could not load layout");
-			return false;
+	bool success = true;
+	success &= layouts.deserializeFromParent(this);
+	std::string defaultLayoutName;
+	if(deserializeAttribute("DefaultLayout", defaultLayoutName)){
+		for(auto layout : layouts.get()){
+			if(layout->getName() == defaultLayoutName){
+				defaultLayout = layout;
+				makeCurrent(layout);
+				break;
+			}
 		}
-		layouts.push_back(newLayout);
-		layoutXML = layoutXML->NextSiblingElement("Layout");
 	}
-	*/
+	return success;
 }
 
 void LayoutList::onConstruction() {
 	Component::onConstruction();
 	setSaveString("LayoutList");
 	layouts.setSaveString("Layouts");
+	layouts.setEntrySaveString("Layout");
+	layouts.setEntryConstructor(Layout::createInstance);
 }
 
 void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 	Component::onCopyFrom(source);
+}
+
+void LayoutList::captureNew(){
+	auto newLayout = Legato::Gui::LayoutManager::captureCurentLayout();
+	newLayout->setName("New Layout");
+	layouts.get().push_back(newLayout);
+	currentLayout = newLayout;
+}
+
+void LayoutList::makeCurrent(std::shared_ptr<Layout> layout){
+	currentLayout = layout;
+	Legato::Gui::LayoutManager::applyLayout(layout);
 }
