@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Dual Screen"/>
+    <DefaultLayout Name="New Layout"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>
@@ -1289,8 +1289,8 @@
         <Layout>
             <ComponentName Value="New Layout"/>
             <OpenWindows>
-                <Window Name="Dashboard"/>
-                <Window Name="Setup"/>
+                <Window Name="Log"/>
+                <Window Name="Visualizer"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -1347,6 +1347,8 @@ Size=861,938
 Collapsed=0
 
 [Window][Curve Editor]
+ViewportPos=0,66
+ViewportId=0xEF717048
 Pos=438,643
 Size=695,324
 Collapsed=0
@@ -1411,6 +1413,8 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
+ViewportPos=0,66
+ViewportId=0x36A60932
 Pos=0,29
 Size=434,938
 Collapsed=0
@@ -1498,8 +1502,8 @@ Size=468,132
 Collapsed=0
 
 [Window][Visualizer]
-Pos=0,29
-Size=1555,938
+Pos=488,306
+Size=489,359
 Collapsed=0
 
 [Window][Node Editor]
@@ -1525,8 +1529,9 @@ Collapsed=0
 
 [Window][Log]
 Pos=0,29
-Size=1555,938
+Size=1728,938
 Collapsed=0
+DockId=0xD5272B65,0
 
 [Window][Active Animations]
 Pos=378,713
@@ -1534,6 +1539,8 @@ Size=676,254
 Collapsed=0
 
 [Window][Playback Manager]
+ViewportPos=0,66
+ViewportId=0xEFCCCD6D
 Pos=0,29
 Size=259,938
 Collapsed=0
@@ -1586,6 +1593,8 @@ Size=828,590
 Collapsed=0
 
 [Window][EtherCAT Devices]
+ViewportPos=0,66
+ViewportId=0xFB59F16B
 Pos=867,29
 Size=861,938
 Collapsed=0
@@ -1673,7 +1682,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNode=1 HiddenTabBar=1 Selected=0x27459703
+DockSpace ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 CentralNode=1 HiddenTabBar=1 Selected=0x64F50EE5
 
 </ImGuiIniString>
         </Layout>

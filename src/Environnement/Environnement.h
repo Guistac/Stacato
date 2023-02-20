@@ -6,7 +6,6 @@ class EtherCatDevice;
 class Machine;
 class Plot;
 class NetworkDevice;
-class CommandExecutor;
 
 class Script;
 class Command;
@@ -61,10 +60,10 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
-	bool isEditorLocked();
-	void lockEditor();
-	void unlockEditor();
-	bool checkEditorPassword(const char* password);
+	//bool isEditorLocked();
+	//void lockEditor();
+	//void unlockEditor();
+	//bool checkEditorPassword(const char* password);
 
 	std::recursive_mutex* getMutex();
 };

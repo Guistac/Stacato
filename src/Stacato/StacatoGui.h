@@ -8,9 +8,6 @@ namespace Stacato::Gui{
 	void terminate();
 	void gui();
 
-	std::vector<std::shared_ptr<Window>>& getUserWindows();
-	std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
-
 	void newProject();
 	void load();
 	bool save();

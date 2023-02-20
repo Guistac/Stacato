@@ -5,6 +5,7 @@
 #include "Layout.h"
 
 #include <imgui_internal.h>
+#include <GLFW/glfw3.h>
 
 namespace Legato::Gui::WindowManager{
 
@@ -78,7 +79,7 @@ void update(){
 	for(auto closingWindow : closingWindows){
 		closingWindow->b_isOpen = false;
 		closingWindow->onClose();
-		for(size_t i = openWindows.size() - 1; i >= 0; i--){
+		for(int i = 0; i < openWindows.size(); i++){
 			if(openWindows[i] == closingWindow){
 				openWindows.erase(openWindows.begin() + i);
 				break;
@@ -93,18 +94,12 @@ void update(){
 		openWindows.push_back(openingWindow);
 	}
 	openingWindows.clear();
+
+	
+	
+	
 	
 	for(auto openWindow : openWindows) openWindow->draw();
-	
-	
-	
-	
-	
-	for(auto openWindow : openWindows){
-		openWindow->imguiWindow->Viewport;
-	}
-	
-	
 	
 	
 	for(auto closingPopup : closingPopups){

@@ -13,6 +13,8 @@
 
 #include "Project/StacatoProject.h"
 
+#include "StacatoEditor.h"
+
 
 namespace Stacato::Application{
 
@@ -35,6 +37,8 @@ bool initialize(){
 	//start looking for consoles, and load profile for previously connected ones
 	ConsoleHandler::initialize();
 	
+	Stacato::Editor::initialize();
+	
 	Stacato::Workspace::createNewProject();
 	
 	//for debug builds, always try to load the debug project in the debug directory
@@ -48,6 +52,8 @@ bool initialize(){
 
 
 bool terminate(){
+	
+	Stacato::Editor::terminate();
 	
 	//terminate serial communications
 	ConsoleHandler::terminate();

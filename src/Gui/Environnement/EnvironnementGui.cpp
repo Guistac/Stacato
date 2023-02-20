@@ -15,6 +15,7 @@
 
 #include "Environnement/EnvironnementScript.h"
 
+#include "Stacato/StacatoEditor.h"
 
 
 namespace Environnement::Gui{
@@ -63,14 +64,15 @@ namespace Environnement::Gui{
 		
 		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) {
 			sprintf(passwordBuffer, "");
-			Environnement::lockEditor();
+			Stacato::Editor::lock();
 			close();
 		}
 		ImGui::SameLine();
 		
 		if (ImGui::Button("Enter") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-			if(Environnement::checkEditorPassword(passwordBuffer)){
-				Environnement::unlockEditor();
+			std::string pass = passwordBuffer;
+			if(Stacato::Editor::checkEditorPassword(pass)){
+				Stacato::Editor::unlock();
 				sprintf(passwordBuffer, "");
 				close();
 			}else{

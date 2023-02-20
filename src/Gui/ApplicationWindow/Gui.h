@@ -2,7 +2,7 @@
 
 #include "Legato/Gui/Window.h"
 
-namespace Gui{
+namespace Stacato::Gui{
 	
 	void menuBar();
 	void toolbar(float height);

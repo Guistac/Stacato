@@ -447,19 +447,6 @@ namespace Environnement {
 		sprintf(notes, "%s", _notes);
 	}
 
-	bool b_editorLocked;
-
-	bool isEditorLocked(){ return b_editorLocked; }
-	void lockEditor(){
-		b_editorLocked = true;
-		Environnement::Gui::restrictEditorWindows();
-	}
-	void unlockEditor(){
-		b_editorLocked = false;
-		Environnement::Gui::allowEditorWindows();
-	}
-	bool checkEditorPassword(const char* password){ return strcmp(password, "StacatoCompact") == 0; }
-
 	void createNew() {
 		NodeGraph::reset();
 		NodeGraph::Gui::reset();

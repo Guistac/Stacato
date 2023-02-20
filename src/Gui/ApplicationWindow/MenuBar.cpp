@@ -31,8 +31,9 @@
 #include "Stacato/Project/StacatoProject.h"
 #include "Legato/Application.h"
 #include "Stacato/StacatoPopups.h"
+#include "Stacato/StacatoEditor.h"
 
-namespace Gui {
+namespace Stacato::Gui {
 
 	void menuBar() {
 
@@ -126,11 +127,10 @@ namespace Gui {
 			
 			
 			//ImGui::Separator();
-			
-			if(Environnement::isEditorLocked()) {
+			if(Stacato::Editor::isLocked()){
 				if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::Gui::UnlockEditorPopup::get()->open();
 			}
-			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Environnement::lockEditor();
+			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Stacato::Editor::lock();
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("Plot")){
@@ -349,7 +349,7 @@ namespace Gui {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("User Windows :");
 			ImGui::PopStyleColor();
-			for(auto userWindow : Stacato::Gui::getUserWindows()){
+			for(auto userWindow : Stacato::Editor::getUserWindows()){
 				bool b_open = userWindow->isOpen();
 				if(ImGui::MenuItem(userWindow->getName().c_str(), nullptr, &b_open)){
 					if(userWindow->isOpen()) userWindow->close();
@@ -357,14 +357,16 @@ namespace Gui {
 				}
 			}
 
-			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			ImGui::Text("Administrator Windows :");
-			ImGui::PopStyleColor();
-			for(auto adminWindow : Stacato::Gui::getAdministratorWindows()){
-				bool b_open = adminWindow->isOpen();
-				if(ImGui::MenuItem(adminWindow->getName().c_str(), nullptr, &b_open)){
-					if(b_open) adminWindow->open();
-					else adminWindow->close();
+			if(!Stacato::Editor::isLocked()){
+				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+				ImGui::Text("Administrator Windows :");
+				ImGui::PopStyleColor();
+				for(auto adminWindow : Stacato::Editor::getAdministratorWindows()){
+					bool b_open = adminWindow->isOpen();
+					if(ImGui::MenuItem(adminWindow->getName().c_str(), nullptr, &b_open)){
+						if(b_open) adminWindow->open();
+						else adminWindow->close();
+					}
 				}
 			}
 			
@@ -411,8 +413,8 @@ namespace Gui {
 		
 		static KeyboardShortcut unlockEditorShortcut(GLFW_KEY_U, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		if(unlockEditorShortcut.isTriggered()){
-			if(Environnement::isEditorLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
-			else Environnement::lockEditor();
+			if(Stacato::Editor::isLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
+			else Stacato::Editor::lock();
 		}
 		
 		if(ImGui::IsKeyDown(ImGuiKey_UpArrow) &&

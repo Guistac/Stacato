@@ -207,6 +207,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoEditor.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoEditor.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoRunner.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoRunner.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoPopups.h

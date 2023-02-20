@@ -17,6 +17,8 @@
 #include <imgui_impl_opengl3.h>
 #include <implot.h>
 
+#include "Window.h"
+#include <imgui_internal.h>
 
 
 namespace Legato::Gui{
@@ -54,6 +56,7 @@ namespace Legato::Gui{
 		//execute user gui
 		userGuiSubmitFunction();
 		
+		//draw windows, popups and apply layouts
 		WindowManager::update();
 		
 		//render and display the gui
@@ -65,6 +68,20 @@ namespace Legato::Gui{
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
+		}
+		
+		//correct platform window and imgui viewport position desynchronization
+		auto& viewports = ImGui::GetCurrentContext()->Viewports;
+		for(int i = 0; i < viewports.size(); i++){
+			ImGuiViewportP* viewport = viewports[i];
+			GLFWwindow* windowhandle = (GLFWwindow*)viewport->PlatformHandle;
+			if(windowhandle == nullptr) continue;
+			int platformPosX, platformPosY;
+			glfwGetWindowPos(windowhandle, &platformPosX, &platformPosY);
+			if(viewport->Pos.x != platformPosX || viewport->Pos.y != platformPosY){
+				//this forces resync of viewport position and window positions
+				viewport->PlatformRequestMove = true;
+			}
 		}
 
 	}

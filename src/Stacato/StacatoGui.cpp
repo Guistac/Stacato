@@ -16,15 +16,6 @@
 
 #include "Legato/Gui/Layout.h"
 
-#include "Gui/Project/ProjectGui.h"
-#include "Environnement/Environnement.h"
-#include "Gui/Plot/SequencerGui.h"
-#include "Gui/Environnement/EnvironnementGui.h"
-#include "Gui/Plot/PlotGui.h"
-#include "Gui/Environnement/Dashboard/Managers.h"
-#include "Gui/Plot/PlaybackGui.h"
-#include "Gui/Fieldbus/EtherCatGui.h"
-
 #include "Gui/ApplicationWindow/Gui.h"
 
 #include <imgui_internal.h>
@@ -41,17 +32,6 @@
 
 
 namespace Stacato::Gui{
-
-std::vector<std::shared_ptr<Window>> userWindows;
-std::vector<std::shared_ptr<Window>> administratorWindows;
-std::vector<std::shared_ptr<Window>>& getUserWindows(){ return userWindows; }
-std::vector<std::shared_ptr<Window>>& getAdministratorWindows(){ return administratorWindows; }
-
-
-
-
-
-
 
 ImGuiID dockspaceID;
 
@@ -78,50 +58,6 @@ void initialize(){
 	ImGui::StyleColorsDark();
 	
 	Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
-	
-	//admin windows
-	administratorWindows.push_back(Environnement::Gui::NodeEditorWindow::get());
-	administratorWindows.push_back(Environnement::Gui::NodeManagerWindow::get());
-	administratorWindows.push_back(Environnement::Gui::VisualizerScriptWindow::get());
-	administratorWindows.push_back(Environnement::Gui::EtherCATWindow::get());
-	administratorWindows.push_back(Environnement::Gui::ScriptEditorWindow::get());
-	
-	//user windows
-	userWindows.push_back(Environnement::Gui::SetupWindow::get());
-	userWindows.push_back(Environnement::Gui::VisualizerWindow::get());
-	userWindows.push_back(PlotGui::ManoeuvreListWindow::get());
-	userWindows.push_back(PlotGui::TrackSheetEditorWindow::get());
-	userWindows.push_back(PlotGui::CurveEditorWindow::get());
-	userWindows.push_back(DashboardWindow::get());
-	userWindows.push_back(Playback::Gui::PlaybackManagerWindow::get());
-	userWindows.push_back(EtherCatNetworkWindow::get());
-	userWindows.push_back(EtherCatDevicesWindow::get());
-	userWindows.push_back(Environnement::Gui::LogWindow::get());
-	
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::NodeEditorWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::NodeManagerWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::VisualizerScriptWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::EtherCATWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::ScriptEditorWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::SetupWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::VisualizerWindow::get());
-	Legato::Gui::WindowManager::registerWindow(PlotGui::ManoeuvreListWindow::get());
-	Legato::Gui::WindowManager::registerWindow(PlotGui::TrackSheetEditorWindow::get());
-	Legato::Gui::WindowManager::registerWindow(PlotGui::CurveEditorWindow::get());
-	Legato::Gui::WindowManager::registerWindow(DashboardWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Playback::Gui::PlaybackManagerWindow::get());
-	Legato::Gui::WindowManager::registerWindow(EtherCatNetworkWindow::get());
-	Legato::Gui::WindowManager::registerWindow(EtherCatDevicesWindow::get());
-	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::LogWindow::get());
-	
-	
-	
-	#if defined(STACATO_DEBUG)
-	Environnement::unlockEditor();
-	#else
-	Environnement::lockEditor();
-	#endif
-		
 }
 
 void terminate(){
@@ -148,7 +84,6 @@ void gui(){
 		b_initialized = true;
 	}
 
-	
 	//get coordinates for main window and toolbar
 	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
 	float toolbarHeight = ImGui::GetTextLineHeight() * 4.0;
@@ -172,7 +107,7 @@ void gui(){
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("MainWindow", nullptr, dockspaceWindowFlags);
 	ImGui::PopStyleVar();
-	::Gui::menuBar();
+	menuBar();
 	ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoCloseButton;
 	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), dockspaceFlags);
 	ImGui::End();
@@ -188,7 +123,7 @@ void gui(){
 									ImGuiWindowFlags_NoScrollWithMouse |
 									ImGuiWindowFlags_NoScrollbar;
 	ImGui::Begin("Toolbar", nullptr, toolbarFlags);
-	::Gui::toolbar(toolbarHeight);
+	toolbar(toolbarHeight);
 	ImGui::End();
 	ImGui::PopStyleVar();
 	

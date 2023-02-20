@@ -27,7 +27,7 @@
 
 #include "Console/ConsoleHandler.h"
 
-namespace Gui {
+namespace Stacato::Gui {
 
 
 
