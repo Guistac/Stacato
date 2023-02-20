@@ -44,9 +44,16 @@ namespace Legato::Gui::LayoutManager{
 
 	void update(){
 		if(queuedLayout){
-			
-			//apply layout here
-			
+			WindowManager::closeAllWindows();
+			for(auto& openWindowName : queuedLayout->openWindowIds){
+				for(auto registeredWindow : registeredWindows){
+					if(registeredWindow->getName() == openWindowName){
+						WindowManager::openWindow(registeredWindow);
+						break;
+					}
+				}
+			}
+			ImGui::LoadIniSettingsFromMemory(queuedLayout->layoutString.c_str());
 			queuedLayout = nullptr;
 		}
 	}

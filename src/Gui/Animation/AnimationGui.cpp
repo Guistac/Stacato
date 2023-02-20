@@ -17,7 +17,7 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags){
 	switch(type){

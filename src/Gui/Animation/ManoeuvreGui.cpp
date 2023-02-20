@@ -26,7 +26,7 @@
 #include "Gui/Utilities/ReorderableList.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 
 //inside draggable list element: InvisibleButton/ClipRectangle

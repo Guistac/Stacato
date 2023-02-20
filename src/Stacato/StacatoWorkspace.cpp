@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "StacatoWorkspace.h"
-#include "StacatoProject.h"
+#include "Project/StacatoProject.h"
 #include "Legato/Workspace.h"
 
 

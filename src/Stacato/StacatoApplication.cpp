@@ -11,7 +11,7 @@
 
 #include "Legato/Workspace.h"
 
-#include "StacatoProject.h"
+#include "Project/StacatoProject.h"
 
 
 namespace Stacato::Application{

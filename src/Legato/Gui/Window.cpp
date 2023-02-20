@@ -7,11 +7,11 @@
 #include "Gui_Private.h"
 
 void Window::open(){
-	Legato::Gui::openWindow(shared_from_this());
+	Legato::Gui::WindowManager::openWindow(shared_from_this());
 }
 
 void Window::close(){
-	Legato::Gui::closeWindow(shared_from_this());
+	Legato::Gui::WindowManager::closeWindow(shared_from_this());
 }
 
 void Window::focus(){
@@ -52,11 +52,11 @@ bool Window::isFocused(){
 
 
 void Popup::open(){
-	Legato::Gui::openPopup(shared_from_this());
+	Legato::Gui::WindowManager::openPopup(shared_from_this());
 }
 
 void Popup::close(){
-	Legato::Gui::closePopup(shared_from_this());
+	Legato::Gui::WindowManager::closePopup(shared_from_this());
 }
 
 void Popup::draw(){

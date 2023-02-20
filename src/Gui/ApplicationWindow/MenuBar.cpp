@@ -28,7 +28,7 @@
 
 #include "Stacato/StacatoGui.h"
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 #include "Legato/Application.h"
 #include "Stacato/StacatoPopups.h"
 

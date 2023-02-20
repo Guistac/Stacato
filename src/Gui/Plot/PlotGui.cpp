@@ -22,7 +22,7 @@
 #include "Gui/Assets/Images.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 
 namespace PlotGui{

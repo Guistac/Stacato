@@ -3,7 +3,7 @@
 #include "Gui_Private.h"
 #include "Window.h"
 
-namespace Legato::Gui{
+namespace Legato::Gui::WindowManager{
 
 std::vector<std::shared_ptr<Window>> openWindows;
 std::vector<std::shared_ptr<Window>> openingWindows;
@@ -37,6 +37,15 @@ void drawWindows(){
 std::vector<std::shared_ptr<Popup>> openPopups;
 std::vector<std::shared_ptr<Popup>> openingPopups;
 std::vector<std::shared_ptr<Popup>> closingPopups;
+
+void closeAllWindows(){
+	for(auto window : openWindows){
+		window->b_isOpen = false;
+	}
+	openWindows.clear();
+};
+
+
 
 void openPopup(std::shared_ptr<Popup> popup){ openingPopups.push_back(popup); }
 void closePopup(std::shared_ptr<Popup> popup){ closingPopups.push_back(popup); }

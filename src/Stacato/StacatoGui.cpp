@@ -35,7 +35,7 @@
 #include "Gui/Project/ProjectGui.h"
 
 #include "StacatoWorkspace.h"
-#include "StacatoProject.h"
+#include "Project/StacatoProject.h"
 
 #include "Gui/Utilities/FileDialog.h"
 

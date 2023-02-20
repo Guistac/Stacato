@@ -5,7 +5,7 @@
 #include "Animation/Manoeuvre.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 #include <tinyxml2.h>
 

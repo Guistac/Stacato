@@ -9,15 +9,18 @@ void initialize();
 void drawFrame();
 void terminate();
 
-void openWindow(std::shared_ptr<Window> window);
-void closeWindow(std::shared_ptr<Window> window);
-void openPopup(std::shared_ptr<Popup> popup);
-void closePopup(std::shared_ptr<Popup> popup);
-void drawWindows();
-void drawPopups();
-
 };
 
 namespace Legato::Gui::LayoutManager{
 	void update();
+};
+
+namespace Legato::Gui::WindowManager{
+	void closeAllWindows();
+	void openWindow(std::shared_ptr<Window> window);
+	void closeWindow(std::shared_ptr<Window> window);
+	void openPopup(std::shared_ptr<Popup> popup);
+	void closePopup(std::shared_ptr<Popup> popup);
+	void drawWindows();
+	void drawPopups();
 };

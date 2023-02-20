@@ -122,10 +122,9 @@ void drawFrame(){
 	//execute user gui
 	userGuiSubmitFunction();
 	
-	
-	Gui::LayoutManager::update();
-	drawWindows();
-	drawPopups();
+	LayoutManager::update();
+	WindowManager::drawWindows();
+	WindowManager::drawPopups();
 	
 	//we should do WindowManager update here
 	

@@ -2,7 +2,7 @@
 
 #include "Legato/Editor/Project.h"
 
-#include "Project/LayoutList.h"
+#include "LayoutList.h"
 
 
 class Plot;

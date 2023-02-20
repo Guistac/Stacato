@@ -8,7 +8,7 @@
 #include "Animation/Manoeuvre.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 //TODO: using glm::vec3 arithmetic such as end - start causes the stage visualize to malfunction. figure out why this happens !
 static glm::vec3 lerpColor(glm::vec3 start, glm::vec3 end, float progress){

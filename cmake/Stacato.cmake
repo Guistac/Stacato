@@ -208,9 +208,12 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoWorkspace.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.h
-    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoProject.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoRunner.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoRunner.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoPopups.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/StacatoProject.h
+    ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/StacatoProject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/LayoutList.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/Project/LayoutList.cpp
 

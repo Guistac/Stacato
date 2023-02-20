@@ -12,7 +12,7 @@
 #include "Gui/Utilities/CustomWidgets.h"
 
 #include "Stacato/StacatoWorkspace.h"
-#include "Stacato/StacatoProject.h"
+#include "Stacato/Project/StacatoProject.h"
 
 void Manoeuvre::curveEditor(){
 	
