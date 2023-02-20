@@ -11,16 +11,13 @@ void terminate();
 
 };
 
-namespace Legato::Gui::LayoutManager{
-	void update();
-};
-
 namespace Legato::Gui::WindowManager{
-	void closeAllWindows();
+	void update();
+
 	void openWindow(std::shared_ptr<Window> window);
 	void closeWindow(std::shared_ptr<Window> window);
+	std::vector<std::shared_ptr<Window>>& getOpenWindows();
+
 	void openPopup(std::shared_ptr<Popup> popup);
 	void closePopup(std::shared_ptr<Popup> popup);
-	void drawWindows();
-	void drawPopups();
 };

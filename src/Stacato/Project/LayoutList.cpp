@@ -3,6 +3,7 @@
 #include "LayoutList.h"
 
 #include "Legato/Gui/Layout.h"
+#include "Legato/Gui/Gui.h"
 
 bool LayoutList::onSerialization() {
 	bool success = true;
@@ -53,7 +54,7 @@ void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 }
 
 void LayoutList::captureNew(){
-	auto newLayout = Legato::Gui::LayoutManager::captureCurentLayout();
+	auto newLayout = Legato::Gui::WindowManager::captureCurentLayout();
 	newLayout->setName("New Layout");
 	layouts.get().push_back(newLayout);
 	currentLayout = newLayout;
@@ -61,5 +62,5 @@ void LayoutList::captureNew(){
 
 void LayoutList::makeCurrent(std::shared_ptr<Layout> layout){
 	currentLayout = layout;
-	Legato::Gui::LayoutManager::applyLayout(layout);
+	Legato::Gui::WindowManager::applyLayout(layout);
 }

@@ -200,7 +200,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/WindowManager.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Layout.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/LayoutManager.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.h
     ${STACATO_SOURCE_DIRECTORY}/Stacato/StacatoApplication.cpp

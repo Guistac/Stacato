@@ -242,11 +242,11 @@ namespace Gui {
 		
 		if(ImGui::BeginMenu("View")){
 			
-			if(ImGui::MenuItem("Lock Window Positions", nullptr, Legato::Gui::LayoutManager::isLayoutLocked())){
-				if(Legato::Gui::LayoutManager::isLayoutLocked()){
-					Legato::Gui::LayoutManager::unlockLayout();
+			if(ImGui::MenuItem("Lock Window Positions", nullptr, Legato::Gui::WindowManager::areWindowsLocked())){
+				if(Legato::Gui::WindowManager::areWindowsLocked()){
+					Legato::Gui::WindowManager::unlockWindows();
 				}else{
-					Legato::Gui::LayoutManager::lockLayout();
+					Legato::Gui::WindowManager::lockWindows();
 				}
 			}
 			
@@ -294,6 +294,7 @@ namespace Gui {
 			
 				ImGui::BeginDisabled(layoutList->getCurrent() == nullptr);
 				if(ImGui::MenuItem("Make Default Layout")) layoutList->makeCurrentDefault();
+				if(ImGui::MenuItem("Overwrite Layout")) currentLayout->overwrite();
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
 				if(ImGui::MenuItem("Rename Layout")) {}
 				ImGui::EndDisabled();

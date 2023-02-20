@@ -35,9 +35,10 @@ public:
 	bool b_isOpen = false;
 	bool b_isFocused = false;
 	
+	ImGuiWindow* imguiWindow = nullptr;
+	
 private:
 	std::string name;
-	ImGuiWindow* imguiWindow = nullptr;
 	
 	bool b_hasPadding = true;
 };

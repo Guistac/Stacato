@@ -98,6 +98,24 @@ void initialize(){
 	userWindows.push_back(EtherCatDevicesWindow::get());
 	userWindows.push_back(Environnement::Gui::LogWindow::get());
 	
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::NodeEditorWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::NodeManagerWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::VisualizerScriptWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::EtherCATWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::ScriptEditorWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::SetupWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::VisualizerWindow::get());
+	Legato::Gui::WindowManager::registerWindow(PlotGui::ManoeuvreListWindow::get());
+	Legato::Gui::WindowManager::registerWindow(PlotGui::TrackSheetEditorWindow::get());
+	Legato::Gui::WindowManager::registerWindow(PlotGui::CurveEditorWindow::get());
+	Legato::Gui::WindowManager::registerWindow(DashboardWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Playback::Gui::PlaybackManagerWindow::get());
+	Legato::Gui::WindowManager::registerWindow(EtherCatNetworkWindow::get());
+	Legato::Gui::WindowManager::registerWindow(EtherCatDevicesWindow::get());
+	Legato::Gui::WindowManager::registerWindow(Environnement::Gui::LogWindow::get());
+	
+	
+	
 	#if defined(STACATO_DEBUG)
 	Environnement::unlockEditor();
 	#else
@@ -118,7 +136,6 @@ void gui(){
 	//one time initialization on start
 	static bool b_initialized = false;
 	if(!b_initialized) {
-		
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_TabActive] = ImVec4(.6f, .4f, 0.f, 1.f);
 		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.f, 0.f, 0.f, 1.f);
@@ -127,11 +144,7 @@ void gui(){
 		style.PopupRounding = 0.0;
 		style.WindowRounding = 0.0;
 		style.GrabRounding = rounding;
-		
 		dockspaceID = ImGui::GetID("MainDockspace");
-		//if(auto defaultLayout = LayoutManager::getDefaultLayout()) defaultLayout->makeActive();
-		//else setDefaultLayout();
-		
 		b_initialized = true;
 	}
 
@@ -178,8 +191,6 @@ void gui(){
 	::Gui::toolbar(toolbarHeight);
 	ImGui::End();
 	ImGui::PopStyleVar();
-	
-	//LayoutManager::manage();
 	
 }
 

@@ -1,8 +1,11 @@
 #include <pch.h>
 
+#include "Gui_Private.h"
 #include "Layout.h"
-#include "Gui.h"
 #include "Legato/Gui/Window.h"
+
+#include <tinyxml2.h>
+#include <imgui.h>
 
 
 bool Layout::onSerialization(){
@@ -71,44 +74,12 @@ void Layout::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 	Component::onCopyFrom(source);
 }
 
-
-
-
 void Layout::overwrite(){
 	layoutString = ImGui::SaveIniSettingsToMemory();
 	openWindowIds.clear();
-	assert("UNIMPLEMENTED");
-	/*
-	for(auto& window : WindowManager::getOpenWindows()) {
-		openWindowIds.push_back(window->name);
+	for(auto openWindow : Legato::Gui::WindowManager::getOpenWindows()){
+		openWindowIds.push_back(openWindow->getName());
 	}
-	 */
-}
-
-
-
-void Layout::makeActive(){
-	//LayoutManager::makeActive(shared_from_this());
-}
-
-bool Layout::isActive(){
-	//return LayoutManager::getCurrentLayout() == shared_from_this();
-}
-
-void Layout::makeDefault(){
-	//LayoutManager::makeDefault(shared_from_this());
-}
-
-bool Layout::isDefault(){
-	//return LayoutManager::getDefaultLayout() == shared_from_this();
-}
-
-void Layout::edit(){
-	//LayoutManager::edit(shared_from_this());
-}
-
-void Layout::remove(){
-	//LayoutManager::remove(shared_from_this());
 }
 
 
