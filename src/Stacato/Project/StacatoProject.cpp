@@ -8,19 +8,18 @@
 #include "Environnement/EnvironnementScript.h"
 
 void StacatoProject::onConstruction() {
-	NewProject::onConstruction();
+	Project::onConstruction();
 	auto defaultPlot = Plot::create();
 	defaultPlot->setName("Default Plot");
 	setCurrentPlot(defaultPlot);
 	
 	Environnement::createNew();
-	//LayoutManager::clearAll();
 	
 	layouts = LayoutList::createInstance();
 }
 
 void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	NewProject::onCopyFrom(source);
+	Project::onCopyFrom(source);
 	auto original = std::static_pointer_cast<StacatoProject>(source);
 	
 	plots.clear();

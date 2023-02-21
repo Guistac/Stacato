@@ -57,9 +57,9 @@ protected:
 
 class UndoableAction;
 
-class NewProject : public Component, public File{
+class Project : public Component, public File{
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(NewProject)
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Project)
 	
 public:
 	

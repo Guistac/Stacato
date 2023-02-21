@@ -11,12 +11,12 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
 void Manoeuvre::curveEditor(){
 	
-	auto currentProject = Stacato::Workspace::getCurrentProject();
+	auto currentProject = Stacato::Editor::getCurrentProject();
 	
 	//——————————— Curve List and point editor ——————————————
 	

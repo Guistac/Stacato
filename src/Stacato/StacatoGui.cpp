@@ -25,10 +25,12 @@
 #include <GLFW/glfw3.h>
 #include "Gui/Project/ProjectGui.h"
 
-#include "StacatoWorkspace.h"
 #include "Project/StacatoProject.h"
+#include "StacatoEditor.h"
 
 #include "Gui/Utilities/FileDialog.h"
+
+#include "Legato/Workspace.h"
 
 
 namespace Stacato::Gui{
@@ -149,8 +151,8 @@ void gui(){
 	}
 
 	bool save(){
-		if(Stacato::Workspace::hasCurrentProject()){
-			auto project = Stacato::Workspace::getCurrentProject();
+		if(Stacato::Editor::hasCurrentProject()){
+			auto project = Stacato::Editor::getCurrentProject();
 			if(project->hasFilePath()) return project->writeFile();
 			else return saveAs();
 		}
@@ -158,8 +160,8 @@ void gui(){
 	}
 
 	bool saveAs(){
-		if(!Stacato::Workspace::hasCurrentProject()) return false;
-		auto project = Stacato::Workspace::getCurrentProject();
+		if(!Stacato::Editor::hasCurrentProject()) return false;
+		auto project = Stacato::Editor::getCurrentProject();
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
 		if(FileDialog::save(path, filter, "project")) {
@@ -250,7 +252,7 @@ void gui(){
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
-			bool b_saved = Stacato::Workspace::getCurrentProject()->writeFile();
+			bool b_saved = Stacato::Editor::getCurrentProject()->writeFile();
 			close();
 		}
 		ImGui::PopStyleColor(3);

@@ -16,19 +16,19 @@
 #include "Animation/Animation.h"
 #include "Machine/Machine.h"
 
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
 namespace Playback::Gui{
 
 void manoeuvrePlaybackControls(float height){
 	
-	if(!Stacato::Workspace::hasCurrentProject()){
+	if(!Stacato::Editor::hasCurrentProject()){
 		ImGui::Text("No Project Loaded");
 		return;
 	}
 	
-	auto currentPlot = Stacato::Workspace::getCurrentProject()->getCurrentPlot();
+	auto currentPlot = Stacato::Editor::getCurrentProject()->getCurrentPlot();
 	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
 	//Manoeuvre Selection Buttons

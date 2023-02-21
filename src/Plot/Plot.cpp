@@ -4,7 +4,7 @@
 #include "ManoeuvreList.h"
 #include "Animation/Manoeuvre.h"
 
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
 #include <tinyxml2.h>
@@ -39,5 +39,5 @@ void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
 }
 
 bool Plot::isCurrent(){
-	return Stacato::Workspace::getCurrentProject()->getCurrentPlot() == shared_from_this();
+	return Stacato::Editor::getCurrentProject()->getCurrentPlot() == shared_from_this();
 }

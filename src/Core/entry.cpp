@@ -2,7 +2,7 @@
 
 #include "Legato/Application.h"
 #include "Stacato/StacatoApplication.h"
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/StacatoGui.h"
 
 #if defined(STACATO_WIN32_APPLICATION)
@@ -14,8 +14,8 @@ int main(int argcount, const char ** args){
 	//configure application
 	Application::setInitializationFunction(Stacato::Application::initialize);
 	Application::setTerminationFunction(Stacato::Application::terminate);
-	Application::setQuitRequestFunction(Stacato::Workspace::onQuitRequest);
-	Workspace::setFileOpenCallback(Stacato::Workspace::openFile);
+	Application::setQuitRequestFunction(Stacato::Editor::onQuitRequest);
+	Workspace::setFileOpenCallback(Stacato::Editor::openFile);
 	Legato::Gui::setInitializationFunction(Stacato::Gui::initialize);
 	Legato::Gui::setGuiSubmitFunction(Stacato::Gui::gui);
 	Legato::Gui::setTerminationFunction(Stacato::Gui::terminate);

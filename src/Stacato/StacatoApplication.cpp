@@ -1,7 +1,6 @@
 #include <pch.h>
 
 #include "StacatoApplication.h"
-#include "StacatoWorkspace.h"
 
 #include "config.h"
 
@@ -39,7 +38,7 @@ bool initialize(){
 	
 	Stacato::Editor::initialize();
 	
-	Stacato::Workspace::createNewProject();
+	Stacato::Editor::createNewProject();
 	
 	//for debug builds, always try to load the debug project in the debug directory
 	#ifdef STACATO_DEBUG

@@ -8,7 +8,7 @@
 class Plot;
 class Manoeuvre;
 
- class StacatoProject : public NewProject{
+ class StacatoProject : public Project{
 	 
 	 DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StacatoProject)
 	 

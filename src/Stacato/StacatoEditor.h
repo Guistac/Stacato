@@ -1,6 +1,9 @@
 #pragma once
 
 class Window;
+class File;
+class StacatoProject;
+
 
 namespace Stacato::Editor{
 
@@ -21,5 +24,18 @@ bool checkEditorPassword(std::string& password);
 
 std::vector<std::shared_ptr<Window>>& getUserWindows();
 std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
+
+
+
+std::shared_ptr<File> openFile(std::filesystem::path path);
+bool onQuitRequest();
+
+bool hasCurrentProject();
+std::shared_ptr<StacatoProject> getCurrentProject();
+void createNewProject();
+void openProject(std::shared_ptr<StacatoProject> project);
+void closeCurrentProject();
+
+
 
 };

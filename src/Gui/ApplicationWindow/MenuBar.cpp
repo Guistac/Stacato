@@ -27,17 +27,15 @@
 #include "SnakeGame.h"
 
 #include "Stacato/StacatoGui.h"
-#include "Stacato/StacatoWorkspace.h"
 #include "Stacato/Project/StacatoProject.h"
 #include "Legato/Application.h"
-#include "Stacato/StacatoPopups.h"
 #include "Stacato/StacatoEditor.h"
 
 namespace Stacato::Gui {
 
 	void menuBar() {
 
-		auto currentProject = Stacato::Workspace::getCurrentProject();
+		auto currentProject = Stacato::Editor::getCurrentProject();
 		
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
@@ -48,7 +46,7 @@ namespace Stacato::Gui {
 		}
 		if (ImGui::BeginMenu("File")) {
 			
-			if (ImGui::MenuItem("New Project", "Cmd N")) Stacato::Workspace::createNewProject();
+			if (ImGui::MenuItem("New Project", "Cmd N")) Stacato::Editor::createNewProject();
 			if (ImGui::MenuItem("Open Project...", "Cmd O")) Stacato::Gui::load();
 			
 			ImGui::Separator();
@@ -88,7 +86,7 @@ namespace Stacato::Gui {
 			ImGui::PopStyleColor();
 			
 			auto& files = ::Workspace::getFiles();
-			auto currentProject = Stacato::Workspace::getCurrentProject();
+			auto currentProject = Stacato::Editor::getCurrentProject();
 			for(int i = 0; i < files.size(); i++){
 				ImGui::PushID(i);
 				auto file = files[i];
@@ -97,7 +95,7 @@ namespace Stacato::Gui {
 				if(name.empty()) name = "[Unsaved Project]";
 				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
 					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){
-						Stacato::Workspace::openProject(project);
+						Stacato::Editor::openProject(project);
 					}
 				}
 				ImGui::PopID();
@@ -135,7 +133,7 @@ namespace Stacato::Gui {
 		}
 		if(ImGui::BeginMenu("Plot")){
 			
-			if(!Stacato::Workspace::hasCurrentProject()){
+			if(!Stacato::Editor::hasCurrentProject()){
 				ImGui::Text("No Project Loaded");
 			}else{
 				
@@ -151,7 +149,7 @@ namespace Stacato::Gui {
 				
 				ImGui::Separator();
 				
-				auto& plots = Stacato::Workspace::getCurrentProject()->getPlots();
+				auto& plots = Stacato::Editor::getCurrentProject()->getPlots();
 				
 				ImGui::BeginDisabled();
 				ImGui::Text("Current Plot:");
@@ -166,7 +164,7 @@ namespace Stacato::Gui {
 						bool b_current = plot->isCurrent();
 						
 						if(b_current) ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
-						if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
+						if(ImGui::MenuItem(plot->getName(), nullptr, plot->isCurrent())) Stacato::Editor::getCurrentProject()->setCurrentPlot(plot);
 						if(b_current) ImGui::PopStyleColor();
 						
 						ImGui::PopID();
@@ -185,14 +183,14 @@ namespace Stacato::Gui {
 							if(b_current) ImGui::PopStyleColor();
 							
 							if(ImGui::MenuItem("Make Current", nullptr, plot->isCurrent())) {
-								Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
+								Stacato::Editor::getCurrentProject()->setCurrentPlot(plot);
 							}
 							
 							if(ImGui::MenuItem("Rename")) {
 								PlotGui::PlotEditorPopup::open(plot);
 							}
 							if(ImGui::MenuItem("Duplicate")){
-								Stacato::Workspace::getCurrentProject()->duplicatePlot(plot);
+								Stacato::Editor::getCurrentProject()->duplicatePlot(plot);
 							}
 							if(ImGui::MenuItem("Delete")) {
 								PlotGui::PlotDeletePopup::open(plot);
@@ -252,9 +250,9 @@ namespace Stacato::Gui {
 			
 			
 			
-			if(Stacato::Workspace::hasCurrentProject()){
+			if(Stacato::Editor::hasCurrentProject()){
 				
-				auto project = Stacato::Workspace::getCurrentProject();
+				auto project = Stacato::Editor::getCurrentProject();
 				auto layoutList = project->getLayouts();
 				auto& layouts = layoutList->get();
 				auto currentLayout = layoutList->getCurrent();
@@ -391,7 +389,7 @@ namespace Stacato::Gui {
 		if(quitShortcut.isTriggered()) Application::requestQuit();
 		
 		static KeyboardShortcut newProjectShortcut(GLFW_KEY_N, KeyboardShortcut::Modifier::SUPER);
-		if(newProjectShortcut.isTriggered()) Stacato::Workspace::createNewProject();
+		if(newProjectShortcut.isTriggered()) Stacato::Editor::createNewProject();
 		
 		static KeyboardShortcut openProjectShortcut(GLFW_KEY_O, KeyboardShortcut::Modifier::SUPER);
 		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();

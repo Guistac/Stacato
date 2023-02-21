@@ -25,7 +25,7 @@
 
 #include "Gui/Utilities/ReorderableList.h"
 
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
 
@@ -304,7 +304,7 @@ void Manoeuvre::playbackGui(float height){
 void Manoeuvre::sheetEditor(){
 	
 	
-	auto currentProject = Stacato::Workspace::getCurrentProject();
+	auto currentProject = Stacato::Editor::getCurrentProject();
 	
 	if(!currentProject->isPlotEditLocked()){
 		

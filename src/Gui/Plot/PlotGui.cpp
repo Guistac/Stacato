@@ -21,7 +21,7 @@
 
 #include "Gui/Assets/Images.h"
 
-#include "Stacato/StacatoWorkspace.h"
+#include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
 
@@ -29,16 +29,16 @@ namespace PlotGui{
 
 	void manoeuvreList() {
 		
-		if(!Stacato::Workspace::hasCurrentProject()){
+		if(!Stacato::Editor::hasCurrentProject()){
 			ImGui::Text("No Project Loaded");
 			return;
 		}
 		
-		auto currentProject = Stacato::Workspace::getCurrentProject();
+		auto currentProject = Stacato::Editor::getCurrentProject();
 		
 		//================= MANOEUVRE LIST =======================
 
-		std::shared_ptr<Plot> plot = Stacato::Workspace::getCurrentProject()->getCurrentPlot();
+		std::shared_ptr<Plot> plot = Stacato::Editor::getCurrentProject()->getCurrentPlot();
 		float width = ImGui::GetContentRegionAvail().x;
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -62,7 +62,7 @@ namespace PlotGui{
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 			ImGui::Separator();
-			auto& plots = Stacato::Workspace::getCurrentProject()->getPlots();
+			auto& plots = Stacato::Editor::getCurrentProject()->getPlots();
 			for(int i = 0; i < plots.size(); i++){
 				auto plot = plots[i];
 				ImGui::PushID(i);
@@ -72,7 +72,7 @@ namespace PlotGui{
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
 				}
                 if(ImGui::Selectable(plot->getName())) {
-					Stacato::Workspace::getCurrentProject()->setCurrentPlot(plot);
+					Stacato::Editor::getCurrentProject()->setCurrentPlot(plot);
                 }
 				if(b_isCurrent) {
 					ImGui::PopFont();
@@ -254,12 +254,12 @@ namespace PlotGui{
 
 bool noSelectionDisplay(){
 	
-	if(!Stacato::Workspace::hasCurrentProject()){
+	if(!Stacato::Editor::hasCurrentProject()){
 		ImGui::Text("No Project Loaded");
 		return true;
 	}
 	
-	if (Stacato::Workspace::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
+	if (Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("No Manoeuvre Selected.");
@@ -273,17 +273,17 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Workspace::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
+	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Workspace::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
+	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Workspace::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
+	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
 
 
@@ -295,7 +295,7 @@ void NewPlotPopup::onDraw(){
 	ImGui::Text("Enter a name for the new Plot:");
 	ImGui::InputText("##plotName", newNameBuffer, 256);
 	if(ImGui::Button("Confirm")){
-		auto newPlot = Stacato::Workspace::getCurrentProject()->createNewPlot();
+		auto newPlot = Stacato::Editor::getCurrentProject()->createNewPlot();
 		newPlot->setName(newNameBuffer);
 		close();
 	}
@@ -330,7 +330,7 @@ void PlotDeletePopup::onDraw(){
 	ImGui::PopStyleColor();
 	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
 	if(ImGui::Button("Delete")) {
-		Stacato::Workspace::getCurrentProject()->deletePlot(plot);
+		Stacato::Editor::getCurrentProject()->deletePlot(plot);
 		close();
 	}
 	ImGui::PopStyleColor();
