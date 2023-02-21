@@ -63,5 +63,10 @@ bool terminate(){
 }
 
 
+bool requestQuit(){
+	if(!Stacato::Editor::hasCurrentProject()) return true;
+	return Stacato::Editor::getCurrentProject()->canClose();
+}
+
 };
 

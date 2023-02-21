@@ -7,6 +7,7 @@ class DeadMansSwitch;
 class GpioModule;
 class MotionFeedbackModule;
 class ActuatorModule;
+class AxisModule;
 
 class Node;
 class NodeLink;
@@ -30,7 +31,8 @@ public:
 		DEAD_MANS_SWITCH,
 		GPIO_MODULE,
 		MOTIONFEEDBACK_MODULE,
-		ACTUATOR_MODULE
+		ACTUATOR_MODULE,
+		AXIS_MODULE
 	};
 	
 	enum class Direction {
@@ -254,7 +256,8 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	{NodePin::DataType::DEAD_MANS_SWITCH, 			.displayString = "Dead Man's Switch", 			.saveString = "DeadMansSwitchLink"},\
 	{NodePin::DataType::GPIO_MODULE,				.displayString = "Gpio Module",					.saveString = "GpioModule"},\
 	{NodePin::DataType::MOTIONFEEDBACK_MODULE,		.displayString = "Motion Feedback Module",		.saveString = "MotionFeedbackModule"},\
-	{NodePin::DataType::ACTUATOR_MODULE,			.displayString = "Actuator Module",				.saveString = "ActuatorModule"}\
+	{NodePin::DataType::ACTUATOR_MODULE,			.displayString = "Actuator Module",				.saveString = "ActuatorModule"},\
+	{NodePin::DataType::AXIS_MODULE,				.displayString = "Axis Module",					.saveString = "AxisModule"}\
 
 DEFINE_ENUMERATOR(NodePin::DataType, NodePinDataTypes)
 
@@ -408,6 +411,9 @@ inline NodePin::DataType NodePin::detectType(std::shared_ptr<MotionFeedbackModul
 template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorModule> ptr) { return DataType::ACTUATOR_MODULE; }
 
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<AxisModule> ptr) { return DataType::AXIS_MODULE; }
+
 //==============================================================
 //====================== Data Assignement ======================
 //==============================================================
@@ -446,6 +452,12 @@ inline void NodePin::assignData(std::shared_ptr<MotionFeedbackModule> ptr) {
 template<>
 inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
 	if(dataType != DataType::GPIO_MODULE) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<AxisModule> ptr) {
+	if(dataType != DataType::AXIS_MODULE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 

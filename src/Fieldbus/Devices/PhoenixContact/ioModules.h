@@ -165,7 +165,7 @@ public:
 	//————— Node Pins ———————
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
 	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(resetPinValue, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
 	
 	//————— Process Data —————

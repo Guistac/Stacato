@@ -28,7 +28,6 @@ std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
 
 
 std::shared_ptr<File> openFile(std::filesystem::path path);
-bool onQuitRequest();
 
 bool hasCurrentProject();
 std::shared_ptr<StacatoProject> getCurrentProject();

@@ -76,11 +76,6 @@ void terminate(){
 
 std::shared_ptr<StacatoProject> currentProject;
 
-bool onQuitRequest(){
-	if(currentProject == nullptr) return true;
-	return currentProject->canClose();
-}
-
 std::shared_ptr<File> openFile(std::filesystem::path path){
 
 	if(!path.has_filename()){

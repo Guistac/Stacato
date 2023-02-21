@@ -101,6 +101,13 @@ namespace Environnement {
 		b_isRunning = true;
 		Logger::info("Starting Environnement Simulation");
 		
+		for(auto node : NodeGraph::getNodes()){
+			if(!node->prepareProcess()){
+				Logger::error("[Environnement] Could not start environnement : Node {} could not start", node->getName());
+				return;
+			}
+		}
+		
 		Logger::debug("Compiling: EtherCAT Process Program: ");
 		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
 		
@@ -214,6 +221,14 @@ namespace Environnement {
 			Logger::error("Could not start Environnement Script, stopping environnement");
 			b_isStarting = false;
 			return;
+		}
+		
+		
+		for(auto node : NodeGraph::getNodes()){
+			if(!node->prepareProcess()){
+				Logger::error("[Environnement] Could not start environnement : Node {} could not start", node->getName());
+				return;
+			}
 		}
 		
 		ethercatDeviceProcess = NodeGraph::compileProcess(getEtherCatDeviceNodes());

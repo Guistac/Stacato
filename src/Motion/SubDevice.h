@@ -7,7 +7,8 @@ public:
 	enum class Type{
 		GPIO,
 		MOTION_FEEDBACK,
-		ACTUATOR
+		ACTUATOR,
+		AXIS
 	};
 	
 	virtual Type getType() = 0;
@@ -197,6 +198,18 @@ public:
 	
 };
 
+class AxisModule : public ActuatorModule{
+public:
+	
+	virtual Type getType() override { return Type::AXIS; };
+	
+	bool isHomeable();
+	bool canStartHoming();
+	bool isHoming();
+	void startHoming();
+	void stopHoming();
+	bool didHomingSucceed();
+};
 
 //virtual std::string getName() override;
 //virtual std::string getStatusString() override;

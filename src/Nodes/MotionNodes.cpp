@@ -8,6 +8,7 @@
 #include "Machine/Machines/StateMachines/AxisStateMachine.h"
 
 #include "Motion/Axis/Axis.h"
+#include "Motion/Axis/AxisNode.h"
 
 #include "Motion/Safety/DeadMansSwitch.h"
 #include "Motion/Safety/SafetySignal.h"
@@ -30,7 +31,8 @@ namespace NodeFactory{
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
 		allAxisNodes = {
-			new Motion::Axis()
+			new Motion::Axis(),
+			new AxisNode()
 		};
 		
 		allMachineNodes = {
