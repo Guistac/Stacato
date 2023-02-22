@@ -44,7 +44,12 @@ public:
 		for(auto& editCallback : editCallbacks) editCallback();
 	}
 	
-	void gui(){
+	virtual void gui(ImFont* font = nullptr){
+		if(font){
+			ImGui::PushFont(font);
+			ImGui::Text("%s", getName());
+			ImGui::PopFont();
+		}
 		bool drawInvalid = !b_valid;
 		if(drawInvalid) {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -77,6 +82,7 @@ private:
 	std::string imGuiID;
 	std::string description;
 	bool b_disabled = false;
+protected:
 	bool b_valid = true;
 };
 
@@ -599,6 +605,25 @@ public:
 	static std::shared_ptr<BooleanParameter> make(bool value_, std::string name_, std::string saveString_){
 		return std::make_shared<BooleanParameter>(value_, name_, saveString_);
 	};
+	
+	virtual void gui(ImFont* font = nullptr) override {
+		bool drawInvalid = !b_valid;
+		if(drawInvalid) {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
+			ImGui::PushFont(Fonts::sansBold15);
+		}
+		onGui();
+		if(drawInvalid) {
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+		}
+		ImGui::SameLine();
+		if(font){
+			ImGui::PushFont(font);
+			ImGui::Text("%s", getName());
+			ImGui::PopFont();
+		}
+	}
 	
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());

@@ -167,6 +167,7 @@ namespace Environnement::NodeGraph{
 			XMLElement* nodeSpecificDataXML = nodeXML->FirstChildElement("NodeSpecificData");
 			if (!nodeSpecificDataXML) return Logger::warn("Could not load Node Specific Data");
 			if (!loadedNode->load(nodeSpecificDataXML)) return Logger::warn("Could not read node specific data");
+			loadedNode->xmlElement = nodeSpecificDataXML;
 
 			//Set General Node Data
 			//All pins should be loaded now, so we build add them to the pin list of the node graph
@@ -294,6 +295,12 @@ namespace Environnement::NodeGraph{
  
 			Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);
 			linkXML = linkXML->NextSiblingElement("Link");
+		}
+		
+		for(auto node : Environnement::NodeGraph::getNodes()){
+			if(!node->loadAfterLinksConnected(node->xmlElement)){
+				Logger::warn("Could not load node {} after all links connected", node->name);
+			}
 		}
 		
 		startCountingUniqueIDsFrom(largestUniqueID);

@@ -104,7 +104,8 @@ public:
 	//saving & loading
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
-
+	virtual bool loadAfterLinksConnected(tinyxml2::XMLElement* xml) { return true; }
+	tinyxml2::XMLElement* xmlElement = nullptr;
 
 	
 	
