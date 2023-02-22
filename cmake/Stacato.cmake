@@ -95,7 +95,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Utilities/Log.h
 
     ${STACATO_SOURCE_DIRECTORY}/Motion/MotionTypes.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/SubDevice.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Interfaces.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Profile.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Curve/Curve.h

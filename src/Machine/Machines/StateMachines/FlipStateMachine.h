@@ -13,7 +13,7 @@ public:
 
 	//————— Input Pins —————
 	
-	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
+	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "GPIO Device", NodePin::Flags::NoDataField);
 
 	std::shared_ptr<bool> hoodOpenSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> hoodShutSignal = std::make_shared<bool>(false);
@@ -65,7 +65,7 @@ public:
 	
 	bool areAllPinsConnected();
 	bool isGpioDeviceConnected();
-	std::shared_ptr<GpioModule> getGpioDevice();
+	std::shared_ptr<GpioInterface> getGpioDevice();
 	
 	//————— State Machine —————
 	

@@ -4,10 +4,10 @@ namespace Motion{ class Axis; }
 
 class DeadMansSwitch;
 
-class GpioModule;
-class MotionFeedbackModule;
-class ActuatorModule;
-class AxisModule;
+class GpioInterface;
+class MotionFeedbackInterface;
+class ActuatorInterface;
+class AxisInterface;
 
 class Node;
 class NodeLink;
@@ -22,17 +22,12 @@ public:
 		BOOLEAN,
 		INTEGER,
 		REAL,
-		ACTUATOR,
-		VELOCITY_FEEDBACK,
-		POSITION_FEEDBACK,
-		GPIO,
-		SERVO_ACTUATOR,
-		AXIS,
 		DEAD_MANS_SWITCH,
-		GPIO_MODULE,
-		MOTIONFEEDBACK_MODULE,
-		ACTUATOR_MODULE,
-		AXIS_MODULE
+		GPIO_INTERFACE,
+		MOTIONFEEDBACK_INTERFACE,
+		ACTUATOR_INTERFACE,
+		AXIS_INTERFACE,
+		AXIS
 	};
 	
 	enum class Direction {
@@ -247,17 +242,12 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 	{NodePin::DataType::BOOLEAN, 					.displayString = "Boolean", 					.saveString = "Boolean"},\
 	{NodePin::DataType::INTEGER, 					.displayString = "Integer", 					.saveString = "Integer"},\
 	{NodePin::DataType::REAL, 						.displayString = "Real", 						.saveString = "Real"},\
-	{NodePin::DataType::ACTUATOR, 					.displayString = "Actuator", 					.saveString = "ActuatorDeviceLink"},\
-	{NodePin::DataType::VELOCITY_FEEDBACK, 			.displayString = "Velocity Feedback", 			.saveString = "VelocityFeedbackDeviceLink"},\
-	{NodePin::DataType::POSITION_FEEDBACK, 			.displayString = "Position Feedback", 			.saveString = "PositionFeedbackDeviceLink"},\
-	{NodePin::DataType::GPIO, 						.displayString = "GPIO", 						.saveString = "GPIODeviceLink"},\
-	{NodePin::DataType::SERVO_ACTUATOR, 			.displayString = "Servo Actuator", 				.saveString = "ServoActuatorDeviceLink"},\
-	{NodePin::DataType::AXIS, 						.displayString = "Axis", 						.saveString = "AxisLink"},\
 	{NodePin::DataType::DEAD_MANS_SWITCH, 			.displayString = "Dead Man's Switch", 			.saveString = "DeadMansSwitchLink"},\
-	{NodePin::DataType::GPIO_MODULE,				.displayString = "Gpio Module",					.saveString = "GpioModule"},\
-	{NodePin::DataType::MOTIONFEEDBACK_MODULE,		.displayString = "Motion Feedback Module",		.saveString = "MotionFeedbackModule"},\
-	{NodePin::DataType::ACTUATOR_MODULE,			.displayString = "Actuator Module",				.saveString = "ActuatorModule"},\
-	{NodePin::DataType::AXIS_MODULE,				.displayString = "Axis Module",					.saveString = "AxisModule"}\
+	{NodePin::DataType::GPIO_INTERFACE,				.displayString = "Gpio Module",					.saveString = "GpioInterface"},\
+	{NodePin::DataType::MOTIONFEEDBACK_INTERFACE,	.displayString = "Motion Feedback Interface",	.saveString = "MotionFeedbackInterface"},\
+	{NodePin::DataType::ACTUATOR_INTERFACE,			.displayString = "Actuator Interface",			.saveString = "ActuatorInterface"},\
+	{NodePin::DataType::AXIS_INTERFACE,				.displayString = "Axis Interface",				.saveString = "AxisInterface"},\
+	{NodePin::DataType::AXIS,						.displayString = "Axis",						.saveString = "Axis"}\
 
 DEFINE_ENUMERATOR(NodePin::DataType, NodePinDataTypes)
 
@@ -396,23 +386,22 @@ template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<double> ptr) { return DataType::REAL; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<Motion::Axis> ptr) { return DataType::AXIS; }
-
-template<>
 inline NodePin::DataType NodePin::detectType(std::shared_ptr<DeadMansSwitch> ptr) { return DataType::DEAD_MANS_SWITCH; }
 
+template<>
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioInterface> ptr) { return DataType::GPIO_INTERFACE; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<GpioModule> ptr) { return DataType::GPIO_MODULE; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<MotionFeedbackInterface> ptr) { return DataType::MOTIONFEEDBACK_INTERFACE; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<MotionFeedbackModule> ptr) { return DataType::MOTIONFEEDBACK_MODULE; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorInterface> ptr) { return DataType::ACTUATOR_INTERFACE; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<ActuatorModule> ptr) { return DataType::ACTUATOR_MODULE; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<AxisInterface> ptr) { return DataType::AXIS_INTERFACE; }
 
 template<>
-inline NodePin::DataType NodePin::detectType(std::shared_ptr<AxisModule> ptr) { return DataType::AXIS_MODULE; }
+inline NodePin::DataType NodePin::detectType(std::shared_ptr<Motion::Axis> ptr) { return DataType::AXIS; }
 
 //==============================================================
 //====================== Data Assignement ======================
@@ -438,37 +427,38 @@ inline void NodePin::assignData(std::shared_ptr<double> ptr) {
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<ActuatorModule> ptr) {
-	if(dataType != DataType::ACTUATOR_MODULE) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<GpioInterface> ptr) {
+	if(dataType != DataType::GPIO_INTERFACE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<MotionFeedbackModule> ptr) {
-	if(dataType != DataType::MOTIONFEEDBACK_MODULE) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<MotionFeedbackInterface> ptr) {
+	if(dataType != DataType::MOTIONFEEDBACK_INTERFACE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<GpioModule> ptr) {
-	if(dataType != DataType::GPIO_MODULE) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<ActuatorInterface> ptr) {
+	if(dataType != DataType::ACTUATOR_INTERFACE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
-inline void NodePin::assignData(std::shared_ptr<AxisModule> ptr) {
-	if(dataType != DataType::AXIS_MODULE) return logTypeMismatchError(ptr);
-	pointer = ptr;
-}
-
-template<>
-inline void NodePin::assignData(std::shared_ptr<Motion::Axis> ptr) {
-	if(dataType != DataType::AXIS) return logTypeMismatchError(ptr);
+inline void NodePin::assignData(std::shared_ptr<AxisInterface> ptr) {
+	if(dataType != DataType::AXIS_INTERFACE) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> ptr) {
 	if(dataType != DataType::DEAD_MANS_SWITCH) return logTypeMismatchError(ptr);
+	pointer = ptr;
+}
+
+
+template<>
+inline void NodePin::assignData(std::shared_ptr<Motion::Axis> ptr) {
+	if(dataType != DataType::AXIS) return logTypeMismatchError(ptr);
 	pointer = ptr;
 }

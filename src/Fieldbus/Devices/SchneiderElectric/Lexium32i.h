@@ -12,7 +12,7 @@ public:
 	
     DEFINE_ETHERCAT_DEVICE(Lexium32i, "Lexium32i", "Lexium32i", "Schneider Electric", "Servo Drives", 0x800005A, 0x16E72)
 
-	class LexiumServoMotor : public ActuatorModule{
+	class LexiumServoMotor : public ActuatorInterface{
 	public:
 		LexiumServoMotor(std::shared_ptr<Lexium32i> lexium32) : drive(lexium32){}
 		std::shared_ptr<Lexium32i> drive;
@@ -34,7 +34,7 @@ public:
 		virtual void releaseHoldingBrake() override { b_applyHoldingBrake = true; }
 	};
 	
-	class LexiumGpio : public GpioModule{
+	class LexiumGpio : public GpioInterface{
 	public:
 		LexiumGpio(std::shared_ptr<Lexium32i> lexium32) : drive(lexium32){}
 		std::shared_ptr<Lexium32i> drive;
@@ -63,7 +63,7 @@ public:
 	std::shared_ptr<bool> digitalIn2Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn3Value = std::make_shared<bool>(false);
 	
-    std::shared_ptr<NodePin> servoMotorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR,
+    std::shared_ptr<NodePin> servoMotorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
 																	   NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 																	   "Servo Motor");
     std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoadValue,
@@ -79,7 +79,7 @@ public:
 																		   "Velocity",
 																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
 	
-    std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "GPIO");
+    std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
     std::shared_ptr<NodePin> digitalIn0Pin = std::make_shared<NodePin>(digitalIn0Value, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(digitalIn1Value, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(digitalIn2Value, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);

@@ -22,7 +22,7 @@ void VipaBusCoupler_053_1EC01::initialize() {
     //no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());
 	gpioDevice = std::make_shared<VipaGpioDevice>(thisCoupler);
-	auto abstractGpioDevice = std::static_pointer_cast<GpioModule>(gpioDevice);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioInterface>(gpioDevice);
 	gpioDeviceLink->assignData(abstractGpioDevice);
     //gpio device link pin
     addNodePin(gpioDeviceLink);

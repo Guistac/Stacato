@@ -3,7 +3,7 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/DS402.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include "Project/Editor/Parameter.h"
 
@@ -12,7 +12,7 @@ public:
 	
 	DEFINE_ETHERCAT_DEVICE(ATV320, "ATV320", "ATV320", "Schneider Electric", "Motor Drives", 0x800005A, 0x389)
 	
-	class ATV_Motor : public ActuatorModule{
+	class ATV_Motor : public ActuatorInterface{
 	public:
 		ATV_Motor(std::shared_ptr<ATV320> drive_) : drive(drive_){}
 		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
@@ -28,7 +28,7 @@ public:
 		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
-	class ATV_GPIO : public GpioModule{
+	class ATV_GPIO : public GpioInterface{
 	public:
 		
 		ATV_GPIO(std::shared_ptr<ATV320> drive_) : drive(drive_){}
@@ -54,8 +54,8 @@ public:
 	std::shared_ptr<NodePin> digitalInput4Pin = std::make_shared<NodePin>(digitalInput4Signal, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput5Pin = std::make_shared<NodePin>(digitalInput5Signal, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput6Pin = std::make_shared<NodePin>(digitalInput6Signal, NodePin::Direction::NODE_OUTPUT, "DI6", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
 	std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	

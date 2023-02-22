@@ -2,7 +2,7 @@
 
 #include "Brake.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 //#include "Environnement/Environnement.h"
 
@@ -52,7 +52,7 @@ void Brake::inputProcess(){
 	auto isBrakeOnline = [this]() -> bool{
 		if(!gpio_Pin->isConnected()) return false;
 		for(auto connectedGpioPin : gpio_Pin->getConnectedPins()){
-			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioModule>();
+			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioInterface>();
 			if(gpioDevice->getState() != DeviceState::ENABLED) return false;
 		}
 		if(!brakeOpenStatus_Pin->isConnected()) return false;

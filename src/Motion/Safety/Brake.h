@@ -16,7 +16,7 @@ public:
 	std::shared_ptr<bool> brakeOpenControl_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> brakeClosedControl_Signal = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> gpio_Pin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT,
+	std::shared_ptr<NodePin> gpio_Pin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT,
 																 "Gpio Device", "GpioDevice",
 																 NodePin::Flags::AcceptMultipleInputs);
 	

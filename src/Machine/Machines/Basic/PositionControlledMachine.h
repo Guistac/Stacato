@@ -19,7 +19,7 @@ class PositionControlledMachine : public Machine{
 	
 	//———————— Input Pins ——————————
 	
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
+	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
 	bool isAxisConnected();
 	std::shared_ptr<Motion::Axis> getAxis();
 	

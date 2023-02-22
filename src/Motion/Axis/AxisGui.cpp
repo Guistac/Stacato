@@ -12,7 +12,7 @@
 #include "Environnement/NodeGraph/DeviceNode.h"
 #include "Gui/Utilities/HelpMarker.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
@@ -518,7 +518,7 @@ void Axis::controlsGui() {
 	Unit feedbackPositionUnit = Units::None::None;
 	static char rangeString[64];
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
+		std::shared_ptr<ActuatorInterface> servo = getServoActuatorDevice();
 		rangeProgress = servo->getPositionNormalizedToWorkingRange();
 		rangeMin = servo->getPositionLowerWorkingRangeBound();
 		rangeMax = servo->getPositionUpperWorkingRangeBound();
@@ -603,7 +603,7 @@ void Axis::settingsGui() {
 	
 	if (isServoActuatorDeviceConnected()) {
 		
-		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
+		std::shared_ptr<ActuatorInterface> servo = getServoActuatorDevice();
 		PositionFeedbackType feedbackType = servo->getPositionFeedbackType();
 		const char* feedbackTypeString = Enumerator::getDisplayString(feedbackType);
 		//std::shared_ptr<Device> servoActuatorParentDevice = servo->parentDevice;
@@ -704,7 +704,7 @@ void Axis::settingsGui() {
 	ImGui::PopFont();
 	
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ActuatorModule> servoActuator = getServoActuatorDevice();
+		std::shared_ptr<ActuatorInterface> servoActuator = getServoActuatorDevice();
 		Unit servoActuatorPositionUnit = servoActuator->getPositionUnit();
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -812,7 +812,7 @@ void Axis::settingsGui() {
 			ImGui::PopStyleColor();
 		}
 		else {
-			std::shared_ptr<GpioModule> gpioDevice = getReferenceDevice();
+			std::shared_ptr<GpioInterface> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Reference Device:");
 			ImGui::PopFont();
@@ -1011,7 +1011,7 @@ void Axis::settingsGui() {
 	if(b_isSurveilled->value){
 		
 		bool surveillanceDeviceConnected = isSurveillanceFeedbackDeviceConnected();
-		std::shared_ptr<MotionFeedbackModule> surveillanceDevice;
+		std::shared_ptr<MotionFeedbackInterface> surveillanceDevice;
 		
 		if(!surveillanceDeviceConnected){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
@@ -1069,7 +1069,7 @@ void Axis::devicesGui() {
 	ImGui::Text("Servo Actuator:");
 	ImGui::PopFont();
 	if (isServoActuatorDeviceConnected()) {
-		std::shared_ptr<ActuatorModule> servo = getServoActuatorDevice();
+		std::shared_ptr<ActuatorInterface> servo = getServoActuatorDevice();
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("'%s' on node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->parentNode->getName());
 		ImGui::PopFont();
@@ -1096,7 +1096,7 @@ void Axis::devicesGui() {
 		ImGui::Text("Position Reference: ");
 		ImGui::PopFont();
 		if (isReferenceDeviceConnected()) {
-			std::shared_ptr<GpioModule> gpioDevice = getReferenceDevice();
+			std::shared_ptr<GpioInterface> gpioDevice = getReferenceDevice();
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("'%s'", gpioDevice->getName().c_str());
 			ImGui::PopFont();

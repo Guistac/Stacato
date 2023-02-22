@@ -6,7 +6,7 @@
 #include "Motion/Curve/Curve.h"
 #include "Fieldbus/EtherCatFieldbus.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include <tinyxml2.h>
 
@@ -54,7 +54,7 @@ std::string Axis::getStatusString(){
 				statusString += "Servo Actuator \"" + getServoActuatorDevice()->getName() + "\" is Offline.\n";
 			}
 			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioModule>();
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioInterface>();
 				if(!gpioDevice->isOnline()) statusString += "Gpio Device \"" + gpioDevice->getName() + "\" is Offline.\n";
 			}
 			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isOnline()) {
@@ -65,7 +65,7 @@ std::string Axis::getStatusString(){
 			if(b_hasSurveillanceError) statusString += "Axis has Surveillance Error\n";
 			if(!getServoActuatorDevice()->isReady()) return "Servo Actuator is not ready : " + getServoActuatorDevice()->getStatusString() + "\n";
 			for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioModule>();
+				auto gpioDevice = gpioDevicePin->getSharedPointer<GpioInterface>();
 				if(!gpioDevice->isOnline()) statusString += "Gpio Device " + gpioDevice->getName() + " is Offline : " + gpioDevice->getStatusString() + "\n";
 			}
 			if(isSurveilled() && !getSurveillanceFeedbackDevice()->isEnabled()) return "Surveillance Feedback device is not ready : " + getSurveillanceFeedbackDevice()->getStatusString() + "\n";
@@ -83,7 +83,7 @@ void Axis::updateAxisState(){
 	auto servoActuatorDevice = getServoActuatorDevice();
 	
 	for(auto gpioDevicePin : gpioPin->getConnectedPins()){
-		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioModule>()->getState();
+		auto gpioDeviceState = gpioDevicePin->getSharedPointer<GpioInterface>()->getState();
 		checkState(gpioDeviceState);
 	}
 	checkState(servoActuatorDevice->getState());
@@ -326,7 +326,7 @@ bool Axis::isReadyToEnable() {
 		//is that the gpio devices are enabled and the servo actuator be online
 		//the servo actuator can be in sto state and we can still can request enabling of the axis
 		for(auto gpioPin : gpioPin->getConnectedPins()){
-			auto gpioDevice = gpioPin->getSharedPointer<GpioModule>();
+			auto gpioDevice = gpioPin->getSharedPointer<GpioInterface>();
 			if(!gpioDevice->isEnabled()) return false;
 		}
 		if(!getServoActuatorDevice()->isOnline()) return false;
@@ -397,7 +397,7 @@ bool Axis::areAllPinsConnected(){
 bool Axis::areAllDevicesReady(){
 	if(needsReferenceDevice()){
 		for(auto referenceDevicePin : gpioPin->getConnectedPins()){
-			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioModule>();
+			auto gpioDevice = referenceDevicePin->getSharedPointer<GpioInterface>();
 			if(!gpioDevice->isEnabled()) return false;
 		}
 	}

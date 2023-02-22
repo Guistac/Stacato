@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "AxisNode.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 OptionParameter::Option AxisNode::controlModePosition = OptionParameter::Option(1, "Position Control", "PositionControl");
 OptionParameter::Option AxisNode::controlModeVelocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
@@ -13,7 +13,7 @@ std::vector<OptionParameter::Option*> AxisNode::controlModeParameterOptions = {
 };
 
 void AxisNode::initialize(){
-	axis = std::make_shared<AxisModule>();
+	axis = std::make_shared<AxisInterface>();
 	
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);
@@ -22,15 +22,15 @@ void AxisNode::initialize(){
 	
 	surveillanceValidSignal = std::make_shared<bool>(false);
 	
-	actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_MODULE,
+	actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
 											NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 											"Actuator", "Actuator",
 											NodePin::Flags::AcceptMultipleInputs);
-	feedbackPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_MODULE,
+	feedbackPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE,
 											NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 											"Feedback", "Feedback",
 											NodePin::Flags::AcceptMultipleInputs);
-	gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_MODULE,
+	gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE,
 										NodePin::Direction::NODE_INPUT,
 										"GPIO", "GPIO",
 										NodePin::Flags::AcceptMultipleInputs);
@@ -86,29 +86,29 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){ return true; }
 void AxisNode::updateConnectedModules(){
 	
 	//refresh the lists of connected modules
-	connectedActuatorModules.clear();
+	connectedActuatorInterfaces.clear();
 	connectedFeedbackModules.clear();
-	connectedGpioModules.clear();
+	connectedGpioInterfaces.clear();
 	allConnectedFeedbackModules.clear();
 	for(auto pin : actuatorPin->getConnectedPins()){
-		auto actuator = pin->getSharedPointer<ActuatorModule>();
-		connectedActuatorModules.push_back(actuator);
+		auto actuator = pin->getSharedPointer<ActuatorInterface>();
+		connectedActuatorInterfaces.push_back(actuator);
 		allConnectedFeedbackModules.push_back(actuator);
 	}
 	for(auto pin : feedbackPin->getConnectedPins()){
-		auto feedback = pin->getSharedPointer<MotionFeedbackModule>();
+		auto feedback = pin->getSharedPointer<MotionFeedbackInterface>();
 		connectedFeedbackModules.push_back(feedback);
 		allConnectedFeedbackModules.push_back(feedback);
 	}
 	for(auto pin : gpioPin->getConnectedPins()){
-		auto gpio = pin->getSharedPointer<GpioModule>();
-		connectedGpioModules.push_back(gpio);
+		auto gpio = pin->getSharedPointer<GpioInterface>();
+		connectedGpioInterfaces.push_back(gpio);
 	}
 	
 	//remove actutor control units that don't have connected actuator modules anymore
 	for(int i = (int)actuatorControlUnits.size() - 1; i >= 0; i--){
 		bool b_actuatorFound = false;
-		for(auto actuator : connectedActuatorModules){
+		for(auto actuator : connectedActuatorInterfaces){
 			if(actuator == actuatorControlUnits[i]->actuator){
 				b_actuatorFound = true;
 				break;
@@ -118,7 +118,7 @@ void AxisNode::updateConnectedModules(){
 	}
 	
 	//add actuator control units for new connected actuators
-	for(auto actuator : connectedActuatorModules){
+	for(auto actuator : connectedActuatorInterfaces){
 		bool b_controlUnitFound = false;
 		for(auto controlUnit : actuatorControlUnits){
 			if(controlUnit->actuator == actuator){

@@ -2,7 +2,7 @@
 
 #include "FlipStateMachine.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>

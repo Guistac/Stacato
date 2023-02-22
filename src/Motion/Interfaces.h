@@ -58,14 +58,14 @@ public:
 
 
 
-class GpioModule : public DeviceInterface{
+class GpioInterface : public DeviceInterface{
 public:
 	virtual Type getType() override { return Type::GPIO; }
 };
 
 
 
-class MotionFeedbackModule : public GpioModule{
+class MotionFeedbackInterface : public GpioInterface{
 public:
 	
 	virtual Type getType() override { return Type::MOTION_FEEDBACK; }
@@ -79,9 +79,9 @@ public:
 	PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
 	
 	//position override
-	virtual void overridePosition(double newPosition){ 	assert("MotionFeedbackModule::overridePosition() : method is not implemented"); }
-	virtual bool isBusyOverridingPosition(){ 			assert("MotionFeedbackModule::isBusyOverridingPosition() : method is not implemented");  }
-	virtual bool didPositionOverrideSucceed(){			assert("MotionFeedbackModule::didPositionOverrideSucceed() : method is not implemented"); }
+	virtual void overridePosition(double newPosition){ 	assert("MotionFeedbackInterface::overridePosition() : method is not implemented"); }
+	virtual bool isBusyOverridingPosition(){ 			assert("MotionFeedbackInterface::isBusyOverridingPosition() : method is not implemented");  }
+	virtual bool didPositionOverrideSucceed(){			assert("MotionFeedbackInterface::didPositionOverrideSucceed() : method is not implemented"); }
 	
 	//feedback data retrieval
 	Unit getPositionUnit(){ return positionUnit; }
@@ -113,13 +113,13 @@ public:
 
 
 
-class ActuatorModule : public MotionFeedbackModule{
+class ActuatorInterface : public MotionFeedbackInterface{
 public:
 	
 	virtual Type getType() override {return Type::ACTUATOR; };
 	
-	virtual void enable(){		assert("ActuatorModule::enable() : method is not implemented"); }
-	virtual void disable(){	assert("ActuatorModule::disable() : method is not implemented"); }
+	virtual void enable(){		assert("ActuatorInterface::enable() : method is not implemented"); }
+	virtual void disable(){	assert("ActuatorInterface::disable() : method is not implemented"); }
 	virtual void quickstop(){ }
 	virtual void applyHoldingBrake(){}
 	virtual void releaseHoldingBrake(){}
@@ -198,7 +198,7 @@ public:
 	
 };
 
-class AxisModule : public ActuatorModule{
+class AxisInterface : public ActuatorInterface{
 public:
 	
 	virtual Type getType() override { return Type::AXIS; };

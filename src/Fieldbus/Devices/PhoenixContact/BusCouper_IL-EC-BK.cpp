@@ -37,7 +37,7 @@ void BusCoupler::initialize() {
 	//no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());
 	gpioDevice = std::make_shared<PhoenixContactGpioDevice>(thisCoupler);
-	auto abstractGpioDevice = std::static_pointer_cast<GpioModule>(gpioDevice);
+	auto abstractGpioDevice = std::static_pointer_cast<GpioInterface>(gpioDevice);
 	gpioDeviceLink->assignData(abstractGpioDevice);
 	//gpio device link pin
 	addNodePin(gpioDeviceLink);

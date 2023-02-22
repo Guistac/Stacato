@@ -14,7 +14,7 @@ public:
 	std::shared_ptr<bool> resetSafetySignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> stateLedSignal = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevice", NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevice", NodePin::Flags::AcceptMultipleInputs);
 	std::shared_ptr<NodePin> safetyLineValidPin = std::make_shared<NodePin>(safetyLineValidSignal, NodePin::Direction::NODE_INPUT, "Safety Line Valid", "SafetyLineValid");
 	std::shared_ptr<NodePin> safetyStateValidPin = std::make_shared<NodePin>(safetyStateValidSignal, NodePin::Direction::NODE_INPUT, "Safety State Valid", "SafetyStateValid");
 	

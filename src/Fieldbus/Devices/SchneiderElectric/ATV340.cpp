@@ -14,9 +14,9 @@ void ATV340::initialize() {
 	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	motor_pin->assignData(std::static_pointer_cast<ActuatorModule>(motor));
+	motor_pin->assignData(std::static_pointer_cast<ActuatorInterface>(motor));
 	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	gpio_pin->assignData(std::static_pointer_cast<GpioModule>(gpio));
+	gpio_pin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
 	//add node pins
 	addNodePin(motor_pin);

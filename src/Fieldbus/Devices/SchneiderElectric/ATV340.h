@@ -20,7 +20,7 @@ public:
 	int16_t analogInput1 = 0;
 	int16_t analogInput2 = 0;
 	
-	class ATV340_Motor : public ActuatorModule{
+	class ATV340_Motor : public ActuatorInterface{
 	public:
 		ATV340_Motor(std::shared_ptr<ATV340> drive_) : drive(drive_){}
 		std::shared_ptr<ATV340> drive;
@@ -37,7 +37,7 @@ public:
 		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
-	class ATV340_GPIO : public GpioModule{
+	class ATV340_GPIO : public GpioInterface{
 	public:
 		ATV340_GPIO(std::shared_ptr<ATV340> drive_) : drive(drive_){}
 		std::shared_ptr<ATV340> drive;
@@ -58,8 +58,8 @@ public:
 	
 	std::shared_ptr<ATV340_Motor> motor;
 	std::shared_ptr<ATV340_GPIO> gpio;
-	std::shared_ptr<NodePin> motor_pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
-	std::shared_ptr<NodePin> gpio_pin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> motor_pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
+	std::shared_ptr<NodePin> gpio_pin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
 	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> load_Value = std::make_shared<double>(0.0);

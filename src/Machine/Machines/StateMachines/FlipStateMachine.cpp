@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "FlipStateMachine.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 #include "Animation/Animatable.h"
 
 #include <tinyxml2.h>
@@ -347,8 +347,8 @@ bool FlipStateMachine::isGpioDeviceConnected() {
 	return gpioDeviceLink->isConnected();
 }
 
-std::shared_ptr<GpioModule> FlipStateMachine::getGpioDevice() {
-	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioModule>();
+std::shared_ptr<GpioInterface> FlipStateMachine::getGpioDevice() {
+	return gpioDeviceLink->getConnectedPins().front()->getSharedPointer<GpioInterface>();
 }
 
 bool FlipStateMachine::areAllPinsConnected() {

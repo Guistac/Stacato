@@ -26,10 +26,10 @@ private:
 	std::shared_ptr<bool> surveillanceValidInputSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> externalSurveillanceFaultResetSignal = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR,
+	std::shared_ptr<NodePin> servoActuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
 																		  NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																		  "Servo Actuator", "ServoActuator");
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO,
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE,
 																 NodePin::Direction::NODE_INPUT,
 																 "Reference Device", "ReferenceDevice");
 	std::shared_ptr<NodePin> lowLimitSignalPin = std::make_shared<NodePin>(lowLimitSignal,
@@ -44,13 +44,13 @@ private:
 	std::shared_ptr<NodePin> surveillanceValidInputPin = std::make_shared<NodePin>(surveillanceValidInputSignal,
 																				   NodePin::Direction::NODE_INPUT,
 																				   "Surveillance Valid Input", "SurveillanceValidInput");
-	std::shared_ptr<NodePin> surveillanceFeedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK,
+	std::shared_ptr<NodePin> surveillanceFeedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE,
 																					   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																					   "Surveillance Feedback Device", "SurveillanceFeedbackDevice");
 	std::shared_ptr<NodePin> externalSurveillanceFaultResetPin = std::make_shared<NodePin>(externalSurveillanceFaultResetSignal,
 																						   NodePin::Direction::NODE_INPUT,
 																						   "External Surveillance Fault Reset", "ExternalSurveillanceFaultReset");
-	std::shared_ptr<NodePin> feedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::POSITION_FEEDBACK,
+	std::shared_ptr<NodePin> feedbackDevicePin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE,
 																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																		   "Feedback Device", "FeedbackDevice");
 	
@@ -68,7 +68,7 @@ private:
 	std::shared_ptr<NodePin> surveillanceFaultResetPin = std::make_shared<NodePin>(surveillanceFaultResetSignal,
 																				   NodePin::Direction::NODE_OUTPUT,
 																				   "Surveillance Fault Reset", "SurveillanceFaultReset");
-	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS,
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE,
 																 NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 																 "Position Controlled Axis", "PositionControlledAxis");
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(actualPositionValue,
@@ -101,21 +101,21 @@ private:
 	
 	bool needsReferenceDevice();
 	bool isReferenceDeviceConnected(){ return gpioPin->isConnected(); }
-	std::shared_ptr<GpioModule> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioModule>(); }
+	std::shared_ptr<GpioInterface> getReferenceDevice() { return gpioPin->getConnectedPin()->getSharedPointer<GpioInterface>(); }
 	
 	void updateAxisState();
 	void reactToReferenceSignals();
 	
 	bool isServoActuatorDeviceConnected(){ return servoActuatorPin->isConnected(); }
-	std::shared_ptr<ActuatorModule> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ActuatorModule>(); }
+	std::shared_ptr<ActuatorInterface> getServoActuatorDevice() { return servoActuatorPin->getConnectedPin()->getSharedPointer<ActuatorInterface>(); }
 	
 	bool needsSurveillanceFeedbackDevice(){ return b_isSurveilled->value; }
 	bool isSurveillanceFeedbackDeviceConnected(){ return surveillanceFeedbackDevicePin->isConnected(); }
-	std::shared_ptr<MotionFeedbackModule> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackModule>(); }
+	std::shared_ptr<MotionFeedbackInterface> getSurveillanceFeedbackDevice(){ return surveillanceFeedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
 	
 	//——————— ONEGIN
 	bool isFeedbackDeviceConnected(){ return feedbackDevicePin->isConnected(); }
-	std::shared_ptr<MotionFeedbackModule> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackModule>(); }
+	std::shared_ptr<MotionFeedbackInterface> getFeedbackDevice(){ return feedbackDevicePin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
 	BoolParam useFeedbackDevice_Param = BooleanParameter::make(false, "Use Feedback Device", "UseFeedbackDevice");
 	NumberParam<double> feedbackUnitsPerAxisUnits_Param = NumberParameter<double>::make(0.0, "Feedback units per axis unit", "FeedbackUnitsPerAxisUnit", "%.5f");
 	double feedbackUnitsToAxisUnits(double feedbackValue) { return feedbackValue / feedbackUnitsPerAxisUnits_Param->value; }

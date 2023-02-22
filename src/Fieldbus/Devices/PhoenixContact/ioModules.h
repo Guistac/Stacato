@@ -2,7 +2,7 @@
 
 #include "Fieldbus/Utilities/ModularDeviceProfile.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
 
 #include "Environnement/NodeGraph/NodePin.h"
@@ -165,7 +165,7 @@ public:
 	//————— Node Pins ———————
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
 	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(resetPinValue, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
 	
 	//————— Process Data —————
@@ -200,7 +200,7 @@ public:
 	
 	//————— SubDevice ——————
 	
-	class SsiEncoder : public MotionFeedbackModule{
+	class SsiEncoder : public MotionFeedbackInterface{
 	public:
 		SsiEncoder(std::shared_ptr<IB_IL_SSI_IN> module) : encoderModule(module){}
 		

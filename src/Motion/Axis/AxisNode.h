@@ -1,17 +1,15 @@
 #pragma once
 
 #include "Environnement/NodeGraph/Node.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 #include "Project/Editor/Parameter.h"
-
-class AxisModule;
 
 class AxisNode : public Node {
 public:
 	
 	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::AXIS, "")
 	
-	std::shared_ptr<AxisModule> axis;
+	std::shared_ptr<AxisInterface> axis;
 	
 	std::shared_ptr<NodePin> actuatorPin;
 	std::shared_ptr<NodePin> feedbackPin;
@@ -50,10 +48,10 @@ public:
 	
 private:
 	
-	std::vector<std::shared_ptr<ActuatorModule>> connectedActuatorModules;
-	std::vector<std::shared_ptr<MotionFeedbackModule>> connectedFeedbackModules;
-	std::vector<std::shared_ptr<GpioModule>> connectedGpioModules;
-	std::vector<std::shared_ptr<MotionFeedbackModule>> allConnectedFeedbackModules;
+	std::vector<std::shared_ptr<ActuatorInterface>> connectedActuatorInterfaces;
+	std::vector<std::shared_ptr<MotionFeedbackInterface>> connectedFeedbackModules;
+	std::vector<std::shared_ptr<GpioInterface>> connectedGpioInterfaces;
+	std::vector<std::shared_ptr<MotionFeedbackInterface>> allConnectedFeedbackModules;
 	
 	static OptionParameter::Option controlModePosition;
 	static OptionParameter::Option controlModeVelocity;
@@ -61,9 +59,9 @@ private:
 	static std::vector<OptionParameter::Option*> controlModeParameterOptions;
 	OptionParam controlModeParameter;
 	
-	std::shared_ptr<MotionFeedbackModule> positionFeedbackModule;
-	std::shared_ptr<MotionFeedbackModule> velocityFeedbackModule;
-	std::shared_ptr<MotionFeedbackModule> forceFeedbackModule;
+	std::shared_ptr<MotionFeedbackInterface> positionFeedbackModule;
+	std::shared_ptr<MotionFeedbackInterface> velocityFeedbackModule;
+	std::shared_ptr<MotionFeedbackInterface> forceFeedbackModule;
 	double positionFeedbackUnitsPerAxisUnits;
 	double velocityFeedbackUnitsPerAxisUnits;
 	double forceFeedbackUnitsPerAxisUnits;
@@ -71,17 +69,17 @@ private:
 	
 	class ActuatorControlUnit{
 	public:
-		ActuatorControlUnit(std::shared_ptr<ActuatorModule> actuator_) : actuator(actuator_) {}
-		ActuatorModule::ControlMode controlModeSelection = ActuatorModule::ControlMode::VELOCITY;
+		ActuatorControlUnit(std::shared_ptr<ActuatorInterface> actuator_) : actuator(actuator_) {}
+		ActuatorInterface::ControlMode controlModeSelection = ActuatorInterface::ControlMode::VELOCITY;
 		double actuatorUnitsPerAxisUnits = 1.0;
 		double actuatorPositionOffset = 0.0;
-		std::shared_ptr<ActuatorModule> actuator;
+		std::shared_ptr<ActuatorInterface> actuator;
 	};
 	
 	std::vector<std::shared_ptr<ActuatorControlUnit>> actuatorControlUnits;
 	
 	BoolParam enableSurveillanceParameter = BooleanParameter::make(false, "Enable Surveillance", "EnableSurveillance");
-	std::shared_ptr<MotionFeedbackModule> surveillanceFeedbackModule;
+	std::shared_ptr<MotionFeedbackInterface> surveillanceFeedbackModule;
 	double surveillanceFeedbackUnitsPerAxisUnits;
 	
 	//each connected actuator module has:

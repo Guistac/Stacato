@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "AxisNode.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include <imgui.h>
 
@@ -102,13 +102,13 @@ void AxisNode::nodeSpecificGui(){
 			ImGui::TreePush();
 			std::string controlModeString;
 			switch(controlUnit->controlModeSelection){
-				case ActuatorModule::ControlMode::POSITION:
+				case ActuatorInterface::ControlMode::POSITION:
 					controlModeString = "Position Control";
 					break;
-				case ActuatorModule::ControlMode::VELOCITY:
+				case ActuatorInterface::ControlMode::VELOCITY:
 					controlModeString = "Velocity Control";
 					break;
-				case ActuatorModule::ControlMode::FORCE:
+				case ActuatorInterface::ControlMode::FORCE:
 					controlModeString = "Force Control";
 					break;
 			}
@@ -116,16 +116,16 @@ void AxisNode::nodeSpecificGui(){
 			ImGui::Text("Actuator Control Mode");
 			if(ImGui::BeginCombo("##cmode", controlModeString.c_str())){
 				if(actuator->supportsPositionControl() &&
-				   ImGui::Selectable("Position Control", controlUnit->controlModeSelection == ActuatorModule::ControlMode::POSITION)){
-					controlUnit->controlModeSelection = ActuatorModule::ControlMode::POSITION;
+				   ImGui::Selectable("Position Control", controlUnit->controlModeSelection == ActuatorInterface::ControlMode::POSITION)){
+					controlUnit->controlModeSelection = ActuatorInterface::ControlMode::POSITION;
 				}
 				if(actuator->supportsVelocityControl() &&
-				   ImGui::Selectable("Velocity Control", controlUnit->controlModeSelection == ActuatorModule::ControlMode::VELOCITY)){
-					controlUnit->controlModeSelection = ActuatorModule::ControlMode::VELOCITY;
+				   ImGui::Selectable("Velocity Control", controlUnit->controlModeSelection == ActuatorInterface::ControlMode::VELOCITY)){
+					controlUnit->controlModeSelection = ActuatorInterface::ControlMode::VELOCITY;
 				}
 				if(actuator->supportsForceControl() &&
-				   ImGui::Selectable("Force Control", controlUnit->controlModeSelection == ActuatorModule::ControlMode::FORCE)){
-					controlUnit->controlModeSelection = ActuatorModule::ControlMode::FORCE;
+				   ImGui::Selectable("Force Control", controlUnit->controlModeSelection == ActuatorInterface::ControlMode::FORCE)){
+					controlUnit->controlModeSelection = ActuatorInterface::ControlMode::FORCE;
 				}
 				ImGui::EndCombo();
 			}

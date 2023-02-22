@@ -14,8 +14,8 @@ void ATV320::initialize() {
 	actuator = std::make_shared<ATV_Motor>(thisDrive);
 	gpio = std::make_shared<ATV_GPIO>(thisDrive);
 	
-	actuatorPin->assignData(std::static_pointer_cast<ActuatorModule>(actuator));
-	gpioPin->assignData(std::static_pointer_cast<GpioModule>(gpio));
+	actuatorPin->assignData(std::static_pointer_cast<ActuatorInterface>(actuator));
+	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
 	addNodePin(actuatorPin);
 	addNodePin(gpioPin);

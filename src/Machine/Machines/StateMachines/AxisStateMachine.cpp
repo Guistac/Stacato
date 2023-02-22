@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "AxisStateMachine.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 #include "Animation/Animatable.h"
 
 #include <tinyxml2.h>

@@ -310,7 +310,7 @@ void IB_IL_SSI_IN::onConstruction(){
 	
 	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
 	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
-	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackModule>(encoder));
+	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackInterface>(encoder));
 	
 	outputPins.push_back(encoderPin);
 	outputPins.push_back(resetPin);

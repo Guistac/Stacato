@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "SafetySignal.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include "Environnement/Environnement.h"
 
@@ -25,7 +25,7 @@ void SafetySignal::inputProcess(){
 	}
 	else{
 		for(auto connectedGpioPin : gpioPin->getConnectedPins()){
-			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioModule>();
+			auto gpioDevice = connectedGpioPin->getSharedPointer<GpioInterface>();
 			if(gpioDevice->getState() != DeviceState::ENABLED) {
 				safetyState = State::OFFLINE;
 				return;

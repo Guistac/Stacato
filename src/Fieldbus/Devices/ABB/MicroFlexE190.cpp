@@ -14,10 +14,10 @@ void MicroFlex_e190::initialize() {
 	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
 	
 	servo = std::make_shared<MicroFlexServoMotor>(thisMicroflex);
-	servoPin->assignData(std::static_pointer_cast<ActuatorModule>(servo));
+	servoPin->assignData(std::static_pointer_cast<ActuatorInterface>(servo));
 	
 	gpio = std::make_shared<MicroFlexGpio>(thisMicroflex);
-	gpioPin->assignData(std::static_pointer_cast<GpioModule>(gpio));
+	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
 	addNodePin(servoPin);
 	addNodePin(position_Pin);

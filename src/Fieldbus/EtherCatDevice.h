@@ -8,7 +8,7 @@
 
 #include "Utilities/EtherCatData.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match

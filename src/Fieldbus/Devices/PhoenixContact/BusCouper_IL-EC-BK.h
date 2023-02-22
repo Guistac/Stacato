@@ -9,7 +9,7 @@ namespace PhoenixContact{
 	public:
 		DEFINE_ETHERCAT_DEVICE(BusCoupler, "Phoenix Contact Bus Coupler", "IL_EC_BK_BusCoupler", "Phoenix Contact", "I/O", 0x84, 0x293CAB)
 		
-		class PhoenixContactGpioDevice : public GpioModule{
+		class PhoenixContactGpioDevice : public GpioInterface{
 		public:
 			PhoenixContactGpioDevice(std::shared_ptr<BusCoupler> busCoupler) : coupler(busCoupler){}
 			std::shared_ptr<BusCoupler> coupler;
@@ -19,7 +19,7 @@ namespace PhoenixContact{
 		
 		//master GPIO Subdevice
 		std::shared_ptr<PhoenixContactGpioDevice> gpioDevice;
-		std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_MODULE, NodePin::Direction::NODE_OUTPUT, "GPIO");
+		std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
 		
 		virtual std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModuleFactory() override;
 		

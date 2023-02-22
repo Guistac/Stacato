@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "DeadMansSwitch.h"
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
@@ -19,7 +19,7 @@ void DeadMansSwitch::initialize(){
 
 bool DeadMansSwitch::areAllInputsReady(){
 	if(!gpioDevicePin->isConnected()) return false;
-	auto gpioDevice = gpioDevicePin->getConnectedPin()->getSharedPointer<GpioModule>();
+	auto gpioDevice = gpioDevicePin->getConnectedPin()->getSharedPointer<GpioInterface>();
 	if(!gpioDevice->isReady()) return false;
 	if(!switchPressedPin->isConnected()) return false;
 	return true;

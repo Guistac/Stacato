@@ -20,8 +20,8 @@ void Lexium32::initialize() {
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
 		
-	servoMotorPin->assignData(std::static_pointer_cast<ActuatorModule>(servoMotor));
-	gpioDevicePin->assignData(std::static_pointer_cast<GpioModule>(gpioDevice));
+	servoMotorPin->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));
+	gpioDevicePin->assignData(std::static_pointer_cast<GpioInterface>(gpioDevice));
 	
 	//working range
 	updateEncoderWorkingRange();
@@ -337,13 +337,13 @@ void Lexium32::writeOutputs() {
 	
 	//update the target fields of inactive control modes
 	//this allows us to switch between modes seamlessly
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::POSITION){
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::POSITION){
 		servoMotor->actuatorProcessData.positionTarget = servoMotor->getPosition();
 	}
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::VELOCITY){
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::VELOCITY){
 		servoMotor->actuatorProcessData.velocityTarget = servoMotor->getVelocity();
 	}
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorModule::ControlMode::FORCE){
+	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::FORCE){
 		servoMotor->actuatorProcessData.forceTarget = servoMotor->getForce();
 	}
 	

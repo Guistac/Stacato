@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Axis.h"
 
-#include "Motion/SubDevice.h"
+#include "Motion/Interfaces.h"
 
 namespace Motion{
 

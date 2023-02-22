@@ -18,7 +18,7 @@ public:
 	int16_t AI0;
 	int16_t AO0;
 	
-	class MicroFlexServoMotor : public ActuatorModule{
+	class MicroFlexServoMotor : public ActuatorInterface{
 	public:
 		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) : drive(microflex){}
 		std::shared_ptr<MicroFlex_e190> drive;
@@ -48,7 +48,7 @@ public:
 		
 	};
 	
-	class MicroFlexGpio : public GpioModule{
+	class MicroFlexGpio : public GpioInterface{
 	public:
 		MicroFlexGpio(std::shared_ptr<MicroFlex_e190> microflex) : drive(microflex){}
 		std::shared_ptr<MicroFlex_e190> drive;
@@ -59,10 +59,10 @@ public:
 	};
 	
 	std::shared_ptr<MicroFlexServoMotor> servo;
-	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
+	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
 	
 	std::shared_ptr<MicroFlexGpio> gpio;
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_MODULE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
 	
 	std::shared_ptr<double> position_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);

@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<bool> b_switchPressed = std::make_shared<bool>(false);
 	std::shared_ptr<bool> b_switchLed = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevicePin");
+	std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevicePin");
 	std::shared_ptr<NodePin> switchPressedPin = std::make_shared<NodePin>(b_switchPressed, NodePin::Direction::NODE_INPUT, "Switch Pressed", "SwitchPressedPin");
 	
 	std::shared_ptr<NodePin> switchLedPin = std::make_shared<NodePin>(b_switchLed, NodePin::Direction::NODE_OUTPUT, "Switch LED Signal", "SwitchLEDSignalPin");
