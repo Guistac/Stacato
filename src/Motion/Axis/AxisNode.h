@@ -3,13 +3,14 @@
 #include "Environnement/NodeGraph/Node.h"
 #include "Motion/Interfaces.h"
 #include "Project/Editor/Parameter.h"
+#include "Motion/Curve/Profile.h"
 
 class AxisNode : public Node {
 public:
 	
 	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::AXIS, "")
 	
-	std::shared_ptr<AxisInterface> axis;
+	std::shared_ptr<AxisInterface> axisInterface;
 	
 	std::shared_ptr<NodePin> actuatorPin;
 	std::shared_ptr<NodePin> feedbackPin;
@@ -54,17 +55,58 @@ public:
 	void configurationTab();
 	void devicesTab();
 	void positionControlSettingsGui();
-	void velocityControlSettingsGui();
+	void actuatorControlSettingsGui();
+	void limitSettingsGui();
+	void motionFeedbackSettingsGui();
+	void homingSettingsGui();
 	
 private:
 	 
 	static OptionParameter::Option controlModePosition;
 	static OptionParameter::Option controlModeVelocity;
+	static OptionParameter::Option controlModeNone;
 	static std::vector<OptionParameter::Option*> controlModeParameterOptions;
-	OptionParam controlModeParameter;
+	enum ControlMode{
+		POSITION_CONTROL = 0,
+		VELOCITY_CONTROL = 1,
+		NO_CONTROL = 2
+	};
+	
+	static OptionParameter::Option option_NoLimitSignal;
+	static OptionParameter::Option option_SignalAtLowerLimit;
+	static OptionParameter::Option option_SignalAtLowerAndUpperLimits;
+	static OptionParameter::Option option_SignalAtOrigin;
+	static OptionParameter::Option option_LimitAndSlowdownAtLowerAndUpperLimits;
+	static std::vector<OptionParameter::Option*> limitSignalTypeOptions;
+	enum LimitSignalType{
+		NONE = 0,
+		SIGNAL_AT_LOWER_LIMIT = 1,
+		SIGNAL_AT_LOWER_AND_UPPER_LIMITS = 2,
+		SIGNAL_AT_ORIGIN = 3,
+		LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS = 4
+	};
+	
+	static OptionParameter::Option option_HomingDirectionNegative;
+	static OptionParameter::Option option_HomingDirectionPositive;
+	static std::vector<OptionParameter::Option*> homingDirectionOptions;
+	enum HomingDirection{
+		NEGATIVE = 0,
+		POSITIVE = 1
+	};
+	
+	static OptionParameter::Option option_FindSignalEdge;
+	static OptionParameter::Option option_FindSignalCenter;
+	static std::vector<OptionParameter::Option*> signalApproachOptions;
+	enum SignalApproachMethod{
+		FIND_SIGNAL_EDGE = 0,
+		FIND_SIGNAL_CENTER = 1
+	};
 	
 	void updateConnectedModules();
 	std::vector<std::shared_ptr<DeviceInterface>> connectedDeviceInterfaces;
+	std::vector<std::shared_ptr<ActuatorInterface>> connectedActuatorInterfaces;
+	std::vector<std::shared_ptr<MotionFeedbackInterface>> connectedFeedbackInteraces;
+	std::vector<std::shared_ptr<GpioInterface>> connectedGpioInterfaces;
 	
 	//Feedback
 	class FeedbackMapping{
@@ -95,6 +137,11 @@ private:
 	};
 	std::vector<std::shared_ptr<ActuatorMapping>> actuatorMappings;
 	
+	//General
+	OptionParam controlModeParameter;
+	OptionParam limitSignalTypeParameter;
+	NumberParam<double> maxEnableTimeSeconds;
+	
 	//Position Control
 	NumberParam<double> positionLoop_velocityFeedForward;
 	NumberParam<double> positionLoop_proportionalGain;
@@ -102,7 +149,7 @@ private:
 	NumberParam<double> positionLoop_minError;
 	
 	//Velocity Control
-	NumberParam<double> hardlimitApproachVelocity;
+	NumberParam<double> limitSlowdownVelocity;
 	
 	//Limits
 	BoolParam enableLowerPositionLimit;
@@ -114,6 +161,14 @@ private:
 	NumberParam<double> velocityLimit;
 	NumberParam<double> accelerationLimit;
 	
+	//Homing
+	OptionParam homingDirectionParameter;
+	OptionParam signalApproachParameter;
+	NumberParam<double> homingVelocityCoarse;
+	NumberParam<double> homingVelocityFine;
+	NumberParam<double> maxHomingDistanceCoarse;
+	NumberParam<double> maxHomingDistanceFine;
+	
 	//Surveillance
 	BoolParam enableSurveillanceParameter = BooleanParameter::make(false, "Enable Surveillance", "EnableSurveillance");
 	std::shared_ptr<MotionFeedbackInterface> surveillanceFeedbackModule;
@@ -121,10 +176,14 @@ private:
 	
 	
 	
-	//each connected actuator module has:
-	//	-control mode selection option
-	//	-if the control mode is position or velocity, we need a ratio to convert between actuator and axis units
-	//	-if the control mode is force, we need to have parametrize the force command given to each actuator
+	void updateControlMode();
+	void updateLimitSignalType();
+	void updateAxisConfiguration();
+	
+	//process data
+	Motion::Profile motionProfile;
+	double enableRequestTime_seconds;
+	bool b_isEnabling;
 	
 };
 

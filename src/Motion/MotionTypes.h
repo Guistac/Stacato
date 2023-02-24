@@ -250,11 +250,11 @@ DEFINE_ENUMERATOR(ManoeuvreType, ManoeuvreTypeStrings)
 //================================================================================================================================
 
 enum class DeviceState{
-	OFFLINE,
-	NOT_READY,
-	READY,
-	ENABLING,
-	DISABLING,
-	ENABLED
+	OFFLINE = 0,
+	NOT_READY = 1,
+	DISABLING = 2,
+	READY = 3,
+	ENABLING = 4,
+	ENABLED = 5
 };
 

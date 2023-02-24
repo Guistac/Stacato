@@ -106,11 +106,11 @@
                     <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="55" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="56" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="57" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="58" Visible="true"/>
-                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="59" Visible="true"/>
-                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="60" Visible="true"/>
-                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="61" Visible="true"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="62" Visible="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="58" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="59" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="60" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="61" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="62" Visible="false"/>
                     <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="63" Visible="true"/>
                 </InputPins>
                 <OutputPins>

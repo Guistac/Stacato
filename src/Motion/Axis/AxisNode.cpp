@@ -3,15 +3,53 @@
 
 #include "Motion/Interfaces.h"
 
-OptionParameter::Option AxisNode::controlModePosition = OptionParameter::Option(1, "Position Control", "PositionControl");
-OptionParameter::Option AxisNode::controlModeVelocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
+OptionParameter::Option AxisNode::controlModePosition = OptionParameter::Option(0, "Position Control", "PositionControl");
+OptionParameter::Option AxisNode::controlModeVelocity = OptionParameter::Option(1, "Velocity Control", "VelocityControl");
+OptionParameter::Option AxisNode::controlModeNone =		OptionParameter::Option(2, "No Control", "NoControl");
 std::vector<OptionParameter::Option*> AxisNode::controlModeParameterOptions = {
 	&AxisNode::controlModePosition,
-	&AxisNode::controlModeVelocity
+	&AxisNode::controlModeVelocity,
+	&AxisNode::controlModeNone
 };
 
+OptionParameter::Option AxisNode::option_NoLimitSignal =
+	OptionParameter::Option(0, "No limit signal", "NoLimitSignal");
+OptionParameter::Option AxisNode::option_SignalAtLowerLimit =
+	OptionParameter::Option(1, "Signal at lower limit", "SignalAtLowerLimit");
+OptionParameter::Option AxisNode::option_SignalAtLowerAndUpperLimits =
+	OptionParameter::Option(2, "Signal at lower and upper limit", "SignalAtLowerAndUpperLimit");
+OptionParameter::Option AxisNode::option_SignalAtOrigin =
+	OptionParameter::Option(3, "Signal at origin", "SignalAtOrigin");
+OptionParameter::Option AxisNode::option_LimitAndSlowdownAtLowerAndUpperLimits =
+	OptionParameter::Option(4, "Limit and slowdown signals", "LimitAndSlowdownSignals");
+
+std::vector<OptionParameter::Option*> AxisNode::limitSignalTypeOptions = {
+	&option_NoLimitSignal,
+	&option_SignalAtLowerLimit,
+	&option_SignalAtLowerAndUpperLimits,
+	&option_SignalAtOrigin,
+	&option_LimitAndSlowdownAtLowerAndUpperLimits
+};
+
+
+
+OptionParameter::Option AxisNode::option_HomingDirectionNegative = OptionParameter::Option(0, "Negative", "Negative");
+OptionParameter::Option AxisNode::option_HomingDirectionPositive = OptionParameter::Option(1, "Positive", "Positive");
+std::vector<OptionParameter::Option*> AxisNode::homingDirectionOptions = {
+	&option_HomingDirectionNegative,
+	&option_HomingDirectionPositive
+};
+
+OptionParameter::Option AxisNode::option_FindSignalEdge = OptionParameter::Option(0, "Find signal edge", "FindSignalEdge");
+OptionParameter::Option AxisNode::option_FindSignalCenter = OptionParameter::Option(1, "Find signal center", "FindSignalCenter");
+std::vector<OptionParameter::Option*> AxisNode::signalApproachOptions = {
+	&option_FindSignalEdge,
+	&option_FindSignalCenter
+};
+
+
 void AxisNode::initialize(){
-	axis = std::make_shared<AxisInterface>();
+	axisInterface = std::make_shared<AxisInterface>();
 	
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);
@@ -48,7 +86,7 @@ void AxisNode::initialize(){
 	surveillanceResetSignalPin = std::make_shared<NodePin>(surveillanceResetSignal, NodePin::Direction::NODE_INPUT,
 														   "Surveillance Fault Reset", "SurveillanceFaultReset");
 	
-	axisPin = std::make_shared<NodePin>(axis, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+	axisPin = std::make_shared<NodePin>(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 										"Axis", "Axis");
 	brakeControlSignalPin = std::make_shared<NodePin>(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
 													  "Brake Control Signal", "BrakeControlSignal");
@@ -70,13 +108,18 @@ void AxisNode::initialize(){
 	addNodePin(surveillanceValidSignalPin);
 	
 	controlModeParameter = OptionParameter::make(controlModePosition, controlModeParameterOptions, "Axis Control Mode", "AxisControlMode");
+	controlModeParameter->addEditCallback([this](){
+		updateControlMode();
+	});
+	
+	maxEnableTimeSeconds = NumberParameter<double>::make(0.1, "Max enable time (seconds)", "MaxEnableTime");
 	
 	positionLoop_velocityFeedForward = NumberParameter<double>::make(1.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
 	positionLoop_proportionalGain = NumberParameter<double>::make(0.0, "Position loop proportional gain (PKp)", "PositionLoopProportionalGain");
 	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
 	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
 	
-	hardlimitApproachVelocity = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
+	limitSlowdownVelocity = NumberParameter<double>::make(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
 	
 	enableLowerPositionLimit = BooleanParameter::make(false, "Enable Lower Position Limit", "EnableLowerPositionLimit");
 	enableUpperPositionLimit = BooleanParameter::make(false, "Enable Upper Position Limit", "EnableUpperPositionLimit");
@@ -86,6 +129,21 @@ void AxisNode::initialize(){
 	upperPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Upper Position Limit Clearance", "UpperPositionLimitClearance");
 	velocityLimit = 				NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit");
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "Acceleration Limit");
+	
+	homingDirectionParameter = 	OptionParameter::make(option_HomingDirectionNegative, homingDirectionOptions, "Homing direction", "HomingDirection");
+	signalApproachParameter = 	OptionParameter::make(option_FindSignalEdge, signalApproachOptions, "Signal approach method", "SignalApproachMethod");
+	homingVelocityCoarse = 		NumberParameter<double>::make(0.0, "Homing velocity coarse", "HomingVelocityCoarse");
+	homingVelocityFine = 		NumberParameter<double>::make(0.0, "Homing velocity fine", "HomingVelocityFine");
+	maxHomingDistanceCoarse = 	NumberParameter<double>::make(0.0, "Max homing distance coarse", "MaxHomingDistanceCoarse");
+	maxHomingDistanceFine = 	NumberParameter<double>::make(0.0, "Max homing distance fine", "MaxHomingDistanceFine");
+	
+	limitSignalTypeParameter = OptionParameter::make(option_SignalAtLowerLimit, limitSignalTypeOptions, "Limit Signal Type", "LimitSignalType");
+	limitSignalTypeParameter->addEditCallback([this](){
+		updateLimitSignalType();
+	});
+	
+	updateControlMode();
+	updateLimitSignalType();
 }
 
 void AxisNode::onPinUpdate(std::shared_ptr<NodePin> pin){}
@@ -99,21 +157,6 @@ void AxisNode::onPinDisconnection(std::shared_ptr<NodePin> pin){
 		updateConnectedModules();
 	}
 }
-
-bool AxisNode::prepareProcess(){}
-
-void AxisNode::inputProcess(){
-	auto& fbdata = axis->feedbackProcessData;
-	if(auto mapping = positionFeedbackMapping){
-		fbdata.positionActual = mapping->feedbackInterface->getPosition() / mapping->feedbackUnitsPerAxisUnit;
-	}
-	if(auto mapping = velocityFeedbackMapping){
-		fbdata.velocityActual = mapping->feedbackInterface->getVelocity() / mapping->feedbackUnitsPerAxisUnit;
-	}
-}
-
-void AxisNode::outputProcess(){}
-bool AxisNode::needsOutputProcess(){}
 
 
 bool AxisNode::save(tinyxml2::XMLElement* xml){
@@ -257,17 +300,191 @@ void AxisNode::updateConnectedModules(){
 	}
 	
 	connectedDeviceInterfaces.clear();
+	connectedActuatorInterfaces.clear();
+	connectedFeedbackInteraces.clear();
+	connectedGpioInterfaces.clear();
 	for(auto actuatorInterfacePin : actuatorPin->getConnectedPins()){
 		auto actuator = actuatorInterfacePin->getSharedPointer<ActuatorInterface>();
 		connectedDeviceInterfaces.push_back(actuator);
+		connectedActuatorInterfaces.push_back(actuator);
 	}
 	for(auto feedbackInterfacePin : feedbackPin->getConnectedPins()){
 		auto feedback = feedbackInterfacePin->getSharedPointer<MotionFeedbackInterface>();
 		connectedDeviceInterfaces.push_back(feedback);
+		connectedFeedbackInteraces.push_back(feedback);
 	}
 	for(auto gpioInterfacePin : gpioPin->getConnectedPins()){
 		auto gpio = gpioInterfacePin->getSharedPointer<GpioInterface>();
 		connectedDeviceInterfaces.push_back(gpio);
+		connectedGpioInterfaces.push_back(gpio);
+	}
+	
+	
+	
+	
+	
+}
+
+
+void AxisNode::updateControlMode(){
+	
+	switch(controlModeParameter->value){
+		case ControlMode::POSITION_CONTROL:
+			option_SignalAtLowerLimit.enable();
+			option_SignalAtLowerAndUpperLimits.enable();
+			option_SignalAtOrigin.enable();
+			option_LimitAndSlowdownAtLowerAndUpperLimits.disable();
+			if(limitSignalTypeParameter->value == option_LimitAndSlowdownAtLowerAndUpperLimits.getInt()){
+				limitSignalTypeParameter->overwrite(&option_SignalAtLowerAndUpperLimits);
+				updateLimitSignalType();
+			}
+			break;
+		case ControlMode::VELOCITY_CONTROL:
+			option_SignalAtLowerLimit.disable();
+			option_SignalAtLowerAndUpperLimits.disable();
+			option_SignalAtOrigin.disable();
+			option_LimitAndSlowdownAtLowerAndUpperLimits.enable();
+			if(limitSignalTypeParameter->value != option_NoLimitSignal.getInt() &&
+			   limitSignalTypeParameter->value != option_LimitAndSlowdownAtLowerAndUpperLimits.getInt()){
+				limitSignalTypeParameter->overwrite(&option_LimitAndSlowdownAtLowerAndUpperLimits);
+				updateLimitSignalType();
+			}
+			break;
+		case ControlMode::NO_CONTROL:
+			option_SignalAtLowerLimit.disable();
+			option_SignalAtLowerAndUpperLimits.disable();
+			option_SignalAtOrigin.disable();
+			option_LimitAndSlowdownAtLowerAndUpperLimits.disable();
+			if(limitSignalTypeParameter->value != option_NoLimitSignal.getInt()){
+				limitSignalTypeParameter->overwrite(&option_NoLimitSignal);
+				updateLimitSignalType();
+			}
+			break;
 	}
 	
 }
+
+void AxisNode::updateLimitSignalType(){
+	switch(limitSignalTypeParameter->value){
+		case LimitSignalType::NONE:
+			//remove
+			lowerLimitSignalPin->disconnectAllLinks();
+			lowerLimitSignalPin->setVisible(false);
+			upperLimitSignalPin->disconnectAllLinks();
+			upperLimitSignalPin->setVisible(false);
+			lowerSlowdownSignalPin->disconnectAllLinks();
+			lowerSlowdownSignalPin->setVisible(false);
+			upperSlowdownSignalPin->disconnectAllLinks();
+			upperSlowdownSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			option_FindSignalEdge.disable();
+			option_FindSignalCenter.disable();
+			option_HomingDirectionNegative.disable();
+			option_HomingDirectionPositive.disable();
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_LIMIT:
+			//add
+			lowerLimitSignalPin->setVisible(true);
+			//remove
+			upperLimitSignalPin->disconnectAllLinks();
+			upperLimitSignalPin->setVisible(false);
+			lowerSlowdownSignalPin->disconnectAllLinks();
+			lowerSlowdownSignalPin->setVisible(false);
+			upperSlowdownSignalPin->disconnectAllLinks();
+			upperSlowdownSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			
+			option_FindSignalEdge.enable();
+			option_FindSignalCenter.disable();
+			option_HomingDirectionNegative.enable();
+			option_HomingDirectionPositive.disable();
+			homingDirectionParameter->overwrite(&option_HomingDirectionNegative);
+			signalApproachParameter->overwrite(&option_FindSignalEdge);
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
+			//add
+			lowerLimitSignalPin->setVisible(true);
+			upperLimitSignalPin->setVisible(true);
+			//remove
+			lowerSlowdownSignalPin->disconnectAllLinks();
+			lowerSlowdownSignalPin->setVisible(false);
+			upperSlowdownSignalPin->disconnectAllLinks();
+			upperSlowdownSignalPin->setVisible(false);
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			
+			option_FindSignalEdge.enable();
+			option_FindSignalCenter.disable();
+			option_HomingDirectionNegative.enable();
+			option_HomingDirectionPositive.enable();
+			signalApproachParameter->overwrite(&option_FindSignalEdge);
+			break;
+		case LimitSignalType::SIGNAL_AT_ORIGIN:
+			//add
+			referenceSignalPin->setVisible(true);
+			//remove
+			lowerLimitSignalPin->disconnectAllLinks();
+			lowerLimitSignalPin->setVisible(false);
+			upperLimitSignalPin->disconnectAllLinks();
+			upperLimitSignalPin->setVisible(false);
+			lowerSlowdownSignalPin->disconnectAllLinks();
+			lowerSlowdownSignalPin->setVisible(false);
+			upperSlowdownSignalPin->disconnectAllLinks();
+			upperSlowdownSignalPin->setVisible(false);
+			
+			option_FindSignalEdge.enable();
+			option_FindSignalCenter.enable();
+			option_HomingDirectionNegative.enable();
+			option_HomingDirectionPositive.enable();
+			break;
+		case LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
+			//add
+			lowerLimitSignalPin->setVisible(true);
+			upperLimitSignalPin->setVisible(true);
+			lowerSlowdownSignalPin->setVisible(true);
+			upperSlowdownSignalPin->setVisible(true);
+			//remove
+			referenceSignalPin->disconnectAllLinks();
+			referenceSignalPin->setVisible(false);
+			
+			option_FindSignalEdge.disable();
+			option_FindSignalCenter.disable();
+			option_HomingDirectionNegative.disable();
+			option_HomingDirectionPositive.disable();
+			break;
+		default:
+			break;
+	}
+}
+
+void AxisNode::updateAxisConfiguration(){
+	auto& config = axisInterface->configuration;
+
+	switch(controlModeParameter->value){
+		case ControlMode::VELOCITY_CONTROL:
+			config.controlMode = AxisInterface::ControlMode::VELOCITY_CONTROL;
+			break;
+		case ControlMode::POSITION_CONTROL:
+			config.controlMode = AxisInterface::ControlMode::POSITION_CONTROL;
+			break;
+		default:
+			config.controlMode = AxisInterface::ControlMode::NONE;
+			break;
+	}
+	
+	config.accelerationLimit = accelerationLimit->value;
+	config.decelerationLimit = accelerationLimit->value;
+	config.velocityLimit = velocityLimit->value;
+	config.lowerPositionLimit = lowerPositionLimit->value + lowerPositionLimitClearance->value;
+	config.upperPositionLimit = upperPositionLimit->value + upperPositionLimitClearance->value;
+	
+	config.b_supportsPositionFeedback = positionFeedbackMapping != nullptr;
+	config.b_supportsVelocityFeedback = velocityFeedbackMapping != nullptr;
+	config.b_supportsForceFeedback = false;
+	config.b_supportsEffortFeedback = false;
+	
+	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL;
+}
+

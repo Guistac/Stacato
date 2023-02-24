@@ -198,17 +198,84 @@ public:
 	
 };
 
-class AxisInterface : public ActuatorInterface{
+class AxisInterface : public DeviceInterface{
 public:
+	
+	enum class ControlMode{
+		POSITION_CONTROL,
+		VELOCITY_CONTROL,
+		NONE
+	};
 	
 	virtual Type getType() override { return Type::AXIS; };
 	
-	bool isHomeable();
-	bool canStartHoming();
-	bool isHoming();
-	void startHoming();
-	void stopHoming();
-	bool didHomingSucceed();
+	bool supportsHoming(){ return configuration.b_supportsHoming; }
+	bool canStartHoming(){ return processData.b_canStartHoming; }
+	bool isHoming(){ return processData.b_isHoming; }
+	bool didHomingSucceed(){ return processData.b_didHomingSucceed; }
+	void startHoming() { processData.b_startHoming = true; }
+	void stopHoming() { processData.b_stopHoming = true; }
+	
+	void setPositionTarget(double positionTarget, double velocityTarget, double accelerationTarget){
+		processData.positionTarget = positionTarget;
+		processData.velocityTarget = velocityTarget;
+		processData.accelerationTarget = accelerationTarget;
+	}
+	void setVelocityTarget(double velocityTarget, double accelerationTarget){
+		processData.velocityTarget = velocityTarget;
+		processData.accelerationTarget = accelerationTarget;
+	}
+	
+	bool isEmergencyStopActive(){ return processData.b_isEmergencyStopActive; }
+	
+	double getPositionActual(){ return processData.positionActual; }
+	double getVelocityActual(){ return processData.velocityActual; }
+	double getForceActual(){ return processData.forceActual; }
+	double getEffortActual(){ return processData.effortActual; }
+	
+	void enable(){ processData.b_enable = true; }
+	void disable(){ processData.b_disable = true; }
+	
+	double getVelocityLimit(){ return configuration.velocityLimit; }
+	double getAccelerationLimit(){ return configuration.accelerationLimit; }
+	double getLowerPositionLimit(){ return configuration.lowerPositionLimit; }
+	double getUpperPositionLimit(){ return configuration.upperPositionLimit; }
+	
+private:
+	
+	friend class AxisNode;
+	
+	struct AxisConfiguration{
+		bool b_supportsPositionFeedback;
+		bool b_supportsVelocityFeedback;
+		bool b_supportsForceFeedback;
+		bool b_supportsEffortFeedback;
+		bool b_supportsHoming;
+		double lowerPositionLimit;
+		double upperPositionLimit;
+		double velocityLimit;
+		double accelerationLimit;
+		double decelerationLimit;
+		ControlMode controlMode;
+	}configuration;
+	
+	struct AxisProcessData{
+		double positionActual;
+		double velocityActual;
+		double forceActual;
+		double effortActual;
+		double positionTarget;
+		double velocityTarget;
+		double accelerationTarget;
+		bool b_canStartHoming;
+		bool b_startHoming;
+		bool b_stopHoming;
+		bool b_isHoming;
+		bool b_didHomingSucceed;
+		bool b_isEmergencyStopActive;
+		bool b_enable;
+		bool b_disable;
+	}processData;
 };
 
 //virtual std::string getName() override;
