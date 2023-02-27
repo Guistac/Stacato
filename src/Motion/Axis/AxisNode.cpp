@@ -128,7 +128,7 @@ void AxisNode::initialize(){
 	lowerPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Lower Position Limit Clearance", "LowerPositionLimitClearance");
 	upperPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Upper Position Limit Clearance", "UpperPositionLimitClearance");
 	velocityLimit = 				NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit");
-	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "Acceleration Limit");
+	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	
 	homingDirectionParameter = 	OptionParameter::make(option_HomingDirectionNegative, homingDirectionOptions, "Homing direction", "HomingDirection");
 	signalApproachParameter = 	OptionParameter::make(option_FindSignalEdge, signalApproachOptions, "Signal approach method", "SignalApproachMethod");
@@ -144,6 +144,7 @@ void AxisNode::initialize(){
 	
 	updateControlMode();
 	updateLimitSignalType();
+	updateAxisConfiguration();
 }
 
 void AxisNode::onPinUpdate(std::shared_ptr<NodePin> pin){}
@@ -180,10 +181,17 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 		actXML->SetAttribute("UnitConversion", actuatorMapping->actuatorUnitsPerAxisUnits);
 	}
 	
+	velocityLimit->save(xml);
+	accelerationLimit->save(xml);
+	
 	return true;
 }
 
 bool AxisNode::load(tinyxml2::XMLElement* xml){
+	
+	bool success = true;
+	success &= velocityLimit->load(xml);
+	success &= accelerationLimit->load(xml);
 	
 	return true;
 }
@@ -236,6 +244,8 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 			actXML = actXML->NextSiblingElement("ActuatorMapping");
 		}
 	}
+	
+	updateAxisConfiguration();
 	
 
 	return true;
@@ -483,7 +493,16 @@ void AxisNode::updateAxisConfiguration(){
 	config.b_supportsPositionFeedback = positionFeedbackMapping != nullptr;
 	config.b_supportsVelocityFeedback = velocityFeedbackMapping != nullptr;
 	config.b_supportsForceFeedback = false;
-	config.b_supportsEffortFeedback = false;
+	
+	
+	bool b_force = false;
+	for(auto actuatorMapping : actuatorMappings){
+		if(actuatorMapping->actuatorInterface->supportsEffortFeedback()){
+			b_force = true;
+			break;
+		}
+	}
+	config.b_supportsEffortFeedback = b_force;
 	
 	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL;
 }

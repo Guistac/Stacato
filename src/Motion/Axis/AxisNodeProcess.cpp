@@ -6,7 +6,9 @@
 
 
 
-bool AxisNode::prepareProcess(){}
+bool AxisNode::prepareProcess(){
+	return true;
+}
 
 void AxisNode::inputProcess(){
 	
@@ -48,6 +50,7 @@ void AxisNode::inputProcess(){
 			}
 		}
 		if(b_allEnabled){
+			b_isEnabling = false;
 			Logger::info("Axis Enabled");
 		}
 		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
@@ -66,6 +69,8 @@ void AxisNode::inputProcess(){
 	if(auto mapping = velocityFeedbackMapping){
 		processData.velocityActual = mapping->feedbackInterface->getVelocity() / mapping->feedbackUnitsPerAxisUnit;
 	}
+	
+	//Logger::error("IN: pos {}", processData.positionActual);
 	
 	//processData.forceActual = 0.0;
 	
@@ -89,12 +94,13 @@ void AxisNode::inputProcess(){
 	processData.b_isEmergencyStopActive = b_estopActive;
 	
 	//read limit signals
+	/*
 	lowerLimitSignalPin->copyConnectedPinValue();
 	upperLimitSignalPin->copyConnectedPinValue();
 	lowerSlowdownSignalPin->copyConnectedPinValue();
 	upperSlowdownSignalPin->copyConnectedPinValue();
 	referenceSignalPin->copyConnectedPinValue();
-	
+	*/
 }
 
 void AxisNode::outputProcess(){
@@ -105,7 +111,8 @@ void AxisNode::outputProcess(){
 	if(axisInterface->isEnabled()){
 		if(axisInterface->isHoming()){
 			//homing routine
-		}else{
+		}
+		else if(axisPin->isConnected()){
 			switch(axisInterface->configuration.controlMode){
 				case AxisInterface::ControlMode::VELOCITY_CONTROL:{
 					double velLim = std::abs(axisInterface->getVelocityLimit());
@@ -131,12 +138,31 @@ void AxisNode::outputProcess(){
 					break;
 			}
 		}
+		else{
+			switch(internalControlMode){
+				case InternalControlMode::POSITION_TARGET:
+					break;
+				case InternalControlMode::VELOCITY_TARGET:
+					motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualVelocityAcceleration);
+					break;
+			}
+		}
 	}else{
 		motionProfile.setPosition(axisInterface->getPositionActual());
 		motionProfile.setVelocity(axisInterface->getVelocityActual());
 		motionProfile.setAcceleration(0.0);
+		
+		for(auto mapping : actuatorMappings){
+			auto actuator = mapping->actuatorInterface;
+			if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
+				mapping->actuatorPositionOffset = 0.0;
+			}
+			mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits;
+		}
+		
+		
+		
 	}
-	
 	
 	//control loop update (depends on axis control mode)
 	//double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
@@ -149,9 +175,11 @@ void AxisNode::outputProcess(){
 			case ActuatorInterface::ControlMode::POSITION:{
 				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits) + mapping->actuatorPositionOffset;
 				actuator->setPositionTarget(actuatorPosition);
+				//Logger::warn("OUT [{}] pos {}", actuator->getName().c_str(), actuatorPosition);
 			}break;
 			case ActuatorInterface::ControlMode::VELOCITY:{
-				//double actuatorVelocity = motionProfile.getVelocity()
+				double actuatorVelocity = motionProfile.getVelocity() * mapping->actuatorUnitsPerAxisUnits;
+				actuator->setVelocityTarget(actuatorVelocity);
 			}break;
 			case ActuatorInterface::ControlMode::FORCE:{
 				//not implemented

@@ -17,6 +17,24 @@ void PD4_E::resetData() {
 
 void PD4_E::initialize() {
 	
+	servoMotor->positionUnit = Units::AngularDistance::Revolution;
+	
+	auto& fbcfg = servoMotor->feedbackConfig;
+	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
+	fbcfg.positionLowerWorkingRangeBound = -maxEncoderRevolutions / 2.0;
+	fbcfg.positionUpperWorkingRangeBound = maxEncoderRevolutions / 2.0;
+	fbcfg.b_supportsForceFeedback = false;
+	fbcfg.b_supportsPositionFeedback = true;
+	fbcfg.b_suppportsVelocityFeedback = true;
+	
+	auto& actcfg = servoMotor->actuatorConfig;
+	actcfg.b_supportsForceControl = false;
+	actcfg.b_supportsPositionControl = true;
+	actcfg.b_supportsVelocityControl = false;
+	actcfg.b_supportsEffortFeedback = true;
+	actcfg.b_canQuickstop = false;
+	actcfg.b_supportsHoldingBrakeControl = false;
+	
 	servoActuatorDeviceLink->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));
 	gpioDeviceLink->assignData(std::static_pointer_cast<GpioInterface>(gpioDevice));
 
@@ -55,11 +73,6 @@ void PD4_E::initialize() {
 	
 	digitalOut2Pin->assignData(digitalOut2PinValue);
 	addNodePin(digitalOut2Pin);
-
-	servoMotor->positionUnit = Units::AngularDistance::Revolution;
-	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
-	servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -maxEncoderRevolutions / 2.0;
-	servoMotor->feedbackConfig.positionUpperWorkingRangeBound = maxEncoderRevolutions / 2.0;
 
 	rxPdoAssignement.addNewModule(0x1600);
 	rxPdoAssignement.addEntry(DS402::controlWordIndex,			0x0, 16, "DS402 Control Word", &ds402control.controlWord);

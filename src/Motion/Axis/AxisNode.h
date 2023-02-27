@@ -129,7 +129,7 @@ private:
 			actuatorInterface = actuatorPin->getSharedPointer<ActuatorInterface>();
 			interfacePinID = actuatorPin->getUniqueID();
 		}
-		ActuatorInterface::ControlMode controlModeSelection = ActuatorInterface::ControlMode::VELOCITY;
+		ActuatorInterface::ControlMode controlModeSelection = ActuatorInterface::ControlMode::POSITION;
 		double actuatorUnitsPerAxisUnits = 1.0;
 		double actuatorPositionOffset = 0.0;
 		std::shared_ptr<ActuatorInterface> actuatorInterface;
@@ -184,6 +184,12 @@ private:
 	Motion::Profile motionProfile;
 	double enableRequestTime_seconds;
 	bool b_isEnabling;
+	enum class InternalControlMode{
+		POSITION_TARGET,
+		VELOCITY_TARGET
+	}internalControlMode = InternalControlMode::VELOCITY_TARGET;
+	float manualVelocityTarget = 0.0;
+	float manualVelocityAcceleration = 0.0;
 	
 };
 

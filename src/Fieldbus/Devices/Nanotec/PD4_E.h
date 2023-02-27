@@ -12,10 +12,22 @@ class PD4_E : public EtherCatDevice {
 		virtual void disable() override { b_disable = true; }
 		bool b_enable = false;
 		bool b_disable = false;
+		virtual std::string getName() override {
+			return "PD4E Servo Motor";
+		}
+		virtual std::string getStatusString() override {
+			return "No Status";
+		}
 	};
 	
 	class PD4EGpio : public GpioInterface{
 	public:
+		virtual std::string getName() override {
+			return "PD4E Gpio";
+		}
+		virtual std::string getStatusString() override {
+			return "No Status";
+		}
 	};
 	
 	std::shared_ptr<PD4EServoMotor> servoMotor = std::make_shared<PD4EServoMotor>();

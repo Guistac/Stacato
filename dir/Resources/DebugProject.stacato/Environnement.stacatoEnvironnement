@@ -6,9 +6,9 @@
                 <NodeEditorPosition x="262" y="50"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1238"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="42" AccelerationLimit_revolutionsPerSecondSquared="500" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="100"/>
-                    <Tuning PositionControllerProportionalGain="100"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
                 </NodeSpecificData>
@@ -34,8 +34,8 @@
                 <NodeEditorPosition x="38" y="48"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="42" AccelerationLimit_revolutionsPerSecondSquared="500" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="100"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
@@ -62,7 +62,7 @@
                 <NodeEditorPosition x="-185" y="49"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="456"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="42" AccelerationLimit_revolutionsPerSecondSquared="500" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
                     <DefaultManualAcceleration revolutionsPerSecondSquared="100"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
@@ -129,12 +129,43 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="136" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
+                <NodeEditorPosition x="617" y="32"/>
+                <NodeSpecificData VelocityLimit="40" AccelerationLimit="500">
+                    <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
+                    <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
+                    <ActuatorMappings>
+                        <ActuatorMapping InterfacePinID="77" UnitConversion="1"/>
+                        <ActuatorMapping InterfacePinID="92" UnitConversion="1"/>
+                        <ActuatorMapping InterfacePinID="106" UnitConversion="1"/>
+                    </ActuatorMappings>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="142" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="143" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="144" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="145" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="146" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="147" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="148" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="149" Visible="false"/>
+                    <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="150" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="151" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="152" Visible="true"/>
+                    <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="153" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="133" StartPin="119" EndPin="123"/>
             <Link UniqueID="137" StartPin="136" EndPin="125"/>
             <Link UniqueID="138" StartPin="128" EndPin="135"/>
             <Link UniqueID="139" StartPin="119" EndPin="135"/>
+            <Link UniqueID="154" StartPin="77" EndPin="142"/>
+            <Link UniqueID="156" StartPin="92" EndPin="142"/>
+            <Link UniqueID="157" StartPin="106" EndPin="142"/>
         </Links>
     </NodeGraph>
 </Environnement>

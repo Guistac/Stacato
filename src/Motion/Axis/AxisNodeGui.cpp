@@ -18,6 +18,76 @@ void AxisNode::nodeSpecificGui(){
 void AxisNode::controlTab(){
 	if(ImGui::BeginTabItem("Control")){
 		
+		ImVec2 buttonSize(ImGui::GetContentRegionAvail().x / 2.0, ImGui::GetTextLineHeight() * 2.0);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::BeginDisabled(!axisInterface->isOnline());
+		if(axisInterface->isEnabled()){
+			if(customButton("Disable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
+				axisInterface->disable();
+			}
+		}else{
+			if(customButton("Enable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
+				axisInterface->enable();
+			}
+		}
+		ImGui::EndDisabled();
+		ImGui::SameLine(0.0, 0.0);
+		backgroundText("State", buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersRight);
+		ImGui::PopFont();
+		
+		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
+		
+		if(axisInterface->configuration.b_supportsPositionFeedback){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position Feedback");
+			ImGui::PopFont();
+			double pos = positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit;
+			std::ostringstream positionString;
+			positionString << std::fixed << std::setprecision(3) << pos << " u";
+			ImGui::ProgressBar(axisInterface->getPositionNormalizedToLimits(), progressBarSize, positionString.str().c_str());
+		}
+		if(axisInterface->configuration.b_supportsVelocityFeedback){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Velocity Feedback");
+			ImGui::PopFont();
+			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit;
+			std::ostringstream velocityString;
+			velocityString << std::fixed << std::setprecision(3) << vel << " u/s";
+			ImGui::ProgressBar(axisInterface->getVelocityNormalizedToLimits(), progressBarSize, velocityString.str().c_str());
+		}
+		if(axisInterface->configuration.b_supportsEffortFeedback){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Effort Feedback");
+			ImGui::PopFont();
+			
+			double axisEffort = axisInterface->processData.effortActual;
+			std::ostringstream axisEffortString;
+			axisEffortString << "Axis : " << std::fixed << std::setprecision(1) << axisEffort * 100.0 << "%";
+			ImGui::ProgressBar(axisEffort, progressBarSize, axisEffortString.str().c_str());
+			
+			for(int i = 0; i < actuatorMappings.size(); i++){
+				auto actuator = actuatorMappings[i]->actuatorInterface;
+				double actuatorEffort = actuator->getEffort();
+				std::ostringstream actuatorEffortString;
+				actuatorEffortString << actuator->getName() << " : " << std::fixed << std::setprecision(1) << actuatorEffort * 100.0 << "%";
+				ImGui::ProgressBar(actuatorEffort, progressBarSize, actuatorEffortString.str().c_str());
+			}
+			
+		}
+		if(axisInterface->configuration.b_supportsHoming){
+			
+		}
+		
+		
+		
+		for(auto mapping : actuatorMappings){
+			ImGui::Text("%s %.3f", mapping->actuatorInterface->getName().c_str(), mapping->actuatorPositionOffset);
+		}
+		
+		
+		ImGui::SliderFloat("##vel", &manualVelocityTarget, -axisInterface->getVelocityLimit(), axisInterface->getVelocityLimit());
+		if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
+		ImGui::InputFloat("##acc", &manualVelocityAcceleration);
 		ImGui::EndTabItem();
 	}
 }
@@ -81,6 +151,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin);
+				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
@@ -90,6 +161,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin);
+				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
