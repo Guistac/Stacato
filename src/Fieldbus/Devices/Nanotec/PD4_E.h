@@ -4,18 +4,30 @@
 
 class PD4_E : public EtherCatDevice {
 
-	DEFINE_ETHERCAT_DEVICE(PD4_E, "PD4-E", "PD4-E", "Nanotec", "Servo Drives", 0x0, 0x0);
+	DEFINE_ETHERCAT_DEVICE(PD4_E, "PD4-E", "PD4-E", "Nanotec", "Servo Drives", 0x26C, 0xC9);
 	
-	std::shared_ptr<ServoActuatorDevice> servoMotor = std::make_shared<ServoActuatorDevice>("Servo", Units::AngularDistance::Revolution, PositionFeedbackType::ABSOLUTE);
-	std::shared_ptr<GpioDevice> gpioDevice = std::make_shared<GpioDevice>("Gpio");
+	class PD4EServoMotor : public ActuatorInterface{
+	public:
+		virtual void enable() override { b_enable = true; }
+		virtual void disable() override { b_disable = true; }
+		bool b_enable = false;
+		bool b_disable = false;
+	};
+	
+	class PD4EGpio : public GpioInterface{
+	public:
+	};
+	
+	std::shared_ptr<PD4EServoMotor> servoMotor = std::make_shared<PD4EServoMotor>();
+	std::shared_ptr<PD4EGpio> gpioDevice = std::make_shared<PD4EGpio>();
 
-	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::SERVO_ACTUATOR, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> servoActuatorDeviceLink = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> positionPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> velocityPin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
 	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
 	
-	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO, NodePin::Direction::NODE_OUTPUT, "Gpio");
+	std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "Gpio");
 	std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 1", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 2", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Digital In 3", NodePin::Flags::DisableDataField);

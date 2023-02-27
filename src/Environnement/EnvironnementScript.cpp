@@ -104,6 +104,9 @@ namespace Script{
 		std::string path = folderPath + "/main.lua";
 		script.stop();
 		script.load(path.c_str());
+		if(script.getScriptText().empty()){
+			reset();
+		}
 		scriptFolder = folderPath;
 	}
 

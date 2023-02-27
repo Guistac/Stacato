@@ -55,7 +55,7 @@ bool ModularDevice::discoverDeviceModules(){
 		detectedModules.push_back(createModule(detectedModuleIdent));
 	}
 	
-	for(size_t i = modules.size() - 1; i >= 0; i--) removeModule(modules[i]);
+	while(!modules.empty()) removeModule(modules[0]);
 	
 	for(auto& module : detectedModules) addModule(module);
 	

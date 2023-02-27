@@ -165,7 +165,7 @@ void PD4_E::controlGui() {
             ImGui::InputDouble("##manualAcceleration", &manualAcceleration_revolutionPerSecondSquared, 0.0, 0.0, "%.1f rev/s\xc2\xb2");
             float vTarget = manualVelocityTarget_revolutionsPerSecond;
             ImGui::SetNextItemWidth(widgetWidth);
-            ImGui::SliderFloat("##Velocity", &vTarget, -servoMotor->velocityLimit_positionUnitsPerSecond, servoMotor->velocityLimit_positionUnitsPerSecond, "%.1f rev/s");
+            ImGui::SliderFloat("##Velocity", &vTarget, -servoMotor->getVelocityLimit(), servoMotor->getVelocityLimit(), "%.1f rev/s");
             if (ImGui::IsItemActive()) manualVelocityTarget_revolutionsPerSecond = vTarget;
             else manualVelocityTarget_revolutionsPerSecond = 0.0;
             }break;
@@ -175,12 +175,12 @@ void PD4_E::controlGui() {
 
     static char velocityDisplayString[64];
     sprintf(velocityDisplayString, "%.3f rev/s", actualVelocity_revolutionsPerSecond);
-    float velocityProgress = std::abs(servoMotor->getVelocity() / servoMotor->velocityLimit_positionUnitsPerSecond);
+    float velocityProgress = std::abs(servoMotor->getVelocity() / servoMotor->getVelocityLimit());
     ImGui::ProgressBar(velocityProgress, glm::vec2(widgetWidth, ImGui::GetFrameHeight()), velocityDisplayString);
 
     static char positionDisplayString[64];
     sprintf(positionDisplayString, "%.3f rev", servoMotor->getPosition());
-    float positionProgress = (servoMotor->getPosition() - servoMotor->getMinPosition()) / (servoMotor->getMaxPosition() - servoMotor->getMinPosition());
+	float positionProgress = servoMotor->getPositionNormalizedToWorkingRange();
     ImGui::ProgressBar(positionProgress, glm::vec2(widgetWidth, ImGui::GetFrameHeight()), positionDisplayString);
 
     ImGui::Separator();
@@ -195,7 +195,7 @@ void PD4_E::controlGui() {
     ImGui::Text("followingError: %s", followingError ? "yes" : "no");
     ImGui::Text("closedLoopActive: %s", closedLoopActive ? "yes" : "no");
     ImGui::Text("following error: %.6f", actualFollowingError_revolutions);
-    ImGui::Text("Motor Moving: %s", servoMotor->isMoving() ? "yes" : "no");
+    //ImGui::Text("Motor Moving: %s", servoMotor->isMoving() ? "yes" : "no");
 }
 
 
@@ -215,21 +215,22 @@ void PD4_E::limitsGui() {
     ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Velocity Limit");
     ImGui::PopFont();
-    ImGui::InputDouble("##velocityLimit", &servoMotor->velocityLimit_positionUnitsPerSecond, 0.0, 0.0, "%.3f rev/s");
-    if (servoMotor->velocityLimit_positionUnitsPerSecond > maxVelocity_revolutionsPerSecond) servoMotor->velocityLimit_positionUnitsPerSecond = maxVelocity_revolutionsPerSecond;
-    else if (servoMotor->velocityLimit_positionUnitsPerSecond < 0.0) servoMotor->velocityLimit_positionUnitsPerSecond = 0.0;
+    ImGui::InputDouble("##velocityLimit", &servoMotor->actuatorConfig.velocityLimit, 0.0, 0.0, "%.3f rev/s");
+    if (servoMotor->getVelocityLimit() > maxVelocity_revolutionsPerSecond) servoMotor->actuatorConfig.velocityLimit = maxVelocity_revolutionsPerSecond;
+    else if (servoMotor->getVelocityLimit() < 0.0) servoMotor->actuatorConfig.velocityLimit = 0.0;
     
     ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Acceleration Limit");
     ImGui::PopFont();
-    ImGui::InputDouble("##accelerationLimit", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared, 0.0, 0.0, "%.3f rev/s\xc2\xb2");
-    if (servoMotor->accelerationLimit_positionUnitsPerSecondSquared < 0.0) servoMotor->accelerationLimit_positionUnitsPerSecondSquared = 0.0;
+    ImGui::InputDouble("##accelerationLimit", &servoMotor->actuatorConfig.accelerationLimit, 0.0, 0.0, "%.3f rev/s\xc2\xb2");
+    if (servoMotor->getAccelerationLimit() < 0.0) servoMotor->actuatorConfig.accelerationLimit = 0.0;
     
     ImGui::PushFont(Fonts::sansBold15);
     ImGui::Text("Default Manual Acceleration");
     ImGui::PopFont();
     ImGui::InputDouble("##defmanacc", &defaultManualAcceleration_revolutionsPerSecondSquared, 0.0, 0.0, "%.3f rev/s\xc2\xb2");
-    if (defaultManualAcceleration_revolutionsPerSecondSquared > servoMotor->accelerationLimit_positionUnitsPerSecondSquared) defaultManualAcceleration_revolutionsPerSecondSquared = servoMotor->accelerationLimit_positionUnitsPerSecondSquared;
+    if (defaultManualAcceleration_revolutionsPerSecondSquared > servoMotor->getAccelerationLimit())
+		defaultManualAcceleration_revolutionsPerSecondSquared = servoMotor->getAccelerationLimit();
     else if (defaultManualAcceleration_revolutionsPerSecondSquared < 0.0) defaultManualAcceleration_revolutionsPerSecondSquared = 0.0;
 
     ImGui::PushFont(Fonts::sansBold15);

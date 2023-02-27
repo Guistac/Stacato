@@ -9,35 +9,25 @@ void PD4_E::onDisconnection() {}
 void PD4_E::onConnection() {}
 
 void PD4_E::resetData() {
-	servoMotor->b_detected = false;
-	servoMotor->b_enabled = false;
-	servoMotor->b_emergencyStopActive = false;
-	servoMotor->b_moving = false;
-	servoMotor->b_online = false;
-	servoMotor->b_ready = false;
+	servoMotor->state = DeviceState::OFFLINE;
+	servoMotor->actuatorProcessData.b_isEmergencyStopActive = false;
 	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-	gpioDevice->b_detected = false;
-	gpioDevice->b_online = false;
-	gpioDevice->b_ready = false;
+	gpioDevice->state = DeviceState::OFFLINE;
 }
 
 void PD4_E::initialize() {
-	servoMotor->setParentDevice(std::static_pointer_cast<Device>(shared_from_this()));
-	servoActuatorDeviceLink->assignData(servoMotor);
-
-	gpioDevice->setParentDevice(std::static_pointer_cast<Device>(shared_from_this()));
-	gpioDeviceLink->assignData(gpioDevice);
+	
+	servoActuatorDeviceLink->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));
+	gpioDeviceLink->assignData(std::static_pointer_cast<GpioInterface>(gpioDevice));
 
 	addNodePin(servoActuatorDeviceLink);
+	addNodePin(gpioDeviceLink);
 	
 	positionPin->assignData(positionPinValue);
 	addNodePin(positionPin);
 	
 	velocityPin->assignData(velocityPinValue);
 	addNodePin(velocityPin);
-	
-	gpioDeviceLink->assignData(gpioDevice);
-	addNodePin(gpioDeviceLink);
 	
 	digitalIn1Pin->assignData(digitalIn1PinValue);
 	addNodePin(digitalIn1Pin);
@@ -68,8 +58,8 @@ void PD4_E::initialize() {
 
 	servoMotor->positionUnit = Units::AngularDistance::Revolution;
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
-	servoMotor->rangeMin_positionUnits = -maxEncoderRevolutions / 2.0;
-	servoMotor->rangeMax_positionUnits = maxEncoderRevolutions / 2.0;
+	servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -maxEncoderRevolutions / 2.0;
+	servoMotor->feedbackConfig.positionUpperWorkingRangeBound = maxEncoderRevolutions / 2.0;
 
 	rxPdoAssignement.addNewModule(0x1600);
 	rxPdoAssignement.addEntry(DS402::controlWordIndex,			0x0, 16, "DS402 Control Word", &ds402control.controlWord);
@@ -86,6 +76,7 @@ void PD4_E::initialize() {
 	txPdoAssignement.addEntry(0x2039, 0x2, 32, "Actual Current", &actualCurrent);
 	txPdoAssignement.addEntry(0x60F4, 0x0, 32, "Following Error", &actualError);
 	txPdoAssignement.addEntry(0x60FD, 0x0, 32, "Digital Inputs", &digitalInputs);
+	 
 }
 
 bool PD4_E::startupConfiguration() {
@@ -167,6 +158,7 @@ bool PD4_E::startupConfiguration() {
 
 
 void PD4_E::readInputs() {
+	
 	txPdoAssignement.pullDataFrom(identity->inputs);
 
 	DS402::PowerState previousPowerState = actualPowerState;
@@ -231,6 +223,7 @@ void PD4_E::readInputs() {
 	*digitalIn5PinValue = digitalIn5;
 	*digitalIn6PinValue = digitalIn6;
 
+	/*
 	if (negativeLimitSwitchOnDigitalIn1 && digitalIn1 && servoMotor->isEnabled() && actualVelocity_revolutionsPerSecond < 0.0) {
 		Logger::warn("Hit Negative Limit Switch");
 		servoMotor->b_enabled = false;
@@ -239,26 +232,28 @@ void PD4_E::readInputs() {
 		Logger::warn("Hit Positive Limit Switch");
 		servoMotor->b_enabled = false;
 	}
+	 */
 
-	servoMotor->positionRaw_positionUnits = actualPosition_revolutions;
-	servoMotor->velocity_positionUnitsPerSecond = actualVelocity_revolutionsPerSecond;
-	servoMotor->load = actualCurrent_amperes / maxCurrent_amperes;
-	servoMotor->b_online = true;
-	servoMotor->b_detected = true;
-	servoMotor->b_emergencyStopActive = false;
-	servoMotor->b_parked = false;
-	servoMotor->b_moving = servoMotor->getVelocity() > 0.001;
+	auto& actProc = servoMotor->actuatorProcessData;
+	auto& fdbProc = servoMotor->feedbackProcessData;
+	fdbProc.positionActual = actualPosition_revolutions;
+	fdbProc.velocityActual = actualVelocity_revolutionsPerSecond;
+	actProc.effortActual = actualCurrent_amperes / maxCurrent_amperes;
 	switch (actualPowerState) {
-	case DS402::PowerState::OPERATION_ENABLED:
-	case DS402::PowerState::QUICKSTOP_ACTIVE:
-	case DS402::PowerState::READY_TO_SWITCH_ON:
-	case DS402::PowerState::SWITCHED_ON:
-		servoMotor->b_ready = true;
-		break;
-	default:
-		servoMotor->b_ready = false;
-		break;
+		case DS402::PowerState::OPERATION_ENABLED:
+			servoMotor->state = DeviceState::ENABLED;
+			break;
+		case DS402::PowerState::QUICKSTOP_ACTIVE:
+		case DS402::PowerState::READY_TO_SWITCH_ON:
+		case DS402::PowerState::SWITCHED_ON:
+			servoMotor->state = DeviceState::READY;
+			break;
+		default:
+			servoMotor->state = DeviceState::NOT_READY;
+			break;
 	}
+	gpioDevice->state = DeviceState::ENABLED;
+	/*
 	if (actualControlMode != ControlMode::Mode::EXTERNAL_CONTROL) servoMotor->b_ready = false;
 	switch (actualPowerState) {
 	case DS402::PowerState::OPERATION_ENABLED:
@@ -268,9 +263,10 @@ void PD4_E::readInputs() {
 		servoMotor->b_enabled = false;
 		break;
 	}
-	gpioDevice->b_detected = true;
-	gpioDevice->b_online = true;
-	gpioDevice->b_ready = true;
+	 */
+	//gpioDevice->b_detected = true;
+	//gpioDevice->b_online = true;
+	//gpioDevice->b_ready = true;
 
 }
 
@@ -295,7 +291,7 @@ void PD4_E::writeOutputs() {
 		}break;
 		case ControlMode::Mode::EXTERNAL_CONTROL: {
 			double previousProfilePosition_revolutions = profilePosition_revolutions;
-			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->getPositionCommandRaw();
+			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->actuatorProcessData.positionTarget;
 			profileVelocity_revolutions = (profilePosition_revolutions - previousProfilePosition_revolutions) / profileTimeDelta_seconds;
 			}break;
 	}
@@ -310,22 +306,24 @@ void PD4_E::writeOutputs() {
 	if (digitalOut1) digitalOutputs |= 0x1 << 16;
 	if (digitalOut2) digitalOutputs |= 0x1 << 17;
 
-	if (servoMotor->b_setEnabled) {
-		servoMotor->b_setEnabled = false;
+	if (servoMotor->b_enable) {
+		servoMotor->b_enable = false;
 		profilePosition_revolutions = actualPosition_revolutions;
 		profileVelocity_revolutions = actualVelocity_revolutionsPerSecond;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 	}
 
-	if (servoMotor->b_setDisabled) {
-		servoMotor->b_setDisabled = false;
+	if (servoMotor->b_disable) {
+		servoMotor->b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	}
 
+	/*
 	if (servoMotor->b_setQuickstop) {
 		servoMotor->b_setQuickstop = false;
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	}
+	 */
 
 	if (ds402status.hasFault()) {
 		ds402control.performFaultReset();
@@ -342,14 +340,16 @@ void PD4_E::writeOutputs() {
 	ds402control.updateControlWord();
 
 	rxPdoAssignement.pushDataTo(identity->outputs);
+ 
 }
 
-bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) { 
+bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
+	
 	using namespace tinyxml2;
 
 	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
-	limitsXML->SetAttribute("VelocityLimit_revolutionsPerSecond", servoMotor->velocityLimit_positionUnitsPerSecond);
-	limitsXML->SetAttribute("AccelerationLimit_revolutionsPerSecondSquared", servoMotor->accelerationLimit_positionUnitsPerSecondSquared);
+	limitsXML->SetAttribute("VelocityLimit_revolutionsPerSecond", servoMotor->getVelocityLimit());
+	limitsXML->SetAttribute("AccelerationLimit_revolutionsPerSecondSquared", servoMotor->getAccelerationLimit());
 	limitsXML->SetAttribute("CurrentLimit_amps", currentLimit_amperes);
 	limitsXML->SetAttribute("MaxFollowingError_revolutions", maxFollowingError_revolutions);
 	limitsXML->SetAttribute("InvertDirectionOfMotion", invertDirectionOfMotion);
@@ -372,19 +372,20 @@ bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
 	digitalInputInversionXML->SetAttribute("DigitalIn5", invertDigitalInput5);
 	digitalInputInversionXML->SetAttribute("DigitalIn6", invertDigitalInput6);
 
-	XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
-	encoderOffsetXML->SetAttribute("Revolutions", servoMotor->positionOffset_positionUnits);
+	//XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
+	//encoderOffsetXML->SetAttribute("Revolutions", servoMotor->positionOffset_positionUnits);
 
 	return true;
 }
+	 
 bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) { 
-
+	
 	using namespace tinyxml2;
 
 	XMLElement* limitsXML = xml->FirstChildElement("Limits");
 	if (limitsXML == nullptr) return Logger::warn("Could not find Limit attribute");
-	if (limitsXML->QueryDoubleAttribute("VelocityLimit_revolutionsPerSecond", &servoMotor->velocityLimit_positionUnitsPerSecond) != XML_SUCCESS) return Logger::warn("Could not find velocity Limit attribute");
-	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->accelerationLimit_positionUnitsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
+	if (limitsXML->QueryDoubleAttribute("VelocityLimit_revolutionsPerSecond", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not find velocity Limit attribute");
+	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("CurrentLimit_amps", &currentLimit_amperes) != XML_SUCCESS) return Logger::warn("Could not find current Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("MaxFollowingError_revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not find following error Limit attribute");
 	if(limitsXML->QueryBoolAttribute("InvertDirectionOfMotion", &invertDirectionOfMotion) != XML_SUCCESS) return Logger::warn("Could not find Invert direction of motion attribute");
@@ -411,9 +412,11 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn5", &invertDigitalInput5) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 5 Attribute");
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn6", &invertDigitalInput6) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 6 Attribute");
 	
+	/*
 	XMLElement* encoderOffsetXML = xml->FirstChildElement("EncoderOffset");
 	if (encoderOffsetXML == nullptr) return Logger::warn("Could not Find Encoder Offset Attribute");
 	if (encoderOffsetXML->QueryDoubleAttribute("Revolutions", &servoMotor->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not load Encoder Offset Attribute");
+	*/
 	
 	return true;
 }

@@ -7,7 +7,7 @@
 #include "Fieldbus/Devices/SchneiderElectric/ATV320.h"
 #include "Fieldbus/Devices/SchneiderElectric/ATV340.h"
 #include "Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h"
-//#include "Fieldbus/Devices/Nanotec/PD4_E.h"
+#include "Fieldbus/Devices/Nanotec/PD4_E.h"
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 #include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
@@ -29,7 +29,7 @@ namespace NodeFactory{
 			new ATV340(),
 			new VipaBusCoupler_053_1EC01(),
 			new PhoenixContact::BusCoupler(),
-			//new PD4_E(),
+			new PD4_E(),
 			new MicroFlex_e190(),
 			new CU1128(),
 			new CU1124(),
