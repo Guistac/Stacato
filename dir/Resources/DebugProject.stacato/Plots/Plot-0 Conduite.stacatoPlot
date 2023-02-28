@@ -1,8 +1,3 @@
 <Plot Name="Conduite">
-    <ManoeuvreList>
-        <Manoeuvre Name="Mise acte 1" Description="mur plateforme a plat &amp; frein plateforme on &amp; frein socle on" Type="Target"/>
-        <Manoeuvre Name="Manoeuvre 1 " Description="mur plateforme a plat &amp; frein plateforme off &amp; frein socle on" Type="Target"/>
-        <Manoeuvre Name="Manoeuvre 6 " Description="desolidariser socle de la plateforme frein plateforme on &amp; frein socle off" Type="Target"/>
-        <Manoeuvre Name="Manoeuvre 9" Description="resolidariser socle avec plateforme a programmer frein plateforme on &amp; frein socle on" Type="Target"/>
-    </ManoeuvreList>
+    <ManoeuvreList/>
 </Plot>

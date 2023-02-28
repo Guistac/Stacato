@@ -25,12 +25,12 @@ void PD4_E::initialize() {
 	fbcfg.positionUpperWorkingRangeBound = maxEncoderRevolutions / 2.0;
 	fbcfg.b_supportsForceFeedback = false;
 	fbcfg.b_supportsPositionFeedback = true;
-	fbcfg.b_suppportsVelocityFeedback = true;
+	fbcfg.b_supportsVelocityFeedback = true;
 	
 	auto& actcfg = servoMotor->actuatorConfig;
 	actcfg.b_supportsForceControl = false;
 	actcfg.b_supportsPositionControl = true;
-	actcfg.b_supportsVelocityControl = false;
+	actcfg.b_supportsVelocityControl = true;
 	actcfg.b_supportsEffortFeedback = true;
 	actcfg.b_canQuickstop = false;
 	actcfg.b_supportsHoldingBrakeControl = false;
@@ -302,14 +302,25 @@ void PD4_E::writeOutputs() {
 			double deltaP = profileVelocity_revolutions * profileTimeDelta_seconds;
 			profilePosition_revolutions += deltaP;
 		}break;
-		case ControlMode::Mode::EXTERNAL_CONTROL: {
-			double previousProfilePosition_revolutions = profilePosition_revolutions;
-			if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->actuatorProcessData.positionTarget;
-			profileVelocity_revolutions = (profilePosition_revolutions - previousProfilePosition_revolutions) / profileTimeDelta_seconds;
-			}break;
+		case ControlMode::Mode::EXTERNAL_CONTROL:
+
+			if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::POSITION){
+				double previousProfilePosition_revolutions = profilePosition_revolutions;
+				if (servoActuatorDeviceLink->isConnected()) profilePosition_revolutions = servoMotor->actuatorProcessData.positionTarget;
+				profileVelocity_revolutions = (profilePosition_revolutions - previousProfilePosition_revolutions) / profileTimeDelta_seconds;
+				requestedOperatingMode = DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+			}else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::VELOCITY){
+				if(servoActuatorDeviceLink->isConnected()){
+					profileVelocity_revolutions = servoMotor->actuatorProcessData.velocityTarget;
+					profilePosition_revolutions = servoMotor->getPosition();
+					requestedOperatingMode = DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
+				}
+			}
+
 	}
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	targetPosition = profilePosition_revolutions * encoderIncrementsPerRevolution;
+	targetVelocity = profileVelocity_revolutions * velocityUnitsPerRevolutionPerSecond;
 
 	if (digitalOut1Pin->isConnected()) *digitalOut1PinValue = digitalOut1Pin->getConnectedPin()->read<bool>();
 	if (digitalOut2Pin->isConnected()) *digitalOut2PinValue = digitalOut2Pin->getConnectedPin()->read<bool>();

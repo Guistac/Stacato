@@ -126,7 +126,7 @@ public:
 		
 		auto& fc = servo->feedbackConfig;
 		fc.b_supportsPositionFeedback = true;
-		fc.b_suppportsVelocityFeedback = true;
+		fc.b_supportsVelocityFeedback = true;
 		fc.b_supportsForceFeedback = true;
 		fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
 		fc.positionLowerWorkingRangeBound = 0.0;

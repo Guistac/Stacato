@@ -34,8 +34,16 @@ void AxisNode::controlTab(){
 		ImGui::SameLine(0.0, 0.0);
 		backgroundText("State", buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersRight);
 		ImGui::PopFont();
-		
+
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
+		
+		ImGui::SetNextItemWidth(progressBarSize.x);
+		ImGui::SliderFloat("##vel", &manualVelocityTarget, -axisInterface->getVelocityLimit(), axisInterface->getVelocityLimit());
+		if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
+		ImGui::SetNextItemWidth(progressBarSize.x);
+		ImGui::SliderFloat("##acc", &manualVelocityAcceleration, 0.0, accelerationLimit->value);
+		
+		ImGui::Separator();
 		
 		if(axisInterface->configuration.b_supportsPositionFeedback){
 			ImGui::PushFont(Fonts::sansBold15);
@@ -53,7 +61,7 @@ void AxisNode::controlTab(){
 			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit;
 			std::ostringstream velocityString;
 			velocityString << std::fixed << std::setprecision(3) << vel << " u/s";
-			ImGui::ProgressBar(axisInterface->getVelocityNormalizedToLimits(), progressBarSize, velocityString.str().c_str());
+			ImGui::ProgressBar(std::abs(axisInterface->getVelocityNormalizedToLimits()), progressBarSize, velocityString.str().c_str());
 		}
 		if(axisInterface->configuration.b_supportsEffortFeedback){
 			ImGui::PushFont(Fonts::sansBold15);
@@ -78,16 +86,25 @@ void AxisNode::controlTab(){
 			
 		}
 		
-		
-		
-		for(auto mapping : actuatorMappings){
-			ImGui::Text("%s %.3f", mapping->actuatorInterface->getName().c_str(), mapping->actuatorPositionOffset);
+		if(axisInterface->configuration.b_supportsPositionFeedback){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position Following Error");
+			ImGui::PopFont();
+			std::ostringstream positionErrorString;
+			positionErrorString << std::fixed << std::setprecision(4) << positionFollowingError << " u";
+			double errorNormalized = std::abs(positionFollowingError / positionLoop_maxError->value);
+			ImGui::ProgressBar(errorNormalized, progressBarSize, positionErrorString.str().c_str());
+		}
+		if(axisInterface->configuration.b_supportsVelocityFeedback){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Velocity Following Error");
+			ImGui::PopFont();
+			std::ostringstream velocityErrorString;
+			velocityErrorString << std::fixed << std::setprecision(4) << velocityFollowingError << " u/s";
+			double errorNormalized = std::abs(velocityFollowingError / positionLoop_maxError->value);
+			ImGui::ProgressBar(errorNormalized, progressBarSize, velocityErrorString.str().c_str());
 		}
 		
-		
-		ImGui::SliderFloat("##vel", &manualVelocityTarget, -axisInterface->getVelocityLimit(), axisInterface->getVelocityLimit());
-		if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
-		ImGui::InputFloat("##acc", &manualVelocityAcceleration);
 		ImGui::EndTabItem();
 	}
 }
@@ -286,6 +303,7 @@ void AxisNode::positionControlSettingsGui(){
 	positionLoop_minError->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();
 	
+	velocityLoop_maxError->gui(Fonts::sansBold15);
 	ImGui::BeginDisabled(limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS);
 	limitSlowdownVelocity->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();

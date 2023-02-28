@@ -64,10 +64,14 @@ void AxisNode::inputProcess(){
 	}
 	
 	if(auto mapping = positionFeedbackMapping){
-		processData.positionActual = mapping->feedbackInterface->getPosition() / mapping->feedbackUnitsPerAxisUnit;
+		auto feedback = mapping->feedbackInterface;
+		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit;
+		positionFollowingError = motionProfile.getPosition() - feedback->getPosition();
 	}
 	if(auto mapping = velocityFeedbackMapping){
-		processData.velocityActual = mapping->feedbackInterface->getVelocity() / mapping->feedbackUnitsPerAxisUnit;
+		auto feedback = mapping->feedbackInterface;
+		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit;
+		velocityFollowingError = motionProfile.getVelocity() - feedback->getVelocity();
 	}
 	
 	//Logger::error("IN: pos {}", processData.positionActual);
@@ -164,9 +168,10 @@ void AxisNode::outputProcess(){
 		
 	}
 	
+	
 	//control loop update (depends on axis control mode)
-	//double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
-	//double velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionError * positionLoop_proportionalGain->value;
+	double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
+	double velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionError * positionLoop_proportionalGain->value;
 	
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){
@@ -178,7 +183,7 @@ void AxisNode::outputProcess(){
 				//Logger::warn("OUT [{}] pos {}", actuator->getName().c_str(), actuatorPosition);
 			}break;
 			case ActuatorInterface::ControlMode::VELOCITY:{
-				double actuatorVelocity = motionProfile.getVelocity() * mapping->actuatorUnitsPerAxisUnits;
+				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits;
 				actuator->setVelocityTarget(actuatorVelocity);
 			}break;
 			case ActuatorInterface::ControlMode::FORCE:{

@@ -119,6 +119,7 @@ void AxisNode::initialize(){
 	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
 	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
 	
+	velocityLoop_maxError = NumberParameter<double>::make(0.0, "Velocity loop max error", "VelocityLoopMaxError");
 	limitSlowdownVelocity = NumberParameter<double>::make(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
 	
 	enableLowerPositionLimit = BooleanParameter::make(false, "Enable Lower Position Limit", "EnableLowerPositionLimit");
@@ -184,6 +185,13 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
+	positionLoop_velocityFeedForward->save(xml);
+	positionLoop_proportionalGain->save(xml);
+	positionLoop_maxError->save(xml);
+	positionLoop_minError->save(xml);
+	velocityLoop_maxError->save(xml);
+	limitSlowdownVelocity->save(xml);
+	
 	return true;
 }
 
@@ -192,6 +200,14 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	bool success = true;
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
+	success &= positionLoop_velocityFeedForward->load(xml);
+	success &= positionLoop_proportionalGain->load(xml);
+	success &= positionLoop_maxError->load(xml);
+	success &= positionLoop_minError->load(xml);
+	success &= velocityLoop_maxError->load(xml);
+	success &= limitSlowdownVelocity->load(xml);
+	
+	manualVelocityAcceleration = accelerationLimit->value;
 	
 	return true;
 }
@@ -329,7 +345,7 @@ void AxisNode::updateConnectedModules(){
 		connectedGpioInterfaces.push_back(gpio);
 	}
 	
-	
+	updateAxisConfiguration();
 	
 	
 	

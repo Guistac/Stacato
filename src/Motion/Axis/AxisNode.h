@@ -150,6 +150,7 @@ private:
 	
 	//Velocity Control
 	NumberParam<double> limitSlowdownVelocity;
+	NumberParam<double> velocityLoop_maxError;
 	
 	//Limits
 	BoolParam enableLowerPositionLimit;
@@ -190,7 +191,8 @@ private:
 	}internalControlMode = InternalControlMode::VELOCITY_TARGET;
 	float manualVelocityTarget = 0.0;
 	float manualVelocityAcceleration = 0.0;
-	
+	double positionFollowingError = 0.0;
+	double velocityFollowingError = 0.0;
 };
 
 

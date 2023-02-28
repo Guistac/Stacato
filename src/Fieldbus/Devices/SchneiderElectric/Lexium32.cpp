@@ -71,7 +71,7 @@ void Lexium32::initialize() {
 	auto& fbcfg = servoMotor->feedbackConfig;
 	fbcfg.b_supportsForceFeedback = true;
 	fbcfg.b_supportsPositionFeedback = true;
-	fbcfg.b_suppportsVelocityFeedback = true;
+	fbcfg.b_supportsVelocityFeedback = true;
 	auto& acfg = servoMotor->actuatorConfig;
 	acfg.b_supportsForceControl = true;
 	acfg.b_supportsPositionControl = true;

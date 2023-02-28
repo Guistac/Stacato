@@ -87,8 +87,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Bus Coupler (Alias:33)" UniqueID="117">
-                <InputNodeEditorPosition x="248" y="486"/>
-                <OutputNodeEditorPosition x="-369" y="455"/>
+                <InputNodeEditorPosition x="344" y="470"/>
+                <OutputNodeEditorPosition x="-113" y="441"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="33"/>
                     <ModularDeviceProfile>
@@ -120,7 +120,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="134">
-                <NodeEditorPosition x="45" y="579"/>
+                <NodeEditorPosition x="232" y="547"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="135" Visible="true" AcceptsMultipleInputs="true"/>
@@ -130,8 +130,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
-                <NodeEditorPosition x="617" y="32"/>
-                <NodeSpecificData VelocityLimit="40" AccelerationLimit="500">
+                <NodeEditorPosition x="505" y="197"/>
+                <NodeSpecificData VelocityLimit="40" AccelerationLimit="100" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0">
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>

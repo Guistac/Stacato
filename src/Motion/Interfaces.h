@@ -72,7 +72,7 @@ public:
 
 	//supported data
 	bool supportsPosition(){	return feedbackConfig.b_supportsPositionFeedback; }
-	bool supportsVelocity(){ 	return feedbackConfig.b_suppportsVelocityFeedback; }
+	bool supportsVelocity(){ 	return feedbackConfig.b_supportsVelocityFeedback; }
 	bool supportsForce(){		return feedbackConfig.b_supportsForceFeedback; }
 	
 	//position feedback type
@@ -97,7 +97,7 @@ public:
 	
 	struct FeedbackConfiguration{
 		bool b_supportsPositionFeedback = false;
-		bool b_suppportsVelocityFeedback = false;
+		bool b_supportsVelocityFeedback = false;
 		bool b_supportsForceFeedback = false;
 		PositionFeedbackType positionFeedbackType = PositionFeedbackType::INCREMENTAL;
 		double positionLowerWorkingRangeBound = 0.0;	//lower position bound in position Units
