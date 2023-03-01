@@ -1125,6 +1125,7 @@ public:
 
 	class Option{
 	public:
+		Option(){}
 		Option(int enumerator_, std::string displayString_, std::string saveString_, bool b_enabled_ = true){
 			enumerator = enumerator_;
 			displayString = displayString_;
@@ -1137,9 +1138,9 @@ public:
 		int getInt(){ return enumerator; }
 	private:
 		friend class OptionParameter;
-		int enumerator;
-		std::string displayString;
-		std::string saveString;
+		int enumerator = 0;
+		std::string displayString = "";
+		std::string saveString = "";
 		bool b_enabled = true;
 	};
 	

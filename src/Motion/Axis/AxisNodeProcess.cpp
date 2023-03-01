@@ -65,12 +65,12 @@ void AxisNode::inputProcess(){
 	
 	if(auto mapping = positionFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
-		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit;
+		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->value;
 		positionFollowingError = motionProfile.getPosition() - feedback->getPosition();
 	}
 	if(auto mapping = velocityFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
-		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit;
+		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
 		velocityFollowingError = motionProfile.getVelocity() - feedback->getVelocity();
 	}
 	
@@ -161,7 +161,7 @@ void AxisNode::outputProcess(){
 			if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
 				mapping->actuatorPositionOffset = 0.0;
 			}
-			mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits;
+			mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->value;
 		}
 		
 		
@@ -176,19 +176,25 @@ void AxisNode::outputProcess(){
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){
 		auto actuator = mapping->actuatorInterface;
-		switch(mapping->controlModeSelection){
-			case ActuatorInterface::ControlMode::POSITION:{
-				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits) + mapping->actuatorPositionOffset;
+		switch(mapping->controlMode){
+			case ActuatorMapping::POSITION_CONTROL:
+				{
+				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits->value) + mapping->actuatorPositionOffset;
 				actuator->setPositionTarget(actuatorPosition);
-				//Logger::warn("OUT [{}] pos {}", actuator->getName().c_str(), actuatorPosition);
-			}break;
-			case ActuatorInterface::ControlMode::VELOCITY:{
-				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits;
+				}
+				break;
+			case ActuatorMapping::VELOCITY_CONTROL:
+				{
+				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits->value;
 				actuator->setVelocityTarget(actuatorVelocity);
-			}break;
-			case ActuatorInterface::ControlMode::FORCE:{
+				}
+				break;
+			case ActuatorMapping::FORCE_CONTROL:
 				//not implemented
-			}break;
+				break;
+			case ActuatorMapping::NO_CONTROL:
+			default:
+				break;
 		}
 	}
 	

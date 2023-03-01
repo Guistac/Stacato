@@ -135,9 +135,9 @@
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="77" UnitConversion="1"/>
-                        <ActuatorMapping InterfacePinID="92" UnitConversion="1"/>
-                        <ActuatorMapping InterfacePinID="106" UnitConversion="1"/>
+                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="1"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>

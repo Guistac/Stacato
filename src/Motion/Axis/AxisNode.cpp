@@ -31,8 +31,11 @@ std::vector<OptionParameter::Option*> AxisNode::limitSignalTypeOptions = {
 	&option_LimitAndSlowdownAtLowerAndUpperLimits
 };
 
-
-
+/*
+OptionParameter::Option AxisNode::noPositionFeedbackOption = OptionParameter::Option(-1, "No Position Feedback", "NoPositionFeedback");
+OptionParameter::Option AxisNode::noVelocityFeedbackOption = OptionParameter::Option(-1, "No Velocity Feedback", "NoVelocityFeedback");
+*/
+ 
 OptionParameter::Option AxisNode::option_HomingDirectionNegative = OptionParameter::Option(0, "Negative", "Negative");
 OptionParameter::Option AxisNode::option_HomingDirectionPositive = OptionParameter::Option(1, "Positive", "Positive");
 std::vector<OptionParameter::Option*> AxisNode::homingDirectionOptions = {
@@ -112,6 +115,13 @@ void AxisNode::initialize(){
 		updateControlMode();
 	});
 	
+	/*
+	positionFeedbackOptions = { &noPositionFeedbackOption };
+	positionFeedbackSelectionParameter = OptionParameter::make(noPositionFeedbackOption, positionFeedbackOptions, "Position Feedback Device", "PositionFeedbackInterface");
+	velocityFeedbackOptions = { &noVelocityFeedbackOption };
+	velocityFeedbackSelectionParameter = OptionParameter::make(noVelocityFeedbackOption, velocityFeedbackOptions, "Velocity Feedback Device", "VelocityFeedbackInterface");
+	*/
+	 
 	maxEnableTimeSeconds = NumberParameter<double>::make(0.1, "Max enable time (seconds)", "MaxEnableTime");
 	
 	positionLoop_velocityFeedForward = NumberParameter<double>::make(1.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
@@ -167,19 +177,20 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	if(positionFeedbackMapping){
 		XMLElement* pfbXML = xml->InsertNewChildElement("PositionFeedbackMapping");
 		pfbXML->SetAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
-		pfbXML->SetAttribute("UnitConversion", positionFeedbackMapping->feedbackUnitsPerAxisUnit);
+		positionFeedbackMapping->feedbackUnitsPerAxisUnit->save(pfbXML);
 	}
 	if(velocityFeedbackMapping){
 		XMLElement* vfbXML = xml->InsertNewChildElement("VelocityFeedbackMapping");
 		vfbXML->SetAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
-		vfbXML->SetAttribute("UnitConversion", velocityFeedbackMapping->feedbackUnitsPerAxisUnit);
+		positionFeedbackMapping->feedbackUnitsPerAxisUnit->save(vfbXML);
 	}
 	
 	XMLElement* actuatorMappingsXML = xml->InsertNewChildElement("ActuatorMappings");
 	for(auto actuatorMapping : actuatorMappings){
 		XMLElement* actXML = actuatorMappingsXML->InsertNewChildElement("ActuatorMapping");
 		actXML->SetAttribute("InterfacePinID", actuatorMapping->interfacePinID);
-		actXML->SetAttribute("UnitConversion", actuatorMapping->actuatorUnitsPerAxisUnits);
+		actuatorMapping->actuatorUnitsPerAxisUnits->save(actXML);
+		actuatorMapping->controlModeParameter->save(actXML);
 	}
 	
 	velocityLimit->save(xml);
@@ -228,7 +239,7 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == pinID){
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin);
-				if(pfbXML->QueryAttribute("UnitConversion", &positionFeedbackMapping->feedbackUnitsPerAxisUnit) != XML_SUCCESS) return false;
+				if(!positionFeedbackMapping->feedbackUnitsPerAxisUnit->load(pfbXML)) return false;
 				break;
 			}
 		}
@@ -240,7 +251,7 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == pinID){
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin);
-				if(vfbXML->QueryAttribute("UnitConversion", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit) != XML_SUCCESS) return false;
+				if(!velocityFeedbackMapping->feedbackUnitsPerAxisUnit->load(vfbXML)) return false;
 				break;
 			}
 		}
@@ -253,7 +264,9 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 			if(actXML->QueryAttribute("InterfacePinID", &interfacePinID) != XML_SUCCESS) return false;
 			for(auto mapping : actuatorMappings){
 				if(mapping->interfacePinID == interfacePinID){
-					if(actXML->QueryAttribute("UnitConversion", &mapping->actuatorUnitsPerAxisUnits) != XML_SUCCESS) return false;
+					if(!mapping->actuatorUnitsPerAxisUnits->load(actXML)) return false;
+					if(!mapping->controlModeParameter->load(actXML)) return false;
+					mapping->controlModeParameter->onEdit();
 					break;
 				}
 			}
@@ -302,6 +315,17 @@ void AxisNode::updateConnectedModules(){
 			actuatorMappings.push_back(newMapping);
 		}
 	}
+	
+	/*
+	positionFeedbackOptions.clear();
+	for(auto feedbackPin : allFeedbackPins){
+		int id = feedbackPin->uniqueID;
+	}
+	positionFeedbackOptions.push_back(&noPositionFeedbackOption);
+	
+	velocityFeedbackOptions.clear();
+	velocityFeedbackOptions.push_back(&noVelocityFeedbackOption);
+	*/
 	
 	if(positionFeedbackMapping){
 		bool b_interfaceFound = false;

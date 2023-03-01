@@ -49,7 +49,7 @@ void AxisNode::controlTab(){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Position Feedback");
 			ImGui::PopFont();
-			double pos = positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit;
+			double pos = positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
 			std::ostringstream positionString;
 			positionString << std::fixed << std::setprecision(3) << pos << " u";
 			ImGui::ProgressBar(axisInterface->getPositionNormalizedToLimits(), progressBarSize, positionString.str().c_str());
@@ -58,7 +58,7 @@ void AxisNode::controlTab(){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Velocity Feedback");
 			ImGui::PopFont();
-			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit;
+			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value;
 			std::ostringstream velocityString;
 			velocityString << std::fixed << std::setprecision(3) << vel << " u/s";
 			ImGui::ProgressBar(std::abs(axisInterface->getVelocityNormalizedToLimits()), progressBarSize, velocityString.str().c_str());
@@ -188,7 +188,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 	if(positionFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Position Feedback Units per Axis Units");
-		ImGui::InputDouble("##pfbratio", &positionFeedbackMapping->feedbackUnitsPerAxisUnit);
+		ImGui::InputDouble("##pfbratio", &positionFeedbackMapping->feedbackUnitsPerAxisUnit->value);
 		ImGui::TreePop();
 	}
 	
@@ -220,7 +220,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 	if(velocityFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Velocity Feedback Units per Axis Units");
-		ImGui::InputDouble("##vfbratio", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit);
+		ImGui::InputDouble("##vfbratio", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value);
 		ImGui::TreePop();
 	}
 }
@@ -236,37 +236,10 @@ void AxisNode::actuatorControlSettingsGui(){
 		ImGui::PopFont();
 	
 		ImGui::TreePush();
-		ImGui::Text("Actuator units per axis units");
-		ImGui::InputDouble("##conv", &mapping->actuatorUnitsPerAxisUnits);
-		std::string controlModeString;
-		switch(mapping->controlModeSelection){
-			case ActuatorInterface::ControlMode::POSITION:
-				controlModeString = "Position Control";
-				break;
-			case ActuatorInterface::ControlMode::VELOCITY:
-				controlModeString = "Velocity Control";
-				break;
-			case ActuatorInterface::ControlMode::FORCE:
-				controlModeString = "Force Control";
-				break;
-		}
 		
-		ImGui::Text("Actuator Control Mode");
-		if(ImGui::BeginCombo("##cmode", controlModeString.c_str())){
-			if(actuator->supportsPositionControl() &&
-			   ImGui::Selectable("Position Control", mapping->controlModeSelection == ActuatorInterface::ControlMode::POSITION)){
-				mapping->controlModeSelection = ActuatorInterface::ControlMode::POSITION;
-			}
-			if(actuator->supportsVelocityControl() &&
-			   ImGui::Selectable("Velocity Control", mapping->controlModeSelection == ActuatorInterface::ControlMode::VELOCITY)){
-				mapping->controlModeSelection = ActuatorInterface::ControlMode::VELOCITY;
-			}
-			if(actuator->supportsForceControl() &&
-			   ImGui::Selectable("Force Control", mapping->controlModeSelection == ActuatorInterface::ControlMode::FORCE)){
-				mapping->controlModeSelection = ActuatorInterface::ControlMode::FORCE;
-			}
-			ImGui::EndCombo();
-		}
+		mapping->controlModeParameter->gui(Fonts::sansBold15);
+		mapping->actuatorUnitsPerAxisUnits->gui(Fonts::sansBold15);
+
 		ImGui::TreePop();
 		ImGui::PopID();
 	}

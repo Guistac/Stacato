@@ -114,11 +114,22 @@ private:
 		FeedbackMapping(std::shared_ptr<NodePin> interfacePin) {
 			feedbackInterface = interfacePin->getSharedPointer<MotionFeedbackInterface>();
 			interfacePinID = interfacePin->getUniqueID();
+			feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
 		}
 		std::shared_ptr<MotionFeedbackInterface> feedbackInterface;
-		double feedbackUnitsPerAxisUnit = 1.0;
+		NumberParam<double> feedbackUnitsPerAxisUnit;
 		int interfacePinID = 0;
 	};
+	
+	/*
+	OptionParam positionFeedbackSelectionParameter;
+	OptionParam velocityFeedbackSelectionParameter;
+	static OptionParameter::Option noPositionFeedbackOption;
+	static OptionParameter::Option noVelocityFeedbackOption;
+	std::vector<OptionParameter::Option*> positionFeedbackOptions;
+	std::vector<OptionParameter::Option*> velocityFeedbackOptions;
+	 */
+	
 	std::shared_ptr<FeedbackMapping> positionFeedbackMapping = nullptr;
 	std::shared_ptr<FeedbackMapping> velocityFeedbackMapping = nullptr;
 	
@@ -128,9 +139,57 @@ private:
 		ActuatorMapping(std::shared_ptr<NodePin> actuatorPin) {
 			actuatorInterface = actuatorPin->getSharedPointer<ActuatorInterface>();
 			interfacePinID = actuatorPin->getUniqueID();
+			actuatorMode_None = 		OptionParameter::Option(0, "Disabled", "Disabled");
+			actuatorMode_Position = 	OptionParameter::Option(1, "Position Control", "PositionControl");
+			actuatorMode_Velocity = 	OptionParameter::Option(2, "Velocity Control", "VelocityControl");
+			actuatorMode_Force = 		OptionParameter::Option(3, "Force Control", "ForceControl");
+			actuatorModeOptions = {
+				&actuatorMode_None,
+				&actuatorMode_Position,
+				&actuatorMode_Velocity,
+				&actuatorMode_Force
+			};
+			auto* defaultControlMode = &actuatorMode_None;
+			if(actuatorInterface->supportsPositionControl()) defaultControlMode = &actuatorMode_Position;
+			else if(actuatorInterface->supportsVelocityControl()) defaultControlMode = &actuatorMode_Velocity;
+			else if(actuatorInterface->supportsForceControl()) defaultControlMode = &actuatorMode_Force;
+			
+			if(!actuatorInterface->supportsPositionControl()) actuatorMode_Position.disable();
+			if(!actuatorInterface->supportsVelocityControl()) actuatorMode_Velocity.disable();
+			if(!actuatorInterface->supportsForceControl()) actuatorMode_Force.disable();
+			
+			controlModeParameter = OptionParameter::make(*defaultControlMode, actuatorModeOptions, "Control Mode", "ControlMode");
+			controlModeParameter->addEditCallback([this](){
+				switch(controlModeParameter->value){
+						case ActuatorControlMode::POSITION_CONTROL:
+						case ActuatorControlMode::VELOCITY_CONTROL:
+						case ActuatorControlMode::FORCE_CONTROL:
+							controlMode = (ActuatorControlMode)controlModeParameter->value;
+							break;
+						case ActuatorControlMode::NO_CONTROL:
+						default:
+							controlMode = ActuatorControlMode::NO_CONTROL;
+							break;
+				}
+			});
+			actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
 		}
-		ActuatorInterface::ControlMode controlModeSelection = ActuatorInterface::ControlMode::POSITION;
-		double actuatorUnitsPerAxisUnits = 1.0;
+		
+		OptionParameter::Option actuatorMode_None;
+		OptionParameter::Option actuatorMode_Position;
+		OptionParameter::Option actuatorMode_Velocity;
+		OptionParameter::Option actuatorMode_Force;
+		std::vector<OptionParameter::Option*> actuatorModeOptions;
+		enum ActuatorControlMode{
+			NO_CONTROL = 0,
+			POSITION_CONTROL = 1,
+			VELOCITY_CONTROL = 2,
+			FORCE_CONTROL = 3
+		}controlMode = ActuatorControlMode::NO_CONTROL;
+		
+		OptionParam controlModeParameter;
+		NumberParam<double> actuatorUnitsPerAxisUnits;
+		
 		double actuatorPositionOffset = 0.0;
 		std::shared_ptr<ActuatorInterface> actuatorInterface;
 		int interfacePinID = 0;
