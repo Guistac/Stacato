@@ -7,10 +7,33 @@
 
 
 bool AxisNode::prepareProcess(){
+	
+	switch(axisControlMode){
+		case ControlMode::POSITION_CONTROL:
+			if(positionFeedbackMapping == nullptr) return false;
+			if(velocityFeedbackMapping == nullptr) return false;
+			break;
+		case ControlMode::VELOCITY_CONTROL:
+			if(velocityFeedbackMapping == nullptr) return false;
+			break;
+		case ControlMode::NO_CONTROL:
+		default:
+			break;
+	}
+	
+	
+	
+	
+	
+	
 	return true;
 }
 
 void AxisNode::inputProcess(){
+	
+	//get the current time from the fieldbus namespace
+	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
+	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
 	//update axis state
 	DeviceState lowestInterfaceState = DeviceState::ENABLED;
@@ -109,65 +132,68 @@ void AxisNode::inputProcess(){
 
 void AxisNode::outputProcess(){
 	
-	double profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-	double profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
-	
-	if(axisInterface->isEnabled()){
-		if(axisInterface->isHoming()){
-			//homing routine
+	//decide on the internal control mode
+	//if no condition matches, we are using manual controls
+	if(!axisInterface->isEnabled()) internalControlMode = InternalControlMode::NO_CONTROL;
+	else if(axisInterface->isHoming()) homingControl();
+	else if(axisPin->isConnected()){
+		switch(axisInterface->configuration.controlMode){
+			case AxisInterface::ControlMode::VELOCITY_CONTROL:
+				internalControlMode = InternalControlMode::EXTERNAL_VELOCITY_TARGET;
+				break;
+			case AxisInterface::ControlMode::POSITION_CONTROL:
+				internalControlMode = InternalControlMode::EXTERNAL_POSITION_TARGET;
+				break;
+			case AxisInterface::ControlMode::NONE:
+				internalControlMode = InternalControlMode::NO_CONTROL;
+				break;
 		}
-		else if(axisPin->isConnected()){
-			switch(axisInterface->configuration.controlMode){
-				case AxisInterface::ControlMode::VELOCITY_CONTROL:{
-					double velLim = std::abs(axisInterface->getVelocityLimit());
-					double accLim = std::abs(axisInterface->getAccelerationLimit());
-					double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
-					double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
-					motionProfile.matchVelocity(profileTimeDelta_seconds, velTar, accTar);
-				}break;
-				case AxisInterface::ControlMode::POSITION_CONTROL:{
-					double velLim = std::abs(axisInterface->getVelocityLimit());
-					double accLim = std::abs(axisInterface->getAccelerationLimit());
-					double lposLim = axisInterface->getLowerPositionLimit();
-					double uposLim = axisInterface->getUpperPositionLimit();
-					double posTar = axisInterface->processData.positionTarget;
-					double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
-					double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
-					motionProfile.matchPositionAndRespectPositionLimits(profileTimeDelta_seconds, posTar, velTar, accTar, accLim, velLim, lposLim, uposLim);
-				}break;
-				case AxisInterface::ControlMode::NONE:
-					motionProfile.setPosition(axisInterface->getPositionActual());
-					motionProfile.setVelocity(axisInterface->getVelocityActual());
-					motionProfile.setAcceleration(0.0);
-					break;
-			}
-		}
-		else{
-			switch(internalControlMode){
-				case InternalControlMode::POSITION_TARGET:
-					break;
-				case InternalControlMode::VELOCITY_TARGET:
-					motionProfile.matchVelocity(profileTimeDelta_seconds, manualVelocityTarget, manualVelocityAcceleration);
-					break;
-			}
-		}
-	}else{
-		motionProfile.setPosition(axisInterface->getPositionActual());
-		motionProfile.setVelocity(axisInterface->getVelocityActual());
-		motionProfile.setAcceleration(0.0);
-		
-		for(auto mapping : actuatorMappings){
-			auto actuator = mapping->actuatorInterface;
-			if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
-				mapping->actuatorPositionOffset = 0.0;
-			}
-			mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->value;
-		}
-		
-		
-		
 	}
 	
+	//update the motion profile
+	switch(internalControlMode){
+		case InternalControlMode::MANUAL_VELOCITY_TARGET:
+			motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, axisInterface->getAccelerationLimit());
+			break;
+		case InternalControlMode::MANUAL_POSITION_INTERPOLATION:
+			motionProfile.updateInterpolation(profileTime_seconds);
+			break;
+		case InternalControlMode::HOMING_VELOCITY_TARGET:
+			motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, axisInterface->getAccelerationLimit());
+			break;
+		case InternalControlMode::HOMING_POSITION_INTERPOLATION:
+			motionProfile.updateInterpolation(profileTime_seconds);
+			break;
+		case InternalControlMode::EXTERNAL_POSITION_TARGET:{
+			double velLim = std::abs(axisInterface->getVelocityLimit());
+			double accLim = std::abs(axisInterface->getAccelerationLimit());
+			double lposLim = axisInterface->getLowerPositionLimit();
+			double uposLim = axisInterface->getUpperPositionLimit();
+			double posTar = axisInterface->processData.positionTarget;
+			double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
+			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
+			motionProfile.matchPositionAndRespectPositionLimits(profileTimeDelta_seconds, posTar, velTar, accTar, accLim, velLim, lposLim, uposLim);
+			}break;
+		case InternalControlMode::EXTERNAL_VELOCITY_TARGET:{
+			double velLim = std::abs(axisInterface->getVelocityLimit());
+			double accLim = std::abs(axisInterface->getAccelerationLimit());
+			double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
+			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
+			motionProfile.matchVelocity(profileTimeDelta_seconds, velTar, accTar);
+			}break;
+		case InternalControlMode::NO_CONTROL:
+			motionProfile.setPosition(axisInterface->getPositionActual());
+			motionProfile.setVelocity(axisInterface->getVelocityActual());
+			motionProfile.setAcceleration(0.0);
+			for(auto mapping : actuatorMappings){
+				auto actuator = mapping->actuatorInterface;
+				if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
+					mapping->actuatorPositionOffset = 0.0;
+				}
+				mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->value;
+			}
+			break;
+	}
 	
 	//control loop update (depends on axis control mode)
 	double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
@@ -177,18 +203,14 @@ void AxisNode::outputProcess(){
 	for(auto mapping : actuatorMappings){
 		auto actuator = mapping->actuatorInterface;
 		switch(mapping->controlMode){
-			case ActuatorMapping::POSITION_CONTROL:
-				{
+			case ActuatorMapping::POSITION_CONTROL:{
 				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits->value) + mapping->actuatorPositionOffset;
 				actuator->setPositionTarget(actuatorPosition);
-				}
-				break;
-			case ActuatorMapping::VELOCITY_CONTROL:
-				{
+				}break;
+			case ActuatorMapping::VELOCITY_CONTROL:{
 				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits->value;
 				actuator->setVelocityTarget(actuatorVelocity);
-				}
-				break;
+				}break;
 			case ActuatorMapping::FORCE_CONTROL:
 				//not implemented
 				break;
@@ -201,3 +223,47 @@ void AxisNode::outputProcess(){
 }
 
 bool AxisNode::needsOutputProcess(){ return !axisPin->isConnected(); }
+
+
+
+void AxisNode::setManualVelocityTarget(double velocity){
+	internalControlMode = InternalControlMode::MANUAL_VELOCITY_TARGET;
+	double velLim = std::abs(axisInterface->getVelocityLimit());
+	internalVelocityTarget = std::clamp(velocity, -velLim, velLim);
+}
+
+void AxisNode::moveToManualPositionTargetWithTime(double position, double time, double acceleration){
+	if(acceleration == 0.0) return;
+	if(axisInterface->getVelocityLimit() == 0.0) return;
+	double pos = std::clamp(position, axisInterface->getLowerPositionLimit(), axisInterface->getUpperPositionLimit());
+	double acc = std::clamp(acceleration, 0.0, axisInterface->getAccelerationLimit());
+	Logger::info("moving to {}", pos);
+	motionProfile.moveToPositionInTime(profileTime_seconds, pos, time, acc, axisInterface->getVelocityLimit());
+	internalControlMode = InternalControlMode::MANUAL_POSITION_INTERPOLATION;
+}
+
+void AxisNode::moveToManualPositionTargetWithVelocity(double position, double velocity, double acceleration){
+	if(acceleration == 0.0) return;
+	if(velocity <= 0.0) return;
+	double pos = std::clamp(position, axisInterface->getLowerPositionLimit(), axisInterface->getUpperPositionLimit());
+	double vel = std::clamp(velocity, 0.0, std::abs(axisInterface->getVelocityLimit()));
+	double acc = std::clamp(acceleration, 0.0, std::abs(axisInterface->getAccelerationLimit()));
+	Logger::info("moving to {}", pos);
+	motionProfile.moveToPositionWithVelocity(profileTime_seconds, pos, vel, acc);
+	internalControlMode = InternalControlMode::MANUAL_POSITION_INTERPOLATION;
+}
+
+
+
+
+void AxisNode::setHomingVelocityTarget(double velocity){
+	internalControlMode = InternalControlMode::HOMING_VELOCITY_TARGET;
+	double velLim = std::abs(axisInterface->getVelocityLimit());
+	internalVelocityTarget = std::clamp(velocity, -velLim, velLim);
+}
+
+void AxisNode::moveToHomingPositionTarget(double position){
+	motionProfile.moveToPositionInTime(profileTime_seconds, position, 0.0, axisInterface->getAccelerationLimit(), axisInterface->getVelocityLimit());
+	internalControlMode = InternalControlMode::HOMING_POSITION_INTERPOLATION;
+}
+

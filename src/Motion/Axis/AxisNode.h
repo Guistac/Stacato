@@ -234,24 +234,48 @@ private:
 	std::shared_ptr<MotionFeedbackInterface> surveillanceFeedbackModule;
 	double surveillanceFeedbackUnitsPerAxisUnits;
 	
-	
-	
 	void updateControlMode();
 	void updateLimitSignalType();
 	void updateAxisConfiguration();
 	
 	//process data
+	ControlMode axisControlMode = ControlMode::NO_CONTROL;
 	Motion::Profile motionProfile;
+	double profileTime_seconds;
+	double profileTimeDelta_seconds;
 	double enableRequestTime_seconds;
 	bool b_isEnabling;
 	enum class InternalControlMode{
-		POSITION_TARGET,
-		VELOCITY_TARGET
-	}internalControlMode = InternalControlMode::VELOCITY_TARGET;
-	float manualVelocityTarget = 0.0;
-	float manualVelocityAcceleration = 0.0;
+		MANUAL_VELOCITY_TARGET,				//command through the axis velocity slider
+		MANUAL_POSITION_INTERPOLATION,		//command through the axis start move buttons
+		HOMING_VELOCITY_TARGET,				//used by homing routine
+		HOMING_POSITION_INTERPOLATION,		//used by homing routine
+		EXTERNAL_POSITION_TARGET,			//used for external control through axis interface
+		EXTERNAL_VELOCITY_TARGET,			//used for external control through axis interface
+		NO_CONTROL							//when no control is necessary
+	}internalControlMode = InternalControlMode::MANUAL_VELOCITY_TARGET;
+	float internalVelocityTarget = 0.0;
 	double positionFollowingError = 0.0;
 	double velocityFollowingError = 0.0;
+	
+	void homingControl(){}
+	
+	void setManualVelocityTarget(double velocity);
+	void moveToManualPositionTargetWithTime(double position, double time, double acceleration);
+	void moveToManualPositionTargetWithVelocity(double position, double velocity, double acceleration);
+	
+	void setHomingVelocityTarget(double velocity);
+	void moveToHomingPositionTarget(double position);
+	
+	
+	float manualPositionEntry = 0.0;
+	float manualVelocityEntry = 0.0;
+	float manualAccelerationEntry = 0.0;
+	float manualTimeEntry = 0.0;
+	
+	
+	void axisInterfaceTab();
+	
 };
 
 

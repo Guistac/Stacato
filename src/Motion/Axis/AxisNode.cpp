@@ -141,6 +141,19 @@ void AxisNode::initialize(){
 	velocityLimit = 				NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit");
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	
+	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
+	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
+	enableUpperPositionLimit->addEditCallback(updateInterfaceCallback);
+	lowerPositionLimit->addEditCallback(updateInterfaceCallback);
+	upperPositionLimit->addEditCallback(updateInterfaceCallback);
+	lowerPositionLimitClearance->addEditCallback(updateInterfaceCallback);
+	upperPositionLimitClearance->addEditCallback(updateInterfaceCallback);
+	velocityLimit->addEditCallback(updateInterfaceCallback);
+	accelerationLimit->addEditCallback(updateInterfaceCallback);
+	
+	
+	
+	
 	homingDirectionParameter = 	OptionParameter::make(option_HomingDirectionNegative, homingDirectionOptions, "Homing direction", "HomingDirection");
 	signalApproachParameter = 	OptionParameter::make(option_FindSignalEdge, signalApproachOptions, "Signal approach method", "SignalApproachMethod");
 	homingVelocityCoarse = 		NumberParameter<double>::make(0.0, "Homing velocity coarse", "HomingVelocityCoarse");
@@ -203,6 +216,15 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLoop_maxError->save(xml);
 	limitSlowdownVelocity->save(xml);
 	
+	enableLowerPositionLimit->save(xml);
+	enableUpperPositionLimit->save(xml);
+	lowerPositionLimit->save(xml);
+	upperPositionLimit->save(xml);
+	lowerPositionLimitClearance->save(xml);
+	upperPositionLimitClearance->save(xml);
+	velocityLimit->save(xml);
+	accelerationLimit->save(xml);
+	
 	return true;
 }
 
@@ -218,8 +240,18 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= velocityLoop_maxError->load(xml);
 	success &= limitSlowdownVelocity->load(xml);
 	
-	manualVelocityAcceleration = accelerationLimit->value;
 	
+	success &= enableLowerPositionLimit->load(xml);
+	success &= enableUpperPositionLimit->load(xml);
+	success &= lowerPositionLimit->load(xml);
+	success &= upperPositionLimit->load(xml);
+	success &= lowerPositionLimitClearance->load(xml);
+	success &= upperPositionLimitClearance->load(xml);
+	success &= velocityLimit->load(xml);
+	success &= accelerationLimit->load(xml);
+	
+	manualAccelerationEntry = accelerationLimit->value;
+		
 	return true;
 }
 
@@ -411,6 +443,7 @@ void AxisNode::updateControlMode(){
 			}
 			break;
 	}
+	updateAxisConfiguration();
 	
 }
 

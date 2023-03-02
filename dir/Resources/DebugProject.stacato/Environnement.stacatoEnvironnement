@@ -130,8 +130,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
-                <NodeEditorPosition x="505" y="197"/>
-                <NodeSpecificData VelocityLimit="40" AccelerationLimit="100" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0">
+                <NodeEditorPosition x="489" y="199"/>
+                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="20000" UpperPositionLimit="21000" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10">
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>

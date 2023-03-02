@@ -315,14 +315,12 @@ public:
 		return targetInterpolation != nullptr;
 	}
 	
-	/*
 	void updateInterpolation(double time){
 		Motion::Point point = targetInterpolation->getPointAtTime(time);
 		position = point.position;
 		velocity = point.velocity;
 		acceleration = point.acceleration;
 	}
-	*/
 	
 	Motion::Point getInterpolationPoint(double time){
 		return targetInterpolation->getPointAtTime(time);

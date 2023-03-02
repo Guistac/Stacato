@@ -8,11 +8,13 @@
 #include "Gui/Assets/Fonts.h"
 
 #include "Gui/Utilities/CustomWidgets.h"
+#include "Fieldbus/EtherCatFieldbus.h"
 
 void AxisNode::nodeSpecificGui(){
 	controlTab();
 	configurationTab();
 	devicesTab();
+	axisInterfaceTab();
 }
 
 void AxisNode::controlTab(){
@@ -32,16 +34,124 @@ void AxisNode::controlTab(){
 		}
 		ImGui::EndDisabled();
 		ImGui::SameLine(0.0, 0.0);
-		backgroundText("State", buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersRight);
+		std::string stateString;
+		glm::vec4 stateColor;
+		switch(axisInterface->getState()){
+			case DeviceState::OFFLINE:
+				stateString = "Offline";
+				stateColor = Colors::blue;
+				break;
+			case DeviceState::NOT_READY:
+				stateString = "Not Ready";
+				stateColor = Colors::red;
+				break;
+			case DeviceState::READY:
+				stateString = "Ready";
+				stateColor = Colors::yellow;
+				break;
+			case DeviceState::DISABLING:
+				stateString = "Disabling...";
+				stateColor = Colors::darkYellow;
+				break;
+			case DeviceState::ENABLING:
+				stateString = "Enabling...";
+				stateColor = Colors::darkGreen;
+				break;
+			case DeviceState::ENABLED:
+				stateString = "Enabled";
+				stateColor = Colors::green;
+				break;
+		}
+		backgroundText(stateString.c_str(), buttonSize, stateColor, Colors::black, ImDrawFlags_RoundCornersRight);
 		ImGui::PopFont();
 
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
 		ImGui::SetNextItemWidth(progressBarSize.x);
-		ImGui::SliderFloat("##vel", &manualVelocityTarget, -axisInterface->getVelocityLimit(), axisInterface->getVelocityLimit());
-		if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
-		ImGui::SetNextItemWidth(progressBarSize.x);
-		ImGui::SliderFloat("##acc", &manualVelocityAcceleration, 0.0, accelerationLimit->value);
+		float sliderVelocityTarget = 0.0;
+		std::ostringstream manVelString;
+		manVelString << std::fixed << std::setprecision(2) << "Manual Velocity Target : " << internalVelocityTarget;
+		double velLim = axisInterface->getVelocityLimit();
+		ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
+		if(ImGui::IsItemActive()) {
+			setManualVelocityTarget(sliderVelocityTarget);
+		}
+		if(ImGui::IsItemDeactivatedAfterEdit()) {
+			setManualVelocityTarget(0.0);
+		}
+
+		float cellWidth = (ImGui::GetContentRegionAvail().x - 3 * ImGui::GetStyle().ItemSpacing.x) / 4;
+		ImVec2 cellSize(cellWidth, ImGui::GetTextLineHeight());
+		ImVec2 cellButtonSize(cellWidth, ImGui::GetTextLineHeight()*2);
+		
+		if(ImGui::BeginTable("##posTar", 4)){
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			centeredText("Target Position", cellSize);
+			ImGui::TableSetColumnIndex(1);
+			centeredText("Target Velocity", cellSize);
+			ImGui::TableSetColumnIndex(2);
+			centeredText("Target Time", cellSize);
+			ImGui::TableSetColumnIndex(3);
+			centeredText("Target Acceleration", cellSize);
+			
+			
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::SetNextItemWidth(cellWidth);
+			ImGui::InputFloat("##tarpos", &manualPositionEntry);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::SetNextItemWidth(cellWidth);
+			ImGui::InputFloat("##tarvel", &manualVelocityEntry);
+			ImGui::TableSetColumnIndex(2);
+			ImGui::SetNextItemWidth(cellWidth);
+			ImGui::InputFloat("##tartim", &manualTimeEntry);
+			ImGui::TableSetColumnIndex(3);
+			ImGui::SetNextItemWidth(cellWidth);
+			ImGui::InputFloat("##taracc", &manualAccelerationEntry);
+			
+			
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			if(ImGui::Button("Fast Move", cellButtonSize)){
+				moveToManualPositionTargetWithTime(manualPositionEntry, 0.0, manualAccelerationEntry);
+			}
+			ImGui::TableSetColumnIndex(1);
+			if(ImGui::Button("Velocity Move", cellButtonSize)){
+				moveToManualPositionTargetWithVelocity(manualPositionEntry, manualVelocityEntry, manualAccelerationEntry);
+			}
+			ImGui::TableSetColumnIndex(2);
+			if(ImGui::Button("Timed Move", cellButtonSize)){
+				moveToManualPositionTargetWithTime(manualPositionEntry, manualTimeEntry, manualAccelerationEntry);
+			}
+			ImGui::TableSetColumnIndex(3);
+			if(ImGui::Button("Stop", cellButtonSize)){
+				setManualVelocityTarget(0.0);
+			}
+			
+			ImGui::EndTable();
+		}
+		
+		
+		float interpolationProgress = 0.0;
+		std::string interpolationProgressString;
+		if(internalControlMode == InternalControlMode::MANUAL_POSITION_INTERPOLATION){
+			double now = EtherCatFieldbus::getCycleProgramTime_seconds();
+			if(motionProfile.isInterpolationFinished(now)){
+				interpolationProgress = 1.0;
+				interpolationProgressString = "Movement Finished";
+			}else{
+				interpolationProgress = motionProfile.getInterpolationProgress(now);
+				std::ostringstream msg;
+				msg << std::fixed << std::setprecision(1) << "Movement Time Remaining : "
+				<< motionProfile.getRemainingInterpolationTime(now);
+				interpolationProgressString = msg.str();
+			}
+		}else{
+			interpolationProgress = 0.0;
+			interpolationProgressString = "No Movement in progress";
+		}
+		ImGui::ProgressBar(interpolationProgress, progressBarSize, interpolationProgressString.c_str());
 		
 		ImGui::Separator();
 		
@@ -337,6 +447,173 @@ void AxisNode::devicesTab(){
 			ImGui::Text("%s", device->getStatusString().c_str());
 			ImGui::PopStyleColor();
 			ImGui::TreePop();
+		}
+		
+		ImGui::EndTabItem();
+	}
+}
+
+void AxisNode::axisInterfaceTab(){
+	if(ImGui::BeginTabItem("Axis Interface")){
+		
+		
+		std::string stateString;
+		switch(axisInterface->getState()){
+			case DeviceState::OFFLINE: 		stateString = "Offline"; break;
+			case DeviceState::NOT_READY:	stateString = "Not Ready"; break;
+			case DeviceState::READY:		stateString = "Ready"; break;
+			case DeviceState::DISABLING:	stateString = "Disabling"; break;
+			case DeviceState::ENABLING:		stateString = "Enabling"; break;
+			case DeviceState::ENABLED:		stateString = "Enabled"; break;
+				break;
+		}
+		ImGui::Text("State: %s", stateString.c_str());
+		
+		auto& config = axisInterface->configuration;
+		if(ImGui::BeginTable("##config", 2, ImGuiTableFlags_Borders|ImGuiTableFlags_SizingFixedFit)){
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_supportsPositionFeedback");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", config.b_supportsPositionFeedback ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_supportsVelocityFeedback");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", config.b_supportsVelocityFeedback ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_supportsForceFeedback");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", config.b_supportsForceFeedback ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_supportsEffortFeedback");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", config.b_supportsEffortFeedback ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_supportsHoming");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", config.b_supportsHoming ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("lowerPositionLimit");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", config.lowerPositionLimit);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("upperPositionLimit");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", config.upperPositionLimit);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("velocityLimit");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", config.velocityLimit);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("accelerationLimit");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", config.accelerationLimit);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("decelerationLimit");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", config.decelerationLimit);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("controlMode");
+			ImGui::TableSetColumnIndex(1);
+			switch(config.controlMode){
+				case AxisInterface::ControlMode::POSITION_CONTROL:	ImGui::Text("Position Control"); break;
+				case AxisInterface::ControlMode::VELOCITY_CONTROL:	ImGui::Text("Velocity Control"); break;
+				case AxisInterface::ControlMode::NONE:				ImGui::Text("No Control"); break;
+			}
+			ImGui::EndTable();
+		}
+		
+		auto& process = axisInterface->processData;
+		if(ImGui::BeginTable("##process", 2, ImGuiTableFlags_Borders|ImGuiTableFlags_SizingFixedFit)){
+			
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_canStartHoming");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_canStartHoming ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_startHoming");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_startHoming ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_stopHoming");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_stopHoming ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_isHoming");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_isHoming ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_didHomingSucceed");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_didHomingSucceed ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_isEmergencyStopActive");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_isEmergencyStopActive ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_enable");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_enable ? "true" : "false");
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("b_disable");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", process.b_disable ? "true" : "false");
+			
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("positionActual");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.positionActual);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("velocityActual");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.velocityActual);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("forceActual");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.forceActual);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("effortActual");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.effortActual);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("positionTarget");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.positionTarget);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("velocityTarget");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.velocityTarget);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("accelerationTarget");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%.3f", process.accelerationTarget);
+
+			ImGui::EndTable();
 		}
 		
 		ImGui::EndTabItem();
