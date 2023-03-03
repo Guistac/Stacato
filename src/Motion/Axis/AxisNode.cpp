@@ -31,10 +31,6 @@ std::vector<OptionParameter::Option*> AxisNode::limitSignalTypeOptions = {
 	&option_LimitAndSlowdownAtLowerAndUpperLimits
 };
 
-/*
-OptionParameter::Option AxisNode::noPositionFeedbackOption = OptionParameter::Option(-1, "No Position Feedback", "NoPositionFeedback");
-OptionParameter::Option AxisNode::noVelocityFeedbackOption = OptionParameter::Option(-1, "No Velocity Feedback", "NoVelocityFeedback");
-*/
  
 OptionParameter::Option AxisNode::option_HomingDirectionNegative = OptionParameter::Option(0, "Negative", "Negative");
 OptionParameter::Option AxisNode::option_HomingDirectionPositive = OptionParameter::Option(1, "Positive", "Positive");
@@ -111,16 +107,7 @@ void AxisNode::initialize(){
 	addNodePin(surveillanceValidSignalPin);
 	
 	controlModeParameter = OptionParameter::make(controlModePosition, controlModeParameterOptions, "Axis Control Mode", "AxisControlMode");
-	controlModeParameter->addEditCallback([this](){
-		updateControlMode();
-	});
-	
-	/*
-	positionFeedbackOptions = { &noPositionFeedbackOption };
-	positionFeedbackSelectionParameter = OptionParameter::make(noPositionFeedbackOption, positionFeedbackOptions, "Position Feedback Device", "PositionFeedbackInterface");
-	velocityFeedbackOptions = { &noVelocityFeedbackOption };
-	velocityFeedbackSelectionParameter = OptionParameter::make(noVelocityFeedbackOption, velocityFeedbackOptions, "Velocity Feedback Device", "VelocityFeedbackInterface");
-	*/
+	controlModeParameter->addEditCallback([this](){ updateControlMode(); });
 	 
 	maxEnableTimeSeconds = NumberParameter<double>::make(0.1, "Max enable time (seconds)", "MaxEnableTime");
 	
@@ -162,9 +149,7 @@ void AxisNode::initialize(){
 	maxHomingDistanceFine = 	NumberParameter<double>::make(0.0, "Max homing distance fine", "MaxHomingDistanceFine");
 	
 	limitSignalTypeParameter = OptionParameter::make(option_SignalAtLowerLimit, limitSignalTypeOptions, "Limit Signal Type", "LimitSignalType");
-	limitSignalTypeParameter->addEditCallback([this](){
-		updateLimitSignalType();
-	});
+	limitSignalTypeParameter->addEditCallback([this](){ updateLimitSignalType(); });
 	
 	updateControlMode();
 	updateLimitSignalType();
@@ -540,6 +525,7 @@ void AxisNode::updateLimitSignalType(){
 		default:
 			break;
 	}
+	updateAxisConfiguration();
 }
 
 void AxisNode::updateAxisConfiguration(){
@@ -560,13 +546,12 @@ void AxisNode::updateAxisConfiguration(){
 	config.accelerationLimit = accelerationLimit->value;
 	config.decelerationLimit = accelerationLimit->value;
 	config.velocityLimit = velocityLimit->value;
-	config.lowerPositionLimit = lowerPositionLimit->value + lowerPositionLimitClearance->value;
-	config.upperPositionLimit = upperPositionLimit->value + upperPositionLimitClearance->value;
+	config.lowerPositionLimit = lowerPositionLimit->value + std::abs(lowerPositionLimitClearance->value);
+	config.upperPositionLimit = upperPositionLimit->value - std::abs(upperPositionLimitClearance->value);
 	
 	config.b_supportsPositionFeedback = positionFeedbackMapping != nullptr;
 	config.b_supportsVelocityFeedback = velocityFeedbackMapping != nullptr;
 	config.b_supportsForceFeedback = false;
-	
 	
 	bool b_force = false;
 	for(auto actuatorMapping : actuatorMappings){
@@ -577,6 +562,7 @@ void AxisNode::updateAxisConfiguration(){
 	}
 	config.b_supportsEffortFeedback = b_force;
 	
-	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL;
+	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL &&
+							limitSignalTypeParameter->value != option_NoLimitSignal.getInt();
 }
 

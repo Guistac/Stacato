@@ -131,11 +131,10 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
                 <NodeEditorPosition x="489" y="199"/>
-                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="20000" UpperPositionLimit="21000" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10">
-                    <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
-                    <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
+                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-100000" UpperPositionLimit="36200" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10">
+                    <PositionFeedbackMapping InterfacePinID="92" UnitConversion="1"/>
+                    <VelocityFeedbackMapping InterfacePinID="92" UnitConversion="1"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="1"/>
                         <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="1"/>
                         <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="1"/>
                     </ActuatorMappings>
@@ -163,7 +162,6 @@
             <Link UniqueID="137" StartPin="136" EndPin="125"/>
             <Link UniqueID="138" StartPin="128" EndPin="135"/>
             <Link UniqueID="139" StartPin="119" EndPin="135"/>
-            <Link UniqueID="154" StartPin="77" EndPin="142"/>
             <Link UniqueID="156" StartPin="92" EndPin="142"/>
             <Link UniqueID="157" StartPin="106" EndPin="142"/>
         </Links>

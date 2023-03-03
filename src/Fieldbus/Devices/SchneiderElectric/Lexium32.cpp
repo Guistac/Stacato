@@ -53,6 +53,8 @@ void Lexium32::initialize() {
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &ds402Control.controlWord);	//DS402 control word
     rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &ds402Control.operatingMode);	//DS402 operating mode control
     rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);					//Position Target
+	rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);					//Velocity Target
+	rxPdoAssignement.addEntry(0x6071, 0x0, 16, "PTtq_target", &PTtq_target);				//Torque Target
     rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);					//Digital Outputs
 	rxPdoAssignement.addEntry(0x3008, 0xA, 16, "BRK_release", &BRK_release);				//Manual Holding Brake Control
 	
@@ -73,9 +75,10 @@ void Lexium32::initialize() {
 	fbcfg.b_supportsPositionFeedback = true;
 	fbcfg.b_supportsVelocityFeedback = true;
 	auto& acfg = servoMotor->actuatorConfig;
-	acfg.b_supportsForceControl = true;
+	acfg.b_supportsForceControl = false;
 	acfg.b_supportsPositionControl = true;
 	acfg.b_supportsVelocityControl = true;
+	acfg.b_supportsEffortFeedback = true;
 }
 
 
@@ -401,10 +404,21 @@ void Lexium32::writeOutputs() {
 	
 	//DCOMopmode
 	if(b_isHoming) ds402Control.setOperatingMode(DS402::OperatingMode::HOMING);
-	else ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
-	
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::POSITION)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::VELOCITY)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY);
+	/*
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::FORCE)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE);
+	*/
+	else
+		ds402Control.setOperatingMode(DS402::OperatingMode::NONE);
+		
 	//PPp_target
 	PPp_target = (int32_t)(servoMotor->actuatorProcessData.positionTarget * positionUnitsPerRevolution);
+	PVv_target = (int32_t)(servoMotor->actuatorProcessData.velocityTarget * velocityUnitsPerRpm * 60.0);
+	//PTtq_target = (int16_t)(servoMotor->actuatorProcessData.forceTarget * ???);
 	
 	//IO_DQ_set
     IO_DQ_set = 0;

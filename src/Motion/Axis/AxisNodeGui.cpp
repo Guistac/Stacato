@@ -20,20 +20,7 @@ void AxisNode::nodeSpecificGui(){
 void AxisNode::controlTab(){
 	if(ImGui::BeginTabItem("Control")){
 		
-		ImVec2 buttonSize(ImGui::GetContentRegionAvail().x / 2.0, ImGui::GetTextLineHeight() * 2.0);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::BeginDisabled(!axisInterface->isOnline());
-		if(axisInterface->isEnabled()){
-			if(customButton("Disable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
-				axisInterface->disable();
-			}
-		}else{
-			if(customButton("Enable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
-				axisInterface->enable();
-			}
-		}
-		ImGui::EndDisabled();
-		ImGui::SameLine(0.0, 0.0);
+		
 		std::string stateString;
 		glm::vec4 stateColor;
 		switch(axisInterface->getState()){
@@ -62,96 +49,154 @@ void AxisNode::controlTab(){
 				stateColor = Colors::green;
 				break;
 		}
-		backgroundText(stateString.c_str(), buttonSize, stateColor, Colors::black, ImDrawFlags_RoundCornersRight);
-		ImGui::PopFont();
+		
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::NONE){
+			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0);
+			ImGui::PushFont(Fonts::sansBold15);
+			backgroundText(stateString.c_str(), buttonSize, stateColor);
+			ImGui::PopFont();
+		}else{
+			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x / 2.0, ImGui::GetTextLineHeight() * 2.0);
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::BeginDisabled(!axisInterface->isOnline());
+			if(axisInterface->isEnabled()){
+				if(customButton("Disable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
+					axisInterface->disable();
+				}
+			}else{
+				if(customButton("Enable", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
+					axisInterface->enable();
+				}
+			}
+			ImGui::EndDisabled();
+			ImGui::SameLine(0.0, 0.0);
+			backgroundText(stateString.c_str(), buttonSize, stateColor, Colors::black, ImDrawFlags_RoundCornersRight);
+			ImGui::PopFont();
+		}
 
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
-		ImGui::SetNextItemWidth(progressBarSize.x);
-		float sliderVelocityTarget = 0.0;
-		std::ostringstream manVelString;
-		manVelString << std::fixed << std::setprecision(2) << "Manual Velocity Target : " << internalVelocityTarget;
-		double velLim = axisInterface->getVelocityLimit();
-		ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
-		if(ImGui::IsItemActive()) {
-			setManualVelocityTarget(sliderVelocityTarget);
-		}
-		if(ImGui::IsItemDeactivatedAfterEdit()) {
-			setManualVelocityTarget(0.0);
-		}
-
-		float cellWidth = (ImGui::GetContentRegionAvail().x - 3 * ImGui::GetStyle().ItemSpacing.x) / 4;
-		ImVec2 cellSize(cellWidth, ImGui::GetTextLineHeight());
-		ImVec2 cellButtonSize(cellWidth, ImGui::GetTextLineHeight()*2);
-		
-		if(ImGui::BeginTable("##posTar", 4)){
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			centeredText("Target Position", cellSize);
-			ImGui::TableSetColumnIndex(1);
-			centeredText("Target Velocity", cellSize);
-			ImGui::TableSetColumnIndex(2);
-			centeredText("Target Time", cellSize);
-			ImGui::TableSetColumnIndex(3);
-			centeredText("Target Acceleration", cellSize);
+		if(axisInterface->configuration.controlMode != AxisInterface::ControlMode::NONE){
 			
-			
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			ImGui::SetNextItemWidth(cellWidth);
-			ImGui::InputFloat("##tarpos", &manualPositionEntry);
-			ImGui::TableSetColumnIndex(1);
-			ImGui::SetNextItemWidth(cellWidth);
-			ImGui::InputFloat("##tarvel", &manualVelocityEntry);
-			ImGui::TableSetColumnIndex(2);
-			ImGui::SetNextItemWidth(cellWidth);
-			ImGui::InputFloat("##tartim", &manualTimeEntry);
-			ImGui::TableSetColumnIndex(3);
-			ImGui::SetNextItemWidth(cellWidth);
-			ImGui::InputFloat("##taracc", &manualAccelerationEntry);
-			
-			
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			if(ImGui::Button("Fast Move", cellButtonSize)){
-				moveToManualPositionTargetWithTime(manualPositionEntry, 0.0, manualAccelerationEntry);
+			ImGui::SetNextItemWidth(progressBarSize.x);
+			float sliderVelocityTarget = 0.0;
+			std::ostringstream manVelString;
+			manVelString << std::fixed << std::setprecision(2) << "Manual Velocity Target : " << internalVelocityTarget;
+			double velLim = axisInterface->getVelocityLimit();
+			ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
+			if(ImGui::IsItemActive()) {
+				setManualVelocityTarget(sliderVelocityTarget);
 			}
-			ImGui::TableSetColumnIndex(1);
-			if(ImGui::Button("Velocity Move", cellButtonSize)){
-				moveToManualPositionTargetWithVelocity(manualPositionEntry, manualVelocityEntry, manualAccelerationEntry);
-			}
-			ImGui::TableSetColumnIndex(2);
-			if(ImGui::Button("Timed Move", cellButtonSize)){
-				moveToManualPositionTargetWithTime(manualPositionEntry, manualTimeEntry, manualAccelerationEntry);
-			}
-			ImGui::TableSetColumnIndex(3);
-			if(ImGui::Button("Stop", cellButtonSize)){
+			if(ImGui::IsItemDeactivatedAfterEdit()) {
 				setManualVelocityTarget(0.0);
 			}
 			
-			ImGui::EndTable();
 		}
 		
+		ImGui::BeginDisabled(!axisInterface->isEnabled());
 		
-		float interpolationProgress = 0.0;
-		std::string interpolationProgressString;
-		if(internalControlMode == InternalControlMode::MANUAL_POSITION_INTERPOLATION){
-			double now = EtherCatFieldbus::getCycleProgramTime_seconds();
-			if(motionProfile.isInterpolationFinished(now)){
-				interpolationProgress = 1.0;
-				interpolationProgressString = "Movement Finished";
-			}else{
-				interpolationProgress = motionProfile.getInterpolationProgress(now);
-				std::ostringstream msg;
-				msg << std::fixed << std::setprecision(1) << "Movement Time Remaining : "
-				<< motionProfile.getRemainingInterpolationTime(now);
-				interpolationProgressString = msg.str();
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
+			
+			float cellWidth = (ImGui::GetContentRegionAvail().x - 3 * ImGui::GetStyle().ItemSpacing.x) / 4;
+			ImVec2 cellSize(cellWidth, ImGui::GetTextLineHeight());
+			ImVec2 cellButtonSize(cellWidth, ImGui::GetTextLineHeight()*2);
+			
+			if(ImGui::BeginTable("##posTar", 4)){
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				centeredText("Target Position", cellSize);
+				ImGui::TableSetColumnIndex(1);
+				centeredText("Target Velocity", cellSize);
+				ImGui::TableSetColumnIndex(2);
+				centeredText("Target Time", cellSize);
+				ImGui::TableSetColumnIndex(3);
+				centeredText("Target Acceleration", cellSize);
+				
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::SetNextItemWidth(cellWidth);
+				ImGui::InputFloat("##tarpos", &manualPositionEntry);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::SetNextItemWidth(cellWidth);
+				ImGui::InputFloat("##tarvel", &manualVelocityEntry);
+				ImGui::TableSetColumnIndex(2);
+				ImGui::SetNextItemWidth(cellWidth);
+				ImGui::InputFloat("##tartim", &manualTimeEntry);
+				ImGui::TableSetColumnIndex(3);
+				ImGui::SetNextItemWidth(cellWidth);
+				ImGui::InputFloat("##taracc", &manualAccelerationEntry);
+				
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				if(ImGui::Button("Fast Move", cellButtonSize)){
+					moveToManualPositionTargetWithTime(manualPositionEntry, 0.0, manualAccelerationEntry);
+				}
+				ImGui::TableSetColumnIndex(1);
+				if(ImGui::Button("Velocity Move", cellButtonSize)){
+					moveToManualPositionTargetWithVelocity(manualPositionEntry, manualVelocityEntry, manualAccelerationEntry);
+				}
+				ImGui::TableSetColumnIndex(2);
+				if(ImGui::Button("Timed Move", cellButtonSize)){
+					moveToManualPositionTargetWithTime(manualPositionEntry, manualTimeEntry, manualAccelerationEntry);
+				}
+				ImGui::TableSetColumnIndex(3);
+				if(ImGui::Button("Stop", cellButtonSize)){
+					setManualVelocityTarget(0.0);
+				}
+				
+				ImGui::EndTable();
 			}
-		}else{
-			interpolationProgress = 0.0;
-			interpolationProgressString = "No Movement in progress";
+			
+			
+			float interpolationProgress = 0.0;
+			std::string interpolationProgressString;
+			if(internalControlMode == InternalControlMode::MANUAL_POSITION_INTERPOLATION){
+				double now = EtherCatFieldbus::getCycleProgramTime_seconds();
+				if(motionProfile.isInterpolationFinished(now)){
+					interpolationProgress = 1.0;
+					interpolationProgressString = "Movement Finished";
+				}else{
+					interpolationProgress = motionProfile.getInterpolationProgress(now);
+					std::ostringstream msg;
+					msg << std::fixed << std::setprecision(1) << "Movement Time Remaining : "
+					<< motionProfile.getRemainingInterpolationTime(now);
+					interpolationProgressString = msg.str();
+				}
+			}else{
+				interpolationProgress = 0.0;
+				interpolationProgressString = "No Movement in progress";
+			}
+			ImGui::ProgressBar(interpolationProgress, progressBarSize, interpolationProgressString.c_str());
+			
 		}
-		ImGui::ProgressBar(interpolationProgress, progressBarSize, interpolationProgressString.c_str());
+		
+		if(axisInterface->supportsHoming()){
+			ImGui::BeginDisabled(axisInterface->canStartHoming());
+			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0);
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
+			if(axisInterface->isHoming()){
+				if(customButton("Stop Homing", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTop)){
+					axisInterface->stopHoming();
+				}
+			}else{
+				if(customButton("Start Homing", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTop)){
+					axisInterface->startHoming();
+				}
+			}
+			ImGui::PopStyleVar();
+			if(axisInterface->isHoming()){
+				backgroundText("Homing Progress String ...", buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersBottom);
+			}else if(axisInterface->didHomingSucceed()){
+				backgroundText("Homing Finished", buttonSize, Colors::green, Colors::black, ImDrawFlags_RoundCornersBottom);
+			}else{
+				backgroundText("No Homing in progress", buttonSize, Colors::darkGray, Colors::black, ImDrawFlags_RoundCornersBottom);
+			}
+			ImGui::EndDisabled();
+		}
+			
+		ImGui::EndDisabled(); //end disabled when axis not enabled
 		
 		ImGui::Separator();
 		
@@ -192,11 +237,40 @@ void AxisNode::controlTab(){
 			}
 			
 		}
-		if(axisInterface->configuration.b_supportsHoming){
+		
+		
+		if(positionFeedbackMapping){
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position feedback working range");
+			ImGui::PopFont();
 			
+			auto feedback = positionFeedbackMapping->feedbackInterface;
+			double fbRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+			double wrMin = feedback->getPositionLowerWorkingRangeBound() / fbRatio;
+			double wrMax = feedback->getPositionUpperWorkingRangeBound() / fbRatio;
+			double pos = axisInterface->getPositionActual();
+			double min = axisInterface->getLowerPositionLimit();
+			double max = axisInterface->getUpperPositionLimit();
+			double posNorm = (pos - wrMin) / (wrMax - wrMin);
+			double minPosNorm = (min - wrMin) / (wrMax - wrMin);
+			double maxPosNorm = (max - wrMin) / (wrMax - wrMin);
+			ImDrawList* canvas = ImGui::GetWindowDrawList();
+			ImGui::Dummy(progressBarSize);
+			glm::vec2 minPos = ImGui::GetItemRectMin();
+			glm::vec2 maxPos = ImGui::GetItemRectMax();
+			glm::vec2 size = ImGui::GetItemRectSize();
+			canvas->AddRectFilled(minPos, maxPos, ImGui::GetColorU32(ImGuiCol_FrameBg), ImGui::GetStyle().FrameRounding);
+			canvas->AddRectFilled(ImVec2(minPos.x + size.x * minPosNorm, minPos.y),
+								  ImVec2(minPos.x + size.x * maxPosNorm, maxPos.y),
+								  ImGui::GetColorU32(ImGuiCol_PlotHistogram), ImGui::GetStyle().FrameRounding);
+			canvas->AddLine(ImVec2(minPos.x + size.x * posNorm, minPos.y),
+							ImVec2(minPos.x + size.x * posNorm, maxPos.y),
+							ImColor(Colors::white));
 		}
 		
-		if(axisInterface->configuration.b_supportsPositionFeedback){
+		
+		
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Position Following Error");
 			ImGui::PopFont();
@@ -205,7 +279,8 @@ void AxisNode::controlTab(){
 			double errorNormalized = std::abs(positionFollowingError / positionLoop_maxError->value);
 			ImGui::ProgressBar(errorNormalized, progressBarSize, positionErrorString.str().c_str());
 		}
-		if(axisInterface->configuration.b_supportsVelocityFeedback){
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
+		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Velocity Following Error");
 			ImGui::PopFont();
@@ -312,6 +387,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin);
+				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
@@ -321,6 +397,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin);
+				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}

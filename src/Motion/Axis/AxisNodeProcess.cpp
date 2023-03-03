@@ -153,7 +153,15 @@ void AxisNode::outputProcess(){
 	//update the motion profile
 	switch(internalControlMode){
 		case InternalControlMode::MANUAL_VELOCITY_TARGET:
-			motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, axisInterface->getAccelerationLimit());
+			if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
+				double acc = axisInterface->getAccelerationLimit();
+				double minPos = axisInterface->getLowerPositionLimit();
+				double maxPos = axisInterface->getUpperPositionLimit();
+				motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds, internalVelocityTarget, acc, minPos, maxPos, acc);
+			}else{
+				double acc = axisInterface->getAccelerationLimit();
+				motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, acc);
+			}
 			break;
 		case InternalControlMode::MANUAL_POSITION_INTERPOLATION:
 			motionProfile.updateInterpolation(profileTime_seconds);
@@ -196,8 +204,44 @@ void AxisNode::outputProcess(){
 	}
 	
 	//control loop update (depends on axis control mode)
-	double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
-	double velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionError * positionLoop_proportionalGain->value;
+	double velocityCommand;
+	auto updatePositionControlLoop = [&](){
+		double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
+		velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionError * positionLoop_proportionalGain->value;
+	};
+	
+	switch(internalControlMode){
+		case InternalControlMode::MANUAL_VELOCITY_TARGET:
+			switch(axisInterface->configuration.controlMode){
+				case AxisInterface::ControlMode::POSITION_CONTROL:
+					updatePositionControlLoop();
+					break;
+				case AxisInterface::ControlMode::VELOCITY_CONTROL:
+					velocityCommand = motionProfile.getVelocity();
+					break;
+				case AxisInterface::ControlMode::NONE:
+					velocityCommand = 0.0;
+					break;
+			}
+		case InternalControlMode::MANUAL_POSITION_INTERPOLATION:
+			updatePositionControlLoop();
+			break;
+		case InternalControlMode::HOMING_VELOCITY_TARGET:
+			velocityCommand = motionProfile.getVelocity();
+			break;
+		case InternalControlMode::HOMING_POSITION_INTERPOLATION:
+			updatePositionControlLoop();
+			break;
+		case InternalControlMode::EXTERNAL_POSITION_TARGET:
+			updatePositionControlLoop();
+			break;
+		case InternalControlMode::EXTERNAL_VELOCITY_TARGET:
+			velocityCommand = motionProfile.getVelocity();
+			break;
+		case InternalControlMode::NO_CONTROL:
+			velocityCommand = 0.0;
+			break;
+	}
 	
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){

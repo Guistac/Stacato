@@ -267,7 +267,6 @@ private:
 	void setHomingVelocityTarget(double velocity);
 	void moveToHomingPositionTarget(double position);
 	
-	
 	float manualPositionEntry = 0.0;
 	float manualVelocityEntry = 0.0;
 	float manualAccelerationEntry = 0.0;

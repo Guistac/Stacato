@@ -105,6 +105,8 @@ private:
 	//Rx-PDO
 	DS402::Control ds402Control;
 	int32_t PPp_target = 0;
+	int32_t PVv_target = 0;
+	int16_t PTtq_target = 0;
 	uint16_t IO_DQ_set = 0;
 
 	//Tx-PDO

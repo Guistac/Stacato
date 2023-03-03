@@ -364,17 +364,15 @@ bool VIPA_022_1BF00::load(tinyxml2::XMLElement* xml){
 void VIPA_050_1BS00::onConstruction(){
 	auto thisEncoderModule = std::static_pointer_cast<VIPA_050_1BS00>(shared_from_this());
 	encoder = std::make_shared<VIPA_050_1BS00::SsiEncoder>(thisEncoderModule);
-	auto abstractEncoder = std::static_pointer_cast<MotionFeedbackInterface>(encoder);
-	encoderPin->assignData(abstractEncoder);
+	
+	encoder->feedbackConfig.b_supportsForceFeedback = false;
+	encoder->feedbackConfig.b_supportsPositionFeedback = true;
+	encoder->feedbackConfig.b_supportsVelocityFeedback = true;
+	
+	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackInterface>(encoder));
 	outputPins.push_back(encoderPin);
 	resetPin->assignData(resetPinValue);
 	outputPins.push_back(resetPin);
-	/*
-	inputBitCount = 48;
-	inputByteCount = 6;
-	outputBitCount = 0;
-	outputByteCount = 0;
-	 */
 	updateResetPinVisibility();
 }
 
