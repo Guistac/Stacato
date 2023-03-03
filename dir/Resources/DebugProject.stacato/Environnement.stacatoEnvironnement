@@ -131,19 +131,19 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
                 <NodeEditorPosition x="489" y="199"/>
-                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0.001" VelocityLoopMaxError="2" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-100000" UpperPositionLimit="36200" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10">
+                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="5" PositionLoopMinError="0.02" VelocityLoopMaxError="30" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="36200" UpperPositionLimit="36300" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10">
                     <PositionFeedbackMapping InterfacePinID="92" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="92" UnitConversion="1"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="1"/>
-                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="142" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="143" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="144" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="145" Visible="false"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="145" Visible="true"/>
                     <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="146" Visible="false"/>
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="147" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="148" Visible="false"/>

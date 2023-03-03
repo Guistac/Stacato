@@ -42,28 +42,38 @@ void AxisNode::inputProcess(){
 			lowestInterfaceState = interface->getState();
 		}
 	}
+	axisInterface->state = lowestInterfaceState;
+	
+	//disable the axis if any connected interface is not enabled anymore
 	if(axisInterface->getState() == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
 		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+		axisInterface->state = DeviceState::DISABLING;
+		Logger::warn("[{}] Disabling axis, all devices were not enabled anymore", getName());
+		for(auto actuator : connectedActuatorInterfaces){
+			if(!actuator->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), actuator->getName());
+		}
+		for(auto gpio : connectedGpioInterfaces){
+			if(!gpio->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), gpio->getName());
+		}
+		for(auto feedback : connectedFeedbackInteraces){
+			if(!feedback->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), feedback->getName());
+		}
 	}
-	axisInterface->state = lowestInterfaceState;
 	
 	auto& processData = axisInterface->processData;
 	
+	//handle axis enable request
 	if(processData.b_enable){
 		processData.b_enable = false;
 		if(axisInterface->getState() == DeviceState::READY){
 			b_isEnabling = true;
 			enableRequestTime_seconds = Timing::getProgramTime_seconds();
 			for(auto actuator : connectedActuatorInterfaces) actuator->enable();
+			Logger::info("[{}] Enabling Axis", getName());
 		}
 	}
 	
-	if(processData.b_disable){
-		processData.b_disable = false;
-		b_isEnabling = false;
-		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
-	}
-	
+	//handle enable process
 	if(b_isEnabling){
 		bool b_allEnabled = true;
 		for(auto actuator : connectedActuatorInterfaces){
@@ -74,33 +84,42 @@ void AxisNode::inputProcess(){
 		}
 		if(b_allEnabled){
 			b_isEnabling = false;
-			Logger::info("Axis Enabled");
+			Logger::info("[{}] Axis Enabled", getName());
 		}
 		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
 			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 			b_isEnabling = false;
+			Logger::warn("[{}] Could not enable axis :", getName());
+			for(auto actuator : connectedActuatorInterfaces){
+				if(!actuator->isEnabled()) Logger::warn("[{}]    {} did not enable on time", getName(), actuator->getName());
+			}
 		}
 		else if(axisInterface->getState() < DeviceState::READY){
 			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 			b_isEnabling = false;
+			Logger::warn("[{}] Could not enable axis :", getName());
+			for(auto actuator : connectedActuatorInterfaces){
+				if(!actuator->isReady()) Logger::warn("[{}]    {} was not read", getName(), actuator->getName());
+			}
 		}
 	}
 	
+	//update axis position and position following error
 	if(auto mapping = positionFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
 		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->value;
 		positionFollowingError = motionProfile.getPosition() - feedback->getPosition();
 	}
+	
+	//update axis velocity and velocity following error
 	if(auto mapping = velocityFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
 		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
 		velocityFollowingError = motionProfile.getVelocity() - feedback->getVelocity();
 	}
+	processData.forceActual = 0.0;
 	
-	//Logger::error("IN: pos {}", processData.positionActual);
-	
-	//processData.forceActual = 0.0;
-	
+	//update axis effort
 	double effort = 0.0;
 	int effortSampleCount = 0;
 	for(auto actuator : connectedActuatorInterfaces){
@@ -111,6 +130,7 @@ void AxisNode::inputProcess(){
 	}
 	processData.effortActual = effort / effortSampleCount;
 	
+	//update estop state
 	bool b_estopActive = false;
 	for(auto actuator : connectedActuatorInterfaces){
 		if(actuator->isEmergencyStopActive()){
@@ -128,6 +148,35 @@ void AxisNode::inputProcess(){
 	upperSlowdownSignalPin->copyConnectedPinValue();
 	referenceSignalPin->copyConnectedPinValue();
 	*/
+	
+	
+	//check if the following errors exceed thresholds
+	if(axisInterface->isEnabled()){
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
+			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
+				Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
+				axisInterface->disable();
+			}
+		}
+		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
+		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
+		   velocityFeedbackMapping){
+			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->value)){
+				Logger::warn("[{}] Velocity following error exceeded threshold, Disabling axis.", getName());
+				axisInterface->disable();
+			}
+		}
+	}
+	
+	
+	
+	if(processData.b_disable){
+		processData.b_disable = false;
+		b_isEnabling = false;
+		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+	}
+	
+	
 }
 
 void AxisNode::outputProcess(){
@@ -206,8 +255,10 @@ void AxisNode::outputProcess(){
 	//control loop update (depends on axis control mode)
 	double velocityCommand;
 	auto updatePositionControlLoop = [&](){
-		double positionError = motionProfile.getPosition() - axisInterface->getPositionActual();
-		velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionError * positionLoop_proportionalGain->value;
+		if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
+			velocityCommand = 0.0;
+		else
+			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionFollowingError * positionLoop_proportionalGain->value;
 	};
 	
 	switch(internalControlMode){
@@ -242,6 +293,8 @@ void AxisNode::outputProcess(){
 			velocityCommand = 0.0;
 			break;
 	}
+	
+	Logger::info("[vel] {}", velocityCommand);
 	
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){

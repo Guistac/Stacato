@@ -204,10 +204,36 @@ void AxisNode::controlTab(){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Position Feedback");
 			ImGui::PopFont();
-			double pos = positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
 			std::ostringstream positionString;
-			positionString << std::fixed << std::setprecision(3) << pos << " u";
-			ImGui::ProgressBar(axisInterface->getPositionNormalizedToLimits(), progressBarSize, positionString.str().c_str());
+			positionString << std::fixed << std::setprecision(3)
+			<< positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value
+			<< " u";
+			
+			
+			
+
+			
+			
+			double pos = axisInterface->getPositionActual();
+			double lowerLimit = lowerPositionLimitWithoutClearance;
+			double upperLimit = upperPositionLimitWithoutClearance;
+			double posNormalized = std::clamp((pos - lowerLimit) / (upperLimit - lowerLimit), 0.0, 1.0);
+			double lowerClearanceNormalized = std::clamp((axisInterface->getLowerPositionLimit() - lowerLimit) / (upperLimit - lowerLimit), 0.0, 1.0);
+			double upperClearanceNormalized = std::clamp((axisInterface->getUpperPositionLimit() - lowerLimit) / (upperLimit - lowerLimit), 0.0, 1.0);
+			
+			ImDrawList* canvas = ImGui::GetWindowDrawList();
+			
+			ImGui::ProgressBar(posNormalized, progressBarSize, positionString.str().c_str());
+			ImVec2 minPos = ImGui::GetItemRectMin();
+			ImVec2 maxPos = ImGui::GetItemRectMax();
+			ImVec2 size = ImGui::GetItemRectSize();
+			canvas->AddLine(ImVec2(minPos.x + lowerClearanceNormalized * size.x, minPos.y),
+							ImVec2(minPos.x + lowerClearanceNormalized * size.x, maxPos.y), ImColor(Colors::white));
+			canvas->AddLine(ImVec2(minPos.x + upperClearanceNormalized * size.x, minPos.y),
+							ImVec2(minPos.x + upperClearanceNormalized * size.x, maxPos.y), ImColor(Colors::white));
+			
+			
+			
 		}
 		if(axisInterface->configuration.b_supportsVelocityFeedback){
 			ImGui::PushFont(Fonts::sansBold15);
@@ -278,6 +304,13 @@ void AxisNode::controlTab(){
 			positionErrorString << std::fixed << std::setprecision(4) << positionFollowingError << " u";
 			double errorNormalized = std::abs(positionFollowingError / positionLoop_maxError->value);
 			ImGui::ProgressBar(errorNormalized, progressBarSize, positionErrorString.str().c_str());
+			double minErrorNormalized = std::abs(positionLoop_minError->value) / std::abs(positionLoop_maxError->value);
+			ImVec2 min = ImGui::GetItemRectMin();
+			ImVec2 max = ImGui::GetItemRectMax();
+			ImVec2 size = ImGui::GetItemRectSize();
+			ImDrawList* canvas = ImGui::GetWindowDrawList();
+			canvas->AddLine(ImVec2(min.x + size.x * minErrorNormalized, min.y),
+							ImVec2(min.x + size.x * minErrorNormalized, max.y), ImColor(Colors::white));
 		}
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
 		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL){
@@ -286,7 +319,7 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			std::ostringstream velocityErrorString;
 			velocityErrorString << std::fixed << std::setprecision(4) << velocityFollowingError << " u/s";
-			double errorNormalized = std::abs(velocityFollowingError / positionLoop_maxError->value);
+			double errorNormalized = std::abs(velocityFollowingError / velocityLoop_maxError->value);
 			ImGui::ProgressBar(errorNormalized, progressBarSize, velocityErrorString.str().c_str());
 		}
 		
@@ -440,6 +473,8 @@ void AxisNode::limitSettingsGui(){
 	ImGui::Separator();
 	
 	ImGui::BeginDisabled(controlModeParameter->value != controlModePosition.getInt());
+	
+	limitPositionToFeedbackWorkingRange->gui(Fonts::sansBold15);
 	
 	enableLowerPositionLimit->gui(Fonts::sansBold15);
 	lowerPositionLimit->gui(Fonts::sansBold15);

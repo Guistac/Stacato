@@ -84,7 +84,7 @@ private:
 		SIGNAL_AT_LOWER_AND_UPPER_LIMITS = 2,
 		SIGNAL_AT_ORIGIN = 3,
 		LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS = 4
-	};
+	}limitsignalType = NONE;
 	
 	static OptionParameter::Option option_HomingDirectionNegative;
 	static OptionParameter::Option option_HomingDirectionPositive;
@@ -92,7 +92,7 @@ private:
 	enum HomingDirection{
 		NEGATIVE = 0,
 		POSITIVE = 1
-	};
+	}homingDirection = NEGATIVE;
 	
 	static OptionParameter::Option option_FindSignalEdge;
 	static OptionParameter::Option option_FindSignalCenter;
@@ -100,7 +100,7 @@ private:
 	enum SignalApproachMethod{
 		FIND_SIGNAL_EDGE = 0,
 		FIND_SIGNAL_CENTER = 1
-	};
+	}signalApproachMethod = FIND_SIGNAL_EDGE;
 	
 	void updateConnectedModules();
 	std::vector<std::shared_ptr<DeviceInterface>> connectedDeviceInterfaces;
@@ -214,6 +214,7 @@ private:
 	//Limits
 	BoolParam enableLowerPositionLimit;
 	BoolParam enableUpperPositionLimit;
+	BoolParam limitPositionToFeedbackWorkingRange;
 	NumberParam<double> lowerPositionLimit;
 	NumberParam<double> upperPositionLimit;
 	NumberParam<double> lowerPositionLimitClearance;
@@ -257,6 +258,8 @@ private:
 	float internalVelocityTarget = 0.0;
 	double positionFollowingError = 0.0;
 	double velocityFollowingError = 0.0;
+	double lowerPositionLimitWithoutClearance;
+	double upperPositionLimitWithoutClearance;
 	
 	void homingControl(){}
 	
