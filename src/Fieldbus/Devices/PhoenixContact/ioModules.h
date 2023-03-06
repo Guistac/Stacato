@@ -180,9 +180,8 @@ public:
 	uint64_t previousReadingTime_nanoseconds = 0;
 	double previousPosition_revolutions = 0.0;
 	uint32_t rawPositionData = 0x0;
+	double positionOffset = 0.0;
 	
-	bool b_doHardReset = false;
-	bool b_hardResetBusy = false;
 	uint64_t resetStartTime_nanoseconds = 0;
 	
 	//————— User Parameters ——————
@@ -238,18 +237,6 @@ public:
 					return "Encoder is not ready : invalid control code";
 			}
 		}
-		
-		/*
-		virtual void overridePosition(double newPosition) override {
-			if(encoderModule->hasResetSignalParameter->value) encoderModule->b_doHardReset = true;
-		}
-		virtual bool isBusyOverridingPosition() override {
-			return encoderModule->b_hardResetBusy;
-		}
-		virtual bool didPositionOverrideSucceed() override {
-			return encoderModule->b_hardResetBusy = false;
-		}
-		*/
 						
 		std::shared_ptr<IB_IL_SSI_IN> encoderModule;
 	};

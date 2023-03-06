@@ -79,9 +79,12 @@ public:
 	PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
 	
 	//position override
-	virtual void overridePosition(double newPosition){ 	assert(0 && "MotionFeedbackInterface::overridePosition() : method is not implemented"); }
-	virtual bool isBusyOverridingPosition(){ 			assert(0 && "MotionFeedbackInterface::isBusyOverridingPosition() : method is not implemented");  }
-	virtual bool didPositionOverrideSucceed(){			assert(0 && "MotionFeedbackInterface::didPositionOverrideSucceed() : method is not implemented"); }
+	void overridePosition(double newPosition){
+		feedbackProcessData.positionOverride = newPosition;
+		feedbackProcessData.b_overridePosition = true;
+	}
+	bool isBusyOverridingPosition(){ return feedbackProcessData.b_positionOverrideBusy; }
+	bool didPositionOverrideSucceed() { return feedbackProcessData.b_positionOverrideSucceeded; }
 	
 	//feedback data retrieval
 	Unit getPositionUnit(){ return positionUnit; }
@@ -108,6 +111,10 @@ public:
 		double positionActual = 0.0; 	//actual position value in position Units
 		double velocityActual = 0.0;	//actual velocity value in position Units
 		double forceActual = 0.0;		//linear force in Newton or torque in Newton Meters
+		bool b_overridePosition = false;
+		bool b_positionOverrideBusy = false;
+		bool b_positionOverrideSucceeded = false;
+		double positionOverride = 0.0;
 	}feedbackProcessData;
 };
 

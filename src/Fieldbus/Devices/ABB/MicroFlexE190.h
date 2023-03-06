@@ -26,6 +26,8 @@ public:
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		
+		/*
 		virtual void overridePosition(double newPosition) override {
 			encoderResetPosition = newPosition;
 			b_encoderResetRequest = true;
@@ -34,6 +36,7 @@ public:
 		virtual bool didPositionOverrideSucceed() override { return b_encoderResetSucceeded; }
 		virtual void enable() override{ b_enableRequest = true; }
 		virtual void disable() override{ b_disableRequest = true; }
+		 */
 		
 		//power stage control
 		bool b_enableRequest = false;

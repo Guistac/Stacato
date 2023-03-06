@@ -216,7 +216,7 @@ void PD4_E::readInputs() {
 	}
 
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
-	actualPosition_revolutions = (double)actualPosition / (double)encoderIncrementsPerRevolution;
+	actualPosition_revolutions = ((double)actualPosition / (double)encoderIncrementsPerRevolution) + positionOffset_revolutions;
 	if(b_directionOfMotionIsInverted) actualPosition_revolutions *= -1.0;
 
 	actualFollowingError_revolutions = (double)actualError / (double)encoderIncrementsPerRevolution;
@@ -249,6 +249,17 @@ void PD4_E::readInputs() {
 		servoMotor->b_enabled = false;
 	}
 	 */
+	
+	if(servoMotor->feedbackProcessData.b_positionOverrideBusy){
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)actualPosition / (double)encoderIncrementsPerRevolution;
+		positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
+	}
 
 	auto& actProc = servoMotor->actuatorProcessData;
 	auto& fdbProc = servoMotor->feedbackProcessData;
@@ -322,7 +333,7 @@ void PD4_E::writeOutputs() {
 
 	}
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
-	targetPosition = profilePosition_revolutions * encoderIncrementsPerRevolution;
+	targetPosition = (profilePosition_revolutions - positionOffset_revolutions) * encoderIncrementsPerRevolution;
 	targetVelocity = profileVelocity_revolutions * velocityUnitsPerRevolutionPerSecond;
 
 	if (digitalOut1Pin->isConnected()) *digitalOut1PinValue = digitalOut1Pin->getConnectedPin()->read<bool>();
@@ -332,7 +343,7 @@ void PD4_E::writeOutputs() {
 	digitalOutputs = 0;
 	if (digitalOut1) digitalOutputs |= 0x1 << 16;
 	if (digitalOut2) digitalOutputs |= 0x1 << 17;
-
+	
 	if (servoMotor->b_enable) {
 		servoMotor->b_enable = false;
 		profilePosition_revolutions = actualPosition_revolutions;
@@ -351,6 +362,12 @@ void PD4_E::writeOutputs() {
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	}
 	 */
+	
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = true;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = false;
+	}
 	
 	
 	if (ds402status.hasFault()) {
@@ -400,8 +417,8 @@ bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
 	digitalInputInversionXML->SetAttribute("DigitalIn5", invertDigitalInput5);
 	digitalInputInversionXML->SetAttribute("DigitalIn6", invertDigitalInput6);
 
-	//XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
-	//encoderOffsetXML->SetAttribute("Revolutions", servoMotor->positionOffset_positionUnits);
+	XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
+	encoderOffsetXML->SetAttribute("Revolutions", positionOffset_revolutions);
 
 	return true;
 }
@@ -440,11 +457,13 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn5", &invertDigitalInput5) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 5 Attribute");
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn6", &invertDigitalInput6) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 6 Attribute");
 	
-	/*
 	XMLElement* encoderOffsetXML = xml->FirstChildElement("EncoderOffset");
 	if (encoderOffsetXML == nullptr) return Logger::warn("Could not Find Encoder Offset Attribute");
-	if (encoderOffsetXML->QueryDoubleAttribute("Revolutions", &servoMotor->positionOffset_positionUnits) != XML_SUCCESS) return Logger::warn("Could not load Encoder Offset Attribute");
-	*/
+	if (encoderOffsetXML->QueryDoubleAttribute("Revolutions", &positionOffset_revolutions) != XML_SUCCESS) return Logger::warn("Could not load Encoder Offset Attribute");
+	
+	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
+	servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
+	servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
 	
 	return true;
 }

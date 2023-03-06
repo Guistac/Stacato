@@ -429,3 +429,11 @@ void AxisNode::moveToHomingPositionTarget(double position){
 	internalControlMode = InternalControlMode::HOMING_POSITION_INTERPOLATION;
 }
 
+void AxisNode::overrideCurrentPosition(double newPosition){
+	motionProfile.setPosition(newPosition);
+	for(auto actuatorMapping : actuatorMappings){
+		auto actuator = actuatorMapping->actuatorInterface;
+		if(actuator == positionFeedbackMapping->feedbackInterface) continue;
+		actuatorMapping->actuatorPositionOffset = actuator->getPosition();
+	}
+}

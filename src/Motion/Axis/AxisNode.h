@@ -303,6 +303,8 @@ private:
 	void moveToManualPositionTargetWithTime(double position, double time, double acceleration);
 	void moveToManualPositionTargetWithVelocity(double position, double velocity, double acceleration);
 	
+	void overrideCurrentPosition(double newPosition);
+	
 	void startHoming();
 	void stopHoming();
 	void setHomingVelocityTarget(double velocity);

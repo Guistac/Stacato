@@ -383,8 +383,6 @@ bool IB_IL_SSI_IN::configureParameters(){
 	
 	controlData = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24);
 	
-	b_doHardReset = false;
-	b_hardResetBusy = false;
 	*resetPinValue = false;
 	
 	updateEncoderWorkingRange();
@@ -425,13 +423,34 @@ void IB_IL_SSI_IN::readInputs(){
 	previousReadingTime_nanoseconds = readingTime_nanoseconds;
 	previousPosition_revolutions = position_revolutions;
 	
-	encoder->feedbackProcessData.positionActual = position_revolutions;
+	encoder->feedbackProcessData.positionActual = position_revolutions + positionOffset;
 	encoder->feedbackProcessData.velocityActual = deltaP_revolutions / deltaT_seconds;
 	
 	if(!parentDevice->isStateOperational()) encoder->state = DeviceState::NOT_READY;
 	else if(parentDevice->isStateInit()) encoder->state = DeviceState::OFFLINE;
 	else if(statusCode != SSI::StatusCode::OPERATION) encoder->state = DeviceState::NOT_READY;
 	else encoder->state = DeviceState::ENABLED;
+	
+	
+	if(encoder->feedbackProcessData.b_positionOverrideBusy){
+		encoder->feedbackProcessData.velocityActual = 0.0;
+		if(rawPositionData == 0x0){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
+			positionOffset = encoder->feedbackProcessData.positionOverride;
+			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
+			*resetPinValue = false;
+			updateEncoderWorkingRange();
+			Logger::info("[IB_IL_SSI_IN] Successfully reset SSI encoder position");
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
+			*resetPinValue = false;
+			Logger::error("[IB_IL_SSI_IN] Failed to reset SSI encoder position");
+		}
+	}
+	
 }
 void IB_IL_SSI_IN::writeOutputs(){
 
@@ -454,22 +473,17 @@ void IB_IL_SSI_IN::writeOutputs(){
 	}
 	controlData |= (controlCode << 1);
 	
-	//do encoder position reset
-	uint64_t time_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-	if(b_doHardReset){
-		b_doHardReset = false;
-		b_hardResetBusy = true;
+	
+	
+	if(encoder->feedbackProcessData.b_overridePosition){
+		encoder->feedbackProcessData.b_overridePosition = false;
+		encoder->feedbackProcessData.b_positionOverrideBusy = true;
+		
 		*resetPinValue = true;
-		resetStartTime_nanoseconds = time_nanoseconds;
-		Logger::info("Start Hard Reset of Encoder {}", encoder->getName());
+		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		Logger::info("[{}] resetting SSI encoder", encoder->getName());
 	}
-	if(b_hardResetBusy){
-		encoder->feedbackProcessData.velocityActual = 0.0;
-		if(time_nanoseconds > resetStartTime_nanoseconds + resetSignalTimeParameter->value * 1000000){
-			b_hardResetBusy = false;
-			*resetPinValue = false;
-		}
-	}
+
 }
 
 void IB_IL_SSI_IN::updateEncoderWorkingRange(){
@@ -484,8 +498,8 @@ void IB_IL_SSI_IN::updateEncoderWorkingRange(){
 		workingRangeMax -= workingRangeDelta / 2.0;
 	}
 	
-	encoder->feedbackConfig.positionLowerWorkingRangeBound = workingRangeMin;
-	encoder->feedbackConfig.positionUpperWorkingRangeBound = workingRangeMax;
+	encoder->feedbackConfig.positionLowerWorkingRangeBound = workingRangeMin + positionOffset;
+	encoder->feedbackConfig.positionUpperWorkingRangeBound = workingRangeMax + positionOffset;
 }
 
 
@@ -581,7 +595,7 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, statusString);
 	ImGui::PopStyleColor();
 	
-	if(ImGui::Button("Hard Reset")) b_doHardReset = true;
+	if(ImGui::Button("Hard Reset")) encoder->overridePosition(0.0);
 	
 	ImGui::Text("Raw SSI Position : %i", rawPositionData);
 	
@@ -597,6 +611,7 @@ bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	centerWorkingRangeOnZeroParameter->save(xml);
 	hasResetSignalParameter->save(xml);
 	resetSignalTimeParameter->save(xml);
+	xml->SetAttribute("PositionOffset", positionOffset);
 	return true;
 }
 bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
@@ -610,6 +625,7 @@ bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
 	if(!centerWorkingRangeOnZeroParameter->load(xml)) return false;
 	if(!hasResetSignalParameter->load(xml)) return false;
 	if(!resetSignalTimeParameter->load(xml)) return false;
+	if(xml->QueryDoubleAttribute("PositionOffset", &positionOffset) != XML_SUCCESS) return false;
 	
 	updateEncoderWorkingRange();
 	resetPin->setVisible(hasResetSignalParameter->value);

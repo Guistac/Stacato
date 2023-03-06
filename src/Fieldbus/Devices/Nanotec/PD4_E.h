@@ -116,6 +116,7 @@ class PD4_E : public EtherCatDevice {
 
 	//=========== PROCESS DATA ============
 
+	double positionOffset_revolutions = 0.0;
 	double actualPosition_revolutions = 0.0;
 	double actualVelocity_revolutionsPerSecond = 0.0;
 	double actualFollowingError_revolutions = 0.0;

@@ -97,6 +97,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			break;
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			overrideCurrentPosition(0.0);
 			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
 				homingStep = HomingStep::FINISHED;
 			}
