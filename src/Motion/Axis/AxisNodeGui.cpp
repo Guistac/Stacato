@@ -173,7 +173,6 @@ void AxisNode::controlTab(){
 		}
 		
 		if(axisInterface->supportsHoming()){
-			ImGui::BeginDisabled(axisInterface->canStartHoming());
 			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
 			if(axisInterface->isHoming()){
@@ -181,19 +180,43 @@ void AxisNode::controlTab(){
 					axisInterface->stopHoming();
 				}
 			}else{
+				ImGui::BeginDisabled(!axisInterface->canStartHoming());
 				if(customButton("Start Homing", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTop)){
 					axisInterface->startHoming();
 				}
+				ImGui::EndDisabled();
 			}
 			ImGui::PopStyleVar();
+			
 			if(axisInterface->isHoming()){
-				backgroundText("Homing Progress String ...", buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersBottom);
+				
+				
+				std::string homingString;
+				switch(homingStep){
+					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:			homingString = "Searching lower limit (Coarse)"; break;
+					case HomingStep::SEARCHING_LOW_LIMIT_FINE:				homingString = "Searching lower limit (Fine)"; break;
+					case HomingStep::FOUND_LOW_LIMIT:						homingString = "Found low limit"; break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:			homingString = "Searching upper limit (Coarse)"; break;
+					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:				homingString = "Searching upper limit (Fine)"; break;
+					case HomingStep::FOUND_HIGH_LIMIT:						homingString = "Found upper limit"; break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:	homingString = "Searching reference from below (Coarse)"; break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:	homingString = "Searching reference from below (Fine)"; break;
+					case HomingStep::FOUND_REFERENCE_FROM_BELOW:			homingString = "Found reference from below"; break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:	homingString = "Searching reference from above (Coarse)"; break;
+					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:	homingString = "Searching reference from above (Fine)"; break;
+					case HomingStep::FOUND_REFERENCE_FROM_ABOVE:			homingString = "Found reference from above"; break;
+					case HomingStep::MOVING_TO_REFERENCE_MIDDLE:			homingString = "Moving to reference middle"; break;
+					case HomingStep::NOT_STARTED:							homingString = "Not started"; break;
+					case HomingStep::RESETTING_POSITION_FEEDBACK:			homingString = "Resetting position feedback"; break;
+					case HomingStep::FINISHED:								homingString = "Finished"; break;
+					case HomingStep::FAILED:								homingString = "Failed"; break;
+				}
+				backgroundText(homingString.c_str(), buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}else if(axisInterface->didHomingSucceed()){
 				backgroundText("Homing Finished", buttonSize, Colors::green, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}else{
 				backgroundText("No Homing in progress", buttonSize, Colors::darkGray, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}
-			ImGui::EndDisabled();
 		}
 			
 		ImGui::EndDisabled(); //end disabled when axis not enabled

@@ -10,11 +10,24 @@ bool AxisNode::prepareProcess(){
 	
 	switch(axisControlMode){
 		case ControlMode::POSITION_CONTROL:
-			if(positionFeedbackMapping == nullptr) return false;
-			if(velocityFeedbackMapping == nullptr) return false;
+			if(positionFeedbackMapping == nullptr){
+				Logger::error("[{}] axis has control mode Position but has no position feedback device selected", getName());
+				return false;
+			}
+			if(velocityFeedbackMapping == nullptr) {
+				Logger::error("[{}] axis has control mode Position but has no velocity feedback device selected", getName());
+				return false;
+			}
+			if(axisInterface->getLowerPositionLimit() >= axisInterface->getUpperPositionLimit()){
+				Logger::error("[{}] axis position limits are not valid, lower limit is above or equal to upper limit.", getName());
+				return false;
+			}
 			break;
 		case ControlMode::VELOCITY_CONTROL:
-			if(velocityFeedbackMapping == nullptr) return false;
+			if(velocityFeedbackMapping == nullptr) {
+				Logger::error("[{}] axis has control mode Velocity but has no velocity feedback device selected", getName());
+				return false;
+			}
 			break;
 		case ControlMode::NO_CONTROL:
 		default:
@@ -42,10 +55,11 @@ void AxisNode::inputProcess(){
 			lowestInterfaceState = interface->getState();
 		}
 	}
+	DeviceState previousAxisState = axisInterface->getState();
 	axisInterface->state = lowestInterfaceState;
 	
 	//disable the axis if any connected interface is not enabled anymore
-	if(axisInterface->getState() == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
+	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
 		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 		axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis, all devices were not enabled anymore", getName());
@@ -59,6 +73,7 @@ void AxisNode::inputProcess(){
 			if(!feedback->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), feedback->getName());
 		}
 	}
+	
 	
 	auto& processData = axisInterface->processData;
 	
@@ -108,14 +123,14 @@ void AxisNode::inputProcess(){
 	if(auto mapping = positionFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
 		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->value;
-		positionFollowingError = motionProfile.getPosition() - feedback->getPosition();
+		positionFollowingError = motionProfile.getPosition() - axisInterface->getPositionActual();
 	}
 	
 	//update axis velocity and velocity following error
 	if(auto mapping = velocityFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
 		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
-		velocityFollowingError = motionProfile.getVelocity() - feedback->getVelocity();
+		velocityFollowingError = motionProfile.getVelocity() - axisInterface->getVelocityActual();
 	}
 	processData.forceActual = 0.0;
 	
@@ -140,15 +155,52 @@ void AxisNode::inputProcess(){
 	}
 	processData.b_isEmergencyStopActive = b_estopActive;
 	
-	//read limit signals
-	/*
-	lowerLimitSignalPin->copyConnectedPinValue();
-	upperLimitSignalPin->copyConnectedPinValue();
-	lowerSlowdownSignalPin->copyConnectedPinValue();
-	upperSlowdownSignalPin->copyConnectedPinValue();
-	referenceSignalPin->copyConnectedPinValue();
-	*/
 	
+	
+	
+	//read and react to limit signals
+	previousLowerLimitSignal = *lowerLimitSignal;
+	previousUpperLimitSignal = *upperLimitSignal;
+	previousReferenceSignal = *referenceSignal;
+	switch(limitsignalType){
+		case LimitSignalType::NONE:
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_LIMIT:
+			lowerLimitSignalPin->copyConnectedPinValue();
+			if(axisInterface->isEnabled() && !axisInterface->isHoming()){
+				if(*lowerLimitSignal && motionProfile.getVelocity() < 0.0) {
+					Logger::warn("[{}] Triggered lower limit switch, disabling axis", getName());
+					axisInterface->disable();
+				}
+			}
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
+			lowerLimitSignalPin->copyConnectedPinValue();
+			upperLimitSignalPin->copyConnectedPinValue();
+			if(axisInterface->isEnabled() && !axisInterface->isHoming()){
+				if(*lowerLimitSignal && motionProfile.getVelocity() < 0.0) {
+					axisInterface->disable();
+					Logger::warn("[{}] Triggered lower limit switch, disabling axis", getName());
+				}
+				if(*upperLimitSignal && motionProfile.getVelocity() > 0.0) {
+					axisInterface->disable();
+					Logger::warn("[{}] Triggered upper limit switch, disabling axis", getName());
+				}
+			}
+			break;
+		case LimitSignalType::SIGNAL_AT_ORIGIN:
+			referenceSignalPin->copyConnectedPinValue();
+			break;
+		case LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
+			lowerLimitSignalPin->copyConnectedPinValue();
+			upperLimitSignalPin->copyConnectedPinValue();
+			lowerSlowdownSignalPin->copyConnectedPinValue();
+			upperSlowdownSignalPin->copyConnectedPinValue();
+			break;
+	}
+	
+	//update homing capability flag
+	axisInterface->processData.b_canStartHoming = axisInterface->supportsHoming() && axisInterface->isEnabled() && motionProfile.getVelocity() == 0.0;
 	
 	//check if the following errors exceed thresholds
 	if(axisInterface->isEnabled()){
@@ -169,21 +221,27 @@ void AxisNode::inputProcess(){
 	}
 	
 	
-	
-	if(processData.b_disable){
-		processData.b_disable = false;
-		b_isEnabling = false;
-		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+	//react to axis homing commands
+	if(axisInterface->processData.b_startHoming){
+		axisInterface->processData.b_startHoming = false;
+		if(axisInterface->canStartHoming()){
+			axisInterface->processData.b_isHoming = true;
+			axisInterface->processData.b_didHomingSucceed = false;
+			homingStep = HomingStep::NOT_STARTED;
+		}
 	}
-	
-	
-}
-
-void AxisNode::outputProcess(){
+	if(axisInterface->processData.b_stopHoming){
+		axisInterface->processData.b_stopHoming = false;
+		axisInterface->processData.b_isHoming = false;
+		axisInterface->processData.b_didHomingSucceed = false;
+		homingStep = HomingStep::NOT_STARTED;
+		setManualVelocityTarget(0.0);
+	}
 	
 	//decide on the internal control mode
 	//if no condition matches, we are using manual controls
-	if(!axisInterface->isEnabled()) internalControlMode = InternalControlMode::NO_CONTROL;
+	if(previousAxisState != DeviceState::ENABLED == axisInterface->isEnabled()) internalControlMode = InternalControlMode::MANUAL_VELOCITY_TARGET;
+	else if(!axisInterface->isEnabled()) internalControlMode = InternalControlMode::NO_CONTROL;
 	else if(axisInterface->isHoming()) homingControl();
 	else if(axisPin->isConnected()){
 		switch(axisInterface->configuration.controlMode){
@@ -198,6 +256,18 @@ void AxisNode::outputProcess(){
 				break;
 		}
 	}
+	
+	//handle axis disable request
+	if(processData.b_disable){
+		processData.b_disable = false;
+		b_isEnabling = false;
+		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+	}
+	
+	
+}
+
+void AxisNode::outputProcess(){
 	
 	//update the motion profile
 	switch(internalControlMode){
@@ -294,8 +364,6 @@ void AxisNode::outputProcess(){
 			break;
 	}
 	
-	Logger::info("[vel] {}", velocityCommand);
-	
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){
 		auto actuator = mapping->actuatorInterface;
@@ -349,9 +417,6 @@ void AxisNode::moveToManualPositionTargetWithVelocity(double position, double ve
 	motionProfile.moveToPositionWithVelocity(profileTime_seconds, pos, vel, acc);
 	internalControlMode = InternalControlMode::MANUAL_POSITION_INTERPOLATION;
 }
-
-
-
 
 void AxisNode::setHomingVelocityTarget(double velocity){
 	internalControlMode = InternalControlMode::HOMING_VELOCITY_TARGET;

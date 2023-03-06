@@ -261,12 +261,50 @@ private:
 	double lowerPositionLimitWithoutClearance;
 	double upperPositionLimitWithoutClearance;
 	
-	void homingControl(){}
+	void homingControl();
+	void homingRoutine_HomeToLowerLimitSignal();
+	void homingRoutine_HomeToLowerThenUpperLimitSignal();
+	void homingRoutine_HomeToUpperThenLowerLimitSignal();
+	void homingRoutine_HomingOnReferenceSignalCenter();
+	void homingRoutine_HomingOnReferenceSignalEdge();
+	bool previousLowerLimitSignal = false;
+	bool previousUpperLimitSignal = false;
+	bool previousReferenceSignal = false;
 	
+	enum class HomingStep{
+		
+		//steps for searching low limit
+		SEARCHING_LOW_LIMIT_COARSE,
+		SEARCHING_LOW_LIMIT_FINE,
+		FOUND_LOW_LIMIT,
+		
+		//stepts for searching high limit
+		SEARCHING_HIGH_LIMIT_COARSE,
+		SEARCHING_HIGH_LIMIT_FINE,
+		FOUND_HIGH_LIMIT,
+		
+		//steps for searching position reference
+		SEARCHING_REFERENCE_FROM_BELOW_COARSE,
+		SEARCHING_REFERENCE_FROM_BELOW_FINE,
+		FOUND_REFERENCE_FROM_BELOW,
+		SEARCHING_REFERENCE_FROM_ABOVE_COARSE,
+		SEARCHING_REFERENCE_FROM_ABOVE_FINE,
+		FOUND_REFERENCE_FROM_ABOVE,
+		MOVING_TO_REFERENCE_MIDDLE,
+		
+		NOT_STARTED,
+		RESETTING_POSITION_FEEDBACK,
+		FINISHED,
+		FAILED
+		
+	}homingStep = HomingStep::NOT_STARTED;
+		
 	void setManualVelocityTarget(double velocity);
 	void moveToManualPositionTargetWithTime(double position, double time, double acceleration);
 	void moveToManualPositionTargetWithVelocity(double position, double velocity, double acceleration);
 	
+	void startHoming();
+	void stopHoming();
 	void setHomingVelocityTarget(double velocity);
 	void moveToHomingPositionTarget(double position);
 	

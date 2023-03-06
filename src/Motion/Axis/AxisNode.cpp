@@ -212,6 +212,11 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
+	homingVelocityCoarse->save(xml);
+	homingVelocityFine->save(xml);
+	maxHomingDistanceCoarse->save(xml);
+	maxHomingDistanceFine->save(xml);
+	
 	return true;
 }
 
@@ -236,6 +241,11 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= upperPositionLimitClearance->load(xml);
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
+	
+	success &= homingVelocityCoarse->load(xml);
+	success &= homingVelocityFine->load(xml);
+	success &= maxHomingDistanceCoarse->load(xml);
+	success &= maxHomingDistanceFine->load(xml);
 	
 	manualAccelerationEntry = accelerationLimit->value;
 		
@@ -556,15 +566,19 @@ void AxisNode::updateAxisConfiguration(){
 	
 	if(enableLowerPositionLimit->value){
 		if(positionFeedbackMapping){
-			double fbLowLimit = positionFeedbackMapping->feedbackInterface->getPositionLowerWorkingRangeBound();
-			lowerPositionLimitWithoutClearance = std::max(fbLowLimit, lowerPositionLimit->value);
+			auto feedback = positionFeedbackMapping->feedbackInterface;
+			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->value,
+															feedback->getPositionLowerWorkingRangeBound(),
+															feedback->getPositionUpperWorkingRangeBound());
 		}else lowerPositionLimitWithoutClearance = lowerPositionLimit->value;
 	}else lowerPositionLimitWithoutClearance = -std::numeric_limits<double>::infinity();
 	
 	if(enableUpperPositionLimit->value){
 		if(positionFeedbackMapping){
-			double fbHighLimit = positionFeedbackMapping->feedbackInterface->getPositionUpperWorkingRangeBound();
-			upperPositionLimitWithoutClearance = std::min(fbHighLimit, upperPositionLimit->value);
+			auto feedback = positionFeedbackMapping->feedbackInterface;
+			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->value,
+															feedback->getPositionLowerWorkingRangeBound(),
+															feedback->getPositionUpperWorkingRangeBound());
 		}else upperPositionLimitWithoutClearance = upperPositionLimit->value;
 	}else upperPositionLimitWithoutClearance = std::numeric_limits<double>::infinity();
 		
@@ -584,5 +598,6 @@ void AxisNode::updateAxisConfiguration(){
 	config.b_supportsEffortFeedback = b_force;
 	
 	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL &&
-							limitSignalTypeParameter->value != option_NoLimitSignal.getInt();
+							limitSignalTypeParameter->value != LimitSignalType::NONE &&
+							limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
 }

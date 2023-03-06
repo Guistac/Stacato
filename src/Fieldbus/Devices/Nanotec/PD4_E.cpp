@@ -4,7 +4,10 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include <tinyxml2.h>
 
-void PD4_E::onDisconnection() {}
+void PD4_E::onDisconnection() {
+	servoMotor->state = DeviceState::OFFLINE;
+	gpioDevice->state = DeviceState::OFFLINE;
+}
 
 void PD4_E::onConnection() {}
 
@@ -348,7 +351,8 @@ void PD4_E::writeOutputs() {
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	}
 	 */
-
+	
+	
 	if (ds402status.hasFault()) {
 		ds402control.performFaultReset();
 	}

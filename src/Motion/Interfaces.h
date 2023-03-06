@@ -79,9 +79,9 @@ public:
 	PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
 	
 	//position override
-	virtual void overridePosition(double newPosition){ 	assert("MotionFeedbackInterface::overridePosition() : method is not implemented"); }
-	virtual bool isBusyOverridingPosition(){ 			assert("MotionFeedbackInterface::isBusyOverridingPosition() : method is not implemented");  }
-	virtual bool didPositionOverrideSucceed(){			assert("MotionFeedbackInterface::didPositionOverrideSucceed() : method is not implemented"); }
+	virtual void overridePosition(double newPosition){ 	assert(0 && "MotionFeedbackInterface::overridePosition() : method is not implemented"); }
+	virtual bool isBusyOverridingPosition(){ 			assert(0 && "MotionFeedbackInterface::isBusyOverridingPosition() : method is not implemented");  }
+	virtual bool didPositionOverrideSucceed(){			assert(0 && "MotionFeedbackInterface::didPositionOverrideSucceed() : method is not implemented"); }
 	
 	//feedback data retrieval
 	Unit getPositionUnit(){ return positionUnit; }
