@@ -2,7 +2,7 @@
 
 #include "PositionControlledMachine.h"
 
-#include "Motion/Axis/Axis.h"
+#include "Motion/Axis/AxisNode.h"
 #include "Animation/Animatable.h"
 #include "Animation/Animation.h"
 
@@ -18,7 +18,7 @@
 
 void PositionControlledMachine::initialize() {
 	//inputs
-	addNodePin(positionControlledAxisPin);
+	addNodePin(axisPin);
 		
 	//outputs
 	positionPin->assignData(positionPinValue);
@@ -52,9 +52,9 @@ void PositionControlledMachine::initialize() {
 	});
 	
 	axisOffset->setEditCallback([this](std::shared_ptr<Parameter>){
-		auto axis = getAxis();
-		if(axisOffset->value < axis->getLowPositionLimit()) axisOffset->overwrite(axis->getLowPositionLimit());
-		if(axisOffset->value > axis->getHighPositionLimit()) axisOffset->overwrite(axis->getHighPositionLimit());
+		auto axis = getAxisInterface();
+		if(axisOffset->value < axis->getLowerPositionLimit()) axisOffset->overwrite(axis->getLowerPositionLimit());
+		if(axisOffset->value > axis->getUpperPositionLimit()) axisOffset->overwrite(axis->getUpperPositionLimit());
 		upperPositionLimit->onEdit();
 		lowerPositionLimit->onEdit();
 		updateAnimatableParameters();
@@ -63,36 +63,37 @@ void PositionControlledMachine::initialize() {
 }
 
 bool PositionControlledMachine::isAxisConnected() {
-	return positionControlledAxisPin->isConnected();
+	return axisPin->isConnected();
 }
 
-std::shared_ptr<Motion::Axis> PositionControlledMachine::getAxis() {
-	return positionControlledAxisPin->getConnectedPins().front()->getSharedPointer<Motion::Axis>();
+std::shared_ptr<AxisInterface> PositionControlledMachine::getAxisInterface() {
+	if(!axisPin->isConnected()) return nullptr;
+	return axisPin->getConnectedPin()->getSharedPointer<AxisInterface>();
 }
 
 void PositionControlledMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) updateAnimatableParameters();
+	if(pin == axisPin) updateAnimatableParameters();
 }
 
 void PositionControlledMachine::onPinConnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) updateAnimatableParameters();
+	if(pin == axisPin) updateAnimatableParameters();
 }
 
 void PositionControlledMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
-	if(pin == positionControlledAxisPin) updateAnimatableParameters();
+	if(pin == axisPin) updateAnimatableParameters();
 }
 
 bool PositionControlledMachine::isHardwareReady() {
 	if (!isAxisConnected()) return false;
-	std::shared_ptr<Motion::Axis> axis = getAxis();
-	if(axis->getState() != DeviceState::READY) return false;
+	auto axis = getAxisInterface();
+	if(!axis->isReady()) return false;
 	return true;
 }
 
 bool PositionControlledMachine::isMoving() {
     if (isAxisConnected()) {
-        auto axis = getAxis();
-        return axis->isMoving() && axis->getState() == DeviceState::ENABLED;
+        auto axis = getAxisInterface();
+		return axis->getState() == DeviceState::ENABLED && axis->getVelocityActual() != 0.0;
     }
 	return false;
 }
@@ -101,7 +102,7 @@ void PositionControlledMachine::enableHardware() {
 	if (isReady()) {
 		std::thread machineEnabler([this]() {
 			using namespace std::chrono;
-			std::shared_ptr<Motion::Axis> axis = getAxis();
+			auto axis = getAxisInterface();
 			axis->enable();
 			time_point enableRequestTime = system_clock::now();
 			while (duration(system_clock::now() - enableRequestTime) < milliseconds(500)) {
@@ -120,7 +121,7 @@ void PositionControlledMachine::enableHardware() {
 
 void PositionControlledMachine::disableHardware() {
 	state = DeviceState::READY;
-	if (isAxisConnected()) getAxis()->disable();
+	if (isAxisConnected()) getAxisInterface()->disable();
 	onDisableHardware();
 }
 
@@ -152,10 +153,10 @@ std::string PositionControlledMachine::getStatusString(){
 		case DeviceState::OFFLINE:
 			status = "Machine is Offline : ";
 			if(!isAxisConnected()) status += "No Axis is Connected";
-			else status += "\n" + getAxis()->getStatusString();
+			else status += "\n" + getAxisInterface()->getStatusString();
 			return status;
 		case DeviceState::NOT_READY:
-			status = "Machine is not ready : " + getAxis()->getStatusString();
+			status = "Machine is not ready : " + getAxisInterface()->getStatusString();
 			return status;
 		case DeviceState::READY:
 			status = "Machine is ready to enable.";
@@ -186,10 +187,10 @@ void PositionControlledMachine::inputProcess() {
 		state = DeviceState::OFFLINE;
 		return;
 	}
-	std::shared_ptr<Motion::Axis> axis = getAxis();
+	auto axis = getAxisInterface();
 	
 	//update machine state
-	if (isEnabled() && axis->getState() != DeviceState::ENABLED) disable();
+	if (isEnabled() && !axis->isEnabled()) disable();
 	else state = axis->getState();
 	
 	//update estop state
@@ -207,8 +208,8 @@ void PositionControlledMachine::inputProcess() {
 	else animatablePosition->state = Animatable::State::NOT_READY;
 	
 	auto actualPosition = AnimationValue::makePosition();
-	actualPosition->position = axisPositionToMachinePosition(axis->getActualPosition());
-	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getActualVelocity());
+	actualPosition->position = axisPositionToMachinePosition(axis->getPositionActual());
+	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getVelocityActual());
 	actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
 	animatablePosition->updateActualValue(actualPosition);
 	
@@ -251,9 +252,9 @@ void PositionControlledMachine::outputProcess(){
 		double axisVelocityTarget = machineVelocityToAxisVelocity(target->velocity);
 		double axisAccelerationTarget = machineAccelerationToAxisAcceleration(target->acceleration);
 		
-		getAxis()->setMotionCommand(axisPositionTarget,
-									axisVelocityTarget,
-									axisAccelerationTarget);
+		getAxisInterface()->setPositionTarget(axisPositionTarget,
+											  axisVelocityTarget,
+											  axisAccelerationTarget);
 	}
 }
 
@@ -276,7 +277,7 @@ void PositionControlledMachine::simulateInputProcess() {
 
 void PositionControlledMachine::simulateOutputProcess(){
 	if (!isAxisConnected()) return;
-	std::shared_ptr<Motion::Axis> axis = getAxis();
+	auto axis = getAxisInterface();
 	 
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
@@ -290,13 +291,13 @@ void PositionControlledMachine::simulateOutputProcess(){
 
 
 double PositionControlledMachine::getMinPosition(){
-	if(invertAxis->value) return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
-	return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
+	if(invertAxis->value) return axisPositionToMachinePosition(getAxisInterface()->getUpperPositionLimit());
+	return axisPositionToMachinePosition(getAxisInterface()->getLowerPositionLimit());
 }
 
 double PositionControlledMachine::getMaxPosition(){
-	if(invertAxis->value) return axisPositionToMachinePosition(getAxis()->getLowPositionLimit());
-	return axisPositionToMachinePosition(getAxis()->getHighPositionLimit());
+	if(invertAxis->value) return axisPositionToMachinePosition(getAxisInterface()->getLowerPositionLimit());
+	return axisPositionToMachinePosition(getAxisInterface()->getUpperPositionLimit());
 }
 
 double PositionControlledMachine::getLowerPositionLimit(){
@@ -309,15 +310,15 @@ double PositionControlledMachine::getUpperPositionLimit(){
 
 
 void PositionControlledMachine::captureZero(){
-	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit() - animatablePosition->motionProfile.getPosition());
-	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit() + animatablePosition->motionProfile.getPosition());
+	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit() - animatablePosition->motionProfile.getPosition());
+	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit() + animatablePosition->motionProfile.getPosition());
 	animatablePosition->motionProfile.setPosition(0.0);
 	animatablePosition->setManualVelocityTarget(0.0);
 }
 
 void PositionControlledMachine::resetZero(){
-	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxis()->getHighPositionLimit());
-	else axisOffset->overwriteWithHistory(getAxis()->getLowPositionLimit());
+	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit());
+	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit());
 	animatablePosition->setManualVelocityTarget(0.0);
 }
 
@@ -347,23 +348,24 @@ bool PositionControlledMachine::canStartHoming(){
 }
 
 bool PositionControlledMachine::isHoming(){
-	return getAxis()->isHoming();
+	return getAxisInterface()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
 	animatablePosition->stopAnimation();
-	getAxis()->startHoming();
+	getAxisInterface()->startHoming();
 }
 void PositionControlledMachine::stopHoming(){
-	getAxis()->cancelHoming();
+	getAxisInterface()->stopHoming();
 }
 bool PositionControlledMachine::didHomingSucceed(){
-	return getAxis()->didHomingSucceed();
+	return getAxisInterface()->didHomingSucceed();
 }
 bool PositionControlledMachine::didHomingFail(){
-	return getAxis()->didHomingFail();
+	return !getAxisInterface()->isHoming() && getAxisInterface()->didHomingSucceed();
 }
 const char* PositionControlledMachine::getHomingString(){
-	return Enumerator::getDisplayString(getAxis()->getHomingStep());
+	return "No homing string available";
+	//return Enumerator::getDisplayString(getAxisInterface()->getHomingStep());
 }
 
 
@@ -381,7 +383,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 		animatablePosition->accelerationLimit = 0.0;
 		return;
 	}
-	auto axis = getAxis();
+	auto axis = getAxisInterface();
 	positionUnit = axis->getPositionUnit();
 	axisOffset->setUnit(positionUnit);
 	lowerPositionLimit->setUnit(positionUnit);
@@ -431,7 +433,7 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 
 
 void PositionControlledMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
-	if (isAxisConnected()) getAxis()->getDevices(output);
+	//if (isAxisConnected()) getAxisInterface()->getDevices(output);
 }
 
 

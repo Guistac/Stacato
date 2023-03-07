@@ -219,6 +219,8 @@ public:
 		NONE
 	};
 	
+	Unit getPositionUnit(){ return configuration.positionUnit; }
+	
 	virtual Type getType() override { return Type::AXIS; };
 	
 	bool supportsHoming(){ return configuration.b_supportsHoming; }
@@ -264,6 +266,7 @@ private:
 	friend class AxisNode;
 	
 	struct AxisConfiguration{
+		Unit positionUnit = Units::None::None;
 		bool b_supportsPositionFeedback;
 		bool b_supportsVelocityFeedback;
 		bool b_supportsForceFeedback;

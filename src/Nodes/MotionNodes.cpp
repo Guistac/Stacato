@@ -31,7 +31,6 @@ namespace NodeFactory{
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
 		allAxisNodes = {
-			new Motion::Axis(),
 			new AxisNode()
 		};
 		

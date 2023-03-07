@@ -7,6 +7,7 @@
 
 #include "Project/Editor/Parameter.h"
 
+/*
 class Device;
 namespace Motion {
 
@@ -336,6 +337,6 @@ public:
 
 };
 
-
+*/
 
 

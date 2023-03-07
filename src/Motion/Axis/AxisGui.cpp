@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "Motion/Axis/Axis.h"
 
 #include <imgui.h>
@@ -612,8 +613,8 @@ void Axis::settingsGui() {
 		ImGui::Text("Device:");
 		ImGui::PopFont();
 		ImGui::SameLine();
-		//if(servoActuatorParentDevice) ImGui::Text("%s on %s", servo->getName().c_str(), servo->parentDevice->getName());
-		/*else*/ ImGui::Text("%s on Node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->getNode()->getName());
+
+		ImGui::Text("%s on Node %s", servo->getName().c_str(), servoActuatorPin->getConnectedPin()->getNode()->getName());
 		
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("Position Unit:");
@@ -1229,3 +1230,6 @@ void Axis::metricsGui() {
 
 
 };
+
+
+*/

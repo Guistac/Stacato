@@ -13,15 +13,14 @@
 class PositionControlledMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
-	
 
 	std::shared_ptr<AnimatablePosition> animatablePosition = AnimatablePosition::make("Position", Units::None::None);
 	
 	//———————— Input Pins ——————————
 	
-	std::shared_ptr<NodePin> positionControlledAxisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis");
 	bool isAxisConnected();
-	std::shared_ptr<Motion::Axis> getAxis();
+	std::shared_ptr<AxisInterface> getAxisInterface();
 	
 	//——————— Output Pins ——————————
 	

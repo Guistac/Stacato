@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "PositionControlledMachine.h"
-#include "Motion/Axis/Axis.h"
+#include "Motion/Axis/AxisNode.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -187,7 +187,8 @@ void PositionControlledMachine::widgetGui(){
 	
 	ImGui::SameLine();
 	
-	float actualEffort = getAxis()->getActualEffort();
+	float actualEffort = 0.0;
+	if(isAxisConnected()) actualEffort = getAxisInterface()->getEffortActual();
 	float effortProgress = actualEffort;
 	while(effortProgress > 1.0) effortProgress -= 1.0;
 	if(actualEffort > 2.0) {
@@ -401,7 +402,7 @@ void PositionControlledMachine::setupGui(){
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		drawing->AddRectFilled(min, max, ImColor(Colors::almostBlack));
 		
-		auto axis = getAxis();
+		auto axis = getAxisInterface();
 		double maxPosition = getMaxPosition();
 		double minPosition = getMinPosition();
 		double lowerLimit = getLowerPositionLimit();
