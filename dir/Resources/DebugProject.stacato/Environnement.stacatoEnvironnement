@@ -134,7 +134,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
                 <NodeEditorPosition x="489" y="199"/>
-                <NodeSpecificData VelocityLimit="25" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="5" PositionLoopMinError="0.02" VelocityLoopMaxError="30" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" MaxHomingDistanceCoarse="100" MaxHomingDistanceFine="10">
+                <NodeSpecificData VelocityLimit="30" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="5" PositionLoopMinError="0.02" VelocityLoopMaxError="30" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" MaxHomingDistanceCoarse="100" MaxHomingDistanceFine="10">
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>
