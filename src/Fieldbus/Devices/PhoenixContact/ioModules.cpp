@@ -600,6 +600,7 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImGui::Text("Raw SSI Position : %i", rawPositionData);
 	
 }
+
 bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	resolutionParameter->save(xml);

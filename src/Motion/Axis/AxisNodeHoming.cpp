@@ -87,6 +87,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 				if(positionFeedbackMapping){
 					auto feedback = positionFeedbackMapping->feedbackInterface;
 					feedback->overridePosition(0.0);
+					overrideCurrentPosition(0.0);
 					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 				}else{
 					Logger::error("[{}] Could not reset position feedback, there is no position feedback device", getName());

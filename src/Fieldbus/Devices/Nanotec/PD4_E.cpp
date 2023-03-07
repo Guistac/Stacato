@@ -214,52 +214,13 @@ void PD4_E::readInputs() {
 		if (followingError) servoMotor->disable();
 		if (actualPowerState != DS402::PowerState::OPERATION_ENABLED) servoMotor->disable();
 	}
-
+	
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	actualPosition_revolutions = ((double)actualPosition / (double)encoderIncrementsPerRevolution) + positionOffset_revolutions;
 	if(b_directionOfMotionIsInverted) actualPosition_revolutions *= -1.0;
-
 	actualFollowingError_revolutions = (double)actualError / (double)encoderIncrementsPerRevolution;
 	actualVelocity_revolutionsPerSecond = (double)actualVelocity / velocityUnitsPerRevolutionPerSecond;
 	actualCurrent_amperes = std::abs((double)actualCurrent / 1000.0);
-	*positionPinValue = actualPosition_revolutions;
-	*velocityPinValue = actualVelocity_revolutionsPerSecond;
-
-	digitalIn1 = (digitalInputs >> 16) & 0x1;
-	digitalIn2 = (digitalInputs >> 17) & 0x1;
-	digitalIn3 = (digitalInputs >> 18) & 0x1;
-	digitalIn4 = (digitalInputs >> 19) & 0x1;
-	digitalIn5 = (digitalInputs >> 20) & 0x1;
-	digitalIn6 = (digitalInputs >> 21) & 0x1;
-	
-	*digitalIn1PinValue = digitalIn1;
-	*digitalIn2PinValue = digitalIn2;
-	*digitalIn3PinValue = digitalIn3;
-	*digitalIn4PinValue = digitalIn4;
-	*digitalIn5PinValue = digitalIn5;
-	*digitalIn6PinValue = digitalIn6;
-
-	/*
-	if (negativeLimitSwitchOnDigitalIn1 && digitalIn1 && servoMotor->isEnabled() && actualVelocity_revolutionsPerSecond < 0.0) {
-		Logger::warn("Hit Negative Limit Switch");
-		servoMotor->b_enabled = false;
-	}
-	if (positiveLimitSwitchOnDigitalIn2 && digitalIn2 && servoMotor->isEnabled() && actualVelocity_revolutionsPerSecond > 0.0) {
-		Logger::warn("Hit Positive Limit Switch");
-		servoMotor->b_enabled = false;
-	}
-	 */
-	
-	if(servoMotor->feedbackProcessData.b_positionOverrideBusy){
-		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
-		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
-		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
-		double positionRaw = (double)actualPosition / (double)encoderIncrementsPerRevolution;
-		positionOffset_revolutions = overrideTargetPosition - positionRaw;
-		double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
-		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
-		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
-	}
 
 	auto& actProc = servoMotor->actuatorProcessData;
 	auto& fdbProc = servoMotor->feedbackProcessData;
@@ -280,20 +241,24 @@ void PD4_E::readInputs() {
 			break;
 	}
 	gpioDevice->state = DeviceState::ENABLED;
-	/*
-	if (actualControlMode != ControlMode::Mode::EXTERNAL_CONTROL) servoMotor->b_ready = false;
-	switch (actualPowerState) {
-	case DS402::PowerState::OPERATION_ENABLED:
-		servoMotor->b_enabled = true;
-		break;
-	default:
-		servoMotor->b_enabled = false;
-		break;
-	}
-	 */
-	//gpioDevice->b_detected = true;
-	//gpioDevice->b_online = true;
-	//gpioDevice->b_ready = true;
+	
+	digitalIn1 = (digitalInputs >> 16) & 0x1;
+	digitalIn2 = (digitalInputs >> 17) & 0x1;
+	digitalIn3 = (digitalInputs >> 18) & 0x1;
+	digitalIn4 = (digitalInputs >> 19) & 0x1;
+	digitalIn5 = (digitalInputs >> 20) & 0x1;
+	digitalIn6 = (digitalInputs >> 21) & 0x1;
+	
+	*digitalIn1PinValue = digitalIn1;
+	*digitalIn2PinValue = digitalIn2;
+	*digitalIn3PinValue = digitalIn3;
+	*digitalIn4PinValue = digitalIn4;
+	*digitalIn5PinValue = digitalIn5;
+	*digitalIn6PinValue = digitalIn6;
+	
+	*positionPinValue = actualPosition_revolutions;
+	*velocityPinValue = actualVelocity_revolutionsPerSecond;
+
 
 }
 
@@ -332,6 +297,22 @@ void PD4_E::writeOutputs() {
 			}
 
 	}
+	
+	//override position and calculate position offset before calculating new target position
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)actualPosition / (double)(0x1 << encoderSingleTurnResolutionBits);
+		positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
+		
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	
 	int encoderIncrementsPerRevolution = 0x1 << encoderSingleTurnResolutionBits;
 	targetPosition = (profilePosition_revolutions - positionOffset_revolutions) * encoderIncrementsPerRevolution;
 	targetVelocity = profileVelocity_revolutions * velocityUnitsPerRevolutionPerSecond;
@@ -354,19 +335,6 @@ void PD4_E::writeOutputs() {
 	if (servoMotor->b_disable) {
 		servoMotor->b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-	}
-
-	/*
-	if (servoMotor->b_setQuickstop) {
-		servoMotor->b_setQuickstop = false;
-		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
-	}
-	 */
-	
-	if(servoMotor->feedbackProcessData.b_overridePosition){
-		servoMotor->feedbackProcessData.b_overridePosition = false;
-		servoMotor->feedbackProcessData.b_positionOverrideBusy = true;
-		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = false;
 	}
 	
 	

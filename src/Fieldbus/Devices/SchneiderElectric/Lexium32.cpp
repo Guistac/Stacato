@@ -251,9 +251,9 @@ void Lexium32::readInputs() {
 	
 	b_faultNeedsRestart = _actionStatus & 0x10;
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
-		
+	
     //set the encoder position in revolution units and velocity in revolutions per second
-	servoMotor->feedbackProcessData.positionActual = (double)_p_act / (double)positionUnitsPerRevolution;
+	servoMotor->feedbackProcessData.positionActual = ((double)_p_act / (double)positionUnitsPerRevolution) + servoMotor->positionOffset_revolutions;
 	servoMotor->feedbackProcessData.velocityActual = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
 	servoMotor->actuatorProcessData.effortActual = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 	servoMotor->actuatorProcessData.followingErrorActual = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
@@ -276,7 +276,7 @@ void Lexium32::readInputs() {
 	*digitalIn3Value = b_invertDI3 ? !DI3 : DI3;
 	*digitalIn4Value = b_invertDI4 ? !DI4 : DI4;
 	*digitalIn5Value = b_invertDI5 ? !DI5 : DI5;
-	
+
 	
 	if(!isConnected()) 														servoMotor->state = DeviceState::OFFLINE;
 	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = DeviceState::OFFLINE;
@@ -383,6 +383,17 @@ void Lexium32::writeOutputs() {
 	}
 	BRK_release = servoMotor->actuatorProcessData.b_holdingBrakeIsReleased ? 1 : 0;
 	
+	
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
+		servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		updateEncoderWorkingRange();
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
@@ -416,7 +427,7 @@ void Lexium32::writeOutputs() {
 		ds402Control.setOperatingMode(DS402::OperatingMode::NONE);
 		
 	//PPp_target
-	PPp_target = (int32_t)(servoMotor->actuatorProcessData.positionTarget * positionUnitsPerRevolution);
+	PPp_target = (int32_t)((servoMotor->actuatorProcessData.positionTarget - servoMotor->positionOffset_revolutions) * positionUnitsPerRevolution);
 	PVv_target = (int32_t)(servoMotor->actuatorProcessData.velocityTarget * velocityUnitsPerRpm * 60.0);
 	//PTtq_target = (int16_t)(servoMotor->actuatorProcessData.forceTarget * ???);
 	
@@ -724,6 +735,8 @@ void Lexium32::updateEncoderWorkingRange() {
 		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = 0.0;
 		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits);
 	}
+	servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
+	servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
 }
 
 
@@ -957,7 +970,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
 
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
-    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotor->positionOffset);
+    encoderSettingsXML->SetAttribute("PositionOffset", servoMotor->positionOffset_revolutions);
 	
 	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
 	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->supportsHoldingBrakeControl());
@@ -1045,7 +1058,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
-    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotor->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
+    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset", &servoMotor->positionOffset_revolutions) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
 	updateEncoderWorkingRange();
 	
 	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");

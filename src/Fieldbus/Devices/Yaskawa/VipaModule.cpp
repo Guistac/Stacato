@@ -444,34 +444,45 @@ void VIPA_050_1BS00::readInputs(){
 	previousReadingTime_microseconds = time_microseconds;
 	previousEncoderPosition_revolutions = encoderPosition_revolutions;
 	
-	encoder->feedbackProcessData.positionActual = encoderPosition_revolutions;
+	encoder->feedbackProcessData.positionActual = encoderPosition_revolutions + positionOffset;
 	encoder->feedbackProcessData.velocityActual = encoderVelocity_revolutionsPerSecond;
 	
 	if(parentBusCoupler->isStateOperational()) encoder->state = DeviceState::ENABLED;
 	else encoder->state = DeviceState::OFFLINE;
 	
-	if(encoder->b_doHardReset){
-		encoder->b_doHardReset = false;
-		//if(encoder->canHardReset()){
-			encoder->b_hardResetBusy = true;
-			*resetPinValue = true;
-			resetStartTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
-			Logger::warn("Hard Resetting {}", encoder->getName());
-		//}
-	}
 	
-	if(encoder->b_hardResetBusy){
+	
+	
+	if(encoder->feedbackProcessData.b_positionOverrideBusy){
 		encoder->feedbackProcessData.velocityActual = 0.0;
-		double time = EtherCatFieldbus::getCycleProgramTime_seconds();
-		if(time > resetStartTime_seconds + (double)resetTime_milliseconds / 1000.0){
-			encoder->b_hardResetBusy = false;
+		if(encoderValue == 0x0){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
+			positionOffset = encoder->feedbackProcessData.positionOverride;
+			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
 			*resetPinValue = false;
+			updateEncoderWorkingRange();
+			Logger::info("[{}] Successfully reset encoder position", encoder->getName());
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetTime_milliseconds * 1000000){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
+			*resetPinValue = false;
+			Logger::error("[{}] Failed to reset encoder position", encoder->getName());
 		}
 	}
-	
 }
 
-void VIPA_050_1BS00::writeOutputs(){ /*No Outputs*/ }
+void VIPA_050_1BS00::writeOutputs(){
+	if(encoder->feedbackProcessData.b_overridePosition){
+		encoder->feedbackProcessData.b_overridePosition = false;
+		encoder->feedbackProcessData.b_positionOverrideBusy = true;
+		
+		*resetPinValue = true;
+		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		Logger::info("[{}] resetting SSI encoder", encoder->getName());
+	}
+}
 
 void VIPA_050_1BS00::onDisconnection(){
 	encoder->state = DeviceState::OFFLINE;
@@ -581,13 +592,16 @@ void VIPA_050_1BS00::moduleParameterGui(){
 void VIPA_050_1BS00::updateEncoderWorkingRange(){
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
+	
+	double workingRangeMin = 0.0;
+	double workingRangeMax = maxRevolutions;
 	if(b_centerRangeOnZero){
-		encoder->feedbackConfig.positionLowerWorkingRangeBound = -maxRevolutions / 2.0;
-		encoder->feedbackConfig.positionUpperWorkingRangeBound = maxRevolutions / 2.0;
-	}else{
-		encoder->feedbackConfig.positionLowerWorkingRangeBound = 0;
-		encoder->feedbackConfig.positionUpperWorkingRangeBound = maxRevolutions;
+		workingRangeMin -= maxRevolutions / 2.0;
+		workingRangeMax -= maxRevolutions / 2.0;
 	}
+	
+	encoder->feedbackConfig.positionLowerWorkingRangeBound = workingRangeMin + positionOffset;
+	encoder->feedbackConfig.positionUpperWorkingRangeBound = workingRangeMax + positionOffset;
 }
 
 void VIPA_050_1BS00::updateResetPinVisibility(){
@@ -606,7 +620,7 @@ bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("IgnoredBitCount", normalisationBitCount);
 	xml->SetAttribute("BitShiftDirection", Enumerator::getSaveString(bitshiftDirection));
 	xml->SetAttribute("ClockEdge", Enumerator::getSaveString(clockEdge));
-	//xml->SetAttribute("Zero_revolutions", encoder->positionOffset);
+	xml->SetAttribute("PositionOffset", positionOffset);
 	return true;
 }
 
@@ -640,7 +654,7 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	if(xml->QueryStringAttribute("ClockEdge", &clockEdgeString) != XML_SUCCESS) return Logger::warn("Could not find Clock Edge attribute");
 	if(!Enumerator::isValidSaveName<ClockEdge>(clockEdgeString)) return Logger::warn("Could not identify Clock Edge Attribute");
 	clockEdge = Enumerator::getEnumeratorFromSaveString<ClockEdge>(clockEdgeString);
-	//if(xml->QueryDoubleAttribute("Zero_revolutions", &encoder->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find encoder zero attribute");
+	if(xml->QueryDoubleAttribute("PositionOffset", &positionOffset) != XML_SUCCESS) return Logger::warn("Could not find position Offset attribute");
 	updateEncoderWorkingRange();
 	return true;
 }

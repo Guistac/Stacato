@@ -262,6 +262,7 @@ void AxisNode::inputProcess(){
 		processData.b_disable = false;
 		b_isEnabling = false;
 		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+		axisInterface->state = DeviceState::DISABLING;
 	}
 	
 	

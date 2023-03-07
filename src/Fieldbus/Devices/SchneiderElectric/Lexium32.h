@@ -25,7 +25,7 @@ public:
 		bool b_quickstop = false;
 		bool b_releaseHoldingBrake = false;
 		bool b_applyHoldingBrake = false;
-		double positionOffset = 0.0;
+		double positionOffset_revolutions = 0.0;
 		
 		virtual void enable() override { b_enable = true; }
 		virtual void disable() override { b_disable = true; }

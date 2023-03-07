@@ -183,7 +183,6 @@ public:
 	double previousEncoderPosition_revolutions = 0.0;
 	
 	uint64_t resetStartTime_nanoseconds = 0;
-	double resetStartTime_seconds = 0.0;
 	
 	//————— SubDevice ——————
 	
@@ -194,19 +193,8 @@ public:
 		virtual std::string getName() override { return std::string(encoderModule->parentBusCoupler->getName()) + " SSI Encoder"; };
 		
 		virtual std::string getStatusString() override { return ""; }
-		
-		/*
-		virtual bool canHardReset() override { return encoderModule->b_hasResetSignal && encoderModule->resetPin->isConnected(); }
-		virtual void executeHardReset() override {
-			b_doHardReset = true;
-			b_hardResetBusy = true;
-		}
-		virtual bool isExecutingHardReset() override { return b_hardResetBusy; }
-		*/
 		 
 		std::shared_ptr<VIPA_050_1BS00> encoderModule;
-		bool b_doHardReset = false;
-		bool b_hardResetBusy = false;
 	};
 	
 	std::shared_ptr<SsiEncoder> encoder;
@@ -325,6 +313,7 @@ public:
 	bool b_centerRangeOnZero = false;
 	bool b_hasResetSignal = false;
 	float resetTime_milliseconds = 1.0;
+	double positionOffset = 0.0;
 	
 	//==== Gui Stuff ====
 	virtual void moduleParameterGui();
