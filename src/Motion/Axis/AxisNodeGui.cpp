@@ -408,7 +408,8 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
@@ -418,7 +419,8 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
@@ -442,7 +444,8 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
@@ -452,7 +455,8 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
@@ -491,7 +495,16 @@ void AxisNode::actuatorControlSettingsGui(){
 void AxisNode::limitSettingsGui(){
 
 	velocityLimit->gui(Fonts::sansBold15);
+	std::ostringstream actVelLimString;
+	actVelLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorVelocityLimit << " u/s";
+	ImGui::SameLine();
+	backgroundText(actVelLimString.str().c_str(), Colors::gray, Colors::black);
+	
 	accelerationLimit->gui(Fonts::sansBold15);
+	std::ostringstream actAccLimString;
+	actAccLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorAccelerationLimit << " u/s\xc2\xb2";
+	ImGui::SameLine();
+	backgroundText(actAccLimString.str().c_str(), Colors::gray, Colors::black);
 	
 	ImGui::Separator();
 	

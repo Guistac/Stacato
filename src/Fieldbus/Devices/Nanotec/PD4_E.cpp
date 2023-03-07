@@ -398,7 +398,7 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	XMLElement* limitsXML = xml->FirstChildElement("Limits");
 	if (limitsXML == nullptr) return Logger::warn("Could not find Limit attribute");
 	if (limitsXML->QueryDoubleAttribute("VelocityLimit_revolutionsPerSecond", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not find velocity Limit attribute");
-	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
+	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->actuatorConfig.accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("CurrentLimit_amps", &currentLimit_amperes) != XML_SUCCESS) return Logger::warn("Could not find current Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("MaxFollowingError_revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not find following error Limit attribute");
 	if(limitsXML->QueryBoolAttribute("InvertDirectionOfMotion", &invertDirectionOfMotion) != XML_SUCCESS) return Logger::warn("Could not find Invert direction of motion attribute");

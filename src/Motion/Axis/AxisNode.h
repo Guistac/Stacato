@@ -111,24 +111,18 @@ private:
 	//Feedback
 	class FeedbackMapping{
 	public:
-		FeedbackMapping(std::shared_ptr<NodePin> interfacePin) {
+		FeedbackMapping(std::shared_ptr<NodePin> interfacePin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
 			feedbackInterface = interfacePin->getSharedPointer<MotionFeedbackInterface>();
 			interfacePinID = interfacePin->getUniqueID();
 			feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
+			
+			feedbackUnitsPerAxisUnit->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
 		}
 		std::shared_ptr<MotionFeedbackInterface> feedbackInterface;
 		NumberParam<double> feedbackUnitsPerAxisUnit;
 		int interfacePinID = 0;
+		std::shared_ptr<AxisNode> axisNode;
 	};
-	
-	/*
-	OptionParam positionFeedbackSelectionParameter;
-	OptionParam velocityFeedbackSelectionParameter;
-	static OptionParameter::Option noPositionFeedbackOption;
-	static OptionParameter::Option noVelocityFeedbackOption;
-	std::vector<OptionParameter::Option*> positionFeedbackOptions;
-	std::vector<OptionParameter::Option*> velocityFeedbackOptions;
-	 */
 	
 	std::shared_ptr<FeedbackMapping> positionFeedbackMapping = nullptr;
 	std::shared_ptr<FeedbackMapping> velocityFeedbackMapping = nullptr;
@@ -136,7 +130,7 @@ private:
 	//Actuators
 	class ActuatorMapping{
 	public:
-		ActuatorMapping(std::shared_ptr<NodePin> actuatorPin) {
+		ActuatorMapping(std::shared_ptr<NodePin> actuatorPin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
 			actuatorInterface = actuatorPin->getSharedPointer<ActuatorInterface>();
 			interfacePinID = actuatorPin->getUniqueID();
 			actuatorMode_None = 		OptionParameter::Option(0, "Disabled", "Disabled");
@@ -173,6 +167,9 @@ private:
 				}
 			});
 			actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
+			
+			actuatorUnitsPerAxisUnits->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
+			controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
 		}
 		
 		OptionParameter::Option actuatorMode_None;
@@ -193,6 +190,7 @@ private:
 		double actuatorPositionOffset = 0.0;
 		std::shared_ptr<ActuatorInterface> actuatorInterface;
 		int interfacePinID = 0;
+		std::shared_ptr<AxisNode> axisNode;
 	};
 	std::vector<std::shared_ptr<ActuatorMapping>> actuatorMappings;
 	
@@ -212,6 +210,8 @@ private:
 	NumberParam<double> velocityLoop_maxError;
 	
 	//Limits
+	double actuatorVelocityLimit;
+	double actuatorAccelerationLimit;
 	BoolParam enableLowerPositionLimit;
 	BoolParam enableUpperPositionLimit;
 	BoolParam limitPositionToFeedbackWorkingRange;

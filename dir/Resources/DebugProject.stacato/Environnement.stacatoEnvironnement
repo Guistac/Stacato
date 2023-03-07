@@ -6,12 +6,12 @@
                 <NodeEditorPosition x="262" y="50"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1238"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="40"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="33" AccelerationLimit_revolutionsPerSecondSquared="26" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
-                    <EncoderOffset Revolutions="-20873.55615234375"/>
+                    <EncoderOffset Revolutions="-20913.943115234375"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="75" Visible="true"/>
@@ -35,7 +35,7 @@
                 <NodeEditorPosition x="38" y="48"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="35" AccelerationLimit_revolutionsPerSecondSquared="25" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
                     <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
@@ -64,8 +64,8 @@
                 <NodeEditorPosition x="-185" y="49"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="456"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="0" AccelerationLimit_revolutionsPerSecondSquared="0" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="100"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="0"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>

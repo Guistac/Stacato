@@ -158,7 +158,11 @@ void AxisNode::initialize(){
 	updateAxisConfiguration();
 }
 
-void AxisNode::onPinUpdate(std::shared_ptr<NodePin> pin){}
+void AxisNode::onPinUpdate(std::shared_ptr<NodePin> pin){
+	if(pin == actuatorPin || pin == feedbackPin || pin == gpioPin){
+		updateConnectedModules();
+	}
+}
 void AxisNode::onPinConnection(std::shared_ptr<NodePin> pin){
 	if(pin == actuatorPin || pin == feedbackPin || pin == gpioPin){
 		updateConnectedModules();
@@ -267,7 +271,8 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 		if(pfbXML->QueryAttribute("InterfacePinID", &pinID) != XML_SUCCESS) return false;
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == pinID){
-				positionFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				positionFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
 				if(!positionFeedbackMapping->feedbackUnitsPerAxisUnit->load(pfbXML)) return false;
 				break;
 			}
@@ -279,7 +284,8 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 		if(vfbXML->QueryAttribute("InterfacePinID", &pinID) != XML_SUCCESS) return false;
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == pinID){
-				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin);
+				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
 				if(!velocityFeedbackMapping->feedbackUnitsPerAxisUnit->load(vfbXML)) return false;
 				break;
 			}
@@ -340,22 +346,12 @@ void AxisNode::updateConnectedModules(){
 			}
 		}
 		if(!b_interfaceFound){
-			auto newMapping = std::make_shared<ActuatorMapping>(actuatorPin);
+			auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+			auto newMapping = std::make_shared<ActuatorMapping>(actuatorPin, thisAxisNode);
 			actuatorMappings.push_back(newMapping);
 		}
 	}
-	
-	/*
-	positionFeedbackOptions.clear();
-	for(auto feedbackPin : allFeedbackPins){
-		int id = feedbackPin->uniqueID;
-	}
-	positionFeedbackOptions.push_back(&noPositionFeedbackOption);
-	
-	velocityFeedbackOptions.clear();
-	velocityFeedbackOptions.push_back(&noVelocityFeedbackOption);
-	*/
-	
+
 	if(positionFeedbackMapping){
 		bool b_interfaceFound = false;
 		for(auto feedbackPin : allFeedbackPins){
@@ -399,9 +395,6 @@ void AxisNode::updateConnectedModules(){
 	}
 	
 	updateAxisConfiguration();
-	
-	
-	
 }
 
 
@@ -559,10 +552,21 @@ void AxisNode::updateAxisConfiguration(){
 			break;
 	}
 	
+	double lowestActuatorVelocityLimit = std::numeric_limits<double>::infinity();
+	double lowestActuatorAccelerationLimit = std::numeric_limits<double>::infinity();
+	for(auto actuatorMapping : actuatorMappings){
+		auto actuator = actuatorMapping->actuatorInterface;
+		double thisActuatorVelocityLimit = actuator->getVelocityLimit() / actuatorMapping->actuatorUnitsPerAxisUnits->value;
+		double thisActuatorAccelerationLimit = actuator->getAccelerationLimit()/ actuatorMapping->actuatorUnitsPerAxisUnits->value;
+		lowestActuatorVelocityLimit = std::min(lowestActuatorVelocityLimit, thisActuatorVelocityLimit);
+		lowestActuatorAccelerationLimit = std::min(lowestActuatorAccelerationLimit, thisActuatorAccelerationLimit);
+	}
+	actuatorVelocityLimit = lowestActuatorVelocityLimit;
+	actuatorAccelerationLimit = lowestActuatorAccelerationLimit;
+	
 	config.accelerationLimit = accelerationLimit->value;
 	config.decelerationLimit = accelerationLimit->value;
 	config.velocityLimit = velocityLimit->value;
-	
 	
 	if(enableLowerPositionLimit->value){
 		if(positionFeedbackMapping){
