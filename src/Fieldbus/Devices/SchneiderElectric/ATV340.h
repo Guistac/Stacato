@@ -27,14 +27,6 @@ public:
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		
-		bool b_enable = false;
-		bool b_disable = false;
-		bool b_quickstop = false;
-		
-		virtual void enable() override { b_enable = true; }
-		virtual void disable() override { b_disable = true; }
-		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
 	class ATV340_GPIO : public GpioInterface{

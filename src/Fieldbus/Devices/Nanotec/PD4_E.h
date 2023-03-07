@@ -8,10 +8,6 @@ class PD4_E : public EtherCatDevice {
 	
 	class PD4EServoMotor : public ActuatorInterface{
 	public:
-		virtual void enable() override { b_enable = true; }
-		virtual void disable() override { b_disable = true; }
-		bool b_enable = false;
-		bool b_disable = false;
 		virtual std::string getName() override {
 			return "PD4E Servo Motor";
 		}

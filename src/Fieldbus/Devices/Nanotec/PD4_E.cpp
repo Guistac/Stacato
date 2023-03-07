@@ -325,15 +325,15 @@ void PD4_E::writeOutputs() {
 	if (digitalOut1) digitalOutputs |= 0x1 << 16;
 	if (digitalOut2) digitalOutputs |= 0x1 << 17;
 	
-	if (servoMotor->b_enable) {
-		servoMotor->b_enable = false;
+	if (servoMotor->actuatorProcessData.b_enable) {
+		servoMotor->actuatorProcessData.b_enable = false;
 		profilePosition_revolutions = actualPosition_revolutions;
 		profileVelocity_revolutions = actualVelocity_revolutionsPerSecond;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 	}
 
-	if (servoMotor->b_disable) {
-		servoMotor->b_disable = false;
+	if (servoMotor->actuatorProcessData.b_disable) {
+		servoMotor->actuatorProcessData.b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	}
 	

@@ -19,13 +19,6 @@ public:
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 		std::shared_ptr<ATV320> drive;
 		
-		bool b_enable = false;
-		bool b_disable = false;
-		bool b_quickstop = false;
-		
-		virtual void enable() override { b_enable = true; }
-		virtual void disable() override { b_disable = true; }
-		virtual void quickstop() override { b_quickstop = true; }
 	};
 	
 	class ATV_GPIO : public GpioInterface{

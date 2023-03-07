@@ -238,16 +238,15 @@ void ATV340::writeOutputs() {
 	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	//handle enabling & disabling
-	if(motor->b_disable){
-		motor->b_disable = false;
-		motor->b_enable = false;
+	if(motor->actuatorProcessData.b_disable){
+		motor->actuatorProcessData.b_disable = false;
 		b_waitingForEnable = false;
 		axis->disable();
 	}
-	else if(motor->b_enable){
+	else if(motor->actuatorProcessData.b_enable){
 		if(axis->hasFault()) axis->doFaultReset();
 		else {
-			motor->b_enable = false;
+			motor->actuatorProcessData.b_enable = false;
 			b_waitingForEnable = true;
 			enableRequestTime_nanoseconds = now_nanoseconds;
 			axis->enable();

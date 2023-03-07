@@ -19,19 +19,8 @@ public:
 		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		
-		bool b_enable = false;
-		bool b_disable = false;
-		bool b_quickstop = false;
-		bool b_releaseHoldingBrake = false;
-		bool b_applyHoldingBrake = false;
+	
 		double positionOffset = 0.0;
-		
-		virtual void enable() override { b_enable = true; }
-		virtual void disable() override { b_disable = true; }
-		virtual void quickstop() override { b_quickstop = true; }
-		virtual void applyHoldingBrake() override { b_releaseHoldingBrake = true; }
-		virtual void releaseHoldingBrake() override { b_applyHoldingBrake = true; }
 	};
 	
 	class LexiumGpio : public GpioInterface{

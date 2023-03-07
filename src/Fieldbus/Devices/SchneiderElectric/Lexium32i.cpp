@@ -330,23 +330,23 @@ void Lexium32i::writeOutputs() {
 	}
 	
     //handle power state transitions
-    if (servoMotor->b_enable) {
-		servoMotor->b_enable = false;
+    if (servoMotor->actuatorProcessData.b_enable) {
+		servoMotor->actuatorProcessData.b_enable = false;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
     }
-    if (servoMotor->b_disable) {
-		servoMotor->b_disable = false;
+    if (servoMotor->actuatorProcessData.b_disable) {
+		servoMotor->actuatorProcessData.b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
     }
-    if (servoMotor->b_quickstop) {
-		servoMotor->b_quickstop = false;
+    if (servoMotor->actuatorProcessData.b_quickstop) {
+		servoMotor->actuatorProcessData.b_quickstop = false;
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
     }
 	
 	//manual holding brake control
-	if(servoMotor->b_releaseHoldingBrake){
-		servoMotor->b_releaseHoldingBrake = false;
+	if(servoMotor->actuatorProcessData.b_releaseHoldingBrake){
+		servoMotor->actuatorProcessData.b_releaseHoldingBrake = false;
 		switch(actualPowerState){
 			case DS402::PowerState::SWITCH_ON_DISABLED:
 			case DS402::PowerState::READY_TO_SWITCH_ON:
@@ -356,8 +356,8 @@ void Lexium32i::writeOutputs() {
 			default: break;
 		}
 	}
-	if(servoMotor->b_applyHoldingBrake){
-		servoMotor->b_applyHoldingBrake = false;
+	if(servoMotor->actuatorProcessData.b_applyHoldingBrake){
+		servoMotor->actuatorProcessData.b_applyHoldingBrake = false;
 		servoMotor->actuatorProcessData.b_holdingBrakeIsReleased = false;
 	}
 	BRK_release = servoMotor->actuatorProcessData.b_holdingBrakeIsReleased ? 1 : 0;

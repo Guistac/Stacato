@@ -253,17 +253,17 @@ void ATV320::readInputs() {
 void ATV320::writeOutputs() {
 	
 	//state change commands
-	if(actuator->b_enable){
-		actuator->b_enable = false;
+	if(actuator->actuatorProcessData.b_enable){
+		actuator->actuatorProcessData.b_enable = false;
 		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
 		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	}
-	if(actuator->b_disable){
-		actuator->b_disable = false;
+	if(actuator->actuatorProcessData.b_disable){
+		actuator->actuatorProcessData.b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	}
-	if(actuator->b_quickstop){
-		actuator->b_quickstop = false;
+	if(actuator->actuatorProcessData.b_quickstop){
+		actuator->actuatorProcessData.b_quickstop = false;
 		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
 	}
 	ds402Control.setPowerState(requestedPowerState, actualPowerState);

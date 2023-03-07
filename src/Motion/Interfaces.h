@@ -125,12 +125,12 @@ public:
 	
 	virtual Type getType() override {return Type::ACTUATOR; };
 	
-	virtual void enable(){		assert("ActuatorInterface::enable() : method is not implemented"); }
-	virtual void disable(){	assert("ActuatorInterface::disable() : method is not implemented"); }
-	virtual void quickstop(){ }
-	virtual void applyHoldingBrake(){}
-	virtual void releaseHoldingBrake(){}
-	
+	void enable(){ actuatorProcessData.b_enable = true; }
+	void disable(){ actuatorProcessData.b_disable = true; }
+	void quickstop(){ actuatorProcessData.b_quickstop = true; }
+	void applyHoldingBrake(){ actuatorProcessData.b_applyHoldingBrake = true; }
+	void releaseHoldingBrake(){ actuatorProcessData.b_releaseHoldingBrake = true; }
+	 
 	enum class ControlMode{
 		POSITION,
 		VELOCITY,
@@ -196,6 +196,11 @@ public:
 		double positionTarget = 0.0;	//in position units
 		double velocityTarget = 0.0;	//in position units per second
 		double forceTarget = 0.0;		//in newton for linear actuators and newton meters for rotary actuators
+		bool b_enable = false;
+		bool b_disable = false;
+		bool b_applyHoldingBrake = false;
+		bool b_releaseHoldingBrake = false;
+		bool b_quickstop = false;
 		//feedback
 		bool b_isEmergencyStopActive = false;
 		bool b_holdingBrakeIsReleased = false;
