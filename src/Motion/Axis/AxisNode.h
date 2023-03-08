@@ -212,6 +212,8 @@ private:
 	//Limits
 	double actuatorVelocityLimit;
 	double actuatorAccelerationLimit;
+	double feedbackLowerPositionLimit;
+	double feedbackUpperPositionLimit;
 	BoolParam enableLowerPositionLimit;
 	BoolParam enableUpperPositionLimit;
 	BoolParam limitPositionToFeedbackWorkingRange;
@@ -270,30 +272,38 @@ private:
 	bool previousLowerLimitSignal = false;
 	bool previousUpperLimitSignal = false;
 	bool previousReferenceSignal = false;
+	double homingOriginLowerEdgePosition = 0.0;
+	double homingOriginUpperEdgePosition = 0.0;
+	double homingOriginCenterPosition = 0.0;
 	
 	enum class HomingStep{
 		
 		//steps for searching low limit
 		SEARCHING_LOW_LIMIT_COARSE,
+		FOUND_LOW_LIMIT_COARSE,
 		SEARCHING_LOW_LIMIT_FINE,
 		FOUND_LOW_LIMIT,
 		
 		//stepts for searching high limit
 		SEARCHING_HIGH_LIMIT_COARSE,
+		FOUND_HIGH_LIMIT_COARSE,
 		SEARCHING_HIGH_LIMIT_FINE,
 		FOUND_HIGH_LIMIT,
 		
-		//steps for searching position reference
-		SEARCHING_REFERENCE_FROM_BELOW_COARSE,
-		SEARCHING_REFERENCE_FROM_BELOW_FINE,
-		FOUND_REFERENCE_FROM_BELOW,
-		SEARCHING_REFERENCE_FROM_ABOVE_COARSE,
-		SEARCHING_REFERENCE_FROM_ABOVE_FINE,
-		FOUND_REFERENCE_FROM_ABOVE,
-		MOVING_TO_REFERENCE_MIDDLE,
+		//steps for searching origin
+		SEARCHING_ORIGIN_UPPER_EDGE_COARSE,
+		FOUND_ORIGIN_UPPER_EDGE_COARSE,
+		SEARCHING_ORIGIN_UPPER_EDGE_FINE,
+		FOUND_ORIGIN_UPPER_EDGE,
+		SEARCHING_ORIGIN_LOWER_EDGE_COARSE,
+		FOUND_ORIGIN_LOWER_EDGE_COARSE,
+		SEARCHING_ORIGIN_LOWER_EDGE_FINE,
+		FOUND_ORIGIN_LOWER_EDGE,
+		MOVING_TO_ORIGIN_CENTER,
 		
 		NOT_STARTED,
 		RESETTING_POSITION_FEEDBACK,
+		FINISHING,
 		FINISHED,
 		FAILED
 		

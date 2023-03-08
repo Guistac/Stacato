@@ -70,6 +70,13 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			
 		case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
 			if(*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
+			}
+			break;
+			
+		case HomingStep::FOUND_LOW_LIMIT_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
 				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
 				homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
 			}
@@ -83,7 +90,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			break;
 			
 		case HomingStep::FOUND_LOW_LIMIT:
-			if(motionProfile.getVelocity() == 0.0){
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
 				if(positionFeedbackMapping){
 					auto feedback = positionFeedbackMapping->feedbackInterface;
 					feedback->overridePosition(0.0);
@@ -100,8 +107,12 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
 			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
-				homingStep = HomingStep::FINISHED;
+				homingStep = HomingStep::FINISHING;
 			}
+			break;
+		
+		case HomingStep::FINISHED:
+			homingStep = HomingStep::FINISHED;
 			break;
 			
 		default:
@@ -162,41 +173,125 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 		case HomingStep::NOT_STARTED:
 			switch(homingDirection){
 				case NEGATIVE:
+					setHomingVelocityTarget(-std::abs(homingVelocityCoarse->value));
+					homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE;
 					break;
 				case POSITIVE:
+					setHomingVelocityTarget(std::abs(homingVelocityCoarse->value));
+					homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE;
 					break;
 			}
 			break;
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-			
-		case HomingStep::FOUND_REFERENCE_FROM_ABOVE:
-			switch(homingDirection){
-				case NEGATIVE:
-					break;
-				case POSITIVE:
-					break;
+		case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE:
+			if(*referenceSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE;
 			}
 			break;
 			
-		case HomingStep::FOUND_REFERENCE_FROM_BELOW:
-			switch(homingDirection){
-				case NEGATIVE:
-					break;
-				case POSITIVE:
-					break;
+		case HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
+				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE;
 			}
 			break;
 			
-		case HomingStep::MOVING_TO_REFERENCE_MIDDLE:
+		case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE:
+			if(!*referenceSignal && previousReferenceSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_UPPER_EDGE;
+			}
+			break;
+			
+			
+			
+			
+		case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE:
+			if(*referenceSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE;
+			}
+			break;
+			
+		case HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0.0){
+				setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE;
+			}
+			break;
+			
+		case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE:
+			if(!*referenceSignal && previousReferenceSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_LOWER_EDGE;
+			}
+			break;
+			
+			
+			
+			
+		case HomingStep::FOUND_ORIGIN_UPPER_EDGE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
+				//mark down upper edge position
+				homingOriginUpperEdgePosition = axisInterface->getPositionActual();
+				switch(homingDirection){
+					case NEGATIVE:
+						setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+						homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE;
+						break;
+					case POSITIVE:
+						//compute center, then go to center and zero
+						moveToHomingPositionTarget(homingOriginLowerEdgePosition + (homingOriginUpperEdgePosition - homingOriginLowerEdgePosition) * 0.5);
+						homingStep = HomingStep::MOVING_TO_ORIGIN_CENTER;
+						break;
+				}
+			}
+			break;
+			
+		case HomingStep::FOUND_ORIGIN_LOWER_EDGE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0){
+				//mark down lower edge position
+				homingOriginLowerEdgePosition = axisInterface->getPositionActual();
+				switch(homingDirection){
+					case NEGATIVE:
+						//compute center, then go to center and zero
+						moveToHomingPositionTarget(homingOriginLowerEdgePosition + (homingOriginUpperEdgePosition - homingOriginLowerEdgePosition) * 0.5);
+						homingStep = HomingStep::MOVING_TO_ORIGIN_CENTER;
+						break;
+					case POSITIVE:
+						setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+						homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE;
+						break;
+				}
+			}
+			break;
+			
+			
+			
+		case HomingStep::MOVING_TO_ORIGIN_CENTER:
+			if(motionProfile.getInterpolationTarget() == motionProfile.getPosition() && motionProfile.getVelocity() == 0.0){
+				setHomingVelocityTarget(0.0);
+				auto feedback = positionFeedbackMapping->feedbackInterface;
+				feedback->overridePosition(0.0);
+				overrideCurrentPosition(0.0);
+				homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+			}
+			break;
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			overrideCurrentPosition(0.0);
+			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+				homingStep = HomingStep::FINISHING;
+			}
+			break;
+			
+		case HomingStep::FINISHING:
+			homingStep = HomingStep::FINISHED;
+			break;
 			
 		default: break;
 	}
@@ -205,6 +300,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 void AxisNode::homingRoutine_HomingOnReferenceSignalEdge(){
 	switch(homingStep){
 			
+			/*
 		case HomingStep::NOT_STARTED:
 			switch(homingDirection){
 				case NEGATIVE:
@@ -229,6 +325,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalEdge(){
 		case HomingStep::MOVING_TO_REFERENCE_MIDDLE:
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			*/
 			
 		default: break;
 			

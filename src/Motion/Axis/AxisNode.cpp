@@ -108,7 +108,7 @@ void AxisNode::initialize(){
 	
 	controlModeParameter = OptionParameter::make(controlModePosition, controlModeParameterOptions, "Axis Control Mode", "AxisControlMode");
 	controlModeParameter->addEditCallback([this](){ updateControlMode(); });
-	 
+	
 	maxEnableTimeSeconds = NumberParameter<double>::make(0.2, "Max enable time (seconds)", "MaxEnableTime");
 	
 	positionLoop_velocityFeedForward = NumberParameter<double>::make(1.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
@@ -142,16 +142,17 @@ void AxisNode::initialize(){
 	
 	
 	
-	
+	limitSignalTypeParameter = OptionParameter::make(option_SignalAtLowerLimit, limitSignalTypeOptions, "Limit Signal Type", "LimitSignalType");
 	homingDirectionParameter = 	OptionParameter::make(option_HomingDirectionNegative, homingDirectionOptions, "Homing direction", "HomingDirection");
 	signalApproachParameter = 	OptionParameter::make(option_FindSignalEdge, signalApproachOptions, "Signal approach method", "SignalApproachMethod");
 	homingVelocityCoarse = 		NumberParameter<double>::make(0.0, "Homing velocity coarse", "HomingVelocityCoarse");
 	homingVelocityFine = 		NumberParameter<double>::make(0.0, "Homing velocity fine", "HomingVelocityFine");
 	maxHomingDistanceCoarse = 	NumberParameter<double>::make(0.0, "Max homing distance coarse", "MaxHomingDistanceCoarse");
 	maxHomingDistanceFine = 	NumberParameter<double>::make(0.0, "Max homing distance fine", "MaxHomingDistanceFine");
-	
-	limitSignalTypeParameter = OptionParameter::make(option_SignalAtLowerLimit, limitSignalTypeOptions, "Limit Signal Type", "LimitSignalType");
 	limitSignalTypeParameter->addEditCallback([this](){ updateLimitSignalType(); });
+	homingDirectionParameter->addEditCallback([this](){ updateLimitSignalType(); });
+	signalApproachParameter->addEditCallback([this](){ updateLimitSignalType(); });
+
 	
 	updateControlMode();
 	updateLimitSignalType();
@@ -197,6 +198,9 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 		actuatorMapping->controlModeParameter->save(actXML);
 	}
 	
+	limitSignalTypeParameter->save(xml);
+	controlModeParameter->save(xml);
+	
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
@@ -216,6 +220,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
+	homingDirectionParameter->save(xml);
+	signalApproachParameter->save(xml);
 	homingVelocityCoarse->save(xml);
 	homingVelocityFine->save(xml);
 	maxHomingDistanceCoarse->save(xml);
@@ -227,6 +233,10 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 bool AxisNode::load(tinyxml2::XMLElement* xml){
 	
 	bool success = true;
+	
+	controlModeParameter->load(xml);
+	limitSignalTypeParameter->load(xml);
+	
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
 	success &= positionLoop_velocityFeedForward->load(xml);
@@ -246,6 +256,8 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
 	
+	success &= homingDirectionParameter->load(xml);
+	success &= signalApproachParameter->load(xml);
 	success &= homingVelocityCoarse->load(xml);
 	success &= homingVelocityFine->load(xml);
 	success &= maxHomingDistanceCoarse->load(xml);
@@ -571,23 +583,24 @@ void AxisNode::updateAxisConfiguration(){
 	config.decelerationLimit = accelerationLimit->value;
 	config.velocityLimit = velocityLimit->value;
 	
-	if(enableLowerPositionLimit->value){
-		if(positionFeedbackMapping){
-			auto feedback = positionFeedbackMapping->feedbackInterface;
-			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->value,
-															feedback->getPositionLowerWorkingRangeBound(),
-															feedback->getPositionUpperWorkingRangeBound());
-		}else lowerPositionLimitWithoutClearance = lowerPositionLimit->value;
-	}else lowerPositionLimitWithoutClearance = -std::numeric_limits<double>::infinity();
-	
-	if(enableUpperPositionLimit->value){
-		if(positionFeedbackMapping){
-			auto feedback = positionFeedbackMapping->feedbackInterface;
-			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->value,
-															feedback->getPositionLowerWorkingRangeBound(),
-															feedback->getPositionUpperWorkingRangeBound());
-		}else upperPositionLimitWithoutClearance = upperPositionLimit->value;
-	}else upperPositionLimitWithoutClearance = std::numeric_limits<double>::infinity();
+	if(positionFeedbackMapping){
+		auto feedback = positionFeedbackMapping->feedbackInterface;
+		
+		feedbackLowerPositionLimit = feedback->getPositionLowerWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+		feedbackUpperPositionLimit = feedback->getPositionUpperWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+		
+		if(enableLowerPositionLimit->value)
+			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
+		else
+			lowerPositionLimitWithoutClearance = feedbackLowerPositionLimit;
+		if(enableUpperPositionLimit->value)
+			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
+		else
+			upperPositionLimitWithoutClearance = feedbackUpperPositionLimit;
+	}else{
+		lowerPositionLimitWithoutClearance = -std::numeric_limits<double>::infinity();
+		upperPositionLimitWithoutClearance = std::numeric_limits<double>::infinity();
+	}
 		
 	config.lowerPositionLimit = lowerPositionLimitWithoutClearance + std::abs(lowerPositionLimitClearance->value);
 	config.upperPositionLimit = upperPositionLimitWithoutClearance - std::abs(upperPositionLimitClearance->value);

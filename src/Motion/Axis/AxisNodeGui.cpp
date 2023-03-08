@@ -194,20 +194,25 @@ void AxisNode::controlTab(){
 				std::string homingString;
 				switch(homingStep){
 					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:			homingString = "Searching lower limit (Coarse)"; break;
+					case HomingStep::FOUND_LOW_LIMIT_COARSE:				homingString = "Found lower limit (Coarse)"; break;
 					case HomingStep::SEARCHING_LOW_LIMIT_FINE:				homingString = "Searching lower limit (Fine)"; break;
 					case HomingStep::FOUND_LOW_LIMIT:						homingString = "Found low limit"; break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:			homingString = "Searching upper limit (Coarse)"; break;
+					case HomingStep::FOUND_HIGH_LIMIT_COARSE:				homingString = "Found upper limit (Coarse)"; break;
 					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:				homingString = "Searching upper limit (Fine)"; break;
 					case HomingStep::FOUND_HIGH_LIMIT:						homingString = "Found upper limit"; break;
-					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:	homingString = "Searching reference from below (Coarse)"; break;
-					case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:	homingString = "Searching reference from below (Fine)"; break;
-					case HomingStep::FOUND_REFERENCE_FROM_BELOW:			homingString = "Found reference from below"; break;
-					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:	homingString = "Searching reference from above (Coarse)"; break;
-					case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:	homingString = "Searching reference from above (Fine)"; break;
-					case HomingStep::FOUND_REFERENCE_FROM_ABOVE:			homingString = "Found reference from above"; break;
-					case HomingStep::MOVING_TO_REFERENCE_MIDDLE:			homingString = "Moving to reference middle"; break;
+					case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE:	homingString = "Searching origin upper edge (Coarse)"; break;
+					case HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE:		homingString = "Found origin upper edge (Coarse)"; break;
+					case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE:		homingString = "Searching origin upper edge (Fine)"; break;
+					case HomingStep::FOUND_ORIGIN_UPPER_EDGE:				homingString = "Found origin upper edge"; break;
+					case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE:	homingString = "Searching origin lower edge (Coarse)"; break;
+					case HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE:		homingString = "Found origin lower edge (Coarse)"; break;
+					case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE:		homingString = "Searching origin lower edge (Fine)"; break;
+					case HomingStep::FOUND_ORIGIN_LOWER_EDGE:				homingString = "Found origin lower edge"; break;
+					case HomingStep::MOVING_TO_ORIGIN_CENTER:				homingString = "Moving to origin center"; break;
 					case HomingStep::NOT_STARTED:							homingString = "Not started"; break;
 					case HomingStep::RESETTING_POSITION_FEEDBACK:			homingString = "Resetting position feedback"; break;
+					case HomingStep::FINISHING:								homingString = "Finishing..."; break;
 					case HomingStep::FINISHED:								homingString = "Finished"; break;
 					case HomingStep::FAILED:								homingString = "Failed"; break;
 				}
@@ -510,16 +515,24 @@ void AxisNode::limitSettingsGui(){
 	
 	ImGui::BeginDisabled(controlModeParameter->value != controlModePosition.getInt());
 	
-	limitPositionToFeedbackWorkingRange->gui(Fonts::sansBold15);
-	
 	enableLowerPositionLimit->gui(Fonts::sansBold15);
 	lowerPositionLimit->gui(Fonts::sansBold15);
+	std::ostringstream lowPosLimString;
+	lowPosLimString << "Min: " << std::fixed << std::setprecision(3) << feedbackLowerPositionLimit << " u";
+	ImGui::SameLine();
+	backgroundText(lowPosLimString.str().c_str(), Colors::gray, Colors::black);
+	
 	lowerPositionLimitClearance->gui(Fonts::sansBold15);
 	
 	ImGui::Separator();
 	
 	enableUpperPositionLimit->gui(Fonts::sansBold15);
 	upperPositionLimit->gui(Fonts::sansBold15);
+	std::ostringstream highPosLimString;
+	highPosLimString << "Max: " << std::fixed << std::setprecision(3) << feedbackUpperPositionLimit << " u";
+	ImGui::SameLine();
+	backgroundText(highPosLimString.str().c_str(), Colors::gray, Colors::black);
+	
 	upperPositionLimitClearance->gui(Fonts::sansBold15);
 	
 	ImGui::EndDisabled();

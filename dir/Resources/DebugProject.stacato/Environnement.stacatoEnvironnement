@@ -11,7 +11,7 @@
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
-                    <EncoderOffset Revolutions="-20913.943115234375"/>
+                    <EncoderOffset Revolutions="-21499.7294921875"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="75" Visible="true"/>
@@ -134,24 +134,24 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="141">
                 <NodeEditorPosition x="489" y="199"/>
-                <NodeSpecificData VelocityLimit="30" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="5" PositionLoopMinError="0.02" VelocityLoopMaxError="30" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" MaxHomingDistanceCoarse="100" MaxHomingDistanceFine="10">
+                <NodeSpecificData LimitSignalType="3" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="25" PositionLoopVelocityFeedForward="1" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="5" PositionLoopMinError="0.02" VelocityLoopMaxError="30" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-100" UpperPositionLimit="100" LowerPositionLimitClearance="10" UpperPositionLimitClearance="10" HomingDirection="1" SignalApproachMethod="1" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" MaxHomingDistanceCoarse="100" MaxHomingDistanceFine="10">
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="1"/>
-                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="1"/>
-                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="142" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="143" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="144" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="145" Visible="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="145" Visible="false"/>
                     <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="146" Visible="false"/>
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="147" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="148" Visible="false"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="149" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="149" Visible="true"/>
                     <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="150" Visible="true"/>
                 </InputPins>
                 <OutputPins>
@@ -163,8 +163,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Position Controlled Machine" UniqueID="171">
                 <NodeEditorPosition x="765" y="241"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
+                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-90" UpperPositionLimit="90"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="1"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -180,13 +180,14 @@
         <Links>
             <Link UniqueID="133" StartPin="119" EndPin="123"/>
             <Link UniqueID="137" StartPin="136" EndPin="125"/>
-            <Link UniqueID="138" StartPin="128" EndPin="135"/>
             <Link UniqueID="139" StartPin="119" EndPin="135"/>
-            <Link UniqueID="164" StartPin="119" EndPin="145"/>
             <Link UniqueID="166" StartPin="77" EndPin="142"/>
             <Link UniqueID="168" StartPin="92" EndPin="142"/>
             <Link UniqueID="169" StartPin="106" EndPin="142"/>
-            <Link UniqueID="178" StartPin="151" EndPin="173"/>
+            <Link UniqueID="181" StartPin="118" EndPin="144"/>
+            <Link UniqueID="183" StartPin="119" EndPin="149"/>
+            <Link UniqueID="185" StartPin="151" EndPin="173"/>
+            <Link UniqueID="187" StartPin="128" EndPin="135"/>
         </Links>
     </NodeGraph>
 </Environnement>

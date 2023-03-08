@@ -414,43 +414,22 @@ void IB_IL_SSI_IN::readInputs(){
 	
 	if(centerWorkingRangeOnZeroParameter->value && rawPositionData >= incrementsTotal / 2) positionSigned -= incrementsTotal;
 	
-	double position_revolutions = double(positionSigned) / double(incrementsPerRevolution);
+	positionBeforeOffset = double(positionSigned) / double(incrementsPerRevolution);
 	uint64_t readingTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	double deltaT_seconds = double(readingTime_nanoseconds - previousReadingTime_nanoseconds) / 1000000000.0;
-	double deltaP_revolutions = position_revolutions - previousPosition_revolutions;
+	double deltaP_revolutions = positionBeforeOffset - previousPosition_revolutions;
 	
 	previousReadingTime_nanoseconds = readingTime_nanoseconds;
-	previousPosition_revolutions = position_revolutions;
+	previousPosition_revolutions = positionBeforeOffset;
 	
-	encoder->feedbackProcessData.positionActual = position_revolutions + positionOffset;
+	encoder->feedbackProcessData.positionActual = positionBeforeOffset + positionOffset;
 	encoder->feedbackProcessData.velocityActual = deltaP_revolutions / deltaT_seconds;
 	
 	if(!parentDevice->isStateOperational()) encoder->state = DeviceState::NOT_READY;
 	else if(parentDevice->isStateInit()) encoder->state = DeviceState::OFFLINE;
 	else if(statusCode != SSI::StatusCode::OPERATION) encoder->state = DeviceState::NOT_READY;
 	else encoder->state = DeviceState::ENABLED;
-	
-	
-	if(encoder->feedbackProcessData.b_positionOverrideBusy){
-		encoder->feedbackProcessData.velocityActual = 0.0;
-		if(rawPositionData == 0x0){
-			encoder->feedbackProcessData.b_positionOverrideBusy = false;
-			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
-			positionOffset = encoder->feedbackProcessData.positionOverride;
-			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
-			*resetPinValue = false;
-			updateEncoderWorkingRange();
-			Logger::info("[IB_IL_SSI_IN] Successfully reset SSI encoder position");
-		}
-		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000){
-			encoder->feedbackProcessData.b_positionOverrideBusy = false;
-			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
-			*resetPinValue = false;
-			Logger::error("[IB_IL_SSI_IN] Failed to reset SSI encoder position");
-		}
-	}
-	
 }
 void IB_IL_SSI_IN::writeOutputs(){
 
@@ -479,9 +458,36 @@ void IB_IL_SSI_IN::writeOutputs(){
 		encoder->feedbackProcessData.b_overridePosition = false;
 		encoder->feedbackProcessData.b_positionOverrideBusy = true;
 		
-		*resetPinValue = true;
-		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-		Logger::info("[{}] resetting SSI encoder", encoder->getName());
+		if(hasResetSignalParameter->value){
+			*resetPinValue = true;
+			resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			Logger::info("[{}] resetting SSI encoder", encoder->getName());
+		}else{
+			positionOffset = encoder->feedbackProcessData.positionOverride - positionBeforeOffset;
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
+			Logger::info("[{}] Encoder position reset", encoder->getName());
+			updateEncoderWorkingRange();
+		}
+	}
+	
+	if(encoder->feedbackProcessData.b_positionOverrideBusy){
+		encoder->feedbackProcessData.velocityActual = 0.0;
+		if(rawPositionData == 0x0){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
+			positionOffset = encoder->feedbackProcessData.positionOverride;
+			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
+			*resetPinValue = false;
+			updateEncoderWorkingRange();
+			Logger::info("[IB_IL_SSI_IN] Successfully reset SSI encoder position");
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000){
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
+			*resetPinValue = false;
+			Logger::error("[IB_IL_SSI_IN] Failed to reset SSI encoder position");
+		}
 	}
 
 }

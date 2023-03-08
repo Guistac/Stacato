@@ -180,6 +180,7 @@ public:
 	uint64_t previousReadingTime_nanoseconds = 0;
 	double previousPosition_revolutions = 0.0;
 	uint32_t rawPositionData = 0x0;
+	double positionBeforeOffset = 0.0;
 	double positionOffset = 0.0;
 	
 	uint64_t resetStartTime_nanoseconds = 0;

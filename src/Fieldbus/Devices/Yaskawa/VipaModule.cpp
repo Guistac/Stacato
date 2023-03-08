@@ -451,7 +451,28 @@ void VIPA_050_1BS00::readInputs(){
 	else encoder->state = DeviceState::OFFLINE;
 	
 	
+}
+
+void VIPA_050_1BS00::writeOutputs(){
 	
+	if(encoder->feedbackProcessData.b_overridePosition){
+		encoder->feedbackProcessData.b_overridePosition = false;
+		encoder->feedbackProcessData.b_positionOverrideBusy = true;
+		
+		if(b_hasResetSignal){
+			*resetPinValue = true;
+			resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			Logger::info("[{}] resetting SSI encoder", encoder->getName());
+		}else{
+			positionOffset = encoder->feedbackProcessData.positionOverride - encoderPosition_revolutions;
+			encoder->feedbackProcessData.b_positionOverrideBusy = false;
+			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
+			Logger::info("[{}] Encoder position reset", encoder->getName());
+			updateEncoderWorkingRange();
+		}
+		
+	
+	}
 	
 	if(encoder->feedbackProcessData.b_positionOverrideBusy){
 		encoder->feedbackProcessData.velocityActual = 0.0;
@@ -471,17 +492,7 @@ void VIPA_050_1BS00::readInputs(){
 			Logger::error("[{}] Failed to reset encoder position", encoder->getName());
 		}
 	}
-}
-
-void VIPA_050_1BS00::writeOutputs(){
-	if(encoder->feedbackProcessData.b_overridePosition){
-		encoder->feedbackProcessData.b_overridePosition = false;
-		encoder->feedbackProcessData.b_positionOverrideBusy = true;
-		
-		*resetPinValue = true;
-		resetStartTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-		Logger::info("[{}] resetting SSI encoder", encoder->getName());
-	}
+	
 }
 
 void VIPA_050_1BS00::onDisconnection(){

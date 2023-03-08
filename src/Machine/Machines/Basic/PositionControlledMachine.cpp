@@ -53,8 +53,9 @@ void PositionControlledMachine::initialize() {
 	
 	axisOffset->setEditCallback([this](std::shared_ptr<Parameter>){
 		auto axis = getAxisInterface();
-		if(axisOffset->value < axis->getLowerPositionLimit()) axisOffset->overwrite(axis->getLowerPositionLimit());
-		if(axisOffset->value > axis->getUpperPositionLimit()) axisOffset->overwrite(axis->getUpperPositionLimit());
+		//TODO: what is this for ??
+		//if(axisOffset->value < axis->getLowerPositionLimit()) axisOffset->overwrite(axis->getLowerPositionLimit());
+		//if(axisOffset->value > axis->getUpperPositionLimit()) axisOffset->overwrite(axis->getUpperPositionLimit());
 		upperPositionLimit->onEdit();
 		lowerPositionLimit->onEdit();
 		updateAnimatableParameters();
@@ -239,7 +240,12 @@ void PositionControlledMachine::outputProcess(){
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	
-	if (!isEnabled() || isHoming()) {
+	
+	if (!isEnabled()) {
+		//if the axis is not enabled or is homing, the animatable doesn't do anything
+		animatablePosition->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
+	}
+	else if(isHoming()){
 		//if the axis is not enabled or is homing, the animatable doesn't do anything
 		animatablePosition->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 	}
@@ -256,6 +262,7 @@ void PositionControlledMachine::outputProcess(){
 											  axisVelocityTarget,
 											  axisAccelerationTarget);
 	}
+	
 }
 
 void PositionControlledMachine::simulateInputProcess() {
