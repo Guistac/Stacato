@@ -4,7 +4,7 @@
 
 
 void AxisNode::homingControl(){
-	switch(limitsignalType){
+	switch(limitSignalType){
 			
 		case LimitSignalType::NONE:
 			//setHomingVelocityTarget(0.0);
@@ -122,6 +122,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 }
 
 void AxisNode::homingRoutine_HomeToLowerThenUpperLimitSignal(){
+	homingStep = HomingStep::FAILED;
 	switch(homingStep){
 			
 		case HomingStep::NOT_STARTED:
@@ -145,6 +146,7 @@ void AxisNode::homingRoutine_HomeToLowerThenUpperLimitSignal(){
 }
 
 void AxisNode::homingRoutine_HomeToUpperThenLowerLimitSignal(){
+	homingStep = HomingStep::FAILED;
 	switch(homingStep){
 			
 		case HomingStep::NOT_STARTED:
@@ -298,6 +300,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 }
 
 void AxisNode::homingRoutine_HomingOnReferenceSignalEdge(){
+	homingStep = HomingStep::FAILED;
 	switch(homingStep){
 			
 			/*

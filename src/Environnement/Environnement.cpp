@@ -204,7 +204,7 @@ namespace Environnement {
 
 	void startHardware(){
 		
-		EtherCatStartPopup::get()->open();
+		
 		
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
@@ -227,6 +227,7 @@ namespace Environnement {
 		for(auto node : NodeGraph::getNodes()){
 			if(!node->prepareProcess()){
 				Logger::error("[Environnement] Could not start environnement : Node {} could not start", node->getName());
+				b_isStarting = false;
 				return;
 			}
 		}
@@ -235,6 +236,7 @@ namespace Environnement {
 		Logger::info("Compiled EtherCAT Process: ");
 		ethercatDeviceProcess->log();
 		
+		EtherCatStartPopup::get()->open();
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
 			//wait while the fieldbus is starting

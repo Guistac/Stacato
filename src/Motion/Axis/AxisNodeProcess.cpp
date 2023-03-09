@@ -8,7 +8,7 @@
 
 bool AxisNode::prepareProcess(){
 	
-	switch(axisControlMode){
+	switch(controlMode){
 		case ControlMode::POSITION_CONTROL:
 			if(positionFeedbackMapping == nullptr){
 				Logger::error("[{}] axis has control mode Position but has no position feedback device selected", getName());
@@ -31,6 +31,41 @@ bool AxisNode::prepareProcess(){
 			break;
 		case ControlMode::NO_CONTROL:
 		default:
+			break;
+	}
+	switch(limitSignalType){
+		case LimitSignalType::NONE:
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_LIMIT:
+			if(!lowerLimitSignalPin->isConnected()){
+				Logger::error("[{}] lower limit signal pin is not connected", getName());
+				return false;
+			}
+			break;
+		case LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
+			if(!lowerLimitSignalPin->isConnected()){
+				Logger::error("[{}] lower limit signal pin is not connected", getName());
+				return false;
+			}
+			if(!upperLimitSignalPin->isConnected()){
+				Logger::error("[{}] upper limit signal pin is not connected", getName());
+				return false;
+			}
+			break;
+		case LimitSignalType::SIGNAL_AT_ORIGIN:
+			if(!referenceSignalPin->isConnected()){
+				Logger::error("[{}] reference signal pin is not connected", getName());
+				return false;
+			}
+			break;
+		case LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
+			if(!lowerLimitSignalPin->isConnected() ||
+			   !upperLimitSignalPin->isConnected() ||
+			   !lowerSlowdownSignalPin->isConnected() ||
+			   !upperSlowdownSignalPin->isConnected()){
+				Logger::error("[{}] Not all limit and slowdown signal pins are connected", getName());
+				return false;
+			}
 			break;
 	}
 	
@@ -162,7 +197,7 @@ void AxisNode::inputProcess(){
 	previousLowerLimitSignal = *lowerLimitSignal;
 	previousUpperLimitSignal = *upperLimitSignal;
 	previousReferenceSignal = *referenceSignal;
-	switch(limitsignalType){
+	switch(limitSignalType){
 		case LimitSignalType::NONE:
 			break;
 		case LimitSignalType::SIGNAL_AT_LOWER_LIMIT:
@@ -329,7 +364,7 @@ void AxisNode::outputProcess(){
 		if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
 			velocityCommand = 0.0;
 		else
-			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value + positionFollowingError * positionLoop_proportionalGain->value;
+			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01 + positionFollowingError * positionLoop_proportionalGain->value;
 	};
 	
 	switch(internalControlMode){

@@ -189,34 +189,7 @@ void AxisNode::controlTab(){
 			ImGui::PopStyleVar();
 			
 			if(axisInterface->isHoming()){
-				
-				
-				std::string homingString;
-				switch(homingStep){
-					case HomingStep::SEARCHING_LOW_LIMIT_COARSE:			homingString = "Searching lower limit (Coarse)"; break;
-					case HomingStep::FOUND_LOW_LIMIT_COARSE:				homingString = "Found lower limit (Coarse)"; break;
-					case HomingStep::SEARCHING_LOW_LIMIT_FINE:				homingString = "Searching lower limit (Fine)"; break;
-					case HomingStep::FOUND_LOW_LIMIT:						homingString = "Found low limit"; break;
-					case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:			homingString = "Searching upper limit (Coarse)"; break;
-					case HomingStep::FOUND_HIGH_LIMIT_COARSE:				homingString = "Found upper limit (Coarse)"; break;
-					case HomingStep::SEARCHING_HIGH_LIMIT_FINE:				homingString = "Searching upper limit (Fine)"; break;
-					case HomingStep::FOUND_HIGH_LIMIT:						homingString = "Found upper limit"; break;
-					case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE:	homingString = "Searching origin upper edge (Coarse)"; break;
-					case HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE:		homingString = "Found origin upper edge (Coarse)"; break;
-					case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE:		homingString = "Searching origin upper edge (Fine)"; break;
-					case HomingStep::FOUND_ORIGIN_UPPER_EDGE:				homingString = "Found origin upper edge"; break;
-					case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE:	homingString = "Searching origin lower edge (Coarse)"; break;
-					case HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE:		homingString = "Found origin lower edge (Coarse)"; break;
-					case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE:		homingString = "Searching origin lower edge (Fine)"; break;
-					case HomingStep::FOUND_ORIGIN_LOWER_EDGE:				homingString = "Found origin lower edge"; break;
-					case HomingStep::MOVING_TO_ORIGIN_CENTER:				homingString = "Moving to origin center"; break;
-					case HomingStep::NOT_STARTED:							homingString = "Not started"; break;
-					case HomingStep::RESETTING_POSITION_FEEDBACK:			homingString = "Resetting position feedback"; break;
-					case HomingStep::FINISHING:								homingString = "Finishing..."; break;
-					case HomingStep::FINISHED:								homingString = "Finished"; break;
-					case HomingStep::FAILED:								homingString = "Failed"; break;
-				}
-				backgroundText(homingString.c_str(), buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersBottom);
+				backgroundText(getHomingStepString().c_str(), buttonSize, Colors::gray, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}else if(axisInterface->didHomingSucceed()){
 				backgroundText("Homing Finished", buttonSize, Colors::green, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}else{
@@ -358,10 +331,15 @@ void AxisNode::controlTab(){
 void AxisNode::configurationTab(){
 	if(ImGui::BeginTabItem("Configuration")){
 		
-		movementTypeParameter->gui(Fonts::sansBold15);
-		positionUnitParameter->gui(Fonts::sansBold15);
-		controlModeParameter->gui(Fonts::sansBold15);
-		limitSignalTypeParameter->gui(Fonts::sansBold15);
+		ImGui::PushFont(Fonts::sansBold20);
+		if(ImGui::CollapsingHeader("General")){
+			ImGui::PopFont();
+			movementTypeParameter->gui(Fonts::sansBold15);
+			positionUnitParameter->gui(Fonts::sansBold15);
+			controlModeParameter->gui(Fonts::sansBold15);
+			limitSignalTypeParameter->gui(Fonts::sansBold15);
+		}else ImGui::PopFont();
+		
 		
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Motion Feedback")){
@@ -515,7 +493,7 @@ void AxisNode::limitSettingsGui(){
 	
 	ImGui::Separator();
 	
-	ImGui::BeginDisabled(controlModeParameter->value != controlModePosition.getInt());
+	ImGui::BeginDisabled(controlMode != ControlMode::POSITION_CONTROL);
 	
 	enableLowerPositionLimit->gui(Fonts::sansBold15);
 	lowerPositionLimit->gui(Fonts::sansBold15);

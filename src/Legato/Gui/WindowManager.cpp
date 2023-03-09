@@ -105,7 +105,7 @@ void update(){
 	for(auto closingPopup : closingPopups){
 		closingPopup->b_isOpen = false;
 		closingPopup->onClose();
-		for(size_t i = openPopups.size() - 1; i >= 0; i--){
+		for(int i = openPopups.size() - 1; i >= 0; i--){
 			if(openPopups[i] == closingPopup){
 				openPopups.erase(openPopups.begin() + i);
 				break;

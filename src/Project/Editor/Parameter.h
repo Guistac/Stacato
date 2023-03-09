@@ -1149,14 +1149,18 @@ public:
 	
 	int value;
 	Option* displayValue;
-	std::vector<Option*>* optionList = nullptr;
+	std::vector<Option*> optionList = {};
 	
 	OptionParameter(Option& value, std::vector<Option*>& options, std::string name, std::string saveString_) : Parameter(name, saveString_){
-		optionList = &options;
+		optionList = options;
 		overwrite(&value);
 	}
 	
 	static std::shared_ptr<OptionParameter> make(Option& value, std::vector<Option*>& options, std::string name, std::string saveString) {
+		return std::make_shared<OptionParameter>(value, options, name, saveString);
+	}
+	
+	static std::shared_ptr<OptionParameter> make2(Option& value, std::vector<Option*> options, std::string name, std::string saveString) {
 		return std::make_shared<OptionParameter>(value, options, name, saveString);
 	}
 	
@@ -1165,7 +1169,7 @@ public:
 		const char* previewString = "";
 		if(displayValue) previewString = displayValue->displayString.c_str();
 		if(ImGui::BeginCombo(getImGuiID(), previewString)){
-			for(auto& option : *optionList){
+			for(auto& option : optionList){
 				ImGui::BeginDisabled(!option->b_enabled);
 				if(ImGui::Selectable(option->displayString.c_str(), value == option->enumerator)){
 					overwriteWithHistory(option);
@@ -1196,8 +1200,8 @@ public:
 	virtual std::shared_ptr<Parameter> makeBaseCopy() override { return makeCopy(); };
 	
 	Option* findOption(int enumerator){
-		if(optionList == nullptr) return nullptr;
-		for(auto option : *optionList){
+		if(optionList.empty()) return nullptr;
+		for(auto option : optionList){
 			if(option->enumerator == enumerator) return option;
 		}
 		Logger::error("Parameter {} : option with enumerator {} not found", getName(), enumerator);
