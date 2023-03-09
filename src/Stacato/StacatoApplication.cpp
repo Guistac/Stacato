@@ -38,6 +38,12 @@ bool initialize(){
 	
 	Stacato::Editor::initialize();
 	
+	#if defined(STACATO_DEBUG)
+	Stacato::Editor::unlock();
+	#else
+	Stacato::Editor::lock();
+	#endif
+	
 	Stacato::Editor::createNewProject();
 	
 	//for debug builds, always try to load the debug project in the debug directory

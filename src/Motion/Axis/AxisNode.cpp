@@ -3,6 +3,28 @@
 
 #include "Motion/Interfaces.h"
 
+OptionParameter::Option AxisNode::movementTypeLinear = OptionParameter::Option(0, "Linear Motion", "LinearMotion");
+OptionParameter::Option AxisNode::movementTypeAngular = OptionParameter::Option(1, "Angular Motion", "LinearMotion");
+std::vector<OptionParameter::Option*> AxisNode::movementTypeOptions = {
+	&AxisNode::movementTypeLinear,
+	&AxisNode::movementTypeAngular
+};
+
+OptionParameter::Option AxisNode::positionUnitMillimeter = 	OptionParameter::Option(0, "Millimeter", "Millimeter");
+OptionParameter::Option AxisNode::positionUnitCentimeter = 	OptionParameter::Option(1, "Centimeter", "Centimeter");
+OptionParameter::Option AxisNode::positionUnitMeter = 		OptionParameter::Option(2, "Meter", "Meter");
+OptionParameter::Option AxisNode::positionUnitDegree = 		OptionParameter::Option(3, "Degree", "Degree");
+OptionParameter::Option AxisNode::positionUnitRadian = 		OptionParameter::Option(4, "Radian", "Radian");
+OptionParameter::Option AxisNode::positionUnitRevolution = 	OptionParameter::Option(5, "Revolution", "Revolution");
+std::vector<OptionParameter::Option*> AxisNode::positionUnitOptions = {
+	&AxisNode::positionUnitMillimeter,
+	&AxisNode::positionUnitCentimeter,
+	&AxisNode::positionUnitMeter,
+	&AxisNode::positionUnitDegree,
+	&AxisNode::positionUnitRadian,
+	&AxisNode::positionUnitRevolution
+};
+
 OptionParameter::Option AxisNode::controlModePosition = OptionParameter::Option(0, "Position Control", "PositionControl");
 OptionParameter::Option AxisNode::controlModeVelocity = OptionParameter::Option(1, "Velocity Control", "VelocityControl");
 OptionParameter::Option AxisNode::controlModeNone =		OptionParameter::Option(2, "No Control", "NoControl");
@@ -105,6 +127,11 @@ void AxisNode::initialize(){
 	addNodePin(axisPin);
 	addNodePin(brakeControlSignalPin);
 	addNodePin(surveillanceValidSignalPin);
+	
+	movementTypeParameter = OptionParameter::make(movementTypeLinear, movementTypeOptions, "Movement Type", "MovementType");
+	movementTypeParameter->addEditCallback([this](){ updateMovementType(); });
+	positionUnitParameter = OptionParameter::make(positionUnitMeter, positionUnitOptions, "Position Unit", "PositionUnit");
+	positionUnitParameter->addEditCallback([this](){ updatePositionUnit(); });
 	
 	controlModeParameter = OptionParameter::make(controlModePosition, controlModeParameterOptions, "Axis Control Mode", "AxisControlMode");
 	controlModeParameter->addEditCallback([this](){ updateControlMode(); });
@@ -621,3 +648,9 @@ void AxisNode::updateAxisConfiguration(){
 							limitSignalTypeParameter->value != LimitSignalType::NONE &&
 							limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
 }
+
+
+void AxisNode::updateMovementType(){}
+
+void AxisNode::updatePositionUnit(){}
+

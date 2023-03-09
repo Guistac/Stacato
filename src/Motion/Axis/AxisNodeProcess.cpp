@@ -345,6 +345,7 @@ void AxisNode::outputProcess(){
 					velocityCommand = 0.0;
 					break;
 			}
+			break;
 		case InternalControlMode::MANUAL_POSITION_INTERPOLATION:
 			updatePositionControlLoop();
 			break;

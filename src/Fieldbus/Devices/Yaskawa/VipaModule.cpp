@@ -595,9 +595,15 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
 	
 	bool disableResetButton = !b_hasResetSignal;
-	ImGui::BeginDisabled(disableResetButton);
+	//ImGui::BeginDisabled(disableResetButton);
 	if(ImGui::Button("Reset Encoder")) encoder->overridePosition(0.0);
-	ImGui::EndDisabled();
+	ImGui::SameLine();
+	if(ImGui::Button("Reset Offset")) positionOffset = 0.0;
+	//ImGui::EndDisabled();
+	ImGui::Text("Raw SSI Value: %i", encoderValue);
+	ImGui::Text("Encoder Position: %.3f", encoderPosition_revolutions);
+	ImGui::Text("Position Offset: %.3f", positionOffset);
+	ImGui::Text("Output Position: %.3f", encoder->getPosition());
 }
 
 void VIPA_050_1BS00::updateEncoderWorkingRange(){

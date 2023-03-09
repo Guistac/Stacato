@@ -76,6 +76,8 @@ void AxisNode::controlTab(){
 
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
+		ImGui::BeginDisabled(!axisInterface->isEnabled() || axisPin->isConnected());
+		
 		if(axisInterface->configuration.controlMode != AxisInterface::ControlMode::NONE){
 			
 			ImGui::SetNextItemWidth(progressBarSize.x);
@@ -92,8 +94,6 @@ void AxisNode::controlTab(){
 			}
 			
 		}
-		
-		ImGui::BeginDisabled(!axisInterface->isEnabled());
 		
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
 			
@@ -224,7 +224,7 @@ void AxisNode::controlTab(){
 			}
 		}
 			
-		ImGui::EndDisabled(); //end disabled when axis not enabled
+		ImGui::EndDisabled(); //end disabled when axis not enabled or axis pin connected
 		
 		ImGui::Separator();
 		
@@ -358,6 +358,8 @@ void AxisNode::controlTab(){
 void AxisNode::configurationTab(){
 	if(ImGui::BeginTabItem("Configuration")){
 		
+		movementTypeParameter->gui(Fonts::sansBold15);
+		positionUnitParameter->gui(Fonts::sansBold15);
 		controlModeParameter->gui(Fonts::sansBold15);
 		limitSignalTypeParameter->gui(Fonts::sansBold15);
 		

@@ -144,6 +144,8 @@ void Machine::machineStateControlGui(float width){
 				statusTextColor = Colors::black;
 				statusTextFont = Fonts::sansRegular15;
 				break;
+			case DeviceState::ENABLING:
+			case DeviceState::DISABLING:
 			case DeviceState::ENABLED:
 				if(b_halted){
 					statusColor = Colors::orange;

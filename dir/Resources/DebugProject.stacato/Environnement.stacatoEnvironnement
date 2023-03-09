@@ -1,5 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.14642018" OffsetX="1127.5024" OffsetY="-1473.4974" AutoFit="true" DrawGrid="true" LockEdit="true"/>
+    <Dashboard Scale="0.70074558" OffsetX="1312.6719" OffsetY="-2051.9949" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Position Controlled Machine" UniqueID="1" PositionX="-1059" PositionY="2054" SizeX="149.09993" SizeY="397.81921"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:1238)" UniqueID="74">
@@ -11,7 +13,7 @@
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
-                    <EncoderOffset Revolutions="-21499.7294921875"/>
+                    <EncoderOffset Revolutions="-443.705322265625"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="75" Visible="true"/>
@@ -138,9 +140,9 @@
                     <PositionFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="77" UnitConversion="1"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="2"/>
-                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="2"/>
-                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="77" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="92" UnitConversion="1" ControlMode="1"/>
+                        <ActuatorMapping InterfacePinID="106" UnitConversion="1" ControlMode="1"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
@@ -181,13 +183,13 @@
             <Link UniqueID="133" StartPin="119" EndPin="123"/>
             <Link UniqueID="137" StartPin="136" EndPin="125"/>
             <Link UniqueID="139" StartPin="119" EndPin="135"/>
-            <Link UniqueID="166" StartPin="77" EndPin="142"/>
-            <Link UniqueID="168" StartPin="92" EndPin="142"/>
-            <Link UniqueID="169" StartPin="106" EndPin="142"/>
             <Link UniqueID="181" StartPin="118" EndPin="144"/>
             <Link UniqueID="183" StartPin="119" EndPin="149"/>
-            <Link UniqueID="185" StartPin="151" EndPin="173"/>
             <Link UniqueID="187" StartPin="128" EndPin="135"/>
+            <Link UniqueID="189" StartPin="77" EndPin="142"/>
+            <Link UniqueID="191" StartPin="151" EndPin="173"/>
+            <Link UniqueID="192" StartPin="92" EndPin="142"/>
+            <Link UniqueID="193" StartPin="106" EndPin="142"/>
         </Links>
     </NodeGraph>
 </Environnement>

@@ -13,8 +13,8 @@ public:
 	
 	virtual Type getType() = 0;
 	
-	virtual std::string getName() { assert(0 && "DeviceInterface::getName() : Method is not implemented"); }
-	virtual std::string getStatusString() { assert(0 && "DeviceInterface::getStatusString() : Method is not implemented"); }
+	virtual std::string getName() { return "..."; }
+	virtual std::string getStatusString() { return "..."; }
 	
 	DeviceState getState() { return state; }
 	
