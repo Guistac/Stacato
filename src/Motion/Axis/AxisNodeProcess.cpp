@@ -154,6 +154,14 @@ void AxisNode::inputProcess(){
 		}
 	}
 	
+	
+	//if it was requested, update the feedback ratio
+	if(b_shouldUpdateFeedbackRatio){
+		b_shouldUpdateFeedbackRatio = false;
+		onFeedbackRatioUpdate();
+	}
+	
+	
 	//update axis position and position following error
 	if(auto mapping = positionFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
@@ -471,6 +479,50 @@ void AxisNode::overrideCurrentPosition(double newPosition){
 	for(auto actuatorMapping : actuatorMappings){
 		auto actuator = actuatorMapping->actuatorInterface;
 		if(actuator == positionFeedbackMapping->feedbackInterface) continue;
-		actuatorMapping->actuatorPositionOffset = actuator->getPosition();
+		actuatorMapping->actuatorPositionOffset = actuator->getPosition() - newPosition * actuatorMapping->actuatorUnitsPerAxisUnits->value;
 	}
+}
+
+
+
+ 
+void AxisNode::updateFeedbackRatioToMatchPosition(){
+	b_shouldUpdateFeedbackRatio = true;
+}
+
+void AxisNode::onFeedbackRatioUpdate(){
+	if(motionProfile.getVelocity() != 0.0)
+		return Logger::error("[{}] Could not update feedback ratio while axis is moving", getName());
+	if(!positionFeedbackMapping)
+		return Logger::error("[{}] Could not update feedback ratio, there is no position feedback device", getName());
+	if(newPositionForFeedbackRatio == 0.0)
+		return Logger::error("[{}] Could not update feedback ratio, the target position is zero", getName());
+	
+	auto positionFeedbackInterface = positionFeedbackMapping->feedbackInterface;
+	double newPositionFeedbackRatio = positionFeedbackInterface->getPosition() / newPositionForFeedbackRatio;
+	double oldPositionFeedbackRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+	positionFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
+	
+	if(velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == positionFeedbackInterface)
+		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
+	else{
+		double newVelocityFeedbackRatio = velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newVelocityFeedbackRatio);
+	}
+	
+	for(auto actuatorMapping : actuatorMappings){
+		//if the actuator is the same as the position feedback interface, update its ratio like the feedback interface
+		if(actuatorMapping->actuatorInterface == positionFeedbackInterface){
+			actuatorMapping->actuatorUnitsPerAxisUnits->overwriteWithHistory(newPositionFeedbackRatio);
+		}
+		//else adjust the ratio of other actuators by the same amount the feedback ratio was adjusted
+		else{
+			double newActuatorRatio = actuatorMapping->actuatorUnitsPerAxisUnits->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+			actuatorMapping->actuatorUnitsPerAxisUnits->overwriteWithHistory(newActuatorRatio);
+		}
+	}
+	
+	motionProfile.setPosition(newPositionForFeedbackRatio);
+	Logger::info("[{}] Position feedback ratio override succeeded !", getName());
+	
 }

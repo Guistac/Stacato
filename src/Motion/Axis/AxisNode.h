@@ -226,7 +226,6 @@ private:
 	void setHomingVelocityTarget(double velocity);
 	void moveToHomingPositionTarget(double position);
 	void overrideCurrentPosition(double newPosition);
-	
 	bool previousLowerLimitSignal = false;
 	bool previousUpperLimitSignal = false;
 	bool previousReferenceSignal = false;
@@ -271,6 +270,12 @@ private:
 	std::string getHomingStepString();
 	
 	
+	//——— Ratio Utility
+	void updateFeedbackRatioToMatchPosition();
+	void onFeedbackRatioUpdate();
+	double newPositionForFeedbackRatio = 0.0;
+	bool b_shouldUpdateFeedbackRatio = false;
+	
 	
 	//——— Manual Controls
 	
@@ -310,38 +315,24 @@ public:
 	ActuatorMapping(std::shared_ptr<NodePin> actuatorPin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
 		actuatorInterface = actuatorPin->getSharedPointer<ActuatorInterface>();
 		interfacePinID = actuatorPin->getUniqueID();
-		actuatorMode_None = 		OptionParameter::Option(0, "Disabled", "Disabled");
-		actuatorMode_Position = 	OptionParameter::Option(1, "Position Control", "PositionControl");
-		actuatorMode_Velocity = 	OptionParameter::Option(2, "Velocity Control", "VelocityControl");
-		actuatorMode_Force = 		OptionParameter::Option(3, "Force Control", "ForceControl");
-		actuatorModeOptions = {
-			&actuatorMode_None,
-			&actuatorMode_Position,
-			&actuatorMode_Velocity,
-			&actuatorMode_Force
-		};
+
 		auto* defaultControlMode = &actuatorMode_None;
 		if(actuatorInterface->supportsPositionControl()) defaultControlMode = &actuatorMode_Position;
 		else if(actuatorInterface->supportsVelocityControl()) defaultControlMode = &actuatorMode_Velocity;
 		else if(actuatorInterface->supportsForceControl()) defaultControlMode = &actuatorMode_Force;
-		
 		if(!actuatorInterface->supportsPositionControl()) actuatorMode_Position.disable();
 		if(!actuatorInterface->supportsVelocityControl()) actuatorMode_Velocity.disable();
 		if(!actuatorInterface->supportsForceControl()) actuatorMode_Force.disable();
 		
-		controlModeParameter = OptionParameter::make(*defaultControlMode, actuatorModeOptions, "Control Mode", "ControlMode");
+		controlModeParameter = OptionParameter::make2(*defaultControlMode, {
+															&actuatorMode_None,
+															&actuatorMode_Position,
+															&actuatorMode_Velocity,
+															&actuatorMode_Force
+														}, "Control Mode", "ControlMode");
+		
 		controlModeParameter->addEditCallback([this](){
-			switch(controlModeParameter->value){
-					case ActuatorControlMode::POSITION_CONTROL:
-					case ActuatorControlMode::VELOCITY_CONTROL:
-					case ActuatorControlMode::FORCE_CONTROL:
-						controlMode = (ActuatorControlMode)controlModeParameter->value;
-						break;
-					case ActuatorControlMode::NO_CONTROL:
-					default:
-						controlMode = ActuatorControlMode::NO_CONTROL;
-						break;
-			}
+			controlMode = (ActuatorControlMode)controlModeParameter->value;
 		});
 		controlModeParameter->onEdit();
 		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
@@ -350,19 +341,18 @@ public:
 		controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
 	}
 	
-	OptionParameter::Option actuatorMode_None;
-	OptionParameter::Option actuatorMode_Position;
-	OptionParameter::Option actuatorMode_Velocity;
-	OptionParameter::Option actuatorMode_Force;
-	std::vector<OptionParameter::Option*> actuatorModeOptions;
 	enum ActuatorControlMode{
 		NO_CONTROL = 0,
 		POSITION_CONTROL = 1,
 		VELOCITY_CONTROL = 2,
 		FORCE_CONTROL = 3
 	}controlMode = ActuatorControlMode::NO_CONTROL;
-	
+	OptionParameter::Option actuatorMode_None = 	OptionParameter::Option(0, "Disabled", "Disabled");
+	OptionParameter::Option actuatorMode_Position = OptionParameter::Option(1, "Position Control", "PositionControl");
+	OptionParameter::Option actuatorMode_Velocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
+	OptionParameter::Option actuatorMode_Force = 	OptionParameter::Option(3, "Force Control", "ForceControl");
 	OptionParam controlModeParameter;
+	
 	NumberParam<double> actuatorUnitsPerAxisUnits;
 	
 	double actuatorPositionOffset = 0.0;

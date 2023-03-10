@@ -196,6 +196,16 @@ void AxisNode::controlTab(){
 				backgroundText("No Homing in progress", buttonSize, Colors::darkGray, Colors::black, ImDrawFlags_RoundCornersBottom);
 			}
 		}
+		
+		
+		ImVec2 halfWidgetSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5, ImGui::GetFrameHeight());
+		ImGui::SetNextItemWidth(halfWidgetSize.x);
+		std::ostringstream positionOverrideString;
+		positionOverrideString << std::fixed << std::setprecision(3) << newPositionForFeedbackRatio << axisInterface->getPositionUnit()->abbreviated;
+		ImGui::InputDouble("##posovrd", &newPositionForFeedbackRatio, 0, 0, positionOverrideString.str().c_str());
+		ImGui::SameLine();
+		if(ImGui::Button("Set Axis Position", halfWidgetSize)) updateFeedbackRatioToMatchPosition();
+		
 			
 		ImGui::EndDisabled(); //end disabled when axis not enabled or axis pin connected
 		
