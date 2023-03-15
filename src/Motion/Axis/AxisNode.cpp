@@ -209,6 +209,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 		actuatorMapping->controlModeParameter->save(actXML);
 	}
 	
+	movementTypeParameter->save(xml);
+	positionUnitParameter->save(xml);
 	limitSignalTypeParameter->save(xml);
 	controlModeParameter->save(xml);
 	
@@ -245,8 +247,10 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	
 	bool success = true;
 	
-	controlModeParameter->load(xml);
-	limitSignalTypeParameter->load(xml);
+	success &= controlModeParameter->load(xml);
+	success &= limitSignalTypeParameter->load(xml);
+	success &= movementTypeParameter->load(xml);
+	success &= positionUnitParameter->load(xml);
 	
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
@@ -333,6 +337,7 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 	}
 	
 	updateControlMode();
+	updateMovementType();
 	
 
 	return true;
@@ -634,6 +639,9 @@ void AxisNode::updateAxisConfiguration(){
 	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL &&
 							limitSignalTypeParameter->value != LimitSignalType::NONE &&
 							limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
+	
+	
+	axisPin->updateConnectedPins();
 }
 
 
@@ -699,6 +707,7 @@ void AxisNode::updatePositionUnit(){
 	for(auto unitParameter : positionUnitParameters){
 		unitParameter->setUnit(newPositionUnit);
 	}
+	axisPin->updateConnectedPins();
 }
 
 

@@ -233,6 +233,7 @@ private:
 	double homingOriginUpperEdgePosition = 0.0;
 	double homingOriginCenterPosition = 0.0;
 	void homingControl();
+	void homingRoutine_HomingOnCurrentPosition();
 	void homingRoutine_HomeToLowerLimitSignal();
 	void homingRoutine_HomeToLowerThenUpperLimitSignal();
 	void homingRoutine_HomeToUpperThenLowerLimitSignal();
