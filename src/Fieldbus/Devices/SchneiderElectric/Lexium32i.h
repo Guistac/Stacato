@@ -20,7 +20,7 @@ public:
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 	
-		double positionOffset = 0.0;
+		double positionOffset_revolutions = 0.0;
 	};
 	
 	class LexiumGpio : public GpioInterface{
@@ -89,6 +89,8 @@ private:
 	//Rx-PDO
 	DS402::Control ds402Control;
 	int32_t PPp_target = 0;
+	int32_t PVv_target = 0;
+	int16_t PTtq_target = 0;
 	uint16_t IO_DQ_set = 0;
 
 	//Tx-PDO

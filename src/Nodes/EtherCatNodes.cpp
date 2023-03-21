@@ -34,7 +34,8 @@ namespace NodeFactory{
 			new CU1128(),
 			new CU1124(),
             new ECAT_2511_A_FiberConverter(),
-            new ECAT_2511_B_FiberConverter()
+            new ECAT_2511_B_FiberConverter(),
+			new ECAT_2515_6PortJunction()
 		};
 
 		//sort devices by manufacturer

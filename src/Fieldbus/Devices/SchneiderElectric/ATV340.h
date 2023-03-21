@@ -8,7 +8,7 @@
 class ATV340 : public EtherCatDevice {
 public:
 
-	DEFINE_ETHERCAT_DEVICE(ATV340, "ATV340", "ATV340", "Schneider Electric", "Servo Drives", 0x800005A, 0x12C)
+	DEFINE_ETHERCAT_DEVICE(ATV340, "ATV340", "ATV340", "Schneider Electric", "Motor Drives", 0x800005A, 0x12C)
 	
 	//Process Data
 	std::shared_ptr<DS402Axis> axis;

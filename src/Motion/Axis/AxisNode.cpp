@@ -198,7 +198,7 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	if(velocityFeedbackMapping){
 		XMLElement* vfbXML = xml->InsertNewChildElement("VelocityFeedbackMapping");
 		vfbXML->SetAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
-		positionFeedbackMapping->feedbackUnitsPerAxisUnit->save(vfbXML);
+		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->save(vfbXML);
 	}
 	
 	XMLElement* actuatorMappingsXML = xml->InsertNewChildElement("ActuatorMappings");

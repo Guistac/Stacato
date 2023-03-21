@@ -20,3 +20,9 @@ void ECAT_2511_B_FiberConverter::deviceSpecificGui() {
     }
 }
 
+void ECAT_2515_6PortJunction::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("ECAT-2515")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}

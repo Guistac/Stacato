@@ -49,6 +49,8 @@ void Lexium32i::initialize() {
     rxPdoAssignement.addEntry(0x6040, 0x0, 16, "DCOMcontrol", &ds402Control.controlWord);	//DS402 control word
     rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &ds402Control.operatingMode);	//DS402 operating mode control
     rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);					//Position Target
+	rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);					//Velocity Target
+	rxPdoAssignement.addEntry(0x6071, 0x0, 16, "PTtq_target", &PTtq_target);				//Torque Target
     rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);					//Digital Outputs
 	rxPdoAssignement.addEntry(0x3008, 0xA, 16, "BRK_release", &BRK_release);				//Manual Holding Brake Control
 	
@@ -63,6 +65,16 @@ void Lexium32i::initialize() {
 	txPdoAssignement.addEntry(0x301C, 0x4, 16, "_actionStatus", &_actionStatus);			//error class / additional drive info
     txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);						//Digital Inputs
     txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);				//STO Status
+	
+	auto& fbcfg = servoMotor->feedbackConfig;
+	fbcfg.b_supportsForceFeedback = true;
+	fbcfg.b_supportsPositionFeedback = true;
+	fbcfg.b_supportsVelocityFeedback = true;
+	auto& acfg = servoMotor->actuatorConfig;
+	acfg.b_supportsForceControl = false;
+	acfg.b_supportsPositionControl = true;
+	acfg.b_supportsVelocityControl = true;
+	acfg.b_supportsEffortFeedback = true;
 }
 
 
@@ -237,7 +249,7 @@ void Lexium32i::readInputs() {
 	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
 		
 	//set the encoder position in revolution units and velocity in revolutions per second
-	servoMotor->feedbackProcessData.positionActual = (double)_p_act / (double)positionUnitsPerRevolution;
+	servoMotor->feedbackProcessData.positionActual = ((double)_p_act / (double)positionUnitsPerRevolution) + servoMotor->positionOffset_revolutions;
 	servoMotor->feedbackProcessData.velocityActual = (double)_v_act / ((double)velocityUnitsPerRpm * 60.0);
 	servoMotor->actuatorProcessData.effortActual = ((double)_I_act / (double)currentUnitsPerAmp) / maxCurrent_amps;
 	servoMotor->actuatorProcessData.followingErrorActual = (double)_p_dif_usr / (double)positionUnitsPerRevolution;
@@ -383,10 +395,21 @@ void Lexium32i::writeOutputs() {
 	
 	//DCOMopmode
 	if(b_isHoming) ds402Control.setOperatingMode(DS402::OperatingMode::HOMING);
-	else ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::POSITION)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::VELOCITY)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY);
+	/*
+	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::FORCE)
+		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE);
+	*/
+	else
+		ds402Control.setOperatingMode(DS402::OperatingMode::NONE);
 	
 	//PPp_target
-	PPp_target = (int32_t)(servoMotor->actuatorProcessData.positionTarget * positionUnitsPerRevolution);
+	PPp_target = (int32_t)((servoMotor->actuatorProcessData.positionTarget - servoMotor->positionOffset_revolutions) * positionUnitsPerRevolution);
+	PVv_target = (int32_t)(servoMotor->actuatorProcessData.velocityTarget * velocityUnitsPerRpm * 60.0);
+	//PTtq_target = (int16_t)(servoMotor->actuatorProcessData.forceTarget * ???);
 	
 	//IO_DQ_set
     IO_DQ_set = 0;
@@ -921,7 +944,7 @@ bool Lexium32i::saveDeviceData(tinyxml2::XMLElement* xml) {
 
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
-    encoderSettingsXML->SetAttribute("PositionOffset_revolutions", servoMotor->positionOffset);
+	encoderSettingsXML->SetAttribute("PositionOffset", servoMotor->positionOffset_revolutions);
 	
 	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
 	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->supportsHoldingBrakeControl());
@@ -1007,7 +1030,7 @@ bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
-    if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset_revolutions", &servoMotor->positionOffset) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
+	if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset", &servoMotor->positionOffset_revolutions) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
 	updateEncoderWorkingRange();
 	
 	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");

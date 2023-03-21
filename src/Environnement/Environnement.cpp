@@ -470,6 +470,7 @@ namespace Environnement {
 		getEtherCatDevices().clear();
 		getMachines().clear();
 		StageVisualizer::reset();
+		Environnement::Script::reset();
 	}
 
 }
