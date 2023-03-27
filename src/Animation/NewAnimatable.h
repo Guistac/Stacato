@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Animation{
+namespace AnimationSystem{
 
 	class Animation;
 	class AnimationValue;
@@ -8,17 +8,36 @@ namespace Animation{
 
 
 
-	class AbstractAnimatable{
+
+	class Animatable{
 	public:
 		
+		enum class Type {
+			BOOLEAN,
+			INTEGER,
+			REAL,
+			STATE,
+			VECTOR_2D,
+			VECTOR_3D,
+			POSITION,
+			POSITION_2D,
+			POSITION_3D,
+			VELOCITY,
+			VELOCITY_2D,
+			VELOCITY_3D,
+			COMPOSITE
+		};
+
 		enum class State{
 			OFFLINE,
 			NOT_READY,
 			READY
 		}state = State::OFFLINE;
 		
-		virtual bool isComposite() = 0;
-		bool hasParentComposite() { return parentComposite != nullptr; }
+		virtual Type getType() = 0;
+		
+		bool isComposite() { return getType() == AnimatableType::COMPOSITE; }
+		bool isTopLevelAnimatable(){ return parentComposite == nullptr; }
 		std::shared_ptr<CompositeAnimatable> getParentComposite(){ return parentComposite; }
 		
 	protected:
@@ -29,21 +48,19 @@ namespace Animation{
 
 
 
-	class Animatable : public AbstractAnimatable{
+
+
+	class LeafAnimatable : public Animatable{
 	public:
 		
-		virtual bool isComposite() override { return false; }
-		
 		std::shared_ptr<AnimationValue> getAnimationValue(){ return animationValue; }
-		std::shared_ptr<AnimationValue> getActualValue(){ return actualValue; }
-		
-		void updateActualValue(std::shared_ptr<AnimationValue> newActualValue){ actualValue = newActualValue; }
 		virtual void updateAnimationValue() = 0;
 		
 		
+		virtual int getCurveCount() = 0;
+		virtual std::vector<std::string>& getCurveNames() = 0;
 		
 		virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() = 0;
-		virtual int getCurveCount() = 0;
 		virtual std::shared_ptr<Parameter> makeParameter() = 0;
 		virtual void setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value) = 0;
 		virtual void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to) = 0;
@@ -54,12 +71,12 @@ namespace Animation{
 		
 	private:
 		
-		//each animatable has to initialize these on construction
+		//each animatable has to initialize this on construction
 		std::shared_ptr<AnimationValue> animationValue;
-		std::shared_ptr<AnimationValue> actualValue;
 		
+		//Animations
 		std::vector<std::shared_ptr<Animation>> animations = {};
-		std::shared_ptr<Animation> currentAnimation = nullptr;
+		std::shared_ptr<Animation> playingAnimation = nullptr;
 		
 	};
 
@@ -67,10 +84,11 @@ namespace Animation{
 
 
 
-	class CompositeAnimatable : public AbstractAnimatable{
+
+	class CompositeAnimatable : public Animatable{
 	public:
 		
-		virtual bool isComposite() override { return true; }
+		virtual Type getType() override { return Type::COMPOSITE; }
 		
 		void addChildAnimatable(std::shared_ptr<AbstractAnimatable> animatable){
 			childAnimatables.push_back(animatable);
