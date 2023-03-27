@@ -131,13 +131,6 @@ namespace Environnement::NodeGraph::Gui{
 					ImGui::TreePop();
 				}
 				
-				if (ImGui::TreeNode("Utilities")) {
-					ImGui::PushFont(Fonts::sansRegular15);
-					listNodes(NodeFactory::getAllMotionUtilityNodes());
-					ImGui::PopFont();
-					ImGui::TreePop();
-				}
-				
 			}
 			ImGui::PopFont();
 		
@@ -256,10 +249,6 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			if (ImGui::BeginMenu("Safety")) {
 				listNodes(NodeFactory::getAllSafetyNodes());
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Utilities")) {
-				listNodes(NodeFactory::getAllMotionUtilityNodes());
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();

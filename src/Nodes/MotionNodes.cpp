@@ -22,8 +22,6 @@ namespace NodeFactory{
 
 	std::vector<Node*> allSafetyNodes;
 
-	std::vector<Node*> allMotionUtilityNodes;
-
 	void loadMotionNodes(std::vector<Node*>& nodeList){
 		
 		allAxisNodes = {
@@ -39,12 +37,6 @@ namespace NodeFactory{
 			new DeadMansSwitch(),
 			new SafetySignal(),
 			new Brake()
-		};
-		
-		allMotionUtilityNodes = {
-			//new GpioActuator(),
-			//new ActuatorToServoActuator(),
-			//new PositionFeedback()
 		};
 		
 		//sort machine nodes by category
@@ -68,13 +60,10 @@ namespace NodeFactory{
 		nodeList.insert(nodeList.end(), allMachineNodes.begin(), allMachineNodes.end());
 		nodeList.insert(nodeList.end(), allAxisNodes.begin(), allAxisNodes.end());
 		nodeList.insert(nodeList.end(), allSafetyNodes.begin(), allSafetyNodes.end());
-		nodeList.insert(nodeList.end(), allMotionUtilityNodes.begin(), allMotionUtilityNodes.end());
 		
 	}
 
 	std::vector<Node*>& getAllAxisNodes() { return allAxisNodes; }
 	std::vector<NodeGroup>& getMachinesByCategory() { return machinesByCategory; }
 	std::vector<Node*>& getAllSafetyNodes(){ return allSafetyNodes; }
-	std::vector<Node*>& getAllMotionUtilityNodes(){ return allMotionUtilityNodes; }
-
 }
