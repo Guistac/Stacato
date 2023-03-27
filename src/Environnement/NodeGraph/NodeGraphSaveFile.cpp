@@ -210,7 +210,9 @@ namespace Environnement::NodeGraph{
 						break;
 					}
 				}
-				if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
+				if (matchingPin == nullptr) {
+					return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
+				}
 				if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
 				Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}",
 							  matchingPin->getSaveString(),

@@ -335,7 +335,12 @@ void IB_IL_SSI_IN::onConstruction(){
 	
 	resetPin->setVisible(hasResetSignalParameter->value);
 }
-void IB_IL_SSI_IN::onSetIndex(int i){}
+void IB_IL_SSI_IN::onSetIndex(int i){
+	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", i);
+	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", i);
+	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder Reset", i);
+	sprintf((char*)resetPin->getSaveString(), "Module%iSSIEncoderReset", i);
+}
 void IB_IL_SSI_IN::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
 	txPdoAssignement.addNewModule(0x1A00 + moduleIndex);
 	txPdoAssignement.addEntry(0x6000 + moduleIndex * 0x10, 0x1, 32, "SSI Encoder Data", &encoderData);

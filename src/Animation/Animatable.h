@@ -6,7 +6,6 @@ class Parameter;
 class Machine;
 class Animation;
 class TargetAnimation;
-
 class AnimatableComposite;
 class AnimatableNumber;
 
