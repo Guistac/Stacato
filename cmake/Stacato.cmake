@@ -329,11 +329,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachineGui.cpp
 
     #========================= AXIS TYPES =========================
-
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/Axis.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/Axis.h
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisHoming.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisGui.cpp
     
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisNode.h
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisNode.cpp
