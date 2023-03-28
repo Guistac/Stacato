@@ -128,6 +128,13 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationValue.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatablePosition.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableState.h
+
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Template/MachineTemplate.cpp
