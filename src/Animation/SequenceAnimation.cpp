@@ -1,6 +1,8 @@
+/*
 #include "Animation.h"
 #include "Machine/Machine.h"
 #include "Animation/Manoeuvre.h"
+
 
 SequenceAnimation::SequenceAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
 	target = animatable->makeParameter();
@@ -449,3 +451,4 @@ void SequenceAnimation::addCurvePoint(std::shared_ptr<Motion::Curve> targetCurve
 	targetCurve->addPoint(newControlPoint);
 	getManoeuvre()->selectControlPoint(newControlPoint);
 }
+*/

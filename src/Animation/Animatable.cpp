@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "Machine/Machine.h"
 #include "Animation/Animation.h"
 #include "AnimationValue.h"
@@ -117,3 +118,4 @@ void AnimatableComposite::setChildren(std::vector<std::shared_ptr<Animatable>> c
 	children = children_;
 	for(auto& childAnimatable : children) childAnimatable->setParentComposite(toComposite());
 }
+*/

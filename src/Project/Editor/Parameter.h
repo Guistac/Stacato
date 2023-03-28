@@ -914,6 +914,7 @@ using EnumParam = std::shared_ptr<EnumeratorParameter<T>>;
 //=================================== STATE PARAMETER ===============================
 //===================================================================================
 
+/*
 #include "Animation/Animatables/AnimatableState.h"
 
 class StateParameter : public Parameter{
@@ -1014,7 +1015,7 @@ public:
 	};
 	
 };
-
+*/
 
 #include "Animation/Playback/TimeStringConversion.h"
 

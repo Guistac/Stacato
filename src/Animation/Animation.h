@@ -1,7 +1,9 @@
 #pragma once
 
+/*
 #include "Project/Editor/Parameter.h"
 #include "Motion/Curve/Curve.h"
+
 
 class AnimationComposite;
 class AnimationKey;
@@ -481,3 +483,4 @@ public:
 private:
 	std::vector<std::shared_ptr<Animation>> children;
 };
+*/

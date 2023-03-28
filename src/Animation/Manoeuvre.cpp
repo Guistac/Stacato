@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "Manoeuvre.h"
 #include "Machine/Machine.h"
 #include "Animation/Animatable.h"
@@ -187,7 +188,9 @@ public:
 };
 
 void Manoeuvre::addAnimation(std::shared_ptr<Animatable> animatable) {
-	std::string name = "Add Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
+	std::string name = "Add Animation " +
+	//std::string(animatable->getMachine()->getName()) + " : " +
+		std::string(animatable->getName());
 	std::make_shared<AddAnimationCommand>(name, animatable, shared_from_this())->execute();
 }
 
@@ -237,7 +240,9 @@ public:
 
 void Manoeuvre::removeAnimation(std::shared_ptr<Animatable> animatable) {
 	if(hasAnimation(animatable)){
-		std::string name = "Remove Animation " + /*std::string(animatable->getMachine()->getName()) + " : " +*/ std::string(animatable->getName());
+		std::string name = "Remove Animation " +
+ //std::string(animatable->getMachine()->getName()) + " : " +
+ std::string(animatable->getName());
 		std::make_shared<RemoveAnimationCommand>(name, animatable, shared_from_this())->execute();
 	}
 }
@@ -571,36 +576,36 @@ std::vector<std::shared_ptr<Animation>> Manoeuvre::getActiveAnimations(){
 
 
 
-/*
-double Manoeuvre::getSychronizedPlaybackPosition(){
-	if(animations.empty()) return std::numeric_limits<double>::quiet_NaN();
-	
-	if(!hasActiveAnimations()){
-		double playbackposition = animations.front()->getPlaybackPosition();
-		for(int i = 1; i < animations.size(); i++){
-			double position = animations[i]->getPlaybackPosition();
-			if(playbackposition != position) return std::numeric_limits<double>::quiet_NaN();
-		}
-		return playbackposition;
-	}else{
-		int firstActiveAnimationIndex;
-		for(int i = 0; i < animations.size(); i++){
-			if(animations[i]->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING){
-				firstActiveAnimationIndex = i;
-				break;
-			}
-		}
-		double playbackPosition = animations[firstActiveAnimationIndex]->getPlaybackPosition();
-		
-		for(int i = firstActiveAnimationIndex + 1; i < animations.size(); i++){
-			if(animations[i]->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING) continue;
-			double position = animations[i]->getPlaybackPosition();
-			if(playbackPosition != position) return std::numeric_limits<double>::quiet_NaN();
-		}
-		return playbackPosition;
-	}
-}
- */
+
+//double Manoeuvre::getSychronizedPlaybackPosition(){
+//	if(animations.empty()) return std::numeric_limits<double>::quiet_NaN();
+//
+//	if(!hasActiveAnimations()){
+//		double playbackposition = animations.front()->getPlaybackPosition();
+//		for(int i = 1; i < animations.size(); i++){
+//			double position = animations[i]->getPlaybackPosition();
+//			if(playbackposition != position) return std::numeric_limits<double>::quiet_NaN();
+//		}
+//		return playbackposition;
+//	}else{
+//		int firstActiveAnimationIndex;
+//		for(int i = 0; i < animations.size(); i++){
+//			if(animations[i]->getPlaybackState() != Animation::PlaybackState::NOT_PLAYING){
+//				firstActiveAnimationIndex = i;
+//				break;
+//			}
+//		}
+//		double playbackPosition = animations[firstActiveAnimationIndex]->getPlaybackPosition();
+//
+//		for(int i = firstActiveAnimationIndex + 1; i < animations.size(); i++){
+//			if(animations[i]->getPlaybackState() == Animation::PlaybackState::NOT_PLAYING) continue;
+//			double position = animations[i]->getPlaybackPosition();
+//			if(playbackPosition != position) return std::numeric_limits<double>::quiet_NaN();
+//		}
+//		return playbackPosition;
+//	}
+//}
+
 
 
 
@@ -731,5 +736,4 @@ bool Manoeuvre::shouldRefocusCurves(){
 }
 
 
-
-
+*/

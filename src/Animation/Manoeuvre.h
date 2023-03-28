@@ -1,8 +1,10 @@
 #pragma once
 
+/*
 #include "Project/Editor/Parameter.h"
 #include "Motion/MotionTypes.h"
 #include "Motion/Curve/Curve.h"
+
 
 class Animation;
 class Animatable;
@@ -167,3 +169,4 @@ public:
 	void requestCurveRefocus();
 	bool shouldRefocusCurves();
 };
+*/

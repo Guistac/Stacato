@@ -1,4 +1,5 @@
 
+/*
 class Animation;
 class Manoeuvre;
 
@@ -18,3 +19,4 @@ namespace PlaybackManager {
 	//playback handling
 	void update();
 }
+*/

@@ -1,4 +1,6 @@
 #include <pch.h>
+
+/*
 #include "AnimatablePosition.h"
 
 #include "Project/Editor/Parameter.h"
@@ -643,11 +645,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																velocityLimit,
 																minPosition,
 																maxPosition);
-			/*
-			if(strcmp(getName(), "Anneau") == 0){
-				Logger::warn("anneau diff: {}", positionSetpoint - motionProfile.getPosition());
-			}
-			 */
+			
 			break;
 	}
 	
@@ -740,3 +738,5 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
 	mutex.unlock();
 	return r;
 }
+
+*/

@@ -20,7 +20,7 @@ public:
 	void selectNextManoeuvre();
 	void selectPreviousManoeuvre();
 	
-	void addManoeuvre(ManoeuvreType type = ManoeuvreType::KEY);
+	void addManoeuvre(/*ManoeuvreType type = ManoeuvreType::KEY*/);
 	void deleteSelectedManoeuvre();
 	void duplicateSelectedManoeuvre();
 	void moveManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex);

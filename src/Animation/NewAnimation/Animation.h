@@ -2,13 +2,13 @@
 
 namespace AnimationSystem{
 
-class BaseAnimatable;
+class Animatable;
 class CompositeAnimation;
 
-class BaseAnimation{
+class Animation{
 public:
 	
-	std::shared_ptr<BaseAnimatable> getAnimatable(){ return animatable; }
+	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
 	virtual bool canStartPlayback() = 0;
 	virtual void startPlayback() = 0;
@@ -23,7 +23,7 @@ protected:
 	
 	//Composite Structure
 	std::shared_ptr<CompositeAnimation> parentComposite = nullptr;
-	std::vector<std::shared_ptr<BaseAnimation>> childAnimations;
+	std::vector<std::shared_ptr<Animation>> childAnimations;
 	
 	//Animatable
 	std::shared_ptr<Animatable> animatable = nullptr;

@@ -76,7 +76,7 @@ public:
 	bool supportsForce(){		return feedbackConfig.b_supportsForceFeedback; }
 	
 	//position feedback type
-	PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
+	//PositionFeedbackType getPositionFeedbackType(){ return feedbackConfig.positionFeedbackType; }
 	
 	//position override
 	void overridePosition(double newPosition){
@@ -102,7 +102,7 @@ public:
 		bool b_supportsPositionFeedback = false;
 		bool b_supportsVelocityFeedback = false;
 		bool b_supportsForceFeedback = false;
-		PositionFeedbackType positionFeedbackType = PositionFeedbackType::INCREMENTAL;
+		//PositionFeedbackType positionFeedbackType = PositionFeedbackType::INCREMENTAL;
 		double positionLowerWorkingRangeBound = 0.0;	//lower position bound in position Units
 		double positionUpperWorkingRangeBound = 0.0;	//upper position bound in position Units
 	}feedbackConfig;

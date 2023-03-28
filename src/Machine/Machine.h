@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Environnement/NodeGraph/Node.h"
-#include "Animation/Animatable.h"
+#include "Motion/MotionTypes.h"
+
+#include "Animation/NewAnimation/Animatable.h"
 
 namespace Motion {
 	struct ControlPoint;
@@ -106,9 +108,9 @@ public:
 	
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) = 0;
 	
-	void addAnimatable(std::shared_ptr<Animatable> animatable);
-	void removeAnimatable(std::shared_ptr<Animatable> animatable);
-	std::vector<std::shared_ptr<Animatable>>& getAnimatables(){ return animatables; }
+	void addAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
+	void removeAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
+	std::vector<std::shared_ptr<AnimationSystem::Animatable>>& getAnimatables(){ return animatables; }
 	
 	//===== ATTACHED DEVICES =====
 	
@@ -149,7 +151,7 @@ public:
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) = 0;
 	
 private:
-	std::vector<std::shared_ptr<Animatable>> animatables;
+	std::vector<std::shared_ptr<AnimationSystem::Animatable>> animatables;
 
 };
 

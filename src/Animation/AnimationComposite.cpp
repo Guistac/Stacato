@@ -1,4 +1,6 @@
+/*
 #include "Animation.h"
+
 
 std::shared_ptr<AnimationComposite> AnimationComposite::copy(){
 	auto compositeCopy = std::make_shared<AnimationComposite>(getAnimatable()->toComposite());
@@ -89,3 +91,4 @@ std::shared_ptr<AnimationComposite> AnimationComposite::load(tinyxml2::XMLElemen
 	return animationComposite;
 }
 
+*/

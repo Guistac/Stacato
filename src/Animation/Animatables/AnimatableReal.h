@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
 
@@ -86,3 +87,4 @@ private:
 	std::shared_ptr<AnimatableRealValue> actualValue;
 	std::string suffix;
 };
+*/

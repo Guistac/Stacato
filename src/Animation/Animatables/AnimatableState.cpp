@@ -1,4 +1,6 @@
 #include <pch.h>
+
+/*
 #include "AnimatableState.h"
 
 #include "Project/Editor/Parameter.h"
@@ -229,3 +231,4 @@ bool AnimatableState::isMoving(){
 	mutex.unlock();
 	return b_moving;
 }
+*/

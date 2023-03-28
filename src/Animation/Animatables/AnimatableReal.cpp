@@ -1,4 +1,6 @@
 #include <pch.h>
+
+/*
 #include "AnimatableReal.h"
 
 #include "Motion/Curve/Curve.h"
@@ -192,3 +194,4 @@ bool AnimatableReal::isControlledManuallyOrByAnimation() {
 bool AnimatableReal::isMoving(){
 	return false;
 }
+*/

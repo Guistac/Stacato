@@ -1,5 +1,6 @@
 #include "Animation.h"
 
+/*
 #include "Machine/Machine.h"
 
 AnimationKey::AnimationKey(std::shared_ptr<Animatable> animatable) : Animation(animatable){
@@ -72,3 +73,4 @@ bool AnimationKey::onRapidToPlaybackPosition(){
 	return true;
 }
 
+*/

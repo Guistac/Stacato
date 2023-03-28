@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "AnimationValue.h"
 
 #include "Animatables/AnimatableState.h"
@@ -14,3 +15,4 @@ std::shared_ptr<AnimatableRealValue> AnimationValue::toReal(){ return std::stati
 std::shared_ptr<AnimatableStateValue> AnimationValue::makeState(){ return std::make_shared<AnimatableStateValue>(); }
 std::shared_ptr<AnimatablePositionValue> AnimationValue::makePosition(){ return std::make_shared<AnimatablePositionValue>(); }
 std::shared_ptr<AnimatableRealValue> AnimationValue::makeReal(){ return std::make_shared<AnimatableRealValue>(); }
+*/

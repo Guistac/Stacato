@@ -1,6 +1,8 @@
 #pragma once
 
+/*
 #include "Motion/MotionTypes.h"
+
 
 struct AnimatableStateValue;
 struct AnimatablePositionValue;
@@ -21,3 +23,4 @@ struct AnimationValue : public std::enable_shared_from_this<AnimationValue>{
 	static std::shared_ptr<AnimatableRealValue> makeReal();
 };
 
+*/

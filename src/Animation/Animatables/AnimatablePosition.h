@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Animation/Animatable.h"
 #include "Animation/AnimationValue.h"
 #include "Animation/AnimationConstraint.h"
@@ -180,3 +181,4 @@ public:
 //public: lock mutex
 //private: require locked mutex
 //do not call public functions internally
+*/

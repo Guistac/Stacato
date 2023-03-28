@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Motion/MotionTypes.h"
 
 class Parameter;
@@ -20,6 +21,8 @@ class AnimationConstraint;
 namespace Motion{
 struct ControlPoint;
 };
+
+
 
 class Animatable : public std::enable_shared_from_this<Animatable>{
 public:
@@ -214,3 +217,4 @@ public:
 private:
 	std::vector<std::shared_ptr<Animatable>> children;
 };
+*/

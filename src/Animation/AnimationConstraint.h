@@ -1,6 +1,8 @@
 #pragma once
 
+/*
 #include "Motion/MotionTypes.h"
+
 
 class AnimationConstraint{
 public:
@@ -36,3 +38,4 @@ public:
 	virtual AnimatableType getAnimatableType() override { return AnimatableType::COMPOSITE; }
 	
 };
+*/

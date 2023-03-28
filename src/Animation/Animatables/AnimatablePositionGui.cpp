@@ -1,5 +1,6 @@
 #include <pch.h>
 
+/*
 #include "AnimatablePosition.h"
 
 #include <imgui.h>
@@ -97,13 +98,6 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 		case FORCED_POSITION_SETPOINT:	modestring = "Forced Position sp"; break;
 		case FORCED_VELOCITY_SETPOINT:	modestring = "Force Velocity sp"; break;
 	}
-	
-	/*
-	ImGui::Text("anim: %i", hasAnimation());
-	ImGui::Text("m: %s", modestring);
-	ImGui::Text("p s: %.3f p: %.3f", positionSetpoint, motionProfile.getPosition());
-	ImGui::Text("v s: %.3f p: %.3f", velocitySetpoint, motionProfile.getVelocity());
-	 */
 	
 	ImGui::PopID();
 	
@@ -230,3 +224,5 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 
 	ImGui::EndGroup();
 }
+
+*/

@@ -18,6 +18,7 @@ static glm::vec3 lerpColor(glm::vec3 start, glm::vec3 end, float progress){
 };
 
 void ConsoleStarmania::apply(std::shared_ptr<Console> console){
+	/*
 	auto devices = console->getIODevices();
 	
 	std::vector<std::shared_ptr<IODevice>> rgbButtons;
@@ -215,6 +216,6 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
         else if(manoeuvre->canRapidToPlaybackPosition()) rgbLed->setColor(glm::vec3(1.f, .7f, 0.f));
         else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
     });
-    
+    */
 	
 }
