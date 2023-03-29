@@ -1,7 +1,10 @@
 #pragma once
 
 class ManoeuvreList;
-class Manoeuvre;
+
+namespace AnimationSystem{
+	class Manoeuvre;
+}
 
 class Plot : public std::enable_shared_from_this<Plot>{
 
@@ -28,8 +31,8 @@ public:
 	void setName(std::string name_){ name = name_; }
 	
 	std::shared_ptr<ManoeuvreList> getManoeuvreList(){ return manoeuvreList; }
-	std::shared_ptr<Manoeuvre> getSelectedManoeuvre(){ return selectedManoeuvre; }
-	void selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
+	std::shared_ptr<AnimationSystem::Manoeuvre> getSelectedManoeuvre(){ return selectedManoeuvre; }
+	void selectManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre);
 	
 	bool b_scrollToSelectedManoeuvre = false;
 	
@@ -37,7 +40,7 @@ private:
 	
 	std::string name;
 	std::shared_ptr<ManoeuvreList> manoeuvreList;
-	std::shared_ptr<Manoeuvre> selectedManoeuvre;
+	std::shared_ptr<AnimationSystem::Manoeuvre> selectedManoeuvre;
 	
 	//—————————————————————————————————————
 	//				Others..

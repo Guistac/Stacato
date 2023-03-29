@@ -59,9 +59,11 @@ std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 	}
 	plot->manoeuvreList->load(manoeuvreListXML);
 	
+	/*
 	if(!plot->manoeuvreList->getManoeuvres().empty()){
 		plot->selectManoeuvre(plot->manoeuvreList->getManoeuvres().front());
 	}
+	*/
 	 
 	return plot;
 }

@@ -25,10 +25,12 @@
 #include "Stacato/Project/StacatoProject.h"
 
 
+#include "Animation/NewAnimation/Manoeuvre.h"
+
 namespace PlotGui{
 
 	void manoeuvreList() {
-		/*
+		
 		if(!Stacato::Editor::hasCurrentProject()){
 			ImGui::Text("No Project Loaded");
 			return;
@@ -94,8 +96,8 @@ namespace PlotGui{
         if(!currentProject->isPlotEditLocked()) manoeuvreListSize.y -= managerHeight;
 		
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
-		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
-		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
+		auto& manoeuvres = manoeuvreList->getManoeuvres();
+		std::shared_ptr<AnimationSystem::Manoeuvre> clickedManoeuvre = nullptr;
 		
 		if(ReorderableList::begin("CueList", manoeuvreListSize, !currentProject->isPlotEditLocked())){
 		
@@ -119,19 +121,27 @@ namespace PlotGui{
 			
 			
 			for (auto& manoeuvre : manoeuvres) {
-				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
+				
+				if(ReorderableList::beginItem(cueSizeY)){
+					ImGui::Text("Manoeuvre");
+					/*
 					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 						ImGui::SetScrollHereY(.5f);
 						plot->b_scrollToSelectedManoeuvre = false;
 					}
+					*/
 					
 					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
-					manoeuvre->listGui();
+					//manoeuvre->listGui();
 					ReorderableList::endItem();
-				}else if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
+				}
+				/*
+				else if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 					ImGui::SetScrollHereY(.5f);
 					plot->b_scrollToSelectedManoeuvre = false;
 				}
+				 */
+				 
 			}
 			ImGui::PopStyleVar();
 			
@@ -208,7 +218,7 @@ namespace PlotGui{
                 };
                 
                 
-                
+                /*
                 if(manoeuvreTypeSelector(Images::KeyIcon, "Key", popupWidth)) {
                     manoeuvreList->addManoeuvre(ManoeuvreType::KEY);
                     ImGui::CloseCurrentPopup();
@@ -221,7 +231,18 @@ namespace PlotGui{
                     manoeuvreList->addManoeuvre(ManoeuvreType::SEQUENCE);
                     ImGui::CloseCurrentPopup();
                 }
+				 */
 				 
+				
+				if(manoeuvreTypeSelector(Images::TargetIcon, "Target", popupWidth)) {
+					manoeuvreList->addManoeuvre();
+					ImGui::CloseCurrentPopup();
+				}
+				
+				
+				
+				
+				
                 
                 ImGui::EndPopup();
             }
@@ -251,33 +272,29 @@ namespace PlotGui{
             ImGui::PopStyleVar();
             
         }
-		*/
+		
 	}
 
-
-bool noSelectionDisplay(){
-	
-	if(!Stacato::Editor::hasCurrentProject()){
-		ImGui::Text("No Project Loaded");
-		return true;
+	bool noSelectionDisplay(){
+		
+		if(!Stacato::Editor::hasCurrentProject()){
+			ImGui::Text("No Project Loaded");
+			return true;
+		}
+		
+		if (Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("No Manoeuvre Selected.");
+			ImGui::PopFont();
+			ImGui::TextWrapped("Select manoeuvres in the manoeuvre list.");
+			ImGui::PopStyleColor();
+			return true;
+		}
+		return false;
 	}
-	
-	if (Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
-		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("No Manoeuvre Selected.");
-		ImGui::PopFont();
-		ImGui::TextWrapped("Select manoeuvres in the manoeuvre list.");
-		ImGui::PopStyleColor();
-		return true;
-	}
-	return false;
-}
 
-void trackSheetEditor(){
-	if(noSelectionDisplay()) return;
-	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
-}
+/*
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
@@ -288,7 +305,13 @@ void spatialEditor(){
 	if(noSelectionDisplay()) return;
 	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
+*/
 
+void trackSheetEditor(){
+	if(noSelectionDisplay()) return;
+	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
+	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->editorGui();
+}
 
 void NewPlotPopup::onOpen(){
 	sprintf(newNameBuffer, "New Plot");
@@ -343,6 +366,6 @@ void PlotDeletePopup::onDraw(){
 	}
 }
 
-
-
 }
+
+

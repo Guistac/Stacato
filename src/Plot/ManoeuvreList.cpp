@@ -3,12 +3,21 @@
 
 #include "Project/Editor/CommandHistory.h"
 #include "Plot/Plot.h"
-#include "Animation/Manoeuvre.h"
-#include "Animation/Animation.h"
+//#include "Animation/Manoeuvre.h"
+//#include "Animation/Animation.h"
+
+#include "Animation/NewAnimation/Manoeuvre.h"
 
 //————————————————————————————————
 //			Add Manoeuvre
 //————————————————————————————————
+
+
+void ManoeuvreList::addManoeuvre() {
+	auto newManoeuvre = std::make_shared<AnimationSystem::Manoeuvre>();
+	manoeuvres.push_back(newManoeuvre);
+}
+
 /*
 class AddManoeuvreCommand : public UndoableCommand{
 public:

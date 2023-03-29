@@ -6,8 +6,8 @@ namespace PlotGui{
 
 	void manoeuvreList();
 	void trackSheetEditor();
-	void curveEditor();
-	void spatialEditor();
+	//void curveEditor();
+	//void spatialEditor();
 
 
 	class ManoeuvreListWindow : public Window{
@@ -20,21 +20,27 @@ namespace PlotGui{
 	class TrackSheetEditorWindow : public Window{
 	public:
 		TrackSheetEditorWindow() : Window("Track Sheet Editor", true){}
-		virtual void onDraw() override { trackSheetEditor(); };
+		virtual void onDraw() override {
+			trackSheetEditor();
+		};
 		SINGLETON_GET_METHOD(TrackSheetEditorWindow)
 	};
 
 	class CurveEditorWindow : public Window{
 	public:
 		CurveEditorWindow() : Window("Curve Editor", true){}
-		virtual void onDraw() override { curveEditor(); };
+		virtual void onDraw() override {
+			//curveEditor();
+		};
 		SINGLETON_GET_METHOD(CurveEditorWindow)
 	};
 
 	class SpatialEditorWindow : public Window{
 	public:
 		SpatialEditorWindow() : Window("Spatial Editor", true){}
-		virtual void onDraw() override { spatialEditor(); };
+		virtual void onDraw() override {
+			//spatialEditor();
+		};
 		SINGLETON_GET_METHOD(SpatialEditorWindow)
 	};
 

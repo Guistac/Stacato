@@ -132,8 +132,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationValue.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/ManoeuvreGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatablePosition.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableState.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableOwner.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableOwner.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h

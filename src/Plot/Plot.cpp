@@ -36,11 +36,9 @@ std::shared_ptr<Plot> Plot::duplicate(){
 	return nullptr;
 }
 
-void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
-	/*
+void Plot::selectManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre){
 	selectedManoeuvre = manoeuvre;
-	if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
-	 */
+	//if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
 }
 
 bool Plot::isCurrent(){

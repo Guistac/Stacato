@@ -7,6 +7,8 @@
                 <Window Name="Log"/>
                 <Window Name="Node Editor"/>
                 <Window Name="Dashboard"/>
+                <Window Name="Manoeuvre List"/>
+                <Window Name="Track Sheet Editor"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -49,7 +51,7 @@ Collapsed=0
 Pos=0,29
 Size=1728,938
 Collapsed=0
-DockId=0x00000001,0
+DockId=0x00000006,0
 
 [Window][Plot List]
 Pos=0,32
@@ -57,10 +59,10 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-ViewportPos=636,229
-ViewportId=0xE114A1BD
-Size=861,938
+Pos=435,29
+Size=831,938
 Collapsed=0
+DockId=0x00000006,1
 
 [Window][Curve Editor]
 ViewportPos=0,66
@@ -129,11 +131,10 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
-ViewportPos=0,66
-ViewportId=0x36A60932
 Pos=0,29
-Size=434,938
+Size=433,938
 Collapsed=0
+DockId=0x00000005,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -223,10 +224,10 @@ Size=489,359
 Collapsed=0
 
 [Window][Node Editor]
-Pos=0,29
-Size=1266,938
+Pos=435,29
+Size=831,938
 Collapsed=0
-DockId=0x00000001,0
+DockId=0x00000006,0
 
 [Window][Node Manager]
 Pos=437,29
@@ -399,7 +400,9 @@ Column 5  Weight=-1.0000
 
 [Docking][Data]
 DockSpace     ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
-  DockNode    ID=0x00000001 Parent=0xD5272B65 SizeRef=1266,938 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
+  DockNode    ID=0x00000001 Parent=0xD5272B65 SizeRef=1266,938 Split=X Selected=0xAE98FAB7
+    DockNode  ID=0x00000005 Parent=0x00000001 SizeRef=433,938 HiddenTabBar=1 Selected=0xEBD2820B
+    DockNode  ID=0x00000006 Parent=0x00000001 SizeRef=831,938 CentralNode=1 Selected=0x47C7A3F3
   DockNode    ID=0x00000002 Parent=0xD5272B65 SizeRef=460,938 Split=Y Selected=0x64F50EE5
     DockNode  ID=0x00000003 Parent=0x00000002 SizeRef=460,655 HiddenTabBar=1 Selected=0x64F50EE5
     DockNode  ID=0x00000004 Parent=0x00000002 SizeRef=460,281 HiddenTabBar=1 Selected=0xB00214C9
