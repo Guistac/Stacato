@@ -16,6 +16,7 @@ std::shared_ptr<Plot> Plot::create(){
 }
 
 std::shared_ptr<Plot> Plot::duplicate(){
+	/*
 	auto copy = create();
 	copy->setName("copy of " + std::string(getName()));
 	
@@ -31,11 +32,15 @@ std::shared_ptr<Plot> Plot::duplicate(){
 	}
 	
 	return copy;
+	 */
+	return nullptr;
 }
 
 void Plot::selectManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
+	/*
 	selectedManoeuvre = manoeuvre;
 	if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
+	 */
 }
 
 bool Plot::isCurrent(){

@@ -9,6 +9,7 @@
 #include "Animation/Animation.h"
 #include "Motion/Safety/DeadMansSwitch.h"
 
+/*
 AnimatableStateStruct FlipStateMachine::stateUnknown = 			{-1, 	"Unknown", 			"Unknown"};
 AnimatableStateStruct FlipStateMachine::stateStopped = 			{0, 	"Stopped", 			"Stopped"};
 AnimatableStateStruct FlipStateMachine::stateClosed = 			{1, 	"Closed", 			"Closed"};
@@ -396,104 +397,6 @@ void FlipStateMachine::requestState(State newState){
 }
 
 
-/*
-
-void FlipStateMachine::rapidAnimatableToValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == animatableState) {
-		auto state = value->toState()->value;
-		switch (state->integerEquivalent) {
-			case 0:
-				requestedState = MachineState::State::LIFT_LOWERED_HOOD_SHUT;
-				break;
-			case 1:
-				requestedState = MachineState::State::LIFT_LOWERED_HOOD_OPEN;
-				break;
-			case 2:
-				requestedState = MachineState::State::LIFT_RAISED_HOOD_OPEN;
-				break;
-		}
-		parameterMovementTargetState = requestedState;
-	}
-}
-
-float FlipStateMachine::getAnimatableRapidProgress(std::shared_ptr<Animatable> animatable) {
-	if (animatable == animatableState) {
-		float actual = getState(actualState)->floatEquivalent;
-		float start = getState(parameterMovementStartState)->floatEquivalent;
-		float target = getState(parameterMovementTargetState)->floatEquivalent;
-		float progress = (actual - start) / (target - start);
-		if (progress < start) progress = start;
-		else if (progress > target) progress = target;
-		return progress;
-	}
-	return 0.0;
-}
-
-bool FlipStateMachine::isAnimatableReadyToStartPlaybackFromValue(std::shared_ptr<Animatable> animatable, std::shared_ptr<AnimationValue> value) {
-	if (animatable == animatableState) {
-		auto state = value->toState()->value;
-		//TODO: this is broken
-		if (state->integerEquivalent == getState(actualState)->floatEquivalent) return true;
-	}
-	return false;
-}
-
-void FlipStateMachine::onAnimationPlaybackStart(std::shared_ptr<Animatable> animatable) {}
-
-void FlipStateMachine::onAnimationPlaybackInterrupt(std::shared_ptr<Animatable> animatable) {}
-
-void FlipStateMachine::onAnimationPlaybackEnd(std::shared_ptr<Animatable> animatable) {}
-
-std::shared_ptr<AnimationValue> FlipStateMachine::getActualAnimatableValue(std::shared_ptr<Animatable> animatable) {
-	auto output = AnimationValue::makeState();
-	output->value = &stateParameterValues.front();
-	switch(actualState){
-		case FlipStateMachine::MachineState::State::UNKNOWN:
-		case FlipStateMachine::MachineState::State::UNEXPECTED_STATE: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_SHUT: output->value = &stateParameterValues[1]; break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_MOVING: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_LOWERED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
-		case FlipStateMachine::MachineState::State::LIFT_MOVING_HOOD_OPEN: output->value = &stateParameterValues.front(); break;
-		case FlipStateMachine::MachineState::State::LIFT_RAISED_HOOD_OPEN: output->value = &stateParameterValues[2]; break;
-	}
-	return output;
-}
-
-
-
-void FlipStateMachine::cancelAnimatableRapid(std::shared_ptr<Animatable> animatable) {
-	
-}
-
-
-void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
-	
-}
-
-bool FlipStateMachine::validateAnimation(const std::shared_ptr<Animation> animation) {
-	parameterTrack->b_valid = true;
-	for (auto& curve : parameterTrack->curves) {
-		curve->b_valid = true;
-		for (auto& point : curve->points) {
-			point->b_valid = true;
-			point->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
-		}
-		for (auto& interpolation : curve->interpolations) {
-			interpolation->b_valid = true;
-			interpolation->validationError = Motion::ValidationError::NO_VALIDATION_ERROR;
-		}
-	}
-	return true;
-}
-
-bool FlipStateMachine::generateTargetAnimation(std::shared_ptr<TargetAnimation> targetAnimation){
-	return false;
-}
-
-*/
-
-
-
 //========= ANIMATABLE OWNER ==========
 
 void FlipStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
@@ -525,3 +428,4 @@ bool FlipStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;
 }
+*/

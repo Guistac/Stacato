@@ -27,7 +27,7 @@ void PositionControlledMachine::initialize() {
 	addNodePin(velocityPin);
 
 	//machine parameters
-	addAnimatable(animatablePosition);
+	//addAnimatable(animatablePosition);
 	
 	auto thisMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
@@ -128,14 +128,14 @@ void PositionControlledMachine::disableHardware() {
 
 void PositionControlledMachine::onEnableHardware() {
 	Logger::info("Enabled Machine {}", getName());
-	animatablePosition->stopMovement();
-	animatablePosition->stopAnimation();
+	//animatablePosition->stopMovement();
+	//animatablePosition->stopAnimation();
 }
 
 void PositionControlledMachine::onDisableHardware() {
 	Logger::info("Disabled Machine {}", getName());
-	animatablePosition->stopMovement();
-	animatablePosition->stopAnimation();
+	//animatablePosition->stopMovement();
+	//animatablePosition->stopAnimation();
 }
 
 bool PositionControlledMachine::isSimulationReady(){
@@ -173,11 +173,13 @@ std::string PositionControlledMachine::getStatusString(){
 						}
 					}
 				}
+				/*
 				for(auto constraint : animatablePosition->getConstraints()){
 					if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()){
 						status += "\nMovement is halted by constraint \"" + constraint->getName() + "\"";
 					}
 				}
+				 */
 			}
 			return status;
 	}
@@ -201,6 +203,7 @@ void PositionControlledMachine::inputProcess() {
 	b_halted = isEnabled() && !isMotionAllowed();
 	
 	//update animatable state
+	/*
 	if(state == DeviceState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
     else if(state == DeviceState::ENABLED){
         if(b_halted) animatablePosition->state = Animatable::State::HALTED;
@@ -217,14 +220,15 @@ void PositionControlledMachine::inputProcess() {
 	//animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());
 	//animatablePosition->lowerPositionLimit = axisPositionToMachinePosition(axis->getLowPositionLimit());
 	//if(invertAxis->value) std::swap(animatablePosition->upperPositionLimit, animatablePosition->lowerPositionLimit);
-	
+	 
 	//Get Realtime values from axis (for position and velocity pins only)
 	*positionPinValue = actualPosition->position;
 	*velocityPinValue = actualPosition->velocity;
+	 */
 }
 
 void PositionControlledMachine::outputProcess(){
-	
+	/*
 	if(b_emergencyStopActive){
 		animatablePosition->stopMovement();
 		animatablePosition->stopAnimation();
@@ -262,7 +266,7 @@ void PositionControlledMachine::outputProcess(){
 											  axisVelocityTarget,
 											  axisAccelerationTarget);
 	}
-	
+	*/
 }
 
 void PositionControlledMachine::simulateInputProcess() {
@@ -277,15 +281,18 @@ void PositionControlledMachine::simulateInputProcess() {
 	b_halted = false;
 		
 	//update animatable state
+	/*
 	if(state == DeviceState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
 	else if(state == DeviceState::ENABLED && !b_halted) animatablePosition->state = Animatable::State::READY;
 	else animatablePosition->state = Animatable::State::NOT_READY;
+	 */
 }
 
 void PositionControlledMachine::simulateOutputProcess(){
 	if (!isAxisConnected()) return;
 	auto axis = getAxisInterface();
 	 
+	/*
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
 	animatablePosition->updateTargetValue(profileTime_seconds, profileDeltaTime_seconds);
@@ -293,6 +300,7 @@ void PositionControlledMachine::simulateOutputProcess(){
 	animatablePosition->updateActualValue(target);
 	*positionPinValue = target->position;
 	*velocityPinValue = target->velocity;
+	 */
 }
 
 
@@ -317,20 +325,24 @@ double PositionControlledMachine::getUpperPositionLimit(){
 
 
 void PositionControlledMachine::captureZero(){
+	/*
 	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit() - animatablePosition->motionProfile.getPosition());
 	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit() + animatablePosition->motionProfile.getPosition());
 	animatablePosition->motionProfile.setPosition(0.0);
 	animatablePosition->setManualVelocityTarget(0.0);
+	 */
 }
 
 void PositionControlledMachine::resetZero(){
+	/*
 	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit());
 	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit());
 	animatablePosition->setManualVelocityTarget(0.0);
+	 */
 }
 
 void PositionControlledMachine::captureLowerLimit(){
-	lowerPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+	//lowerPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
 }
 
 void PositionControlledMachine::resetLowerLimit(){
@@ -338,7 +350,7 @@ void PositionControlledMachine::resetLowerLimit(){
 }
 
 void PositionControlledMachine::captureUpperLimit(){
-	upperPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+	//upperPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
 }
 
 void PositionControlledMachine::resetUpperLimit(){
@@ -358,7 +370,7 @@ bool PositionControlledMachine::isHoming(){
 	return getAxisInterface()->isHoming();
 }
 void PositionControlledMachine::startHoming(){
-	animatablePosition->stopAnimation();
+	//animatablePosition->stopAnimation();
 	getAxisInterface()->startHoming();
 }
 void PositionControlledMachine::stopHoming(){
@@ -382,6 +394,7 @@ const char* PositionControlledMachine::getHomingString(){
 
 
 void PositionControlledMachine::updateAnimatableParameters(){
+	/*
 	if(!isAxisConnected()) {
 		animatablePosition->setUnit(Units::None::None);
 		animatablePosition->lowerPositionLimit = 0.0;
@@ -400,6 +413,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	animatablePosition->upperPositionLimit = getUpperPositionLimit();
 	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
 	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
+	 */
 }
 
 
@@ -412,7 +426,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 //========= ANIMATABLE OWNER ==========
 
 void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
-	
+	/*
 	if(animation->getAnimatable() != animatablePosition) return;
 	switch(animation->getType()){
 		case ManoeuvreType::KEY:
@@ -434,7 +448,7 @@ void PositionControlledMachine::fillAnimationDefaults(std::shared_ptr<Animation>
 			animation->toSequence()->outAcceleration->overwrite(animatablePosition->accelerationLimit);
 			break;
 	}
-	
+	*/
 }
 
 

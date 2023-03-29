@@ -120,8 +120,8 @@
                     <OutputPin SaveString="Module0DigitalInput2" DisplayString="Module 0 Digital Input 2" DataType="Boolean" UniqueID="120" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput3" DisplayString="Module 0 Digital Input 3" DataType="Boolean" UniqueID="121" Visible="true"/>
                     <OutputPin SaveString="Module0DigitalInput4" DisplayString="Module 0 Digital Input 4" DataType="Boolean" UniqueID="122" Visible="true"/>
-                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="127" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Reset Encoder" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="128" Visible="true"/>
+                    <OutputPin SaveString="Module2SSIEncoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="127" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Module2SSIEncoderReset" DisplayString="Reset Encoder" DataType="Boolean" UniqueID="128" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="134">

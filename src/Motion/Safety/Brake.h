@@ -4,7 +4,7 @@
 #include "Gui/Environnement/Dashboard/Widget.h"
 
 
-
+/*
 class Brake : public Machine{
 public:
 	
@@ -75,3 +75,4 @@ private:
 	};
 	std::shared_ptr<ControlWidget> controlWidget;
 };
+*/

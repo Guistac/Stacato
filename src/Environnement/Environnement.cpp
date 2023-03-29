@@ -111,12 +111,14 @@ namespace Environnement {
 		Logger::debug("Compiling: EtherCAT Process Program: ");
 		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
 		
+		/*
 		for(auto machine : getMachines()){
 			for(auto animatable : machine->getAnimatables()){
 				animatable->clearConstraints();
 			}
 			machine->addConstraints();
 		}
+		 */
 		
 		Script::start();
 		if(!Script::isRunning()){
@@ -163,7 +165,7 @@ namespace Environnement {
 		//auto end = std::chrono::high_resolution_clock::now();
 		//Logger::warn("scrip processing duration {}µs", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 		
-		PlaybackManager::update();
+		//PlaybackManager::update();
 
 		for(auto& machine : getMachines()) machine->simulateOutputProcess();
 
@@ -209,12 +211,14 @@ namespace Environnement {
 		b_isStarting = true;
 		Logger::info("Starting Environnement Hardware");
 		
+		/*
 		for(auto machine : getMachines()){
 			for(auto animatable : machine->getAnimatables()){
 				animatable->clearConstraints();
 			}
 			machine->addConstraints();
 		}
+		*/
 		
 		Script::start();
 		if(!Script::isRunning()){
@@ -274,7 +278,7 @@ namespace Environnement {
 		Script::update();
 		
 		//increments the playback position of all active manoeuvres
-		PlaybackManager::update();
+		//PlaybackManager::update();
 		
 		//take nodegraph outputs and propagate them to the devices
 		NodeGraph::executeOutputProcess(ethercatDeviceProcess);

@@ -78,6 +78,7 @@ std::shared_ptr<Plot> Plot::load(std::string& filePath) {
 
 
 bool ManoeuvreList::load(tinyxml2::XMLElement* xml){
+	/*
 	using namespace tinyxml2;
 	
 	XMLElement* manoeuvreXML = xml->FirstChildElement("Manoeuvre");
@@ -88,16 +89,19 @@ bool ManoeuvreList::load(tinyxml2::XMLElement* xml){
 		manoeuvres.push_back(manoeuvre);
 		manoeuvreXML = manoeuvreXML->NextSiblingElement("Manoeuvre");
 	}
+	 */
 	//manoeuvreList->refreshAll();
 	return true;
 }
 
 bool ManoeuvreList::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	/*
 	
 	for (auto& manoeuvre : manoeuvres) {
 		XMLElement* manoeuvreXML = xml->InsertNewChildElement("Manoeuvre");
 		if (!manoeuvre->save(manoeuvreXML)) return false;
 	}
+	 */
 	return true;
 }

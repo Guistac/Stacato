@@ -131,7 +131,7 @@ public:
 		fc.b_supportsPositionFeedback = true;
 		fc.b_supportsVelocityFeedback = true;
 		fc.b_supportsForceFeedback = true;
-		fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
+		//fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
 		fc.positionLowerWorkingRangeBound = 0.0;
 		fc.positionUpperWorkingRangeBound = 1.0;
 		

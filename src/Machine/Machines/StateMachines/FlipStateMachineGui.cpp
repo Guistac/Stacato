@@ -12,6 +12,7 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
+/*
 void FlipStateMachine::controlsGui() {
 
 	//TODO: missing manual controls gui (previously was widget gui copy)
@@ -223,3 +224,4 @@ void FlipStateMachine::widgetGui(){
 		
 	machineStateControlGui(contentSize.x);
 }
+*/

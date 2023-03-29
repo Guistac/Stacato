@@ -6,6 +6,7 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
+/*
 class FlipStateMachine : public Machine {
 public:
 
@@ -139,3 +140,4 @@ public:
 }\
 
 DEFINE_ENUMERATOR(FlipStateMachine::State, FlipStateMachineStrings)
+*/

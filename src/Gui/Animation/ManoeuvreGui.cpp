@@ -29,6 +29,8 @@
 #include "Stacato/Project/StacatoProject.h"
 
 
+/*
+
 //inside draggable list element: InvisibleButton/ClipRectangle
 void Manoeuvre::listGui(){
 	
@@ -517,12 +519,4 @@ void Manoeuvre::spatialEditor(){
 }
 
 
-
-
-
-
-
-
-
-
-
+*/

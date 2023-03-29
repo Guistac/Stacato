@@ -13,6 +13,7 @@ namespace Scripting::EnvironnementLibrary{
 
 	//————————————————— TYPES ——————————————————
 
+/*
 	LuaEnumerator<AnimatableType, "AnimatableType"> lua_AnimatableType;
 
 	LuaSharedPointer<Machine, "Machine"> lua_Machine;
@@ -475,5 +476,5 @@ namespace Scripting::EnvironnementLibrary{
 		.setGlobal("Environnement");
 		
 	}
-
+*/
 };

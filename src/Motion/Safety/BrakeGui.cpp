@@ -5,6 +5,7 @@
 
 #include <imgui.h>
 
+/*
 void Brake::widgetGui(bool b_withTitle){
 	
 	glm::vec2 blockSize(ImGui::GetTextLineHeight() * 7.0, ImGui::GetTextLineHeight() * 1.5);
@@ -125,3 +126,4 @@ void Brake::settingsGui(){}
 
 void Brake::axisGui(){}
 void Brake::deviceGui(){}
+*/

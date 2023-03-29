@@ -19,6 +19,7 @@
 #include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
+/*
 bool Animation::beginTrackSheetTable(ManoeuvreType type, ImGuiTableFlags tableFlags){
 	switch(type){
 		case ManoeuvreType::KEY:
@@ -306,13 +307,13 @@ void TargetAnimation::trackSheetRowGui(){
 		
 	}else{
 	
-		/*
+		
 		//[4] "Interpolation"	//kinematic, linear, step, bezier
-		ImGui::TableSetColumnIndex(4);
-		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-		auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
-		interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
-		 */
+		//ImGui::TableSetColumnIndex(4);
+		//ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
+		//auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
+		//interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
+		 
 		
 		//[5] "Target"			//position or other
 		ImGui::TableSetColumnIndex(5);
@@ -388,13 +389,13 @@ void SequenceAnimation::trackSheetRowGui(){
 		ImGui::PopItemFlag();
 		
 	}else{
-		/*
-		//[4] "Interpolation"	//kinematic, linear, step, bezier
-		ImGui::TableSetColumnIndex(4);
-		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-		auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
-		interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
-		*/
+		
+		////[4] "Interpolation"	//kinematic, linear, step, bezier
+		//ImGui::TableSetColumnIndex(4);
+		//ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
+		//auto& compatibleTypes = getAnimatable()->getCompatibleInterpolationTypes();
+		//interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
+		
 		
 		//[5] "Start"
 		ImGui::TableSetColumnIndex(5);
@@ -621,3 +622,4 @@ void SequenceAnimation::drawCurveControls(){
 	if(edited) updateAfterCurveEdit();
 }
 
+*/

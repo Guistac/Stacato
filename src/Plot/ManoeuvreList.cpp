@@ -9,7 +9,7 @@
 //————————————————————————————————
 //			Add Manoeuvre
 //————————————————————————————————
-
+/*
 class AddManoeuvreCommand : public UndoableCommand{
 public:
 	
@@ -249,3 +249,4 @@ void ManoeuvreList::pasteManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre){
 	manoeuvres.insert(manoeuvres.begin() + insertionIndex, copy);
 	copy->select();
 }
+*/

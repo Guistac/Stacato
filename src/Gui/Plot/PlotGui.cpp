@@ -28,7 +28,7 @@
 namespace PlotGui{
 
 	void manoeuvreList() {
-		
+		/*
 		if(!Stacato::Editor::hasCurrentProject()){
 			ImGui::Text("No Project Loaded");
 			return;
@@ -117,6 +117,7 @@ namespace PlotGui{
 			
 			ImGuiWindow* list = ImGui::GetCurrentWindow();
 			
+			
 			for (auto& manoeuvre : manoeuvres) {
 				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
 					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
@@ -142,6 +143,7 @@ namespace PlotGui{
 				ImGui::TextWrapped("Add new manoeuvres using the controls at the bottom of this window.");
 				ImGui::PopStyleColor();
 			}
+			 
 			
 			ReorderableList::end();
 		}
@@ -219,6 +221,7 @@ namespace PlotGui{
                     manoeuvreList->addManoeuvre(ManoeuvreType::SEQUENCE);
                     ImGui::CloseCurrentPopup();
                 }
+				 
                 
                 ImGui::EndPopup();
             }
@@ -248,7 +251,7 @@ namespace PlotGui{
             ImGui::PopStyleVar();
             
         }
-		
+		*/
 	}
 
 
@@ -273,17 +276,17 @@ bool noSelectionDisplay(){
 
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
+	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
 }
 
 void curveEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
+	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->curveEditor();
 }
 
 void spatialEditor(){
 	if(noSelectionDisplay()) return;
-	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
+	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->spatialEditor();
 }
 
 

@@ -280,7 +280,8 @@ void editor(){
 			ImGui::EndPopup();
 		}
 		*/
-		
+	/*
+		/
 		auto& tracks = sequence->getTracks();
 		for(int i = 0; i < tracks.size(); i++){
 			if(SequencerLibrary::beginTrack(i, tracks[i]->animatable->getName())){
@@ -288,7 +289,7 @@ void editor(){
 				SequencerLibrary::endTrack();
 			}
 		}
-		
+		*/
 		
 		SequencerLibrary::end();
 	}

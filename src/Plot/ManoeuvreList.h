@@ -17,13 +17,13 @@ public:
 	bool containsManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 	int getManoeuvreIndex(std::shared_ptr<Manoeuvre> manoeuvre);
 	
-	void selectNextManoeuvre();
-	void selectPreviousManoeuvre();
+	void selectNextManoeuvre(){}
+	void selectPreviousManoeuvre(){}
 	
-	void addManoeuvre(/*ManoeuvreType type = ManoeuvreType::KEY*/);
-	void deleteSelectedManoeuvre();
-	void duplicateSelectedManoeuvre();
-	void moveManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex);
+	void addManoeuvre(/*ManoeuvreType type = ManoeuvreType::KEY*/){}
+	void deleteSelectedManoeuvre(){}
+	void duplicateSelectedManoeuvre(){}
+	void moveManoeuvre(std::shared_ptr<Manoeuvre> m, int newIndex){}
 	
 	void pasteManoeuvre(std::shared_ptr<Manoeuvre> manoeuvre);
 

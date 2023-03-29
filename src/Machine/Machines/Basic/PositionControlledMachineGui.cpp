@@ -179,6 +179,7 @@ void PositionControlledMachine::ControlWidget::gui(){
 
 void PositionControlledMachine::widgetGui(){
 			
+	/*
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::BeginDisabled(!isEnabled());
 	
@@ -342,6 +343,7 @@ void PositionControlledMachine::widgetGui(){
 	
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
+	 */
 }
 
 
@@ -353,7 +355,7 @@ void PositionControlledMachine::widgetGui(){
 
 
 void PositionControlledMachine::setupGui(){
-	
+	/*
 	if(!isAxisConnected()) {
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
 		ImGui::Text("No Axis Connected.");
@@ -543,5 +545,5 @@ void PositionControlledMachine::setupGui(){
 	}
 	
 	ImGui::PopStyleVar();
-	
+	*/
 }

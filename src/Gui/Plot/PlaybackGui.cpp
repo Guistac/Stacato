@@ -28,6 +28,7 @@ void manoeuvrePlaybackControls(float height){
 		return;
 	}
 	
+	/*
 	auto currentPlot = Stacato::Editor::getCurrentProject()->getCurrentPlot();
 	std::shared_ptr<ManoeuvreList> manoeuvreList = currentPlot->getManoeuvreList();
 	
@@ -139,7 +140,7 @@ void manoeuvrePlaybackControls(float height){
 	ImGui::BeginDisabled(!PlaybackManager::isAnyAnimationActive());
 	if(buttonSTOP("StopAll", height)) PlaybackManager::stopAllAnimations();
 	ImGui::EndDisabled();
-
+*/
 }
 
 void sequencerPlaybackControls(float height){}
@@ -153,6 +154,7 @@ void sequencerPlaybackControls(float height){}
 
 void PlaybackManagerWindow::onDraw(){
 	
+	/*
 	auto drawing = ImGui::GetWindowDrawList();
 	ImDrawListSplitter drawingLayers;
 	
@@ -293,6 +295,7 @@ void PlaybackManagerWindow::onDraw(){
 		ImGui::TextWrapped("Active manoeuvres & animations will show up once they are started.");
 		ImGui::PopStyleColor();
 	}
+	 */
 	
 }
 

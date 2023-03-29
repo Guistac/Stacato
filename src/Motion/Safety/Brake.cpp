@@ -6,7 +6,7 @@
 
 //#include "Environnement/Environnement.h"
 
-
+/*
 AnimatableStateStruct Brake::stateUnknown = 	AnimatableStateStruct{.integerEquivalent = -2,	.displayName = "Unknown", 		.saveName = "Unknown"};
 AnimatableStateStruct Brake::stateInBetween =	AnimatableStateStruct{.integerEquivalent = -1, 	.displayName = "In Between",	.saveName = "InBetween"};
 AnimatableStateStruct Brake::stateStopped = 	AnimatableStateStruct{.integerEquivalent = 0,	.displayName = "Stopped", 		.saveName = "Stopped"};
@@ -209,3 +209,4 @@ bool Brake::loadMachine(tinyxml2::XMLElement* xml){
 }
 
 bool Brake::isMoving(){}
+*/

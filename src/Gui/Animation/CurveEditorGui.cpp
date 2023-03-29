@@ -14,6 +14,7 @@
 #include "Stacato/StacatoEditor.h"
 #include "Stacato/Project/StacatoProject.h"
 
+/*
 void Manoeuvre::curveEditor(){
 	
 	auto currentProject = Stacato::Editor::getCurrentProject();
@@ -212,16 +213,16 @@ void Manoeuvre::curveEditor(){
 			if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
 		}
         
-        /*
-		//draw curve editor controls
-		for (auto& animation : getAnimations()) {
-			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
-			ImGui::PushID(animation->getAnimatable()->getName());
-			animation->drawCurveControls();
-			ImGui::PopID();
-			ImGui::PopID();
-		}
-        */
+        
+		////draw curve editor controls
+		//for (auto& animation : getAnimations()) {
+		//	ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
+		//	ImGui::PushID(animation->getAnimatable()->getName());
+		//	animation->drawCurveControls();
+		//	ImGui::PopID();
+		//	ImGui::PopID();
+		//}
+        
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();
@@ -282,3 +283,4 @@ void Manoeuvre::curveEditor(){
 	
 	
 }
+*/
