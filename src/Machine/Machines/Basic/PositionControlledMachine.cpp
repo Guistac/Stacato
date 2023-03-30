@@ -25,7 +25,9 @@ void PositionControlledMachine::initialize() {
 	addNodePin(positionPin);
 	velocityPin->assignData(velocityPinValue);
 	addNodePin(velocityPin);
-
+	
+	addAnimatable(positionAnimatable);
+	
 	//machine parameters
 	//addAnimatable(animatablePosition);
 	

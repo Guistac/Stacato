@@ -10,11 +10,16 @@
 
 #include "Project/Editor/Parameter.h"
 
-class PositionControlledMachine : public Machine{
+#include "Animation/NewAnimation/AnimatableOwner.h"
+#include "Animation/NewAnimation/AnimatableRegistry.h"
+#include "Animation/NewAnimation/PositionAnimatable.h"
+
+class PositionControlledMachine : public Machine, public AnimationSystem::AnimatableOwner{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
 
 	//std::shared_ptr<AnimatablePosition> animatablePosition = AnimatablePosition::make("Position", Units::None::None);
+	std::shared_ptr<AnimationSystem::PositionAnimatable> positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
 	
 	//———————— Input Pins ——————————
 	
@@ -86,7 +91,12 @@ class PositionControlledMachine : public Machine{
 	
 	//——————————— Control Widget ————————————
 		
-	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
+	virtual void onAddToNodeGraph() override {
+		auto thisPositionControlledMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
+		auto thisAnimatableOwner = std::static_pointer_cast<AnimationSystem::AnimatableOwner>(thisPositionControlledMachine);
+		Environnement::getAnimatableRegistry()->registerAnimatableOwner(thisAnimatableOwner);
+		controlWidget->addToDictionnary();
+	}
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
 	void widgetGui();

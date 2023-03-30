@@ -1,14 +1,20 @@
 #pragma once
 
+#include "AnimationTypes.h"
+
 namespace AnimationSystem{
 
 class Animatable;
 class CompositeAnimation;
 
-class Animation{
+
+
+class Animation : public std::enable_shared_from_this<Animation>{
 public:
 	
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
+	
+	virtual AnimationType getType() = 0;
 	
 	virtual bool canStartPlayback() = 0;
 	virtual void startPlayback() = 0;
@@ -16,10 +22,13 @@ public:
 	
 	virtual bool isCompositeAnimation() { return false; }
 	bool isTopLevelAnimation(){ return parentComposite == nullptr; }
-	std::shared_ptr<CompositeAnimatable> getParentComposite(){ return parentComposite; }
-	const std::vector<std::shared_ptr<BaseAnimatable>>& getChildAnimations(){ return childAnimations; }
+	void setParentComposite(std::shared_ptr<CompositeAnimation> parent){ parentComposite = parent; }
+	std::shared_ptr<CompositeAnimation> getParentComposite(){ return parentComposite; }
+	const std::vector<std::shared_ptr<Animation>>& getChildAnimations(){ return childAnimations; }
 	
 protected:
+	
+	friend class Animatable;
 	
 	//Composite Structure
 	std::shared_ptr<CompositeAnimation> parentComposite = nullptr;
@@ -32,30 +41,47 @@ protected:
 
 
 
-class CompositeAnimation : public BaseAnimation{
+class CompositeAnimation : public Animation{
 public:
+	
+	void setType(AnimationType animationType) { type = animationType; }
+	virtual AnimationType getType() override { return type; }
 	
 	virtual bool isCompositeAnimation() override { return true; }
 	
-	void addChildAnimation(std::shared_ptr<BaseAnimation> animation){
+	void addChildAnimation(std::shared_ptr<Animation> animation){
 		childAnimations.push_back(animation);
-		animation->parentComposite = shared_from_this();
+		animation->setParentComposite(std::static_pointer_cast<CompositeAnimation>(shared_from_this()));
 	}
 	
-	void removeChildAnimation(std::shared_ptr<BaseAnimation> animation){
-		for(int i = childAnimations.size() - 1; i >= 0; i--){
+	void removeChildAnimation(std::shared_ptr<Animation> animation){
+		for(int i = (int)childAnimations.size() - 1; i >= 0; i--){
 			if(childAnimations[i] == animation){
-				animation->parentComposite = nullptr;
+				animation->setParentComposite(nullptr);
 				childAnimations.erase(childAnimations.begin() + i);
 				break;
 			}
 		}
 	}
 	
+	virtual bool canStartPlayback() override { return false; }
+	virtual void startPlayback() override {}
+	virtual void stopPlayback() override {}
+	
+private:
+	
+	AnimationType type;
+	
 };
 
 
-class TargetAnimation : public BaseAnimation{
+class TargetAnimation : public Animation{
+	
+	virtual AnimationType getType() override { return AnimationType::TARGET; }
+	
+	virtual bool canStartPlayback() override { return false; }
+	virtual void startPlayback() override {}
+	virtual void stopPlayback() override {}
 	
 	//-curve interpolation type parameter
 	//-curve target parameter
@@ -65,7 +91,13 @@ class TargetAnimation : public BaseAnimation{
 	
 };
 
-class SequenceAnimation : public BaseAnimation{
+class SequenceAnimation : public Animation{
+	
+	virtual AnimationType getType() override { return AnimationType::SEQUENCE; }
+	
+	virtual bool canStartPlayback() override { return false; }
+	virtual void startPlayback() override {}
+	virtual void stopPlayback() override {}
 	
 	//-curve interpolation type parameter
 	//-curve start point (with time, velocity and ramps)
@@ -74,7 +106,13 @@ class SequenceAnimation : public BaseAnimation{
 	
 };
 
-class StopAnimation : public BaseAnimation{
+class StopAnimation : public Animation{
+	
+	virtual AnimationType getType() override { return AnimationType::STOP; }
+	
+	virtual bool canStartPlayback() override { return false; }
+	virtual void startPlayback() override {}
+	virtual void stopPlayback() override {}
 	
 	//-curve interpolation type parameter
 	//-constraints to build curve on playback start:

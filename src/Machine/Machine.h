@@ -108,9 +108,9 @@ public:
 	
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) = 0;
 	
-	void addAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
-	void removeAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
-	std::vector<std::shared_ptr<AnimationSystem::Animatable>>& getAnimatables(){ return animatables; }
+	//void addAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
+	//void removeAnimatable(std::shared_ptr<AnimationSystem::Animatable> animatable);
+	//std::vector<std::shared_ptr<AnimationSystem::Animatable>>& getAnimatables(){ return animatables; }
 	
 	//===== ATTACHED DEVICES =====
 	

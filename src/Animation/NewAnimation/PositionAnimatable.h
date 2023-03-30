@@ -2,8 +2,16 @@
 
 #include "Animatable.h"
 
-class AnimatablePosition : public AnimationSystem::Animatable{
+namespace AnimationSystem{
+
+class PositionAnimatable : public AnimationSystem::Animatable{
 public:
+	
+	PositionAnimatable(){}
+	
+	virtual AnimatableType getType() override {
+		return AnimatableType::POSITION;
+	};
 	
 	virtual std::vector<AnimationSystem::AnimationType>& getSupportedAnimationTypes() override {
 		static std::vector<AnimationSystem::AnimationType> supportedAnimationTypes = {
@@ -19,7 +27,9 @@ public:
 			AnimationSystem::TargetAnimationConstraintType::TIME,
 			AnimationSystem::TargetAnimationConstraintType::VELOCITY
 		};
-		return supportedTargetAnimationCosntraintTypes;
+		return supportedTargetAnimationConstraintTypes;
 	}
 	
 };
+
+}

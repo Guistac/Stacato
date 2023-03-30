@@ -24,6 +24,8 @@
 
 #include "Gui/Fieldbus/EtherCatGui.h"
 
+#include "Animation/NewAnimation/AnimatableRegistry.h"
+
 namespace Environnement {
 
 	std::recursive_mutex mutex;
@@ -468,6 +470,9 @@ namespace Environnement {
 		sprintf(notes, "%s", _notes);
 	}
 
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> animatableRegistry;
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry(){ return animatableRegistry; }
+
 	void createNew() {
 		NodeGraph::reset();
 		NodeGraph::Gui::reset();
@@ -475,6 +480,7 @@ namespace Environnement {
 		getMachines().clear();
 		StageVisualizer::reset();
 		Environnement::Script::reset();
+		animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
 	}
 
 }

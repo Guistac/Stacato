@@ -1,44 +1,12 @@
 #pragma once
 
+#include "AnimationTypes.h"
+
 namespace AnimationSystem{
 
 	class Animation;
 	class AnimationValue;
 	class CompositeAnimatable;
-
-	enum class AnimatableType{
-		BOOLEAN,
-		INTEGER,
-		REAL,
-		STATE,
-		VECTOR_2D,
-		VECTOR_3D,
-		POSITION,
-		POSITION_2D,
-		POSITION_3D,
-		VELOCITY,
-		VELOCITY_2D,
-		VELOCITY_3D,
-		COMPOSITE
-	};
-
-	enum class AnimatableStatus{
-		OFFLINE,
-		NOT_READY,
-		READY
-	};
-
-	enum class AnimationType{
-		TARGET,
-		SEQUENCE,
-		STOP
-	};
-
-	enum class TargetAnimationConstraintType{
-		NONE,
-		TIME,
-		VELOCITY
-	};
 
 	class Animatable : public std::enable_shared_from_this<Animatable>{
 	public:
@@ -65,6 +33,8 @@ namespace AnimationSystem{
 		void setParentComposite(std::shared_ptr<CompositeAnimatable> parentAnimatable){ parentComposite = parentAnimatable; }
 		std::shared_ptr<CompositeAnimatable> getParentComposite(){ return parentComposite; }
 		const std::vector<std::shared_ptr<Animatable>>& getChildAnimatables(){ return childAnimatables; }
+		
+		std::shared_ptr<Animation> makeAnimation(AnimationType type);
 		
 	protected:
 		

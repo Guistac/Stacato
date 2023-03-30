@@ -2,7 +2,7 @@
 
 #include "Animatable.h"
 
-class AnimatableState : public AnimationSystem::Animatable{
+class StateAnimatable : public AnimationSystem::Animatable{
 public:
 	
 	virtual std::vector<AnimationSystem::AnimationType>& getSupportedAnimationTypes() override {

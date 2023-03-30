@@ -128,15 +128,21 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.cpp
 
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationTypes.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationValue.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/ManoeuvreGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatablePosition.h
-    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableState.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableOwner.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableOwner.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableRegistry.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableRegistry.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/PositionAnimatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/StateAnimatable.h
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h

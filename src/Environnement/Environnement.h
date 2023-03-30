@@ -1,5 +1,9 @@
 #pragma once
 
+namespace AnimationSystem{
+class AnimatableRegistry;
+};
+
 class NodeGraph;
 class Node;
 class EtherCatDevice;
@@ -60,10 +64,7 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
-	//bool isEditorLocked();
-	//void lockEditor();
-	//void unlockEditor();
-	//bool checkEditorPassword(const char* password);
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry();
 
 	std::recursive_mutex* getMutex();
 };

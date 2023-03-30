@@ -1,0 +1,1 @@
+#include "AnimatableRegistry.h"
