@@ -95,6 +95,44 @@ public:
     std::shared_ptr<NumberParameter<double>> lowSpeedHertz = NumberParameter<double>::make(0.0, "Low Speed", "LowSpeed", "%.1f",
                                                                                            Units::Frequency::Hertz, false);
     
+	enum LogicInput{
+		NONE = 0,
+		LI1 = 129,
+		LI2 = 130,
+		LI3 = 131,
+		LI4 = 132,
+		LI5 = 133,
+		LI6 = 134
+	};
+	
+	NumberParam<double> ratedMotorCurrentParameter;
+	NumberParam<double> ratedMotorPowerParameter;
+	
+	OptionParameter::Option option_logicInput_none =	OptionParameter::Option(LogicInput::NONE, "None", "None");
+	OptionParameter::Option option_logicInput_LI1 =		OptionParameter::Option(LogicInput::LI1, "LI1", "LI1");
+	OptionParameter::Option option_logicInput_LI2 =		OptionParameter::Option(LogicInput::LI2, "LI2", "LI2");
+	OptionParameter::Option option_logicInput_LI3 =		OptionParameter::Option(LogicInput::LI3, "LI3", "LI3");
+	OptionParameter::Option option_logicInput_LI4 =		OptionParameter::Option(LogicInput::LI4, "LI4", "LI4");
+	OptionParameter::Option option_logicInput_LI5 =		OptionParameter::Option(LogicInput::LI5, "LI5", "LI5");
+	OptionParameter::Option option_logicInput_LI6 =		OptionParameter::Option(LogicInput::LI6, "LI6", "LI6");
+	OptionParam forwardStopLimitAssignementParameter;
+	OptionParam reverseStopLimitAssignementParameter;
+	
+	enum ActiveLowHigh{
+		ACTIVE_LOW = 0,
+		ACTIVE_HIGH = 1
+	};
+	OptionParameter::Option option_activeLow = OptionParameter::Option(ActiveLowHigh::ACTIVE_LOW, "Active Low", "ActiveLow");
+	OptionParameter::Option option_activeHigh = OptionParameter::Option(ActiveLowHigh::ACTIVE_HIGH, "Active High", "ActiveHigh");
+	OptionParam stopLimitConfigurationParameter;
+	
+	NumberParam<int> logicInput1OnDelayParameter;
+	NumberParam<int> logicInput2OnDelayParameter;
+	NumberParam<int> logicInput3OnDelayParameter;
+	NumberParam<int> logicInput4OnDelayParameter;
+	NumberParam<int> logicInput5OnDelayParameter;
+	NumberParam<int> logicInput6OnDelayParameter;
+	
 	std::string getStatusString();
 	std::string getShortStatusString();
 	glm::vec4 getStatusColor();
@@ -103,5 +141,7 @@ public:
 	void controlsGui();
 	void settingsGui();
 	void statusGui();
+	
+	void updateActuatorInterface();
 	
 };

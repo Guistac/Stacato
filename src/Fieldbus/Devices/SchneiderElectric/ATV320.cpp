@@ -8,6 +8,12 @@ void ATV320::onConnection() {
 void ATV320::onDisconnection() {
 }
 
+void ATV320::updateActuatorInterface(){
+	actuator->actuatorConfig.velocityLimit = maxVelocityRPM->value / 60.0;
+	actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
+	actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
+}
+
 void ATV320::initialize() {
 	
 	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
@@ -29,16 +35,9 @@ void ATV320::initialize() {
 	addNodePin(actualVelocityPin);
 	addNodePin(actualLoadPin);
 
-
-	maxVelocityRPM->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.velocityLimit = maxVelocityRPM->value / 60.0;
-	});
-	accelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
-	});
-	decelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
-	});
+	maxVelocityRPM->addEditCallback([this](){ updateActuatorInterface(); });
+	accelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
+	decelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
 	
 	
 	rxPdoAssignement.addNewModule(0x1600);
@@ -52,6 +51,54 @@ void ATV320::initialize() {
 	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);
 	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
+	
+	ratedMotorCurrentParameter = NumberParameter<double>::make(0.0, "Rated Motor Curent", "RatedMotorCurrent");
+	ratedMotorCurrentParameter->setUnit(Units::Current::Ampere);
+	ratedMotorPowerParameter = NumberParameter<double>::make(0.0, "Rated Motor Power", "RatedMotorPower");
+	ratedMotorPowerParameter->setUnit(Units::Power::KiloWatt);
+	
+	std::vector<OptionParameter::Option*> logicInputOptions = {
+		&option_logicInput_none,
+		&option_logicInput_LI1,
+		&option_logicInput_LI2,
+		&option_logicInput_LI3,
+		&option_logicInput_LI4,
+		&option_logicInput_LI5,
+		&option_logicInput_LI6
+	};
+	forwardStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, logicInputOptions, "Forward limit input", "ForwardStopSignal");
+	reverseStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, logicInputOptions, "Reverse limit input", "ReverseStopSignal");
+	
+	std::vector<OptionParameter::Option*> activeLowHighOptions = {
+		&option_activeLow,
+		&option_activeHigh
+	};
+	stopLimitConfigurationParameter = OptionParameter::make2(option_activeHigh, activeLowHighOptions, "Stop limit configuration", "StopLimitConfiguration");
+	
+	auto clampInputOnDelay = [](NumberParam<int> onDelay){
+		if(onDelay->value < 0) onDelay->overwrite(0);
+		else if(onDelay->value > 200) onDelay->overwrite(200);
+	};
+	logicInput1OnDelayParameter = NumberParameter<int>::make(0, "LI1 On Delay", "LI1OnDelay");
+	logicInput1OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput1OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput1OnDelayParameter); });
+	logicInput2OnDelayParameter = NumberParameter<int>::make(0, "LI2 On Delay", "LI2OnDelay");
+	logicInput2OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput2OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput2OnDelayParameter); });
+	logicInput3OnDelayParameter = NumberParameter<int>::make(0, "LI3 On Delay", "LI3OnDelay");
+	logicInput3OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput3OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput3OnDelayParameter); });
+	logicInput4OnDelayParameter = NumberParameter<int>::make(0, "LI4 On Delay", "LI4OnDelay");
+	logicInput4OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput4OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput4OnDelayParameter); });
+	logicInput5OnDelayParameter = NumberParameter<int>::make(0, "LI5 On Delay", "LI5OnDelay");
+	logicInput5OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput5OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput5OnDelayParameter); });
+	logicInput6OnDelayParameter = NumberParameter<int>::make(0, "LI6 On Delay", "LI6OnDelay");
+	logicInput6OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput6OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput6OnDelayParameter); });
+	
+	updateActuatorInterface();
 }
 
 //==============================================================
@@ -71,12 +118,10 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2042, 0x2, ratedMotorVoltage)) return false;
 	
 	//rated motor power in 0.1Kw increments
-	uint16_t ratedMotorPower = 75;
-	if(!writeSDO_U16(0x2042, 0xE, ratedMotorPower)) return false;
+	if(!writeSDO_U16(0x2042, 0xE, ratedMotorPowerParameter->value * 10)) return false;
 	
 	//rate motor current in 0.1A increments
-	uint16_t ratedMotorCurrent = 35;
-	if(!writeSDO_U16(0x2042, 0x4, ratedMotorCurrent)) return false;
+	if(!writeSDO_U16(0x2042, 0x4, ratedMotorCurrentParameter->value * 10)) return false;
 	
 	//nominal rate motor speed in rpm
 	uint16_t nominalMotorSpeed = 1400;
@@ -84,8 +129,8 @@ bool ATV320::startupConfiguration() {
 
 	//TODO: this must be configured when the fieldbus is not active
 	//set motor control type to standart (Standart aynchronous motor control = 3)
-	//uint16_t motorControlType = 3;
-	//if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
+	uint16_t motorControlType = 3;
+	if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
 	
 	//————————— CONTROL SETTINGS —————————————
 	
@@ -94,7 +139,8 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2001, 0x4, maxOutputFrequency)) return false;
 	
 	//set minimum control speed in hertz to 0Hz (in .1Hz increments)
-    uint16_t lowSpeed = lowSpeedHertz->value * 10.0;
+    //uint16_t lowSpeed = lowSpeedHertz->value * 10.0;
+	uint16_t lowSpeed = 0.0;
 	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
 	
 	//set maximum control speed to in 0.1Hz increments
@@ -109,40 +155,40 @@ bool ATV320::startupConfiguration() {
 	//—————————————— IO SETTINGS ———————————————
 	
 	//set terminal block control to Two Wire (0 = 2-Wire / 1 = 3-Wire)
-	uint16_t twoOrThreeWireControl = 0;
-	if(!writeSDO_U16(0x2051, 0x2, twoOrThreeWireControl)) return false;
+	//uint16_t twoOrThreeWireControl = 0;
+	//if(!writeSDO_U16(0x2051, 0x2, twoOrThreeWireControl)) return false;
 	
 	//2-Wire Control level detection is -Signal Transition-
-	uint16_t twoWireControlType = 1;
-	if(!writeSDO_U16(0x2051, 0x3, twoWireControlType)) return false;
+	//uint16_t twoWireControlType = 1;
+	//if(!writeSDO_U16(0x2051, 0x3, twoWireControlType)) return false;
 	
 	//set Forward input to Logic Input 1 (LI1)
-	uint16_t forwardInputAssignement = 129;
-	if(!writeSDO_U16(0x2051, 0x5, forwardInputAssignement)) return false;
+	//uint16_t forwardInputAssignement = 129;
+	//if(!writeSDO_U16(0x2051, 0x5, forwardInputAssignement)) return false;
 	
 	//set reverse input to Logic Input 2 (LI2)
-	uint16_t reverseInputAssignement = 130;
-	if(!writeSDO_U16(0x2051, 0x6, reverseInputAssignement)) return false;
+	//uint16_t reverseInputAssignement = 130;
+	//if(!writeSDO_U16(0x2051, 0x6, reverseInputAssignement)) return false;
 	
 	//set fault reset input assignement to pin LI5
-	uint16_t faultResetInputAssignement = 133;
-	if(!writeSDO_U16(0x2029, 0x19, faultResetInputAssignement)) return false;
+	//uint16_t faultResetInputAssignement = 133;
+	//if(!writeSDO_U16(0x2029, 0x19, faultResetInputAssignement)) return false;
 	
 	//set method of switching between frequency references (LI3 = 131)
-	uint16_t referenceSwitchingInputAssignement = 131;
-	if(!writeSDO_U16(0x2036, 0xC, referenceSwitchingInputAssignement)) return false;
+	//uint16_t referenceSwitchingInputAssignement = 131;
+	//if(!writeSDO_U16(0x2036, 0xC, referenceSwitchingInputAssignement)) return false;
 	
 	//set external fault pin to Logic Input 6 (LI6 = 134)
-	uint16_t externalFaultInputAssignement = 134;
-	if(!writeSDO_U16(0x2029, 0x20, externalFaultInputAssignement)) return false;
+	//uint16_t externalFaultInputAssignement = 134;
+	//if(!writeSDO_U16(0x2029, 0x20, externalFaultInputAssignement)) return false;
 	
 	//set preset slowdown speed input assignement to pin LI4 = 132
-	uint16_t presetSpeed2InputAssignement = 132;
-	if(!writeSDO_U16(0x2054, 0x2, presetSpeed2InputAssignement)) return false;
+	//uint16_t presetSpeed2InputAssignement = 132;
+	//if(!writeSDO_U16(0x2054, 0x2, presetSpeed2InputAssignement)) return false;
 	   
 	//set preset slowdown speed to 5Hz (in .1Hz Increments)
-	uint16_t presetSpeed2Frequency = slowdownVelocityHertz->value * 10.0;
-	if(!writeSDO_U16(0x2054, 0xB, presetSpeed2Frequency)) return false;
+	//uint16_t presetSpeed2Frequency = slowdownVelocityHertz->value * 10.0;
+	//if(!writeSDO_U16(0x2054, 0xB, presetSpeed2Frequency)) return false;
 	
 	
 	//—————————————— RAMP SETTINGS ——————————————
@@ -162,18 +208,45 @@ bool ATV320::startupConfiguration() {
 	
 	//——————————————— Network Control Settings ——————————
 	
+	//set frequency reference 1 to Communication card
+	uint16_t communicationCardReference = 169;
+	if(!writeSDO_U16(0x2036, 0xE, communicationCardReference)) return false;
+	if(!writeSDO_U16(0x2036, 0xF, communicationCardReference)) return false;
+	
 	//set frequency reference 1 to Analog Input 1 (AI1)
-	uint16_t reference1 = 1;
-	if(!writeSDO_U16(0x2036, 0xE, reference1)) return false;
+	//uint16_t reference1 = 1;
+	//if(!writeSDO_U16(0x2036, 0xE, reference1)) return false;
 	
 	//set frequency reference 2 to communication card (EtherCAT Card)
-	uint16_t reference2 = 169;
-	if(!writeSDO_U16(0x2036, 0xF, reference2)) return false;
+	//uint16_t reference2 = 169;
+	//if(!writeSDO_U16(0x2036, 0xF, reference2)) return false;
 	
 	//set control profile to "Not separate" for pure CiA.402 Velocity Mode
 	uint16_t controlProfile = 1;
 	if(!writeSDO_U16(0x2036, 0x2, controlProfile)) return false;
 	
+	
+	//—————————————— INPUT ASSIGNEMENTS ———————————————
+	
+	//[saf]
+	uint16_t forwardLimitAssignement = forwardStopLimitAssignementParameter->value;
+	if(!writeSDO_U16(0x205F, 0x2, forwardLimitAssignement)) return false;
+	
+	//[sar]
+	uint16_t reverseLimitAssignement = reverseStopLimitAssignementParameter->value;
+	if(!writeSDO_U16(0x205F, 0x3, reverseLimitAssignement)) return false;
+	
+	//[sal]
+	uint16_t stopLimitConfiguration = stopLimitConfigurationParameter->value;
+	if(!writeSDO_U16(0x205F, 0x9, stopLimitConfiguration)) return false;
+	
+	//[L1D] -> [L6D]
+	if(!writeSDO_U16(0x200A, 0x2, logicInput1OnDelayParameter->value)) return false;
+	if(!writeSDO_U16(0x200A, 0x3, logicInput2OnDelayParameter->value)) return false;
+	if(!writeSDO_U16(0x200A, 0x4, logicInput3OnDelayParameter->value)) return false;
+	if(!writeSDO_U16(0x200A, 0x5, logicInput4OnDelayParameter->value)) return false;
+	if(!writeSDO_U16(0x200A, 0x6, logicInput5OnDelayParameter->value)) return false;
+	if(!writeSDO_U16(0x200A, 0x7, logicInput6OnDelayParameter->value)) return false;
 	
 	//—————————————— ASSIGN PDOS —————————————————
 	
@@ -296,6 +369,16 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	invertDirection->save(kinematicsXML);
 	slowdownVelocityHertz->save(kinematicsXML);
     lowSpeedHertz->save(kinematicsXML);
+	
+	XMLElement* motorParametersXML = xml->InsertNewChildElement("MotorParameters");
+	ratedMotorCurrentParameter->save(motorParametersXML);
+	ratedMotorPowerParameter->save(motorParametersXML);
+	
+	XMLElement* inputAssignementXML = xml->InsertNewChildElement("InputAssignements");
+	forwardStopLimitAssignementParameter->save(inputAssignementXML);
+	reverseStopLimitAssignementParameter->save(inputAssignementXML);
+	stopLimitConfigurationParameter->save(inputAssignementXML);
+	
 	return true;
 }
 
@@ -312,6 +395,17 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!invertDirection->load(kinematicsXML)) return false;
 	if(!slowdownVelocityHertz->load(kinematicsXML)) return false;
     if(!lowSpeedHertz->load(kinematicsXML)) return false;
+	
+	XMLElement* motorParametersXML = xml->FirstChildElement("MotorParameters");
+	if(!ratedMotorCurrentParameter->load(motorParametersXML)) return false;
+	if(!ratedMotorPowerParameter->load(motorParametersXML)) return false;
+	
+	XMLElement* inputAssignementXML = xml->FirstChildElement("InputAssignements");
+	if(kinematicsXML == nullptr) return Logger::warn("Could not find input assignement attribute");
+	if(!forwardStopLimitAssignementParameter->load(inputAssignementXML)) return false;
+	if(!reverseStopLimitAssignementParameter->load(inputAssignementXML)) return false;
+	if(!stopLimitConfigurationParameter->load(inputAssignementXML)) return false;
+	
 	return true;
 }
 

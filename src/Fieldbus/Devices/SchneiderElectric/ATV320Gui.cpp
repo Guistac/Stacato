@@ -76,8 +76,8 @@ void ATV320::settingsGui(){
 	decelerationRampTime->gui();
 	ImGui::Text("Max Velocity");
 	maxVelocityRPM->gui();
-    ImGui::Text("Low Speed");
-    lowSpeedHertz->gui();
+    //ImGui::Text("Low Speed");
+    //lowSpeedHertz->gui();
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
 	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->getAccelerationLimit());
@@ -87,10 +87,29 @@ void ATV320::settingsGui(){
 	ImGui::SameLine();
 	ImGui::TextWrapped("Invert Direction of Motion");
 	
+	//ImGui::Separator();
+	//ImGui::Text("Slowdown Frequency");
+	//slowdownVelocityHertz->gui();
+	
 	ImGui::Separator();
 	
-	ImGui::Text("Slowdown Frequency");
-	slowdownVelocityHertz->gui();
+	ratedMotorCurrentParameter->gui(Fonts::sansBold15);
+	ratedMotorPowerParameter->gui(Fonts::sansBold15);
+	
+	ImGui::Separator();
+	
+	forwardStopLimitAssignementParameter->gui(Fonts::sansBold15);
+	reverseStopLimitAssignementParameter->gui(Fonts::sansBold15);
+	stopLimitConfigurationParameter->gui(Fonts::sansBold15);
+	
+	ImGui::Separator();
+	
+	logicInput1OnDelayParameter->gui(Fonts::sansBold15);
+	logicInput2OnDelayParameter->gui(Fonts::sansBold15);
+	logicInput3OnDelayParameter->gui(Fonts::sansBold15);
+	logicInput4OnDelayParameter->gui(Fonts::sansBold15);
+	logicInput5OnDelayParameter->gui(Fonts::sansBold15);
+	logicInput6OnDelayParameter->gui(Fonts::sansBold15);
 }
 
 void ATV320::statusGui(){
