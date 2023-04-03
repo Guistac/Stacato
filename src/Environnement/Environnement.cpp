@@ -103,6 +103,7 @@ namespace Environnement {
 		b_isRunning = true;
 		Logger::info("Starting Environnement Simulation");
 		
+		/*
 		for(auto node : NodeGraph::getNodes()){
 			if(!node->prepareProcess()){
 				Logger::error("[Environnement] Could not start environnement : Node {} could not start", node->getName());
@@ -112,8 +113,7 @@ namespace Environnement {
 		
 		Logger::debug("Compiling: EtherCAT Process Program: ");
 		NodeGraph::compileProcess(getEtherCatDeviceNodes())->log();
-		
-		/*
+		 
 		for(auto machine : getMachines()){
 			for(auto animatable : machine->getAnimatables()){
 				animatable->clearConstraints();
@@ -206,7 +206,7 @@ namespace Environnement {
 
 	//—————————————— HARDWARE RUNTIME —————————————————
 
-	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;
+	std::shared_ptr<NodeGraphProcess> ethercatDeviceProcess;
 
 	void startHardware(){
 		
@@ -231,7 +231,7 @@ namespace Environnement {
 			return;
 		}
 		
-		
+		/*
 		for(auto node : NodeGraph::getNodes()){
 			if(!node->prepareProcess()){
 				Logger::error("[Environnement] Could not start environnement : Node {} could not start", node->getName());
@@ -244,6 +244,8 @@ namespace Environnement {
 		Logger::info("Compiled EtherCAT Process: ");
 		ethercatDeviceProcess->log();
 		
+		 */
+		 
 		EtherCatStartPopup::get()->open();
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
@@ -277,7 +279,7 @@ namespace Environnement {
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->readInputs();
 				
 		//read inputs from devices and propagate them into the node graph
-		NodeGraph::executeInputProcess(ethercatDeviceProcess);
+		//NodeGraph::executeInputProcess(ethercatDeviceProcess);
 		
 		Script::update();
 		
@@ -285,7 +287,7 @@ namespace Environnement {
 		//PlaybackManager::update();
 		
 		//take nodegraph outputs and propagate them to the devices
-		NodeGraph::executeOutputProcess(ethercatDeviceProcess);
+		//NodeGraph::executeOutputProcess(ethercatDeviceProcess);
 		
 		//prepare all slaves output data if operational
 		for (auto ethercatDevice : EtherCatFieldbus::getDevices()) if (ethercatDevice->isStateOperational()) ethercatDevice->writeOutputs();
@@ -307,7 +309,7 @@ namespace Environnement {
 			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 			
 			//execute the input process one last time to propagate disconnection of ethercat devices
-			NodeGraph::executeInputProcess(ethercatDeviceProcess);
+			//NodeGraph::executeInputProcess(ethercatDeviceProcess);
 			
 			Script::stop();
 			Environnement::StageVisualizer::stop();
@@ -401,7 +403,7 @@ namespace Environnement {
 			default:
 				break;
 		}
-		NodeGraph::addNode(node);
+		//NodeGraph::addNode(node);
 	}
 
 	void removeNode(std::shared_ptr<Node> node){
@@ -451,7 +453,7 @@ namespace Environnement {
 			default:
 				break;
 		}
-		NodeGraph::removeNode(node);
+		//NodeGraph::removeNode(node);
 	}
 
 	char name[256] = "Default Environnement";
@@ -478,6 +480,7 @@ namespace Environnement {
 	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry(){ return animatableRegistry; }
 
 	void createNew() {
+		/*
 		NodeGraph::reset();
 		NodeGraph::Gui::reset();
 		getEtherCatDevices().clear();
@@ -485,6 +488,7 @@ namespace Environnement {
 		StageVisualizer::reset();
 		Environnement::Script::reset();
 		animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
+		 */
 	}
 
 }

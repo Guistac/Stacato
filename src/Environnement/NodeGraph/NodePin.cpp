@@ -8,9 +8,8 @@
 #include <tinyxml2.h>
 
 void NodePin::disconnectAllLinks() {
-	if (parentNode == nullptr || !parentNode->b_isInNodeGraph) return;
-	while (isConnected()) {
-		Environnement::NodeGraph::disconnect(nodeLinks.front());
+	for(int i = (int)nodeLinks.size() - 1; i >= 0; i--){
+		nodeLinks[i]->disconnect();
 	}
 }
 
@@ -112,3 +111,48 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 bool NodePin::matches(const char* savestr, NodePin::DataType type) {
 	return strcmp(saveString, savestr) == 0 && type == dataType;
 }
+
+
+bool NodePin::isConnectionValid(std::shared_ptr<NodePin> otherPin){
+	
+	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
+	
+	//only allow connection between an input and an output
+	if (thisPin->isInput() && otherPin->isInput()) return false;
+	else if (thisPin->isOutput() && otherPin->isOutput()) return false;
+
+	//don't allow multiple links on an input pin
+	if (thisPin->isInput() && !thisPin->nodeLinks.empty() && !thisPin->acceptsMultipleInputs()) return false;
+	else if (otherPin->isInput() && !otherPin->nodeLinks.empty() && !otherPin->acceptsMultipleInputs()) return false;
+
+	//check if the link already exists, don't allow duplicates
+	for (std::shared_ptr<NodeLink> link : nodeLinks) {
+		if (link->outputData == thisPin || link->inputData == otherPin) return false;
+	}
+
+	//if all checks pass, check if the data types are compatible to decide validity
+	return isDataTypeCompatible(otherPin);
+}
+
+void NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
+	
+	if (!isConnectionValid(otherPin)) return nullptr;
+	
+	std::shared_ptr<NodeLink> newLink = std::make_shared<NodeLink>();
+	newLink->uniqueID = getNode()->nodeGraph->getNewUniqueID();
+	newLink->nodeGraph = parentNode->nodeGraph;
+	
+	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
+	
+	newLink->inputData = thisPin->isOutput() ? thisPin : otherPin;
+	newLink->outputData = otherPin->isInput() ? otherPin : thisPin;
+	
+	nodeLinks.push_back(newLink);
+	otherPin->nodeLinks.push_back(newLink);
+	
+	newLink->inputData->parentNode->onPinConnection(newLink->inputData);
+	newLink->outputData->parentNode->onPinConnection(newLink->outputData);
+	
+	getNode()->nodeGraph->getLinks().push_back(newLink);
+}
+

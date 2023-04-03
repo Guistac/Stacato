@@ -15,7 +15,7 @@ class NodeLink;
 namespace tinyxml2 { class XMLElement; }
 
 
-class NodePin {
+class NodePin : public std::enable_shared_from_this<NodePin>{
 public:
 	
 	enum class DataType{
@@ -136,6 +136,8 @@ public:
 	//commands
 	void disconnectAllLinks();
 	void setVisible(bool v) { b_visible = v; }
+	bool isConnectionValid(std::shared_ptr<NodePin> otherPin);
+	void connectTo(std::shared_ptr<NodePin> otherPin);
 	
 	//nodegraph
 	int getUniqueID() { return uniqueID; }

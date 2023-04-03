@@ -15,6 +15,8 @@
 
 namespace tinyxml2 { class XMLElement; }
 
+class NodeGraph;
+
 class Node : public Legato::Component{
 	
 	DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
@@ -60,7 +62,7 @@ public:
 
 	//pin handling
 	void addNodePin(std::shared_ptr<NodePin> d);
-	void removeIoData(std::shared_ptr<NodePin> d);
+	void removeNodePin(std::shared_ptr<NodePin> d);
 	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return nodeInputPins; }
 	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
 	bool hasInputs() { return !nodeInputPins.empty(); }
@@ -74,9 +76,9 @@ public:
 
 	//nodegraph
 	int getUniqueID() { return uniqueID; }
-	bool isInNodeGraph() { return b_isInNodeGraph; }
 	glm::vec2 getNodeGraphPosition();
 	virtual void restoreSavedPosition();
+	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
 	
 	//processing
 	virtual bool prepareProcess(){ return true; }
@@ -121,7 +123,6 @@ public:
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool loadAfterLinksConnected(tinyxml2::XMLElement* xml) { return true; }
 
-	bool b_isInNodeGraph = false;
 	int uniqueID = -1;
 
 	std::vector<std::shared_ptr<NodePin>> nodeInputPins;

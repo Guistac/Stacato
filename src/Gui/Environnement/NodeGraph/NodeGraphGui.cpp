@@ -24,7 +24,7 @@ namespace Environnement::NodeGraph::Gui{
 	}
 
 	void editor(glm::vec2 size_arg) {
-		
+		/*
 		ax::NodeEditor::SetCurrentEditor(context);
 		ax::NodeEditor::Begin("Node Editor", size_arg);
 		
@@ -267,29 +267,6 @@ namespace Environnement::NodeGraph::Gui{
 			}
 		}
 		
-		/*
-		static std::vector<std::shared_ptr<Node>> copiedNodes;
-
-		if (ImGui::IsItemHovered()) {
-			if ((ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_CONTROL))) {
-			
-				if (ImGui::IsKeyPressed(GLFW_KEY_C, false)) {
-					if (!selectedNodes.empty()) {
-						copiedNodes = selectedNodes;
-						Logger::warn("Copied {} Nodes", copiedNodes.size());
-					}
-				}
-				if (ImGui::IsKeyPressed(GLFW_KEY_V, false)) {
-					for (auto copiedNode : copiedNodes) {
-						//TODO: Duplicate Node and add to nodegraph
-						//std::shared_ptr<Node> copy = std::make_shared<Node>(copiedNode);
-						//addNode(copy);
-					}
-				}
-			}
-		}
-		 */
-		
 		std::vector<std::shared_ptr<Node>> selectedNodes = getSelectedNodes();
 
 		if (ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)){
@@ -312,7 +289,7 @@ namespace Environnement::NodeGraph::Gui{
 			centerView();
 			showFlow();
 		}
-
+		 */
 	}
 
 	void centerView() {
@@ -320,23 +297,29 @@ namespace Environnement::NodeGraph::Gui{
 	}
 
 	void showFlow() {
+		/*
 		for (auto link : getLinks()) {
 			ax::NodeEditor::Flow(link->getUniqueID());
 		}
+		*/
 	}
 
 	void selectNode(std::shared_ptr<Node> selectedNode){
+		/*
 		ax::NodeEditor::ClearSelection();
 		ax::NodeEditor::SelectNode(selectedNode->getUniqueID());
 		getSelectedNodes().clear();
 		getSelectedNodes().push_back(selectedNode);
+		*/
 	}
 
 	bool isNodeSelected(std::shared_ptr<Node> node){
+		/*
 		for(auto& selectedNode : getSelectedNodes()){
 			if(node == selectedNode) return true;
 		}
 		return false;
+		*/
 	}
 
 }

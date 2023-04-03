@@ -1,8 +1,9 @@
 #pragma once
 
 class NodePin;
+class NodeGraph;
 
-class NodeLink{
+class NodeLink : public std::enable_shared_from_this<NodeLink>{
 public:
 
 	int getUniqueID() { return uniqueID; }
@@ -14,5 +15,8 @@ public:
 	std::shared_ptr<NodePin> inputData = nullptr;
 
 	int uniqueID = -1;
+	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
+	
+	void disconnect();
 };
 

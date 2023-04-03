@@ -5,31 +5,31 @@
 
 #include <iostream>
 
-namespace Environnement::NodeGraph{
 
 //this compiles a single direction of execution, starting from a set of starting nodes
-std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstructions(std::vector<std::shared_ptr<Node>>& startNodes, ProcessDirection processDirection){
+std::vector<std::shared_ptr<NodeGraphProcess::Instruction>> NodeGraph::compileOrderedInstructions(std::vector<std::shared_ptr<Node>>& startNodes,
+																								  NodeGraphProcess::Direction processDirection){
 		
-	if(processDirection == ProcessDirection::INPUT_PROCESS){
+	if(processDirection == NodeGraphProcess::Direction::INPUT_PROCESS){
 		//in the input process, regardless of the nodes being processed, clock nodes always update their value, so they must always be processed
 		for (auto node : getNodes()) {
 			if (node->getType() == Node::Type::CLOCK) startNodes.push_back(node);
 		}
 	}
 	
-	std::vector<std::shared_ptr<CompiledProcess::Instruction>> instructions;
+	std::vector<std::shared_ptr<NodeGraphProcess::Instruction>> instructions;
 	for(auto node : getNodes()) node->b_wasProcessed = false;
 	
 	std::vector<std::shared_ptr<NodePin>> triggeringPins;
 	std::vector<std::shared_ptr<NodePin>> nextTriggeringPins;
 	
 	for(auto& startNode : startNodes){
-		instructions.push_back(CompiledProcess::Instruction::make(startNode, processDirection));
+		instructions.push_back(NodeGraphProcess::Instruction::make(startNode, processDirection));
 		startNode->b_wasProcessed = true;
 		std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
 		switch(processDirection){
-			case ProcessDirection::INPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterInputProcess(); break;
-			case ProcessDirection::OUTPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterOutputProcess(); break;
+			case NodeGraphProcess::Direction::INPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterInputProcess(); break;
+			case NodeGraphProcess::Direction::OUTPUT_PROCESS: thisNodeTriggeringPins = startNode->getUpdatedPinsAfterOutputProcess(); break;
 		}
 		triggeringPins.insert(triggeringPins.end(), thisNodeTriggeringPins.begin(), thisNodeTriggeringPins.end());
 	}
@@ -40,7 +40,7 @@ std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstruc
 			for(auto& processStarterPin : triggeringPin->getConnectedPins()){
 					
 				std::shared_ptr<Node> processedNode = processStarterPin->parentNode;
-				ProcessDirection processDirection;
+				NodeGraphProcess::Direction processDirection;
 				
 				//skip triggering the node connected to the pin if:
 				//-the node was already processed on this cycle
@@ -48,17 +48,17 @@ std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstruc
 				//-the pin is an output but is not bidirectional
 				if(processedNode->b_wasProcessed) continue;
 				else if(processedNode->getType() == Node::Type::IODEVICE) continue;
-				else if(processStarterPin->isInput()) processDirection = ProcessDirection::INPUT_PROCESS;
-				else if(processStarterPin->isOutput() && processStarterPin->isBidirectional()) processDirection = ProcessDirection::OUTPUT_PROCESS;
+				else if(processStarterPin->isInput()) processDirection = NodeGraphProcess::Direction::INPUT_PROCESS;
+				else if(processStarterPin->isOutput() && processStarterPin->isBidirectional()) processDirection = NodeGraphProcess::Direction::OUTPUT_PROCESS;
 				else continue;
 				
-				instructions.push_back(CompiledProcess::Instruction::make(processedNode, processDirection));
+				instructions.push_back(NodeGraphProcess::Instruction::make(processedNode, processDirection));
 				processedNode->b_wasProcessed = true;
 				
 				std::vector<std::shared_ptr<NodePin>> thisNodeTriggeringPins;
 				switch(processDirection){
-					case ProcessDirection::INPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterInputProcess(); break;
-					case ProcessDirection::OUTPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterOutputProcess(); break;
+					case NodeGraphProcess::Direction::INPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterInputProcess(); break;
+					case NodeGraphProcess::Direction::OUTPUT_PROCESS: thisNodeTriggeringPins = processedNode->getUpdatedPinsAfterOutputProcess(); break;
 				}
 				
 				nextTriggeringPins.insert(nextTriggeringPins.end(), thisNodeTriggeringPins.begin(), thisNodeTriggeringPins.end());
@@ -76,8 +76,8 @@ std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstruc
 	for (auto node : getNodes()) node->b_circularDependencyFlag = false;
 	for (auto& instruction : instructions) instruction->processedNode->b_wasProcessed = false;
 	
-	std::vector<std::shared_ptr<CompiledProcess::Instruction>> instructionsOrdered;
-	std::vector<std::shared_ptr<CompiledProcess::Instruction>> nextInstructionCanditates;
+	std::vector<std::shared_ptr<NodeGraphProcess::Instruction>> instructionsOrdered;
+	std::vector<std::shared_ptr<NodeGraphProcess::Instruction>> nextInstructionCanditates;
 	
 	while(!instructions.empty()){
 		
@@ -97,8 +97,8 @@ std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstruc
 			//or it can be forced through the ciruclar dependency flag
 			bool b_nodeCanProcess;
 			if(processedNode->b_circularDependencyFlag) b_nodeCanProcess = true;
-			else if(instruction->processType == ProcessDirection::INPUT_PROCESS && processedNode->areAllLinkedInputNodesProcessed()) b_nodeCanProcess = true;
-			else if(instruction->processType == ProcessDirection::OUTPUT_PROCESS && processedNode->areAllLinkedBidirectionalOutputNodesProcessed()) b_nodeCanProcess = true;
+			else if(instruction->processType == NodeGraphProcess::Direction::INPUT_PROCESS && processedNode->areAllLinkedInputNodesProcessed()) b_nodeCanProcess = true;
+			else if(instruction->processType == NodeGraphProcess::Direction::OUTPUT_PROCESS && processedNode->areAllLinkedBidirectionalOutputNodesProcessed()) b_nodeCanProcess = true;
 			else b_nodeCanProcess = false;
 			
 			//processed nodes get added to the ordered instruction list
@@ -125,10 +125,10 @@ std::vector<std::shared_ptr<CompiledProcess::Instruction>> compileOrderedInstruc
 
 
 //compiles a input process instructions and output process instructions, from a given list of start nodes
-std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node>>& startNodes){
-	std::shared_ptr<CompiledProcess> program = std::make_shared<CompiledProcess>();
+std::shared_ptr<NodeGraphProcess> NodeGraph::compileProcess(std::vector<std::shared_ptr<Node>>& startNodes){
+	std::shared_ptr<NodeGraphProcess> program = std::make_shared<NodeGraphProcess>();
 	
-	program->inputProcessInstructions = compileOrderedInstructions(startNodes, ProcessDirection::INPUT_PROCESS);
+	program->inputProcessInstructions = compileOrderedInstructions(startNodes, NodeGraphProcess::Direction::INPUT_PROCESS);
 	
 	std::vector<std::shared_ptr<Node>> outputProcesStartedNodes;
 	for(auto& instruction : program->inputProcessInstructions){
@@ -137,7 +137,7 @@ std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node
 		}
 	}
 	
-	program->outputProcessInstructions = compileOrderedInstructions(outputProcesStartedNodes, ProcessDirection::OUTPUT_PROCESS);
+	program->outputProcessInstructions = compileOrderedInstructions(outputProcesStartedNodes, NodeGraphProcess::Direction::OUTPUT_PROCESS);
 		
 	return program;
 }
@@ -145,57 +145,40 @@ std::shared_ptr<CompiledProcess> compileProcess(std::vector<std::shared_ptr<Node
 
 
 
-void CompiledProcess::log(){
+void NodeGraphProcess::log(){
 	Logger::debug("Input Process: {} instructions", inputProcessInstructions.size());
 	for(int i = 0; i < inputProcessInstructions.size(); i++){
 		auto& instruction = inputProcessInstructions[i];
 		switch(instruction->processType){
-			case ProcessDirection::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
-			case ProcessDirection::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
+			case NodeGraphProcess::Direction::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
+			case NodeGraphProcess::Direction::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
 		}
 	}
 	Logger::debug("Output Process: {} instructions", outputProcessInstructions.size());
 	for(int i = 0; i < outputProcessInstructions.size(); i++){
 		auto& instruction = outputProcessInstructions[i];
 		switch(instruction->processType){
-			case ProcessDirection::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
-			case ProcessDirection::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
+			case NodeGraphProcess::Direction::INPUT_PROCESS: Logger::trace("[{}] [Input Process] {}", i, instruction->processedNode->getName()); break;
+			case NodeGraphProcess::Direction::OUTPUT_PROCESS: Logger::trace("[{}] [Output Process] {}", i, instruction->processedNode->getName()); break;
 		}
 	}
 }
 
 
 
-void executeInstructions(std::vector<std::shared_ptr<CompiledProcess::Instruction>>& instructions){
+void NodeGraph::executeInstructions(std::vector<std::shared_ptr<NodeGraphProcess::Instruction>>& instructions){
 	for(auto& instruction : instructions){
 		switch(instruction->processType){
-			case ProcessDirection::INPUT_PROCESS: instruction->processedNode->inputProcess(); break;
-			case ProcessDirection::OUTPUT_PROCESS: instruction->processedNode->outputProcess(); break;
+			case NodeGraphProcess::Direction::INPUT_PROCESS: instruction->processedNode->inputProcess(); break;
+			case NodeGraphProcess::Direction::OUTPUT_PROCESS: instruction->processedNode->outputProcess(); break;
 		}
 	}
 }
 
-void executeInputProcess(std::shared_ptr<CompiledProcess> processProgram){
+void NodeGraph::executeInputProcess(std::shared_ptr<NodeGraphProcess> processProgram){
 	executeInstructions(processProgram->inputProcessInstructions);
 }
-void executeOutputProcess(std::shared_ptr<CompiledProcess> processProgram){
+void NodeGraph::executeOutputProcess(std::shared_ptr<NodeGraphProcess> processProgram){
 	executeInstructions(processProgram->outputProcessInstructions);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}

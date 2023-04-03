@@ -193,7 +193,8 @@ void NodeManagerWindow::onDraw(){
 	
 	ImGui::BeginChild("##SelectedNode", ImGui::GetContentRegionAvail());
 		
-	auto& selectedNodes = Environnement::NodeGraph::getSelectedNodes();
+	//auto& selectedNodes = Environnement::NodeGraph::getSelectedNodes();
+	std::vector<std::shared_ptr<Node>> selectedNodes = {};
 	
 	if(ImGui::BeginTabBar("SelectedNodes")){
 		if(selectedNodes.size() > 0){

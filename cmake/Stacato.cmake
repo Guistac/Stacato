@@ -175,6 +175,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphProcessing.cpp

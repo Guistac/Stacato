@@ -168,7 +168,7 @@ void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
 void OscDevice::removeArgument(std::shared_ptr<OSC::Message> msg, std::shared_ptr<OSC::Argument> arg){
 	int argumentIndex = msg->getArgumentIndex(arg);
 	if(argumentIndex == -1) return;
-	removeIoData(arg->pin);
+	removeNodePin(arg->pin);
 	msg->arguments.erase(msg->arguments.begin() + argumentIndex);
 	updatePins();
 }

@@ -10,7 +10,7 @@
 bool NodePin::shouldDisplayDataGui() {
     if (b_noDataField) return false;
     else if (b_forceDataField) return true;
-	else if (isOutput()) return Environnement::NodeGraph::getShowOutputValues();
+	//else if (isOutput()) return Environnement::NodeGraph::getShowOutputValues();
     else if (isConnected()) return false;
     else return true;
 }

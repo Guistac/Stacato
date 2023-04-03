@@ -27,7 +27,7 @@ namespace Environnement {
 		//====== NODE GRAPH SAVING ======
 
 		XMLElement* nodeGraphXML = environnementXML->InsertNewChildElement("NodeGraph");
-		Environnement::NodeGraph::save(nodeGraphXML);
+		//Environnement::NodeGraph::save(nodeGraphXML);
 
 		//====== FIELDBUS PARAMETER SAVING ======
 
@@ -76,7 +76,7 @@ namespace Environnement {
 
 		XMLElement* nodeGraphXML = environnementXML->FirstChildElement("NodeGraph");
 		if (!nodeGraphXML) return Logger::warn("Could not load NodeGraph from SaveFile");
-		if (!Environnement::NodeGraph::load(nodeGraphXML)) return Logger::warn("Error reading NodeGraph data");
+		//if (!Environnement::NodeGraph::load(nodeGraphXML)) return Logger::warn("Error reading NodeGraph data");
 
 		//====== FIELDBUS PARAMETER LOADING ======
 		

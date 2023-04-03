@@ -18,6 +18,7 @@ namespace Environnement::Gui{
 
 void NodeEditorWindow::onDraw(){
 	
+	/*
 	//========= NODE INSPECTOR AND ADDER PANEL =========
 
 	 static float sideBarWidth = ImGui::GetTextLineHeight() * 28.0;
@@ -118,7 +119,7 @@ void NodeEditorWindow::onDraw(){
 		if (!Environnement::isRunning()) ImGui::TextColored(Colors::gray, "Editing is disabled while the environnement is running");
 	 
 	 ImGui::EndChild();
-
+*/
 	
 }
 
