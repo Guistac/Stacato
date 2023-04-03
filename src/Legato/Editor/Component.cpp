@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "StringParameter.h"
 
+namespace Legato{
+
 void Component::setName(std::string name){
 	if(b_hasNameParameter) nameParameter->setValue(name);
 	else nonParametricName = name;
@@ -42,4 +44,6 @@ void Component::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 	}else{
 		nonParametricName = original->nameParameter->getValue();
 	}
+}
+
 }

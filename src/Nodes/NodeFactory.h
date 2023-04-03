@@ -7,14 +7,14 @@ namespace NodeFactory {
 
 	struct NodeGroup {
 		char name[128];
-		std::vector<Node*> nodes;
+		std::vector<std::shared_ptr<Node>> nodes;
 	};
 
 	void load();
-	void loadEtherCatNodes(std::vector<Node*>& nodeList);
-	void loadMotionNodes(std::vector<Node*>& nodeList);
-	void loadNetworkNodes(std::vector<Node*>& nodeList);
-	void loadProcessorNodes(std::vector<Node*>& nodeList);
+	void loadEtherCatNodes(std::vector<std::shared_ptr<Node>>& nodeList);
+	void loadMotionNodes(std::vector<std::shared_ptr<Node>>& nodeList);
+	void loadNetworkNodes(std::vector<std::shared_ptr<Node>>& nodeList);
+	void loadProcessorNodes(std::vector<std::shared_ptr<Node>>& nodeList);
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName);
 
@@ -24,13 +24,12 @@ namespace NodeFactory {
 	const std::vector<NodeGroup>& getEtherCatDevicesByCategory();
 
 	//Motion
-	std::vector<Node*>& getAllAxisNodes();
+	std::vector<std::shared_ptr<Node>>& getAllAxisNodes();
 	std::vector<NodeGroup>& getMachinesByCategory();
-	std::vector<Node*>& getAllSafetyNodes();
-	std::vector<Node*>& getAllMotionUtilityNodes();
+	std::vector<std::shared_ptr<Node>>& getAllSafetyNodes();
 
 	//Network IO
-	std::vector<Node*>& getAllNetworkNodes();
+	std::vector<std::shared_ptr<Node>>& getAllNetworkNodes();
 
 	//Processors
 	std::vector<NodeGroup>& getProcessorNodesByCategory();

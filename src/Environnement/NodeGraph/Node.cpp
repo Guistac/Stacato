@@ -18,7 +18,7 @@ void Node::addNodePin(std::shared_ptr<NodePin> NodePin) {
 	if (b_isInNodeGraph) {
 		NodePin->uniqueID = Environnement::NodeGraph::getNewUniqueID();
 		Environnement::NodeGraph::getPins().push_back(NodePin);
-		NodePin->parentNode = shared_from_this();
+		NodePin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
 	}
 }
 

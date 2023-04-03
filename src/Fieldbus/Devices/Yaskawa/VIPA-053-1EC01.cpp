@@ -17,7 +17,8 @@ void VipaBusCoupler_053_1EC01::onConnection() {
 	gpioDevice->state = DeviceState::ENABLED;
 }
 
-void VipaBusCoupler_053_1EC01::initialize() {
+void VipaBusCoupler_053_1EC01::onConstruction() {
+	EtherCatDevice::onConstruction();
     //by default, this node only has one pin
     //no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());

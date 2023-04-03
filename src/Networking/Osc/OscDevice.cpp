@@ -11,7 +11,9 @@
 //Uselful for precise cross-platform thread sleep
 #include <osal.h>
 
-void OscDevice::initialize(){}
+void OscDevice::onConstruction(){
+	NetworkDevice::onConstruction();
+}
 
 void OscDevice::connect(){
 	oscSocket = std::make_shared<OscSocket>(4096);

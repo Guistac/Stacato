@@ -9,6 +9,11 @@ namespace PhoenixContact{
 	public:
 		DEFINE_ETHERCAT_DEVICE(BusCoupler, "Phoenix Contact Bus Coupler", "IL_EC_BK_BusCoupler", "Phoenix Contact", "I/O", 0x84, 0x293CAB)
 		
+		virtual void onConstruction() override;
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+			EtherCAT::ModularDeviceProfile::ModularDevice::onCopyFrom(source);
+		};
+		
 		class PhoenixContactGpioDevice : public GpioInterface{
 		public:
 			PhoenixContactGpioDevice(std::shared_ptr<BusCoupler> busCoupler) : coupler(busCoupler){}

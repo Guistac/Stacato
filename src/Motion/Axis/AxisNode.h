@@ -13,6 +13,11 @@ public:
 	
 	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::AXIS, "")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	};
+	
 	std::shared_ptr<AxisInterface> axisInterface;
 	
 	std::shared_ptr<NodePin> actuatorPin;

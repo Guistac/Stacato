@@ -8,6 +8,11 @@ public:
 	
 	DEFINE_NODE(SafetySignal, "Safety Signal", "SafetySignal", Node::Type::PROCESSOR, "Safety")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	};
+	
 	std::shared_ptr<bool> safetyStateValidSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> safetyLineValidSignal = std::make_shared<bool>(false);
 	

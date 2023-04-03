@@ -15,31 +15,33 @@
 
 namespace NodeFactory{
 	
-	std::vector<EtherCatDevice*> allEtherCatDevices;
+	std::vector<std::shared_ptr<EtherCatDevice>> allEtherCatDevices;
 	std::vector<NodeGroup> etherCatdevicesByManufacturer;
 	std::vector<NodeGroup> etherCatdevicesByCategory;
 
-	void loadEtherCatNodes(std::vector<Node*>& nodeList) {
+	void loadEtherCatNodes(std::vector<std::shared_ptr<Node>>& nodeList) {
 		
 		allEtherCatDevices = {
 			//new EtherCatDevice(),
-			new Lexium32(),
-			new Lexium32i(),
-			new ATV320(),
-			new ATV340(),
-			new VipaBusCoupler_053_1EC01(),
-			new PhoenixContact::BusCoupler(),
-			new PD4_E(),
-			new MicroFlex_e190(),
-			new CU1128(),
-			new CU1124(),
-            new ECAT_2511_A_FiberConverter(),
-            new ECAT_2511_B_FiberConverter(),
-			new ECAT_2515_6PortJunction()
+			/*
+			Lexium32::createInstance().get(),
+			Lexium32i::createInstance().get(),
+			ATV320::createInstance().get(),
+			ATV340::createInstance().get(),
+			VipaBusCoupler_053_1EC01::createInstance().get(),
+			PhoenixContact::BusCoupler::createInstance().get(),
+			PD4_E::createInstance().get(),
+			MicroFlex_e190::createInstance().get(),
+			CU1128::createInstance().get(),
+			CU1124::createInstance().get(),
+            ECAT_2511_A_FiberConverter::createInstance().get(),
+            ECAT_2511_B_FiberConverter::createInstance().get(),
+			ECAT_2515_6PortJunction::createInstance().get()
+			 */
 		};
 
 		//sort devices by manufacturer
-		for (EtherCatDevice* device : allEtherCatDevices) {
+		for (auto device : allEtherCatDevices) {
 			const char * manufacturer = device->getManufacturerName();
 			bool manufacturerExists = false;
 			for (NodeGroup& group : etherCatdevicesByManufacturer) {
@@ -57,7 +59,7 @@ namespace NodeFactory{
 		}
 
 		//sort device by manufacturer
-		for (EtherCatDevice* device : allEtherCatDevices) {
+		for (auto device : allEtherCatDevices) {
 			const char* deviceCategory = device->getNodeCategory();
 			bool categoryExists = false;
 			for (NodeGroup& group : etherCatdevicesByCategory) {
@@ -78,12 +80,12 @@ namespace NodeFactory{
 	}
 
 	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
-		for(EtherCatDevice* device : allEtherCatDevices){
+		for(auto device : allEtherCatDevices){
 			if(device->getManufacturerCode() == manufacturerCode && device->getIdentificationCode() == identificationCode){
-				return std::static_pointer_cast<EtherCatDevice>(device->getNewInstance());
+				return std::static_pointer_cast<EtherCatDevice>(device->duplicate());
 			}
 		}
-		return std::make_shared<EtherCatDevice>();
+		return EtherCatDevice::createInstance();
 	}
 
 	const std::vector<NodeGroup>& getEtherCatDevicesByManufacturer() { return etherCatdevicesByManufacturer; }

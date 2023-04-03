@@ -74,6 +74,11 @@ namespace OSC{
 class OscDevice : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(OscDevice, "Osc Connection", "OscConnection")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		NetworkDevice::onCopyFrom(source);
+	};
+	
 	void networkGui();
 	void outgoingMessagesGui();
 	void incomingMessagesGui();

@@ -160,7 +160,7 @@ namespace Environnement {
 		simulationTime_seconds = currentSimulationTime_seconds;
 		simulationTime_nanoseconds = currentSimulationTime_nanoseconds;
 
-		for(auto& machine : getMachines()) machine->simulateInputProcess();
+		//for(auto& machine : getMachines()) machine->simulateInputProcess();
 
 		//auto start = std::chrono::high_resolution_clock::now();
 		Script::update();
@@ -169,7 +169,7 @@ namespace Environnement {
 		
 		//PlaybackManager::update();
 
-		for(auto& machine : getMachines()) machine->simulateOutputProcess();
+		//for(auto& machine : getMachines()) machine->simulateOutputProcess();
 
 		mutex.unlock();
 		
@@ -190,9 +190,11 @@ namespace Environnement {
 			
             Script::stop();
             
+			/*
 			for(auto machine : getMachines()){
 				machine->state = DeviceState::OFFLINE;
 			}
+			*/
 			
 			Environnement::StageVisualizer::stop();
 			
@@ -300,7 +302,7 @@ namespace Environnement {
 		std::thread hardwareStopper = std::thread([](){
 			b_isRunning = false;
 						
-			for(auto& machine : getMachines()) machine->disable();
+			//for(auto& machine : getMachines()) machine->disable();
 			EtherCatFieldbus::stop();
 			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 			
@@ -357,22 +359,22 @@ namespace Environnement {
 
 	void enableAllMachines() {
         if(!Environnement::isRunning()) return;
-		for (auto machine : machines) machine->enable();
+		//for (auto machine : machines) machine->enable();
 	}
 	void disableAllMachines() {
         if(!Environnement::isRunning()) return;
-		for (auto machine : machines) machine->disable();
+		//for (auto machine : machines) machine->disable();
 	}
 	bool areAllMachinesEnabled() {
 		if (machines.empty()) return false;
 		for (auto machine : machines) {
-			if (!machine->isEnabled()) return false;
+			//if (!machine->isEnabled()) return false;
 		}
 		return true;
 	}
 	bool areNoMachinesEnabled() {
 		for(auto machine : machines) {
-			if (machine->isEnabled()) return false;
+			//if (machine->isEnabled()) return false;
 		}
 		return true;
 	}
@@ -380,7 +382,7 @@ namespace Environnement {
 	void addNode(std::shared_ptr<Node> node) {
 		switch (node->getType()) {
 			case Node::Type::MACHINE:
-				machines.push_back(std::static_pointer_cast<Machine>(node));
+				//machines.push_back(std::static_pointer_cast<Machine>(node));
 				break;
 			case Node::Type::IODEVICE:{
 				std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
@@ -405,6 +407,7 @@ namespace Environnement {
 	void removeNode(std::shared_ptr<Node> node){
 		switch (node->getType()) {
 			case Node::Type::MACHINE:{
+				/*
 				std::shared_ptr<Machine> machineNode = std::static_pointer_cast<Machine>(node);
 				for (int i = 0; i < machines.size(); i++) {
 					if (machines[i] == machineNode) {
@@ -412,6 +415,7 @@ namespace Environnement {
 						break;
 					}
 				}
+				 */
 			}break;
 			case Node::Type::IODEVICE:{
 				std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);

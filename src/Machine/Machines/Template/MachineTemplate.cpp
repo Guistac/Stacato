@@ -3,6 +3,7 @@
 
 //======= CONFIGURATION =========
 
+/*
 void MachineTemplate::initialize() {
 	//add node pins	addNodePin(..);
 	//add animatable parameters addAnimatableParameter(...);
@@ -112,3 +113,4 @@ bool MachineTemplate::loadMachine(tinyxml2::XMLElement* xml) {
 	//return true on success and false on failure
 	return true;
 }
+*/

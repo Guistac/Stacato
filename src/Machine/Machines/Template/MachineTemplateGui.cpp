@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-
+/*
 void MachineTemplate::controlsGui() {
 	//Machine Controls Gui
 }
@@ -24,3 +24,4 @@ void MachineTemplate::deviceGui() {
 void MachineTemplate::metricsGui() {
 	//Gui for metrics & performance graphs
 }
+*/

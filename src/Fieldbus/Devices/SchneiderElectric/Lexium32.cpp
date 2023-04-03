@@ -14,9 +14,11 @@ void Lexium32::onDisconnection() {
 	gpioDevice->state = DeviceState::OFFLINE;
 }
 
-void Lexium32::initialize() {
+void Lexium32::onConstruction() {
 
-	auto thisLexiumDrive = std::dynamic_pointer_cast<Lexium32>(shared_from_this());
+	EtherCatDevice::onConstruction();
+	
+	auto thisLexiumDrive = std::static_pointer_cast<Lexium32>(shared_from_this());
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
 		

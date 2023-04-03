@@ -14,45 +14,33 @@
 #include "Motion/Safety/SafetySignal.h"
 #include "Motion/Safety/Brake.h"
 
-//#include "Motion/Adapters/GpioActuator.h"
-//#include "Motion/Adapters/ActuatorToServoActuator.h"
-
 namespace NodeFactory{
 
-	std::vector<Node*> allAxisNodes;
+	std::vector<std::shared_ptr<Node>> allAxisNodes;
+	std::vector<std::shared_ptr<Node>> allMachineNodes;
+	std::vector<std::shared_ptr<Node>> allSafetyNodes;
 
-	std::vector<Node*> allMachineNodes;
 	std::vector<NodeGroup> machinesByCategory;
 
-	std::vector<Node*> allSafetyNodes;
-
-	std::vector<Node*> allMotionUtilityNodes;
-
-	void loadMotionNodes(std::vector<Node*>& nodeList){
+	void loadMotionNodes(std::vector<std::shared_ptr<Node>>& nodeList){
 		
 		allAxisNodes = {
-			new AxisNode()
+			AxisNode::createInstance()
 		};
 		
 		allMachineNodes = {
-			new PositionControlledMachine(),
+			//new PositionControlledMachine(),
 			//new FlipStateMachine(),
 		};
 		
 		allSafetyNodes = {
-			new DeadMansSwitch(),
-			new SafetySignal(),
+			DeadMansSwitch::createInstance(),
+			SafetySignal::createInstance(),
 			//new Brake()
 		};
 		
-		allMotionUtilityNodes = {
-			//new GpioActuator(),
-			//new ActuatorToServoActuator(),
-			//new PositionFeedback()
-		};
-		
 		//sort machine nodes by category
-		for (Node* node : allMachineNodes) {
+		for (auto node : allMachineNodes) {
 		   const char* category = node->getNodeCategory();
 		   bool categoryExists = false;
 		   for (NodeGroup& group : machinesByCategory) {
@@ -72,13 +60,11 @@ namespace NodeFactory{
 		nodeList.insert(nodeList.end(), allMachineNodes.begin(), allMachineNodes.end());
 		nodeList.insert(nodeList.end(), allAxisNodes.begin(), allAxisNodes.end());
 		nodeList.insert(nodeList.end(), allSafetyNodes.begin(), allSafetyNodes.end());
-		nodeList.insert(nodeList.end(), allMotionUtilityNodes.begin(), allMotionUtilityNodes.end());
 		
 	}
 
-	std::vector<Node*>& getAllAxisNodes() { return allAxisNodes; }
 	std::vector<NodeGroup>& getMachinesByCategory() { return machinesByCategory; }
-	std::vector<Node*>& getAllSafetyNodes(){ return allSafetyNodes; }
-	std::vector<Node*>& getAllMotionUtilityNodes(){ return allMotionUtilityNodes; }
+	std::vector<std::shared_ptr<Node>>& getAllAxisNodes() { return allAxisNodes; }
+	std::vector<std::shared_ptr<Node>>& getAllSafetyNodes(){ return allSafetyNodes; }
 
 }

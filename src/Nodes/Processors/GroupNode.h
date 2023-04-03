@@ -38,6 +38,13 @@ public:
 		return true;
 	}
 	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
+	
 };
 
-void GroupNode::initialize(){}

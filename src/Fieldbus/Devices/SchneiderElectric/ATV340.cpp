@@ -9,7 +9,9 @@ void ATV340::onConnection() {}
 
 void ATV340::onDisconnection() {}
 
-void ATV340::initialize() {
+void ATV340::onConstruction() {
+	
+	EtherCatDevice::onConstruction();
 	
 	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));

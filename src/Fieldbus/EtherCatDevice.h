@@ -18,13 +18,7 @@
 //Unknown devices will not and will be of the base type EtherCatDevice
 
 #define DEFINE_ETHERCAT_DEVICE(className, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
-	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
-	/*Device Specific*/\
-	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
-	virtual void onConnection() override;\
-	virtual void onDisconnection() override;\
-	virtual void readInputs() override;\
-	virtual void writeOutputs() override;\
+	DEFINE_DEVICE_NODE(className, displayName, saveName, Device::Type::ETHERCAT_DEVICE, category)\
 	/*EtherCat Device Specific*/\
 	virtual const char* getManufacturerName() override { return manufacturerName; }\
 	virtual const char* getDeviceName() override{ return displayName; }\
@@ -52,6 +46,33 @@ public:
 	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual void deviceSpecificGui() {}
+ 
+protected:
+	 
+	 virtual bool onSerialization() override {
+		 Node::onSerialization();
+		 bool success = true;
+		 return success;
+	 }
+	 
+	 virtual bool onDeserialization() override {
+		 Node::onDeserialization();
+		 bool success = true;
+		 return success;
+	 }
+	 
+	 virtual void onConstruction() override {
+		 Node::onConstruction();
+	 }
+	 
+	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		 Node::onCopyFrom(source);
+	 }
+	
+public:
+	
+	
+	
 	
 	enum class IdentificationType{
 		STATION_ALIAS,

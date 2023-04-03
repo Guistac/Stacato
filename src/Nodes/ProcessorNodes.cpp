@@ -10,37 +10,37 @@
 
 namespace NodeFactory{
 
-	std::vector<Node*> allProcessorNodes;
+	std::vector<std::shared_ptr<Node>> allProcessorNodes;
 	std::vector<NodeGroup> processorNodesByCategory;
 
-	void loadProcessorNodes(std::vector<Node*>& nodeList){
+	void loadProcessorNodes(std::vector<std::shared_ptr<Node>>& nodeList){
 		allProcessorNodes = {
-			new ClockNode(),
+			ClockNode::createInstance(),
 
-			new DisplayNode(),
-			new PlotterNode(),
-			new GroupNode(),
-			new ConstantNode(),
+			DisplayNode::createInstance(),
+			PlotterNode::createInstance(),
+			GroupNode::createInstance(),
+			ConstantNode::createInstance(),
 
-			new AdditionNode(),
-			new SubtractionNode(),
-			new MultiplicationNode(),
-			new DivisionNode(),
-			new ExponentNode(),
-			new AbsoluteNode(),
-			new SinusNode(),
-			new CosinusNode(),
-			new TangentNode(),
-			new CotangentNode(),
+			AdditionNode::createInstance(),
+			SubtractionNode::createInstance(),
+			MultiplicationNode::createInstance(),
+			DivisionNode::createInstance(),
+			ExponentNode::createInstance(),
+			AbsoluteNode::createInstance(),
+			SinusNode::createInstance(),
+			CosinusNode::createInstance(),
+			TangentNode::createInstance(),
+			CotangentNode::createInstance(),
 
-			new BoolNode(),
-			new NotNode(),
-			new AndNode(),
-			new OrNode()
+			BoolNode::createInstance(),
+			NotNode::createInstance(),
+			AndNode::createInstance(),
+			OrNode::createInstance()
 		};
 		
 		//sort processor nodes by category
-		for (Node* node : allProcessorNodes) {
+		for (auto node : allProcessorNodes) {
 			const char* category = node->getNodeCategory();
 			bool categoryExists = false;
 			for (NodeGroup& group : processorNodesByCategory) {

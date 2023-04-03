@@ -12,6 +12,11 @@ public:
 	
 	DEFINE_ETHERCAT_DEVICE(ATV320, "ATV320", "ATV320", "Schneider Electric", "Motor Drives", 0x800005A, 0x389)
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		EtherCatDevice::onCopyFrom(source);
+	};
+	
 	class ATV_Motor : public ActuatorInterface{
 	public:
 		ATV_Motor(std::shared_ptr<ATV320> drive_) : drive(drive_){}

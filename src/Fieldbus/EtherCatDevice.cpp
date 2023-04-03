@@ -7,8 +7,6 @@
 #include <imgui.h>
 #include <tinyxml2.h>
 
-void EtherCatDevice::initialize(){}
-
 bool EtherCatDevice::isDetected() {
     return identity != nullptr && identity->state != EC_STATE_NONE;
 }

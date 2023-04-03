@@ -52,7 +52,9 @@ void ArtNetNode::removeAllUniverses(){
 
 
 
-void ArtNetNode::initialize(){
+void ArtNetNode::onConstruction(){
+	
+	NetworkDevice::onConstruction();
 	
 	script = std::make_shared<LuaScript>("PSN Server Script");
 	script->setLoadLibrairiesCallback([this](lua_State* L){

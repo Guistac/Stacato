@@ -9,13 +9,14 @@
 
 #include "Motion/Safety/DeadMansSwitch.h"
 
+/*
 bool Machine::isReady(){
 	if(Environnement::isSimulating()) return isSimulationReady() && Environnement::isRunning();
 	else return isHardwareReady();
 }
 
 void Machine::enable(){
-	/*
+	
 	if(Environnement::isSimulating() && isSimulationReady()){
 		onEnableSimulation();
 		state = DeviceState::ENABLED;
@@ -24,11 +25,11 @@ void Machine::enable(){
 		enableHardware();
 	}
 	for(auto animatable : animatables) animatable->stopAnimation();
-	 */
+	 
 }
 
 void Machine::disable(){
-	/*
+	
 	if(Environnement::isSimulating()){
 		state = DeviceState::READY;
 		//b_enabled = false;
@@ -37,7 +38,7 @@ void Machine::disable(){
 		disableHardware();
 	}
 	for(auto animatable : animatables) animatable->stopAnimation();
-	 */
+	 
 }
 
 bool Machine::isEnabled(){
@@ -49,7 +50,7 @@ bool Machine::isSimulating(){
 	return Environnement::isSimulating();
 }
 
-/*
+
 void Machine::addAnimatable(std::shared_ptr<Animatable> animatable){
 	auto thisMachine = std::static_pointer_cast<Machine>(shared_from_this());
 	animatable->setMachine(thisMachine);
@@ -72,7 +73,7 @@ void Machine::removeAnimatable(std::shared_ptr<Animatable> removedAnimatable){
 	}
 	removedAnimatable->deleteAllAnimations();
 }
-*/
+
 
 bool Machine::isMotionAllowed(){
 	if(!deadMansSwitchPin->isConnected()) return true;
@@ -100,3 +101,5 @@ bool Machine::load(tinyxml2::XMLElement* xml){
 	if(!loadMachine(xml)) return false;
 	return true;
 }
+
+*/

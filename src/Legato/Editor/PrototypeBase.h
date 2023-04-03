@@ -43,7 +43,7 @@ IMPLEMENTATION EXAMPLE
 			field = 1238;
 		}
  
-		virtual void copyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 			ParentClass::copyFrom(source); //optional
 			auto original = std::static_pointer_cast<PrototypeImplementation>(source);
 			field = field->number;
@@ -83,6 +83,7 @@ private:\
 		newPrototypeInstance->onConstruction();\
 		return newPrototypeInstance;\
 	};\
+	
 
 
 class PrototypeBase : public std::enable_shared_from_this<PrototypeBase>{

@@ -28,12 +28,18 @@ public:
 		return true;
 	}
 	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		pin->assignData(constantValue);
+		addNodePin(pin);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
+	
 };
 
-void ConstantNode::initialize(){
-	pin->assignData(constantValue);
-	addNodePin(pin);
-}
 
 class AdditionNode : public Node {
 public:
@@ -48,32 +54,35 @@ public:
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		double sum = 0.0;
+			
+			if(input->hasMultipleConnections()) {
+				*inputPinValue = 0.0;
+				for (auto pin : input->getConnectedPins()) *inputPinValue += pin->read<double>();
+			}
+			else if (input->isConnected()) input->copyConnectedPinValue();
+			sum += *inputPinValue;
+			
+			sum += *offsetPinValue;
+			*outputPinValue = sum;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		input->assignData(inputPinValue);
+		addNodePin(input);
+		offset->assignData(offsetPinValue);
+		addNodePin(offset);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
-
-void AdditionNode::initialize(){
-	input->assignData(inputPinValue);
-	addNodePin(input);
-	offset->assignData(offsetPinValue);
-	addNodePin(offset);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
-
-void AdditionNode::inputProcess() {
-	double sum = 0.0;
-	
-	if(input->hasMultipleConnections()) {
-		*inputPinValue = 0.0;
-		for (auto pin : input->getConnectedPins()) *inputPinValue += pin->read<double>();
-	}
-	else if (input->isConnected()) input->copyConnectedPinValue();
-	sum += *inputPinValue;
-	
-	sum += *offsetPinValue;
-	*outputPinValue = sum;
-}
 
 
 class SubtractionNode : public Node {
@@ -91,41 +100,45 @@ public:
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		double sum = 0.0;
+			
+			if(base->hasMultipleConnections()) {
+				*basePinValue = 0.0;
+				for(auto pin : base->getConnectedPins()) *basePinValue += pin->read<double>();
+			}
+			else if(base->isConnected()) base->copyConnectedPinValue();
+			sum += *basePinValue;
+			
+			if(sub->hasMultipleConnections()) {
+				*subPinValue = 0.0;
+				for(auto pin : sub->getConnectedPins()) *subPinValue += pin->read<double>();
+			}else if(sub->isConnected()) sub->copyConnectedPinValue();
+			sum -= *subPinValue;
+			
+			sum += *offsetPinValue;
+			
+			*outputPinValue = sum;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		base->assignData(basePinValue);
+		addNodePin(base);
+		sub->assignData(subPinValue);
+		addNodePin(sub);
+		offset->assignData(offsetPinValue);
+		addNodePin(offset);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void SubtractionNode::initialize(){
-	base->assignData(basePinValue);
-	addNodePin(base);
-	sub->assignData(subPinValue);
-	addNodePin(sub);
-	offset->assignData(offsetPinValue);
-	addNodePin(offset);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
-
-void SubtractionNode::inputProcess() {
-	double sum = 0.0;
-	
-	if(base->hasMultipleConnections()) {
-		*basePinValue = 0.0;
-		for(auto pin : base->getConnectedPins()) *basePinValue += pin->read<double>();
-	}
-	else if(base->isConnected()) base->copyConnectedPinValue();
-	sum += *basePinValue;
-	
-	if(sub->hasMultipleConnections()) {
-		*subPinValue = 0.0;
-		for(auto pin : sub->getConnectedPins()) *subPinValue += pin->read<double>();
-	}else if(sub->isConnected()) sub->copyConnectedPinValue();
-	sum -= *subPinValue;
-	
-	sum += *offsetPinValue;
-	
-	*outputPinValue = sum;
-}
 
 class MultiplicationNode : public Node {
 public:
@@ -140,33 +153,38 @@ public:
 	std::shared_ptr<double> multiplierPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		double out = 1.0;
+
+		if(input->hasMultipleConnections()) {
+			*inputPinValue = 1.0;
+			for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->read<double>();
+		}else if(input->isConnected()) input->copyConnectedPinValue();
+		out *= *inputPinValue;
+
+
+		out *= *multiplierPinValue;
+
+		*outputPinValue = out;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		input->assignData(inputPinValue);
+		addNodePin(input);
+		multiplier->assignData(multiplierPinValue);
+		addNodePin(multiplier);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void MultiplicationNode::initialize(){
-	input->assignData(inputPinValue);
-	addNodePin(input);
-	multiplier->assignData(multiplierPinValue);
-	addNodePin(multiplier);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
 
-void MultiplicationNode::inputProcess() {
-	double out = 1.0;
-	
-	if(input->hasMultipleConnections()) {
-		*inputPinValue = 1.0;
-		for(auto pin : input->getConnectedPins()) *inputPinValue *= pin->read<double>();
-	}else if(input->isConnected()) input->copyConnectedPinValue();
-	out *= *inputPinValue;
-	
-	
-	out *= *multiplierPinValue;
-	
-	*outputPinValue = out;
-}
 
 class DivisionNode : public Node {
 public:
@@ -183,40 +201,45 @@ public:
 	std::shared_ptr<double> multPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		double out = 1.0;
+
+		if(base->hasMultipleConnections()){
+			*basePinValue = 0.0;
+			for(auto pin : base->getConnectedPins()) *basePinValue *= pin->read<double>();
+		}else if(base->isConnected()) base->copyConnectedPinValue();
+		out *= *basePinValue;
+
+		if(div->hasMultipleConnections()){
+			*divPinValue = 0.0;
+			for(auto pin : div->getConnectedPins()) *divPinValue *= pin->read<double>();
+		}else if(div->isConnected()) div->copyConnectedPinValue();
+		out /= *divPinValue;
+
+		out *= *multPinValue;
+
+		*outputPinValue = out;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		base->assignData(basePinValue);
+		addNodePin(base);
+		div->assignData(divPinValue);
+		addNodePin(div);
+		mult->assignData(multPinValue);
+		addNodePin(mult);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void DivisionNode::initialize(){
-	base->assignData(basePinValue);
-	addNodePin(base);
-	div->assignData(divPinValue);
-	addNodePin(div);
-	mult->assignData(multPinValue);
-	addNodePin(mult);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
 
-void DivisionNode::inputProcess() {
-	double out = 1.0;
-	
-	if(base->hasMultipleConnections()){
-		*basePinValue = 0.0;
-		for(auto pin : base->getConnectedPins()) *basePinValue *= pin->read<double>();
-	}else if(base->isConnected()) base->copyConnectedPinValue();
-	out *= *basePinValue;
-	
-	if(div->hasMultipleConnections()){
-		*divPinValue = 0.0;
-		for(auto pin : div->getConnectedPins()) *divPinValue *= pin->read<double>();
-	}else if(div->isConnected()) div->copyConnectedPinValue();
-	out /= *divPinValue;
-	
-	out *= *multPinValue;
-	
-	*outputPinValue = out;
-}
 
 class ExponentNode : public Node {
 public:
@@ -231,26 +254,30 @@ public:
 	std::shared_ptr<double> expPinValue = std::make_shared<double>(1.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(base->isConnected()) base->copyConnectedPinValue();
+		
+		if(exp->isConnected()) exp->copyConnectedPinValue();
+		
+		*outputPinValue = std::pow(*basePinValue, *expPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		base->assignData(basePinValue);
+		addNodePin(base);
+		exp->assignData(expPinValue);
+		addNodePin(exp);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void ExponentNode::initialize(){
-	base->assignData(basePinValue);
-	addNodePin(base);
-	exp->assignData(expPinValue);
-	addNodePin(exp);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
-
-void ExponentNode::inputProcess() {
-	if(base->isConnected()) base->copyConnectedPinValue();
-	
-	if(exp->isConnected()) exp->copyConnectedPinValue();
-	
-	*outputPinValue = std::pow(*basePinValue, *expPinValue);
-}
 
 
 class AbsoluteNode : public Node {
@@ -264,23 +291,25 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(input->isConnected()) input->copyConnectedPinValue();
+			
+			*outputPinValue = std::abs(*inputPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		input->assignData(inputPinValue);
+		addNodePin(input);
+		output->assignData(outputPinValue);
+		addNodePin(output);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
-
-void AbsoluteNode::initialize(){
-	input->assignData(inputPinValue);
-	addNodePin(input);
-	output->assignData(outputPinValue);
-	addNodePin(output);
-}
-
-void AbsoluteNode::inputProcess() {
-	if(input->isConnected()) input->copyConnectedPinValue();
-	
-	*outputPinValue = std::abs(*inputPinValue);
-}
-
 
 
 
@@ -297,21 +326,25 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) in->copyConnectedPinValue();
+		*outputPinValue = std::sin(*inputPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void SinusNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void SinusNode::inputProcess() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = std::sin(*inputPinValue);
-}
 
 
 class CosinusNode : public Node {
@@ -325,21 +358,25 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) in->copyConnectedPinValue();
+		*outputPinValue = std::cos(*inputPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void CosinusNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void CosinusNode::inputProcess() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = std::cos(*inputPinValue);
-}
 
 class TangentNode : public Node {
 public:
@@ -352,21 +389,25 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) in->copyConnectedPinValue();
+		*outputPinValue = std::tan(*inputPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void TangentNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void TangentNode::inputProcess() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = std::tan(*inputPinValue);
-}
 
 class CotangentNode : public Node {
 public:
@@ -379,21 +420,24 @@ public:
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) in->copyConnectedPinValue();
+		*outputPinValue = 1.0 / std::sin(*inputPinValue);
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
-
-void CotangentNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void CotangentNode::inputProcess() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = 1.0 / std::sin(*inputPinValue);
-}
 
 
 
@@ -417,23 +461,26 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) {
+			double realValue = in->getConnectedPin()->read<double>();
+			*outputPinValue = realValue > 0.0;
+		}else *outputPinValue = false;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
-
-void BoolNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void BoolNode::inputProcess() {
-	if(in->isConnected()) {
-		double realValue = in->getConnectedPin()->read<double>();
-		*outputPinValue = realValue > 0.0;
-	}else *outputPinValue = false;
-}
 
 
 class NotNode : public Node{
@@ -447,21 +494,24 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->isConnected()) in->copyConnectedPinValue();
+		*outputPinValue = !*inputPinValue;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
-
-void NotNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void NotNode::inputProcess() {
-	if(in->isConnected()) in->copyConnectedPinValue();
-	*outputPinValue = !*inputPinValue;
-}
 
 
 
@@ -476,29 +526,33 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->hasMultipleConnections()){
+			*inputPinValue = false;
+			for(auto pin : in->getConnectedPins()) {
+				if(!pin->read<bool>()){
+					*outputPinValue = false;
+					return;
+				}
+			}
+			*outputPinValue = true;
+		}
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void AndNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void AndNode::inputProcess() {
-	if(in->hasMultipleConnections()){
-		*inputPinValue = false;
-		for(auto pin : in->getConnectedPins()) {
-			if(!pin->read<bool>()){
-				*outputPinValue = false;
-				return;
-			}
-		}
-		*outputPinValue = true;
-	}
-}
 
 
 
@@ -513,27 +567,31 @@ public:
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
-	virtual void inputProcess() override;
+	virtual void inputProcess() override{
+		if(in->hasMultipleConnections()){
+				*inputPinValue = false;
+				for(auto pin : in->getConnectedPins()) {
+					if(pin->read<bool>()){
+						*outputPinValue = true;
+						return;
+					}
+				}
+				*outputPinValue = false;
+			}
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		in->assignData(inputPinValue);
+		addNodePin(in);
+		out->assignData(outputPinValue);
+		addNodePin(out);
+	}
+
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 };
 
-void OrNode::initialize(){
-	in->assignData(inputPinValue);
-	addNodePin(in);
-	out->assignData(outputPinValue);
-	addNodePin(out);
-}
-
-void OrNode::inputProcess() {
-	if(in->hasMultipleConnections()){
-		*inputPinValue = false;
-		for(auto pin : in->getConnectedPins()) {
-			if(pin->read<bool>()){
-				*outputPinValue = true;
-				return;
-			}
-		}
-		*outputPinValue = false;
-	}
-}
 

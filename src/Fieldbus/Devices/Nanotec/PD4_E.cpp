@@ -18,7 +18,8 @@ void PD4_E::resetData() {
 	gpioDevice->state = DeviceState::OFFLINE;
 }
 
-void PD4_E::initialize() {
+void PD4_E::onConstruction() {
+	EtherCatDevice::onConstruction();
 	
 	servoMotor->positionUnit = Units::AngularDistance::Revolution;
 	

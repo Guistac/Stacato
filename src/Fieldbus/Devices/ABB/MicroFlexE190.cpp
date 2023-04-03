@@ -9,7 +9,9 @@ void MicroFlex_e190::onConnection() {}
 
 void MicroFlex_e190::onDisconnection() {}
 
-void MicroFlex_e190::initialize() {
+void MicroFlex_e190::onConstruction() {
+	
+	EtherCatDevice::onConstruction();
 	
 	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
 	

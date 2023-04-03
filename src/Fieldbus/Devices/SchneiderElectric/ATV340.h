@@ -10,6 +10,11 @@ public:
 
 	DEFINE_ETHERCAT_DEVICE(ATV340, "ATV340", "ATV340", "Schneider Electric", "Motor Drives", 0x800005A, 0x12C)
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		EtherCatDevice::onCopyFrom(source);
+	};
+	
 	//Process Data
 	std::shared_ptr<DS402Axis> axis;
 	int16_t motorEffort = 0;

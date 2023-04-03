@@ -4,21 +4,44 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
+#include "Legato/Editor/Component.h"
+
 #define DEFINE_NODE(className, nodeName, saveName, type, category) \
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
+	public:\
 	virtual const char* getSaveName() override { return saveName; }\
 	virtual const char* getNodeCategory() override { return category; }\
-	className(){ setName(nodeName); }\
 	virtual Node::Type getType() override { return type; }\
-	virtual std::shared_ptr<Node> getNewInstance() override {\
-		std::shared_ptr<Node> newInstance = std::make_shared<className>();\
-		newInstance->initialize();\
-		return newInstance;\
-	}\
-	virtual void initialize() override;\
 
 namespace tinyxml2 { class XMLElement; }
 
-class Node : public std::enable_shared_from_this<Node>{
+class Node : public Legato::Component{
+	
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
+	
+protected:
+	
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		bool success = true;
+		return success;
+	}
+	
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		bool success = true;
+		return success;
+	}
+	
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Component::onCopyFrom(source);
+		
+	}
+	
 public:
 
 	enum class Type {
@@ -30,8 +53,6 @@ public:
 		CONTAINER
 	};
 	
-	virtual std::shared_ptr<Node> getNewInstance() = 0;
-	virtual void initialize() = 0;
 	virtual Type getType() = 0;
 	
 	virtual const char* getSaveName() = 0;

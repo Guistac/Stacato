@@ -10,6 +10,7 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
+/*
 void Machine::nodeSpecificGui() {
 
 	if (ImGui::BeginTabItem("Controls")) {
@@ -186,3 +187,4 @@ void Machine::machineStateControlGui(float width){
 	}
 	ImGui::EndDisabled();
 }
+*/

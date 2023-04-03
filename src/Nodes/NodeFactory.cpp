@@ -5,7 +5,7 @@
 
 namespace NodeFactory {
 
-	std::vector<Node*> allNodes;
+	std::vector<std::shared_ptr<Node>> allNodes;
 
 	void load() {
 		loadEtherCatNodes(allNodes);
@@ -15,8 +15,8 @@ namespace NodeFactory {
 	}
 
 	std::shared_ptr<Node> getNodeBySaveName(const char* saveName){
-		for (Node* node : allNodes) {
-			if (strcmp(saveName, node->getSaveName()) == 0) return node->getNewInstance();
+		for (auto node : allNodes) {
+			if (strcmp(saveName, node->getSaveName()) == 0) return node->duplicate();
 		}
 		return nullptr;
 	}

@@ -20,10 +20,8 @@ public:
 	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
-
-	virtual void inputProcess() override;
 	
-	virtual void nodeSpecificGui() {
+	virtual void nodeSpecificGui() override {
 		if (ImGui::BeginTabItem("Plot")) {
 			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) data.setMaxSize(bufferSize);
 			ImGui::InputFloat("Display Length Second", &displayLengthSeconds, 0.1, 1.0, "%.1fs");
@@ -38,7 +36,7 @@ public:
 		}
 	}
 
-	virtual bool load(tinyxml2::XMLElement* xml) { 
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		Logger::trace("Loading Plotter Node Specific Attributes for node {}", getName());
 		XMLElement* plotterXML = xml->FirstChildElement("Plotter");
@@ -49,37 +47,39 @@ public:
 		return true;
 	}
 
-	virtual bool save(tinyxml2::XMLElement* xml) {
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		XMLElement* plotterXML = xml->InsertNewChildElement("Plotter");
 		plotterXML->SetAttribute("BufferSize", bufferSize);
 		plotterXML->SetAttribute("DisplayLengthSeconds", displayLengthSeconds);
 		return true;
 	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		input->assignData(inputPinValue);
+		addNodePin(input);
+		data.setMaxSize(bufferSize);
+	};
+	
+	void inputProcess() override {
+		if (input->isConnected()) {
+			input->copyConnectedPinValue();
+			if (!wasConnected) {
+				wasConnected = true;
+				data.clear();
+			}
+			glm::vec2 newPoint;
+			newPoint.x = Timing::getProgramTime_seconds();
+			newPoint.y = *inputPinValue;
+			data.addPoint(newPoint);
+		}
+		else {
+			if (wasConnected) {
+				data.clear();
+				wasConnected = false;
+			}
+		}
+	}
+	
 };
-
-void PlotterNode::initialize(){
-	input->assignData(inputPinValue);
-	addNodePin(input);
-	data.setMaxSize(bufferSize);
-}
-
-void PlotterNode::inputProcess() {
-	if (input->isConnected()) {
-		input->copyConnectedPinValue();
-		if (!wasConnected) {
-			wasConnected = true;
-			data.clear();
-		}
-		glm::vec2 newPoint;
-		newPoint.x = Timing::getProgramTime_seconds();
-		newPoint.y = *inputPinValue;
-		data.addPoint(newPoint);
-	}
-	else {
-		if (wasConnected) {
-			data.clear();
-			wasConnected = false;
-		}
-	}
-}

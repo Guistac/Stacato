@@ -32,7 +32,10 @@ void BusCoupler::onConnection() {
 	gpioDevice->state = DeviceState::ENABLED;
 }
 
-void BusCoupler::initialize() {
+void BusCoupler::onConstruction() {
+	
+	EtherCAT::ModularDeviceProfile::ModularDevice::onConstruction();
+	
 	//by default, this node only has one pin
 	//no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());

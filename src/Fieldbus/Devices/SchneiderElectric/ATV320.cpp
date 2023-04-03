@@ -8,7 +8,9 @@ void ATV320::onConnection() {
 void ATV320::onDisconnection() {
 }
 
-void ATV320::initialize() {
+void ATV320::onConstruction() {
+	
+	EtherCatDevice::onConstruction();
 	
 	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
 	actuator = std::make_shared<ATV_Motor>(thisDrive);

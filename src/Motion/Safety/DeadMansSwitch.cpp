@@ -6,7 +6,9 @@
 #include "Environnement/Environnement.h"
 #include "Machine/Machine.h"
 
-void DeadMansSwitch::initialize(){
+void DeadMansSwitch::onConstruction(){
+	Node::onConstruction();
+	
 	addNodePin(gpioDevicePin);
 	addNodePin(switchPressedPin);
 	addNodePin(switchLedPin);
@@ -66,11 +68,13 @@ void DeadMansSwitch::outputProcess(){
     for(auto connectedPin : deadMansSwitchLink->getConnectedPins()){
         auto node = connectedPin->getNode();
         if(node->getType() != Node::Type::MACHINE) continue;
+		/*
         auto machine = std::static_pointer_cast<Machine>(node);
         if(machine->isMoving()){
             b_anyMachineMoving = true;
             break;
         }
+		*/
     }
     b_shouldKeepPressing = b_anyMachineMoving;
 }

@@ -22,7 +22,7 @@ namespace Environnement::NodeGraph::Gui{
 			ImGui::Text("Node Library");
 			ImGui::PopFont();
 		
-			auto listNodes = [](const std::vector<Node*>& nodes){
+			auto listNodes = [](const std::vector<std::shared_ptr<Node>>& nodes){
 				for (auto& node : nodes) {
 					const char* nodeDisplayName = node->getName();
 					ImGui::Selectable(nodeDisplayName);
@@ -131,13 +131,6 @@ namespace Environnement::NodeGraph::Gui{
 					ImGui::TreePop();
 				}
 				
-				if (ImGui::TreeNode("Utilities")) {
-					ImGui::PushFont(Fonts::sansRegular15);
-					listNodes(NodeFactory::getAllMotionUtilityNodes());
-					ImGui::PopFont();
-					ImGui::TreePop();
-				}
-				
 			}
 			ImGui::PopFont();
 		
@@ -196,9 +189,9 @@ namespace Environnement::NodeGraph::Gui{
 
 		std::shared_ptr<Node> output = nullptr;
 		
-		auto listNodes = [&](const std::vector<Node*> nodes){
+		auto listNodes = [&](const std::vector<std::shared_ptr<Node>>& nodes){
 			for (auto node : nodes) {
-				if (ImGui::MenuItem(node->getName())) output = node->getNewInstance();
+				if (ImGui::MenuItem(node->getName())) output = node->duplicate();
 			}
 		};
 
@@ -256,10 +249,6 @@ namespace Environnement::NodeGraph::Gui{
 			}
 			if (ImGui::BeginMenu("Safety")) {
 				listNodes(NodeFactory::getAllSafetyNodes());
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Utilities")) {
-				listNodes(NodeFactory::getAllMotionUtilityNodes());
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();

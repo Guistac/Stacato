@@ -29,6 +29,7 @@ void NodeManagerWindow::onDraw(){
 	ImGui::BeginChild("NodeSelectionList", glm::vec2(listWidth, ImGui::GetContentRegionAvail().y));
 	if(ImGui::BeginTabBar("NodeTypeSelector")){
 		
+		/*
 		if(ImGui::BeginTabItem("Machines")){
 			
 			
@@ -82,7 +83,7 @@ void NodeManagerWindow::onDraw(){
 			ImGui::EndTabItem();
 		}
 		
-		
+		*/
 		
 		if(ImGui::BeginTabItem("EtherCAT Devices")){
 			

@@ -9,6 +9,11 @@ public:
 	
 	DEFINE_NODE(DeadMansSwitch, "Dead Man's Switch", "DeadMansSwitch", Node::Type::PROCESSOR, "Safety")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Node::onCopyFrom(source);
+	}
+	
 	enum class State{
 		NOT_CONNECTED,
 		NOT_PRESSED,

@@ -8,17 +8,17 @@
 
 namespace NodeFactory{
 
-	std::vector<Node*> allNetworkNodes;
+	std::vector<std::shared_ptr<Node>> allNetworkNodes;
 
-	void loadNetworkNodes(std::vector<Node*>& nodeList){
+	void loadNetworkNodes(std::vector<std::shared_ptr<Node>>& nodeList){
 		allNetworkNodes = {
-			new OscDevice(),
-			new PsnServer(),
-			new ArtNetNode()
+			OscDevice::createInstance(),
+			PsnServer::createInstance(),
+			ArtNetNode::createInstance()
 		};
 		nodeList.insert(nodeList.end(), allNetworkNodes.begin(), allNetworkNodes.end());
 	}
 
-	std::vector<Node*>& getAllNetworkNodes(){ return allNetworkNodes; }
+	std::vector<std::shared_ptr<Node>>& getAllNetworkNodes(){ return allNetworkNodes; }
 
 }

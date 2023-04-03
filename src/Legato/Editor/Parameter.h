@@ -2,7 +2,7 @@
 
 #include "Component.h"
 
-class BaseParameter : public Component{
+class BaseParameter : public Legato::Component{
 	
 	DECLARE_PROTOTYPE_INTERFACE_METHODS(BaseParameter)
 

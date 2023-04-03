@@ -14,6 +14,7 @@
 #include "Animation/NewAnimation/AnimatableRegistry.h"
 #include "Animation/NewAnimation/PositionAnimatable.h"
 
+/*
 class PositionControlledMachine : public Machine, public AnimationSystem::AnimatableOwner{
 	
 	DEFINE_MACHINE_NODE(PositionControlledMachine, "Position Controlled Machine", "PositionControlledMachine", "Basic")
@@ -116,3 +117,4 @@ class PositionControlledMachine : public Machine, public AnimationSystem::Animat
 	double velocitySliderValue = .0f;
 	double positionTargetValue = .0f;
 };
+*/

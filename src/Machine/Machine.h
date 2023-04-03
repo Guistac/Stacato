@@ -18,9 +18,44 @@ class Device;
 namespace tinyxml2{ struct XMLElement; }
 
 
+#include "Animation/NewAnimation/AnimatableOwner.h"
 
+class NewMachine : public Node, public AnimationSystem::AnimatableOwner{
+public:
+	
+	
+	DeviceState getState() { return state; }
+	bool isEmergencyStopActive() { return b_emergencyStopActive; }
+	bool isHalted() { return b_isHalted; }
+	bool isMoving(){ return b_isMoving; }
+	
+	void enable(){ b_enable = true; }
+	void disable(){ b_disable = true; }
+	
+	virtual void inputProcess() override = 0;
+	virtual void outputProcess() override = 0;
+	virtual bool needsOutputProcess() override = 0;
+	
+private:
+	
+	DeviceState state = DeviceState::OFFLINE;
+	bool b_emergencyStopActive = false;
+	bool b_isHalted = false;
+	bool b_isMoving = false;
+	bool b_enable = false;
+	bool b_disable = false;
+	
+	std::shared_ptr<NodePin> deadMansSwitchPin = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH,
+																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+																		   "Dead Man's Switch", "DeadMansSwitch",
+																		   NodePin::Flags::AcceptMultipleInputs);
+	
+};
+
+
+/*
 #define DEFINE_MACHINE_NODE(className, nodeName, saveName, category) public:																	\
-	/*Node Specific*/																															\
+																																				\
 	virtual const char* getSaveName() override { return saveName; }																				\
 	virtual const char* getNodeCategory() override { return category; }																			\
 	className(){ setName(nodeName); }																											\
@@ -34,8 +69,8 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual std::string getStatusString() override;																								\
 	virtual void initialize() override;																											\
 	virtual void inputProcess() override;																										\
-	virtual void outputProcess()override;																										\
-	/*Machine Specific*/																														\
+	virtual void outputProcess() override;																										\
+																																				\
 	virtual void controlsGui() override;																										\
 	virtual void settingsGui() override;																										\
 	virtual void axisGui() override;																											\
@@ -55,8 +90,9 @@ namespace tinyxml2{ struct XMLElement; }
 	virtual bool saveMachine(tinyxml2::XMLElement* xml) override;																				\
 	virtual bool loadMachine(tinyxml2::XMLElement* xml) override;																				\
 	virtual void getDevices(std::vector<std::shared_ptr<Device>>& output) override;																\
-	/*AnimatableOwner Specific*/																												\
+																																				\
 	virtual void fillAnimationDefaults(std::shared_ptr<Animation> animation) override;															\
+
 
 class Machine : public Node {
 public:
@@ -154,7 +190,9 @@ private:
 	std::vector<std::shared_ptr<AnimationSystem::Animatable>> animatables;
 
 };
-
+*/
+ 
+ 
 //animatable controls the virtual target value
 //rapidAnimatableToValue()
 //cancelAnimatableRapid()
@@ -173,3 +211,13 @@ private:
 //fillAnimationDefaults()
 //validateAnimation()
 //generateTargetAnimation()
+
+
+
+
+
+
+//what is a machine ?
+//it's a control unit that represents a set of actuators
+//all machines have a power state and power state control
+//all machines also have a dead man's switch pin, can be halted or emergency stopped

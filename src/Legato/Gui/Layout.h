@@ -2,7 +2,7 @@
 
 #include "Legato/Editor/Component.h"
 
-class Layout : public Component{
+class Layout : public Legato::Component{
 
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(Layout)
 	

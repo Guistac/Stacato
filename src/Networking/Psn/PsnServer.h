@@ -30,6 +30,13 @@ public:
 class PsnServer : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(PsnServer, "PSN Server", "PsnServer")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		NetworkDevice::onCopyFrom(source);
+	};
+	
+public:
+
 	virtual void nodeSpecificGui() override;
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool save(tinyxml2::XMLElement* xml) override;

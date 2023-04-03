@@ -11,6 +11,11 @@ public:
 
     DEFINE_ETHERCAT_DEVICE(MicroFlex_e190, "MicroFlex e190", "MicroFlex_e190", "ABB", "Servo Drives", 0xB7, 0x2C1)
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		EtherCatDevice::onCopyFrom(source);
+	};
+	
 	//Process data
 	std::shared_ptr<DS402Axis> axis;
 	uint32_t digitalInputs;

@@ -5,7 +5,9 @@
 
 #include "Environnement/Environnement.h"
 
-void SafetySignal::initialize(){
+void SafetySignal::onConstruction(){
+	Node::onConstruction();
+	
 	addNodePin(gpioPin);
 	addNodePin(safetyLineValidPin);
 	addNodePin(safetyStateValidPin);

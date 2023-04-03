@@ -31,6 +31,11 @@ private:
 class ArtNetNode : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(ArtNetNode, "ArtNet Node", "ArtNetNode")
 	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		NetworkDevice::onCopyFrom(source);
+	};
+	
 	virtual void nodeSpecificGui() override;
 	virtual bool load(tinyxml2::XMLElement* xml) override;
 	virtual bool save(tinyxml2::XMLElement* xml) override;
