@@ -23,8 +23,12 @@ public:
 class ECAT_2515_6PortJunction : public EtherCatDevice {
 public:
 	DEFINE_ETHERCAT_DEVICE(ECAT_2515_6PortJunction, "ECAT-2515 6-Port EtherCAT Junction", "ECAT-2515", "ICPDAS", "Utilities", 0x494350, 0x9d3)
+	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
 };
+
+
+

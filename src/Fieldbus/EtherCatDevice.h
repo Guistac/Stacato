@@ -17,8 +17,16 @@
 //Device that are matched against a device class will return true for isDeviceKnown()
 //Unknown devices will not and will be of the base type EtherCatDevice
 
+
+//for some reason we can't use DEFINE_DEVICE_NODE in this macro, we get an undefined vtable...
 #define DEFINE_ETHERCAT_DEVICE(className, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
-	DEFINE_DEVICE_NODE(className, displayName, saveName, Device::Type::ETHERCAT_DEVICE, category)\
+	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+	/*Device Specific*/\
+	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
+	virtual void onConnection() override;\
+	virtual void onDisconnection() override;\
+	virtual void readInputs() override;\
+	virtual void writeOutputs() override;\
 	/*EtherCat Device Specific*/\
 	virtual const char* getManufacturerName() override { return manufacturerName; }\
 	virtual const char* getDeviceName() override{ return displayName; }\

@@ -22,22 +22,19 @@ namespace NodeFactory{
 	void loadEtherCatNodes(std::vector<std::shared_ptr<Node>>& nodeList) {
 		
 		allEtherCatDevices = {
-			//new EtherCatDevice(),
-			/*
-			Lexium32::createInstance().get(),
-			Lexium32i::createInstance().get(),
-			ATV320::createInstance().get(),
-			ATV340::createInstance().get(),
-			VipaBusCoupler_053_1EC01::createInstance().get(),
-			PhoenixContact::BusCoupler::createInstance().get(),
-			PD4_E::createInstance().get(),
-			MicroFlex_e190::createInstance().get(),
-			CU1128::createInstance().get(),
-			CU1124::createInstance().get(),
-            ECAT_2511_A_FiberConverter::createInstance().get(),
-            ECAT_2511_B_FiberConverter::createInstance().get(),
-			ECAT_2515_6PortJunction::createInstance().get()
-			 */
+			Lexium32::createInstance(),
+			Lexium32i::createInstance(),
+			ATV320::createInstance(),
+			ATV340::createInstance(),
+			VipaBusCoupler_053_1EC01::createInstance(),
+			PhoenixContact::BusCoupler::createInstance(),
+			PD4_E::createInstance(),
+			MicroFlex_e190::createInstance(),
+			CU1128::createInstance(),
+			CU1124::createInstance(),
+            ECAT_2511_A_FiberConverter::createInstance(),
+            ECAT_2511_B_FiberConverter::createInstance(),
+			ECAT_2515_6PortJunction::createInstance()
 		};
 
 		//sort devices by manufacturer
