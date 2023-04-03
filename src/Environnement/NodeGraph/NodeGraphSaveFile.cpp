@@ -38,7 +38,7 @@ namespace Environnement::NodeGraph{
 			else {
 				nodeXML->SetAttribute("ClassName", node->getSaveName());
 			}
-			nodeXML->SetAttribute("CustomName", node->getName());
+			nodeXML->SetAttribute("CustomName", node->getName().c_str());
 			nodeXML->SetAttribute("UniqueID", node->getUniqueID());
 
 			if (!node->isSplit()) {
@@ -301,7 +301,7 @@ namespace Environnement::NodeGraph{
 		
 		for(auto node : Environnement::NodeGraph::getNodes()){
 			if(!node->loadAfterLinksConnected(node->xmlElement)){
-				Logger::warn("Could not load node {} after all links connected", node->name);
+				Logger::warn("Could not load node {} after all links connected", node->getName());
 			}
 		}
 		

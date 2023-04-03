@@ -44,7 +44,7 @@ void DeadMansSwitch::widgetGui(){
 	glm::vec2 buttonSize(width, ImGui::GetTextLineHeight() * 1.5);
 	
 	ImGui::PushFont(Fonts::sansBold20);
-	centeredText(getName(), ImVec2(width, ImGui::GetTextLineHeight()));
+	centeredText(getName().c_str(), ImVec2(width, ImGui::GetTextLineHeight()));
 	ImGui::PopFont();
     
     glm::vec2 statusSize(width, ImGui::GetTextLineHeight() * 3.0);

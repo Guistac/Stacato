@@ -40,7 +40,7 @@ void topologyConnectionIssues(){
 		startFrame(Colors::almostBlack, 1.0, Colors::red, ImVec2(ImGui::GetContentRegionAvail().x, 0));
 		
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", device->getName());
+		ImGui::Text("%s", device->getName().c_str());
 		ImGui::SameLine(.0f, idVignetteSpacing);
 		device->deviceIdVignette();
 		
@@ -121,7 +121,7 @@ void networkTopology(){
 			ImGui::BeginTooltip();
 			static auto drawDevicePortErrors = [](std::shared_ptr<EtherCatDevice> device, int port){
 				ImGui::PushFont(Fonts::sansBold15);
-				ImGui::Text("%s", device->getName());
+				ImGui::Text("%s", device->getName().c_str());
 				ImGui::PopFont();
 				ImGui::SameLine();
 				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -206,7 +206,7 @@ void networkTopology(){
 					auto& portErrors = device->errorCounters.portErrors[port];
 					
 					ImGui::PushFont(Fonts::sansBold15);
-					ImGui::Text("%s", device->getName());
+					ImGui::Text("%s", device->getName().c_str());
 					ImGui::PopFont();
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -270,7 +270,7 @@ void networkTopology(){
 		
 		startFrame(deviceBackgroundColor, deviceOutlineWidth, Colors::black);
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%i - %s", connection->childDevice->getSlaveIndex(), connection->childDevice->getName());
+		ImGui::Text("%i - %s", connection->childDevice->getSlaveIndex(), connection->childDevice->getName().c_str());
 		ImGui::PopFont();
 		ImGui::SameLine(.0f, idVignetteSpacing);
 		static char idString[32];
@@ -367,7 +367,7 @@ void listNetworkConnections(){
 			ImGui::BeginTooltip();
 			static auto drawDevicePortErrors = [](std::shared_ptr<EtherCatDevice> device, int port){
 				ImGui::PushFont(Fonts::sansBold15);
-				ImGui::Text("%s", device->getName());
+				ImGui::Text("%s", device->getName().c_str());
 				ImGui::PopFont();
 				ImGui::SameLine();
 				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -447,7 +447,7 @@ void listNetworkConnections(){
 					auto& portErrors = device->errorCounters.portErrors[port];
 					
 					ImGui::PushFont(Fonts::sansBold15);
-					ImGui::Text("%s", device->getName());
+					ImGui::Text("%s", device->getName().c_str());
 					ImGui::PopFont();
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
@@ -495,7 +495,7 @@ void listNetworkConnections(){
 			
 			startFrame(deviceBackgroundColor, deviceOutlineWidth, Colors::black);
 			ImGui::PushFont(Fonts::sansBold15);
-			ImGui::Text("%i - %s", parentDevice->getSlaveIndex(), parentDevice->getName());
+			ImGui::Text("%i - %s", parentDevice->getSlaveIndex(), parentDevice->getName().c_str());
 			ImGui::PopFont();
 			ImGui::SameLine(.0f, idVignetteSpacing);
 			static char idString[32];
@@ -546,7 +546,7 @@ void listNetworkConnections(){
 		
 		startFrame(deviceBackgroundColor, deviceOutlineWidth, Colors::black);
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%i - %s", connection->childDevice->getSlaveIndex(), connection->childDevice->getName());
+		ImGui::Text("%i - %s", connection->childDevice->getSlaveIndex(), connection->childDevice->getName().c_str());
 		ImGui::PopFont();
 		ImGui::SameLine(.0f, idVignetteSpacing);
 		static char idString[32];
@@ -569,7 +569,7 @@ void listNetworkConnections(){
 
 
 void drawDeviceConnections(std::shared_ptr<EtherCatDevice> device){
-	if(ImGui::CollapsingHeader(device->getName())){
+	if(ImGui::CollapsingHeader(device->getName().c_str())){
 		ImGui::TreePush();
 		for(auto connection : device->connections){
 			if(connection->parentDevice == device){

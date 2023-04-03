@@ -155,7 +155,7 @@ void etherCatParameters() {
 			ImGui::Text("Detected Devices:");
 			ImGui::PopFont();
 			for(auto& device : EtherCatFieldbus::getDevices()){
-				ImGui::Text("%s", device->getName());
+				ImGui::Text("%s", device->getName().c_str());
 			}
 			ImGui::EndTooltip();
 		}

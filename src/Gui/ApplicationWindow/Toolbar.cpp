@@ -127,7 +127,7 @@ namespace Stacato::Gui {
 			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
 			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
 			else networkDeviceStatusColor = Colors::red;
-			backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
+			backgroundText(networkDevice->getName().c_str(), buttonSize, networkDeviceStatusColor);
 		}
 		
 		ImGui::EndGroup();

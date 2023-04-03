@@ -58,7 +58,7 @@ void NodeEditorWindow::onDraw(){
 	 else if (selectedNodes.size() == 1) {
 		std::shared_ptr<Node> selectedNode = selectedNodes.front();
 		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("%s", selectedNode->getName());
+		ImGui::Text("%s", selectedNode->getName().c_str());
 		ImGui::PopFont();
 		ImGui::Separator();
 		if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {

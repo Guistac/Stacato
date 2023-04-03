@@ -16,7 +16,7 @@ namespace EtherCatError {
 		std::shared_ptr<EtherCatDevice> errorSlave = nullptr;
 		if (error.Slave <= EtherCatFieldbus::getDevices().size() && error.Slave > 0) errorSlave = EtherCatFieldbus::getDevices()[error.Slave - 1];
 		const char* slaveName;
-		if (errorSlave != nullptr) slaveName = errorSlave->getName();
+		if (errorSlave != nullptr) slaveName = errorSlave->getName().c_str();
 		else slaveName = "";
 		const char* errorString;
 

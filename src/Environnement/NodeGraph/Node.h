@@ -57,12 +57,6 @@ public:
 	
 	virtual const char* getSaveName() = 0;
 	virtual const char* getNodeCategory() = 0;
-	void setName(const char* n) { strcpy(name, n); }
-	const char* getName() { return name; }
-	char* getNameBuffer(int& bufferSize) {
-		bufferSize = 128;
-		return name;
-	}
 
 	//pin handling
 	void addNodePin(std::shared_ptr<NodePin> d);
@@ -126,12 +120,6 @@ public:
 	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool loadAfterLinksConnected(tinyxml2::XMLElement* xml) { return true; }
-	tinyxml2::XMLElement* xmlElement = nullptr;
-
-	
-	
-
-	char name[128];
 
 	bool b_isInNodeGraph = false;
 	int uniqueID = -1;

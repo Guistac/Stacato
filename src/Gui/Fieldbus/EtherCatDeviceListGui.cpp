@@ -29,7 +29,7 @@ void etherCatSlaves() {
 	if (ImGui::BeginListBox("##DiscoveredEtherCATSlaves", listWidth)) {
 		for (auto slave : EtherCatFieldbus::getDevices()) {
 			bool selected = selectedSlaveIndex == slave->getSlaveIndex();
-			if (ImGui::Selectable(slave->getName(), &selected)) selectedSlaveIndex = slave->getSlaveIndex();
+			if (ImGui::Selectable(slave->getName().c_str(), &selected)) selectedSlaveIndex = slave->getSlaveIndex();
 		}
 		if (EtherCatFieldbus::getDevices().empty()) {
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -90,7 +90,7 @@ void EtherCatDevicesWindow::onDraw(){
 		ImGui::PopFont();
 		ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
 		ImGui::SetCursorPosY(cursor.y + (deviceSize.y - ImGui::GetTextLineHeight()) * .5f);
-		ImGui::Text("%s", etherCatDevice->getName());
+		ImGui::Text("%s", etherCatDevice->getName().c_str());
 		ImGui::SetCursorPos(endCursor);
 		
 		if(b_hovered){

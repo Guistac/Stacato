@@ -14,14 +14,14 @@ namespace NodeEditor = ax::NodeEditor;
 
 float Node::getTitleWidth() {
     ImGui::PushFont(Fonts::sansBold15);
-    float width = ImGui::CalcTextSize(getName()).x;
+    float width = ImGui::CalcTextSize(getName().c_str()).x;
     ImGui::PopFont();
     return width;
 }
 
 void Node::titleGui() {
     ImGui::PushFont(Fonts::sansBold15);
-    ImGui::Text("%s", getName());
+    ImGui::Text("%s", getName().c_str());
     ImGui::PopFont();
 }
 
@@ -67,7 +67,7 @@ void Node::nodeGui() {
             ImVec2 cursor = ImVec2(min.x + 8, min.y - ImGui::GetTextLineHeightWithSpacing() - 4);
             ImGui::SetCursorScreenPos(cursor);
             ImGui::BeginGroup();
-            ImGui::TextUnformatted(getName());
+            ImGui::TextUnformatted(getName().c_str());
             ImGui::EndGroup();
             NodeEditor::EndGroupHint();
         }
@@ -297,7 +297,9 @@ void Node::propertiesGui() {
             };
 
             ImGui::Text("Node Name");
-            ImGui::InputText("##nodeCustomName", (char*)getName(), 128);
+			//nameParameter->gui();
+			ImGui::TextColored(Colors::red, "This could break and should be a parameter field in the future");
+            ImGui::InputText("##nodeCustomName", (char*)getName().c_str(), 128);
 
             if (getType() == Node::Type::IODEVICE) {
                 ImGui::Checkbox("Split Inputs and Outputs", &b_isSplit);

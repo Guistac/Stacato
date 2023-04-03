@@ -123,7 +123,7 @@ void NodeManagerWindow::onDraw(){
 						ImGui::PopFont();
 
 						ImGui::SameLine();
-						ImGui::Text("%s", etherCatDevice->getName());
+						ImGui::Text("%s", etherCatDevice->getName().c_str());
 						
 						
 						ReorderableList::endItem();
@@ -164,7 +164,7 @@ void NodeManagerWindow::onDraw(){
 	
 
 						ImGui::SameLine();
-						ImGui::Text("%s", networkDevice->getName());
+						ImGui::Text("%s", networkDevice->getName().c_str());
 						
 						
 						ReorderableList::endItem();
@@ -200,8 +200,8 @@ void NodeManagerWindow::onDraw(){
 			for(auto& selectedNode : selectedNodes){
 				ImGui::PushID(selectedNode->getUniqueID());
 				
-				if(ImGui::BeginTabItem(selectedNode->getName())){
-					if(ImGui::BeginTabBar(selectedNode->getName())){
+				if(ImGui::BeginTabItem(selectedNode->getName().c_str())){
+					if(ImGui::BeginTabBar(selectedNode->getName().c_str())){
 						selectedNode->nodeSpecificGui();
 						ImGui::EndTabBar();
 					}

@@ -36,6 +36,13 @@ public:
 	virtual void outputProcess() override = 0;
 	virtual bool needsOutputProcess() override = 0;
 	
+	virtual void onAddToNodeGraph() override {
+		//add animatables to animatable registry
+	}
+	virtual void onRemoveFromNodeGraph() override {
+		//remove animatables from animatable registry
+	}
+	
 private:
 	
 	DeviceState state = DeviceState::OFFLINE;

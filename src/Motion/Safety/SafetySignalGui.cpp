@@ -37,7 +37,7 @@ void SafetySignal::widgetGui(){
 	glm::vec2 blockSize(ImGui::GetTextLineHeight() * 7.0, ImGui::GetTextLineHeight() * 1.5);
 	
 	ImGui::PushFont(Fonts::sansBold20);
-	centeredText(getName(), glm::vec2(blockSize.x, ImGui::GetTextLineHeight()));
+	centeredText(getName().c_str(), glm::vec2(blockSize.x, ImGui::GetTextLineHeight()));
 	ImGui::PopFont();
 	
 	ImGui::PushFont(Fonts::sansBold15);

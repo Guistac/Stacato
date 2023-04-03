@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Parameter.h"
+#include <imgui.h>
 
 class NewStringParameter : public BaseParameter{
 	
@@ -18,7 +19,9 @@ public:
 	
 	void setValue(std::string newValue){ value = newValue; }
 	
-	virtual void gui() override {}
+	virtual void gui() override {
+		ImGui::Text("Parameter is not editable for now...");
+	}
 	
 private:
 	

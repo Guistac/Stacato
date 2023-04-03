@@ -123,7 +123,7 @@ namespace Environnement::NodeGraph::Gui{
 				int nodeID = contextNodeId.Get();
 				if(nodeID > INT_MAX / 2) nodeID = INT_MAX - nodeID;
 				std::shared_ptr<Node> node = getNode(nodeID);
-				ImGui::Text("Node : %s", node->getName());
+				ImGui::Text("Node : %s", node->getName().c_str());
 				ImGui::SameLine();
 				ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 				ImGui::Text("(#%i)", node->getUniqueID());
@@ -170,7 +170,7 @@ namespace Environnement::NodeGraph::Gui{
 							connectedPin->getDisplayString(),
 							Enumerator::getDisplayString(connectedPin->dataType),
 							connectedPin->getUniqueID(),
-							connectedPin->parentNode->getName(),
+							connectedPin->parentNode->getName().c_str(),
 							connectedPin->parentNode->getUniqueID());
 					}
 					ImGui::EndMenu();
@@ -188,8 +188,8 @@ namespace Environnement::NodeGraph::Gui{
 			if (ImGui::BeginPopup("Link Context Menu")) {
 				std::shared_ptr<NodeLink> link = getLink(contextLinkId.Get());
 				ImGui::Text("Link #%i", link->getUniqueID());
-				ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayString(), link->getInputData()->parentNode->getName());
-				ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayString(), link->getOutputData()->parentNode->getName());
+				ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayString(), link->getInputData()->parentNode->getName().c_str());
+				ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayString(), link->getOutputData()->parentNode->getName().c_str());
 				ImGui::Separator();
 				if (ImGui::MenuItem("Disconnect")) disconnect(link);
 				ImGui::EndPopup();

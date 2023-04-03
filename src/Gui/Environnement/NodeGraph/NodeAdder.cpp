@@ -24,7 +24,7 @@ namespace Environnement::NodeGraph::Gui{
 		
 			auto listNodes = [](const std::vector<std::shared_ptr<Node>>& nodes){
 				for (auto& node : nodes) {
-					const char* nodeDisplayName = node->getName();
+					const char* nodeDisplayName = node->getName().c_str();
 					ImGui::Selectable(nodeDisplayName);
 					const char* nodeSaveName = node->getSaveName();
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -88,7 +88,7 @@ namespace Environnement::NodeGraph::Gui{
 				ImGui::TreePush();
 				
 				for (auto device : EtherCatFieldbus::getUnmatchedDevices()) {
-					const char* deviceDisplayName = device->getName();
+					const char* deviceDisplayName = device->getName().c_str();
 					ImGui::Selectable(deviceDisplayName);
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
 						ImGui::SetDragDropPayload("DetectedEtherCatDevice", &device, sizeof(std::shared_ptr<EtherCatDevice>));
@@ -191,7 +191,7 @@ namespace Environnement::NodeGraph::Gui{
 		
 		auto listNodes = [&](const std::vector<std::shared_ptr<Node>>& nodes){
 			for (auto node : nodes) {
-				if (ImGui::MenuItem(node->getName())) output = node->duplicate();
+				if (ImGui::MenuItem(node->getName().c_str())) output = node->duplicate();
 			}
 		};
 
@@ -221,7 +221,7 @@ namespace Environnement::NodeGraph::Gui{
 		if (!EtherCatFieldbus::getUnmatchedDevices().empty()) {
 			if (ImGui::BeginMenu("Detected Slaves")) {
 				for (auto detectedSlave : EtherCatFieldbus::getUnmatchedDevices()) {
-					if (ImGui::MenuItem(detectedSlave->getName())) {
+					if (ImGui::MenuItem(detectedSlave->getName().c_str())) {
 						output = detectedSlave;
 						selectedDetectedSlave = detectedSlave;
 						EtherCatFieldbus::removeUnmatchedDevice(selectedDetectedSlave);

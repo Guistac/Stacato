@@ -494,11 +494,11 @@ namespace EtherCatFieldbus {
 				char name[128];
 				if (explicitDeviceIdSupported && explicitDeviceID != 0) {
 					slave->identificationType = EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID;
-					sprintf(name, "%s (ID:%i)", slave->getName(), slave->explicitDeviceID);
+					sprintf(name, "%s (ID:%i)", slave->getName().c_str(), slave->explicitDeviceID);
 				}
 				else {
 					slave->identificationType = EtherCatDevice::IdentificationType::STATION_ALIAS;
-					sprintf(name, "%s (Alias:%i)", slave->getName(), slave->stationAlias);
+					sprintf(name, "%s (Alias:%i)", slave->getName().c_str(), slave->stationAlias);
 				}
 				slave->setName(name);
 				discoveredDevicesUnmatched.push_back(slave);
@@ -553,7 +553,7 @@ namespace EtherCatFieldbus {
 						float configurationProgress = device->getSlaveIndex() * confIncrement + confProgStart;
 						
 						static char slaveConfigurationString[256];
-						sprintf(slaveConfigurationString, "Configuring %s", device->getName());
+						sprintf(slaveConfigurationString, "Configuring %s", device->getName().c_str());
 						startupProgress.setProgress(configurationProgress, slaveConfigurationString);
 						
 						Logger::debug("Configuring Slave '{}'", device->getName());
