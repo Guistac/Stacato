@@ -13,7 +13,7 @@ void StacatoProject::onConstruction() {
 	defaultPlot->setName("Default Plot");
 	setCurrentPlot(defaultPlot);
 	
-	Environnement::createNew();
+	environnement = EnvironnementObject::createInstance();
 	
 	layouts = LayoutList::createInstance();
 }

@@ -13,6 +13,9 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
+#include "Stacato/StacatoEditor.h"
+#include "Stacato/Project/StacatoProject.h"
+
 namespace AnimationSystem{
 
 	void Manoeuvre::editorGui(){
@@ -68,7 +71,8 @@ namespace AnimationSystem{
 			};
 			
 			if (ImGui::BeginPopup("AnimatableSelector")) {
-				auto& animatableOwners = Environnement::getAnimatableRegistry()->getAnimatableOwners();
+				
+				auto& animatableOwners = Stacato::Editor::getCurrentProject()->getAnimatableRegistry()->getAnimatableOwners();
 				for (int i = 0; i < animatableOwners.size(); i++) {
 					auto animatableOwner = animatableOwners[i];
 					auto& animatables = animatableOwner->getAnimatables();

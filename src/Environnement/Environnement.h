@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Legato/Editor/Component.h"
+
 namespace AnimationSystem{
-class AnimatableRegistry;
+	class AnimatableRegistry;
 };
 
 class NodeGraph;
@@ -14,10 +16,21 @@ class NetworkDevice;
 class Script;
 class Command;
 
-namespace Environnement{
 
+class EnvironnementObject : public Legato::Component{
+public:
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(EnvironnementObject)
+ 
+	protected:
+	 
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	
 	//project interface
-	void createNew();
+	//void createNew();
 	bool save(const char* filePath);
 	bool load(const char* filePath);
 
@@ -25,14 +38,14 @@ namespace Environnement{
 	void terminate();
 
 	//project text information
-	void setName(const char* _name);
-	const char* getName();
-	void updateName();
-	const char* getNotes();
-	void setNotes(const char* _notes);
+	//void setName(const char* _name);
+	//const char* getName();
+	//void updateName();
+	//const char* getNotes();
+	//void setNotes(const char* _notes);
 
 	//main environnement controls
-	void setSimulation(bool sim);
+	//void setSimulation(bool sim);
 	void start();
 	void stop();
 	void enableAllMachines();
@@ -42,15 +55,15 @@ namespace Environnement{
 	bool isReady();
 	bool isStarting();
 	bool isRunning();
-	bool isSimulating();
+	//bool isSimulating();
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
 
 	//environnement timing
-	double getTime_seconds();
-	long long int getTime_nanoseconds();
-	double getDeltaTime_seconds();
-	long long int getDeltaTime_nanoseconds();
+	//double getTime_seconds();
+	//long long int getTime_nanoseconds();
+	//double getDeltaTime_seconds();
+	//long long int getDeltaTime_nanoseconds();
 
 	//update method driven by fieldbus
 	void updateEtherCatHardware();
@@ -64,7 +77,6 @@ namespace Environnement{
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
-	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry();
-
-	std::recursive_mutex* getMutex();
+	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
+	
 };

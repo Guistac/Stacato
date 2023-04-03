@@ -18,8 +18,8 @@ namespace Environnement {
 
 		XMLElement* environnementXML = document.NewElement("Environnement");
 		document.InsertEndChild(environnementXML);
-		environnementXML->SetAttribute("name", Environnement::getName());
-		environnementXML->SetAttribute("notes", Environnement::getNotes());
+		//environnementXML->SetAttribute("name", Environnement::getName());
+		//environnementXML->SetAttribute("notes", Environnement::getNotes());
 
 		//========= DASHBOARD =========
 		DashboardManager::save(environnementXML);
@@ -45,7 +45,7 @@ namespace Environnement {
 	bool load(const char * filePath) {
 		using namespace tinyxml2;
 
-		Environnement::createNew();
+		//Environnement::createNew();
 		
 		//====== DOCUMENT LOADING ======
 
@@ -61,10 +61,10 @@ namespace Environnement {
 		if (!environnementXML) return Logger::warn("Could not load Environnement from SaveFile");
 		const char* environnementName;
 		if (environnementXML->QueryStringAttribute("name", &environnementName) != XML_SUCCESS) return Logger::warn("Could not load Environnement name");
-		Environnement::setName(environnementName);
+		//Environnement::setName(environnementName);
 		const char* environnementNotes;
 		if(environnementXML->QueryStringAttribute("notes", &environnementNotes) != XML_SUCCESS) return Logger::warn("Could not load Environnement notes");
-		Environnement::setNotes(environnementNotes);
+		//Environnement::setNotes(environnementNotes);
 
 		//========= DASHBOARD =========
 		if(!DashboardManager::load(environnementXML)){

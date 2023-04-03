@@ -80,12 +80,18 @@ public:
 	std::shared_ptr<NodePin> getPin(int uniqueID);
 	std::shared_ptr<NodeLink> getLink(int uniqueID);
 	
+	void setNodeAddCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeAddCallback = cb; }
+	void setNodeRemoveCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeRemoveCallback = cb; }
+	
 private:
 	std::vector<std::shared_ptr<Node>> nodes;
 	std::vector<std::shared_ptr<NodePin>> pins;
 	std::vector<std::shared_ptr<NodeLink>> links;
 	std::vector<std::shared_ptr<Node>> selectedNodes;
 	std::vector<std::shared_ptr<NodeLink>> selectedLinks;
+	
+	std::function<void(std::shared_ptr<Node>)> nodeAddCallback;
+	std::function<void(std::shared_ptr<Node>)> nodeRemoveCallback;
 	
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID

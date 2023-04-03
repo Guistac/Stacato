@@ -4,9 +4,11 @@
 
 #include "LayoutList.h"
 
+namespace AnimationSystem{ class AnimatableRegistry; }
 
 class Plot;
 class Manoeuvre;
+class EnvironnementObject;
 
  class StacatoProject : public Project{
 	 
@@ -30,6 +32,8 @@ class Manoeuvre;
 	 virtual bool canClose() override;
 	 
 	 std::shared_ptr<LayoutList> getLayouts(){ return layouts; }
+	 std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry(){ return animatableRegistry; }
+	 std::shared_ptr<EnvironnementObject> getEnvironnement(){ return environnement; }
 	 
 protected:
 	 
@@ -47,4 +51,7 @@ protected:
 	 std::vector<std::shared_ptr<Plot>> plots;
 	 std::shared_ptr<Plot> currentPlot;
 	 bool b_plotEditLocked = true;
+	 
+	 std::shared_ptr<EnvironnementObject> environnement = nullptr;
+	 std::shared_ptr<AnimationSystem::AnimatableRegistry> animatableRegistry = nullptr;
  };
