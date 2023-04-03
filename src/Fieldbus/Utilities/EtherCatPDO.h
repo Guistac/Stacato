@@ -48,9 +48,9 @@ struct EtherCatPdoAssignement {
 	}
 
 	void addNewModule(uint16_t idx) { 
-		EtherCatPdoMappingModule module;
-		module.index = idx;
-		modules.push_back(module);
+		EtherCatPdoMappingModule newModule;
+		newModule.index = idx;
+		modules.push_back(newModule);
 	}
 	
 	void addEntry(uint16_t idx, uint8_t sidx, uint8_t bitCount, const char* n, void* data) {

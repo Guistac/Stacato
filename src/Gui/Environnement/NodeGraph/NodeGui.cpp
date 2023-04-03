@@ -299,7 +299,7 @@ void Node::propertiesGui() {
             ImGui::Text("Node Name");
 			//nameParameter->gui();
 			ImGui::TextColored(Colors::red, "This could break and should be a parameter field in the future");
-            ImGui::InputText("##nodeCustomName", (char*)getName().c_str(), 128);
+            //ImGui::InputText("##nodeCustomName", (char*)getName().c_str(), 128);
 
             if (getType() == Node::Type::IODEVICE) {
                 ImGui::Checkbox("Split Inputs and Outputs", &b_isSplit);
