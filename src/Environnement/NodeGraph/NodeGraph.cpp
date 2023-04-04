@@ -16,6 +16,7 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 		pins.push_back(data);
 	}
 	newNode->onAddToNodeGraph();
+	nodeAddCallback(newNode);
 }
 
 void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
@@ -38,6 +39,7 @@ void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
 		}
 	}
 	removedNode->onRemoveFromNodeGraph();
+	nodeRemoveCallback(removedNode);
 }
 
 std::shared_ptr<Node> NodeGraph::getNode(int Id) {

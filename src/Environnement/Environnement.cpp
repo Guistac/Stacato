@@ -48,6 +48,7 @@ void EnvironnementObject::onConstruction(){
 	nodeGraph->setNodeAddCallback([this](std::shared_ptr<Node> node){ addNode(node); });
 	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
 	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
+	nodeGraph->setNodeDragDropTargetCallback(Environnement::Gui::nodeDragDropTarget);
 }
 
 void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
@@ -55,7 +56,7 @@ void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
 }
 
 void EnvironnementObject::addNode(std::shared_ptr<Node> node) {
-	/*
+	
 	switch (node->getType()) {
 		case Node::Type::MACHINE:
 			machines.push_back(std::static_pointer_cast<Machine>(node));
@@ -64,8 +65,7 @@ void EnvironnementObject::addNode(std::shared_ptr<Node> node) {
 			std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
 			switch (deviceNode->getDeviceType()) {
 				case Device::Type::ETHERCAT_DEVICE:
-					etherCatDevices.push_back(std::static_pointer_cast<EtherCatDevice>(deviceNode));
-					etherCatDeviceNodes.push_back(node);
+					ethercatDevices.push_back(std::static_pointer_cast<EtherCatDevice>(deviceNode));
 					break;
 				case Device::Type::NETWORK_DEVICE:
 					networkDevices.push_back(std::static_pointer_cast<NetworkDevice>(deviceNode));
@@ -77,11 +77,11 @@ void EnvironnementObject::addNode(std::shared_ptr<Node> node) {
 		default:
 			break;
 	}
-	 */
+	 
 }
 
 void EnvironnementObject::removeNode(std::shared_ptr<Node> node){
-	/*
+	
 	switch (node->getType()) {
 		case Node::Type::MACHINE:{
 		
@@ -97,30 +97,24 @@ void EnvironnementObject::removeNode(std::shared_ptr<Node> node){
 		case Node::Type::IODEVICE:{
 			std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
 			switch (deviceNode->getDeviceType()) {
-			case Device::Type::ETHERCAT_DEVICE: {
-				std::shared_ptr<EtherCatDevice> etherCatDeviceNode = std::static_pointer_cast<EtherCatDevice>(deviceNode);
-				for (int i = 0; i < etherCatDevices.size(); i++) {
-					if (etherCatDevices[i] == etherCatDeviceNode) {
-						etherCatDevices.erase(etherCatDevices.begin() + i);
-						break;
+				case Device::Type::ETHERCAT_DEVICE: {
+					std::shared_ptr<EtherCatDevice> ethercatDevice = std::static_pointer_cast<EtherCatDevice>(deviceNode);
+					for (int i = 0; i < ethercatDevices.size(); i++) {
+						if (ethercatDevices[i] == ethercatDevice) {
+							ethercatDevices.erase(ethercatDevices.begin() + i);
+							break;
+						}
 					}
-				}
-				for (int i = 0; i < etherCatDeviceNodes.size(); i++) {
-					if (etherCatDeviceNodes[i] == node) {
-						etherCatDeviceNodes.erase(etherCatDeviceNodes.begin() + i);
-						break;
+				}break;
+				case Device::Type::NETWORK_DEVICE: {
+					std::shared_ptr<NetworkDevice> networkDeviceNode = std::static_pointer_cast<NetworkDevice>(deviceNode);
+					for (int i = 0; i < networkDevices.size(); i++) {
+						if (networkDevices[i] == networkDeviceNode) {
+							networkDevices.erase(networkDevices.begin() + i);
+							break;
+						}
 					}
-				}
-			}break;
-			case Device::Type::NETWORK_DEVICE: {
-				std::shared_ptr<NetworkDevice> networkDeviceNode = std::static_pointer_cast<NetworkDevice>(deviceNode);
-				for (int i = 0; i < networkDevices.size(); i++) {
-					if (networkDevices[i] == networkDeviceNode) {
-						networkDevices.erase(networkDevices.begin() + i);
-						break;
-					}
-				}
-			}break;
+				}break;
 			case Device::Type::USB_DEVICE: {
 			}break;
 			}
@@ -128,7 +122,7 @@ void EnvironnementObject::removeNode(std::shared_ptr<Node> node){
 		default:
 			break;
 	}
-	 */
+	 
 }
 
 

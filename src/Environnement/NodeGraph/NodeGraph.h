@@ -34,27 +34,27 @@ struct NodeGraphProcess{
 class NodeGraph : public Legato::Component{
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NodeGraph)
- 
-	protected:
-	 
-	 virtual bool onSerialization() override {
-		 Component::onSerialization();
-		 return true;
-	 }
-	 
-	 virtual bool onDeserialization() override {
-		 Component::onDeserialization();
-		 return true;
-	 }
-	 
-	 virtual void onConstruction() override {
-		 Component::onConstruction();
-		 context = ax::NodeEditor::CreateEditor();
-	 }
-	 
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		 Component::onCopyFrom(source);
-	 }
+	
+protected:
+	
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		return true;
+	}
+	
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		return true;
+	}
+	
+	virtual void onConstruction() override {
+		Component::onConstruction();
+		context = ax::NodeEditor::CreateEditor();
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Component::onCopyFrom(source);
+	}
 	
 public:
 	
@@ -72,18 +72,18 @@ public:
 		uniqueIdCounter++;
 		return uniqueIdCounter;
 	}
-
+	
 	void startCountingUniqueIDsFrom(int largestUniqueID){
 		uniqueIdCounter = largestUniqueID + 1;
 	}
-
+	
 	void registerUniqueID(int id){
 		if(id > uniqueIdCounter) uniqueIdCounter = id + 1;
 	}
 	
 	void addNode(std::shared_ptr<Node>);
 	void removeNode(std::shared_ptr<Node>);
-
+	
 	std::shared_ptr<Node> getNode(int uniqueID);
 	std::shared_ptr<NodePin> getPin(int uniqueID);
 	std::shared_ptr<NodeLink> getLink(int uniqueID);
@@ -91,6 +91,7 @@ public:
 	void setNodeAddCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeAddCallback = cb; }
 	void setNodeRemoveCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeRemoveCallback = cb; }
 	void setNodeEditorContextMenuCallback(std::function<std::shared_ptr<Node>()> cb){ editorContextMenuCallback = cb; }
+	void setNodeDragDropTargetCallback(std::function<std::shared_ptr<Node>()> cb){ nodeDragDropTargetCallback = cb; }
 	
 private:
 	std::vector<std::shared_ptr<Node>> nodes;
@@ -102,6 +103,7 @@ private:
 	std::function<void(std::shared_ptr<Node>)> nodeAddCallback;
 	std::function<void(std::shared_ptr<Node>)> nodeRemoveCallback;
 	std::function<std::shared_ptr<Node>()> editorContextMenuCallback;
+	std::function<std::shared_ptr<Node>()> nodeDragDropTargetCallback;
 	
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID

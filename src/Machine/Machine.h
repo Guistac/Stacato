@@ -20,7 +20,7 @@ namespace tinyxml2{ struct XMLElement; }
 
 #include "Animation/NewAnimation/AnimatableOwner.h"
 
-class NewMachine : public Node, public AnimationSystem::AnimatableOwner{
+class Machine : public Node, public AnimationSystem::AnimatableOwner{
 public:
 	
 	

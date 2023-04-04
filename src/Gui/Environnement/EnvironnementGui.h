@@ -24,6 +24,7 @@ namespace Environnement::Gui{
 	};
 
 	std::shared_ptr<Node> nodeAdderContextMenu();
+	std::shared_ptr<Node> nodeDragDropTarget();
 
 	class NodeManagerWindow : public Window{
 	public:

@@ -175,6 +175,23 @@ void nodeAdder() {
 
 
 
+std::shared_ptr<Node> nodeDragDropTarget(){
+	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Node");
+	if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
+		const char* nodeSaveName = *(const char**)payload->Data;
+		return NodeFactory::getNodeBySaveName(nodeSaveName);
+	}
+	return nullptr;
+	/*
+	payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
+	if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
+		std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
+		EtherCatFieldbus::removeUnmatchedDevice(detectedSlave);
+		return detectedSlave;
+	}
+	*/
+}
+
 
 std::shared_ptr<Node> nodeAdderContextMenu() {
 

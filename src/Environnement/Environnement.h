@@ -84,5 +84,8 @@ public:
 private:
 	
 	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
+	std::vector<std::shared_ptr<Machine>> machines = {};
+	std::vector<std::shared_ptr<EtherCatDevice>> ethercatDevices = {};
+	std::vector<std::shared_ptr<NetworkDevice>> networkDevices = {};
 	
 };

@@ -6,10 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Environnement/NodeGraph/NodeGraph.h"
-#include "Environnement/Environnement.h"
-#include "Nodes/NodeFactory.h"
 
-#include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
 
@@ -254,25 +251,11 @@ void NodeGraph::editorGui(ImVec2 size){
 		
 		
 		if (ImGui::BeginDragDropTarget()) {
-			const ImGuiPayload* payload;
 			glm::vec2 mousePosition = ImGui::GetMousePos();
-			payload = ImGui::AcceptDragDropPayload("Node");
-			if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
-				const char* nodeSaveName = *(const char**)payload->Data;
-				std::shared_ptr<Node> newNode = NodeFactory::getNodeBySaveName(nodeSaveName);
-				
-				addNode(newNode);
-				ax::NodeEditor::SetNodePosition(newNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
-				
+			if(std::shared_ptr<Node> droppedNode = nodeDragDropTargetCallback()){
+				addNode(droppedNode);
+				ax::NodeEditor::SetNodePosition(droppedNode->getUniqueID(), ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()));
 			}
-			/*
-			payload = ImGui::AcceptDragDropPayload("DetectedEtherCatDevice");
-			if (payload != nullptr && payload->DataSize == sizeof(std::shared_ptr<EtherCatDevice>)) {
-				std::shared_ptr<EtherCatDevice> detectedSlave = *(std::shared_ptr<EtherCatDevice>*)payload->Data;
-				EtherCatFieldbus::removeUnmatchedDevice(detectedSlave);
-				return detectedSlave;
-			}
-			*/
 			ImGui::EndDragDropTarget();
 		}
 		
