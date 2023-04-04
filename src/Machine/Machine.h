@@ -4,6 +4,7 @@
 #include "Motion/MotionTypes.h"
 
 #include "Animation/NewAnimation/Animatable.h"
+#include "Animation/NewAnimation/AnimatableOwner.h"
 
 namespace Motion {
 	struct ControlPoint;
@@ -18,11 +19,35 @@ class Device;
 namespace tinyxml2{ struct XMLElement; }
 
 
-#include "Animation/NewAnimation/AnimatableOwner.h"
+#define DEFINE_MACHINE(className, SaveName) \
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
+	virtual const char* getSaveName() override { return SaveName; }\
 
 class Machine : public Node, public AnimationSystem::AnimatableOwner{
 public:
 	
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Machine)
+	
+	virtual const char* getNodeCategory() override { return "Machines"; }
+	virtual Node::Type getType() override { return Node::Type::PROCESSOR; }\
+	
+	virtual bool onSerialization() override {
+		Node::onSerialization();
+		return true;
+	}
+	
+	virtual bool onDeserialization() override {
+		Node::onDeserialization();
+		return true;
+	}
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Node::onCopyFrom(source);
+	}
 	
 	DeviceState getState() { return state; }
 	bool isEmergencyStopActive() { return b_emergencyStopActive; }

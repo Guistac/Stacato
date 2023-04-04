@@ -14,6 +14,18 @@
 #include "Animation/NewAnimation/AnimatableRegistry.h"
 #include "Animation/NewAnimation/PositionAnimatable.h"
 
+
+class PositionControlledMachine : public Machine{
+public:
+	
+	DEFINE_MACHINE(PositionControlledMachine, "PositionControlledMachine")
+	
+	virtual void inputProcess() override {}
+	virtual void outputProcess() override {}
+	virtual bool needsOutputProcess() override {}
+	
+};
+
 /*
 class PositionControlledMachine : public Machine, public AnimationSystem::AnimatableOwner{
 	

@@ -50,8 +50,6 @@ public:
 		IODEVICE,
 		PROCESSOR,
 		CLOCK,
-		AXIS,
-		MACHINE,
 		CONTAINER
 	};
 	
@@ -146,8 +144,6 @@ public:
 	{Node::Type::IODEVICE,	"IODevice",		"IODevice"},\
 	{Node::Type::PROCESSOR, "Processor",	"Processor"},\
 	{Node::Type::CLOCK,		"Clock",		"Clock"},\
-	{Node::Type::AXIS,		"Axis",			"Axis"},\
-	{Node::Type::MACHINE,	"Machine",		"Machine"},\
 	{Node::Type::CONTAINER, "Container",	"Container"}\
 
 DEFINE_ENUMERATOR(Node::Type, NodeTypeStrings)

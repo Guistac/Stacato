@@ -2,9 +2,7 @@
 
 #include "Legato/Editor/FileComponent.h"
 
-namespace AnimationSystem{
-	class AnimatableRegistry;
-};
+namespace AnimationSystem{ class AnimatableRegistry; };
 
 class NodeGraph;
 class Node;
@@ -25,6 +23,7 @@ public:
 public:
 	
 	std::shared_ptr<NodeGraph> getNodeGraph(){ return nodeGraph; }
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry(){ return animatableRegistry; }
 	
 	protected:
 	 
@@ -32,6 +31,9 @@ public:
 	virtual bool onDeserialization() override;
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	
+	
+public:
 	
 	//project interface
 	//void createNew();
@@ -87,5 +89,7 @@ private:
 	std::vector<std::shared_ptr<Machine>> machines = {};
 	std::vector<std::shared_ptr<EtherCatDevice>> ethercatDevices = {};
 	std::vector<std::shared_ptr<NetworkDevice>> networkDevices = {};
+	
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> animatableRegistry = nullptr;
 	
 };

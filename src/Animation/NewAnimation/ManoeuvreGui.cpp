@@ -72,7 +72,9 @@ namespace AnimationSystem{
 			
 			if (ImGui::BeginPopup("AnimatableSelector")) {
 				
-				auto& animatableOwners = Stacato::Editor::getCurrentProject()->getAnimatableRegistry()->getAnimatableOwners();
+				auto project = Stacato::Editor::getCurrentProject();
+				auto& animatableOwners = project->getEnvironnement()->getAnimatableRegistry()->getAnimatableOwners();
+				
 				for (int i = 0; i < animatableOwners.size(); i++) {
 					auto animatableOwner = animatableOwners[i];
 					auto& animatables = animatableOwner->getAnimatables();

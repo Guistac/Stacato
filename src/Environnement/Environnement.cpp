@@ -49,6 +49,9 @@ void EnvironnementObject::onConstruction(){
 	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
 	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
 	nodeGraph->setNodeDragDropTargetCallback(Environnement::Gui::nodeDragDropTarget);
+	
+	animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
+	
 }
 
 void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
@@ -58,71 +61,73 @@ void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
 void EnvironnementObject::addNode(std::shared_ptr<Node> node) {
 	
 	switch (node->getType()) {
-		case Node::Type::MACHINE:
-			machines.push_back(std::static_pointer_cast<Machine>(node));
-			break;
-		case Node::Type::IODEVICE:{
-			std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
-			switch (deviceNode->getDeviceType()) {
-				case Device::Type::ETHERCAT_DEVICE:
-					ethercatDevices.push_back(std::static_pointer_cast<EtherCatDevice>(deviceNode));
-					break;
-				case Device::Type::NETWORK_DEVICE:
-					networkDevices.push_back(std::static_pointer_cast<NetworkDevice>(deviceNode));
-					break;
-				case Device::Type::USB_DEVICE:
-					break;
+		case Node::Type::PROCESSOR:
+			if(auto machine = std::dynamic_pointer_cast<Machine>(node)){
+				machines.push_back(std::static_pointer_cast<Machine>(node));
 			}
-		}break;
-		default:
+			break;
+		case Node::Type::IODEVICE:
+			if(auto ethercatDevice = std::dynamic_pointer_cast<EtherCatDevice>(node)){
+				ethercatDevices.push_back(ethercatDevice);
+			}
+			if(auto networkDevice = std::dynamic_pointer_cast<NetworkDevice>(node)){
+				networkDevices.push_back(networkDevice);
+			}
+			break;
+		case Node::Type::CLOCK:
+			break;
+		case Node::Type::CONTAINER:
 			break;
 	}
-	 
+	
+	if(auto animatableOwner = std::dynamic_pointer_cast<AnimationSystem::AnimatableOwner>(node)){
+		animatableRegistry->registerAnimatableOwner(animatableOwner);
+	}
+	
+	
 }
 
 void EnvironnementObject::removeNode(std::shared_ptr<Node> node){
 	
-	switch (node->getType()) {
-		case Node::Type::MACHINE:{
-		
-			std::shared_ptr<Machine> machineNode = std::static_pointer_cast<Machine>(node);
-			for (int i = 0; i < machines.size(); i++) {
-				if (machines[i] == machineNode) {
-					machines.erase(machines.begin() + i);
-					break;
+	switch(node->getType()){
+		case Node::Type::PROCESSOR:
+			if(auto machine = std::dynamic_pointer_cast<Machine>(node)){
+				for (int i = 0; i < machines.size(); i++) {
+					if (machines[i] == machine) {
+						machines.erase(machines.begin() + i);
+						break;
+					}
 				}
 			}
-			 
-		}break;
-		case Node::Type::IODEVICE:{
-			std::shared_ptr<Device> deviceNode = std::static_pointer_cast<Device>(node);
-			switch (deviceNode->getDeviceType()) {
-				case Device::Type::ETHERCAT_DEVICE: {
-					std::shared_ptr<EtherCatDevice> ethercatDevice = std::static_pointer_cast<EtherCatDevice>(deviceNode);
-					for (int i = 0; i < ethercatDevices.size(); i++) {
-						if (ethercatDevices[i] == ethercatDevice) {
-							ethercatDevices.erase(ethercatDevices.begin() + i);
-							break;
-						}
+			break;
+		case Node::Type::IODEVICE:
+			if(auto ethercatDevice = std::dynamic_pointer_cast<EtherCatDevice>(node)){
+				for (int i = 0; i < ethercatDevices.size(); i++) {
+					if (ethercatDevices[i] == ethercatDevice) {
+						ethercatDevices.erase(ethercatDevices.begin() + i);
+						break;
 					}
-				}break;
-				case Device::Type::NETWORK_DEVICE: {
-					std::shared_ptr<NetworkDevice> networkDeviceNode = std::static_pointer_cast<NetworkDevice>(deviceNode);
-					for (int i = 0; i < networkDevices.size(); i++) {
-						if (networkDevices[i] == networkDeviceNode) {
-							networkDevices.erase(networkDevices.begin() + i);
-							break;
-						}
-					}
-				}break;
-			case Device::Type::USB_DEVICE: {
-			}break;
+				}
 			}
-		}break;
-		default:
+			if(auto networkDevice = std::dynamic_pointer_cast<NetworkDevice>(node)){
+				for (int i = 0; i < networkDevices.size(); i++) {
+					if (networkDevices[i] == networkDevice) {
+						networkDevices.erase(networkDevices.begin() + i);
+						break;
+					}
+				}
+			}
+			break;
+		case Node::Type::CLOCK:
+			break;
+		case Node::Type::CONTAINER:
 			break;
 	}
-	 
+	
+	if(auto animatableOwner = std::dynamic_pointer_cast<AnimationSystem::AnimatableOwner>(node)){
+		animatableRegistry->unregisterAnimatableOwner(animatableOwner);
+	}
+	
 }
 
 
@@ -505,3 +510,6 @@ void createNew() {
 }
 
 */
+
+
+

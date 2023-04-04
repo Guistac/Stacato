@@ -68,7 +68,7 @@ void DeadMansSwitch::outputProcess(){
     bool b_anyMachineMoving = false;
     for(auto connectedPin : deadMansSwitchLink->getConnectedPins()){
         auto node = connectedPin->getNode();
-        if(node->getType() != Node::Type::MACHINE) continue;
+        //if(node->getType() != Node::Type::MACHINE) continue;
 		/*
         auto machine = std::static_pointer_cast<Machine>(node);
         if(machine->isMoving()){

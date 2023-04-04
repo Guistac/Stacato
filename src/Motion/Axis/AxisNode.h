@@ -11,7 +11,7 @@ class ActuatorMapping;
 class AxisNode : public Node {
 public:
 	
-	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::AXIS, "")
+	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::PROCESSOR, "")
 	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

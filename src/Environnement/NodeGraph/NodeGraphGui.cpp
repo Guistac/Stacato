@@ -120,8 +120,6 @@ void NodeGraph::editorGui(ImVec2 size){
 				case Node::Type::PROCESSOR:
 				case Node::Type::CONTAINER:
 				case Node::Type::CLOCK:
-				case Node::Type::AXIS:
-				case Node::Type::MACHINE:
 					ImGui::Text("Type: %s", Enumerator::getDisplayString(node->getType()));
 					break;
 				case Node::Type::IODEVICE: {

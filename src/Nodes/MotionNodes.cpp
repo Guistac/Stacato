@@ -31,6 +31,7 @@ namespace NodeFactory{
 		allMachineNodes = {
 			//new PositionControlledMachine(),
 			//new FlipStateMachine(),
+			PositionControlledMachine::createInstance()
 		};
 		
 		allSafetyNodes = {

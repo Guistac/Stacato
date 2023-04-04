@@ -7,20 +7,24 @@
 
 
 
-
 class Base{
 public:
-	Base(){}
+	virtual void doThing(){}
 };
 
-class OtherBase{
+class SpecialClass{
 public:
-	OtherBase(){}
+	void doSpecialThing(){}
 };
 
-class Derived : public Base, public OtherBase {
+class Derived1 : public Base{
 public:
-	
+	virtual void doThing() override {}
+};
+
+class Derived2 : public Base, public SpecialClass{
+public:
+	virtual void doThing() override {}
 };
 
 
@@ -35,9 +39,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 int main(int argcount, const char ** args){
 #endif
 	
-	auto derived = std::make_shared<Derived>();
-	auto base = std::static_pointer_cast<Base>(derived);
-	auto otherBase = std::static_pointer_cast<OtherBase>(derived);
+
+	std::shared_ptr<Base> derived1 = std::make_shared<Derived1>();
+	std::shared_ptr<Base> derived2 = std::make_shared<Derived2>();
+	
+	std::shared_ptr<SpecialClass> special1 = std::dynamic_pointer_cast<SpecialClass>(derived1);
+	std::shared_ptr<SpecialClass> special2 = std::dynamic_pointer_cast<SpecialClass>(derived2);
+	
+	
 	
 	//configure application
 	Application::setInitializationFunction(Stacato::Application::initialize);
