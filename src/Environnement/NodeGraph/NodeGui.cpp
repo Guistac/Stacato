@@ -1,7 +1,5 @@
 #include <pch.h>
 
-#include "NodeGraphGui.h"
-
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_node_editor.h>

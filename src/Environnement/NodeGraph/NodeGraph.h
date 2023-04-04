@@ -6,6 +6,9 @@
 
 #include "Legato/Editor/Component.h"
 
+#include <imgui.h>
+#include <imgui_node_editor.h>
+
 namespace tinyxml2 { class XMLElement; }
 
 struct NodeGraphProcess{
@@ -46,13 +49,18 @@ class NodeGraph : public Legato::Component{
 	 
 	 virtual void onConstruction() override {
 		 Component::onConstruction();
+		 context = ax::NodeEditor::CreateEditor();
 	 }
 	 
 	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		 Component::onCopyFrom(source);
 	 }
-
+	
 public:
+	
+	~NodeGraph(){
+		ax::NodeEditor::DestroyEditor(context);
+	}
 	
 	std::vector<std::shared_ptr<Node>>& getNodes() { return nodes; }
 	std::vector<std::shared_ptr<NodePin>>& getPins() { return pins; }
@@ -82,6 +90,7 @@ public:
 	
 	void setNodeAddCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeAddCallback = cb; }
 	void setNodeRemoveCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeRemoveCallback = cb; }
+	void setNodeEditorContextMenuCallback(std::function<std::shared_ptr<Node>()> cb){ editorContextMenuCallback = cb; }
 	
 private:
 	std::vector<std::shared_ptr<Node>> nodes;
@@ -92,12 +101,11 @@ private:
 	
 	std::function<void(std::shared_ptr<Node>)> nodeAddCallback;
 	std::function<void(std::shared_ptr<Node>)> nodeRemoveCallback;
+	std::function<std::shared_ptr<Node>()> editorContextMenuCallback;
 	
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID
 	int uniqueIdCounter = 1;
-	
-	
 	
 public:
 
@@ -105,12 +113,15 @@ public:
 	void executeInputProcess(std::shared_ptr<NodeGraphProcess> processProgram);
 	void executeOutputProcess(std::shared_ptr<NodeGraphProcess> processProgram);
 
-	bool load(tinyxml2::XMLElement* xml);
-	bool save(tinyxml2::XMLElement* xml);
-
-	void editorGui();
+	//gui
+	void editorGui(ImVec2 size);
 	void centerView();
 	void showFlow();
+	
+	bool load(tinyxml2::XMLElement* xml);
+	bool save(tinyxml2::XMLElement* xml);
+	
+	ax::NodeEditor::EditorContext* context;
 	
 private:
 	

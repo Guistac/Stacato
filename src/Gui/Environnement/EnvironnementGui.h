@@ -2,6 +2,8 @@
 
 #include "Legato/Gui/Window.h"
 
+class Node;
+
 namespace Environnement::Gui{
 
 
@@ -20,6 +22,8 @@ namespace Environnement::Gui{
 		virtual void onDraw() override;
 		SINGLETON_GET_METHOD(NodeEditorWindow);
 	};
+
+	std::shared_ptr<Node> nodeAdderContextMenu();
 
 	class NodeManagerWindow : public Window{
 	public:
@@ -91,13 +95,13 @@ namespace Environnement::Gui{
 
 	inline void restrictEditorWindows(){
 		for(auto& editorWindow : getEditorWindows()) {
-			assert("ERROR");
+			assert(false || "ERROR");
 			//editorWindow->removeFromDictionnary();
 		}
 	}
 	inline void allowEditorWindows(){
 		for(auto& editorWindow : getEditorWindows()) {
-			assert("ERROR");
+			assert(false || "ERROR");
 			//editorWindow->addToDictionnary();
 		}
 	}

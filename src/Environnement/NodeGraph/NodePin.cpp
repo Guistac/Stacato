@@ -134,7 +134,7 @@ bool NodePin::isConnectionValid(std::shared_ptr<NodePin> otherPin){
 	return isDataTypeCompatible(otherPin);
 }
 
-void NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
+std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
 	
 	if (!isConnectionValid(otherPin)) return nullptr;
 	
@@ -154,5 +154,7 @@ void NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
 	newLink->outputData->parentNode->onPinConnection(newLink->outputData);
 	
 	getNode()->nodeGraph->getLinks().push_back(newLink);
+	
+	return newLink;
 }
 

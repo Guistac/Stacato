@@ -19,7 +19,7 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 	//if the node editor was display once this is useless but we submit the draw call anyways since it is offscreen
 	ImGui::SetNextWindowPos(ImVec2(10000, 10000));
 	ImGui::Begin("OffscreenNodeEditorFor1Frame", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
-	Environnement::NodeGraph::Gui::editor(glm::vec2(0,0));
+	editorGui(ImVec2(0,0));
 	ImGui::End();
 	
 	using namespace tinyxml2;

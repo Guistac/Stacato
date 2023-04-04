@@ -56,11 +56,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/AnimationGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Animation/CurveEditorGui.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeAdder.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGraphGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/NodeGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/PinGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Environnement/NodeGraph/PinIcon.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Gui/Plot/PlotGui.h
@@ -170,14 +166,17 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/Node.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/Node.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/DeviceNode.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeLink.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.h
+    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePinGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphProcessing.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphSaveFile.cpp
 

@@ -22,6 +22,10 @@ public:
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(EnvironnementObject)
  
+public:
+	
+	std::shared_ptr<NodeGraph> getNodeGraph(){ return nodeGraph; }
+	
 	protected:
 	 
 	virtual bool onSerialization() override;
@@ -77,6 +81,8 @@ public:
 	void addNode(std::shared_ptr<Node> node);
 	void removeNode(std::shared_ptr<Node> node);
 
+private:
+	
 	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
 	
 };

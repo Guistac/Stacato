@@ -47,6 +47,7 @@ void EnvironnementObject::onConstruction(){
 	
 	nodeGraph->setNodeAddCallback([this](std::shared_ptr<Node> node){ addNode(node); });
 	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
+	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
 }
 
 void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
