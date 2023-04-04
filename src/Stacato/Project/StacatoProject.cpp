@@ -38,7 +38,8 @@ bool StacatoProject::onWriteFile() {
 	std::string projectFolderPath = filePath.string();
 
 	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
-	if (!Environnement::save(environnementFilePath.c_str())) return false;
+	environnement->setFilePath(environnementFilePath);
+	if(!environnement->writeFile()) return false;
 	
 	
 	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
@@ -86,20 +87,13 @@ bool StacatoProject::onReadFile() {
 	std::string projectFolderPath = std::string(path);
 	if (!std::filesystem::is_directory(projectFolderPath)) return false;
 
-	//look for the environnement file
-	bool b_loadedEnvironnementFile = false;
-	for (const auto& entry : std::filesystem::directory_iterator(projectFolderPath)) {
-		if(entry.path().filename() == "Environnement.stacatoEnvironnement"){
-			std::string entryPath = entry.path().string();
-			b_loadedEnvironnementFile = Environnement::load(entryPath.c_str());
-			break;
-		}
-	}
-	if(!b_loadedEnvironnementFile) {
+	//load the environnement file
+	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
+	environnement->setFilePath(environnementFilePath);
+	if(!environnement->readFile()){
 		Logger::warn("Could not load environnement file in project {}", filePath.filename().string());
 		return false;
 	}
-	
 	
 	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
 	if(!layouts->readFile()) return false;
@@ -171,7 +165,8 @@ bool StacatoProject::onReadFile() {
 };
 
 bool StacatoProject::canClose() {
-	return !hasUnsavedModifications() && !Environnement::isRunning();
+	return false;
+	//return !hasUnsavedModifications() && !Environnement::isRunning();
 }
 
 void StacatoProject::onOpen() {

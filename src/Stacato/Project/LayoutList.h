@@ -4,7 +4,7 @@
 #include "Legato/Editor/SerializableList.h"
 #include "Legato/Gui/Layout.h"
 
-class LayoutList : public FileComponent{
+class LayoutList : public Legato::FileComponent{
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(LayoutList)
 	

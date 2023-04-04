@@ -434,6 +434,9 @@ namespace EtherCatFieldbus {
 
     bool identifyDevices() {
 		
+		
+		/*
+		
         //when rescanning the network, all previous slaves are now considered to be offline before being detected again
         //for a slave to appear as offline, we set its identity object (ec_slavet) to nullptr
         for (auto device : discoveredDevices) device->identity = nullptr;
@@ -514,7 +517,7 @@ namespace EtherCatFieldbus {
 			//add the slave to the list of slaves regardless of environnement presence
 			discoveredDevices.push_back(slave);
 		}
-		
+		*/
 		return true;
     }
 
@@ -855,7 +858,8 @@ namespace EtherCatFieldbus {
         }
         ec_send_processdata();
         
-        Environnement::updateEtherCatHardware();
+		assert(false || "Node graph process should be accessed in a different way");
+        //Environnement::updateEtherCatHardware();
 
         Logger::info("===== Cyclic Exchange Stopped !");
 
@@ -866,7 +870,8 @@ namespace EtherCatFieldbus {
 		
 		startPollingDiscoveredDevices();
 		
-		Environnement::stop();
+		assert(false || "Environnement should be accessed in a different way");
+		//Environnement::stop();
 		
 		b_cyclicExchangeThreadRunning = false;
 		b_networkRunning = false;
@@ -942,7 +947,8 @@ namespace EtherCatFieldbus {
 
 		//===================== ENVIRONNEMENT UPDATE =======================
 
-		if (b_networkRunning) Environnement::updateEtherCatHardware();
+		assert(false || "Nodegraph process should be accessed differently");
+		//if (b_networkRunning) Environnement::updateEtherCatHardware();
 
 		//=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============
 

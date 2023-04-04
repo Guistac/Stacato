@@ -62,17 +62,18 @@ IMPLEMENTATION EXAMPLE
  
  ————————————————————————————————————————————————————————————————*/
 
+namespace Legato{
 
 class FileComponent : public Legato::Component, public File{
 	
 	DECLARE_PROTOTYPE_INTERFACE_METHODS(FileComponent)
-
+	
 public:
 	
 	virtual bool onWriteFile() override {
 		
 		using namespace tinyxml2;
-
+		
 		XMLDocument xmlDocument;
 		xmlElement = xmlDocument.NewElement(saveString.c_str());
 		xmlDocument.InsertEndChild(xmlElement);
@@ -154,3 +155,5 @@ private:
 		assert("File Component cannot be serialized or deserialized, use readFile() and writeFile() methods");
 	}
 };
+
+}

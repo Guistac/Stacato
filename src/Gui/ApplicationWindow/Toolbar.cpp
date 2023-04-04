@@ -32,7 +32,8 @@ namespace Stacato::Gui {
 
 
 	void toolbar(float height) {
-
+/*
+		
 		float labelHeight = ImGui::GetTextLineHeight();
 		float buttonHeight = height - ImGui::GetStyle().ItemSpacing.y - labelHeight - ImGui::GetStyle().WindowPadding.y * 2.0;
 		glm::vec2 buttonSize(ImGui::GetTextLineHeight() * 4.0, buttonHeight);
@@ -188,24 +189,24 @@ namespace Stacato::Gui {
 		
 		
 		
-		/*
+		
 		//================= Sequencer Transport Control =====================
 		
-		ImGui::BeginGroup();
-		ImGui::BeginGroup();
-		
-		Sequencer::Gui::transportControls(buttonSize.y);
-		
-		ImGui::EndGroup();
-		
-		ImGui::PushFont(Fonts::sansRegular12);
-		backgroundText("Sequencer", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
-		ImGui::PopFont();
-		
-		ImGui::EndGroup();
-		
-		spacer();
-		 */
+		//ImGui::BeginGroup();
+		//ImGui::BeginGroup();
+		//
+		//Sequencer::Gui::transportControls(buttonSize.y);
+		//
+		//ImGui::EndGroup();
+		//
+		//ImGui::PushFont(Fonts::sansRegular12);
+		//backgroundText("Sequencer", glm::vec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		//ImGui::PopFont();
+		//
+		//ImGui::EndGroup();
+		//
+		//spacer();
+		 
 		
 		
 		//================= Manoeuvre Playback Control =====================
@@ -259,6 +260,7 @@ namespace Stacato::Gui {
 		
 		
 		ImGui::PopStyleVar();
+ */
 	}
 
 }

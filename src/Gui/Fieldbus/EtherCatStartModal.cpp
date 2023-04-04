@@ -46,12 +46,14 @@ void EtherCatStartPopup::onDraw(){
 	}
 	
 	if(progress.failed()){
-		ImGui::SameLine();
-		if (ImGui::Button("Retry")) Environnement::start();
+		ImGui::TextColored(Colors::red, "start button is missing");
+		//ImGui::SameLine();
+		//if (ImGui::Button("Retry")) Environnement::start();
 	}
 	
 	if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
-		Environnement::stop();
+		assert(false || "escape key to stop is not working");
+		//Environnement::stop();
 		close();
 	}
 }

@@ -68,6 +68,7 @@ void etherCatSlaves() {
 
 void EtherCatDevicesWindow::onDraw(){
 	
+	/*
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	glm::vec2 deviceSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 	float rounding = ImGui::GetStyle().FrameRounding;
@@ -113,4 +114,5 @@ void EtherCatDevicesWindow::onDraw(){
 			ImGui::EndTooltip();
 		}
 	}
+	 */
 }

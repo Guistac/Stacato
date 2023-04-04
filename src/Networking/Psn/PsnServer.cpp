@@ -138,6 +138,8 @@ void PsnServer::writeOutputs(){
 
 bool PsnServer::startServer(){
 	
+	assert(false || "Timing source should be reimplemented");
+	/*
 	removeAllTrackers();
 	
 	Logger::debug("Starting PSN Server \"{}\"", serverName->value);
@@ -235,7 +237,7 @@ bool PsnServer::startServer(){
 	dataSenderThread.detach();
 	
 	Logger::info("Started PSN Server \"{}\"", serverName->value);
-	
+	*/
 	return true;
 }
 

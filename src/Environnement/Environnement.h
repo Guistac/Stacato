@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Legato/Editor/Component.h"
+#include "Legato/Editor/FileComponent.h"
 
 namespace AnimationSystem{
 	class AnimatableRegistry;
@@ -17,7 +17,7 @@ class Script;
 class Command;
 
 
-class EnvironnementObject : public Legato::Component{
+class EnvironnementObject : public Legato::FileComponent{
 public:
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(EnvironnementObject)

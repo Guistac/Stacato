@@ -179,7 +179,9 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 		loadedNode->uniqueID = nodeUniqueID;
 		loadedNode->b_isSplit = isSplit;
 		loadedNode->b_wasSplit = isSplit;
-		Environnement::addNode(loadedNode);
+		
+		addNode(loadedNode);
+		//Environnement::addNode(loadedNode);
 		
 		for (std::shared_ptr<NodePin> data : loadedNode->nodeInputPins) {
 			data->parentNode = loadedNode;

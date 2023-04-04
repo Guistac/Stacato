@@ -98,6 +98,9 @@ void SetupWindow::onDraw(){
 	 
 	 */
 	
+	
+	/*
+	
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	float boxWidth = ImGui::GetContentRegionAvail().x;
@@ -106,7 +109,7 @@ void SetupWindow::onDraw(){
 	int id = 0;
 	for(auto machine : Environnement::getMachines()){
 				
-		//if(!machine->hasSetupGui()) continue;
+		if(!machine->hasSetupGui()) continue;
 		
 		ImGui::PushID(id++);
 		
@@ -119,12 +122,10 @@ void SetupWindow::onDraw(){
 		ImGui::SetCursorPos(cursor + boxPadding);
 		ImGui::BeginGroup();
 		
-		/*
 		ImGui::PushFont(Fonts::sansBold20);
 		ImGui::Text("%s", machine->getName());
 		ImGui::PopFont();
 		machine->setupGui();
-		 */
 		
 		ImGui::EndGroup();
 		ImGui::SetCursorPosX(cursor.x + ImGui::GetItemRectSize().x + boxPadding.x * 2.0);
@@ -150,6 +151,8 @@ void SetupWindow::onDraw(){
 		
 		ImGui::PopID();
 	}
+	 
+	 */
 }
 
 }

@@ -60,6 +60,9 @@ void SafetySignal::inputProcess(){
 		//if the safety line is also SAFE
 	}
 
+	assert(false || "Timing source should be reimplemented...");
+	
+	/*
 	if(b_shouldResetSafety){
 		b_shouldResetSafety = false;
 		resetPulseStartTime = Environnement::getTime_nanoseconds();
@@ -68,6 +71,7 @@ void SafetySignal::inputProcess(){
 	if(b_isResettingFault && Environnement::getTime_nanoseconds() - resetPulseStartTime > faultResetPulseTime->value * 1000'000'000){
 		b_isResettingFault = false;
 	}
+	*/
 	
 	*resetSafetySignal = b_isResettingFault;
 	

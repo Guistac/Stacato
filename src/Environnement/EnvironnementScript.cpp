@@ -21,7 +21,9 @@ namespace Script{
 	}
 
 	bool canCompile(){
-		return !Environnement::isRunning();
+		assert(false || "Environnement should be accessed in a different way");
+		return false;
+		//return !Environnement::isRunning();
 	}
 
 	void compile(){

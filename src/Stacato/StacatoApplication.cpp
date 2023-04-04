@@ -31,7 +31,7 @@ bool initialize(){
 	NodeFactory::load();
 	
 	//load network interfaces, initialize networking, open ethercat network interface
-	Environnement::initialize();
+	//Environnement::initialize();
 	
 	//start looking for consoles, and load profile for previously connected ones
 	ConsoleHandler::initialize();
@@ -64,7 +64,7 @@ bool terminate(){
 	ConsoleHandler::terminate();
 	
 	//stop hardware or simulation and terminate fieldbus
-	Environnement::terminate();
+	//Environnement::terminate();
 	
 }
 

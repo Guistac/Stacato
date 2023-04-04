@@ -39,7 +39,8 @@ void DeadMansSwitch::inputProcess(){
 	switchPressedPin->copyConnectedPinValue();
 	
     
-    
+	assert(false || "Environnement Timing should be accessed in a different way");
+	/*
 	if(b_pressRequested && !*b_switchPressed){
 		//press request timeout detection
 		long long time_nanoseconds = Environnement::getTime_nanoseconds();
@@ -52,7 +53,7 @@ void DeadMansSwitch::inputProcess(){
 		//when the switch is pressed, cancel the press request
 		b_pressRequested = false;
 	}
-    
+	 */
 	
 	//update switch state
 	if(*b_switchPressed) state = State::PRESSED;
@@ -80,15 +81,20 @@ void DeadMansSwitch::outputProcess(){
 }
 
 void DeadMansSwitch::handlePressRequest(){
+	assert(false || "Environnement Timing should be accessed in a different way");
+	/*
 	//handle press request
 	if(b_shouldRequestPress){
 		b_shouldRequestPress = false;
 		pressRequestTime_nanoseconds = Environnement::getTime_nanoseconds();
 		b_pressRequested = true;
 	}
+	 */
 }
 
 void DeadMansSwitch::updateLedState(){
+	assert(false || "Environnement Timing should be accessed in a different way");
+	/*
 	if(*b_switchPressed){
         if(b_shouldKeepPressing) *b_switchLed = Timing::getBlink(1.0 / requestBlinkFrequency->value);
         else *b_switchLed = true;
@@ -103,6 +109,7 @@ void DeadMansSwitch::updateLedState(){
 		long long blinkLength = 1000000000 * idleBlinkLength->value;
 		*b_switchLed = time_nanoseconds % blinkPeriod < blinkLength;
 	}
+	 */
 }
 
 
