@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Fieldbus/EtherCatDevice.h"
-#include "Fieldbus/Utilities/DS402.h"
+#include "Fieldbus/Utilities/DS402Axis.h"
 
 #include "Motion/Interfaces.h"
 
@@ -53,35 +53,25 @@ public:
 	std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
 	
 	//————— Drive State —————
-	DS402::PowerState requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-	DS402::PowerState actualPowerState = DS402::PowerState::UNKNOWN;
 	long long enableRequestTime_nanoseconds;
-	
+	bool b_waitingForEnable = false;
 	bool b_reverseDirection = false;
+	
 	bool b_velocityTargetReached = false;
 	bool b_motorVoltagePresent = false;
-	
 	bool b_remoteControlEnabled = false;
 	bool b_stoActive = false;
 	bool b_hasFault = false;
 	bool b_isResettingFault = false;
 	
-	//————— RX PDO —————
-	DS402::Control ds402Control;
-	int16_t velocityTarget_rpm = 0;
-	
-	//————— TX PDO —————
-	DS402::Status ds402Status;
-	int16_t velocityActual_rpm = 0;
+	//————— PDO Data —————
+	std::shared_ptr<DS402Axis> axis;
 	uint16_t logicInputs = 0;
 	uint16_t stoState = 0;
 	int16_t motorPower = 0;
 	uint16_t lastFaultCode = 0x0;
 	
-	
 	//————— General Settings —————
-	long long enableRequestTimeout_nanoseconds = 500'000'000; //250ms enable timeout
-	
 	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
 	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
 	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz;
@@ -120,13 +110,13 @@ public:
 	//[npr]
 	NumberParam<double> ratedMotorPowerParameter;
 	//[uns]
-	NumberParam<double> ratedMotorVoltage;
+	NumberParam<double> nominalMotorVoltageParameter;
 	//[ncr]
-	NumberParam<double> ratedMotorCurrentParameter;
+	NumberParam<double> nominalMotorCurrentParameter;
 	//[frs]
-	NumberParam<double> motorRatedFrequency;
-	//[nps]
-	NumberParam<double> motorRatedSpeed;
+	NumberParam<double> nominalMotorFrequencyParameter;
+	//[nsp]
+	NumberParam<double> nominalMotorSpeedParameter;
 	
 	
 	enum LogicInput{
