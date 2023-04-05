@@ -80,21 +80,55 @@ public:
 	
 	
 	//————— General Settings —————
-	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout
+	long long enableRequestTimeout_nanoseconds = 500'000'000; //250ms enable timeout
 	
-	std::shared_ptr<NumberParameter<double>> accelerationRampTime = NumberParameter<double>::make(3.0, "Acceleration Ramp", "AccelerationRamp",
-																								  "%.1f", Units::Time::Second, false);
-	std::shared_ptr<NumberParameter<double>> decelerationRampTime = NumberParameter<double>::make(1.0, "Deceleration Ramp", "DecelerationRamp",
-																								  "%.1f", Units::Time::Second, false);
-	std::shared_ptr<NumberParameter<int>> maxVelocityRPM = NumberParameter<int>::make(1400, "Max Velocity", "MaxVelocity", "%i ",
-																					  Units::AngularDistance::Revolution, false, 0, 0, "", "/min");
-	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz = NumberParameter<double>::make(5.0, "Slowdown Velocity", "SlowdownVelocity",
-																								"%.1f", Units::Frequency::Hertz, false);
-	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
-	
-    std::shared_ptr<NumberParameter<double>> lowSpeedHertz = NumberParameter<double>::make(0.0, "Low Speed", "LowSpeed", "%.1f",
-                                                                                           Units::Frequency::Hertz, false);
+	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
+	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
+	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz;
+	std::shared_ptr<BooleanParameter> invertDirection;
+	std::shared_ptr<NumberParameter<double>> lowSpeedHertz;
     
+	
+	//—————————— Motor Parameters ————————————
+	
+	enum StandartMotorFrequency{
+		HZ_50 = 0,
+		HZ_60 = 1
+	};
+	OptionParameter::Option option_frequency50Hz = OptionParameter::Option(StandartMotorFrequency::HZ_50, "50 Hz", "50Hz");
+	OptionParameter::Option option_frequency60Hz = OptionParameter::Option(StandartMotorFrequency::HZ_60, "60 Hz", "60Hz");
+	
+	enum MotorControlType{
+		SENSORLESS_FLUX_VECTOR = 0,
+		STANDARD_MOTOR_LAW = 3,
+		FIVE_POINT_VOLTAGE_FREQUENCY = 4,
+		SYNCHRONOUS_MOTOR = 5,
+		V_F_QUADRATIC = 6,
+		ENERGY_SAVING = 7
+	};
+	OptionParameter::Option option_motorControlType_sensorlessFluxVector = OptionParameter::Option(MotorControlType::SENSORLESS_FLUX_VECTOR, "Sensorless flux vector V", "SensorlessFluxVectorV");
+	OptionParameter::Option option_motorControlType_standardMotorLaw = OptionParameter::Option(MotorControlType::STANDARD_MOTOR_LAW, "Standard Motor Law", "StandardMotorLaw");
+	OptionParameter::Option option_motorControlType_5pointVoltageFrequency = OptionParameter::Option(MotorControlType::FIVE_POINT_VOLTAGE_FREQUENCY, "5 point voltage/frequency", "5pointVoltageFrequency");
+	OptionParameter::Option option_motorControlType_synchronousMotor = OptionParameter::Option(MotorControlType::SYNCHRONOUS_MOTOR, "Synchronous Motor", "SynchronousMotor");
+	OptionParameter::Option option_motorControlType_VFQuadratic = OptionParameter::Option(MotorControlType::V_F_QUADRATIC, "V/F Quadratic", "VFQuadratic");
+	OptionParameter::Option option_motorControlType_energySaving = OptionParameter::Option(MotorControlType::ENERGY_SAVING, "Energy Saving", "EnergySaving");
+	
+	//[bfr]
+	OptionParam standartMotorFrequencyParameter;
+	//[ctt]
+	OptionParam motorControlTypeParameter;
+	//[npr]
+	NumberParam<double> ratedMotorPowerParameter;
+	//[uns]
+	NumberParam<double> ratedMotorVoltage;
+	//[ncr]
+	NumberParam<double> ratedMotorCurrentParameter;
+	//[frs]
+	NumberParam<double> motorRatedFrequency;
+	//[nps]
+	NumberParam<double> motorRatedSpeed;
+	
+	
 	enum LogicInput{
 		NONE = 0,
 		LI1 = 129,
@@ -104,9 +138,6 @@ public:
 		LI5 = 133,
 		LI6 = 134
 	};
-	
-	NumberParam<double> ratedMotorCurrentParameter;
-	NumberParam<double> ratedMotorPowerParameter;
 	
 	OptionParameter::Option option_logicInput_none =	OptionParameter::Option(LogicInput::NONE, "None", "None");
 	OptionParameter::Option option_logicInput_LI1 =		OptionParameter::Option(LogicInput::LI1, "LI1", "LI1");

@@ -31,16 +31,16 @@ void ATV320::controlsGui(){
 	ImGui::Text("Velocity Control");
 	ImGui::PopFont();
 	
-	ImGui::BeginDisabled(!actuator->isEnabled() || actuatorPin->isConnected());
+	//ImGui::BeginDisabled(!actuator->isEnabled() || actuatorPin->isConnected());
+	ImGui::BeginDisabled(false);
 	
-	int16_t max = maxVelocityRPM->value;
-	int16_t min = -maxVelocityRPM->value;
+	int16_t max = motorRatedSpeed->value;
+	int16_t min = -motorRatedSpeed->value;
 	float velocityTarget_rps = 0.0;
-	float maxVel = maxVelocityRPM->value / 60.0;
-	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, maxVel, -maxVel);
-	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rpm);
+	float maxVel = motorRatedSpeed->value / 60.0;
+	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVel, maxVel);
+	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rps);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
-
 	
 	ImGui::InvisibleButton("velocityIndicator", ImGui::GetItemRectSize());
 	glm::vec2 minIndicator = ImGui::GetItemRectMin();
@@ -75,9 +75,6 @@ void ATV320::settingsGui(){
 	ImGui::Text("Deceleration Ramp");
 	decelerationRampTime->gui();
 	ImGui::Text("Max Velocity");
-	maxVelocityRPM->gui();
-    //ImGui::Text("Low Speed");
-    //lowSpeedHertz->gui();
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
 	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->getAccelerationLimit());
@@ -87,14 +84,15 @@ void ATV320::settingsGui(){
 	ImGui::SameLine();
 	ImGui::TextWrapped("Invert Direction of Motion");
 	
-	//ImGui::Separator();
-	//ImGui::Text("Slowdown Frequency");
-	//slowdownVelocityHertz->gui();
-	
 	ImGui::Separator();
 	
-	ratedMotorCurrentParameter->gui(Fonts::sansBold15);
+	standartMotorFrequencyParameter->gui(Fonts::sansBold15);
+	motorControlTypeParameter->gui(Fonts::sansBold15);
 	ratedMotorPowerParameter->gui(Fonts::sansBold15);
+	ratedMotorVoltage->gui(Fonts::sansBold15);
+	ratedMotorCurrentParameter->gui(Fonts::sansBold15);
+	motorRatedFrequency->gui(Fonts::sansBold15);
+	motorRatedSpeed->gui(Fonts::sansBold15);
 	
 	ImGui::Separator();
 	
