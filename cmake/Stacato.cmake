@@ -272,6 +272,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfileGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/SDOTask.h
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp

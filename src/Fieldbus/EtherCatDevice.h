@@ -38,6 +38,7 @@
 
 namespace tinyxml2{ class XMLElement; }
 namespace EtherCatFieldbus{ struct DeviceConnection; }
+class SDOTask;
 
 class EtherCatDevice : public Device {
 public:
@@ -236,6 +237,9 @@ public:
 	}
 	
 	std::vector<std::shared_ptr<EtherCatFieldbus::DeviceConnection>> connections;
+	
+	
+	bool executeSDOTasks(std::vector<std::shared_ptr<SDOTask>>& taskList);
 	
 };
 

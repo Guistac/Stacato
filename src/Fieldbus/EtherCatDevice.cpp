@@ -3,6 +3,7 @@
 #include "EtherCatDevice.h"
 #include "EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/EtherCatError.h"
+#include "Fieldbus/Utilities/SDOTask.h"
 
 #include <imgui.h>
 #include <tinyxml2.h>
@@ -238,6 +239,14 @@ bool EtherCatDevice::writeSDO_String(uint16_t index, uint8_t subindex, const cha
 	int wkc = ec_SDOwrite(slaveIndex, index, subindex, false, strlen(data), (void*)&data, EC_TIMEOUTRXM);
 	logSDOwriteResult(wkc, index, subindex, objectName);
 	return wkc == 1;
+}
+
+bool EtherCatDevice::executeSDOTasks(std::vector<std::shared_ptr<SDOTask>>& taskList){
+	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
+	for(auto task : taskList){
+		if(!task->execute(thisDevice)) return false;
+	}
+	return true;
 }
 
 //================== AL Status Code Download =======================

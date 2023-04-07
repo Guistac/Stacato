@@ -7,6 +7,44 @@
 
 #include "Project/Editor/Parameter.h"
 
+
+class AsynchronousTask{
+public:
+	
+	void execute(){
+		std::thread taskHandler([this](){
+			b_isRunning = true;
+			onExecution();
+			b_isRunning = false;
+		});
+		taskHandler.detach();
+	}
+	
+	bool isRunning(){
+		return b_isRunning;
+	}
+	
+	std::string getStatusString(){
+		std::lock_guard<std::mutex> lock(mutex);
+		return statusString;
+	}
+	
+	virtual void onExecution() = 0;
+	virtual bool canStart() = 0;
+	
+protected:
+	void setStatusString(std::string status){
+		std::lock_guard<std::mutex> lock(mutex);
+		statusString = status;
+	}
+private:
+	std::string statusString;
+	bool b_isRunning = false;
+	std::mutex mutex;
+};
+
+
+
 class ATV320 : public EtherCatDevice{
 public:
 	
@@ -71,15 +109,9 @@ public:
 	int16_t motorPower = 0;
 	uint16_t lastFaultCode = 0x0;
 	
-	//————— General Settings —————
-	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
-	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
-	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz;
-	std::shared_ptr<BooleanParameter> invertDirection;
-	std::shared_ptr<NumberParameter<double>> lowSpeedHertz;
-    
 	
-	//—————————— Motor Parameters ————————————
+	
+	//—————————— DRIVE PARAMETER ENUMERATORS ————————————
 	
 	enum StandartMotorFrequency{
 		HZ_50 = 0,
@@ -87,6 +119,11 @@ public:
 	};
 	OptionParameter::Option option_frequency50Hz = OptionParameter::Option(StandartMotorFrequency::HZ_50, "50 Hz", "50Hz");
 	OptionParameter::Option option_frequency60Hz = OptionParameter::Option(StandartMotorFrequency::HZ_60, "60 Hz", "60Hz");
+	std::vector<OptionParameter::Option*> options_standartMotorFrequency = {
+		&option_frequency50Hz,
+		&option_frequency60Hz
+	};
+
 	
 	enum MotorControlType{
 		SENSORLESS_FLUX_VECTOR = 0,
@@ -96,27 +133,26 @@ public:
 		V_F_QUADRATIC = 6,
 		ENERGY_SAVING = 7
 	};
-	OptionParameter::Option option_motorControlType_sensorlessFluxVector = OptionParameter::Option(MotorControlType::SENSORLESS_FLUX_VECTOR, "Sensorless flux vector V", "SensorlessFluxVectorV");
-	OptionParameter::Option option_motorControlType_standardMotorLaw = OptionParameter::Option(MotorControlType::STANDARD_MOTOR_LAW, "Standard Motor Law", "StandardMotorLaw");
-	OptionParameter::Option option_motorControlType_5pointVoltageFrequency = OptionParameter::Option(MotorControlType::FIVE_POINT_VOLTAGE_FREQUENCY, "5 point voltage/frequency", "5pointVoltageFrequency");
-	OptionParameter::Option option_motorControlType_synchronousMotor = OptionParameter::Option(MotorControlType::SYNCHRONOUS_MOTOR, "Synchronous Motor", "SynchronousMotor");
-	OptionParameter::Option option_motorControlType_VFQuadratic = OptionParameter::Option(MotorControlType::V_F_QUADRATIC, "V/F Quadratic", "VFQuadratic");
-	OptionParameter::Option option_motorControlType_energySaving = OptionParameter::Option(MotorControlType::ENERGY_SAVING, "Energy Saving", "EnergySaving");
-	
-	//[bfr]
-	OptionParam standartMotorFrequencyParameter;
-	//[ctt]
-	OptionParam motorControlTypeParameter;
-	//[npr]
-	NumberParam<double> ratedMotorPowerParameter;
-	//[uns]
-	NumberParam<double> nominalMotorVoltageParameter;
-	//[ncr]
-	NumberParam<double> nominalMotorCurrentParameter;
-	//[frs]
-	NumberParam<double> nominalMotorFrequencyParameter;
-	//[nsp]
-	NumberParam<double> nominalMotorSpeedParameter;
+	OptionParameter::Option option_motorControlType_sensorlessFluxVector =
+		OptionParameter::Option(MotorControlType::SENSORLESS_FLUX_VECTOR, "Sensorless flux vector V", "SensorlessFluxVectorV");
+	OptionParameter::Option option_motorControlType_standardMotorLaw =
+		OptionParameter::Option(MotorControlType::STANDARD_MOTOR_LAW, "Standard Motor Law", "StandardMotorLaw");
+	OptionParameter::Option option_motorControlType_5pointVoltageFrequency =
+		OptionParameter::Option(MotorControlType::FIVE_POINT_VOLTAGE_FREQUENCY, "5 point voltage/frequency", "5pointVoltageFrequency");
+	OptionParameter::Option option_motorControlType_synchronousMotor =
+		OptionParameter::Option(MotorControlType::SYNCHRONOUS_MOTOR, "Synchronous Motor", "SynchronousMotor");
+	OptionParameter::Option option_motorControlType_VFQuadratic =
+		OptionParameter::Option(MotorControlType::V_F_QUADRATIC, "V/F Quadratic", "VFQuadratic");
+	OptionParameter::Option option_motorControlType_energySaving =
+		OptionParameter::Option(MotorControlType::ENERGY_SAVING, "Energy Saving", "EnergySaving");
+	std::vector<OptionParameter::Option*> options_motorControlType = {
+		&option_motorControlType_sensorlessFluxVector,
+		&option_motorControlType_standardMotorLaw,
+		&option_motorControlType_5pointVoltageFrequency,
+		&option_motorControlType_synchronousMotor,
+		&option_motorControlType_VFQuadratic,
+		&option_motorControlType_energySaving
+	};
 	
 	
 	enum LogicInput{
@@ -128,7 +164,6 @@ public:
 		LI5 = 133,
 		LI6 = 134
 	};
-	
 	OptionParameter::Option option_logicInput_none =	OptionParameter::Option(LogicInput::NONE, "None", "None");
 	OptionParameter::Option option_logicInput_LI1 =		OptionParameter::Option(LogicInput::LI1, "LI1", "LI1");
 	OptionParameter::Option option_logicInput_LI2 =		OptionParameter::Option(LogicInput::LI2, "LI2", "LI2");
@@ -136,8 +171,15 @@ public:
 	OptionParameter::Option option_logicInput_LI4 =		OptionParameter::Option(LogicInput::LI4, "LI4", "LI4");
 	OptionParameter::Option option_logicInput_LI5 =		OptionParameter::Option(LogicInput::LI5, "LI5", "LI5");
 	OptionParameter::Option option_logicInput_LI6 =		OptionParameter::Option(LogicInput::LI6, "LI6", "LI6");
-	OptionParam forwardStopLimitAssignementParameter;
-	OptionParam reverseStopLimitAssignementParameter;
+	std::vector<OptionParameter::Option*> options_logicInput = {
+		&option_logicInput_none,
+		&option_logicInput_LI1,
+		&option_logicInput_LI2,
+		&option_logicInput_LI3,
+		&option_logicInput_LI4,
+		&option_logicInput_LI5,
+		&option_logicInput_LI6
+	};
 	
 	enum ActiveLowHigh{
 		ACTIVE_LOW = 0,
@@ -145,7 +187,36 @@ public:
 	};
 	OptionParameter::Option option_activeLow = OptionParameter::Option(ActiveLowHigh::ACTIVE_LOW, "Active Low", "ActiveLow");
 	OptionParameter::Option option_activeHigh = OptionParameter::Option(ActiveLowHigh::ACTIVE_HIGH, "Active High", "ActiveHigh");
+	std::vector<OptionParameter::Option*> options_activeLowHigh = {
+		&option_activeLow,
+		&option_activeHigh
+	};
+	
+	//———————————— DRIVE PARAMETERS —————————————
+	
+	//————— General Settings —————
+	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
+	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
+	std::shared_ptr<BooleanParameter> invertDirection;
+	std::shared_ptr<NumberParameter<double>> lowControlFrequencyParameter;
+	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter;
+	
+	//————— Motor Parameters —————
+	
+	OptionParam standartMotorFrequencyParameter;		//[bfr]
+	OptionParam motorControlTypeParameter;				//[ctt]
+	NumberParam<double> ratedMotorPowerParameter;		//[npr]
+	NumberParam<double> nominalMotorVoltageParameter;	//[uns]
+	NumberParam<double> nominalMotorCurrentParameter;	//[ncr]
+	NumberParam<double> nominalMotorSpeedParameter;		//[nsp]
+	
+	//————— Limit signal configuration —————
+
+	OptionParam forwardStopLimitAssignementParameter;
+	OptionParam reverseStopLimitAssignementParameter;
 	OptionParam stopLimitConfigurationParameter;
+	
+	//————— Logic input configuration —————
 	
 	NumberParam<int> logicInput1OnDelayParameter;
 	NumberParam<int> logicInput2OnDelayParameter;
@@ -153,6 +224,35 @@ public:
 	NumberParam<int> logicInput4OnDelayParameter;
 	NumberParam<int> logicInput5OnDelayParameter;
 	NumberParam<int> logicInput6OnDelayParameter;
+	
+	
+	
+	//————————————— TASKS ———————————
+	
+	class ConfigurationUploadTask : public AsynchronousTask{
+	public:
+		void setAtv320(std::shared_ptr<ATV320> atv320_){ atv320 = atv320_; }
+		virtual void onExecution() override;
+		virtual bool canStart() override;
+	private:
+		std::shared_ptr<ATV320> atv320 = nullptr;
+	};
+	
+	class StandstillTuningTask : public AsynchronousTask{
+	public:
+		void setAtv320(std::shared_ptr<ATV320> atv320_){ atv320 = atv320_; }
+		virtual void onExecution() override;
+		virtual bool canStart() override;
+	private:
+		std::shared_ptr<ATV320> atv320 = nullptr;
+	};
+	
+	ConfigurationUploadTask configurationUploadTask;
+	StandstillTuningTask standstillTuningTask;
+	
+	
+	//—————— other —————
+	
 	
 	std::string getStatusString();
 	std::string getShortStatusString();
@@ -164,5 +264,5 @@ public:
 	void statusGui();
 	
 	void updateActuatorInterface();
-	
 };
+

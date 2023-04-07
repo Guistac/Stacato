@@ -71,6 +71,20 @@ void ATV320::controlsGui(){
 
 void ATV320::settingsGui(){
 	
+	
+	
+	ImGui::BeginDisabled(!configurationUploadTask.canStart());
+	if(ImGui::Button("Upload Configuration")) configurationUploadTask.execute();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	ImGui::TextColored(Colors::gray, "%s", configurationUploadTask.getStatusString().c_str());
+	
+	ImGui::BeginDisabled(!standstillTuningTask.canStart());
+	if(ImGui::Button("Start Autotuning")) standstillTuningTask.execute();
+	ImGui::EndDisabled();
+	ImGui::SameLine();
+	ImGui::TextColored(Colors::gray, "%s", standstillTuningTask.getStatusString().c_str());
+	
 	auto drawParameterGroup = [](std::string groupName, std::vector<std::shared_ptr<Parameter>> parameters){
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader(groupName.c_str())){
@@ -114,12 +128,13 @@ void ATV320::settingsGui(){
 		motorControlTypeParameter,
 		ratedMotorPowerParameter,
 		nominalMotorVoltageParameter,
-		nominalMotorCurrentParameter,
-		nominalMotorFrequencyParameter
+		nominalMotorCurrentParameter
 	});
 
 	drawParameterGroup("Motion Control", {
 		nominalMotorSpeedParameter,
+		lowControlFrequencyParameter,
+		highControlFrequencyParameter,
 		accelerationRampTime,
 		decelerationRampTime,
 		invertDirection
@@ -140,7 +155,6 @@ void ATV320::settingsGui(){
 		logicInput6OnDelayParameter
 	});
 	
-	ImGui::TextWrapped("Invert Direction of Motion");
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
 	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->getAccelerationLimit());
 	ImGui::TextWrapped("Max Decleration is %.1f rev/s\xc2\xb2", actuator->getDecelerationLimit());
