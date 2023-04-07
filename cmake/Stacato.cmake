@@ -226,6 +226,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/AsynchronousTask.h
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp

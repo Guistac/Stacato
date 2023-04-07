@@ -6,42 +6,7 @@
 #include "Motion/Interfaces.h"
 
 #include "Project/Editor/Parameter.h"
-
-
-class AsynchronousTask{
-public:
-	
-	void execute(){
-		std::thread taskHandler([this](){
-			b_isRunning = true;
-			onExecution();
-			b_isRunning = false;
-		});
-		taskHandler.detach();
-	}
-	
-	bool isRunning(){
-		return b_isRunning;
-	}
-	
-	std::string getStatusString(){
-		std::lock_guard<std::mutex> lock(mutex);
-		return statusString;
-	}
-	
-	virtual void onExecution() = 0;
-	virtual bool canStart() = 0;
-	
-protected:
-	void setStatusString(std::string status){
-		std::lock_guard<std::mutex> lock(mutex);
-		statusString = status;
-	}
-private:
-	std::string statusString;
-	bool b_isRunning = false;
-	std::mutex mutex;
-};
+#include "Utilities/AsynchronousTask.h"
 
 
 

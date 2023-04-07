@@ -1,6 +1,6 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.5118737" OffsetX="1060.5212" OffsetY="-1992.9109" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Position Controlled Machine" UniqueID="1" PositionX="-1059" PositionY="2054" SizeX="300.86816" SizeY="64.171295"/>
+    <Dashboard Scale="1.5137143" OffsetX="1060.5194" OffsetY="-1993.0758" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Position Controlled Machine" UniqueID="1" PositionX="-1059" PositionY="2054" SizeX="301.17572" SizeY="64.184258"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -248,10 +248,10 @@
                 <NodeEditorPosition x="484" y="-432"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
-                    <GeneralSettings AccelerationRamp="2" DecelerationRamp="3" InvertMotionDirection="true" MinControlFrequency="0" MaxControlFrequency="50"/>
-                    <MotorParameters StandartMotorFrequency="1" MotorControlType="7" RatedMotorPower="1" RatedMotorVoltage="2" RatedMotorCurrent="3" MotorRatedSpeed="1"/>
-                    <LimitSignals ForwardStopSignal="134" ReverseStopSignal="133" StopLimitConfiguration="0"/>
-                    <LogicInputSettings LI1OnDelay="1" LI2OnDelay="2" LI3OnDelay="3" LI4OnDelay="4" LI5OnDelay="5" LI6OnDelay="6"/>
+                    <GeneralSettings AccelerationRamp="1" DecelerationRamp="3" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="60"/>
+                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.17999999999999999" RatedMotorVoltage="400" RatedMotorCurrent="1.5" MotorRatedSpeed="1400"/>
+                    <LimitSignals ForwardStopSignal="132" ReverseStopSignal="133" StopLimitConfiguration="0"/>
+                    <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins>
