@@ -18,6 +18,7 @@ IMPLEMENTATION
 	bool onDeserialization()
 */
 
+
 class Serializable{
 public:
 	
@@ -149,13 +150,12 @@ public:
 public:
 	
 	tinyxml2::XMLElement* xmlElement = nullptr;
+	virtual bool onSerialization() { return true; }
+	virtual bool onDeserialization() { return true; }
 	
 protected:
 	
 	std::string saveString;
-	
-	virtual bool onSerialization() { return true; }
-	virtual bool onDeserialization() { return true; }
 	
 	void setXmlElement(tinyxml2::XMLElement* xmlElement_){
 		xmlElement = xmlElement_;

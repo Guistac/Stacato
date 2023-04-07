@@ -15,7 +15,7 @@ public:
 	std::shared_ptr<Layout> currentLayout = nullptr;
 	std::shared_ptr<Layout> defaultLayout = nullptr;
 
-	const std::vector<std::shared_ptr<Layout>>& get(){ return layouts.get(); }
+	const std::vector<std::shared_ptr<Layout>>& get(){ return layouts; }
 	std::shared_ptr<Layout> getCurrent(){ return currentLayout; }
 	std::shared_ptr<Layout> getDefault(){ return defaultLayout; }
 
@@ -24,15 +24,14 @@ public:
 	void makeCurrent(std::shared_ptr<Layout> layout);
 	
 	void add(std::shared_ptr<Layout> layout){
-		layouts.get().push_back(layout);
+		layouts.push_back(layout);
 	}
 	
 	void remove(std::shared_ptr<Layout> layout){
 		if(layout == currentLayout) currentLayout = nullptr;
-		auto& list = layouts.get();
-		for(int i = 0; i < list.size(); i++){
-			if(list[i] == layout){
-				list.erase(list.begin() + i);
+		for(int i = 0; i < layouts.size(); i++){
+			if(layouts[i] == layout){
+				layouts.erase(layouts.begin() + i);
 				return;
 			}
 		}

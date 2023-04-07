@@ -32,19 +32,54 @@
 bool EnvironnementObject::onSerialization(){
 	Component::onSerialization();
 	bool success = true;
+
+	nodeGraph->serializeIntoParent(this);
+	
+	//========= DASHBOARD =========
+	//DashboardManager::save(environnementXML);
+	
+	//====== NODE GRAPH SAVING ======
+
+	//XMLElement* nodeGraphXML = environnementXML->InsertNewChildElement("NodeGraph");
+	//Environnement::NodeGraph::save(nodeGraphXML);
+
+	//====== FIELDBUS PARAMETER SAVING ======
+
+	//XMLElement* fieldbusSettingsXML = document.NewElement("FieldbusSettings");
+	//document.InsertEndChild(fieldbusSettingsXML);
+	//EtherCatFieldbus::save(fieldbusSettingsXML);
+
 	return success;
 }
 
 bool EnvironnementObject::onDeserialization(){
 	Component::onDeserialization();
 	bool success = true;
+	
+	nodeGraph->deserializeFromParent(this);
+	
+	//========= DASHBOARD =========
+	//if(!DashboardManager::load(environnementXML)){
+	//	Logger::warn("Error Loading Dashboards");
+	//	return false;
+	//}
+	
+	//====== NODE GRAPH LOADING ======
+
+	//if (!Environnement::NodeGraph::load(nodeGraphXML)) return Logger::warn("Error reading NodeGraph data");
+
+	//====== FIELDBUS PARAMETER LOADING ======
+	
+	//if (!EtherCatFieldbus::load(fieldbusSettingsXML)) return Logger::warn("Error reading Fieldbus settings data");
+	
 	return success;
 }
 
 void EnvironnementObject::onConstruction(){
 	Component::onConstruction();
-	nodeGraph = NodeGraph::createInstance();
 	
+	nodeGraph = NodeGraph::createInstance();
+	nodeGraph->setSaveString("NodeGraph");
 	nodeGraph->setNodeAddCallback([this](std::shared_ptr<Node> node){ addNode(node); });
 	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
 	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);

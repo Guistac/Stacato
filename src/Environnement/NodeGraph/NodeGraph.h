@@ -4,7 +4,7 @@
 #include "NodePin.h"
 #include "NodeLink.h"
 
-#include "Legato/Editor/Component.h"
+#include "Legato/Editor/ListComponent.h"
 
 #include <imgui.h>
 #include <imgui_node_editor.h>
@@ -37,19 +37,15 @@ class NodeGraph : public Legato::Component{
 	
 protected:
 	
-	virtual bool onSerialization() override {
-		Component::onSerialization();
-		return true;
-	}
+	virtual bool onSerialization() override;
 	
-	virtual bool onDeserialization() override {
-		Component::onDeserialization();
-		return true;
-	}
+	virtual bool onDeserialization() override;
 	
 	virtual void onConstruction() override {
 		Component::onConstruction();
 		context = ax::NodeEditor::CreateEditor();
+		
+		nodeList = Legato::ListComponent<Node>::createInstance();
 	}
 	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -67,6 +63,10 @@ public:
 	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return links; }
 	std::vector<std::shared_ptr<Node>>& getSelectedNodes(){ return selectedNodes; }
 	std::vector<std::shared_ptr<NodeLink>>& getSelectedLinks(){ return selectedLinks; }
+	
+	std::shared_ptr<Legato::ListComponent<Node>> nodeList;
+	//std::shared_ptr<Legato::ListComponent<NodeLink>> linkList;
+	//std::shared_ptr<ListComponent<NodePin>> pinList;
 	
 	int getNewUniqueID(){
 		uniqueIdCounter++;
@@ -119,9 +119,6 @@ public:
 	void editorGui(ImVec2 size);
 	void centerView();
 	void showFlow();
-	
-	bool load(tinyxml2::XMLElement* xml);
-	bool save(tinyxml2::XMLElement* xml);
 	
 	ax::NodeEditor::EditorContext* context;
 	

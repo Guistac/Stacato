@@ -28,7 +28,7 @@ bool LayoutList::onDeserialization() {
 	if(defaultLayoutSerializable.deserializeFromParent(this)){
 		std::string defaultLayoutName;
 		if(defaultLayoutSerializable.deserializeAttribute("Name", defaultLayoutName)){
-			for(auto layout : layouts.get()){
+			for(auto layout : layouts){
 				if(layout->getName() == defaultLayoutName){
 					defaultLayout = layout;
 					makeCurrent(layout);
@@ -56,7 +56,7 @@ void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 void LayoutList::captureNew(){
 	auto newLayout = Legato::Gui::WindowManager::captureCurentLayout();
 	newLayout->setName("New Layout");
-	layouts.get().push_back(newLayout);
+	layouts.push_back(newLayout);
 	currentLayout = newLayout;
 }
 

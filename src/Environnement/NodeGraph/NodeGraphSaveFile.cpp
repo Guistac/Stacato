@@ -7,20 +7,23 @@
 
 #include <tinyxml2.h>
 
+#include "Legato/Editor/SerializableList.h"
 
-
-bool NodeGraph::save(tinyxml2::XMLElement* xml) {
+bool NodeGraph::onSerialization(){
+	Component::onSerialization();
 	
 	//this needs to be called to satisfy the node editor library
 	//if we never displayed the node editor, this means we never submitted any nodes to the library
 	//and we can't retrieve information such as node positions from the library
 	//we submit all node once here before saving so the library is happy
 	//we can proceed as if the node editor had been displayed all along
-	//if the node editor was display once this is useless but we submit the draw call anyways since it is offscreen
+	//if the node editor was displayed once this is useless but we submit the draw call anyways since it is offscreen
 	ImGui::SetNextWindowPos(ImVec2(10000, 10000));
 	ImGui::Begin("OffscreenNodeEditorFor1Frame", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
 	editorGui(ImVec2(0,0));
 	ImGui::End();
+	
+	/*
 	
 	using namespace tinyxml2;
 	XMLElement* nodes = xml->InsertNewChildElement("Nodes");
@@ -86,16 +89,15 @@ bool NodeGraph::save(tinyxml2::XMLElement* xml) {
 		linkXML->SetAttribute("StartPin", link->getInputData()->getUniqueID());
 		linkXML->SetAttribute("EndPin", link->getOutputData()->getUniqueID());
 	}
-
+*/
+	
 	return true;
 }
 
+bool NodeGraph::onDeserialization(){
+	Component::onDeserialization();
 
-
-
-bool NodeGraph::load(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-
+	/*
 	Logger::debug("Loading Nodegraph Data");
 
 	XMLElement* nodesXML = xml->FirstChildElement("Nodes");
@@ -313,7 +315,7 @@ bool NodeGraph::load(tinyxml2::XMLElement* xml) {
 	
 	Logger::trace("Largest unique ID is {}", largestUniqueID);
 	Logger::info("Successfully loaded Node Graph");
-
+*/
+	
 	return true;
 }
-

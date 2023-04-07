@@ -34,24 +34,11 @@ public:
 	
 	
 public:
-	
-	//project interface
-	//void createNew();
-	bool save(const char* filePath);
-	bool load(const char* filePath);
 
 	void initialize();
 	void terminate();
 
-	//project text information
-	//void setName(const char* _name);
-	//const char* getName();
-	//void updateName();
-	//const char* getNotes();
-	//void setNotes(const char* _notes);
-
 	//main environnement controls
-	//void setSimulation(bool sim);
 	void start();
 	void stop();
 	void enableAllMachines();
@@ -64,12 +51,6 @@ public:
 	//bool isSimulating();
 	bool areAllMachinesEnabled();
 	bool areNoMachinesEnabled();
-
-	//environnement timing
-	//double getTime_seconds();
-	//long long int getTime_nanoseconds();
-	//double getDeltaTime_seconds();
-	//long long int getDeltaTime_nanoseconds();
 
 	//update method driven by fieldbus
 	void updateEtherCatHardware();

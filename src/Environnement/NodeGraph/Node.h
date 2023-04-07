@@ -21,7 +21,7 @@ class Node : public Legato::Component{
 	
 	DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
 	
-protected:
+public:
 	
 	virtual bool onSerialization() override {
 		Component::onSerialization();

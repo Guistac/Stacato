@@ -1,17 +1,15 @@
 #pragma once
 
-#include "Serializable.h"
+#include "Component.h"
 
-
+namespace Legato{
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<Serializable, T>>>
-class SerializableList : public Serializable, public std::vector<std::shared_ptr<T>>{
+class ListComponent : public Component, public std::vector<std::shared_ptr<T>>{
+	
 public:
-
-	/*
-	 //this was suggested by chatGPT to make sure we only create lists templated with serializable elements
-	 static_assert(std::is_base_of<Serializable, T>::value, "Templated type must be derived from Serializable since the elements in the list must be saved and loaded");
-	 */
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
 	
 	void setEntrySaveString(std::string entrySaveString_){
 		entrySaveString = entrySaveString_;
@@ -71,4 +69,20 @@ private:
 		return b_allEntriesLoaded;
 	}
 	
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Component::onCopyFrom(source);
+		
+		auto listComponent = std::static_pointer_cast<ListComponent<T>>(source);
+		for(auto originalEntry : *listComponent.get()){ //get the raw pointer and dereference it to get the vector
+			auto copy = originalEntry->duplicate();
+			std::vector<std::shared_ptr<T>>::push_back(copy); //we need to specify the push_back method of the specific vector subclass
+		}
+	}
+	
 };
+
+}
