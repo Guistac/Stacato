@@ -60,9 +60,12 @@ public:
 	bool b_waitingForEnable = false;
 	bool b_reverseDirection = false;
 	
-	bool b_velocityTargetReached = false;
+	bool b_referenceReached = false;
+	bool b_referenceOutsideLimits = false;
 	bool b_motorVoltagePresent = false;
 	bool b_remoteControlEnabled = false;
+	bool b_stopKeyPressed = false;
+	bool b_directionOfRotationAtOutput = false;
 	bool b_stoActive = false;
 	bool b_hasFault = false;
 	bool b_isResettingFault = false;

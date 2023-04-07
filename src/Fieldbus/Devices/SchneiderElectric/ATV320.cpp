@@ -4,9 +4,11 @@
 #include "Fieldbus/Utilities/SDOTask.h"
 
 void ATV320::onConnection() {
+	
 }
 
 void ATV320::onDisconnection() {
+	
 }
 
 void ATV320::updateActuatorInterface(){
@@ -17,12 +19,14 @@ void ATV320::updateActuatorInterface(){
 
 void ATV320::initialize() {
 	
-	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
-	actuator = std::make_shared<ATV_Motor>(std::static_pointer_cast<ATV320>(shared_from_this()));
-	gpio = std::make_shared<ATV_GPIO>(std::static_pointer_cast<ATV320>(shared_from_this()));
+	auto thisATV320 = std::static_pointer_cast<ATV320>(shared_from_this());
 	
-	configurationUploadTask.setAtv320(std::static_pointer_cast<ATV320>(shared_from_this()));
-	standstillTuningTask.setAtv320(std::static_pointer_cast<ATV320>(shared_from_this()));
+	axis = DS402Axis::make(thisATV320);
+	actuator = std::make_shared<ATV_Motor>(thisATV320);
+	gpio = std::make_shared<ATV_GPIO>(thisATV320);
+	
+	configurationUploadTask.setAtv320(thisATV320);
+	standstillTuningTask.setAtv320(thisATV320);
 	
 	actuatorPin->assignData(std::static_pointer_cast<ActuatorInterface>(actuator));
 	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
@@ -190,11 +194,27 @@ void ATV320::readInputs() {
 	}
 */
 	
+	if(b_waitingForEnable){
+		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
+		if(axis->isEnabled()) {
+			Logger::info("Drive Enabled");
+			b_waitingForEnable = false;
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
+			Logger::warn("Enable request timed out");
+			b_waitingForEnable = false;
+			axis->disable();
+		}
+	}
+	
 	//update general state
-	b_remoteControlEnabled = axis->isRemoteControlActive();
+	b_motorVoltagePresent = axis->hasVoltage();								//b4
+	b_remoteControlEnabled = axis->isRemoteControlActive();					//b9
+	b_referenceReached = axis->getOperatingModeSpeciricStatusWordBit_10();	//b10
+	b_referenceOutsideLimits = axis->isInternalLimitReached();				//b11
+	b_stopKeyPressed = axis->getOperatingModeSpeciricStatusWordBit_12();	//b12
 	b_stoActive = stoState != 0;
 	b_hasFault = axis->hasFault();
-	b_motorVoltagePresent = axis->hasVoltage();
 	
 	auto actualPowerState = axis->getActualPowerState();
 	if(isOffline())																actuator->state = DeviceState::OFFLINE;
@@ -235,8 +255,6 @@ void ATV320::readInputs() {
 
 void ATV320::writeOutputs() {
 	
-	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-	
 	//handle enabling & disabling
 	if(actuator->actuatorProcessData.b_disable){
 		actuator->actuatorProcessData.b_disable = false;
@@ -248,20 +266,8 @@ void ATV320::writeOutputs() {
 		else {
 			actuator->actuatorProcessData.b_enable = false;
 			b_waitingForEnable = true;
-			enableRequestTime_nanoseconds = now_nanoseconds;
+			enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 			axis->enable();
-		}
-	}
-	else if(b_waitingForEnable){
-		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
-		if(axis->isEnabled()) {
-			Logger::info("Drive Enabled");
-			b_waitingForEnable = false;
-		}
-		else if(now_nanoseconds - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
-			Logger::warn("Enable request timed out");
-			b_waitingForEnable = false;
-			axis->disable();
 		}
 	}
 	
@@ -506,60 +512,60 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		
 		//—————— Motor Configuration ———————
 		//[bfr] Standart Motor Frequency (0 = 50Hz / 1 = 60Hz)
-		SDOTask::prepareUpload(0x2000, 0x10, (uint16_t)atv320->standartMotorFrequencyParameter->value, "Standart motor frequency [bfr]"),
+		SDOTask::prepareUpload(0x2000, 0x10, uint16_t(atv320->standartMotorFrequencyParameter->value), "Standart motor frequency [bfr]"),
 		//[ctt] Motor Control Type
-		SDOTask::prepareUpload(0x2042, 0x8, (uint16_t)atv320->motorControlTypeParameter->value, "Motor control type [ctt]"),
+		SDOTask::prepareUpload(0x2042, 0x8, uint16_t(atv320->motorControlTypeParameter->value), "Motor control type [ctt]"),
 		//[mpc] set motor parameter choice to motor power (= 0)
-		SDOTask::prepareUpload(0x2042, 0xF, (uint16_t)0, "Motor parameter choice [mpc]"),
+		SDOTask::prepareUpload(0x2042, 0xF, uint16_t(0), "Motor parameter choice [mpc]"),
 		//[uns] rated motor voltage in 1V increments
-		SDOTask::prepareUpload(0x2042, 0x2, (uint16_t)atv320->nominalMotorVoltageParameter->value, "Nominal motor voltage [uns]"),
+		SDOTask::prepareUpload(0x2042, 0x2, uint16_t(atv320->nominalMotorVoltageParameter->value), "Nominal motor voltage [uns]"),
 		//[npr] rated motor power in 0.1Kw increments
-		SDOTask::prepareUpload(0x2042, 0xE, (uint16_t)atv320->ratedMotorPowerParameter->value, "Rated motor power [uns]"),
+		SDOTask::prepareUpload(0x2042, 0xE, uint16_t(atv320->ratedMotorPowerParameter->value * 100), "Rated motor power [uns]"),
 		//[ncr] nominal motor current in 0.1A increments
-		SDOTask::prepareUpload(0x2042, 0x4, (uint16_t)atv320->nominalMotorCurrentParameter->value * 10, "Nominal Motor current [ncr]"),
+		SDOTask::prepareUpload(0x2042, 0x4, uint16_t(atv320->nominalMotorCurrentParameter->value * 10), "Nominal Motor current [ncr]"),
 		//[nsp] nominal motor speed (in rpm)
-		SDOTask::prepareUpload(0x2042, 0x5, (uint16_t)atv320->nominalMotorSpeedParameter->value, "Nominal motor speed [nsp]"),
+		SDOTask::prepareUpload(0x2042, 0x5, uint16_t(atv320->nominalMotorSpeedParameter->value), "Nominal motor speed [nsp]"),
 		//[frs] nominal motor frequency (in .1Hz increments) (should be identical to [bfr])
-		SDOTask::prepareUpload(0x2042, 0x3, (uint16_t)(nominalMotorFrequency * 10), "Nominal motor frequency [frs]"),
+		SDOTask::prepareUpload(0x2042, 0x3, uint16_t(nominalMotorFrequency * 10), "Nominal motor frequency [frs]"),
 		
 		//————————— Control Settings —————————————
 		//[lsp] set minimum control speed in hertz to 0Hz (in .1Hz increments)
-		SDOTask::prepareUpload(0x2001, 0x6, (uint16_t)(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
+		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
 		//[hsp] set maximum control speed to in 0.1Hz increments
-		SDOTask::prepareUpload(0x2001, 0x5, (uint16_t)(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
+		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
 		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments)
-		SDOTask::prepareUpload(0x2001, 0x4, (uint16_t)(maxMotorFrequency * 10), "Max output frequency"),
+		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(maxMotorFrequency * 10), "Max output frequency"),
 		//set drive switching frequency to 16 Khz (max)
-		SDOTask::prepareUpload(0x2001, 0x3, (uint16_t)160, "Drive switching frequency"),
+		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(160), "Drive switching frequency"),
 		
 		//———————— Ramp Settings ———————————
 		//[inr] set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)
-		SDOTask::prepareUpload(0x203C, 0x15, (uint16_t)0, "Ramp unit increment"),
+		SDOTask::prepareUpload(0x203C, 0x15, uint16_t(0), "Ramp unit increment"),
 		//[acc] set acceleration time
-		SDOTask::prepareUpload(0x203C, 0x2, (uint16_t)(atv320->accelerationRampTime->value * 100.0), "Acceleration ramp time [acc]"),
+		SDOTask::prepareUpload(0x203C, 0x2, uint16_t(atv320->accelerationRampTime->value * 100.0), "Acceleration ramp time [acc]"),
 		//[dec] set deceleration time
-		SDOTask::prepareUpload(0x203C, 0x3, (uint16_t)(atv320->decelerationRampTime->value * 100.0), "Deceleration ramp time [dec]"),
+		SDOTask::prepareUpload(0x203C, 0x3, uint16_t(atv320->decelerationRampTime->value * 100.0), "Deceleration ramp time [dec]"),
 		
 		//—————————————— Limit signal Configuration ———————————————
 		//[saf] forward limit stop
-		SDOTask::prepareUpload(0x205F, 0x2, (uint16_t)atv320->forwardStopLimitAssignementParameter->value, "Forward stop limit assignement [saf]"),
+		SDOTask::prepareUpload(0x205F, 0x2, uint16_t(atv320->forwardStopLimitAssignementParameter->value), "Forward stop limit assignement [saf]"),
 		//[sar] reverse limit stop
-		SDOTask::prepareUpload(0x205F, 0x3, (uint16_t)atv320->reverseStopLimitAssignementParameter->value, "Reverse stop limit assignement [sar]"),
+		SDOTask::prepareUpload(0x205F, 0x3, uint16_t(atv320->reverseStopLimitAssignementParameter->value), "Reverse stop limit assignement [sar]"),
 		//[sal] //stop signal active high or low
-		SDOTask::prepareUpload(0x205F, 0x9, (uint16_t)atv320->stopLimitConfigurationParameter->value, "Stop limit configuration [sal]"),
+		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->value), "Stop limit configuration [sal]"),
 		
 		//—————————— Digital IO Configuration ———————————
 		//[l1d] -> [l6d] logic input on delay parameters
-		SDOTask::prepareUpload(0x200A, 0x2, (uint16_t)atv320->logicInput1OnDelayParameter->value, "Logic input 1 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x3, (uint16_t)atv320->logicInput2OnDelayParameter->value, "Logic input 2 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x4, (uint16_t)atv320->logicInput3OnDelayParameter->value, "Logic input 3 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x5, (uint16_t)atv320->logicInput4OnDelayParameter->value, "Logic input 4 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x6, (uint16_t)atv320->logicInput5OnDelayParameter->value, "Logic input 5 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x7, (uint16_t)atv320->logicInput6OnDelayParameter->value, "Logic input 6 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x2, uint16_t(atv320->logicInput1OnDelayParameter->value), "Logic input 1 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x3, uint16_t(atv320->logicInput2OnDelayParameter->value), "Logic input 2 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x4, uint16_t(atv320->logicInput3OnDelayParameter->value), "Logic input 3 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x5, uint16_t(atv320->logicInput4OnDelayParameter->value), "Logic input 4 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x6, uint16_t(atv320->logicInput5OnDelayParameter->value), "Logic input 5 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x7, uint16_t(atv320->logicInput6OnDelayParameter->value), "Logic input 6 on-time"),
 		
 		//————————— Save Parameters —————————
 		//[scs] save parameters to congiration #0 (= 1)
-		SDOTask::prepareUpload(0x2032, 0x2, 1, "Save Parameters to Configuration 1")
+		SDOTask::prepareUpload(0x2032, 0x2, uint16_t(1), "Save Parameters to Configuration 1")
 		
 	};
 	
@@ -575,16 +581,18 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 	setStatusString("Saving to EEPROM");
 			
 	Timing::Timer saveTimer;
-	saveTimer.setExpirationSeconds(5.0);
+	saveTimer.setExpirationSeconds(1.0);
 	
 	while(true){
 		uint16_t savestate;
-		if(atv320->readSDO_U16(0x2032, 0x2, savestate) && savestate == 0x0) {
-			setStatusString("Upload Suceeded");
-			Logger::info("[{}] Configuration saved on device", atv320->getName());
-			return;
+		if(atv320->readSDO_U16(0x2032, 0x2, savestate)) {
+			if(savestate == 0x0){
+				setStatusString("Upload Suceeded");
+				Logger::info("[{}] Configuration saved on device", atv320->getName());
+				return;
+			}
 		}
-		else if(saveTimer.isExpired()) {
+		if(saveTimer.isExpired()) {
 			setStatusString("Configuration Upload Failed, could not save to EEPROM");
 			Logger::warn("[{}] Configuration save timed out (took more than 5 seconds)", atv320->getName());
 			return;
@@ -596,8 +604,7 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 
 bool ATV320::StandstillTuningTask::canStart(){
 	if(atv320->isOffline()) return false;
-	else if(!atv320->isStateOperational()) return false;
-	else if(!atv320->actuator->isEnabled()) return false;
+	else if(atv320->actuator->isEnabled()) return false;
 	return true;
 }
 
@@ -607,56 +614,31 @@ void ATV320::StandstillTuningTask::onExecution(){
 	
 	setStatusString("Autotuning started");
 	
-	//[stun] set Tune selection to 'measure motor values' (measure = 1)
-	if(!atv320->writeSDO_U16(0x2042, 0x12, 1)) {
-		setStatusString("Autotuning Failed");
-		return;
-	}
+	std::vector<std::shared_ptr<SDOTask>> autotuningCommands = {
+		SDOTask::prepareUpload(0x2042, 0x9, 2, "Tuning: Erase Tune [tun]"),
+		SDOTask::prepareUpload(0x2042, 0x9, 0, "Tuning: No Action [tun]"),
+		SDOTask::prepareUpload(0x2042, 0x9, 1, "Tuning: Do tune [tun]")
+	};
 	
-	//[tun] auto tuning action, erase previous tuning (erase = 2)
-	if(!atv320->writeSDO_U16(0x2042, 0x9, 2)) {
-		setStatusString("Autotuning Failed");
-		return;
-	}
-	
-	//wait for auto tuning status to change to 'not done'
-	Timing::Timer tuningEraseTimer;
-	tuningEraseTimer.setExpirationSeconds(1.0);
-	while(true){
-		//[tus] auto tuning status (0=notdone, 1=pending, 2=inprogress, 3=failed, 4=done)
-		uint16_t autotuningStatus;
-		if(atv320->readSDO_U16(0x2042, 0xA, autotuningStatus) && autotuningStatus == 0) {
-			break;
-		}
-		else if(tuningEraseTimer.isExpired()) {
-			setStatusString("Failed to erase previous tuning values");
-			return;
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-	
-	//[tun] auto tuning start (do tune = 1)
-	if(!atv320->writeSDO_U16(0x2042, 0x9, 1)){
-		setStatusString("Autotuning Failed");
+	if(!atv320->executeSDOTasks(autotuningCommands)){
+		setStatusString("Autotuning request failed");
 		return;
 	}
 	
 	Timing::Timer autotuningTimer;
 	autotuningTimer.setExpirationSeconds(5.0);
 	while(true){
-		//[tus] auto tuning status (0=notdone, 1=pending, 2=inprogress, 3=failed, 4=done)
+		//[tus] auto tuning status (0 = not done, 1 = pending, 2 = in progress, 3 = failed, 4 = done)
 		uint16_t autotuningStatus;
 		if(atv320->readSDO_U16(0x2042, 0xA, autotuningStatus)){
 			if(autotuningStatus == 3){
 				setStatusString("Autotuning Started but Failed");
 				return;
 			}
-			else if(autotuningStatus == 4){
-				setStatusString("Autotuning Done");
-				break;
-			}
+			else if(autotuningStatus == 4) break;
 		}
-		else if(autotuningTimer.isExpired()) {
+		
+		if(autotuningTimer.isExpired()) {
 			setStatusString("Autotuning timed out");
 			return;
 		}
@@ -665,18 +647,25 @@ void ATV320::StandstillTuningTask::onExecution(){
 	
 	setStatusString("Saving to EEPROM");
 			
+	if(!atv320->writeSDO_U16(0x2032, 0x2, 1)){
+		setStatusString("Could not save to EEPROM");
+		return;
+	}
+	
 	Timing::Timer saveTimer;
-	saveTimer.setExpirationSeconds(5.0);
+	saveTimer.setExpirationSeconds(1.0);
 	
 	while(true){
 		uint16_t savestate;
-		if(atv320->readSDO_U16(0x2032, 0x2, savestate) && savestate == 0x0) {
-			setStatusString("Tuning Suceeded");
-			Logger::info("[{}] Configuration saved on device", atv320->getName());
-			return;
+		if(atv320->readSDO_U16(0x2032, 0x2, savestate)) {
+			if(savestate == 0x0){
+				setStatusString("Tuning Suceeded");
+				Logger::info("[{}] Configuration saved on device", atv320->getName());
+				return;
+			}
 		}
-		else if(saveTimer.isExpired()) {
-			setStatusString("Tuning succeeded but could to save to EEPROM");
+		if(saveTimer.isExpired()) {
+			setStatusString("Tuning succeeded but could not to save to EEPROM");
 			Logger::warn("[{}] Configuration save timed out (took more than 5 seconds)", atv320->getName());
 			return;
 		}

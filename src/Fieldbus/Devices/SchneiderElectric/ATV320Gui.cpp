@@ -27,11 +27,11 @@ void ATV320::deviceSpecificGui(){
 
 void ATV320::controlsGui(){
 	
-	ImGui::PushFont(Fonts::sansBold20);
-	ImGui::Text("Velocity Control");
-	ImGui::PopFont();
-	
 	ImGui::BeginDisabled(!actuator->isEnabled() || actuatorPin->isConnected());
+	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Manual Velocity Control");
+	ImGui::PopFont();
 	
 	float velocityTarget_rps = 0.0;
 	float maxVel = nominalMotorSpeedParameter->value / 60.0;
@@ -59,11 +59,18 @@ void ATV320::controlsGui(){
 	}
 	glm::vec2 minCenter = glm::vec2(minIndicator.x + sizeIndicatorWidthHalf, minIndicator.y);
 	glm::vec2 maxCenter = glm::vec2(minIndicator.x + sizeIndicatorWidthHalf, maxIndicator.y);
-	ImColor centerColor = b_velocityTargetReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
+	ImColor centerColor = b_referenceReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
 	drawing->AddRectFilled(minCenter, maxCenter, centerColor, 2.0);
 	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Drive State:");
+	ImGui::PopFont();
 	ImGui::Text("Fieldbus Control Active: %s", b_remoteControlEnabled ? "Yes" : "No");
 	ImGui::Text("Motor Voltage Present: %s", b_motorVoltagePresent ? "Yes" : "No");
+	ImGui::Text("Reference Reached: %s", b_referenceReached ? "Yes" : "No");
+	ImGui::Text("Reference Outside Limits: %s", b_referenceOutsideLimits ? "Yes" : "No");
+	ImGui::Text("Stop Key Pressed: %s", b_stopKeyPressed ? "Yes" : "No");
+	ImGui::Text("Direction of rotation: %s", b_directionOfRotationAtOutput ? "Reverse" : "Forward");
 	
 	ImGui::EndDisabled();
 }
@@ -157,7 +164,7 @@ void ATV320::settingsGui(){
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
 	ImGui::TextWrapped("Max Acceleration is %.1f rev/s\xc2\xb2", actuator->getAccelerationLimit());
-	ImGui::TextWrapped("Max Decleration is %.1f rev/s\xc2\xb2", actuator->getDecelerationLimit());
+	ImGui::TextWrapped("Max Deceleration is %.1f rev/s\xc2\xb2", actuator->getDecelerationLimit());
 	
 }
 
