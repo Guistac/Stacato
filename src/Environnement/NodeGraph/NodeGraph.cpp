@@ -1,6 +1,17 @@
 #include <pch.h>
 #include "NodeGraph.h"
 
+void NodeGraph::onConstruction() {
+	Component::onConstruction();
+	context = ax::NodeEditor::CreateEditor();
+	
+	nodeList = Legato::ListComponent<Node>::createInstance();
+}
+
+void NodeGraph::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+	Component::onCopyFrom(source);
+}
+
 void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	if(newNode->uniqueID == -1) newNode->uniqueID = getNewUniqueID();
 	newNode->nodeGraph = std::static_pointer_cast<NodeGraph>(shared_from_this());

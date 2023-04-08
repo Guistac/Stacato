@@ -49,8 +49,8 @@ void NodeGraph::editorGui(ImVec2 size){
 			ax::NodeEditor::PinId pin1Id, pin2Id;
 			if (ax::NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
 				if (pin1Id && pin2Id) {
-					std::shared_ptr<NodePin> pin1 = getPin(pin1Id.Get());
-					std::shared_ptr<NodePin> pin2 = getPin(pin2Id.Get());
+					std::shared_ptr<NodePin> pin1 = getPin((int)pin1Id.Get());
+					std::shared_ptr<NodePin> pin2 = getPin((int)pin2Id.Get());
 					if (pin1 && pin2 && pin1->isConnectionValid(pin2)) {
 						if (ax::NodeEditor::AcceptNewItem(ImColor(1.0f, 1.0f, 1.0f), 3.0)) {
 							auto link = pin1->connectTo(pin2);
@@ -73,14 +73,14 @@ void NodeGraph::editorGui(ImVec2 size){
 			ax::NodeEditor::LinkId deletedLinkId;
 			while (ax::NodeEditor::QueryDeletedLink(&deletedLinkId)) {
 				if (ax::NodeEditor::AcceptDeletedItem()) {
-					std::shared_ptr<NodeLink> deletedLink = getLink(deletedLinkId.Get());
+					std::shared_ptr<NodeLink> deletedLink = getLink((int)deletedLinkId.Get());
 					if(deletedLink) deletedLink->disconnect();
 				}
 			}
 
 			ax::NodeEditor::NodeId deletedNodeId;
 			while (ax::NodeEditor::QueryDeletedNode(&deletedNodeId)) {
-				std::shared_ptr<Node> deletedNode = getNode(deletedNodeId.Get());
+				std::shared_ptr<Node> deletedNode = getNode((int)deletedNodeId.Get());
 				if (deletedNode && ax::NodeEditor::AcceptDeletedItem()) {
 					removeNode(deletedNode);
 				}
@@ -108,7 +108,7 @@ void NodeGraph::editorGui(ImVec2 size){
 
 
 		if (ImGui::BeginPopup("Node Context Menu")) {
-			int nodeID = contextNodeId.Get();
+			int nodeID = (int)contextNodeId.Get();
 			if(nodeID > INT_MAX / 2) nodeID = INT_MAX - nodeID;
 			std::shared_ptr<Node> node = getNode(nodeID);
 			ImGui::Text("Node : %s", node->getName().c_str());
@@ -142,8 +142,8 @@ void NodeGraph::editorGui(ImVec2 size){
 		}
 
 		if (ImGui::BeginPopup("Pin Context Menu")) {
-			std::shared_ptr<NodePin> pin = getPin(contextPinId.Get());
-			ImGui::Text("Pin : %s", pin->getDisplayString());
+			std::shared_ptr<NodePin> pin = getPin((int)contextPinId.Get());
+			ImGui::Text("Pin : %s", pin->getName().c_str());
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("(#%i)", pin->getUniqueID());
@@ -153,7 +153,7 @@ void NodeGraph::editorGui(ImVec2 size){
 			if (ImGui::BeginMenu("Connected Pins")) {
 				for (auto connectedPin : pin->getConnectedPins()) {
 					ImGui::Text("\"%s\" (%s #%i) on Node \"%s\" (#%i)",
-						connectedPin->getDisplayString(),
+						connectedPin->getName().c_str(),
 						Enumerator::getDisplayString(connectedPin->dataType),
 						connectedPin->getUniqueID(),
 						connectedPin->parentNode->getName().c_str(),
@@ -172,10 +172,10 @@ void NodeGraph::editorGui(ImVec2 size){
 		}
 
 		if (ImGui::BeginPopup("Link Context Menu")) {
-			std::shared_ptr<NodeLink> link = getLink(contextLinkId.Get());
+			std::shared_ptr<NodeLink> link = getLink((int)contextLinkId.Get());
 			ImGui::Text("Link #%i", link->getUniqueID());
-			ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getDisplayString(), link->getInputData()->parentNode->getName().c_str());
-			ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getDisplayString(), link->getOutputData()->parentNode->getName().c_str());
+			ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getName().c_str(), link->getInputData()->parentNode->getName().c_str());
+			ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getName().c_str(), link->getOutputData()->parentNode->getName().c_str());
 			ImGui::Separator();
 			if (ImGui::MenuItem("Disconnect")) link->disconnect();
 			ImGui::EndPopup();
@@ -206,7 +206,7 @@ void NodeGraph::editorGui(ImVec2 size){
 	if (selectedNodeCount > 0) {
 		std::vector<int> selectedIds;
 		for (int i = 0; i < selectedNodeCount; i++) {
-			int selectedNodeId = selectedNodeIds[i].Get();
+			int selectedNodeId = (int)selectedNodeIds[i].Get();
 			//negative unique ids represent split node halves
 			//if (selectedNodeId < 0) selectedNodeId = abs(selectedNodeId);
 			if (selectedNodeId >= INT_MAX / 2) selectedNodeId = INT_MAX - selectedNodeId;
@@ -236,7 +236,7 @@ void NodeGraph::editorGui(ImVec2 size){
 	if(selectedLinkCount > 0){
 		std::vector<int> selectedIds;
 		for(int i = 0; i < selectedLinkCount; i++){
-			int selectedLinkID = selectedLinkIds[i].Get();
+			int selectedLinkID = (int)selectedLinkIds[i].Get();
 			selectedLinks.push_back(getLink(selectedLinkID));
 		}
 	}

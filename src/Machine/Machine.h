@@ -43,6 +43,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		deadMansSwitchPin = NodePin::createInstance(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+													"Dead Man's Switch", "DeadMansSwitch", NodePin::Flags::AcceptMultipleInputs);
 	}
 	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -77,10 +79,7 @@ private:
 	bool b_enable = false;
 	bool b_disable = false;
 	
-	std::shared_ptr<NodePin> deadMansSwitchPin = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH,
-																		   NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
-																		   "Dead Man's Switch", "DeadMansSwitch",
-																		   NodePin::Flags::AcceptMultipleInputs);
+	std::shared_ptr<NodePin> deadMansSwitchPin;
 	
 };
 

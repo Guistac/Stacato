@@ -44,7 +44,7 @@ namespace VipaModuleFactory{
 void VIPA_022_1HD10::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
-		sprintf(pinName, "Relais Output %i", i);
+		snprintf(pinName, 64, "Relais Output %i", i);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -60,8 +60,12 @@ void VIPA_022_1HD10::onConstruction(){
 }
 void VIPA_022_1HD10::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, i);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, i);
+		static char saveStr[64];
+		static char displayStr[64];
+		snprintf(saveStr, 64, "Module %i Relais Output %i", moduleIndex, i);
+		snprintf(displayStr, 64, "Module%iRelaisOutput%i", moduleIndex, i);
+		inputPins[i]->setSaveString(saveStr);
+		inputPins[i]->setName(displayStr);
 	}
 }
 void VIPA_022_1HD10::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -73,7 +77,7 @@ void VIPA_022_1HD10::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 	for(int i = 0; i < 4; i++){
 		uint8_t subindex = i + 1;
 		static char pdoEntryNameString[64];
-		sprintf(pdoEntryNameString, "Relais Output %i", i);
+		snprintf(pdoEntryNameString, 64, "Relais Output %i", i);
 		bool& dataReference = outputs[i];
 		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 1, pdoEntryNameString, &dataReference);
 	}
@@ -108,7 +112,7 @@ void VIPA_022_1HD10::moduleParameterGui(){
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::Text("%s", inputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -126,7 +130,7 @@ bool VIPA_022_1HD10::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertRelais%i", i);
+		snprintf(attributeName, 64, "InvertRelais%i", i);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -138,7 +142,7 @@ bool VIPA_022_1HD10::load(tinyxml2::XMLElement* xml){
 	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
 	char attributeName[32];
 	for(int i = 0; i < 4; i++){
-		sprintf(attributeName, "InvertRelais%i", i);
+		snprintf(attributeName, 32, "InvertRelais%i", i);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS) Logger::warn("could not find relais %i inversion attribute", i);
 	}
 	return true;
@@ -151,7 +155,7 @@ bool VIPA_022_1HD10::load(tinyxml2::XMLElement* xml){
 void VIPA_021_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
-		sprintf(pinName, "Digital Input %i", i);
+		snprintf(pinName, 64, "Digital Input %i", i);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -167,8 +171,12 @@ void VIPA_021_1BF00::onConstruction(){
 }
 void VIPA_021_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
-		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, i);
-		sprintf((char*)outputPins[i]->getSaveString(), "Module%iDigitalInput%i", moduleIndex, i);
+		char displayStr[64];
+		char saveStr[64];
+		snprintf(displayStr, 64, "Module %i Digital Input %i", moduleIndex, i);
+		snprintf(saveStr, 64, "Module%iDigitalInput%i", moduleIndex, i);
+		outputPins[i]->setSaveString(saveStr);
+		outputPins[i]->setName(displayStr);
 	}
 }
 void VIPA_021_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -178,7 +186,7 @@ void VIPA_021_1BF00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignem
 		uint8_t subindex = i+1;
 		int bitSize = 1;
 		static char pdoEntryNameString[64];
-		sprintf(pdoEntryNameString, "Digital Input %i", i);
+		snprintf(pdoEntryNameString, 64, "Digital Input %i", i);
 		bool& dataReference = inputs[i];
 		txPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, &dataReference);
 	}
@@ -210,7 +218,7 @@ void VIPA_021_1BF00::moduleParameterGui(){
 		ImGui::Checkbox("##invert", &invertInputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", outputPins[i]->getDisplayString());
+		ImGui::Text("%s", outputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -228,7 +236,7 @@ bool VIPA_021_1BF00::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 8; i++){
-		sprintf(attributeName, "InvertInput%i", i);
+		snprintf(attributeName, 64, "InvertInput%i", i);
 		inversionXML->SetAttribute(attributeName, invertInputs[i]);
 	}
 	return true;
@@ -240,7 +248,7 @@ bool VIPA_021_1BF00::load(tinyxml2::XMLElement* xml){
 	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
 	char attributeName[32];
 	for(int i = 0; i < 8; i++){
-		sprintf(attributeName, "InvertInput%i", i);
+		snprintf(attributeName, 32, "InvertInput%i", i);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertInputs[i]) != XML_SUCCESS) Logger::warn("could not find input %i inversion attribute", i);
 	}
 	return true;
@@ -253,7 +261,7 @@ bool VIPA_021_1BF00::load(tinyxml2::XMLElement* xml){
 void VIPA_022_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
-		sprintf(pinName, "Digital Output %i", i);
+		snprintf(pinName, 64, "Digital Output %i", i);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
@@ -270,8 +278,12 @@ void VIPA_022_1BF00::onConstruction(){
 
 void VIPA_022_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, i);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iDigitalOutput%i", moduleIndex, i);
+		char displayStr[64];
+		char saveStr[64];
+		snprintf(displayStr, 64, "Module %i Digital Output %i", moduleIndex, i);
+		snprintf(saveStr, 64, "Module%iDigitalOutput%i", moduleIndex, i);
+		inputPins[i]->setSaveString(saveStr);
+		inputPins[i]->setName(displayStr);
 	}
 }
 
@@ -286,7 +298,7 @@ void VIPA_022_1BF00::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 		uint8_t subindex = i+1;
 		int bitSize = 1;
 		static char pdoEntryNameString[64];
-		sprintf(pdoEntryNameString, "Digital Input %i", i);
+		snprintf(pdoEntryNameString, 64, "Digital Input %i", i);
 		bool& dataReference = outputs[i];
 		rxPdoAssignement.addEntry(dataObjectIndex, subindex, bitSize, pdoEntryNameString, &dataReference);
 	}
@@ -321,7 +333,7 @@ void VIPA_022_1BF00::moduleParameterGui(){
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::Text("%s", inputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -339,7 +351,7 @@ bool VIPA_022_1BF00::save(tinyxml2::XMLElement* xml){
 	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
 	char attributeName[64];
 	for(int i = 0; i < 8; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		snprintf(attributeName, 64, "InvertOutput%i", i);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -351,7 +363,7 @@ bool VIPA_022_1BF00::load(tinyxml2::XMLElement* xml){
 	if(inversionXML == nullptr) Logger::warn("could not find signal inversion attribute");
 	char attributeName[32];
 	for(int i = 0; i < 8; i++){
-		sprintf(attributeName, "InvertOutput%i", i);
+		snprintf(attributeName, 32, "InvertOutput%i", i);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS) Logger::warn("could not find output %i inversion attribute", i);
 	}
 	return true;
@@ -369,6 +381,11 @@ void VIPA_050_1BS00::onConstruction(){
 	encoder->feedbackConfig.b_supportsPositionFeedback = true;
 	encoder->feedbackConfig.b_supportsVelocityFeedback = true;
 	
+	encoderPin = NodePin::createInstance(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+										 "SSI Encoder", "SSIEncoder");
+	resetPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+									   "Reset Encoder", "ResetEncoder");
+	
 	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackInterface>(encoder));
 	outputPins.push_back(encoderPin);
 	resetPin->assignData(resetPinValue);
@@ -381,10 +398,15 @@ void VIPA_050_1BS00::onSetParentBusCoupler(std::shared_ptr<VipaBusCoupler_053_1E
 }
 
 void VIPA_050_1BS00::onSetIndex(int i){
-	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", moduleIndex);
-	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", moduleIndex);
-	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder Reset", moduleIndex);
-	sprintf((char*)resetPin->getSaveString(), "Module%iEncoderReset", moduleIndex);
+	char buffer[64];
+	snprintf(buffer, 64, "Module %i SSI Encoder", moduleIndex);
+	encoderPin->setName(buffer);
+	snprintf(buffer, 64, "Module%iSSIEncoder", moduleIndex);
+	encoderPin->setSaveString(buffer);
+	snprintf(buffer, 64, "Module %i SSI Encoder Reset", moduleIndex);
+	resetPin->setName(buffer);
+	snprintf(buffer, 64, "Module%iEncoderReset", moduleIndex);
+	resetPin->setSaveString(buffer);
 }
 
 void VIPA_050_1BS00::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -586,11 +608,11 @@ void VIPA_050_1BS00::moduleParameterGui(){
 	glm::vec2 progressBarSize(widgetWidth, ImGui::GetFrameHeight());
 	
 	static char encoderRangeProgressString[64];
-	sprintf(encoderRangeProgressString, "%.3f revolutions", pos);
+	snprintf(encoderRangeProgressString, 64, "%.3f revolutions", pos);
 	ImGui::ProgressBar((float)encoder->getPositionNormalizedToWorkingRange(), progressBarSize, encoderRangeProgressString);
 	   
 	static char encoderVelocityString[64];
-	sprintf(encoderVelocityString, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
+	snprintf(encoderVelocityString, 64, "%.3f rev/s", encoderVelocity_revolutionsPerSecond);
 	float velocityProgress = std::abs(encoderVelocity_revolutionsPerSecond) / 10.0;
 	ImGui::ProgressBar(velocityProgress, progressBarSize, encoderVelocityString);
 	
@@ -688,7 +710,7 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 void VIPA_032_1BD70::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
-		sprintf(pinName, "Analog Output %i", i);
+		snprintf(pinName, 64, "Analog Output %i", i);
 		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, pinName);
 		std::shared_ptr<double> pinValue = std::make_shared<double>(0.0);
 		pin->assignData(pinValue);
@@ -705,8 +727,11 @@ void VIPA_032_1BD70::onConstruction(){
 
 void VIPA_032_1BD70::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Analog Output %i", moduleIndex, i);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iAnalogOutput%i", moduleIndex, i);
+		char buffer[64];
+		snprintf(buffer, 64, "Module %i Analog Output %i", moduleIndex, i);
+		inputPins[i]->setName(buffer);
+		snprintf(buffer, 64, "Module%iAnalogOutput%i", moduleIndex, i);
+		inputPins[i]->setSaveString(buffer);
 	}
 }
 
@@ -720,7 +745,7 @@ void VIPA_032_1BD70::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 	for(int i = 0; i < 4; i++){
 		uint8_t subindex = i + 1;
 		static char pdoEntryNameString[64];
-		sprintf(pdoEntryNameString, "Analog Output %i", i);
+		snprintf(pdoEntryNameString, 64, "Analog Output %i", i);
 		int16_t& dataReference = outputs[i];
 		rxPdoAssignement.addEntry(dataObjectIndex, subindex, 16, pdoEntryNameString, &dataReference);
 	}
@@ -779,7 +804,7 @@ void VIPA_032_1BD70::moduleParameterGui(){
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::Text("%s", inputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		if(ImGui::BeginCombo("##inputRangeSelector", Enumerator::getDisplayString(voltageRangeSettings[i]))){
@@ -839,6 +864,10 @@ bool VIPA_032_1BD70::load(tinyxml2::XMLElement* xml){
 //=================================================================
 
 void VIPA_050_1BB40::onConstruction(){
+	
+	frequency0Pin = NodePin::createInstance(frequency0Value, NodePin::Direction::NODE_OUTPUT, "Frequency 0", "Frequency0");
+	frequency1Pin = NodePin::createInstance(frequency1Value, NodePin::Direction::NODE_OUTPUT, "Frequency 1", "Frequency1");
+	
 	outputPins.push_back(frequency0Pin);
 	outputPins.push_back(frequency1Pin);
 	/*
@@ -862,8 +891,15 @@ void VIPA_050_1BB40::onConstruction(){
 }
 
 void VIPA_050_1BB40::onSetIndex(int i){
-	sprintf((char*)frequency0Pin->getDisplayString(), "Module %i Frequency Counter 1", moduleIndex);
-	sprintf((char*)frequency1Pin->getDisplayString(), "Module %i Frequency Counter 2", moduleIndex);
+	char buffer[64];
+	snprintf(buffer, 64, "Module %i Frequency Counter 1", moduleIndex);
+	frequency0Pin->setName(buffer);
+	snprintf(buffer, 64, "Module%iFrequencyCounter1", moduleIndex);
+	frequency0Pin->setSaveString(buffer);
+	snprintf(buffer, 64, "Module %i Frequency Counter 2", moduleIndex);
+	frequency1Pin->setName(buffer);
+	snprintf(buffer, 64, "Module%iFrequencyCounter2", moduleIndex);
+	frequency1Pin->setSaveString(buffer);
 }
 
 void VIPA_050_1BB40::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){

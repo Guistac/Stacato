@@ -38,19 +38,9 @@ class NodeGraph : public Legato::Component{
 protected:
 	
 	virtual bool onSerialization() override;
-	
 	virtual bool onDeserialization() override;
-	
-	virtual void onConstruction() override {
-		Component::onConstruction();
-		context = ax::NodeEditor::CreateEditor();
-		
-		nodeList = Legato::ListComponent<Node>::createInstance();
-	}
-	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		Component::onCopyFrom(source);
-	}
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
 public:
 	

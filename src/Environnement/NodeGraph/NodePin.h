@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Legato/Editor/Component.h"
+
 namespace Motion{ class Axis; }
 
 class DeadMansSwitch;
@@ -15,7 +17,31 @@ class NodeLink;
 namespace tinyxml2 { class XMLElement; }
 
 
-class NodePin : public std::enable_shared_from_this<NodePin>{
+class NodePin : public Legato::Component{
+public:
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NodePin)
+ 
+protected:
+	 
+	 virtual bool onSerialization() override {
+		 bool success = true;
+		 return success;
+	 }
+	 
+	 virtual bool onDeserialization() override {
+		 bool success = true;
+		 return success;
+	 }
+	 
+	 virtual void onConstruction() override {
+		 Component::onConstruction();
+	 }
+	 
+	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		 Component::onCopyFrom(source);
+	 }
+	
 public:
 	
 	enum class DataType{
@@ -48,41 +74,28 @@ public:
 		HidePin = 1 << 5
 	};
 	
-	//==============================================================
-	//========================= Constructors =======================
-	//==============================================================
-	
-	//Constructors with predeclared data type
-	
-	NodePin(DataType type, Direction dir, const char* displayN, const char* saveN, Flags flags = Flags::None) {
-		initialize(dir, displayN, saveN, flags);
-		setType(type);
-	}
-	
-	NodePin(DataType type, Direction dir, const char* displayN, Flags flags = Flags::None){
-		initialize(dir, displayN, displayN, flags);
-		setType(type);
-	}
-	
-	//Templated constructors with direct data assignement
+	static std::shared_ptr<NodePin> createInstance(DataType type,
+												   Direction dir,
+												   std::string displayName,
+												   std::string saveString,
+												   Flags flags = Flags::None){
+		auto newPin = createInstance();
+		newPin->configure(dir, displayName, saveString, flags);
+		return newPin;
+	};
 	
 	template<typename T>
-	NodePin(std::shared_ptr<T> dataPointer, Direction dir, const char* displayN, Flags flags = Flags::None){
-		initialize(dir, displayN, displayN, flags);
-		setType(detectType(dataPointer));
-		pointer = dataPointer;
+	static std::shared_ptr<NodePin> createInstance(std::shared_ptr<T> dataPointer,
+												   Direction dir,
+												   std::string displayName,
+												   std::string saveString,
+												   Flags flags = Flags::None){
+		auto newPin = createInstance();
+		newPin->configure(dir, displayName, saveString, flags);
+		newPin->setType(newPin->detectType(dataPointer));
+		newPin->pointer = dataPointer;
+		return newPin;
 	}
-	
-	template<typename T>
-	NodePin(std::shared_ptr<T> dataPointer, Direction dir, const char* displayN, const char* saveN, Flags flags = Flags::None){
-		initialize(dir, displayN, saveN, flags);
-		detectType(dataPointer);
-		setType(detectType(dataPointer));
-		pointer = dataPointer;
-	}
-
-	//default constructor is needed for dummy creation and later xml loading
-	NodePin() {}
 	
 	//==============================================================
 	//============== Data Assigning / Reading & Writing ============
@@ -114,8 +127,6 @@ public:
 	//========================================================
 	
 	//strings
-	const char* getDisplayString() { return displayString; }
-	const char* getSaveString() { return saveString; }
 	const char* getValueString();
 	
 	//info
@@ -150,17 +161,19 @@ public:
 	void pinGui();
 	void dataGui();
 
-	//saving & loading
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
-	bool matches(const char* saveName, DataType type);
+	bool matches(std::string& saveString, DataType type);
 	
 
+private:
 	
-	void initialize(Direction dir, const char* displayStr, const char* saveStr, Flags flags) {
+	friend class Node;
+	friend class NodeLink;
+	friend class NodeGraph;
+	
+	void configure(Direction dir, std::string displayName, std::string saveString, Flags flags) {
 		direction = dir;
-		strcpy(displayString, displayStr);
-		strcpy(saveString, saveStr);
+		setName(displayName);
+		setSaveString(saveString);
 		b_acceptsMultipleInputs = flags & Flags::AcceptMultipleInputs;
 		b_disablePin = flags & Flags::DisablePin;
 		b_noDataField = flags & Flags::NoDataField;
@@ -189,9 +202,6 @@ public:
 	std::shared_ptr<Node> parentNode; //set when assigning when calling addNodePin();
 	int uniqueID = -1;
 	
-	char displayString[64];	//used for displaying
-	char saveString[64];	//used for matching
-	
 	bool b_acceptsMultipleInputs = false;
 	bool b_disablePin = false;
 	bool b_noDataField = false;
@@ -210,21 +220,21 @@ public:
 	template<typename T>
 	bool logTypeMismatchError(std::shared_ptr<T> assignedData){
 		return Logger::critical("Assigning Wrong NodePin DataType to Pin '{}'. Pin DataType is {} while assigned DataType is {}",
-								getDisplayString(),
+								getName(),
 								Enumerator::getDisplayString(dataType),
 								Enumerator::getDisplayString(detectType(assignedData)));
 	}
 	
 	bool logReadNullPointerError(){
-		return Logger::critical("Cannot Read from NodePin '{}' because its data pointer is Null", getDisplayString());
+		return Logger::critical("Cannot Read from NodePin '{}' because its data pointer is Null", getName());
 	}
 	
 	bool logWriteNullPointerError(){
-		return Logger::critical("Cannot Write to NodePin '{}' because its data pointer is Null", getDisplayString());
+		return Logger::critical("Cannot Write to NodePin '{}' because its data pointer is Null", getName());
 	}
 	
 	bool logNoConnectionError(){
-		return Logger::critical("Could not complete operation because no pins are connected to NodePin '{}'", getDisplayString());
+		return Logger::critical("Could not complete operation because no pins are connected to NodePin '{}'", getName());
 	}
 };
 

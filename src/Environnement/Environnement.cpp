@@ -28,6 +28,23 @@
 
 
 
+void EnvironnementObject::onConstruction(){
+	Component::onConstruction();
+	
+	nodeGraph = NodeGraph::createInstance();
+	nodeGraph->setSaveString("NodeGraph");
+	nodeGraph->setNodeAddCallback([this](std::shared_ptr<Node> node){ addNode(node); });
+	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
+	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
+	nodeGraph->setNodeDragDropTargetCallback(Environnement::Gui::nodeDragDropTarget);
+	
+	animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
+	
+}
+
+void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+	Component::onCopyFrom(source);
+}
 
 bool EnvironnementObject::onSerialization(){
 	Component::onSerialization();
@@ -73,24 +90,6 @@ bool EnvironnementObject::onDeserialization(){
 	//if (!EtherCatFieldbus::load(fieldbusSettingsXML)) return Logger::warn("Error reading Fieldbus settings data");
 	
 	return success;
-}
-
-void EnvironnementObject::onConstruction(){
-	Component::onConstruction();
-	
-	nodeGraph = NodeGraph::createInstance();
-	nodeGraph->setSaveString("NodeGraph");
-	nodeGraph->setNodeAddCallback([this](std::shared_ptr<Node> node){ addNode(node); });
-	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
-	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
-	nodeGraph->setNodeDragDropTargetCallback(Environnement::Gui::nodeDragDropTarget);
-	
-	animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
-	
-}
-
-void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
-	Component::onCopyFrom(source);
 }
 
 void EnvironnementObject::addNode(std::shared_ptr<Node> node) {

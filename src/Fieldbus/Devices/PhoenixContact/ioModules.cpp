@@ -39,8 +39,11 @@ void IB_IL_24_DI_4::onConstruction(){
 void IB_IL_24_DI_4::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
 		int inputNumber = i + 1;
-		sprintf((char*)outputPins[i]->getDisplayString(), "Module %i Digital Input %i", moduleIndex, inputNumber);
-		sprintf((char*)outputPins[i]->getSaveString(), "Module%iDigitalInput%i", moduleIndex, inputNumber);
+		char buffer[64];
+		snprintf(buffer, 64, "Module %i Digital Input %i", moduleIndex, inputNumber);
+		outputPins[i]->setName(buffer);
+		snprintf(buffer, 64, "Module%iDigitalInput%i", moduleIndex, inputNumber);
+		outputPins[i]->setSaveString(buffer);
 	}
 }
 void IB_IL_24_DI_4::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -67,7 +70,7 @@ void IB_IL_24_DI_4::moduleGui(){
 		ImGui::Checkbox("##invert", &invertInputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", outputPins[i]->getDisplayString());
+		ImGui::Text("%s", outputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -85,7 +88,7 @@ bool IB_IL_24_DI_4::save(tinyxml2::XMLElement* xml){
 	char attributeName[64];
 	for(int i = 0; i < 4; i++){
 		int inputNumber = i + 1;
-		sprintf(attributeName, "InvertInput%i", inputNumber);
+		snprintf(attributeName, 64, "InvertInput%i", inputNumber);
 		inversionXML->SetAttribute(attributeName, invertInputs[i]);
 	}
 	return true;
@@ -310,6 +313,10 @@ void IB_IL_SSI_IN::onConstruction(){
 	
 	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
 	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
+	
+	encoderPin = NodePin::createInstance(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder", "SSIEncoder");
+	resetPin = NodePin::createInstance(resetPinValue, NodePin::Direction::NODE_OUTPUT, "Reset Encoder", "ResetEncoder");
+	
 	encoderPin->assignData(std::static_pointer_cast<MotionFeedbackInterface>(encoder));
 	
 	encoder->feedbackConfig.b_supportsVelocityFeedback = true;

@@ -61,6 +61,7 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
 	}
 }
 
+/*
 bool NodePin::save(tinyxml2::XMLElement* xml) {
 	xml->SetAttribute("SaveString", getSaveString());
 	xml->SetAttribute("DisplayString", getDisplayString());
@@ -107,9 +108,10 @@ bool NodePin::load(tinyxml2::XMLElement* xml) {
 
 	return true;
 }
+ */
 
-bool NodePin::matches(const char* savestr, NodePin::DataType type) {
-	return strcmp(saveString, savestr) == 0 && type == dataType;
+bool NodePin::matches(std::string& saveStr, NodePin::DataType type) {
+	return saveStr == saveString && type == dataType;
 }
 
 

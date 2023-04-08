@@ -43,7 +43,7 @@ float NodePin::getGuiWidth() {
     static float iconDummyWidth = ImGui::GetTextLineHeight() * 0.75;                //width the pin icon actually occupies
     static float dataFieldWidth = ImGui::GetTextLineHeight() * 4.0;
     //get the pin title width
-    float pinTextWidth = ImGui::CalcTextSize(getDisplayString()).x;
+    float pinTextWidth = ImGui::CalcTextSize(getName().c_str()).x;
 
     //if the pin is connected, don't display its value, but add space for an icon
     if (!shouldDisplayDataGui())  return pinTextWidth + ImGui::GetStyle().ItemSpacing.x + iconDummyWidth;
@@ -100,7 +100,7 @@ void NodePin::pinGui() {
 													   ImColor(0.0f, 0.0f, 0.0f, 1.0f));
         }
         ImGui::SameLine();
-        ImGui::Text("%s", getDisplayString());
+        ImGui::Text("%s", getName().c_str());
         if (!b_disablePin) {
 			ax::NodeEditor::EndPin();
         }
@@ -121,7 +121,7 @@ void NodePin::pinGui() {
 			ax::NodeEditor::BeginPin(getUniqueID(), ax::NodeEditor::PinKind::Output);
 			ax::NodeEditor::PinPivotAlignment(ImVec2(1.0, 0.5));
         }
-        ImGui::Text("%s", getDisplayString());
+        ImGui::Text("%s", getName().c_str());
         ImGui::SameLine();
         //spacing.x
         ImGui::Dummy(glm::vec2(iconDummyWidth));

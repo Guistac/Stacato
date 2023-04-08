@@ -273,7 +273,7 @@ void Node::propertiesGui() {
                     ImGui::TableHeadersRow();
                     int checkBoxID = 9999999;
                     for (auto data : data) {
-                        ImGui::PushID(data->getSaveString());
+                        ImGui::PushID(data->saveString.c_str());
                         
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
@@ -282,7 +282,8 @@ void Node::propertiesGui() {
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
                         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-                        ImGui::InputText("##NameEdit", data->displayString, 64);
+                        //ImGui::InputText("##NameEdit", data->displayString, 64);
+						ImGui::TextColored(Colors::gray, "%s", data->getName().c_str());
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", Enumerator::getDisplayString(data->dataType));
                         ImGui::TableSetColumnIndex(3);

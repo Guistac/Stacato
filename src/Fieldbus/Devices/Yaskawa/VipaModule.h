@@ -167,8 +167,8 @@ public:
 	DEFINE_VIPA_MODULE(VIPA_050_1BS00, "VIPA 050-1BS00", "SSI RS422 (DC24V)")
 	
 	//————— Node Pins ———————
-	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
-	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Reset Encoder");
+	std::shared_ptr<NodePin> encoderPin;
+	std::shared_ptr<NodePin> resetPin;
 	
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
 	
@@ -316,11 +316,11 @@ public:
 	double positionOffset = 0.0;
 	
 	//==== Gui Stuff ====
-	virtual void moduleParameterGui();
+	virtual void moduleParameterGui() override;
 	
 	//==== Parameter Saving & Loading ====
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 };
 
@@ -433,8 +433,8 @@ public:
 	//————— Node Pins ———————
 	std::shared_ptr<double> frequency0Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> frequency1Value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> frequency0Pin = std::make_shared<NodePin>(frequency0Value, NodePin::Direction::NODE_OUTPUT, "Frequency 0");
-	std::shared_ptr<NodePin> frequency1Pin = std::make_shared<NodePin>(frequency1Value, NodePin::Direction::NODE_OUTPUT, "Frequency 1");
+	std::shared_ptr<NodePin> frequency0Pin;
+	std::shared_ptr<NodePin> frequency1Pin;
 	
 	//————— PDO DATA —————
 	

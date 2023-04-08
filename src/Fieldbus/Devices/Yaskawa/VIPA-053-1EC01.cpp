@@ -24,8 +24,9 @@ void VipaBusCoupler_053_1EC01::onConstruction() {
 	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());
 	gpioDevice = std::make_shared<VipaGpioDevice>(thisCoupler);
 	auto abstractGpioDevice = std::static_pointer_cast<GpioInterface>(gpioDevice);
+	
+	gpioDeviceLink = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
 	gpioDeviceLink->assignData(abstractGpioDevice);
-    //gpio device link pin
     addNodePin(gpioDeviceLink);
 }
 

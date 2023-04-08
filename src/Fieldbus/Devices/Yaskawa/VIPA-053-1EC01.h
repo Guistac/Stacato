@@ -45,7 +45,7 @@ public:
 	
     //master GPIO Subdevice
 	std::shared_ptr<VipaGpioDevice> gpioDevice;
-    std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
+	std::shared_ptr<NodePin> gpioDeviceLink;
 	
 	//modules and module management
 	std::vector<std::shared_ptr<VipaModule>> modules;

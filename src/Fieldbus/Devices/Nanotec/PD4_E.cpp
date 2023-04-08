@@ -39,6 +39,34 @@ void PD4_E::onConstruction() {
 	actcfg.b_canQuickstop = false;
 	actcfg.b_supportsHoldingBrakeControl = false;
 	
+	
+	servoActuatorDeviceLink = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+													  "Servo Motor", "ServoMotor", NodePin::Flags::DisableDataField);
+	positionPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT,
+										  "Position", "Position", NodePin::Flags::DisableDataField);
+	velocityPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT,
+										  "Velocity", "Velocity", NodePin::Flags::DisableDataField);
+	
+	gpioDeviceLink = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT,
+											 "Gpio", "Gpio");
+	digitalIn1Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 1", "DigitalIn1", NodePin::Flags::DisableDataField);
+	digitalIn2Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 2", "DigitalIn2", NodePin::Flags::DisableDataField);
+	digitalIn3Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 3", "DigitalIn3", NodePin::Flags::DisableDataField);
+	digitalIn4Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 4", "DigitalIn4", NodePin::Flags::DisableDataField);
+	digitalIn5Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 5", "DigitalIn5", NodePin::Flags::DisableDataField);
+	analogIn1Pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT,
+										   "Analog In 1", "AnalogIn1", NodePin::Flags::DisableDataField);
+	
+	digitalOut1Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT,
+											 "Digital Out 1", "DigitalOut1");
+	digitalOut2Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT,
+											 "Digital Out 2", "DigitalOut2");
+	
 	servoActuatorDeviceLink->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));
 	gpioDeviceLink->assignData(std::static_pointer_cast<GpioInterface>(gpioDevice));
 
