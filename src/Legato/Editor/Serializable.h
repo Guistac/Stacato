@@ -22,9 +22,8 @@ IMPLEMENTATION
 class Serializable{
 public:
 	
-	void setSaveString(std::string saveString_){
-		saveString = saveString_;
-	}
+	void setSaveString(std::string saveString_){ saveString = saveString_; }
+	std::string& getSaveString(){ return saveString; }
 	
 	//———— SERIALISATION
 	

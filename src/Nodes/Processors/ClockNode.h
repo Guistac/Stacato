@@ -7,7 +7,7 @@ public:
 
 	DEFINE_NODE(ClockNode, "Clock", "Clock", Node::Type::CLOCK, "Time")
 
-	std::shared_ptr<NodePin> output_seconds = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "output", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> output_seconds;
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
 	virtual void inputProcess() override {
@@ -18,6 +18,7 @@ public:
 	virtual bool onDeserialization() override { Component::onDeserialization(); }
 	virtual void onConstruction() override {
 		Component::onConstruction();
+		output_seconds = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "output", "output", NodePin::Flags::DisableDataField);
 		output_seconds->assignData(outputPinValue);
 		addNodePin(output_seconds);
 	}

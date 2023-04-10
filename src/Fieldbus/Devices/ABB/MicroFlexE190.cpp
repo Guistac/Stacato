@@ -15,6 +15,26 @@ void MicroFlex_e190::onConstruction() {
 	
 	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
 	
+	servoPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", "ServoMotor");
+	gpioPin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio", "Gpio");
+	
+	position_Pin = NodePin::createInstance(position_Value, NodePin::Direction::NODE_OUTPUT, "Position", "Position", NodePin::Flags::DisableDataField);
+	velocity_Pin = NodePin::createInstance(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", "Velocity", NodePin::Flags::DisableDataField);
+	load_Pin = NodePin::createInstance(load_Value, NodePin::Direction::NODE_OUTPUT, "Load", "Load", NodePin::Flags::DisableDataField);
+	
+	digitalIn0_Pin = NodePin::createInstance(digitalIn0_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 0", "DigitalInput0", NodePin::Flags::DisableDataField);
+	digitalIn1_Pin = NodePin::createInstance(digitalIn1_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", "DigitalInput1", NodePin::Flags::DisableDataField);
+	digitalIn2_Pin = NodePin::createInstance(digitalIn2_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", "DigitalInput2", NodePin::Flags::DisableDataField);
+	digitalIn3_Pin = NodePin::createInstance(digitalIn3_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", "DigitalInput3", NodePin::Flags::DisableDataField);
+	
+	digitalOut0_Pin = NodePin::createInstance(digitalOut0_Value, NodePin::Direction::NODE_INPUT, "Digital Output 0", "DigitalOutput0");
+	digitalOut1_Pin = NodePin::createInstance(digitalOut1_Value, NodePin::Direction::NODE_INPUT, "Digital Output 1", "DigitalOutput1");
+	digitalOut2_Pin = NodePin::createInstance(digitalOut2_Value, NodePin::Direction::NODE_INPUT, "Digital Output 2", "DigitalOutput2");
+	
+	analogIn0_Pin = NodePin::createInstance(analogIn0_Value, NodePin::Direction::NODE_OUTPUT, "Analog Input 0", "AnalogInput0", NodePin::Flags::DisableDataField);
+	analogOut0_Pin = NodePin::createInstance(analogOut0_Value, NodePin::Direction::NODE_INPUT, "Analog Output 0", "AnalogOutput0");
+	
+	
 	servo = std::make_shared<MicroFlexServoMotor>(thisMicroflex);
 	servoPin->assignData(std::static_pointer_cast<ActuatorInterface>(servo));
 	
@@ -35,6 +55,17 @@ void MicroFlex_e190::onConstruction() {
 	addNodePin(digitalOut2_Pin);
 	addNodePin(analogIn0_Pin);
 	addNodePin(analogOut0_Pin);
+	
+	velocityLimit_parameter = NumberParameter<double>::make(10.0, "Velocity Limit", "VelocityLimit", "%.1f",
+																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
+	accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
+																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
+	invertMotor_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
+																			   Units::Fraction::Percent, false);
+	maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",
+																					Units::AngularDistance::Revolution, false);
+	
 	
 	velocityLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
 	accelerationLimit_parameter->addEditCallback([this](){ configureSubmodules(); });

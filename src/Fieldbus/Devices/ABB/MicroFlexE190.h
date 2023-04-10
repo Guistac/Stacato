@@ -67,50 +67,46 @@ public:
 	};
 	
 	std::shared_ptr<MicroFlexServoMotor> servo;
-	std::shared_ptr<NodePin> servoPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor");
+	std::shared_ptr<NodePin> servoPin;
 	
 	std::shared_ptr<MicroFlexGpio> gpio;
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> gpioPin;
 	
 	std::shared_ptr<double> position_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> load_Value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> position_Pin = std::make_shared<NodePin>(position_Value, NodePin::Direction::NODE_OUTPUT, "Position", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> velocity_Pin = std::make_shared<NodePin>(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> load_Pin = std::make_shared<NodePin>(load_Value, NodePin::Direction::NODE_OUTPUT, "Load", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> position_Pin;
+	std::shared_ptr<NodePin> velocity_Pin;
+	std::shared_ptr<NodePin> load_Pin;
 	
 	std::shared_ptr<bool> digitalIn0_Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn1_Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn2_Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn3_Value = std::make_shared<bool>(false);
-	std::shared_ptr<NodePin> digitalIn0_Pin = std::make_shared<NodePin>(digitalIn0_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 0", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn1_Pin = std::make_shared<NodePin>(digitalIn1_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn2_Pin = std::make_shared<NodePin>(digitalIn2_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn3_Pin = std::make_shared<NodePin>(digitalIn3_Value, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalIn0_Pin;
+	std::shared_ptr<NodePin> digitalIn1_Pin;
+	std::shared_ptr<NodePin> digitalIn2_Pin;
+	std::shared_ptr<NodePin> digitalIn3_Pin;
 	
 	std::shared_ptr<bool> digitalOut0_Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalOut1_Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalOut2_Value = std::make_shared<bool>(false);
-	std::shared_ptr<NodePin> digitalOut0_Pin = std::make_shared<NodePin>(digitalOut0_Value, NodePin::Direction::NODE_INPUT, "Digital Output 0");
-	std::shared_ptr<NodePin> digitalOut1_Pin = std::make_shared<NodePin>(digitalOut1_Value, NodePin::Direction::NODE_INPUT, "Digital Output 1");
-	std::shared_ptr<NodePin> digitalOut2_Pin = std::make_shared<NodePin>(digitalOut2_Value, NodePin::Direction::NODE_INPUT, "Digital Output 2");
+	std::shared_ptr<NodePin> digitalOut0_Pin;
+	std::shared_ptr<NodePin> digitalOut1_Pin;
+	std::shared_ptr<NodePin> digitalOut2_Pin;
 	
 	std::shared_ptr<double> analogIn0_Value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> analogIn0_Pin = std::make_shared<NodePin>(analogIn0_Value, NodePin::Direction::NODE_OUTPUT, "Analog Input 0", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> analogIn0_Pin;
 	
 	std::shared_ptr<double> analogOut0_Value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> analogOut0_Pin = std::make_shared<NodePin>(analogOut0_Value, NodePin::Direction::NODE_INPUT, "Analog Output 0");
+	std::shared_ptr<NodePin> analogOut0_Pin;
 	
 	//Parameters
-	NumberParam<double> velocityLimit_parameter = NumberParameter<double>::make(10.0, "Velocity Limit", "VelocityLimit", "%.1f",
-																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
-	NumberParam<double> accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
-																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
-	BoolParam  invertMotor_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
-	NumberParam<double> currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
-																			   Units::Fraction::Percent, false);
-	NumberParam<double> maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",
-																					Units::AngularDistance::Revolution, false);
+	NumberParam<double> velocityLimit_parameter;
+	NumberParam<double> accelerationLimit_parameter;
+	BoolParam  invertMotor_parameter;
+	NumberParam<double> currentLimit_parameter;
+	NumberParam<double> maxFollowingError_parameter;
 	
 	ParameterGroup axisParameters = ParameterGroup("Axis",{
 		velocityLimit_parameter,

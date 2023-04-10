@@ -55,38 +55,38 @@ public:
 	
 	std::shared_ptr<ATV340_Motor> motor;
 	std::shared_ptr<ATV340_GPIO> gpio;
-	std::shared_ptr<NodePin> motor_pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
-	std::shared_ptr<NodePin> gpio_pin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
+	std::shared_ptr<NodePin> motor_pin;
+	std::shared_ptr<NodePin> gpio_pin;
 	
 	std::shared_ptr<double> velocity_Value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> load_Value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> velocity_Pin = std::make_shared<NodePin>(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> load_Pin = std::make_shared<NodePin>(load_Value, NodePin::Direction::NODE_OUTPUT, "Effort", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> velocity_Pin;
+	std::shared_ptr<NodePin> load_Pin;
 	
 	std::shared_ptr<bool> digitalInput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput2_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput4_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput5_Signal = std::make_shared<bool>(false);
-	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput4_Pin = std::make_shared<NodePin>(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 4", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput5_Pin = std::make_shared<NodePin>(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput1_Pin;
+	std::shared_ptr<NodePin> digitalInput2_Pin;
+	std::shared_ptr<NodePin> digitalInput3_Pin;
+	std::shared_ptr<NodePin> digitalInput4_Pin;
+	std::shared_ptr<NodePin> digitalInput5_Pin;
 	
 	std::shared_ptr<double> analogInput1_value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> analogInput2_value = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> analogInput1_pin = std::make_shared<NodePin>(analogInput1_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> analogInput2_pin = std::make_shared<NodePin>(analogInput2_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 2", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> analogInput1_pin;
+	std::shared_ptr<NodePin> analogInput2_pin;
 	
 	std::shared_ptr<bool> digitalOutput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalOutput2_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> relaisOutput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> relaisOutput2_Signal = std::make_shared<bool>(false);
-	std::shared_ptr<NodePin> digitalOutput1_Pin = std::make_shared<NodePin>(digitalOutput1_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 1");
-	std::shared_ptr<NodePin> digitalOutput2_Pin = std::make_shared<NodePin>(digitalOutput2_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 2");
-	std::shared_ptr<NodePin> relaisOutput1_Pin = std::make_shared<NodePin>(relaisOutput1_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 1");
-	std::shared_ptr<NodePin> relaisOutput2_Pin = std::make_shared<NodePin>(relaisOutput2_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 2");
+	std::shared_ptr<NodePin> digitalOutput1_Pin;
+	std::shared_ptr<NodePin> digitalOutput2_Pin;
+	std::shared_ptr<NodePin> relaisOutput1_Pin;
+	std::shared_ptr<NodePin> relaisOutput2_Pin;
 	
 	//———— Process Data
 	

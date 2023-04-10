@@ -17,7 +17,7 @@ public:
 	ScrollingBuffer data;
 	bool wasConnected = false;
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> input;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	
@@ -57,6 +57,9 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
+		
 		input->assignData(inputPinValue);
 		addNodePin(input);
 		data.setMaxSize(bufferSize);

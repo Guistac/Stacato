@@ -46,16 +46,16 @@ public:
 	std::shared_ptr<double> actualVelocity = std::make_shared<double>(0.0);
 	std::shared_ptr<double> actualLoad = std::make_shared<double>(0.0);
 	
-	std::shared_ptr<NodePin> digitalInput1Pin = std::make_shared<NodePin>(digitalInput1Signal, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput2Pin = std::make_shared<NodePin>(digitalInput2Signal, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput3Pin = std::make_shared<NodePin>(digitalInput3Signal, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput4Pin = std::make_shared<NodePin>(digitalInput4Signal, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput5Pin = std::make_shared<NodePin>(digitalInput5Signal, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalInput6Pin = std::make_shared<NodePin>(digitalInput6Signal, NodePin::Direction::NODE_OUTPUT, "DI6", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator");
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio");
-	std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity");
-	std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load");
+	std::shared_ptr<NodePin> digitalInput1Pin;
+	std::shared_ptr<NodePin> digitalInput2Pin;
+	std::shared_ptr<NodePin> digitalInput3Pin;
+	std::shared_ptr<NodePin> digitalInput4Pin;
+	std::shared_ptr<NodePin> digitalInput5Pin;
+	std::shared_ptr<NodePin> digitalInput6Pin;
+	std::shared_ptr<NodePin> actuatorPin;
+	std::shared_ptr<NodePin> gpioPin;
+	std::shared_ptr<NodePin> actualVelocityPin;
+	std::shared_ptr<NodePin> actualLoadPin;
 	
 	//————— Drive State —————
 	DS402::PowerState requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;

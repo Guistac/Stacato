@@ -36,45 +36,22 @@ private:
 	bool b_shouldRequestPress = false;
     bool b_shouldKeepPressing = false;
 	
-	std::shared_ptr<NumberParameter<double>> requestTimeoutDelay = NumberParameter<double>::make(5.0,
-																								 "Press Request Timeout Delay",
-																								 "PressReuqestTimeoutDelay",
-																								 "%.1f",
-																								 Units::Time::Second,
-																								 false);
+	std::shared_ptr<NumberParameter<double>> requestTimeoutDelay;
+	std::shared_ptr<NumberParameter<double>> requestBlinkFrequency;
+	std::shared_ptr<NumberParameter<double>> idleBlinkFrequency;
+	std::shared_ptr<NumberParameter<double>> idleBlinkLength;
 	
-	std::shared_ptr<NumberParameter<double>> requestBlinkFrequency = NumberParameter<double>::make(4.0,
-																								   "Request Blink Frequency",
-																								   "RequestBlinkFrequency",
-																								   "%.1f",
-																								   Units::Frequency::Hertz,
-																								   false);
-	
-	std::shared_ptr<NumberParameter<double>> idleBlinkFrequency = NumberParameter<double>::make(0.5,
-																								"Idle Blink Frequency",
-																								"IdleBlinkFrequency",
-																								"%.2f",
-																								Units::Frequency::Hertz,
-																								false);
-	
-	std::shared_ptr<NumberParameter<double>> idleBlinkLength = NumberParameter<double>::make(0.1,
-																							 "Idle Blink Length",
-																							 "IdleBlinkLength",
-																							 "%.2f",
-																							 Units::Time::Second,
-																							 false);
-
 	void handlePressRequest();
 	void updateLedState();
 	
 	std::shared_ptr<bool> b_switchPressed = std::make_shared<bool>(false);
 	std::shared_ptr<bool> b_switchLed = std::make_shared<bool>(false);
 	
-	std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevicePin");
-	std::shared_ptr<NodePin> switchPressedPin = std::make_shared<NodePin>(b_switchPressed, NodePin::Direction::NODE_INPUT, "Switch Pressed", "SwitchPressedPin");
+	std::shared_ptr<NodePin> gpioDevicePin;
+	std::shared_ptr<NodePin> switchPressedPin;
 	
-	std::shared_ptr<NodePin> switchLedPin = std::make_shared<NodePin>(b_switchLed, NodePin::Direction::NODE_OUTPUT, "Switch LED Signal", "SwitchLEDSignalPin");
-	std::shared_ptr<NodePin> deadMansSwitchLink = std::make_shared<NodePin>(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Dead Man's Switch");
+	std::shared_ptr<NodePin> switchLedPin;
+	std::shared_ptr<NodePin> deadMansSwitchLink;
 	
 	bool areAllInputsReady();
 	

@@ -21,6 +21,29 @@ void Lexium32::onConstruction() {
 	auto thisLexiumDrive = std::static_pointer_cast<Lexium32>(shared_from_this());
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
+	
+	//node input data
+	digitalOut0Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0", "DQ0");
+	digitalOut1Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1", "DQ1");
+	digitalOut2Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ2", "DQ2");
+	
+	servoMotorPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+											"Servo Motor", "ServoMotor");
+	actualLoadPin = NodePin::createInstance(actualLoadValue, NodePin::Direction::NODE_OUTPUT,
+											"Load", "Load", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	actualPositionPin = NodePin::createInstance(actualPositionValue, NodePin::Direction::NODE_OUTPUT,
+												"Position", "Position", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	actualVelocityPin = NodePin::createInstance(actualVelocityValue, NodePin::Direction::NODE_OUTPUT,
+												"Velocity", "Velocity", NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	
+	gpioDevicePin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
+	digitalIn0Pin = NodePin::createInstance(digitalIn0Value, NodePin::Direction::NODE_OUTPUT, "DI0", "DI0", NodePin::Flags::DisableDataField);
+	digitalIn1Pin = NodePin::createInstance(digitalIn1Value, NodePin::Direction::NODE_OUTPUT, "DI1", "DI1", NodePin::Flags::DisableDataField);
+	digitalIn2Pin = NodePin::createInstance(digitalIn2Value, NodePin::Direction::NODE_OUTPUT, "DI2", "DI2", NodePin::Flags::DisableDataField);
+	digitalIn3Pin = NodePin::createInstance(digitalIn3Value, NodePin::Direction::NODE_OUTPUT, "DI3", "DI3", NodePin::Flags::DisableDataField);
+	digitalIn4Pin = NodePin::createInstance(digitalIn4Value, NodePin::Direction::NODE_OUTPUT, "DI4", "DI4", NodePin::Flags::DisableDataField);
+	digitalIn5Pin = NodePin::createInstance(digitalIn5Value, NodePin::Direction::NODE_OUTPUT, "DI5", "DI5", NodePin::Flags::DisableDataField);
+	
 		
 	servoMotorPin->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));
 	gpioDevicePin->assignData(std::static_pointer_cast<GpioInterface>(gpioDevice));

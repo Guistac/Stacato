@@ -29,7 +29,7 @@ void IB_IL_24_DI_4::onConstruction(){
 		static char pinName[64];
 		int inputNumber = i + 1;
 		snprintf(pinName, 64, "Digital Input %i", inputNumber);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		outputPinValues.push_back(pinValue);
@@ -102,7 +102,7 @@ bool IB_IL_24_DI_4::load(tinyxml2::XMLElement* xml){
 	char attributeName[32];
 	for(int i = 0; i < 4; i++){
 		int inputNumber = i + 1;
-		sprintf(attributeName, "InvertInput%i", inputNumber);
+		snprintf(attributeName, 32, "InvertInput%i", inputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertInputs[i]) != XML_SUCCESS) {
 			return Logger::warn("could not find input %i inversion attribute", inputNumber);
 		}
@@ -118,8 +118,8 @@ void IB_IL_24_DO_4::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		int outputNumber = i + 1;
-		sprintf(pinName, "Digital Output %i", outputNumber);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		snprintf(pinName, 64, "Digital Output %i", outputNumber);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
@@ -129,8 +129,11 @@ void IB_IL_24_DO_4::onConstruction(){
 void IB_IL_24_DO_4::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
 		int outputNumber = i + 1;
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Digital Output %i", moduleIndex, outputNumber);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iDigitalOutput%i", moduleIndex, outputNumber);
+		char buffer[64];
+		snprintf(buffer, 64, "Module %i Digital Output %i", moduleIndex, outputNumber);
+		inputPins[i]->setName(buffer);
+		snprintf(buffer, 64, "Module%iDigitalOutput%i", moduleIndex, outputNumber);
+		inputPins[i]->setSaveString(buffer);
 	}
 }
 void IB_IL_24_DO_4::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -164,7 +167,7 @@ void IB_IL_24_DO_4::moduleGui(){
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::Text("%s", inputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -182,7 +185,7 @@ bool IB_IL_24_DO_4::save(tinyxml2::XMLElement* xml){
 	char attributeName[64];
 	for(int i = 0; i < 4; i++){
 		int outputNumber = i + 1;
-		sprintf(attributeName, "InvertOutput%i", outputNumber);
+		snprintf(attributeName, 64, "InvertOutput%i", outputNumber);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -196,7 +199,7 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 	char attributeName[32];
 	for(int i = 0; i < 4; i++){
 		int outputNumber = i + 1;
-		sprintf(attributeName, "InvertOutput%i", outputNumber);
+		snprintf(attributeName, 32, "InvertOutput%i", outputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
 			return Logger::warn("could not find output %i inversion attribute", outputNumber);
 		}
@@ -215,8 +218,8 @@ void IB_IL_24_48_DOR_2::onConstruction(){
 	for(int i = 0; i < 2; i++){
 		static char pinName[64];
 		int outputNumber = i + 1;
-		sprintf(pinName, "Relais Output %i", outputNumber);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		snprintf(pinName, 64, "Relais Output %i", outputNumber);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
@@ -227,8 +230,11 @@ void IB_IL_24_48_DOR_2::onConstruction(){
 void IB_IL_24_48_DOR_2::onSetIndex(int i){
 	for(int i = 0; i < 2; i++){
 		int outputNumber = i + 1;
-		sprintf((char*)inputPins[i]->getDisplayString(), "Module %i Relais Output %i", moduleIndex, outputNumber);
-		sprintf((char*)inputPins[i]->getSaveString(), "Module%iRelaisOutput%i", moduleIndex, outputNumber);
+		char buffer[64];
+		snprintf(buffer, 64, "Module %i Relais Output %i", moduleIndex, outputNumber);
+		inputPins[i]->setName(buffer);
+		snprintf(buffer, 64, "Module%iRelaisOutput%i", moduleIndex, outputNumber);
+		inputPins[i]->setSaveString(buffer);
 	}
 }
 void IB_IL_24_48_DOR_2::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
@@ -262,7 +268,7 @@ void IB_IL_24_48_DOR_2::moduleGui(){
 		ImGui::Checkbox("##invert", &invertOutputs[i]);
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text("%s", inputPins[i]->getDisplayString());
+		ImGui::Text("%s", inputPins[i]->getName().c_str());
 		ImGui::PopFont();
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0));
 		ImGui::SameLine();
@@ -280,7 +286,7 @@ bool IB_IL_24_48_DOR_2::save(tinyxml2::XMLElement* xml){
 	char attributeName[64];
 	for(int i = 0; i < 2; i++){
 		int outputNumber = i + 1;
-		sprintf(attributeName, "InvertOutput%i", outputNumber);
+		snprintf(attributeName, 64, "InvertOutput%i", outputNumber);
 		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
 	}
 	return true;
@@ -294,7 +300,7 @@ bool IB_IL_24_48_DOR_2::load(tinyxml2::XMLElement* xml){
 	char attributeName[32];
 	for(int i = 0; i < 2; i++){
 		int outputNumber = i + 1;
-		sprintf(attributeName, "InvertOutput%i", outputNumber);
+		snprintf(attributeName, 32, "InvertOutput%i", outputNumber);
 		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
 			return Logger::warn("could not find output %i inversion attribute", outputNumber);
 		}
@@ -343,10 +349,15 @@ void IB_IL_SSI_IN::onConstruction(){
 	resetPin->setVisible(hasResetSignalParameter->value);
 }
 void IB_IL_SSI_IN::onSetIndex(int i){
-	sprintf((char*)encoderPin->getDisplayString(), "Module %i SSI Encoder", i);
-	sprintf((char*)encoderPin->getSaveString(), "Module%iSSIEncoder", i);
-	sprintf((char*)resetPin->getDisplayString(), "Module %i SSI Encoder Reset", i);
-	sprintf((char*)resetPin->getSaveString(), "Module%iSSIEncoderReset", i);
+	char buffer[64];
+	snprintf(buffer, 64, "Module %i SSI Encoder", i);
+	encoderPin->setName(buffer);
+	snprintf(buffer, 64, "Module%iSSIEncoder", i);
+	encoderPin->setSaveString(buffer);
+	snprintf(buffer, 64, "Module %i SSI Encoder Reset", i);
+	resetPin->setName(buffer);
+	snprintf(buffer, 64, "Module%iSSIEncoderReset", i);
+	resetPin->setSaveString(buffer);
 }
 void IB_IL_SSI_IN::addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement){
 	txPdoAssignement.addNewModule(0x1A00 + moduleIndex);
@@ -605,10 +616,10 @@ void IB_IL_SSI_IN::moduleGui(){
 	ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 	
 	static char statusString[64];
-	sprintf(statusString, "%.3f rev", pos);
+	snprintf(statusString, 64, "%.3f rev", pos);
 	ImGui::ProgressBar(positionInWorkingRange, progressSize, statusString);
 	
-	sprintf(statusString, "%.2f rev/s", vel);
+	snprintf(statusString, 64, "%.2f rev/s", vel);
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized > 0.0 ? Colors::green : Colors::red);
 	ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, statusString);
 	ImGui::PopStyleColor();

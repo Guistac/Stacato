@@ -80,6 +80,7 @@ public:
 												   std::string saveString,
 												   Flags flags = Flags::None){
 		auto newPin = createInstance();
+		newPin->setType(type);
 		newPin->configure(dir, displayName, saveString, flags);
 		return newPin;
 	};

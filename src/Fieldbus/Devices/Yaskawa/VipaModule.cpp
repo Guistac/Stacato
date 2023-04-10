@@ -45,18 +45,12 @@ void VIPA_022_1HD10::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		snprintf(pinName, 64, "Relais Output %i", i);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
-	/*
-	inputBitCount = 0;
-	inputByteCount = 0;
-	outputBitCount = 8;
-	outputByteCount = 1;
-	 */
 }
 void VIPA_022_1HD10::onSetIndex(int i){
 	for(int i = 0; i < 4; i++){
@@ -156,18 +150,12 @@ void VIPA_021_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
 		snprintf(pinName, 64, "Digital Input %i", i);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		outputPinValues.push_back(pinValue);
 		outputPins.push_back(pin);
 	}
-	/*
-	inputBitCount = 8;
-	inputByteCount = 1;
-	outputBitCount = 0;
-	outputByteCount = 0;
-	 */
 }
 void VIPA_021_1BF00::onSetIndex(int i){
 	for(int i = 0; i < 8; i++){
@@ -262,18 +250,12 @@ void VIPA_022_1BF00::onConstruction(){
 	for(int i = 0; i < 8; i++){
 		static char pinName[64];
 		snprintf(pinName, 64, "Digital Output %i", i);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, pinName, pinName);
 		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
-	/*
-	inputBitCount = 0;
-	inputByteCount = 0;
-	outputBitCount = 8;
-	outputByteCount = 1;
-	 */
 }
 
 void VIPA_022_1BF00::onSetIndex(int i){
@@ -711,18 +693,12 @@ void VIPA_032_1BD70::onConstruction(){
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		snprintf(pinName, 64, "Analog Output %i", i);
-		std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, pinName);
+		std::shared_ptr<NodePin> pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, pinName, pinName);
 		std::shared_ptr<double> pinValue = std::make_shared<double>(0.0);
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
 	}
-	/*
-	inputBitCount = 0;
-	inputByteCount = 0;
-	outputBitCount = 64;
-	outputByteCount = 8;
-	 */
 }
 
 void VIPA_032_1BD70::onSetIndex(int i){

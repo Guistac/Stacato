@@ -38,9 +38,9 @@ public:
 	
 	
     //node input data
-    std::shared_ptr<NodePin> digitalOut0Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0");
-    std::shared_ptr<NodePin> digitalOut1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1");
-    std::shared_ptr<NodePin> digitalOut2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ2");
+	std::shared_ptr<NodePin> digitalOut0Pin;
+	std::shared_ptr<NodePin> digitalOut1Pin;
+	std::shared_ptr<NodePin> digitalOut2Pin;
 	
 	std::shared_ptr<bool> digitalOut0Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalOut1Value = std::make_shared<bool>(false);
@@ -60,29 +60,18 @@ public:
 	std::shared_ptr<bool> digitalIn4Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn5Value = std::make_shared<bool>(false);
 	
-    std::shared_ptr<NodePin> servoMotorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
-																	   NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
-																	   "Servo Motor");
-    std::shared_ptr<NodePin> actualLoadPin = std::make_shared<NodePin>(actualLoadValue,
-																	   NodePin::Direction::NODE_OUTPUT,
-																	   "Load",
-																	   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-    std::shared_ptr<NodePin> actualPositionPin = std::make_shared<NodePin>(actualPositionValue,
-																		   NodePin::Direction::NODE_OUTPUT,
-																		   "Position",
-																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-    std::shared_ptr<NodePin> actualVelocityPin = std::make_shared<NodePin>(actualVelocityValue,
-																		   NodePin::Direction::NODE_OUTPUT,
-																		   "Velocity",
-																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	std::shared_ptr<NodePin> servoMotorPin;
+	std::shared_ptr<NodePin> actualLoadPin;
+	std::shared_ptr<NodePin> actualPositionPin;
+	std::shared_ptr<NodePin> actualVelocityPin;
 	
-    std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
-    std::shared_ptr<NodePin> digitalIn0Pin = std::make_shared<NodePin>(digitalIn0Value, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(digitalIn1Value, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(digitalIn2Value, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn3Pin = std::make_shared<NodePin>(digitalIn3Value, NodePin::Direction::NODE_OUTPUT, "DI3", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn4Pin = std::make_shared<NodePin>(digitalIn4Value, NodePin::Direction::NODE_OUTPUT, "DI4", NodePin::Flags::DisableDataField);
-    std::shared_ptr<NodePin> digitalIn5Pin = std::make_shared<NodePin>(digitalIn5Value, NodePin::Direction::NODE_OUTPUT, "DI5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> gpioDevicePin;
+	std::shared_ptr<NodePin> digitalIn0Pin;
+	std::shared_ptr<NodePin> digitalIn1Pin;
+	std::shared_ptr<NodePin> digitalIn2Pin;
+	std::shared_ptr<NodePin> digitalIn3Pin;
+	std::shared_ptr<NodePin> digitalIn4Pin;
+	std::shared_ptr<NodePin> digitalIn5Pin;
 	
 	double cycleTime_milliseconds = 20.0;
 	

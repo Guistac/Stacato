@@ -24,7 +24,7 @@ namespace PhoenixContact{
 		
 		//master GPIO Subdevice
 		std::shared_ptr<PhoenixContactGpioDevice> gpioDevice;
-		std::shared_ptr<NodePin> gpioDeviceLink = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
+		std::shared_ptr<NodePin> gpioDeviceLink;
 		
 		virtual std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModuleFactory() override;
 		

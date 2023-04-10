@@ -9,12 +9,46 @@
 void DeadMansSwitch::onConstruction(){
 	Node::onConstruction();
 	
+	gpioDevicePin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevicePin");
+	switchPressedPin = NodePin::createInstance(b_switchPressed, NodePin::Direction::NODE_INPUT, "Switch Pressed", "SwitchPressedPin");
+	
+	switchLedPin = NodePin::createInstance(b_switchLed, NodePin::Direction::NODE_OUTPUT, "Switch LED Signal", "SwitchLEDSignalPin");
+	deadMansSwitchLink = NodePin::createInstance(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Dead Man's Switch", "DeadManSwitch");
+	
 	addNodePin(gpioDevicePin);
 	addNodePin(switchPressedPin);
 	addNodePin(switchLedPin);
 	std::shared_ptr<DeadMansSwitch> thisDeadMansSwitch = std::static_pointer_cast<DeadMansSwitch>(shared_from_this());
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
 	addNodePin(deadMansSwitchLink);
+	
+	requestTimeoutDelay = NumberParameter<double>::make(5.0,
+														"Press Request Timeout Delay",
+														"PressReuqestTimeoutDelay",
+														"%.1f",
+														Units::Time::Second,
+														false);
+	
+	requestBlinkFrequency = NumberParameter<double>::make(4.0,
+														  "Request Blink Frequency",
+														  "RequestBlinkFrequency",
+														  "%.1f",
+														  Units::Frequency::Hertz,
+														  false);
+	
+	idleBlinkFrequency = NumberParameter<double>::make(0.5,
+													   "Idle Blink Frequency",
+													   "IdleBlinkFrequency",
+													   "%.2f",
+													   Units::Frequency::Hertz,
+													   false);
+	
+	idleBlinkLength = NumberParameter<double>::make(0.1,
+													"Idle Blink Length",
+													"IdleBlinkLength",
+													"%.2f",
+													Units::Time::Second,
+													false);
 	
 	controlWidget = std::make_shared<ControlWidget>(thisDeadMansSwitch);
 }

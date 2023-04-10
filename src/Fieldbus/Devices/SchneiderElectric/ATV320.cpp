@@ -16,6 +16,20 @@ void ATV320::onConstruction() {
 	actuator = std::make_shared<ATV_Motor>(thisDrive);
 	gpio = std::make_shared<ATV_GPIO>(thisDrive);
 	
+	digitalInput1Pin = NodePin::createInstance(digitalInput1Signal, NodePin::Direction::NODE_OUTPUT, "DI1", "DI1", NodePin::Flags::DisableDataField);
+	digitalInput2Pin = NodePin::createInstance(digitalInput2Signal, NodePin::Direction::NODE_OUTPUT, "DI2", "DI2", NodePin::Flags::DisableDataField);
+	digitalInput3Pin = NodePin::createInstance(digitalInput3Signal, NodePin::Direction::NODE_OUTPUT, "DI3", "DI3", NodePin::Flags::DisableDataField);
+	digitalInput4Pin = NodePin::createInstance(digitalInput4Signal, NodePin::Direction::NODE_OUTPUT, "DI4", "DI4", NodePin::Flags::DisableDataField);
+	digitalInput5Pin = NodePin::createInstance(digitalInput5Signal, NodePin::Direction::NODE_OUTPUT, "DI5", "DI5", NodePin::Flags::DisableDataField);
+	digitalInput6Pin = NodePin::createInstance(digitalInput6Signal, NodePin::Direction::NODE_OUTPUT, "DI6", "DI6", NodePin::Flags::DisableDataField);
+	actuatorPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator", "Actuator");
+	gpioPin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio", "Gpio");
+	actualVelocityPin = NodePin::createInstance(actualVelocity, NodePin::Direction::NODE_OUTPUT, "Velocity", "Velocity");
+	actualLoadPin = NodePin::createInstance(actualLoad, NodePin::Direction::NODE_OUTPUT, "Load", "Load");
+	
+	
+	
+	
 	actuatorPin->assignData(std::static_pointer_cast<ActuatorInterface>(actuator));
 	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	

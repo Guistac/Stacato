@@ -26,36 +26,36 @@ void AxisNode::onConstruction(){
 	brakeControlSignal = std::make_shared<bool>(false);
 	surveillanceValidSignal = std::make_shared<bool>(false);
 	
-	actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
+	actuatorPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE,
 											NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 											"Actuator", "Actuator",
 											NodePin::Flags::AcceptMultipleInputs);
-	feedbackPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE,
+	feedbackPin = NodePin::createInstance(NodePin::DataType::MOTIONFEEDBACK_INTERFACE,
 											NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 											"Feedback", "Feedback",
 											NodePin::Flags::AcceptMultipleInputs);
-	gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE,
+	gpioPin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE,
 										NodePin::Direction::NODE_INPUT,
 										"GPIO", "GPIO",
 										NodePin::Flags::AcceptMultipleInputs);
-	lowerLimitSignalPin = std::make_shared<NodePin>(lowerLimitSignal, NodePin::Direction::NODE_INPUT,
+	lowerLimitSignalPin = NodePin::createInstance(lowerLimitSignal, NodePin::Direction::NODE_INPUT,
 													"Lower Limit Signal", "LowerLimitSignal");
-	upperLimitSignalPin = std::make_shared<NodePin>(upperLimitSignal, NodePin::Direction::NODE_INPUT,
+	upperLimitSignalPin = NodePin::createInstance(upperLimitSignal, NodePin::Direction::NODE_INPUT,
 													"Upper Limit Signal", "UpperLimitSignal");
-	lowerSlowdownSignalPin = std::make_shared<NodePin>(lowerSlowdownSignal, NodePin::Direction::NODE_INPUT,
+	lowerSlowdownSignalPin = NodePin::createInstance(lowerSlowdownSignal, NodePin::Direction::NODE_INPUT,
 													   "Lower Slowdown Signal", "LowerSlowdownSignal");
-	upperSlowdownSignalPin = std::make_shared<NodePin>(upperSlowdownSignal, NodePin::Direction::NODE_INPUT,
+	upperSlowdownSignalPin = NodePin::createInstance(upperSlowdownSignal, NodePin::Direction::NODE_INPUT,
 													   "Upper Slowdown Signal", "UpperSlowdownSignal");
-	referenceSignalPin = std::make_shared<NodePin>(referenceSignal, NodePin::Direction::NODE_INPUT,
+	referenceSignalPin = NodePin::createInstance(referenceSignal, NodePin::Direction::NODE_INPUT,
 												   "Reference Signal", "ReferenceSignal");
-	surveillanceResetSignalPin = std::make_shared<NodePin>(surveillanceResetSignal, NodePin::Direction::NODE_INPUT,
+	surveillanceResetSignalPin = NodePin::createInstance(surveillanceResetSignal, NodePin::Direction::NODE_INPUT,
 														   "Surveillance Fault Reset", "SurveillanceFaultReset");
 	
-	axisPin = std::make_shared<NodePin>(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+	axisPin = NodePin::createInstance(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 										"Axis", "Axis");
-	brakeControlSignalPin = std::make_shared<NodePin>(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
+	brakeControlSignalPin = NodePin::createInstance(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
 													  "Brake Control Signal", "BrakeControlSignal");
-	surveillanceValidSignalPin = std::make_shared<NodePin>(surveillanceValidSignal, NodePin::Direction::NODE_OUTPUT,
+	surveillanceValidSignalPin = NodePin::createInstance(surveillanceValidSignal, NodePin::Direction::NODE_OUTPUT,
 														   "Surveillance Valid Signal", "SurveillanceValidSignal");
 	
 	addNodePin(actuatorPin);

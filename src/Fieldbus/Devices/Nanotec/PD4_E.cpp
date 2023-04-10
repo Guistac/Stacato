@@ -59,6 +59,8 @@ void PD4_E::onConstruction() {
 											"Digital In 4", "DigitalIn4", NodePin::Flags::DisableDataField);
 	digitalIn5Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
 											"Digital In 5", "DigitalIn5", NodePin::Flags::DisableDataField);
+	digitalIn6Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT,
+											"Digital In 6", "DigitalIn6", NodePin::Flags::DisableDataField);
 	analogIn1Pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT,
 										   "Analog In 1", "AnalogIn1", NodePin::Flags::DisableDataField);
 	

@@ -9,7 +9,7 @@ public:
 	DEFINE_NODE(ConstantNode, "Constant", "Constant", Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<double> constantValue = std::make_shared<double>(0.0);
-	std::shared_ptr<NodePin> pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", NodePin::Flags::ForceDataField);
+	std::shared_ptr<NodePin> pin;
 	
 	virtual void inputProcess() override{};
 	
@@ -30,6 +30,7 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", "value", NodePin::Flags::ForceDataField);
 		pin->assignData(constantValue);
 		addNodePin(pin);
 	}
@@ -46,9 +47,9 @@ public:
 
 	DEFINE_NODE(AdditionNode, "Addition", "Addition", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> input;
+	std::shared_ptr<NodePin> offset;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> offsetPinValue = std::make_shared<double>(0.0);
@@ -70,6 +71,14 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input",
+										NodePin::Flags::AcceptMultipleInputs);
+		offset = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", "offset",
+										 NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", "result",
+										 NodePin::Flags::DisableDataField);
+		
 		input->assignData(inputPinValue);
 		addNodePin(input);
 		offset->assignData(offsetPinValue);
@@ -90,10 +99,10 @@ public:
 
 	DEFINE_NODE(SubtractionNode, "Subtraction", "Subtraction", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> sub = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "sub", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> offset = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> base;
+	std::shared_ptr<NodePin> sub;
+	std::shared_ptr<NodePin> offset;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> subPinValue = std::make_shared<double>(0.0);
@@ -123,6 +132,18 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base",
+									   NodePin::Flags::AcceptMultipleInputs);
+		sub = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "sub", "sub",
+									  NodePin::Flags::AcceptMultipleInputs);
+		offset = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", "offset",
+										 NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", "result",
+										 NodePin::Flags::DisableDataField);
+
+
+		
 		base->assignData(basePinValue);
 		addNodePin(base);
 		sub->assignData(subPinValue);
@@ -145,9 +166,9 @@ public:
 
 	DEFINE_NODE(MultiplicationNode, "Multiplication", "Mutliplication", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> multiplier = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> input;
+	std::shared_ptr<NodePin> multiplier;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> multiplierPinValue = std::make_shared<double>(1.0);
@@ -170,6 +191,15 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input",
+										NodePin::Flags::AcceptMultipleInputs);
+		multiplier = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", "mult",
+											 NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", "result",
+										 NodePin::Flags::DisableDataField);
+
+		
 		input->assignData(inputPinValue);
 		addNodePin(input);
 		multiplier->assignData(multiplierPinValue);
@@ -191,10 +221,10 @@ public:
 
 	DEFINE_NODE(DivisionNode, "Division", "Division", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> div = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "div", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> mult = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> base;
+	std::shared_ptr<NodePin> div;
+	std::shared_ptr<NodePin> mult;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> divPinValue = std::make_shared<double>(1.0);
@@ -223,6 +253,17 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base",
+									   NodePin::Flags::AcceptMultipleInputs);
+		div = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "div", "div",
+									  NodePin::Flags::AcceptMultipleInputs);
+		mult = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "mult", "mult",
+									   NodePin::Flags::DisablePin | NodePin::Flags::ForceDataField);
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", "result",
+										 NodePin::Flags::DisableDataField);
+
+		
 		base->assignData(basePinValue);
 		addNodePin(base);
 		div->assignData(divPinValue);
@@ -246,9 +287,9 @@ public:
 
 	DEFINE_NODE(ExponentNode, "Exponent", "Exponent", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> base = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base");
-	std::shared_ptr<NodePin> exp = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "exp");
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> base;
+	std::shared_ptr<NodePin> exp;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> basePinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> expPinValue = std::make_shared<double>(1.0);
@@ -264,6 +305,11 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base");
+		exp = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "exp", "exp");
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "result", "result", NodePin::Flags::DisableDataField);
+		
 		base->assignData(basePinValue);
 		addNodePin(base);
 		exp->assignData(expPinValue);
@@ -285,8 +331,8 @@ public:
 
 	DEFINE_NODE(AbsoluteNode, "Absolute", "Absolute", Node::Type::PROCESSOR, "Math")
 
-	std::shared_ptr<NodePin> input = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> output = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> input;
+	std::shared_ptr<NodePin> output;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
@@ -299,6 +345,10 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
+		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
 		input->assignData(inputPinValue);
 		addNodePin(input);
 		output->assignData(outputPinValue);
@@ -320,23 +370,27 @@ public:
 
 	DEFINE_NODE(SinusNode, "Sinus", "Sinus", Node::Type::PROCESSOR, "Trigonometry")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 	
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 
 	virtual void inputProcess() override{
-		if(in->isConnected()) in->copyConnectedPinValue();
+		if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 		*outputPinValue = std::sin(*inputPinValue);
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -352,23 +406,27 @@ public:
 
 	DEFINE_NODE(CosinusNode, "Cosinus", "Cosinus", Node::Type::PROCESSOR, "Trigonometry")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(1.0);
 	
 	virtual void inputProcess() override{
-		if(in->isConnected()) in->copyConnectedPinValue();
+		if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 		*outputPinValue = std::cos(*inputPinValue);
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -383,23 +441,27 @@ public:
 
 	DEFINE_NODE(TangentNode, "Tangent", "Tangent", Node::Type::PROCESSOR, "Trigonometry")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
 	virtual void inputProcess() override{
-		if(in->isConnected()) in->copyConnectedPinValue();
+		if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 		*outputPinValue = std::tan(*inputPinValue);
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -414,23 +476,27 @@ public:
 
 	DEFINE_NODE(CotangentNode, "Cotangent", "Cotangent", Node::Type::PROCESSOR, "Trigonometry")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(std::numeric_limits<double>::infinity());
 	
 	virtual void inputProcess() override{
-		if(in->isConnected()) in->copyConnectedPinValue();
+		if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 		*outputPinValue = 1.0 / std::sin(*inputPinValue);
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -455,25 +521,29 @@ public:
 
 	DEFINE_NODE(BoolNode, "Bool", "Bool", Node::Type::PROCESSOR, "Logic")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(false);
 	
 	virtual void inputProcess() override{
-		if(in->isConnected()) {
-			double realValue = in->getConnectedPin()->read<double>();
+		if(inputPin->isConnected()) {
+			double realValue = inputPin->getConnectedPin()->read<double>();
 			*outputPinValue = realValue > 0.0;
 		}else *outputPinValue = false;
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -488,23 +558,27 @@ public:
 
 	DEFINE_NODE(NotNode, "Not", "Not", Node::Type::PROCESSOR, "Logic")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in");
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 	
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 
 	virtual void inputProcess() override{
-		if(in->isConnected()) in->copyConnectedPinValue();
+		if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 		*outputPinValue = !*inputPinValue;
 	}
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in");
+		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -520,16 +594,16 @@ public:
 
 	DEFINE_NODE(AndNode, "And", "And", Node::Type::PROCESSOR, "Logic")
 	
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
 	virtual void inputProcess() override{
-		if(in->hasMultipleConnections()){
+		if(inputPin->hasMultipleConnections()){
 			*inputPinValue = false;
-			for(auto pin : in->getConnectedPins()) {
+			for(auto pin : inputPin->getConnectedPins()) {
 				if(!pin->read<bool>()){
 					*outputPinValue = false;
 					return;
@@ -541,10 +615,14 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in", NodePin::Flags::AcceptMultipleInputs);
+		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -561,16 +639,16 @@ public:
 
 	DEFINE_NODE(OrNode, "Or", "Or", Node::Type::PROCESSOR, "Logic")
 
-	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::AcceptMultipleInputs);
-	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> inputPin;
+	std::shared_ptr<NodePin> outputPin;
 
 	std::shared_ptr<bool> inputPinValue = std::make_shared<bool>(0.0);
 	std::shared_ptr<bool> outputPinValue = std::make_shared<bool>(0.0);
 	
 	virtual void inputProcess() override{
-		if(in->hasMultipleConnections()){
+		if(inputPin->hasMultipleConnections()){
 				*inputPinValue = false;
-				for(auto pin : in->getConnectedPins()) {
+				for(auto pin : inputPin->getConnectedPins()) {
 					if(pin->read<bool>()){
 						*outputPinValue = true;
 						return;
@@ -582,10 +660,14 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
-		in->assignData(inputPinValue);
-		addNodePin(in);
-		out->assignData(outputPinValue);
-		addNodePin(out);
+		
+		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in", NodePin::Flags::AcceptMultipleInputs);
+		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
+		
+		inputPin->assignData(inputPinValue);
+		addNodePin(inputPin);
+		outputPin->assignData(outputPinValue);
+		addNodePin(outputPin);
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

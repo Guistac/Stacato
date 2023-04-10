@@ -16,8 +16,36 @@ void ATV340::onConstruction() {
 	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	motor_pin->assignData(std::static_pointer_cast<ActuatorInterface>(motor));
 	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
+	
+	
+	motor_pin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator", "Actuator");
+	gpio_pin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio", "Gpio");
+	
+	velocity_Pin = NodePin::createInstance(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", "Velocity", NodePin::Flags::DisableDataField);
+	load_Pin = NodePin::createInstance(load_Value, NodePin::Direction::NODE_OUTPUT, "Effort", "Effort", NodePin::Flags::DisableDataField);
+	
+
+	digitalInput1_Pin = NodePin::createInstance(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", "Digital Input 1",
+												NodePin::Flags::DisableDataField);
+	digitalInput2_Pin = NodePin::createInstance(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", "Digital Input 2",
+												NodePin::Flags::DisableDataField);
+	digitalInput3_Pin = NodePin::createInstance(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", "Digital Input 3",
+												NodePin::Flags::DisableDataField);
+	digitalInput4_Pin = NodePin::createInstance(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 4", "Digital Input 4",
+												NodePin::Flags::DisableDataField);
+	digitalInput5_Pin = NodePin::createInstance(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 5", "Digital Input 5",
+												NodePin::Flags::DisableDataField);
+	analogInput1_pin = NodePin::createInstance(analogInput1_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 1", "Analog Input 1",
+											   NodePin::Flags::DisableDataField);
+	analogInput2_pin = NodePin::createInstance(analogInput2_value, NodePin::Direction::NODE_OUTPUT, "Analog Input 2", "Analog Input 2",
+											   NodePin::Flags::DisableDataField);
+	digitalOutput1_Pin = NodePin::createInstance(digitalOutput1_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 1", "Digital Output 1");
+	digitalOutput2_Pin = NodePin::createInstance(digitalOutput2_Signal, NodePin::Direction::NODE_INPUT, "Digital Output 2", "Digital Output 2");
+	relaisOutput1_Pin = NodePin::createInstance(relaisOutput1_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 1", "Relais Output 1");
+	relaisOutput2_Pin = NodePin::createInstance(relaisOutput2_Signal, NodePin::Direction::NODE_INPUT, "Relais Output 2", "Relais Output 2");
+	
+	motor_pin->assignData(std::static_pointer_cast<ActuatorInterface>(motor));
 	gpio_pin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
 	//add node pins

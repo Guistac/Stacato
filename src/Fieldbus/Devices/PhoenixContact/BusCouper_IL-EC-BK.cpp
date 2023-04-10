@@ -36,6 +36,8 @@ void BusCoupler::onConstruction() {
 	
 	EtherCAT::ModularDeviceProfile::ModularDevice::onConstruction();
 	
+	gpioDeviceLink = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
+	
 	//by default, this node only has one pin
 	//no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());

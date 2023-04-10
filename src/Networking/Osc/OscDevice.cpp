@@ -160,7 +160,7 @@ bool OscDevice::isMessageSelected(std::shared_ptr<OSC::Message> msg){
 void OscDevice::addArgument(std::shared_ptr<OSC::Message> msg){
 	std::shared_ptr<OSC::Argument> argument = std::make_shared<OSC::Argument>(msg);
 	msg->arguments.push_back(argument);
-	argument->setIndex(getMessageIndex(msg), msg->arguments.size());
+	argument->setIndex(getMessageIndex(msg), (int)msg->arguments.size());
 	addNodePin(argument->pin);
 	updatePins();
 }
@@ -255,10 +255,10 @@ ArgumentType* getArgumentType(const char* saveName){
 Argument::Argument(std::shared_ptr<Message> msg) : parentMessage(msg){
 	switch(parentMessage->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "dummyName");
+			pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "dummyName", "dummyName");
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
-			pin = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "dummyName");
+			pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "dummyName", "dummyName");
 			break;
 	}
 	setType(type);
@@ -283,24 +283,30 @@ void Argument::setType(ArgumentType::Type t){
 void Argument::setIndex(int mesIndex, int argIndex){
 	static char previousDefaultDisplayString[128];
 	
+	char buffer[64];
+	
 	switch(parentMessage->type){
 		case OSC::MessageType::OUTGOING_MESSAGE:
-			sprintf((char*)pin->getSaveString(), "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
+			
+			snprintf(buffer, 64, "OutgoingMessage%iArgument%i", messageIndex, argumentIndex);
+			pin->setSaveString(buffer);
 			
 			//only update the display name if it is not the default one
-			sprintf(previousDefaultDisplayString, "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
-			if(strcmp(pin->getDisplayString(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayString(), "dummyName") == 0){
-			   sprintf((char*)pin->getDisplayString(), "Outgoing Message %i Argument %i", mesIndex, argIndex);
-			}
+			//why tho ???
+			snprintf(buffer, 64, "Outgoing Message %i Argument %i", messageIndex, argumentIndex);
+			pin->setName(buffer);
+			
 			break;
 		case OSC::MessageType::INCOMING_MESSAGE:
-			sprintf((char*)pin->getSaveString(), "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
-	
+			
+			snprintf(buffer, 64, "IncomingMessage%iArgument%i", messageIndex, argumentIndex);
+			pin->setSaveString(buffer);
+			
 			//only update the display name if it is not the default one
-			sprintf(previousDefaultDisplayString, "Incoming Message %i Argument %i", messageIndex, argumentIndex);
-			if(strcmp(pin->getDisplayString(), previousDefaultDisplayString) == 0 || strcmp(pin->getDisplayString(), "dummyName") == 0){
-				sprintf((char*)pin->getDisplayString(), "Incoming Message %i Argument %i", mesIndex, argIndex);
-			}
+			//why tho ??
+			snprintf(buffer, 64, "Incoming Message %i Argument %i", messageIndex, argumentIndex);
+			pin->setName(buffer);
+			
 			break;
 	}
 	messageIndex = mesIndex;
@@ -357,7 +363,7 @@ void Message::startSendingRuntime(std::shared_ptr<OscSocket> socket){
 			if(sleepTime < 0) sleepTime = 0;
 			*/
 			
-			osal_usleep(sleepTime / 1000);
+			osal_usleep(uint32_t(sleepTime / 1000));
 			
 			//construct message
 			std::shared_ptr<OscMessage> message = std::make_shared<OscMessage>(path);
@@ -435,7 +441,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 		for(auto& argument : message->arguments){
 			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
 			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
-			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString());
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString().c_str());
 		}
 	}
 	
@@ -446,7 +452,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 		for(auto& argument : message->arguments){
 			XMLElement* argumentXML = messageXML->InsertNewChildElement("OSCArgument");
 			argumentXML->SetAttribute("DataType", OSC::getArgumentType(argument->type)->saveName);
-			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString());
+			argumentXML->SetAttribute("PinSaveName", argument->pin->getSaveString().c_str());
 		}
 	}
 	
@@ -501,10 +507,10 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->setType(argumentType->type);
 			const char* pinSaveNameString;
 			if(argumentXML->QueryStringAttribute("PinSaveName", &pinSaveNameString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
-			strcpy((char*)argument->pin->getSaveString(), pinSaveNameString);
+			strcpy((char*)argument->pin->getSaveString().c_str(), pinSaveNameString);
 			
-			argument->messageIndex = outgoingMessages.size();
-			argument->argumentIndex = message->arguments.size();
+			argument->messageIndex = (int)outgoingMessages.size();
+			argument->argumentIndex = (int)message->arguments.size();
 			message->arguments.push_back(argument);
 			addNodePin(argument->pin);
 			
@@ -541,10 +547,10 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 			argument->setType(argumentType->type);
 			const char* pinSaveNameString;
 			if(argumentXML->QueryStringAttribute("PinSaveName", &dataTypeString) != XML_SUCCESS) return Logger::warn("could not find osc argument pin save name attribute");
-			strcpy((char*)argument->pin->getSaveString(), pinSaveNameString);
+			strcpy((char*)argument->pin->getSaveString().c_str(), pinSaveNameString);
 			
-			argument->messageIndex = incomingMessages.size();
-			argument->argumentIndex = message->arguments.size();
+			argument->messageIndex = (int)incomingMessages.size();
+			argument->argumentIndex = (int)message->arguments.size();
 			message->arguments.push_back(argument);
 			addNodePin(argument->pin);
 			
