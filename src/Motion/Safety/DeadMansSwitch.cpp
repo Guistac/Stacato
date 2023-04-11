@@ -9,6 +9,8 @@
 void DeadMansSwitch::onConstruction(){
 	Node::onConstruction();
 	
+	setName("Dead Man's Switch");
+	
 	gpioDevicePin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT, "Gpio Device", "GpioDevicePin");
 	switchPressedPin = NodePin::createInstance(b_switchPressed, NodePin::Direction::NODE_INPUT, "Switch Pressed", "SwitchPressedPin");
 	

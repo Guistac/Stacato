@@ -13,6 +13,8 @@ void ATV340::onConstruction() {
 	
 	EtherCatDevice::onConstruction();
 	
+	setName("ATV340");
+	
 	//create submodules
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));

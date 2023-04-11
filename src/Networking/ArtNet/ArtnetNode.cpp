@@ -56,6 +56,8 @@ void ArtNetNode::onConstruction(){
 	
 	NetworkDevice::onConstruction();
 	
+	setName("ArtNet Node");
+	
 	script = std::make_shared<LuaScript>("PSN Server Script");
 	script->setLoadLibrairiesCallback([this](lua_State* L){
 		Scripting::EnvironnementLibrary::openlib(L);

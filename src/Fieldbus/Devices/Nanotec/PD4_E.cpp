@@ -21,6 +21,8 @@ void PD4_E::resetData() {
 void PD4_E::onConstruction() {
 	EtherCatDevice::onConstruction();
 	
+	setName("PD4-E");
+	
 	servoMotor->positionUnit = Units::AngularDistance::Revolution;
 	
 	auto& fbcfg = servoMotor->feedbackConfig;

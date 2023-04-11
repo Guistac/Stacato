@@ -6,7 +6,7 @@
 class ConstantNode : public Node {
 public:
 
-	DEFINE_NODE(ConstantNode, "Constant", "Constant", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(ConstantNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<double> constantValue = std::make_shared<double>(0.0);
 	std::shared_ptr<NodePin> pin;
@@ -30,6 +30,7 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		setName("Constant");
 		pin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "value", "value", NodePin::Flags::ForceDataField);
 		pin->assignData(constantValue);
 		addNodePin(pin);
@@ -45,7 +46,7 @@ public:
 class AdditionNode : public Node {
 public:
 
-	DEFINE_NODE(AdditionNode, "Addition", "Addition", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(AdditionNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input;
 	std::shared_ptr<NodePin> offset;
@@ -72,6 +73,8 @@ public:
 	virtual void onConstruction() override {
 		Node::onConstruction();
 		
+		setName("Constant");
+		
 		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input",
 										NodePin::Flags::AcceptMultipleInputs);
 		offset = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "offset", "offset",
@@ -97,7 +100,7 @@ public:
 class SubtractionNode : public Node {
 public:
 
-	DEFINE_NODE(SubtractionNode, "Subtraction", "Subtraction", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(SubtractionNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base;
 	std::shared_ptr<NodePin> sub;
@@ -133,6 +136,8 @@ public:
 	virtual void onConstruction() override {
 		Node::onConstruction();
 		
+		setName("Substraction");
+		
 		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base",
 									   NodePin::Flags::AcceptMultipleInputs);
 		sub = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "sub", "sub",
@@ -164,7 +169,7 @@ public:
 class MultiplicationNode : public Node {
 public:
 
-	DEFINE_NODE(MultiplicationNode, "Multiplication", "Mutliplication", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(MultiplicationNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input;
 	std::shared_ptr<NodePin> multiplier;
@@ -191,6 +196,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Multiplication");
 		
 		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input",
 										NodePin::Flags::AcceptMultipleInputs);
@@ -219,7 +226,7 @@ public:
 class DivisionNode : public Node {
 public:
 
-	DEFINE_NODE(DivisionNode, "Division", "Division", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(DivisionNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base;
 	std::shared_ptr<NodePin> div;
@@ -254,6 +261,8 @@ public:
 	virtual void onConstruction() override {
 		Node::onConstruction();
 		
+		setName("Division");
+		
 		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base",
 									   NodePin::Flags::AcceptMultipleInputs);
 		div = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "div", "div",
@@ -285,7 +294,7 @@ public:
 class ExponentNode : public Node {
 public:
 
-	DEFINE_NODE(ExponentNode, "Exponent", "Exponent", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(ExponentNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> base;
 	std::shared_ptr<NodePin> exp;
@@ -305,6 +314,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Exponent");
 		
 		base = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "base", "base");
 		exp = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "exp", "exp");
@@ -329,7 +340,7 @@ public:
 class AbsoluteNode : public Node {
 public:
 
-	DEFINE_NODE(AbsoluteNode, "Absolute", "Absolute", Node::Type::PROCESSOR, "Math")
+	DEFINE_NODE(AbsoluteNode, Node::Type::PROCESSOR, "Math")
 
 	std::shared_ptr<NodePin> input;
 	std::shared_ptr<NodePin> output;
@@ -345,6 +356,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Absolute");
 		
 		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
 		output = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -368,7 +381,7 @@ public:
 class SinusNode : public Node {
 public:
 
-	DEFINE_NODE(SinusNode, "Sinus", "Sinus", Node::Type::PROCESSOR, "Trigonometry")
+	DEFINE_NODE(SinusNode, Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -383,6 +396,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Sinus");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -404,7 +419,7 @@ public:
 class CosinusNode : public Node {
 public:
 
-	DEFINE_NODE(CosinusNode, "Cosinus", "Cosinus", Node::Type::PROCESSOR, "Trigonometry")
+	DEFINE_NODE(CosinusNode, Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -419,6 +434,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Cosinus");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -439,7 +456,7 @@ public:
 class TangentNode : public Node {
 public:
 
-	DEFINE_NODE(TangentNode, "Tangent", "Tangent", Node::Type::PROCESSOR, "Trigonometry")
+	DEFINE_NODE(TangentNode, Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -454,6 +471,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Tangent");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -474,7 +493,7 @@ public:
 class CotangentNode : public Node {
 public:
 
-	DEFINE_NODE(CotangentNode, "Cotangent", "Cotangent", Node::Type::PROCESSOR, "Trigonometry")
+	DEFINE_NODE(CotangentNode, Node::Type::PROCESSOR, "Trigonometry")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -489,6 +508,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Cotangent");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -519,7 +540,7 @@ public:
 class BoolNode : public Node {
 public:
 
-	DEFINE_NODE(BoolNode, "Bool", "Bool", Node::Type::PROCESSOR, "Logic")
+	DEFINE_NODE(BoolNode, Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -536,6 +557,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Bool");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -556,7 +579,7 @@ public:
 class NotNode : public Node{
 public:
 
-	DEFINE_NODE(NotNode, "Not", "Not", Node::Type::PROCESSOR, "Logic")
+	DEFINE_NODE(NotNode, Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -571,6 +594,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Not");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in");
 		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
@@ -592,7 +617,7 @@ public:
 class AndNode : public Node {
 public:
 
-	DEFINE_NODE(AndNode, "And", "And", Node::Type::PROCESSOR, "Logic")
+	DEFINE_NODE(AndNode, Node::Type::PROCESSOR, "Logic")
 	
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -616,6 +641,8 @@ public:
 	virtual void onConstruction() override {
 		Node::onConstruction();
 		
+		setName("And");
+		
 		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in", NodePin::Flags::AcceptMultipleInputs);
 		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);
 		
@@ -637,7 +664,7 @@ public:
 class OrNode : public Node {
 public:
 
-	DEFINE_NODE(OrNode, "Or", "Or", Node::Type::PROCESSOR, "Logic")
+	DEFINE_NODE(OrNode, Node::Type::PROCESSOR, "Logic")
 
 	std::shared_ptr<NodePin> inputPin;
 	std::shared_ptr<NodePin> outputPin;
@@ -660,6 +687,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Or");
 		
 		inputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "in", "in", NodePin::Flags::AcceptMultipleInputs);
 		outputPin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "out", "out", NodePin::Flags::DisableDataField);

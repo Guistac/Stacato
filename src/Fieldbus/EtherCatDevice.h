@@ -19,8 +19,8 @@
 
 
 //for some reason we can't use DEFINE_DEVICE_NODE in this macro, we get an undefined vtable...
-#define DEFINE_ETHERCAT_DEVICE(className, displayName, saveName, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
-	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+#define DEFINE_ETHERCAT_DEVICE(className, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
+	DEFINE_NODE(className, Node::Type::IODEVICE, category)\
 	/*Device Specific*/\
 	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
 	virtual void onConnection() override;\
@@ -28,8 +28,7 @@
 	virtual void readInputs() override;\
 	virtual void writeOutputs() override;\
 	/*EtherCat Device Specific*/\
-	virtual const char* getManufacturerName() override { return manufacturerName; }\
-	virtual const char* getDeviceName() override{ return displayName; }\
+	virtual std::string getManufacturerName() override { return manufacturerName; }\
 	virtual uint32_t getManufacturerCode() override{ return ManufacturerCode; }\
 	virtual uint32_t getIdentificationCode() override { return IdentificationCode; }\
 	virtual bool isEtherCatDeviceKnown() override { return true; }\
@@ -44,9 +43,8 @@ namespace EtherCatFieldbus{ struct DeviceConnection; }
 class EtherCatDevice : public Device {
 public:
 	
-	DEFINE_DEVICE_NODE(EtherCatDevice, "Unknown EtherCAT Device", "UnknownEtherCatDevice", Device::Type::ETHERCAT_DEVICE, "Unknown Category")
-	virtual const char* getManufacturerName(){ return "Unknown Manufacturer"; }
-	virtual const char* getDeviceName(){ return "Unknown EtherCAT Device"; }
+	DEFINE_DEVICE_NODE(EtherCatDevice, Device::Type::ETHERCAT_DEVICE, "Unknown Category")
+	virtual std::string getManufacturerName(){ return "Unknown Manufacturer"; }
 	virtual uint32_t getManufacturerCode(){ return 0; }
 	virtual uint32_t getIdentificationCode(){ return 0; }
 	virtual bool isEtherCatDeviceKnown(){ return false; }
@@ -71,6 +69,7 @@ protected:
 	 
 	 virtual void onConstruction() override {
 		 Node::onConstruction();
+		 setName("Unknown EtherCAT Device");
 	 }
 	 
 	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

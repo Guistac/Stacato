@@ -12,6 +12,8 @@ void ATV320::onConstruction() {
 	
 	EtherCatDevice::onConstruction();
 	
+	setName("ATV320");
+	
 	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
 	actuator = std::make_shared<ATV_Motor>(thisDrive);
 	gpio = std::make_shared<ATV_GPIO>(thisDrive);

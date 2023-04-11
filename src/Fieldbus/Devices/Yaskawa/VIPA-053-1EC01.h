@@ -9,7 +9,7 @@ class VipaModule;
 class VipaBusCoupler_053_1EC01 : public EtherCatDevice {
 public:
 
-    DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "VIPA Bus Coupler", "VipaBusCoupler-053-1EC01", "Yaskawa", "I/O", 0x22B, 0x531EC01)
+    DEFINE_ETHERCAT_DEVICE(VipaBusCoupler_053_1EC01, "Yaskawa", "I/O", 0x22B, 0x531EC01)
 	
 	virtual bool onSerialization() override {
 		EtherCatDevice::onSerialization();

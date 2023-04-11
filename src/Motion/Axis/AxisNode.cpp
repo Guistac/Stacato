@@ -14,6 +14,8 @@
 void AxisNode::onConstruction(){
 	Node::onConstruction();
 	
+	setName("Axis");
+	
 	axisInterface = std::make_shared<AxisInterface>();
 	
 	lowerLimitSignal = std::make_shared<bool>(false);

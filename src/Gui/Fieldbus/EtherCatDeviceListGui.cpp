@@ -15,6 +15,7 @@
 
 void etherCatSlaves() {
 
+	/*
 	ImGui::BeginGroup();
 
 	ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
@@ -62,7 +63,7 @@ void etherCatSlaves() {
 	}
 	ImGui::PopStyleVar();
 	ImGui::EndGroup();
-
+*/
 }
 
 

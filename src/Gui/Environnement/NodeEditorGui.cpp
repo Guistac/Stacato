@@ -37,12 +37,11 @@ void nodeAdder() {
 	
 		auto listNodes = [](const std::vector<std::shared_ptr<Node>>& nodes){
 			for (auto& node : nodes) {
-				const char* nodeDisplayName = node->getName().c_str();
-				ImGui::Selectable(nodeDisplayName);
-				const char* nodeSaveName = node->getSaveName();
+				ImGui::Selectable(node->getName().c_str());
+				const char* nodeClassName = node->getClassName().c_str();
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-					ImGui::SetDragDropPayload("Node", &nodeSaveName, sizeof(const char*));
-					ImGui::Text("%s", nodeDisplayName);
+					ImGui::SetDragDropPayload("Node", &nodeClassName, sizeof(const char*));
+					ImGui::Text("%s", node->getName().c_str());
 					ImGui::EndDragDropSource();
 				}
 			}
@@ -57,7 +56,7 @@ void nodeAdder() {
 			ImGui::PopStyleColor();
 			for (auto& manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
 				ImGui::PushFont(Fonts::sansBold15);
-				if (ImGui::TreeNode(manufacturer.name)) {
+				if (ImGui::TreeNode(manufacturer.name.c_str())) {
 					ImGui::PopFont();
 					listNodes(manufacturer.nodes);
 					ImGui::TreePop();
@@ -69,7 +68,7 @@ void nodeAdder() {
 			ImGui::PopStyleColor();
 			for (auto& category : NodeFactory::getEtherCatDevicesByCategory()) {
 				ImGui::PushFont(Fonts::sansBold15);
-				if (ImGui::TreeNode(category.name)) {
+				if (ImGui::TreeNode(category.name.c_str())) {
 					ImGui::PopFont();
 					listNodes(category.nodes);
 					ImGui::TreePop();
@@ -127,7 +126,7 @@ void nodeAdder() {
 
 			if (ImGui::TreeNode("Machines")) {
 				for (auto& category : NodeFactory::getMachinesByCategory()) {
-					if (ImGui::TreeNode(category.name)) {
+					if (ImGui::TreeNode(category.name.c_str())) {
 						ImGui::PushFont(Fonts::sansRegular15);
 						listNodes(category.nodes);
 						ImGui::PopFont();
@@ -159,7 +158,7 @@ void nodeAdder() {
 		if (ImGui::CollapsingHeader("Data Processors")) {
 			ImGui::PushFont(Fonts::sansRegular15);
 			for (auto category : NodeFactory::getProcessorNodesByCategory()) {
-				if (ImGui::TreeNode(category.name)) {
+				if (ImGui::TreeNode(category.name.c_str())) {
 					listNodes(category.nodes);
 					ImGui::TreePop();
 				}
@@ -179,7 +178,7 @@ std::shared_ptr<Node> nodeDragDropTarget(){
 	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Node");
 	if (payload != nullptr && payload->DataSize == sizeof(const char*)) {
 		const char* nodeSaveName = *(const char**)payload->Data;
-		return NodeFactory::getNodeBySaveName(nodeSaveName);
+		return NodeFactory::getNodeByClassName(nodeSaveName);
 	}
 	return nullptr;
 	/*
@@ -208,7 +207,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	ImGui::MenuItem("EtherCAT devices", nullptr, false, false);
 	if (ImGui::BeginMenu("By Manufaturer")) {
 		for (auto manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
-			if (ImGui::BeginMenu(manufacturer.name)) {
+			if (ImGui::BeginMenu(manufacturer.name.c_str())) {
 				listNodes(manufacturer.nodes);
 				ImGui::EndMenu();
 			}
@@ -217,7 +216,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	}
 	if (ImGui::BeginMenu("By Category")) {
 		for (auto category : NodeFactory::getEtherCatDevicesByCategory()) {
-			if (ImGui::BeginMenu(category.name)) {
+			if (ImGui::BeginMenu(category.name.c_str())) {
 				listNodes(category.nodes);
 				ImGui::EndMenu();
 			}
@@ -248,7 +247,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 		}
 		if (ImGui::BeginMenu("Machines")) {
 			for (auto& category : NodeFactory::getMachinesByCategory()) {
-				if (ImGui::BeginMenu(category.name)) {
+				if (ImGui::BeginMenu(category.name.c_str())) {
 					listNodes(category.nodes);
 					ImGui::EndMenu();
 				}
@@ -273,7 +272,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
 	ImGui::MenuItem("Processing Nodes", nullptr, false, false);
 	for (auto category : NodeFactory::getProcessorNodesByCategory()) {
-		if (ImGui::BeginMenu(category.name)) {
+		if (ImGui::BeginMenu(category.name.c_str())) {
 			listNodes(category.nodes);
 			ImGui::EndMenu();
 		}
@@ -350,13 +349,14 @@ void NodeEditorWindow::onDraw(){
 		ImGui::Text("Multiple Nodes Selected");
 		ImGui::PopFont();
 		if (ImGui::BeginTabBar("NodeEditorSidePanel")) {
-			for (auto node : selectedNodes) {
+			for (int i = 0; i < selectedNodes.size(); i++) {
 				//we don't display the custom name in the tab
 				//so we don't switch tabs while renaming the custom name of the node
 				//we have to use pushID and PopID to avoid problems when selecting multiple nodes of the same type
 				//this way we can have multiple tabs with the same name
-				ImGui::PushID(node->getUniqueID());
-				if (ImGui::BeginTabItem(node->getSaveName())) {
+				ImGui::PushID(i);
+				auto node = selectedNodes[i];
+				if (ImGui::BeginTabItem(node->getName().c_str())) {
 					if (ImGui::BeginChild("NodePropertyChild", ImGui::GetContentRegionAvail())) {
 						node->propertiesGui();
 						ImGui::EndChild();

@@ -41,10 +41,9 @@ namespace NodeFactory{
 		
 		//sort processor nodes by category
 		for (auto node : allProcessorNodes) {
-			const char* category = node->getNodeCategory();
 			bool categoryExists = false;
 			for (NodeGroup& group : processorNodesByCategory) {
-				if (strcmp(category, group.name) == 0) {
+				if (group.name == node->getNodeCategory()) {
 					categoryExists = true;
 					group.nodes.push_back(node);
 					break;
@@ -52,7 +51,7 @@ namespace NodeFactory{
 			}
 			if (!categoryExists) {
 				processorNodesByCategory.push_back(NodeGroup());
-				strcpy(processorNodesByCategory.back().name, node->getNodeCategory());
+				processorNodesByCategory.back().name = node->getNodeCategory();
 				processorNodesByCategory.back().nodes.push_back(node);
 			}
 		}

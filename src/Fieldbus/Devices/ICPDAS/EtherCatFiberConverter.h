@@ -4,7 +4,7 @@
 
 class ECAT_2511_A_FiberConverter : public EtherCatDevice {
 public:
-    DEFINE_ETHERCAT_DEVICE(ECAT_2511_A_FiberConverter, "ECAT-2511-A RJ45 to Fiber EtherCAT Converter [A]", "ECAT-2511-A", "ICPDAS", "Utilities", 0x494350, 0x9cf)
+    DEFINE_ETHERCAT_DEVICE(ECAT_2511_A_FiberConverter, "ICPDAS", "Utilities", 0x494350, 0x9cf)
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		EtherCatDevice::onCopyFrom(source);
@@ -13,7 +13,7 @@ public:
 
 class ECAT_2511_B_FiberConverter : public EtherCatDevice {
 public:
-    DEFINE_ETHERCAT_DEVICE(ECAT_2511_B_FiberConverter, "ECAT-2511-A Fiber to RJ45 EtherCAT Converter [B]", "ECAT-2511-B", "ICPDAS", "Utilities", 0x494350, 0x9ce)
+    DEFINE_ETHERCAT_DEVICE(ECAT_2511_B_FiberConverter, "ICPDAS", "Utilities", 0x494350, 0x9ce)
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		EtherCatDevice::onCopyFrom(source);
@@ -22,7 +22,7 @@ public:
                                 
 class ECAT_2515_6PortJunction : public EtherCatDevice {
 public:
-	DEFINE_ETHERCAT_DEVICE(ECAT_2515_6PortJunction, "ECAT-2515 6-Port EtherCAT Junction", "ECAT-2515", "ICPDAS", "Utilities", 0x494350, 0x9d3)
+	DEFINE_ETHERCAT_DEVICE(ECAT_2515_6PortJunction, "ICPDAS", "Utilities", 0x494350, 0x9d3)
 	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{

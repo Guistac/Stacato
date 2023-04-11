@@ -6,7 +6,7 @@
 class SafetySignal : public Node {
 public:
 	
-	DEFINE_NODE(SafetySignal, "Safety Signal", "SafetySignal", Node::Type::PROCESSOR, "Safety")
+	DEFINE_NODE(SafetySignal, Node::Type::PROCESSOR, "Safety")
 	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

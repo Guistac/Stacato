@@ -2,8 +2,8 @@
 
 #include "Node.h"
 
-#define DEFINE_DEVICE_NODE(className, displayName, saveName, deviceType, category)\
-	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, category)\
+#define DEFINE_DEVICE_NODE(className, deviceType, category)\
+	DEFINE_NODE(className, Node::Type::IODEVICE, category)\
 	virtual Device::Type getDeviceType() override { return deviceType; }\
 	virtual bool isDetected() override;\
 	virtual bool isConnected() override;\

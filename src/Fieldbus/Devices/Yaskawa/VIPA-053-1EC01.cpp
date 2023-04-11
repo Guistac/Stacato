@@ -19,6 +19,9 @@ void VipaBusCoupler_053_1EC01::onConnection() {
 
 void VipaBusCoupler_053_1EC01::onConstruction() {
 	EtherCatDevice::onConstruction();
+	
+	setName("VIPA Bus Coupler");
+	
     //by default, this node only has one pin
     //no modules are loaded by default
 	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());

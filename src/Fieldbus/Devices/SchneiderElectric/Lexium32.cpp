@@ -18,6 +18,8 @@ void Lexium32::onConstruction() {
 
 	EtherCatDevice::onConstruction();
 	
+	setName("Lexium32M");
+	
 	auto thisLexiumDrive = std::static_pointer_cast<Lexium32>(shared_from_this());
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);

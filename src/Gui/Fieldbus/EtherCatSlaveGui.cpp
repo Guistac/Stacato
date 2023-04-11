@@ -741,7 +741,7 @@ void EtherCatDevice::sendReceiveEeprom() {
         FileDialog::FileTypeFilter filter("EEPROM Hex File", "hex");
         FileDialog::FilePath filePath;
         char defaultFileName[128];
-        sprintf(defaultFileName, "%s.hex", getSaveName());
+        snprintf(defaultFileName, 128, "%s.hex", getClassName().c_str());
         if (FileDialog::save(filePath, filter, defaultFileName)) {
             strcpy(eepromSaveFilePath, filePath.path);
             std::thread eepromdownloader([&]() { downloadEEPROM(eepromSaveFilePath); });

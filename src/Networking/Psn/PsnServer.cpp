@@ -68,6 +68,8 @@ void PsnServer::removeAllTrackers(){
 void PsnServer::onConstruction(){
 	NetworkDevice::onConstruction();
 	
+	setName("PSN Server");
+	
 	script = std::make_shared<LuaScript>("PSN Server Script");
 	script->setLoadLibrairiesCallback([this](lua_State* L){
 		Scripting::EnvironnementLibrary::openlib(L);

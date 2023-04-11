@@ -10,7 +10,7 @@
 class PlotterNode : public Node {
 public:
 
-	DEFINE_NODE(PlotterNode, "Plotter", "Plotter", Node::Type::PROCESSOR, "Utility")
+	DEFINE_NODE(PlotterNode, Node::Type::PROCESSOR, "Utility")
 
 	int bufferSize = 512;
 	float displayLengthSeconds = 5.0;
@@ -57,6 +57,8 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		
+		setName("Plotter");
 		
 		input = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "input", "input", NodePin::Flags::ForceDataField | NodePin::Flags::DisableDataField);
 		

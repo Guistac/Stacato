@@ -2,11 +2,11 @@
 
 #include "Environnement/NodeGraph/DeviceNode.h"
 
-#define DEFINE_NETWORK_DEVICE(className, displayName, saveName)\
+#define DEFINE_NETWORK_DEVICE(className)\
 	public:\
 	\
 	/*Node Specific*/\
-	DEFINE_NODE(className, displayName, saveName, Node::Type::IODEVICE, "none")\
+	DEFINE_NODE(className, Node::Type::IODEVICE, "none")\
 	/*Device Specific*/\
 	virtual Device::Type getDeviceType() override { return Type::NETWORK_DEVICE; }\
 	virtual void readInputs() override;\

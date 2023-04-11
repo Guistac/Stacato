@@ -18,7 +18,25 @@
 class PositionControlledMachine : public Machine{
 public:
 	
-	DEFINE_MACHINE(PositionControlledMachine, "PositionControlledMachine")
+	DEFINE_MACHINE(PositionControlledMachine)
+	
+	virtual bool onSerialization() override {
+		Machine::onSerialization();
+		return true;
+	}
+	
+	virtual bool onDeserialization() override {
+		Machine::onDeserialization();
+		return true;
+	}
+	
+	virtual void onConstruction() override {
+		Machine::onConstruction();
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Machine::onCopyFrom(source);
+	}
 	
 	virtual void inputProcess() override {}
 	virtual void outputProcess() override {}

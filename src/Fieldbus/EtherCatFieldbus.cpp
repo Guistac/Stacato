@@ -598,7 +598,7 @@ namespace EtherCatFieldbus {
         for (auto device : discoveredDevices) {
             Logger::debug("   [{}] '{}' {} bytes ({} bits)",
 						  device->getSlaveIndex(),
-						  device->getSaveName(),
+						  device->getClassName(),
 						  device->identity->Ibytes + device->identity->Obytes,
 						  device->identity->Ibits + device->identity->Obits);
             Logger::debug("          Inputs: {} bytes ({} bits)", device->identity->Ibytes, device->identity->Ibits);

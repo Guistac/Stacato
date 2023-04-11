@@ -7,7 +7,7 @@
 class GroupNode : public Node {
 public:																	
 	
-	DEFINE_NODE(GroupNode, "Group", "Group", Node::Type::CONTAINER , "Utility");
+	DEFINE_NODE(GroupNode, Node::Type::CONTAINER , "Utility");
 	
 	glm::vec2 containerSize = glm::vec2(100.0, 100.0);
 	
@@ -40,6 +40,7 @@ public:
 	
 	virtual void onConstruction() override {
 		Node::onConstruction();
+		setName("Group");
 	}
 
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

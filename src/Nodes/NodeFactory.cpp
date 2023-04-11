@@ -14,9 +14,9 @@ namespace NodeFactory {
 		loadProcessorNodes(allNodes);
 	}
 
-	std::shared_ptr<Node> getNodeBySaveName(const char* saveName){
+	std::shared_ptr<Node> getNodeByClassName(std::string className){
 		for (auto node : allNodes) {
-			if (strcmp(saveName, node->getSaveName()) == 0) return node->duplicate();
+			if (className == node->getClassName()) return node->duplicate();
 		}
 		return nullptr;
 	}

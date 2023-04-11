@@ -8,6 +8,8 @@
 void SafetySignal::onConstruction(){
 	Node::onConstruction();
 	
+	setName("Safety Signal");
+	
 	gpioPin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_INPUT,
 									  "Gpio Device", "GpioDevice", NodePin::Flags::AcceptMultipleInputs);
 	safetyLineValidPin = NodePin::createInstance(safetyLineValidSignal, NodePin::Direction::NODE_INPUT,

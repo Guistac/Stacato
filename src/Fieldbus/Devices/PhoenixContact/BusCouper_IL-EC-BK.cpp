@@ -36,6 +36,8 @@ void BusCoupler::onConstruction() {
 	
 	EtherCAT::ModularDeviceProfile::ModularDevice::onConstruction();
 	
+	setName("Phoenix Contact Bus Coupler");
+	
 	gpioDeviceLink = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
 	
 	//by default, this node only has one pin

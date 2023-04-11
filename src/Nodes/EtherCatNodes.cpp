@@ -39,10 +39,9 @@ namespace NodeFactory{
 
 		//sort devices by manufacturer
 		for (auto device : allEtherCatDevices) {
-			const char * manufacturer = device->getManufacturerName();
 			bool manufacturerExists = false;
 			for (NodeGroup& group : etherCatdevicesByManufacturer) {
-				if (strcmp(manufacturer, group.name) == 0) {
+				if (group.name == device->getManufacturerName()) {
 					manufacturerExists = true;
 					group.nodes.push_back(device);
 					break;
@@ -50,17 +49,16 @@ namespace NodeFactory{
 			}
 			if (!manufacturerExists) {
 				etherCatdevicesByManufacturer.push_back(NodeGroup());
-				strcpy(etherCatdevicesByManufacturer.back().name, device->getManufacturerName());
+				etherCatdevicesByManufacturer.back().name = device->getManufacturerName();
 				etherCatdevicesByManufacturer.back().nodes.push_back(device);
 			}
 		}
 
 		//sort device by manufacturer
 		for (auto device : allEtherCatDevices) {
-			const char* deviceCategory = device->getNodeCategory();
 			bool categoryExists = false;
 			for (NodeGroup& group : etherCatdevicesByCategory) {
-				if (strcmp(deviceCategory, group.name) == 0) {
+				if (group.name == device->getNodeCategory()) {
 					categoryExists = true;
 					group.nodes.push_back(device);
 					break;
@@ -68,7 +66,7 @@ namespace NodeFactory{
 			}
 			if (!categoryExists) {
 				etherCatdevicesByCategory.push_back(NodeGroup());
-				strcpy(etherCatdevicesByCategory.back().name, device->getNodeCategory());
+				etherCatdevicesByCategory.back().name = device->getNodeCategory();
 				etherCatdevicesByCategory.back().nodes.push_back(device);
 			}
 		}

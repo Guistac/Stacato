@@ -18,17 +18,15 @@ class Device;
 
 namespace tinyxml2{ struct XMLElement; }
 
-
-#define DEFINE_MACHINE(className, SaveName) \
-	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
-	virtual const char* getSaveName() override { return SaveName; }\
+#define DEFINE_MACHINE(className) \
+	DEFINE_NODE(className, Node::Type::PROCESSOR, "Machines")\
 
 class Machine : public Node, public AnimationSystem::AnimatableOwner{
 public:
 	
 	DECLARE_PROTOTYPE_INTERFACE_METHODS(Machine)
 	
-	virtual const char* getNodeCategory() override { return "Machines"; }
+	virtual std::string getNodeCategory() override { return "Machines"; }
 	virtual Node::Type getType() override { return Node::Type::PROCESSOR; }\
 	
 	virtual bool onSerialization() override {

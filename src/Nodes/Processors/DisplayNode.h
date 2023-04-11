@@ -5,7 +5,7 @@
 class DisplayNode : public Node {
 public:
 
-	DEFINE_NODE(DisplayNode, "Display", "Display", Node::Type::PROCESSOR, "Utility")
+	DEFINE_NODE(DisplayNode, Node::Type::PROCESSOR, "Utility")
 
 	std::shared_ptr<NodePin> displayInput;
 	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
@@ -18,6 +18,8 @@ public:
 	virtual bool onDeserialization() override { Component::onDeserialization(); }
 	virtual void onConstruction() override {
 		Component::onConstruction();
+		
+		setName("Display");
 		
 		displayInput = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "value: ", "value", NodePin::Flags::DisableDataField | NodePin::Flags::ForceDataField);
 		

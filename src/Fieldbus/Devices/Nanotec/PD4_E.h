@@ -4,7 +4,7 @@
 
 class PD4_E : public EtherCatDevice {
 
-	DEFINE_ETHERCAT_DEVICE(PD4_E, "PD4-E", "PD4-E", "Nanotec", "Servo Drives", 0x26C, 0xC9);
+	DEFINE_ETHERCAT_DEVICE(PD4_E, "Nanotec", "Servo Drives", 0x26C, 0xC9);
 	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{

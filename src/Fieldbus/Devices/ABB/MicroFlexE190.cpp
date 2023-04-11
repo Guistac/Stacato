@@ -13,6 +13,8 @@ void MicroFlex_e190::onConstruction() {
 	
 	EtherCatDevice::onConstruction();
 	
+	setName("MicroFlex e190");
+	
 	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
 	
 	servoPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", "ServoMotor");

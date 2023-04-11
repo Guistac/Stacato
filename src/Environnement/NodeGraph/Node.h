@@ -6,11 +6,14 @@
 
 #include "Legato/Editor/Component.h"
 
-#define DEFINE_NODE(className, nodeName, saveName, type, category) \
+#define DEFINE_NODE(className, type, category) \
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
 	public:\
-	virtual const char* getSaveName() override { return saveName; }\
-	virtual const char* getNodeCategory() override { return category; }\
+	virtual std::string& getClassName() override {\
+		static std::string className = #className;\
+		return className;\
+	}\
+	virtual std::string getNodeCategory() override { return category; }\
 	virtual Node::Type getType() override { return type; }\
 
 namespace tinyxml2 { class XMLElement; }
@@ -37,6 +40,7 @@ public:
 	
 	virtual void onConstruction() override {
 		Component::onConstruction();
+		setSaveString("Node");
 	}
 	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
@@ -54,9 +58,8 @@ public:
 	};
 	
 	virtual Type getType() = 0;
-	
-	virtual const char* getSaveName() = 0;
-	virtual const char* getNodeCategory() = 0;
+	virtual std::string& getClassName() = 0;
+	virtual std::string getNodeCategory() = 0;
 
 	//pin handling
 	void addNodePin(std::shared_ptr<NodePin> d);

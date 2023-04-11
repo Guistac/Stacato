@@ -6,7 +6,7 @@ class EtherCatDevice;
 namespace NodeFactory {
 
 	struct NodeGroup {
-		char name[128];
+		std::string name;
 		std::vector<std::shared_ptr<Node>> nodes;
 	};
 
@@ -16,7 +16,7 @@ namespace NodeFactory {
 	void loadNetworkNodes(std::vector<std::shared_ptr<Node>>& nodeList);
 	void loadProcessorNodes(std::vector<std::shared_ptr<Node>>& nodeList);
 
-	std::shared_ptr<Node> getNodeBySaveName(const char* saveName);
+	std::shared_ptr<Node> getNodeByClassName(std::string className);
 
 	//EtherCAT
 	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode);

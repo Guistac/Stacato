@@ -13,6 +13,7 @@
 
 void OscDevice::onConstruction(){
 	NetworkDevice::onConstruction();
+	setName("Osc Connection");
 }
 
 void OscDevice::connect(){

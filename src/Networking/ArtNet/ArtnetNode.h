@@ -29,7 +29,7 @@ private:
 
 
 class ArtNetNode : public NetworkDevice{
-	DEFINE_NETWORK_DEVICE(ArtNetNode, "ArtNet Node", "ArtNetNode")
+	DEFINE_NETWORK_DEVICE(ArtNetNode)
 	
 	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

@@ -42,10 +42,9 @@ namespace NodeFactory{
 		
 		//sort machine nodes by category
 		for (auto node : allMachineNodes) {
-		   const char* category = node->getNodeCategory();
 		   bool categoryExists = false;
 		   for (NodeGroup& group : machinesByCategory) {
-			   if (strcmp(category, group.name) == 0) {
+			   if (group.name == node->getNodeCategory()) {
 				   categoryExists = true;
 				   group.nodes.push_back(node);
 				   break;
@@ -53,7 +52,7 @@ namespace NodeFactory{
 		   }
 		   if (!categoryExists) {
 			   machinesByCategory.push_back(NodeGroup());
-			   strcpy(machinesByCategory.back().name, node->getNodeCategory());
+			   machinesByCategory.back().name = node->getNodeCategory();
 			   machinesByCategory.back().nodes.push_back(node);
 		   }
 	   }
