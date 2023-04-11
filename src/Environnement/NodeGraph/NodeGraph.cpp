@@ -6,6 +6,15 @@ void NodeGraph::onConstruction() {
 	context = ax::NodeEditor::CreateEditor();
 	
 	nodeList = Legato::ListComponent<Node>::createInstance();
+	nodeList->setSaveString("NodeList");
+	nodeList->setEntrySaveString("Node");
+	
+	linkList = Legato::ListComponent<NodeLink>::createInstance();
+	linkList->setSaveString("LinkList");
+	linkList->setEntrySaveString("Link");
+	
+	pinList = Legato::ListComponent<NodePin>::createInstance();
+	
 }
 
 void NodeGraph::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
@@ -15,16 +24,16 @@ void NodeGraph::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	if(newNode->uniqueID == -1) newNode->uniqueID = getNewUniqueID();
 	newNode->nodeGraph = std::static_pointer_cast<NodeGraph>(shared_from_this());
-	nodes.push_back(newNode);
+	nodeList->addEntry(newNode);
 	for (std::shared_ptr<NodePin> data : newNode->nodeInputPins) {
 		data->uniqueID = getNewUniqueID();
 		data->parentNode = newNode;
-		pins.push_back(data);
+		pinList->push_back(data);
 	}
 	for (std::shared_ptr<NodePin> data : newNode->nodeOutputPins) {
 		data->uniqueID = getNewUniqueID();
 		data->parentNode = newNode;
-		pins.push_back(data);
+		pinList->push_back(data);
 	}
 	newNode->onAddToNodeGraph();
 	nodeAddCallback(newNode);
@@ -38,12 +47,8 @@ void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
 	for (auto data : removedNode->nodeOutputPins) {
 		for (std::shared_ptr<NodeLink> link : data->nodeLinks) link->disconnect();
 	}
-	for (int i = (int)nodes.size() - 1; i >= 0; i--) {
-		if (nodes[i] == removedNode) {
-			nodes.erase(nodes.begin() + i);
-			break;
-		}
-	}
+	nodeList->removeEntry(removedNode);
+
 	for (int i = (int)selectedNodes.size() - 1; i >= 0; i--) {
 		if (selectedNodes[i] == removedNode) {
 			selectedNodes.erase(selectedNodes.begin() + i);
@@ -53,22 +58,39 @@ void NodeGraph::removeNode(std::shared_ptr<Node> removedNode) {
 	nodeRemoveCallback(removedNode);
 }
 
+void NodeGraph::addLink(std::shared_ptr<NodeLink> link){
+	linkList->addEntry(link);
+}
+
+void NodeGraph::removeLink(std::shared_ptr<NodeLink> link){
+	linkList->removeEntry(link);
+}
+
+void NodeGraph::addPin(std::shared_ptr<NodePin> pin){
+	pinList->addEntry(pin);
+}
+
+void NodeGraph::removePin(std::shared_ptr<NodePin> pin){
+	pinList->removeEntry(pin);
+}
+
+
 std::shared_ptr<Node> NodeGraph::getNode(int Id) {
-	for (std::shared_ptr<Node> node : nodes) {
+	for(auto node : nodeList->getEntries()){
 		if (Id == node->uniqueID) return node;
 	}
 	return nullptr;
 }
 
 std::shared_ptr<NodePin> NodeGraph::getPin(int Id) {
-	for (std::shared_ptr<NodePin> pin : pins) {
+	for (std::shared_ptr<NodePin> pin : pinList->getEntries()) {
 		if (Id == pin->uniqueID) return pin;
 	}
 	return nullptr;
 }
 
 std::shared_ptr<NodeLink> NodeGraph::getLink(int Id) {
-	for (std::shared_ptr<NodeLink> link : links) {
+	for (std::shared_ptr<NodeLink> link : linkList->getEntries()) {
 		if (Id == link->uniqueID) return link;
 	}
 	return nullptr;

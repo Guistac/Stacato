@@ -26,15 +26,15 @@ const char* NodePin::getValueString() {
 
 std::vector<std::shared_ptr<NodePin>> NodePin::getConnectedPins() {
 	std::vector<std::shared_ptr<NodePin>> output;
-	if (isInput()) for (auto& link : nodeLinks) output.push_back(link->getInputData());
-	else for (auto& link : nodeLinks) output.push_back(link->getOutputData());
+	if (isInput()) for (auto& link : nodeLinks) output.push_back(link->getInputPin());
+	else for (auto& link : nodeLinks) output.push_back(link->getOutputPin());
 	return output;
 }
 
 std::shared_ptr<NodePin> NodePin::getConnectedPin(){
 	if(nodeLinks.empty()) return nullptr;
-	if(isInput()) return nodeLinks.front()->getInputData();
-	if(isOutput()) return nodeLinks.front()->getOutputData();
+	if(isInput()) return nodeLinks.front()->getInputPin();
+	if(isOutput()) return nodeLinks.front()->getOutputPin();
 }
 
 void NodePin::updateConnectedPins(){
@@ -129,7 +129,7 @@ bool NodePin::isConnectionValid(std::shared_ptr<NodePin> otherPin){
 
 	//check if the link already exists, don't allow duplicates
 	for (std::shared_ptr<NodeLink> link : nodeLinks) {
-		if (link->outputData == thisPin || link->inputData == otherPin) return false;
+		if (link->outputPin == thisPin || link->inputPin == otherPin) return false;
 	}
 
 	//if all checks pass, check if the data types are compatible to decide validity
@@ -140,22 +140,24 @@ std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
 	
 	if (!isConnectionValid(otherPin)) return nullptr;
 	
-	std::shared_ptr<NodeLink> newLink = std::make_shared<NodeLink>();
+	
+	std::shared_ptr<NodeLink> newLink = NodeLink::createInstance();
 	newLink->uniqueID = getNode()->nodeGraph->getNewUniqueID();
 	newLink->nodeGraph = parentNode->nodeGraph;
 	
 	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
 	
-	newLink->inputData = thisPin->isOutput() ? thisPin : otherPin;
-	newLink->outputData = otherPin->isInput() ? otherPin : thisPin;
+	newLink->inputPin = thisPin->isOutput() ? thisPin : otherPin;
+	newLink->outputPin = otherPin->isInput() ? otherPin : thisPin;
 	
 	nodeLinks.push_back(newLink);
 	otherPin->nodeLinks.push_back(newLink);
 	
-	newLink->inputData->parentNode->onPinConnection(newLink->inputData);
-	newLink->outputData->parentNode->onPinConnection(newLink->outputData);
+	newLink->inputPin->parentNode->onPinConnection(newLink->inputPin);
+	newLink->outputPin->parentNode->onPinConnection(newLink->outputPin);
 	
-	getNode()->nodeGraph->getLinks().push_back(newLink);
+	
+	getNode()->nodeGraph->addLink(newLink);
 	
 	return newLink;
 }

@@ -20,18 +20,18 @@ void NodeGraph::editorGui(ImVec2 size){
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2, ImGui::GetTextLineHeight() * 0.2));
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, glm::vec2(ImGui::GetTextLineHeight() * 0.2, 0));
-	for (auto node : nodes) node->nodeGui();
+	for (auto node : *nodeList.get()) node->nodeGui();
 	ImGui::PopStyleVar(2);
 
 	
 	
 	//===== DRAW LINKS =====
 
-	for (auto link : links){
+	for (auto link : linkList->getEntries()){
 		ax::NodeEditor::LinkId linkId = link->getUniqueID();
-		ax::NodeEditor::PinId startPinId = link->getInputData()->getUniqueID();
-		ax::NodeEditor::PinId endPinId = link->getOutputData()->getUniqueID();
-		if(link->inputData->isBidirectional() && link->outputData->isBidirectional()){
+		ax::NodeEditor::PinId startPinId = link->getInputPin()->getUniqueID();
+		ax::NodeEditor::PinId endPinId = link->getOutputPin()->getUniqueID();
+		if(link->inputPin->isBidirectional() && link->outputPin->isBidirectional()){
 			ax::NodeEditor::Link(linkId, startPinId, endPinId, ImColor(1.f, 1.f, .0f, 1.f), 3.0);
 		}else{
 			ax::NodeEditor::Link(linkId, startPinId, endPinId, ImColor(1.0f, 1.0f, 1.0f), 1.0);
@@ -174,8 +174,8 @@ void NodeGraph::editorGui(ImVec2 size){
 		if (ImGui::BeginPopup("Link Context Menu")) {
 			std::shared_ptr<NodeLink> link = getLink((int)contextLinkId.Get());
 			ImGui::Text("Link #%i", link->getUniqueID());
-			ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputData()->getName().c_str(), link->getInputData()->parentNode->getName().c_str());
-			ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputData()->getName().c_str(), link->getOutputData()->parentNode->getName().c_str());
+			ImGui::Text("Input: \"%s\" on node \"%s\"", link->getInputPin()->getName().c_str(), link->getInputPin()->parentNode->getName().c_str());
+			ImGui::Text("Output: \"%s\" on node \"%s\"", link->getOutputPin()->getName().c_str(), link->getOutputPin()->parentNode->getName().c_str());
 			ImGui::Separator();
 			if (ImGui::MenuItem("Disconnect")) link->disconnect();
 			ImGui::EndPopup();
@@ -292,5 +292,5 @@ void NodeGraph::centerView() {
 }
 
 void NodeGraph::showFlow() {
-	for (auto link : links) ax::NodeEditor::Flow(link->getUniqueID());
+	for (auto link : *linkList.get()) ax::NodeEditor::Flow(link->getUniqueID());
 }

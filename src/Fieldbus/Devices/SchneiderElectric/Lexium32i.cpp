@@ -25,31 +25,32 @@ void Lexium32i::onConstruction() {
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
 	
 	//node input data
-	std::shared_ptr<NodePin> digitalOut0Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0", "DQ0");
-	std::shared_ptr<NodePin> digitalOut1Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1", "DQ1");
+	digitalOut0Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ0", "DQ0");
+	digitalOut1Pin = NodePin::createInstance(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "DQ1", "DQ1");
 	
-	std::shared_ptr<NodePin> servoMotorPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
-																	 "Servo Motor", "ServoMotor");
-	std::shared_ptr<NodePin> actualLoadPin = NodePin::createInstance(actualLoadValue, NodePin::Direction::NODE_OUTPUT, "Load", "Load",
-																	 NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-	std::shared_ptr<NodePin> actualPositionPin = NodePin::createInstance(actualPositionValue,
-																		   NodePin::Direction::NODE_OUTPUT,
-																		   "Position", "Position",
-																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
-	std::shared_ptr<NodePin> actualVelocityPin = NodePin::createInstance(actualVelocityValue,
-																		   NodePin::Direction::NODE_OUTPUT,
-																		   "Velocity", "Velocity",
-																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	servoMotorPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+											"Servo Motor", "ServoMotor");
+	actualLoadPin = NodePin::createInstance(actualLoadValue, NodePin::Direction::NODE_OUTPUT, "Load", "Load",
+											NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	actualPositionPin = NodePin::createInstance(actualPositionValue,
+												NodePin::Direction::NODE_OUTPUT,
+												"Position", "Position",
+												NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
+	actualVelocityPin = NodePin::createInstance(actualVelocityValue,
+												NodePin::Direction::NODE_OUTPUT,
+												"Velocity", "Velocity",
+												NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
 	
-	std::shared_ptr<NodePin> gpioDevicePin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
-	std::shared_ptr<NodePin> digitalIn0Pin = NodePin::createInstance(digitalIn0Value, NodePin::Direction::NODE_OUTPUT,
-																	 "DI0", "DI0", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn1Pin = NodePin::createInstance(digitalIn1Value, NodePin::Direction::NODE_OUTPUT,
-																	 "DI1", "DI1", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn2Pin = NodePin::createInstance(digitalIn2Value, NodePin::Direction::NODE_OUTPUT,
-																	 "DI2", "DI2", NodePin::Flags::DisableDataField);
-	std::shared_ptr<NodePin> digitalIn3Pin = NodePin::createInstance(digitalIn3Value, NodePin::Direction::NODE_OUTPUT,
-																	 "DI3", "DI3", NodePin::Flags::DisableDataField);
+	
+	gpioDevicePin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO", "GPIO");
+	digitalIn0Pin = NodePin::createInstance(digitalIn0Value, NodePin::Direction::NODE_OUTPUT,
+											"DI0", "DI0", NodePin::Flags::DisableDataField);
+	digitalIn1Pin = NodePin::createInstance(digitalIn1Value, NodePin::Direction::NODE_OUTPUT,
+											"DI1", "DI1", NodePin::Flags::DisableDataField);
+	digitalIn2Pin = NodePin::createInstance(digitalIn2Value, NodePin::Direction::NODE_OUTPUT,
+											"DI2", "DI2", NodePin::Flags::DisableDataField);
+	digitalIn3Pin = NodePin::createInstance(digitalIn3Value, NodePin::Direction::NODE_OUTPUT,
+											"DI3", "DI3", NodePin::Flags::DisableDataField);
 	
 		
 	servoMotorPin->assignData(std::static_pointer_cast<ActuatorInterface>(servoMotor));

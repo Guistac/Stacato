@@ -48,15 +48,13 @@ public:
 		ax::NodeEditor::DestroyEditor(context);
 	}
 	
-	std::vector<std::shared_ptr<Node>>& getNodes() { return nodes; }
-	std::vector<std::shared_ptr<NodePin>>& getPins() { return pins; }
-	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return links; }
+	std::vector<std::shared_ptr<Node>>& getNodes() { return *nodeList.get(); }
+	std::vector<std::shared_ptr<NodePin>>& getPins() { return *pinList.get();  }
+	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return *linkList.get();  }
 	std::vector<std::shared_ptr<Node>>& getSelectedNodes(){ return selectedNodes; }
 	std::vector<std::shared_ptr<NodeLink>>& getSelectedLinks(){ return selectedLinks; }
 	
-	std::shared_ptr<Legato::ListComponent<Node>> nodeList;
-	//std::shared_ptr<Legato::ListComponent<NodeLink>> linkList;
-	//std::shared_ptr<ListComponent<NodePin>> pinList;
+	
 	
 	int getNewUniqueID(){
 		uniqueIdCounter++;
@@ -73,6 +71,10 @@ public:
 	
 	void addNode(std::shared_ptr<Node>);
 	void removeNode(std::shared_ptr<Node>);
+	void addLink(std::shared_ptr<NodeLink>);
+	void removeLink(std::shared_ptr<NodeLink>);
+	void addPin(std::shared_ptr<NodePin>);
+	void removePin(std::shared_ptr<NodePin>);
 	
 	std::shared_ptr<Node> getNode(int uniqueID);
 	std::shared_ptr<NodePin> getPin(int uniqueID);
@@ -84,9 +86,11 @@ public:
 	void setNodeDragDropTargetCallback(std::function<std::shared_ptr<Node>()> cb){ nodeDragDropTargetCallback = cb; }
 	
 private:
-	std::vector<std::shared_ptr<Node>> nodes;
-	std::vector<std::shared_ptr<NodePin>> pins;
-	std::vector<std::shared_ptr<NodeLink>> links;
+	
+	std::shared_ptr<Legato::ListComponent<Node>> nodeList;
+	std::shared_ptr<Legato::ListComponent<NodeLink>> linkList;
+	std::shared_ptr<Legato::ListComponent<NodePin>> pinList;
+	
 	std::vector<std::shared_ptr<Node>> selectedNodes;
 	std::vector<std::shared_ptr<NodeLink>> selectedLinks;
 	

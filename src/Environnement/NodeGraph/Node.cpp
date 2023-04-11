@@ -56,7 +56,7 @@ void Node::removeNodePin(std::shared_ptr<NodePin> pin) {
 bool Node::areAllLinkedInputNodesProcessed() {
 	for (auto inputData : nodeInputPins) {
 		for (auto inputDataLink : inputData->getLinks()) {
-			auto connectedNode = inputDataLink->getInputData()->getNode();
+			auto connectedNode = inputDataLink->getInputPin()->getNode();
 			if (!connectedNode->wasProcessed()) return false;
 		}
 	}
@@ -67,9 +67,60 @@ bool Node::areAllLinkedBidirectionalOutputNodesProcessed(){
 	for(auto outputData : nodeOutputPins){
 		if(!outputData->isBidirectional()) continue;
 		for(auto outputDataLink : outputData->getLinks()){
-			auto connectedNode = outputDataLink->getOutputData()->getNode();
+			auto connectedNode = outputDataLink->getOutputPin()->getNode();
 			if(!connectedNode->wasProcessed()) return false;
 		}
 	}
 	return true;
+}
+
+bool Node::onSerialization() {
+	Component::onSerialization();
+	
+	serializeAttribute("UniqueID", getUniqueID());
+	serializeAttribute("ClassName", getClassName());
+	serializeAttribute("NodeType", Enumerator::getSaveString(getType()));
+	
+	if(getType() == Type::IODEVICE){
+		auto thisDevice = std::static_pointer_cast<Device>(shared_from_this());
+		serializeAttribute("DeviceType", getDeviceType(thisDevice->getDeviceType())->saveName);
+		serializeAttribute("Split", isSplit());
+	}
+	
+	Serializable positionXML;
+	positionXML.setSaveString("NodeGraphPosition");
+	positionXML.serializeIntoParent(this);
+	if(isSplit()){
+		glm::vec2 inputPos, outputPos;
+		getSplitNodeGraphPosition(inputPos, outputPos);
+		positionXML.serializeAttribute("inputX", inputPos.x);
+		positionXML.serializeAttribute("inputY", inputPos.y);
+		positionXML.serializeAttribute("outputX", outputPos.x);
+		positionXML.serializeAttribute("outputY", outputPos.y);
+	}else{
+		glm::vec2 pos = getNodeGraphPosition();
+		positionXML.serializeAttribute("X", getNodeGraphPosition().x);
+		positionXML.serializeAttribute("Y", getNodeGraphPosition().y);
+	}
+	
+	/*
+	XMLElement* inputPinsXML = nodeXML->InsertNewChildElement("InputPins");
+	for (auto pin : node->getInputPins()) {
+		XMLElement* inputPinXML = inputPinsXML->InsertNewChildElement("InputPin");
+		pin->save(inputPinXML);
+	}
+	XMLElement* outputPinsXML = nodeXML->InsertNewChildElement("OutputPins");
+	for (auto pin : node->getOutputPins()) {
+		XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
+		pin->save(outputPinXML);
+	}
+	 */
+	
+	return true;
+}
+
+bool Node::onDeserialization() {
+	Component::onDeserialization();
+	bool success = true;
+	return success;
 }

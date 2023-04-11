@@ -18,11 +18,10 @@ namespace tinyxml2 { class XMLElement; }
 
 
 class NodePin : public Legato::Component{
-public:
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NodePin)
  
-protected:
+public:
 	 
 	 virtual bool onSerialization() override {
 		 bool success = true;

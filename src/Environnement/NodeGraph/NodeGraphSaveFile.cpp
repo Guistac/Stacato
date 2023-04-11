@@ -23,73 +23,8 @@ bool NodeGraph::onSerialization(){
 	editorGui(ImVec2(0,0));
 	ImGui::End();
 	
-	/*
-	
-	using namespace tinyxml2;
-	XMLElement* nodes = xml->InsertNewChildElement("Nodes");
-
-	for (auto node : getNodes()) {
-		XMLElement* nodeXML = nodes->InsertNewChildElement("Node");
-
-		nodeXML->SetAttribute("NodeType", Enumerator::getSaveString(node->getType()));
-		if (node->getType() == Node::Type::IODEVICE) {
-			std::shared_ptr<Device> device = std::static_pointer_cast<Device>(node);
-			nodeXML->SetAttribute("DeviceType", getDeviceType(device->getDeviceType())->saveName);
-			nodeXML->SetAttribute("ClassName", node->getSaveName());
-			nodeXML->SetAttribute("Split", node->isSplit());
-		}
-		else {
-			nodeXML->SetAttribute("ClassName", node->getSaveName());
-		}
-		nodeXML->SetAttribute("CustomName", node->getName().c_str());
-		nodeXML->SetAttribute("UniqueID", node->getUniqueID());
-
-		if (!node->isSplit()) {
-			XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
-			glm::vec2 position = node->getNodeGraphPosition();
-			//position.x *= ApplicationWindow::getScaleTuning();
-			//position.y *= ApplicationWindow::getScaleTuning();
-			positionXML->SetAttribute("x", position.x);
-			positionXML->SetAttribute("y", position.y);
-		}
-		else {
-			XMLElement* inputPositionXML = nodeXML->InsertNewChildElement("InputNodeEditorPosition");
-			XMLElement* outputPositionXML = nodeXML->InsertNewChildElement("OutputNodeEditorPosition");
-			glm::vec2 input, output;
-			node->getSplitNodeGraphPosition(input, output);
-			//input.x *= ApplicationWindow::getScaleTuning();
-			//input.y *= ApplicationWindow::getScaleTuning();
-			//output.x *= ApplicationWindow::getScaleTuning();
-			//output.y *= ApplicationWindow::getScaleTuning();
-			inputPositionXML->SetAttribute("x", input.x);
-			inputPositionXML->SetAttribute("y", input.y);
-			outputPositionXML->SetAttribute("x", output.x);
-			outputPositionXML->SetAttribute("y", output.y);
-		}
-
-		XMLElement* nodeSpecificDataXML = nodeXML->InsertNewChildElement("NodeSpecificData");
-		node->save(nodeSpecificDataXML);
-
-		XMLElement* inputPinsXML = nodeXML->InsertNewChildElement("InputPins");
-		for (auto pin : node->getInputPins()) {
-			XMLElement* inputPinXML = inputPinsXML->InsertNewChildElement("InputPin");
-			pin->save(inputPinXML);
-		}
-		XMLElement* outputPinsXML = nodeXML->InsertNewChildElement("OutputPins");
-		for (auto pin : node->getOutputPins()) {
-			XMLElement* outputPinXML = outputPinsXML->InsertNewChildElement("OutputPin");
-			pin->save(outputPinXML);
-		}
-	}
-
-	XMLElement* links = xml->InsertNewChildElement("Links");
-	for (auto link : getLinks()) {
-		XMLElement* linkXML = links->InsertNewChildElement("Link");
-		linkXML->SetAttribute("UniqueID", link->getUniqueID());
-		linkXML->SetAttribute("StartPin", link->getInputData()->getUniqueID());
-		linkXML->SetAttribute("EndPin", link->getOutputData()->getUniqueID());
-	}
-*/
+	nodeList->serializeIntoParent(this);
+	linkList->serializeIntoParent(this);
 	
 	return true;
 }

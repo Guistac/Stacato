@@ -7,16 +7,27 @@ namespace Legato{
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<Serializable, T>>>
 class ListComponent : public Component, public std::vector<std::shared_ptr<T>>{
 	
-public:
-	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
 	
+public:
 	void setEntrySaveString(std::string entrySaveString_){
 		entrySaveString = entrySaveString_;
 	}
 	
 	void setEntryConstructor(std::function<std::shared_ptr<T>(void)> entryConstructor_){
 		constructor = entryConstructor_;
+	}
+	
+	std::vector<std::shared_ptr<T>>& getEntries(){ return *this; }
+	
+	void addEntry(std::shared_ptr<T> entry) { this->push_back(entry); }
+	void removeEntry(std::shared_ptr<T> entry){
+		for(int i = (int)this->size() - 1; i >= 0; i--){
+			if(entry == (*this)[i]){
+				this->erase(this->begin() + i);
+				break;
+			}
+		}
 	}
 	
 private:

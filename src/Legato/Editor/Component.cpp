@@ -17,13 +17,17 @@ const std::string& Component::getName(){
 
 bool Component::onSerialization() {
 	bool success = true;
-	if(b_hasNameParameter) success &= nameParameter->serializeIntoParent(this);
+	if(b_hasNameParameter) success &= serializeAttribute("ComponentName", nameParameter->getValue());
 	return success;
 }
 
 bool Component::onDeserialization() {
 	bool success = true;
-	if(b_hasNameParameter) success &= nameParameter->deserializeFromParent(this);
+	if(b_hasNameParameter) {
+		std::string componentName;
+		success &= deserializeAttribute("ComponentName", componentName);
+		nameParameter->setValue(componentName);
+	}
 	return success;
 }
 

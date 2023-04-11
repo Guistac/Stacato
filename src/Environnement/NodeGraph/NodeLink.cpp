@@ -5,8 +5,8 @@
 #include "NodeGraph.h"
 
 void NodeLink::disconnect(){
-	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = inputData->nodeLinks;
-	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = outputData->nodeLinks;
+	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = inputPin->nodeLinks;
+	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = outputPin->nodeLinks;
 
 	auto thisLink = std::static_pointer_cast<NodeLink>(shared_from_this());
 	
@@ -23,19 +23,13 @@ void NodeLink::disconnect(){
 		}
 	}
 	
-	std::vector<std::shared_ptr<NodeLink>>& links = nodeGraph->getLinks();
-	for (int i = 0; i < links.size(); i++) {
-		if (links[i] == thisLink) {
-			links.erase(links.begin() + i);
-			break;
-		}
-	}
+	nodeGraph->removeLink(thisLink);
 		
-	inputData->parentNode->onPinDisconnection(inputData);
-	outputData->parentNode->onPinDisconnection(outputData);
+	inputPin->parentNode->onPinDisconnection(inputPin);
+	outputPin->parentNode->onPinDisconnection(outputPin);
 	
 	nodeGraph = nullptr;
-	inputData = nullptr;
-	outputData = nullptr;
+	inputPin = nullptr;
+	outputPin = nullptr;
 	//ideally the link is referenced nowhere else and should free itself at the end of this function
 };

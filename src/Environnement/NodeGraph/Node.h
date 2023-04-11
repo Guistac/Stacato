@@ -26,17 +26,8 @@ class Node : public Legato::Component{
 	
 public:
 	
-	virtual bool onSerialization() override {
-		Component::onSerialization();
-		bool success = true;
-		return success;
-	}
-	
-	virtual bool onDeserialization() override {
-		Component::onDeserialization();
-		bool success = true;
-		return success;
-	}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	virtual void onConstruction() override {
 		Component::onConstruction();
