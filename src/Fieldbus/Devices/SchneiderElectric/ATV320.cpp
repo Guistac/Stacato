@@ -210,9 +210,9 @@ void ATV320::readInputs() {
 	//update general state
 	b_motorVoltagePresent = axis->hasVoltage();								//b4
 	b_remoteControlEnabled = axis->isRemoteControlActive();					//b9
-	b_referenceReached = axis->getOperatingModeSpeciricStatusWordBit_10();	//b10
+	b_referenceReached = axis->getOperatingModeSpecificStatusWordBit_10();	//b10
 	b_referenceOutsideLimits = axis->isInternalLimitReached();				//b11
-	b_stopKeyPressed = axis->getOperatingModeSpeciricStatusWordBit_12();	//b12
+	b_stopKeyPressed = axis->getOperatingModeSpecificStatusWordBit_12();	//b12
 	b_stoActive = stoState != 0;
 	b_hasFault = axis->hasFault();
 	
