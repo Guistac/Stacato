@@ -21,14 +21,18 @@ bool NodeLink::onSerialization() {
 	serializeAttribute("End", start);
 	
 	serializeAttribute("UniqueID", getUniqueID());
-	serializeAttribute("StartPinID", getInputPin()->getUniqueID());
-	serializeAttribute("EndPinID", getOutputPin()->getUniqueID());
+	serializeAttribute("InputPinID", inputPinID);
+	serializeAttribute("OutputPinID", outputPinID);
 	
 	return true;
 }
 
 bool NodeLink::onDeserialization() {
-	Component::onDeserialization();
+	//Component::onDeserialization();
+	deserializeAttribute("UniqueID", uniqueID);
+	deserializeAttribute("InputPinID", inputPinID);
+	deserializeAttribute("OutputPinID", outputPinID);
+	return true;
 }
 
 void NodeLink::disconnect(){

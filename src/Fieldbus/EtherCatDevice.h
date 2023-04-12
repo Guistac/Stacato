@@ -63,8 +63,7 @@ protected:
 	 
 	 virtual bool onDeserialization() override {
 		 Node::onDeserialization();
-		 bool success = true;
-		 return success;
+		 return true;
 	 }
 	 
 	 virtual void onConstruction() override {

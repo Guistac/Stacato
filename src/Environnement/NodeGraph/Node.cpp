@@ -21,51 +21,6 @@ void Node::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 	
 }
 
-void Node::addNodePin(std::shared_ptr<NodePin> pin) {
-
-	//don't add the nodepin if the node already has it
-	for (auto inputPin : inputPins->getEntries()) if (inputPin == pin) return;
-	for (auto outputPin : outputPins->getEntries()) if (outputPin == pin) return;
-
-	if (pin->isInput()) inputPins->addEntry(pin);
-	else if (pin->isOutput()) outputPins->addEntry(pin);
-
-	//if a pins gets added after if the node is already on the editor, this handles everything
-	if (nodeGraph != nullptr) {
-		pin->uniqueID = nodeGraph->getNewUniqueID();
-		pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
-	}
-}
-
-void Node::removeNodePin(std::shared_ptr<NodePin> pin) {
-	if (pin->isInput()) inputPins->removeEntry(pin);
-	else if (pin->isOutput()) outputPins->removeEntry(pin);
-	pin->disconnectAllLinks();
-	pin->parentNode = nullptr;
-}
-
-//check if all nodes linked to the inputs of this node were processed
-bool Node::areAllLinkedInputNodesProcessed() {
-	for (auto inputData : inputPins->getEntries()) {
-		for (auto inputDataLink : inputData->getLinks()) {
-			auto connectedNode = inputDataLink->getInputPin()->getNode();
-			if (!connectedNode->wasProcessed()) return false;
-		}
-	}
-	return true;
-}
-
-bool Node::areAllLinkedBidirectionalOutputNodesProcessed(){
-	for(auto outputData : outputPins->getEntries()){
-		if(!outputData->isBidirectional()) continue;
-		for(auto outputDataLink : outputData->getLinks()){
-			auto connectedNode = outputDataLink->getOutputPin()->getNode();
-			if(!connectedNode->wasProcessed()) return false;
-		}
-	}
-	return true;
-}
-
 bool Node::onSerialization() {
 	Component::onSerialization();
 	
@@ -132,7 +87,7 @@ bool Node::onDeserialization() {
 	//after abstract node deserialization,
 	//the node implementation loads its own data (with eventual dynamically created pins)
 	//the node adds all its pins to the pin lists
-	
+	return true;
 }
 
 bool Node::loadPins(){
@@ -149,30 +104,81 @@ bool Node::loadPins(){
 	abstractInputPins->deserializeFromParent(this);
 	abstractOutputPins->deserializeFromParent(this);
 	
+	auto matchLoadedPinsToNodePins = [](std::vector<std::shared_ptr<NodePin>>& loadedPins, std::vector<std::shared_ptr<NodePin>>& nodePins) -> bool {
+		for(auto& nodePin : nodePins){
+			bool b_nodePinIdentifiedInLoadedPins = false;
+			for(auto loadedPin : loadedPins){
+				if(loadedPin->getSaveString() != nodePin->getSaveString()) continue;
+				if(loadedPin->dataType != nodePin->dataType) continue;
+				loadedPin->direction = nodePin->direction;
+				loadedPin->pointer = nodePin->pointer;
+				loadedPin->parentNode = nodePin->parentNode;
+				nodePin = loadedPin;
+				b_nodePinIdentifiedInLoadedPins = true;
+				break;
+			}
+			if(!b_nodePinIdentifiedInLoadedPins) return false;
+		}
+		return true;
+	};
+	
 	//match the temporary pins with pins create or loaded by the node
-	//and transfer all inforation to the node pins
-	for(auto pin : inputPins->getEntries()){
-		for(auto abstractPin : abstractInputPins->getEntries()){
-			if(pin->getSaveString() != abstractPin->getSaveString()) continue;
-			if(pin->dataType != abstractPin->dataType) continue;
-			pin->setName(abstractPin->getName());
-			pin->uniqueID = abstractPin->uniqueID;
-			pin->b_visible = abstractPin->b_visible;
-			//copy more fields and also make this into a lambda to avoid repetition ??
-		}
-		return false;
-	}
-	for(auto pin : outputPins->getEntries()){
-		for(auto abstractPin : abstractOutputPins->getEntries()){
-			if(pin->getSaveString() != abstractPin->getSaveString()) continue;
-			if(pin->dataType != abstractPin->dataType) continue;
-			pin->setName(abstractPin->getName());
-			pin->uniqueID = abstractPin->uniqueID;
-			pin->b_visible = abstractPin->b_visible;
-		}
-		return false;
-	}
+	//and transfer all information to the node pins
+	matchLoadedPinsToNodePins(abstractInputPins->getEntries(), inputPins->getEntries());
+	matchLoadedPinsToNodePins(abstractOutputPins->getEntries(), outputPins->getEntries());
+	
+	
+	return true;
 	
 	//Register loaded unique ids with nodegraph so it always has the highest id
 	
 }
+
+
+void Node::addNodePin(std::shared_ptr<NodePin> pin) {
+
+	//don't add the nodepin if the node already has it
+	for (auto inputPin : inputPins->getEntries()) if (inputPin == pin) return;
+	for (auto outputPin : outputPins->getEntries()) if (outputPin == pin) return;
+
+	if (pin->isInput()) inputPins->addEntry(pin);
+	else if (pin->isOutput()) outputPins->addEntry(pin);
+	
+	pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
+	
+	//if a pins gets added after if the node is already on the editor, this handles everything
+	if (nodeGraph != nullptr) {
+		pin->uniqueID = nodeGraph->getNewUniqueID();
+		pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
+	}
+}
+
+void Node::removeNodePin(std::shared_ptr<NodePin> pin) {
+	if (pin->isInput()) inputPins->removeEntry(pin);
+	else if (pin->isOutput()) outputPins->removeEntry(pin);
+	pin->disconnectAllLinks();
+	pin->parentNode = nullptr;
+}
+
+//check if all nodes linked to the inputs of this node were processed
+bool Node::areAllLinkedInputNodesProcessed() {
+	for (auto inputData : inputPins->getEntries()) {
+		for (auto inputDataLink : inputData->getLinks()) {
+			auto connectedNode = inputDataLink->getInputPin()->getNode();
+			if (!connectedNode->wasProcessed()) return false;
+		}
+	}
+	return true;
+}
+
+bool Node::areAllLinkedBidirectionalOutputNodesProcessed(){
+	for(auto outputData : outputPins->getEntries()){
+		if(!outputData->isBidirectional()) continue;
+		for(auto outputDataLink : outputData->getLinks()){
+			auto connectedNode = outputDataLink->getOutputPin()->getNode();
+			if(!connectedNode->wasProcessed()) return false;
+		}
+	}
+	return true;
+}
+

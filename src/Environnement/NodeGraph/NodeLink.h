@@ -28,6 +28,8 @@ public:
 	std::shared_ptr<NodePin> inputPin = nullptr;
 
 	int uniqueID = -1;
+	int inputPinID = -1;
+	int outputPinID = -1;
 	std::shared_ptr<NodeGraph> nodeGraph = nullptr;
 	
 	void disconnect();

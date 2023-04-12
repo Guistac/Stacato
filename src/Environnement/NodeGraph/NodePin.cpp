@@ -16,16 +16,11 @@ bool NodePin::onSerialization() {
 	serializeAttribute("DataType", Enumerator::getSaveString(dataType));
 	serializeAttribute("Visible", isVisible());
 	
-	if (b_acceptsMultipleInputs)
-		serializeAttribute("AcceptsMultipleConnections", true);
-	if (b_disablePin)
-		serializeAttribute("Disabled", true);
-	if (b_noDataField)
-		serializeAttribute("NoDataField", true);
-	if (b_forceDataField)
-		serializeAttribute("ForceDataField", true);
-	if (b_disableDataField)
-		serializeAttribute("DisableDataField", true);
+	serializeAttribute("AcceptsMultipleConnections", b_acceptsMultipleInputs);
+	serializeAttribute("Disabled", b_disablePin);
+	serializeAttribute("NoDataField", b_noDataField);
+	serializeAttribute("ForceDataField", b_forceDataField);
+	serializeAttribute("DisableDataField", b_disableDataField);
 	
 	return true;
 }
@@ -44,7 +39,6 @@ bool NodePin::onDeserialization() {
 	
 	deserializeAttribute("Visible", b_visible);
 	
-	//loading these is not mandatory
 	deserializeAttribute("AcceptsMultipleConnections", b_acceptsMultipleInputs);
 	deserializeAttribute("Disabled", b_disablePin);
 	deserializeAttribute("NoDataField", b_noDataField);
@@ -193,6 +187,8 @@ std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
 	
 	newLink->inputPin = thisPin->isOutput() ? thisPin : otherPin;
 	newLink->outputPin = otherPin->isInput() ? otherPin : thisPin;
+	newLink->inputPinID = newLink->inputPin->getUniqueID();
+	newLink->outputPinID = newLink->outputPin->getUniqueID();
 	
 	nodeLinks.push_back(newLink);
 	otherPin->nodeLinks.push_back(newLink);

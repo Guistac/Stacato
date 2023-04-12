@@ -16,6 +16,13 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	}
+	virtual bool onSerialization() override{
+		EtherCatDevice::onSerialization();
+	}
+	virtual bool onDeserialization() override{
+		EtherCatDevice::onDeserialization();
+		return true;
+	}
 	
 	class LexiumServoMotor : public ActuatorInterface{
 	public:

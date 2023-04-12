@@ -1,51 +1,51 @@
 <Environnement Name="Default Component Name" HELLo="1234">
     <NodeGraph Name="Default Component Name">
         <NodeList>
-            <Node Name="Lexium32M" UniqueID="16" ClassName="Lexium32" NodeType="IODevice">
-                <NodeGraphPosition Split="0" X="121" Y="254"/>
+            <Node Name="Lexium32M" UniqueID="30" ClassName="Lexium32" NodeType="IODevice">
+                <NodeGraphPosition Split="0" X="179" Y="165"/>
                 <InputPins>
-                    <Pin Name="DQ0" UniqueID="17" SaveString="DQ0" DataType="Boolean" Visible="1"/>
-                    <Pin Name="DQ1" UniqueID="18" SaveString="DQ1" DataType="Boolean" Visible="1"/>
-                    <Pin Name="DQ2" UniqueID="19" SaveString="DQ2" DataType="Boolean" Visible="1"/>
+                    <Pin Name="DQ0" UniqueID="31" SaveString="DQ0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ1" UniqueID="32" SaveString="DQ1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ2" UniqueID="33" SaveString="DQ2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </InputPins>
                 <OutputPins>
-                    <Pin Name="Servo Motor" UniqueID="20" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1"/>
-                    <Pin Name="Load" UniqueID="21" SaveString="Load" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="Position" UniqueID="22" SaveString="Position" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="Velocity" UniqueID="23" SaveString="Velocity" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="GPIO" UniqueID="24" SaveString="GPIO" DataType="GpioInterface" Visible="1"/>
-                    <Pin Name="DI0" UniqueID="25" SaveString="DI0" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI1" UniqueID="26" SaveString="DI1" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI2" UniqueID="27" SaveString="DI2" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI3" UniqueID="28" SaveString="DI3" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI4" UniqueID="29" SaveString="DI4" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI5" UniqueID="30" SaveString="DI5" DataType="Boolean" Visible="1" DisableDataField="1"/>
+                    <Pin Name="Servo Motor" UniqueID="34" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Load" UniqueID="35" SaveString="Load" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Position" UniqueID="36" SaveString="Position" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Velocity" UniqueID="37" SaveString="Velocity" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="GPIO" UniqueID="38" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DI0" UniqueID="39" SaveString="DI0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI1" UniqueID="40" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI2" UniqueID="41" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI3" UniqueID="42" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI4" UniqueID="43" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI5" UniqueID="44" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
                 </OutputPins>
             </Node>
-            <Node Name="Lexium32M" UniqueID="31" ClassName="Lexium32" NodeType="IODevice">
-                <NodeGraphPosition Split="0" X="427" Y="301"/>
+            <Node Name="Lexium32M" UniqueID="45" ClassName="Lexium32" NodeType="IODevice">
+                <NodeGraphPosition Split="0" X="440" Y="162"/>
                 <InputPins>
-                    <Pin Name="DQ0" UniqueID="32" SaveString="DQ0" DataType="Boolean" Visible="1"/>
-                    <Pin Name="DQ1" UniqueID="33" SaveString="DQ1" DataType="Boolean" Visible="1"/>
-                    <Pin Name="DQ2" UniqueID="34" SaveString="DQ2" DataType="Boolean" Visible="1"/>
+                    <Pin Name="DQ0" UniqueID="46" SaveString="DQ0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ1" UniqueID="47" SaveString="DQ1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ2" UniqueID="48" SaveString="DQ2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </InputPins>
                 <OutputPins>
-                    <Pin Name="Servo Motor" UniqueID="35" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1"/>
-                    <Pin Name="Load" UniqueID="36" SaveString="Load" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="Position" UniqueID="37" SaveString="Position" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="Velocity" UniqueID="38" SaveString="Velocity" DataType="Real" Visible="0" DisableDataField="1"/>
-                    <Pin Name="GPIO" UniqueID="39" SaveString="GPIO" DataType="GpioInterface" Visible="1"/>
-                    <Pin Name="DI0" UniqueID="40" SaveString="DI0" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI1" UniqueID="41" SaveString="DI1" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI2" UniqueID="42" SaveString="DI2" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI3" UniqueID="43" SaveString="DI3" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI4" UniqueID="44" SaveString="DI4" DataType="Boolean" Visible="1" DisableDataField="1"/>
-                    <Pin Name="DI5" UniqueID="45" SaveString="DI5" DataType="Boolean" Visible="1" DisableDataField="1"/>
+                    <Pin Name="Servo Motor" UniqueID="49" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Load" UniqueID="50" SaveString="Load" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Position" UniqueID="51" SaveString="Position" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Velocity" UniqueID="52" SaveString="Velocity" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="GPIO" UniqueID="53" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DI0" UniqueID="54" SaveString="DI0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI1" UniqueID="55" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI2" UniqueID="56" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI3" UniqueID="57" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI4" UniqueID="58" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI5" UniqueID="59" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
                 </OutputPins>
             </Node>
         </NodeList>
         <LinkList>
-            <Link Start="Lexium32M : DQ0" End="Lexium32M : DQ0" UniqueID="46" StartPinID="32" EndPinID="25"/>
+            <Link Start="Lexium32M : DQ0" End="Lexium32M : DQ0" UniqueID="60" InputPinID="44" OutputPinID="46"/>
         </LinkList>
     </NodeGraph>
 </Environnement>

@@ -65,22 +65,26 @@ bool NodeGraph::onDeserialization(){
 	
 	//load all links into a temporary list
 	std::shared_ptr<Legato::ListComponent<NodeLink>> abstractLinkList = Legato::ListComponent<NodeLink>::createInstance();
-	abstractLinkList->setSaveString("Links");
+	abstractLinkList->setSaveString("LinkList");
 	abstractLinkList->setEntrySaveString("Link");
 	abstractLinkList->setEntryConstructor([](Legato::Serializable& abstractEntry){ return NodeLink::createInstance(); });
 	abstractLinkList->deserializeFromParent(this);
-
+	
 	//connect all links
 	for(auto abstractLink : abstractLinkList->getEntries()){
-		auto inputPin = abstractLink->getInputPin();
-		auto outputPin = abstractLink->getInputPin();
-		inputPin->connectTo(outputPin);
+		auto inputPin = getPin(abstractLink->inputPinID);
+		auto outputPin = getPin(abstractLink->outputPinID);
+		if(inputPin && outputPin){
+			inputPin->connectTo(outputPin);
+		}
 	}
 
 	//let all nodes load data that is only relevant after all links are connected
 	for(auto node : nodeList->getEntries()){
 		node->loadAfterPinConnection();
 	}
+	
+	//TODO: we need to keep track of the highest uniqueID to continue counting from there
 	
 	/*
 	 int largestUniqueID = 0;
@@ -99,12 +103,14 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	newNode->nodeGraph = std::static_pointer_cast<NodeGraph>(shared_from_this());
 	nodeList->addEntry(newNode);
 	for (std::shared_ptr<NodePin> pin : newNode->getInputPins()) {
-		pin->uniqueID = getNewUniqueID();
-		pin->parentNode = newNode;
+		if(pin->uniqueID == -1) {
+			pin->uniqueID = getNewUniqueID();
+		}
 	}
 	for (std::shared_ptr<NodePin> pin : newNode->getOutputPins()) {
-		pin->uniqueID = getNewUniqueID();
-		pin->parentNode = newNode;
+		if(pin->uniqueID == -1) {
+			pin->uniqueID = getNewUniqueID();
+		}
 	}
 	newNode->onAddToNodeGraph();
 	nodeAddCallback(newNode);
