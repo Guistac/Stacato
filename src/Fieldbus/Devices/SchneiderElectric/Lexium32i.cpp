@@ -374,6 +374,17 @@ void Lexium32i::writeOutputs() {
 	}
 	BRK_release = servoMotor->actuatorProcessData.b_holdingBrakeIsReleased ? 1 : 0;
 	
+	
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
+		servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		updateEncoderWorkingRange();
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
