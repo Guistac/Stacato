@@ -164,6 +164,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementScript.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementScript.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/EnvironnementSaveFile.cpp
+    
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraph.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphGui.cpp
@@ -178,7 +179,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePin.h
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodePinGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphProcessing.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Environnement/NodeGraph/NodeGraphSaveFile.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.h
     ${STACATO_SOURCE_DIRECTORY}/Nodes/NodeFactory.cpp
@@ -198,6 +198,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Logger.h
+
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/PrototypeBase.h
@@ -206,8 +207,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/FileComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/StringParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Project.h
+
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.cpp

@@ -196,10 +196,13 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
 	std::shared_ptr<Node> output = nullptr;
 	
-	auto listNodes = [&](const std::vector<std::shared_ptr<Node>>& nodes){
+	auto listNodes = [&](const std::vector<std::shared_ptr<Node>>& nodes) -> std::shared_ptr<Node>{
 		for (auto node : nodes) {
-			if (ImGui::MenuItem(node->getName().c_str())) output = node->duplicate();
+			if (ImGui::MenuItem(node->getName().c_str())) {
+				return NodeFactory::getNodeByClassName(node->getClassName());
+			}
 		}
+		return nullptr;
 	};
 
 	ImGui::MenuItem("Node Editor Menu", nullptr, false, false);
@@ -208,7 +211,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	if (ImGui::BeginMenu("By Manufaturer")) {
 		for (auto manufacturer : NodeFactory::getEtherCatDevicesByManufacturer()) {
 			if (ImGui::BeginMenu(manufacturer.name.c_str())) {
-				listNodes(manufacturer.nodes);
+				output = listNodes(manufacturer.nodes);
 				ImGui::EndMenu();
 			}
 		}
@@ -217,7 +220,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	if (ImGui::BeginMenu("By Category")) {
 		for (auto category : NodeFactory::getEtherCatDevicesByCategory()) {
 			if (ImGui::BeginMenu(category.name.c_str())) {
-				listNodes(category.nodes);
+				output = listNodes(category.nodes);
 				ImGui::EndMenu();
 			}
 		}
@@ -242,20 +245,20 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 
 	if (ImGui::BeginMenu("Motion")) {
 		if (ImGui::BeginMenu("Axis")) {
-			listNodes(NodeFactory::getAllAxisNodes());
+			output = listNodes(NodeFactory::getAllAxisNodes());
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Machines")) {
 			for (auto& category : NodeFactory::getMachinesByCategory()) {
 				if (ImGui::BeginMenu(category.name.c_str())) {
-					listNodes(category.nodes);
+					output = listNodes(category.nodes);
 					ImGui::EndMenu();
 				}
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Safety")) {
-			listNodes(NodeFactory::getAllSafetyNodes());
+			output = listNodes(NodeFactory::getAllSafetyNodes());
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenu();
@@ -264,7 +267,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	ImGui::Separator();
 
 	if (ImGui::BeginMenu("Network")) {
-		listNodes(NodeFactory::getAllNetworkNodes());
+		output = listNodes(NodeFactory::getAllNetworkNodes());
 		ImGui::EndMenu();
 	}
 
@@ -273,7 +276,7 @@ std::shared_ptr<Node> nodeAdderContextMenu() {
 	ImGui::MenuItem("Processing Nodes", nullptr, false, false);
 	for (auto category : NodeFactory::getProcessorNodesByCategory()) {
 		if (ImGui::BeginMenu(category.name.c_str())) {
-			listNodes(category.nodes);
+			output = listNodes(category.nodes);
 			ImGui::EndMenu();
 		}
 	}

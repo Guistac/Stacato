@@ -14,7 +14,7 @@ public:
 		entrySaveString = entrySaveString_;
 	}
 	
-	void setEntryConstructor(std::function<std::shared_ptr<T>(void)> entryConstructor_){
+	void setEntryConstructor(std::function<std::shared_ptr<T>(Serializable&)> entryConstructor_){
 		constructor = entryConstructor_;
 	}
 	
@@ -33,7 +33,7 @@ public:
 private:
 	
 	std::string entrySaveString;
-	std::function<std::shared_ptr<T>(void)> constructor;
+	std::function<std::shared_ptr<T>(Serializable& abstractEntry)> constructor;
 	
 	virtual bool onSerialization() override {
 		if(entrySaveString.empty()){
@@ -69,8 +69,13 @@ private:
 		tinyxml2::XMLElement* entryXML = xmlElement->FirstChildElement(entrySaveString.c_str());
 		while(entryXML != nullptr){
 			
-			std::shared_ptr<T> loadedEntry = constructor();
+			Serializable abstractEntry;
+			abstractEntry.setSaveString(entrySaveString);
+			abstractEntry.xmlElement = entryXML;
+			
+			std::shared_ptr<T> loadedEntry = constructor(abstractEntry);
 			loadedEntry->xmlElement = entryXML;
+			loadedEntry->setSaveString(entrySaveString);
 			
 			if(loadedEntry->onDeserialization()) std::vector<std::shared_ptr<T>>::push_back(loadedEntry);
 			else b_allEntriesLoaded = false;

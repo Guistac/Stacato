@@ -12,23 +12,10 @@ class NodeLink : public Legato::Component{
 	
 public:
 	
-	virtual void onConstruction() override{
-		Component::onConstruction();
-	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {}
-	virtual bool onSerialization() override {
-		//we don't call this since we don't need a saved name for links
-		//Component::onSerialization();
-		
-		serializeAttribute("UniqueID", getUniqueID());
-		serializeAttribute("StartPinID", getInputPin()->getUniqueID());
-		serializeAttribute("EndPinID", getOutputPin()->getUniqueID());
-		
-		return true;
-	}
-	virtual bool onDeserialization() override {
-		Component::onDeserialization();
-	}
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 public:
 

@@ -4,6 +4,33 @@
 #include "NodePin.h"
 #include "NodeGraph.h"
 
+void NodeLink::onConstruction(){
+	Component::onConstruction();
+}
+
+void NodeLink::onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
+
+bool NodeLink::onSerialization() {
+	//we don't call this since we don't need a saved name for links
+	//Component::onSerialization();
+	
+	std::string start = getInputPin()->getNode()->getName() + " : " + getInputPin()->getName();
+	std::string end = getOutputPin()->getNode()->getName() + " : " + getOutputPin()->getName();
+
+	serializeAttribute("Start", start);
+	serializeAttribute("End", start);
+	
+	serializeAttribute("UniqueID", getUniqueID());
+	serializeAttribute("StartPinID", getInputPin()->getUniqueID());
+	serializeAttribute("EndPinID", getOutputPin()->getUniqueID());
+	
+	return true;
+}
+
+bool NodeLink::onDeserialization() {
+	Component::onDeserialization();
+}
+
 void NodeLink::disconnect(){
 	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = inputPin->nodeLinks;
 	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = outputPin->nodeLinks;

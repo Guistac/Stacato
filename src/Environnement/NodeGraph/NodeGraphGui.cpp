@@ -48,7 +48,7 @@ void NodeGraph::editorGui(ImVec2 size){
 		if (ax::NodeEditor::BeginCreate(ImVec4(1.0, 1.0, 1.0, 1.0), 1.0)) {
 			ax::NodeEditor::PinId pin1Id, pin2Id;
 			if (ax::NodeEditor::QueryNewLink(&pin1Id, &pin2Id)) {
-				if (pin1Id && pin2Id) {
+				if (pin1Id && pin2Id && pin1Id != pin2Id) {
 					std::shared_ptr<NodePin> pin1 = getPin((int)pin1Id.Get());
 					std::shared_ptr<NodePin> pin2 = getPin((int)pin2Id.Get());
 					if (pin1 && pin2 && pin1->isConnectionValid(pin2)) {

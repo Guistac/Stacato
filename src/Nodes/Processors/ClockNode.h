@@ -17,7 +17,7 @@ public:
 	virtual bool onSerialization() override { Component::onSerialization(); }
 	virtual bool onDeserialization() override { Component::onDeserialization(); }
 	virtual void onConstruction() override {
-		Component::onConstruction();
+		Node::onConstruction();
 		setName("Clock");
 		output_seconds = NodePin::createInstance(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "output", "output", NodePin::Flags::DisableDataField);
 		output_seconds->assignData(outputPinValue);

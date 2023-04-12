@@ -3,11 +3,12 @@
 #include "Serializable.h"
 
 
+namespace Legato{
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<Serializable, T>>>
 class SerializableList : public Serializable, public std::vector<std::shared_ptr<T>>{
 public:
-
+	
 	/*
 	 //this was suggested by chatGPT to make sure we only create lists templated with serializable elements
 	 static_assert(std::is_base_of<Serializable, T>::value, "Templated type must be derived from Serializable since the elements in the list must be saved and loaded");
@@ -71,4 +72,6 @@ private:
 		return b_allEntriesLoaded;
 	}
 	
+};
+
 };

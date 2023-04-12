@@ -16,7 +16,11 @@ namespace NodeFactory {
 
 	std::shared_ptr<Node> getNodeByClassName(std::string className){
 		for (auto node : allNodes) {
-			if (className == node->getClassName()) return node->duplicate();
+			if (className == node->getClassName()) {
+				auto newNode = node->duplicate();
+				newNode->setName(node->getName());
+				return newNode;
+			}
 		}
 		return nullptr;
 	}

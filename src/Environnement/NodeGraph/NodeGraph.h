@@ -49,7 +49,6 @@ public:
 	}
 	
 	std::vector<std::shared_ptr<Node>>& getNodes() { return *nodeList.get(); }
-	std::vector<std::shared_ptr<NodePin>>& getPins() { return *pinList.get();  }
 	std::vector<std::shared_ptr<NodeLink>>& getLinks() { return *linkList.get();  }
 	std::vector<std::shared_ptr<Node>>& getSelectedNodes(){ return selectedNodes; }
 	std::vector<std::shared_ptr<NodeLink>>& getSelectedLinks(){ return selectedLinks; }
@@ -73,13 +72,12 @@ public:
 	void removeNode(std::shared_ptr<Node>);
 	void addLink(std::shared_ptr<NodeLink>);
 	void removeLink(std::shared_ptr<NodeLink>);
-	void addPin(std::shared_ptr<NodePin>);
-	void removePin(std::shared_ptr<NodePin>);
 	
 	std::shared_ptr<Node> getNode(int uniqueID);
 	std::shared_ptr<NodePin> getPin(int uniqueID);
 	std::shared_ptr<NodeLink> getLink(int uniqueID);
 	
+	void setNodeConstructor(std::function<std::shared_ptr<Node>(Legato::Serializable&)> cst){ nodeConstructor = cst; }
 	void setNodeAddCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeAddCallback = cb; }
 	void setNodeRemoveCallback(std::function<void(std::shared_ptr<Node>)> cb){ nodeRemoveCallback = cb; }
 	void setNodeEditorContextMenuCallback(std::function<std::shared_ptr<Node>()> cb){ editorContextMenuCallback = cb; }
@@ -89,7 +87,6 @@ private:
 	
 	std::shared_ptr<Legato::ListComponent<Node>> nodeList;
 	std::shared_ptr<Legato::ListComponent<NodeLink>> linkList;
-	std::shared_ptr<Legato::ListComponent<NodePin>> pinList;
 	
 	std::vector<std::shared_ptr<Node>> selectedNodes;
 	std::vector<std::shared_ptr<NodeLink>> selectedLinks;
@@ -98,6 +95,7 @@ private:
 	std::function<void(std::shared_ptr<Node>)> nodeRemoveCallback;
 	std::function<std::shared_ptr<Node>()> editorContextMenuCallback;
 	std::function<std::shared_ptr<Node>()> nodeDragDropTargetCallback;
+	std::function<std::shared_ptr<Node>(Legato::Serializable&)> nodeConstructor;
 	
 	//counter to add new nodes, pins and links
 	//all items are odd numbers except for split node counterparts which are the an even number above the main node ID

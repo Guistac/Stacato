@@ -17,7 +17,7 @@ const std::string& Component::getName(){
 
 bool Component::onSerialization() {
 	bool success = true;
-	if(b_hasNameParameter) success &= serializeAttribute("ComponentName", nameParameter->getValue());
+	if(b_hasNameParameter) success &= serializeAttribute("Name", nameParameter->getValue());
 	return success;
 }
 
@@ -25,7 +25,7 @@ bool Component::onDeserialization() {
 	bool success = true;
 	if(b_hasNameParameter) {
 		std::string componentName;
-		success &= deserializeAttribute("ComponentName", componentName);
+		success &= deserializeAttribute("Name", componentName);
 		nameParameter->setValue(componentName);
 	}
 	return success;
@@ -35,7 +35,6 @@ void Component::onConstruction() {
 	if(b_hasNameParameter){
 		nameParameter = NewStringParameter::createInstanceWithoutNameParameter();
 		nameParameter->setValue("Default Component Name");
-		nameParameter->setSaveString("ComponentName");
 	}else{
 		nonParametricName = "Name";
 	}

@@ -5,6 +5,7 @@
 #include "NodeLink.h"
 
 #include "Legato/Editor/Component.h"
+#include "Legato/Editor/ListComponent.h"
 
 #define DEFINE_NODE(className, type, category) \
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
@@ -28,16 +29,11 @@ public:
 	
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
-	virtual void onConstruction() override {
-		Component::onConstruction();
-		setSaveString("Node");
-	}
-	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		Component::onCopyFrom(source);
-		
-	}
+	bool loadPins();
+	virtual bool loadAfterPinConnection() {}
 	
 public:
 
@@ -55,10 +51,10 @@ public:
 	//pin handling
 	void addNodePin(std::shared_ptr<NodePin> d);
 	void removeNodePin(std::shared_ptr<NodePin> d);
-	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return nodeInputPins; }
-	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
-	bool hasInputs() { return !nodeInputPins.empty(); }
-	bool hasOutputs() { return !nodeOutputPins.empty(); }
+	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return inputPins->getEntries(); }
+	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return outputPins->getEntries(); }
+	bool hasInputs() { return !inputPins->getEntries().empty(); }
+	bool hasOutputs() { return !outputPins->getEntries().empty(); }
 	void updatePin(std::shared_ptr<NodePin> pin){ onPinUpdate(pin); }
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin){}
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin){}
@@ -79,8 +75,8 @@ public:
 	
 	bool wasProcessed() { return b_wasProcessed; }
 	
-	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterInputProcess(){ return nodeOutputPins; }
-	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess(){ return nodeInputPins; }
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterInputProcess(){ return outputPins->getEntries(); }
+	virtual std::vector<std::shared_ptr<NodePin>> getUpdatedPinsAfterOutputProcess(){ return inputPins->getEntries(); }
 	virtual bool needsOutputProcess(){ return false; }
 	
 	//—————————— INPUT VS OUTPUT PROCESSES ——————————
@@ -117,8 +113,11 @@ public:
 
 	int uniqueID = -1;
 
-	std::vector<std::shared_ptr<NodePin>> nodeInputPins;
-	std::vector<std::shared_ptr<NodePin>> nodeOutputPins;
+	//std::vector<std::shared_ptr<NodePin>> nodeInputPins;
+	//std::vector<std::shared_ptr<NodePin>> nodeOutputPins;
+	
+	std::shared_ptr<Legato::ListComponent<NodePin>> inputPins;
+	std::shared_ptr<Legato::ListComponent<NodePin>> outputPins;
 
 	//processing flags
 	bool b_wasProcessed = false;

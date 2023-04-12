@@ -18,6 +18,7 @@ IMPLEMENTATION
 	bool onDeserialization()
 */
 
+namespace Legato{
 
 class Serializable{
 public:
@@ -111,6 +112,11 @@ public:
 	
 	//————— ATTRIBUTE DESERIALIZATION
 	
+	bool deserializeAttribute(std::string idString, bool& data){
+		if(!logAttributeDeserializationError(idString)) return false;
+		tinyxml2::XMLError result = xmlElement->QueryBoolAttribute(idString.c_str(), &data);
+		return logAttributeDeserializationResult(result, idString);
+	}
 	bool deserializeAttribute(std::string idString, int& data){
 		if(!logAttributeDeserializationError(idString)) return false;
 		tinyxml2::XMLError result = xmlElement->QueryIntAttribute(idString.c_str(), &data);
@@ -144,7 +150,7 @@ public:
 		data = buffer;
 		return true;
 	}
-
+	
 	
 public:
 	
@@ -200,4 +206,6 @@ protected:
 		}
 		return true;
 	}
+};
+
 };

@@ -25,11 +25,13 @@
 #include "Gui/Fieldbus/EtherCatGui.h"
 
 #include "Animation/NewAnimation/AnimatableRegistry.h"
-
+#include "Nodes/NodeFactory.h"
 
 
 void EnvironnementObject::onConstruction(){
 	Component::onConstruction();
+	
+	setSaveString("Environnement");
 	
 	nodeGraph = NodeGraph::createInstance();
 	nodeGraph->setSaveString("NodeGraph");
@@ -37,6 +39,11 @@ void EnvironnementObject::onConstruction(){
 	nodeGraph->setNodeRemoveCallback([this](std::shared_ptr<Node> node){ removeNode(node); });
 	nodeGraph->setNodeEditorContextMenuCallback(Environnement::Gui::nodeAdderContextMenu);
 	nodeGraph->setNodeDragDropTargetCallback(Environnement::Gui::nodeDragDropTarget);
+	nodeGraph->setNodeConstructor([](Legato::Serializable& abstractEntry){
+		std::string className;
+		abstractEntry.deserializeAttribute("ClassName", className);
+		return NodeFactory::getNodeByClassName(className);
+	});
 	
 	animatableRegistry = std::make_shared<AnimationSystem::AnimatableRegistry>();
 	

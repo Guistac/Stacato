@@ -23,23 +23,10 @@ class NodePin : public Legato::Component{
  
 public:
 	 
-	 virtual bool onSerialization() override {
-		 bool success = true;
-		 return success;
-	 }
-	 
-	 virtual bool onDeserialization() override {
-		 bool success = true;
-		 return success;
-	 }
-	 
-	 virtual void onConstruction() override {
-		 Component::onConstruction();
-	 }
-	 
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		 Component::onCopyFrom(source);
-	 }
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
 public:
 	

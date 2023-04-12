@@ -10,7 +10,7 @@ class LayoutList : public Legato::FileComponent{
 	
 public:
 	
-	SerializableList<Layout> layouts;
+	Legato::SerializableList<Layout> layouts;
 	
 	std::shared_ptr<Layout> currentLayout = nullptr;
 	std::shared_ptr<Layout> defaultLayout = nullptr;

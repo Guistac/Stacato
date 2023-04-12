@@ -7,6 +7,62 @@
 
 #include <tinyxml2.h>
 
+
+bool NodePin::onSerialization() {
+	Component::onSerialization();
+	
+	serializeAttribute("UniqueID", getUniqueID());
+	serializeAttribute("SaveString", getSaveString());
+	serializeAttribute("DataType", Enumerator::getSaveString(dataType));
+	serializeAttribute("Visible", isVisible());
+	
+	if (b_acceptsMultipleInputs)
+		serializeAttribute("AcceptsMultipleConnections", true);
+	if (b_disablePin)
+		serializeAttribute("Disabled", true);
+	if (b_noDataField)
+		serializeAttribute("NoDataField", true);
+	if (b_forceDataField)
+		serializeAttribute("ForceDataField", true);
+	if (b_disableDataField)
+		serializeAttribute("DisableDataField", true);
+	
+	return true;
+}
+
+bool NodePin::onDeserialization() {
+	Component::onDeserialization();
+	
+	deserializeAttribute("UniqueID", uniqueID);
+	deserializeAttribute("SaveString", saveString);
+	
+	std::string dataTypeString;
+	deserializeAttribute("DataType", dataTypeString);
+	if(Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString.c_str())){
+		dataType = Enumerator::getEnumeratorFromSaveString<NodePin::DataType>(dataTypeString.c_str());
+	}
+	
+	deserializeAttribute("Visible", b_visible);
+	
+	//loading these is not mandatory
+	deserializeAttribute("AcceptsMultipleConnections", b_acceptsMultipleInputs);
+	deserializeAttribute("Disabled", b_disablePin);
+	deserializeAttribute("NoDataField", b_noDataField);
+	deserializeAttribute("ForceDataField", b_forceDataField);
+	deserializeAttribute("DisableDataField", b_disableDataField);
+	
+	return true;
+}
+
+void NodePin::onConstruction() {
+	Component::onConstruction();
+}
+
+void NodePin::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+	Component::onCopyFrom(source);
+}
+
+
 void NodePin::disconnectAllLinks() {
 	for(int i = (int)nodeLinks.size() - 1; i >= 0; i--){
 		nodeLinks[i]->disconnect();
@@ -16,9 +72,9 @@ void NodePin::disconnectAllLinks() {
 const char* NodePin::getValueString() {
 	static char output[32];
 	switch (dataType) {
-		case DataType::BOOLEAN: sprintf(output, "%s", read<bool>() ? "true" : "false");
-		case DataType::INTEGER: sprintf(output, "%i", read<int>()); break;
-		case DataType::REAL: sprintf(output, "%.5f", read<double>()); break;
+		case DataType::BOOLEAN: snprintf(output, 32, "%s", read<bool>() ? "true" : "false");
+		case DataType::INTEGER: snprintf(output, 32, "%i", read<int>()); break;
+		case DataType::REAL: snprintf(output, 32, "%.5f", read<double>()); break;
 		default: return "No Value";
 	}
 	return (const char*)output;
@@ -62,19 +118,7 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
 }
 
 /*
-bool NodePin::save(tinyxml2::XMLElement* xml) {
-	xml->SetAttribute("SaveString", getSaveString());
-	xml->SetAttribute("DisplayString", getDisplayString());
-	xml->SetAttribute("DataType", Enumerator::getSaveString(dataType));
-	xml->SetAttribute("UniqueID", getUniqueID());
-	xml->SetAttribute("Visible", isVisible());
-	if (b_acceptsMultipleInputs) xml->SetAttribute("AcceptsMultipleInputs", true);
-	if (b_disablePin) xml->SetAttribute("DisablePin", true);
-	if (b_noDataField) xml->SetAttribute("NoDataField", true);
-	if (b_forceDataField) xml->SetAttribute("ForceDataField", true);
-	if (b_disableDataField) xml->SetAttribute("DisableDataField", true);
-	return true;
-}
+
 
 bool NodePin::load(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
