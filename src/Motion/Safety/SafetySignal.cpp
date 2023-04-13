@@ -23,6 +23,11 @@ void SafetySignal::onConstruction(){
 										  "State LED Signal", "StateLEDSignal");
 	
 	
+	faultResetPulseTime = Legato::NumberParameter<double>::createInstance(0.0, "Fault Reset Pulse Time", "FaultResetPulseTime");
+	faultResetPulseTime->setUnit(Units::Time::Second);
+	unclearedFaultLedBlinkFrequency = Legato::NumberParameter<double>::createInstance(0.0, "Uncleared Fault LED Blink Frequency", "UnclearedFaultLedBlinkFrequency");
+	unclearedFaultLedBlinkFrequency->setUnit(Units::Frequency::Hertz);
+	
 	addNodePin(gpioPin);
 	addNodePin(safetyLineValidPin);
 	addNodePin(safetyStateValidPin);
@@ -98,10 +103,10 @@ void SafetySignal::inputProcess(){
 			*stateLedSignal = false;
 			break;
 		case State::EMERGENCY_STOP:
-            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->value);
+            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->getValue());
             break;
 		case State::UNCLEARED_SAFETY_FAULT:{
-            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->value);
+            *stateLedSignal = Timing::getBlink(1.0 / unclearedFaultLedBlinkFrequency->getValue());
 			}break;
 	}
 	
@@ -114,19 +119,22 @@ void SafetySignal::inputProcess(){
 bool SafetySignal::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 
+	/*
 	XMLElement* settingsXML = xml->InsertNewChildElement("Settings");
 	faultResetPulseTime->save(settingsXML);
 	unclearedFaultLedBlinkFrequency->save(settingsXML);
 	
 	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
-	
+	*/
+	 
 	return true;
 }
 
 bool SafetySignal::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 
+	/*
 	XMLElement* settingsXML;
 	if(!loadXMLElement("Settings", xml, settingsXML)) return false;
 	if(!faultResetPulseTime->load(settingsXML)) return false;
@@ -138,6 +146,7 @@ bool SafetySignal::load(tinyxml2::XMLElement* xml){
 		Logger::warn("could not load dead mans switch control widget unique id");
 		return false;
 	}
+	*/
 	
 	return true;
 	

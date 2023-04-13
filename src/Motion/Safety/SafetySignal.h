@@ -3,6 +3,8 @@
 #include "Environnement/NodeGraph/Node.h"
 #include "Gui/Environnement/Dashboard/Widget.h"
 
+#include "Legato/Editor/Parameters.h"
+
 class SafetySignal : public Node {
 public:
 	
@@ -56,19 +58,8 @@ private:
 	bool b_isResettingFault = false;
 	long long resetPulseStartTime = 0;
 	
-	std::shared_ptr<NumberParameter<double>> faultResetPulseTime = NumberParameter<double>::make(0.0,
-																								 "Fault Reset Pulse Time",
-																								 "FaultResetPulseTime",
-																								 "%.2f",
-																								 Units::Time::Second,
-																								 false);
-	
-	std::shared_ptr<NumberParameter<double>> unclearedFaultLedBlinkFrequency = NumberParameter<double>::make(0.0,
-                                                                                                        "Uncleared Fault LED Blink Frequency",
-                                                                                                        "UnclearedFaultLedBlinkFrequency",
-                                                                                                        "%.2f",
-                                                                                                        Units::Frequency::Hertz,
-                                                                                                        false);
+	Legato::NumberParam<double> faultResetPulseTime;
+	Legato::NumberParam<double> unclearedFaultLedBlinkFrequency;
 	
 	class ControlWidget : public Widget{
 	public:

@@ -211,6 +211,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Project.h
 
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/StringParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/NumberParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/BooleanParameter.h

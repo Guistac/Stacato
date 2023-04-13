@@ -46,7 +46,7 @@ void SafetySignal::widgetGui(){
 			backgroundText("Offline", blockSize, Colors::blue, Colors::white);
 			break;
 		case State::EMERGENCY_STOP:{
-			double blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->value;
+			double blinkTimeSeconds = 1.0 / unclearedFaultLedBlinkFrequency->getValue();
 			bool blinkState = fmod(Timing::getProgramTime_seconds(), blinkTimeSeconds) < blinkTimeSeconds * 0.5;
 			backgroundText("E-STOP", blockSize, blinkState ? Colors::yellow : Colors::red, Colors::black);
 			}break;

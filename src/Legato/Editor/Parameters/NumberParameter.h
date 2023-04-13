@@ -182,4 +182,7 @@ private:
 	T* stepLargePtr;
 };
 
+template<typename T>
+using NumberParam = std::shared_ptr<NumberParameter<T>>;
+
 };
