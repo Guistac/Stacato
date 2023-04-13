@@ -60,7 +60,8 @@ public:
 	bool b_waitingForEnable = false;
 	bool b_reverseDirection = false;
 	
-	bool b_disableLimitSwitches = false; //[CLS] clear limit switches if they cause problems
+	bool b_disableLimitSwitches = false; //[cls] clear limit switches if they cause problems
+	bool b_canDisableLimitSwitches = false; //only available if [cls] can actually be assigned
 	
 	bool b_referenceReached = false;
 	bool b_referenceOutsideLimits = false;

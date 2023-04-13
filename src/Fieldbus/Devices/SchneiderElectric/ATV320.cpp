@@ -155,7 +155,8 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2036, 0x2, 1)) return false;
 	
 	//[cls] set disable limit switch input to bit 11 of control word
-	if(!writeSDO_U16(0x205F, 0x8, 219)) return false;
+	b_canDisableLimitSwitches = writeSDO_U16(0x205F, 0x8, 219);
+	b_disableLimitSwitches = false;
 	
 	//—————————————— ASSIGN PDOS —————————————————
 	

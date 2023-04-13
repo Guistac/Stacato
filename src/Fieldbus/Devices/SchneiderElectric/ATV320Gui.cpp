@@ -63,7 +63,9 @@ void ATV320::controlsGui(){
 	ImColor centerColor = b_referenceReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
 	drawing->AddRectFilled(minCenter, maxCenter, centerColor, 2.0);
 	
+	ImGui::BeginDisabled(!b_canDisableLimitSwitches);
 	ImGui::Checkbox("Disable Limit Switches", &b_disableLimitSwitches);
+	ImGui::EndDisabled();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Drive State:");
