@@ -12,7 +12,8 @@ public:
 	
 	static std::shared_ptr<StringParameter> createInstance(std::string value, std::string name, std::string saveString, size_t bufferSize = 128){
 		auto newParameter = StringParameter::createInstance();
-		newParameter->displayValue = new char[bufferSize]; //TODO: the default createInstance() should not exist since it doenst initialize the buffer
+		delete newParameter->displayValue;
+		newParameter->displayValue = new char[bufferSize];
 		newParameter->bufferSize = bufferSize;
 		newParameter->setName(name);
 		newParameter->setSaveString(saveString);
@@ -20,7 +21,7 @@ public:
 	}
 	
 	static std::shared_ptr<StringParameter> createInstanceWithoutNameParameter(){
-		std::shared_ptr<StringParameter> instance = std::shared_ptr<StringParameter>(new StringParameter(false));
+		std::shared_ptr<StringParameter> instance = std::shared_ptr<StringParameter>(new StringParameter(true));
 		instance->onConstruction();
 		return instance;
 	}
@@ -83,7 +84,8 @@ private:
 	
 	virtual void onConstruction() override {
 		Parameter::onConstruction();
-		value = "Default Value";
+		displayValue = new char[128];
+		bufferSize = 128;
 	}
 	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {

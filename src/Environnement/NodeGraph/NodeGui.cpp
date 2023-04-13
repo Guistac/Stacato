@@ -8,6 +8,8 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
+#include "Legato/Editor/Parameters/StringParameter.h"
+
 namespace NodeEditor = ax::NodeEditor;
 
 float Node::getTitleWidth() {
@@ -282,8 +284,7 @@ void Node::propertiesGui() {
                         ImGui::PopID();
                         ImGui::TableSetColumnIndex(1);
                         ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 10.0);
-                        //ImGui::InputText("##NameEdit", data->displayString, 64);
-						ImGui::TextColored(Colors::gray, "%s", data->getName().c_str());
+						data->nameParameter->gui();
                         ImGui::TableSetColumnIndex(2);
                         ImGui::Text("%s", Enumerator::getDisplayString(data->dataType));
                         ImGui::TableSetColumnIndex(3);
@@ -296,9 +297,7 @@ void Node::propertiesGui() {
             };
 
             ImGui::Text("Node Name");
-			//nameParameter->gui();
-			ImGui::TextColored(Colors::red, "This could break and should be a parameter field in the future");
-            //ImGui::InputText("##nodeCustomName", (char*)getName().c_str(), 128);
+			nameParameter->gui();
 
             if (getType() == Node::Type::IODEVICE) {
                 ImGui::Checkbox("Split Inputs and Outputs", &b_isSplit);

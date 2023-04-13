@@ -7,7 +7,6 @@
 
 void Node::onConstruction() {
 	Component::onConstruction();
-	setSaveString("Node");
 	inputPins = Legato::ListComponent<NodePin>::createInstance();
 	inputPins->setSaveString("InputPins");
 	inputPins->setEntrySaveString("Pin");

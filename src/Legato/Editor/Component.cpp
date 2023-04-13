@@ -12,7 +12,10 @@
 namespace Legato{
 
 void Component::setName(std::string name){
-	if(b_hasNameParameter) nameParameter->overwrite(name);
+	if(b_hasNameParameter) {
+		nameParameter->overwrite(name);
+		nameParameter->onEdit();
+	}
 	else nonParametricName = name;
 }
 

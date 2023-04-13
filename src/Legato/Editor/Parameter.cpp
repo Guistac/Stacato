@@ -7,8 +7,8 @@ namespace Legato{
 
 void Parameter::onConstruction() {
 	Component::onConstruction();
-	nameParameter->addEditCallback([this](){
-		imGuiID = "##" + nameParameter->getValue();
+	addEditCallback([this](){
+		imGuiID = "##" + getName();
 	});
 }
 
