@@ -111,43 +111,6 @@ bool NodePin::isDataTypeCompatible(std::shared_ptr<NodePin> other){
 	}
 }
 
-/*
-
-
-bool NodePin::load(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-
-	//here we load SaveName again, this should not be necessary since we already matched it or it was declared in the static object pin?
-	const char* savestr;
-	if (xml->QueryStringAttribute("SaveString", &savestr) != XML_SUCCESS) return Logger::warn("Could not load Pin SaveName");
-	strcpy(saveString, savestr);
-	const char* displaystr;
-	if (xml->QueryStringAttribute("DisplayString", &displaystr) != XML_SUCCESS) return Logger::warn("Could not load Pin DisplayName");
-	strcpy(displayString, displaystr);
-
-	int pinUniqueID;
-	if (xml->QueryIntAttribute("UniqueID", &pinUniqueID) != XML_SUCCESS) return Logger::warn("Could not load Pin ID");
-	uniqueID = pinUniqueID;
-
-	//here we load dataType again, this should not be necessary since we already matched it or an object declared the type on construction
-	const char* dataTypeString;
-	if (xml->QueryStringAttribute("DataType", &dataTypeString) != XML_SUCCESS) return Logger::warn("Could not load Pin Datatype");
-	if (!Enumerator::isValidSaveName<NodePin::DataType>(dataTypeString)) return Logger::warn("Could not read Pin DataType");
-	dataType = Enumerator::getEnumeratorFromSaveString<NodePin::DataType>(dataTypeString);
-
-	if (xml->QueryBoolAttribute("Visible", &b_visible) != XML_SUCCESS) return Logger::warn("Could not load pin visibility");
-
-	//these are optionnally defined, so we don't do success checking
-	xml->QueryBoolAttribute("AcceptsMultipleInputs", &b_acceptsMultipleInputs);
-	xml->QueryBoolAttribute("DisablePin", &b_disablePin);
-	xml->QueryBoolAttribute("NoDataField", &b_noDataField);
-	xml->QueryBoolAttribute("ForceDataField", &b_forceDataField);
-	xml->QueryBoolAttribute("DisableDataField", &b_disableDataField);
-
-	return true;
-}
- */
-
 bool NodePin::matches(std::string& saveStr, NodePin::DataType type) {
 	return saveStr == saveString && type == dataType;
 }
@@ -174,13 +137,15 @@ bool NodePin::isConnectionValid(std::shared_ptr<NodePin> otherPin){
 	return isDataTypeCompatible(otherPin);
 }
 
-std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
+std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin, int UID){
 	
 	if (!isConnectionValid(otherPin)) return nullptr;
 	
-	
 	std::shared_ptr<NodeLink> newLink = NodeLink::createInstance();
-	newLink->uniqueID = getNode()->nodeGraph->getNewUniqueID();
+	
+	if(UID == -1) newLink->uniqueID = getNode()->nodeGraph->getNewUniqueID();
+	else newLink->uniqueID = UID;
+	
 	newLink->nodeGraph = parentNode->nodeGraph;
 	
 	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
@@ -195,7 +160,6 @@ std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin){
 	
 	newLink->inputPin->parentNode->onPinConnection(newLink->inputPin);
 	newLink->outputPin->parentNode->onPinConnection(newLink->outputPin);
-	
 	
 	getNode()->nodeGraph->addLink(newLink);
 	

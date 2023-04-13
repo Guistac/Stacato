@@ -8,12 +8,10 @@ void NodeGraph::onConstruction() {
 	nodeList = Legato::ListComponent<Node>::createInstance();
 	nodeList->setSaveString("NodeList");
 	nodeList->setEntrySaveString("Node");
-	//nodelist entry constructor is set by setNodeConstructor();
 	
 	linkList = Legato::ListComponent<NodeLink>::createInstance();
 	linkList->setSaveString("LinkList");
 	linkList->setEntrySaveString("Link");
-	linkList->setEntryConstructor([](Legato::Serializable& abstractEntry){ return NodeLink::createInstance(); });
 	
 }
 
@@ -45,73 +43,78 @@ bool NodeGraph::onSerialization(){
 bool NodeGraph::onDeserialization(){
 	//Component::onDeserialization();
 	
-	std::shared_ptr<Legato::ListComponent<Node>> temporaryNodeList = Legato::ListComponent<Node>::createInstance();
-	temporaryNodeList->setSaveString("NodeList");
-	temporaryNodeList->setEntrySaveString("Node");
-	temporaryNodeList->setEntryConstructor(nodeConstructor);
+	uniqueIdCounter = 1;
 	
-	//load all nodes
-	temporaryNodeList->deserializeFromParent(this);
+	//clear all containers
+	nodeList->clear();
+	linkList->clear();
+	selectedLinks.clear();
+	selectedNodes.clear();
+	
+	//load all nodes into temporary list
+	std::shared_ptr<Legato::ListComponent<Node>> loadedNodeList = Legato::ListComponent<Node>::createInstance();
+	loadedNodeList->setSaveString("NodeList");
+	loadedNodeList->setEntrySaveString("Node");
+	loadedNodeList->setEntryConstructor(nodeConstructor);
+	loadedNodeList->deserializeFromParent(this);
 	
 	//load all node pin
-	for(auto node : temporaryNodeList->getEntries()){
-		node->loadPins();
+	for(auto loadedNode : loadedNodeList->getEntries()){
+		loadedNode->loadPins();
 	}
 	
 	//add all nodes to nodegraph
-	for(auto node : temporaryNodeList->getEntries()){
-		addNode(node);
+	for(auto loadedNode : loadedNodeList->getEntries()){
+		addNode(loadedNode);
 	}
 	
 	//load all links into a temporary list
-	std::shared_ptr<Legato::ListComponent<NodeLink>> abstractLinkList = Legato::ListComponent<NodeLink>::createInstance();
-	abstractLinkList->setSaveString("LinkList");
-	abstractLinkList->setEntrySaveString("Link");
-	abstractLinkList->setEntryConstructor([](Legato::Serializable& abstractEntry){ return NodeLink::createInstance(); });
-	abstractLinkList->deserializeFromParent(this);
+	std::shared_ptr<Legato::ListComponent<NodeLink>> loadedLinkList = Legato::ListComponent<NodeLink>::createInstance();
+	loadedLinkList->setSaveString("LinkList");
+	loadedLinkList->setEntrySaveString("Link");
+	loadedLinkList->setEntryConstructor([](Legato::Serializable& abstractEntry){ return NodeLink::createInstance(); });
+	loadedLinkList->deserializeFromParent(this);
 	
 	//connect all links
-	for(auto abstractLink : abstractLinkList->getEntries()){
-		auto inputPin = getPin(abstractLink->inputPinID);
-		auto outputPin = getPin(abstractLink->outputPinID);
-		if(inputPin && outputPin){
-			inputPin->connectTo(outputPin);
-		}
+	for(auto loadedLink : loadedLinkList->getEntries()){
+		auto inputPin = getPin(loadedLink->inputPinID);
+		auto outputPin = getPin(loadedLink->outputPinID);
+		registerUniqueID(loadedLink->uniqueID);
+		if(inputPin && outputPin) inputPin->connectTo(outputPin, loadedLink->uniqueID);
 	}
 
 	//let all nodes load data that is only relevant after all links are connected
 	for(auto node : nodeList->getEntries()){
 		node->loadAfterPinConnection();
 	}
+		
+	checkForUniqueIDConflicts();
+	Logger::trace("[NodeGraph] Largest UID : {}", uniqueIdCounter);
 	
-	//TODO: we need to keep track of the highest uniqueID to continue counting from there
-	
-	/*
-	 int largestUniqueID = 0;
-	 if (nodeUniqueID > largestUniqueID) largestUniqueID = nodeUniqueID;
-	 startCountingUniqueIDsFrom(largestUniqueID);
-	 Logger::trace("Largest unique ID is {}", largestUniqueID);
-	 Logger::info("Successfully loaded Node Graph");
-	 */
+	b_justLoaded = true;
 	
 	return true;
 }
 
 
 void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
+	
 	if(newNode->uniqueID == -1) newNode->uniqueID = getNewUniqueID();
+	else registerUniqueID(newNode->uniqueID);
+	
 	newNode->nodeGraph = std::static_pointer_cast<NodeGraph>(shared_from_this());
 	nodeList->addEntry(newNode);
-	for (std::shared_ptr<NodePin> pin : newNode->getInputPins()) {
-		if(pin->uniqueID == -1) {
-			pin->uniqueID = getNewUniqueID();
-		}
-	}
-	for (std::shared_ptr<NodePin> pin : newNode->getOutputPins()) {
-		if(pin->uniqueID == -1) {
-			pin->uniqueID = getNewUniqueID();
-		}
-	}
+	
+	auto handleNodePinIDs = [this](std::vector<std::shared_ptr<NodePin>> pins){
+		for(auto pin : pins){
+			if(pin->uniqueID == -1) pin->uniqueID = getNewUniqueID();
+			else registerUniqueID(pin->uniqueID);
+		};
+	};
+	
+	handleNodePinIDs(newNode->getInputPins());
+	handleNodePinIDs(newNode->getOutputPins());
+	
 	newNode->onAddToNodeGraph();
 	nodeAddCallback(newNode);
 }
@@ -170,3 +173,34 @@ std::shared_ptr<NodeLink> NodeGraph::getLink(int Id) {
 	return nullptr;
 }
 
+
+void NodeGraph::checkForUniqueIDConflicts(){
+	
+	auto findMatchingIDCount = [this](int testedID){
+		int matchingIdCount = 0;
+		for(auto node : nodeList->getEntries()){
+			if(node->uniqueID == testedID) matchingIdCount++;
+			for(auto pin : node->getInputPins()){
+				if(pin->uniqueID == matchingIdCount) matchingIdCount++;
+			}
+			for(auto pin : node->getOutputPins()){
+				if(pin->uniqueID == testedID) matchingIdCount++;
+			}
+		}
+		for(auto link : linkList->getEntries()){
+			if(link->uniqueID == testedID) matchingIdCount++;
+		}
+		
+		if(matchingIdCount > 1){
+			Logger::critical("Unique ID {} was found {} times", testedID, matchingIdCount);
+		}
+	};
+	
+	for(auto node : nodeList->getEntries()){
+		findMatchingIDCount(node->uniqueID);
+		for(auto pin : node->getInputPins()) findMatchingIDCount(pin->uniqueID);
+		for(auto pin : node->getOutputPins()) findMatchingIDCount(pin->uniqueID);
+	}
+	for(auto link : linkList->getEntries()) findMatchingIDCount(link->uniqueID);
+
+}

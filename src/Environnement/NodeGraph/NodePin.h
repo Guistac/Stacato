@@ -135,7 +135,7 @@ public:
 	void disconnectAllLinks();
 	void setVisible(bool v) { b_visible = v; }
 	bool isConnectionValid(std::shared_ptr<NodePin> otherPin);
-	std::shared_ptr<NodeLink> connectTo(std::shared_ptr<NodePin> otherPin);
+	std::shared_ptr<NodeLink> connectTo(std::shared_ptr<NodePin> otherPin, int UID = -1);
 	
 	//nodegraph
 	int getUniqueID() { return uniqueID; }

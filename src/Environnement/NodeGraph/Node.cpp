@@ -27,13 +27,6 @@ bool Node::onSerialization() {
 	serializeAttribute("UniqueID", getUniqueID());
 	serializeAttribute("ClassName", getClassName());
 	serializeAttribute("NodeType", Enumerator::getSaveString(getType()));
-	
-	/*
-	if(getType() == Type::IODEVICE){
-		auto thisDevice = std::static_pointer_cast<Device>(shared_from_this());
-		serializeAttribute("DeviceType", getDeviceType(thisDevice->getDeviceType())->saveName);
-	}
-	*/
 	 
 	Serializable positionXML;
 	positionXML.setSaveString("NodeGraphPosition");
@@ -66,13 +59,7 @@ bool Node::onDeserialization() {
 	Serializable positionSerializable;
 	positionSerializable.setSaveString("NodeGraphPosition");
 	positionSerializable.deserializeFromParent(this);
-	
-	std::string nodeTypeString;
-	deserializeAttribute("NodeType", nodeTypeString);
-	if(Enumerator::isValidSaveName<Node::Type>(nodeTypeString.c_str())){
-		Node::Type nodeType = Enumerator::getEnumeratorFromSaveString<Node::Type>(nodeTypeString.c_str());
-		if(nodeType == Node::Type::IODEVICE) positionSerializable.deserializeAttribute("Split", b_isSplit);
-	}
+	positionSerializable.deserializeAttribute("Split", b_isSplit);
 	
 	if(isSplit()){
 		positionSerializable.deserializeAttribute("inputX", savedPosition.x);
@@ -104,16 +91,15 @@ bool Node::loadPins(){
 	abstractInputPins->deserializeFromParent(this);
 	abstractOutputPins->deserializeFromParent(this);
 	
+	//match the temporary pins with pins create or loaded by the node
+	//and transfer all information to the node pins
 	auto matchLoadedPinsToNodePins = [](std::vector<std::shared_ptr<NodePin>>& loadedPins, std::vector<std::shared_ptr<NodePin>>& nodePins) -> bool {
 		for(auto& nodePin : nodePins){
 			bool b_nodePinIdentifiedInLoadedPins = false;
 			for(auto loadedPin : loadedPins){
 				if(loadedPin->getSaveString() != nodePin->getSaveString()) continue;
 				if(loadedPin->dataType != nodePin->dataType) continue;
-				loadedPin->direction = nodePin->direction;
-				loadedPin->pointer = nodePin->pointer;
-				loadedPin->parentNode = nodePin->parentNode;
-				nodePin = loadedPin;
+				nodePin->uniqueID = loadedPin->uniqueID;
 				b_nodePinIdentifiedInLoadedPins = true;
 				break;
 			}
@@ -121,9 +107,6 @@ bool Node::loadPins(){
 		}
 		return true;
 	};
-	
-	//match the temporary pins with pins create or loaded by the node
-	//and transfer all information to the node pins
 	matchLoadedPinsToNodePins(abstractInputPins->getEntries(), inputPins->getEntries());
 	matchLoadedPinsToNodePins(abstractOutputPins->getEntries(), outputPins->getEntries());
 	
@@ -146,7 +129,7 @@ void Node::addNodePin(std::shared_ptr<NodePin> pin) {
 	
 	pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
 	
-	//if a pins gets added after if the node is already on the editor, this handles everything
+	//if a pins gets added after if the node is already in the nodegraph, this handles everything
 	if (nodeGraph != nullptr) {
 		pin->uniqueID = nodeGraph->getNewUniqueID();
 		pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());

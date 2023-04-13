@@ -274,16 +274,13 @@ void NodeGraph::editorGui(ImVec2 size){
 			}
 		}
 	}
-
-
-/*
-	if (getWasJustLoaded()) {
-		getWasJustLoaded() = false;
+	
+	if(b_justLoaded){
+		b_justLoaded = false;
 		for (auto node : getNodes()) node->restoreSavedPosition();
 		centerView();
 		showFlow();
 	}
-*/
  
 }
 
