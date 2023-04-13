@@ -196,7 +196,8 @@ void ATV320::readInputs() {
 	
 	if(b_waitingForEnable){
 		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
-		if(axis->isEnabled()) {
+		//for some reason switched on is sometimes a valid 'enabled' power state with ATV320
+		if(axis->getActualPowerState() == DS402Axis::PowerState::OPERATION_ENABLED || axis->getActualPowerState() == DS402Axis::PowerState::SWITCHED_ON) {
 			Logger::info("Drive Enabled");
 			b_waitingForEnable = false;
 		}

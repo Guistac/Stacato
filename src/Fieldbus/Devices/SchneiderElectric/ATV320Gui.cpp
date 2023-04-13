@@ -45,7 +45,8 @@ void ATV320::controlsGui(){
 	glm::vec2 sizeIndicator = ImGui::GetItemRectSize();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGuiCol_Button), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	float velocityNormalized = (float)axis->getActualVelocity() / maxVel;
+	//float velocityNormalized = (float)axis->getActualVelocity() / maxVel;
+	float velocityNormalized = (float)actuator->actuatorProcessData.velocityTarget / maxVel;
 	float sizeIndicatorWidthHalf = sizeIndicator.x / 2.0;
 	float velocityWidth = velocityNormalized * sizeIndicatorWidthHalf;
 	if(velocityNormalized > 0.0f){
