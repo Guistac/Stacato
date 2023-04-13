@@ -206,10 +206,18 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/FileComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameter.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListComponent.h
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/StringParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Project.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/StringParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/NumberParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/BooleanParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/VectorParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/OptionParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/TimeParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameters/ParameterImplementation.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui_Private.h

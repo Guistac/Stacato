@@ -73,7 +73,7 @@ public:
 	void setMutex(std::recursive_mutex* mutex_){ mutex = mutex_; }
 	void lockMutex(){ if(mutex) mutex->lock(); }
 	void unlockMutex(){ if(mutex) mutex->unlock(); }
-	
+	 
 private:
 	std::function<void(std::shared_ptr<Parameter>)> editCallback;
 	std::vector<std::function<void()>> editCallbacks;

@@ -1,0 +1,119 @@
+#pragma once
+
+#include "../Parameter.h"
+
+namespace Legato{
+
+class StringParameter : public Parameter{
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StringParameter)
+	
+public:
+	
+	static std::shared_ptr<StringParameter> createInstance(std::string value, std::string name, std::string saveString, size_t bufferSize = 128){
+		auto newParameter = StringParameter::createInstance();
+		newParameter->displayValue = new char[bufferSize]; //TODO: the default createInstance() should not exist since it doenst initialize the buffer
+		newParameter->bufferSize = bufferSize;
+		newParameter->setName(name);
+		newParameter->setSaveString(saveString);
+		newParameter->overwrite(value);
+	}
+	
+	static std::shared_ptr<StringParameter> createInstanceWithoutNameParameter(){
+		std::shared_ptr<StringParameter> instance = std::shared_ptr<StringParameter>(new StringParameter(false));
+		instance->onConstruction();
+		return instance;
+	}
+	
+	const std::string& getValue(){ return value; }
+	
+	virtual void onGui() override;
+	
+	void overwrite(std::string newValue){
+		strcpy(displayValue, newValue.c_str());
+		value = newValue;
+	}
+	
+	
+	void overwriteWithHistory(std::string newValue){
+		overwrite(newValue);
+		/*
+		if(value == newValue) return;
+		value = newValue;
+		//=========Command Invoker=========
+		std::shared_ptr<StringParameter> thisParameter = std::static_pointer_cast<StringParameter>(shared_from_this());
+		std::string commandName = "Changed " + std::string(getName()) + " from \'" + value + "\' to \'" + displayValue + "\'";
+		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		//=================================
+		*/
+	}
+	
+	/*
+	class EditCommand : public UndoableCommand{
+	public:
+		std::shared_ptr<StringParameter> parameter;
+		std::string newValue;
+		std::string previousValue;
+		EditCommand(std::shared_ptr<StringParameter> parameter_, std::string& commandName) : UndoableCommand(commandName){
+			parameter = parameter_;
+			newValue = parameter->displayValue;
+			previousValue = parameter->value;
+		}
+		void setNewValue(){
+			parameter->lockMutex();
+			parameter->value = newValue;
+			strcpy(parameter->displayValue, newValue.c_str());
+			parameter->unlockMutex();
+		}
+		void setOldValue(){
+			parameter->lockMutex();
+			parameter->value = previousValue;
+			strcpy(parameter->displayValue, previousValue.c_str());
+			parameter->unlockMutex();
+		}
+		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+		virtual void onUndo(){ setOldValue(); }
+		virtual void onRedo(){ setNewValue(); }
+	};
+	*/
+	
+private:
+	
+	StringParameter(bool withoutNameParameter) : Parameter(withoutNameParameter){}
+	
+	virtual void onConstruction() override {
+		Parameter::onConstruction();
+		value = "Default Value";
+	}
+	
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		Parameter::onCopyFrom(source);
+		auto original = std::static_pointer_cast<StringParameter>(source);
+		overwrite(original->getValue());
+	}
+	
+	virtual bool onSerialization() override {
+		bool success = true;
+		success &= Parameter::onSerialization();
+		success &= serializeAttribute("Value", value);
+		return success;
+	}
+	
+	virtual bool onDeserialization() override {
+		bool success = true;
+		success &= Parameter::onDeserialization();
+		success &= deserializeAttribute("Value", value);
+		overwrite(value);
+		return success;
+	}
+	
+private:
+	
+	char* displayValue;
+	size_t bufferSize;
+	std::string value;
+};
+
+
+}
+

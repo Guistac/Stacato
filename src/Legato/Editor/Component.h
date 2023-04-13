@@ -41,10 +41,11 @@ IMPLEMENTATION EXAMPLE
  
 */
 
-class NewStringParameter;
 class ProjectComponent;
 
 namespace Legato{
+
+class StringParameter;
 
 	class Component : public PrototypeBase, public Serializable{
 		
@@ -85,7 +86,7 @@ namespace Legato{
 		bool b_hasNameParameter = true;
 		Component(bool withoutNameParameter){ b_hasNameParameter = false; }
 		
-		std::shared_ptr<NewStringParameter> nameParameter;
+		std::shared_ptr<StringParameter> nameParameter;
 		
 	private:
 		std::string nonParametricName;
