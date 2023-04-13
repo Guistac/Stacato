@@ -24,33 +24,21 @@ void DeadMansSwitch::onConstruction(){
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
 	addNodePin(deadMansSwitchLink);
 	
-	requestTimeoutDelay = NumberParameter<double>::make(5.0,
-														"Press Request Timeout Delay",
-														"PressReuqestTimeoutDelay",
-														"%.1f",
-														Units::Time::Second,
-														false);
+	requestTimeoutDelay = Legato::NumberParameter<double>::createInstance(5.0, "Press Request Timeout Delay", "PressRequestTimeoutDelay");
+	requestTimeoutDelay->setUnit(Units::Time::Second);
+	requestTimeoutDelay->setFormat("%.1f");
 	
-	requestBlinkFrequency = NumberParameter<double>::make(4.0,
-														  "Request Blink Frequency",
-														  "RequestBlinkFrequency",
-														  "%.1f",
-														  Units::Frequency::Hertz,
-														  false);
+	requestBlinkFrequency = Legato::NumberParameter<double>::createInstance(4.0, "Request Blink Frequency", "RequestBlinkFrequency");
+	requestBlinkFrequency->setUnit(Units::Frequency::Hertz);
+	requestBlinkFrequency->setFormat("%.1f");
 	
-	idleBlinkFrequency = NumberParameter<double>::make(0.5,
-													   "Idle Blink Frequency",
-													   "IdleBlinkFrequency",
-													   "%.2f",
-													   Units::Frequency::Hertz,
-													   false);
+	idleBlinkFrequency = Legato::NumberParameter<double>::createInstance(0.5, "Idle Blink Frequency", "IdleBlinkFrequency");
+	idleBlinkFrequency->setUnit(Units::Frequency::Hertz);
+	idleBlinkFrequency->setFormat("%.2f");
 	
-	idleBlinkLength = NumberParameter<double>::make(0.1,
-													"Idle Blink Length",
-													"IdleBlinkLength",
-													"%.2f",
-													Units::Time::Second,
-													false);
+	idleBlinkLength = Legato::NumberParameter<double>::createInstance(0.1, "Idle Blink Length", "IdleBlinkLength");
+	idleBlinkLength->setUnit(Units::Time::Second);
+	idleBlinkLength->setFormat("%.2f");
 	
 	controlWidget = std::make_shared<ControlWidget>(thisDeadMansSwitch);
 }
@@ -152,60 +140,31 @@ void DeadMansSwitch::updateLedState(){
 
 
 
-bool DeadMansSwitch::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
+bool DeadMansSwitch::onSerialization(){
+	bool success = true;
+	success &= Node::onSerialization();
 	
-	XMLElement* settings = xml->InsertNewChildElement("Settings");
+	success &= requestTimeoutDelay->serializeIntoParent(this);
+	success &= requestBlinkFrequency->serializeIntoParent(this);
+	success &= idleBlinkFrequency->serializeIntoParent(this);
+	success &= idleBlinkLength->serializeIntoParent(this);
 	
-	requestTimeoutDelay->save(settings);
-	requestBlinkFrequency->save(settings);
-	idleBlinkFrequency->save(settings);
-	idleBlinkLength->save(settings);
+	success &= serializeAttribute("ControlWidgetID", controlWidget->uniqueID);
 	
-	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
-	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
-
-	return true;
+	return success;
 }
 
-bool DeadMansSwitch::load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
+bool DeadMansSwitch::onDeserialization(){
+	bool success = true;
+	success &= Node::onDeserialization();
 	
-	XMLElement* controlWidgetXML = xml->FirstChildElement("ControlWidget");
-	if(!controlWidgetXML) {
-		Logger::warn("could not find control widget attribute of dead mans switch");
-		return false;
-	}
+	success &= requestTimeoutDelay->deserializeFromParent(this);
+	success &= requestBlinkFrequency->deserializeFromParent(this);
+	success &= idleBlinkFrequency->deserializeFromParent(this);
+	success &= idleBlinkLength->deserializeFromParent(this);
 	
-	if(controlWidgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS){
-		Logger::warn("could not load dead mans switch control widget unique id");
-		return false;
-	}
+	success &= deserializeAttribute("ControlWidgetID", controlWidget->uniqueID);
 	
-	XMLElement* settingsXml = xml->FirstChildElement("Settings");
-	if(!settingsXml) {
-		Logger::warn("Could not find attribute Settings of dead mans switch");
-		return false;
-	}
-	
-	if(!requestTimeoutDelay->load(settingsXml)){
-		Logger::warn("Could not load attribute requestTimeoutDelay of dead mans switch");
-		return false;
-	}
-	if(!requestBlinkFrequency->load(settingsXml)){
-		Logger::warn("Could not load attribute requestBlinkFrequency of dead mans switch");
-		return false;
-	}
-	if(!idleBlinkFrequency->load(settingsXml)){
-		Logger::warn("Could not load attribute idleBlinkFrequency of dead mans switch");
-		return false;
-	}
-	if(!idleBlinkLength->load(settingsXml)){
-		Logger::warn("Could not load attribute idleBlinkLength of dead mans switch");
-		return false;
-	}
-	
-	return true;
-	
+	return success;
 }
 

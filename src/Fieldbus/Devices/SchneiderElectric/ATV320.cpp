@@ -305,7 +305,9 @@ void ATV320::writeOutputs() {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
+bool ATV320::onSerialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	XMLElement* kinematicsXML = xml->InsertNewChildElement("KinematicLimits");
 	accelerationRampTime->save(kinematicsXML);
@@ -315,9 +317,12 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	slowdownVelocityHertz->save(kinematicsXML);
     lowSpeedHertz->save(kinematicsXML);
 	return true;
+	 */
 }
 
-bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
+bool ATV320::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	XMLElement* kinematicsXML = xml->FirstChildElement("KinematicLimits");
 	if(kinematicsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
@@ -331,6 +336,7 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!slowdownVelocityHertz->load(kinematicsXML)) return false;
     if(!lowSpeedHertz->load(kinematicsXML)) return false;
 	return true;
+	 */
 }
 
 

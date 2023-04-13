@@ -34,12 +34,12 @@ class PsnServer : public NetworkDevice{
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		NetworkDevice::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 public:
 
 	virtual void nodeSpecificGui() override;
-	virtual bool load(tinyxml2::XMLElement* xml) override;
-	virtual bool save(tinyxml2::XMLElement* xml) override;
 	
 	std::shared_ptr<PsnTracker> createNewTracker(std::string name);
 	

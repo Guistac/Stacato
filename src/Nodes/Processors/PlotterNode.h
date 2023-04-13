@@ -36,23 +36,20 @@ public:
 		}
 	}
 
-	virtual bool load(tinyxml2::XMLElement* xml) override {
-		using namespace tinyxml2;
-		Logger::trace("Loading Plotter Node Specific Attributes for node {}", getName());
-		XMLElement* plotterXML = xml->FirstChildElement("Plotter");
-		if (!plotterXML) return Logger::warn("Coulnd't load Plotter attribute of node {}", getName());
-		if (plotterXML->QueryIntAttribute("BufferSize", &bufferSize) != XML_SUCCESS) return Logger::warn("Couldn't load BufferSize Attribute");
-		if (plotterXML->QueryFloatAttribute("DisplayLengthSeconds", &displayLengthSeconds) != XML_SUCCESS) return Logger::warn("Couldn't load DisplayLengthSeconds Attribute");
-		Logger::debug("Successfully Loaded Plotter Node Attributes");
-		return true;
+	virtual bool onSerialization() override {
+		bool success = true;
+		success &= Node::onSerialization();
+		success &= serializeAttribute("BufferSize", bufferSize);
+		success &= serializeAttribute("DisplayLEngthSeconds", displayLengthSeconds);
+		return success;
 	}
-
-	virtual bool save(tinyxml2::XMLElement* xml) override {
-		using namespace tinyxml2;
-		XMLElement* plotterXML = xml->InsertNewChildElement("Plotter");
-		plotterXML->SetAttribute("BufferSize", bufferSize);
-		plotterXML->SetAttribute("DisplayLengthSeconds", displayLengthSeconds);
-		return true;
+	
+	virtual bool onDeserialization() override {
+		bool success = true;
+		success &= Node::onDeserialization();
+		success &= deserializeAttribute("BufferSize", bufferSize);
+		success &= deserializeAttribute("DisplayLEngthSeconds", displayLengthSeconds);
+		return success;
 	}
 	
 	virtual void onConstruction() override {

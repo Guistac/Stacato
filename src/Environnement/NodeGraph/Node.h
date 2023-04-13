@@ -33,7 +33,7 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
 	bool loadPins();
-	virtual bool loadAfterPinConnection() {}
+	virtual bool loadAfterPinConnection() { return true; }
 	
 public:
 
@@ -105,11 +105,6 @@ public:
 	//splitting
 	bool isSplit() { return b_isSplit; }
 	void getSplitNodeGraphPosition(glm::vec2& inputNode, glm::vec2& outputNode);
-
-	//saving & loading
-	virtual bool load(tinyxml2::XMLElement* xml) { return true; }
-	virtual bool save(tinyxml2::XMLElement* xml) { return true; }
-	virtual bool loadAfterLinksConnected(tinyxml2::XMLElement* xml) { return true; }
 
 	int uniqueID = -1;
 

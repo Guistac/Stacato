@@ -323,7 +323,9 @@ void ATV340::writeOutputs() {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
+bool ATV340::onSerialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	
 	if(!pdoConfigParameters.save(xml)) return false;
@@ -333,11 +335,13 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	if(!motorControlParameters.save(xml)) return false;
 	if(!analogIoConfigParameters.save(xml)) return false;
 	if(!digitalIoConfigParameters.save(xml)) return false;
-	
+	*/
 	return true;
 }
 
-bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
+bool ATV340::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	
 	if(!pdoConfigParameters.load(xml)) return false;
@@ -355,7 +359,7 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	for(auto parameter : motorControlParameters.get()) parameter->onEdit();
 	for(auto parameter : digitalIoConfigParameters.get()) parameter->onEdit();
 	for(auto parameter : analogIoConfigParameters.get()) parameter->onEdit();
-	
+	*/
 	return true;
 }
 

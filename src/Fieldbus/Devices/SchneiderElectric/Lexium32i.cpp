@@ -928,7 +928,8 @@ void Lexium32i::setStationAlias(uint16_t a) {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool Lexium32i::saveDeviceData(tinyxml2::XMLElement* xml) {
+bool Lexium32i::onSerialization(){
+	/*
     using namespace tinyxml2;
 
 	XMLElement* motorPropertiesXML = xml->InsertNewChildElement("MotorProperties");
@@ -981,13 +982,13 @@ bool Lexium32i::saveDeviceData(tinyxml2::XMLElement* xml) {
 	
 	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
 	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->supportsHoldingBrakeControl());
-
+*/
     return true;
 }
 
 
-bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
-
+bool Lexium32i::onDeserialization(){
+/*
     using namespace tinyxml2;
 	
 	XMLElement* motorPropertiesXML = xml->FirstChildElement("MotorProperties");
@@ -1069,6 +1070,6 @@ bool Lexium32i::loadDeviceData(tinyxml2::XMLElement* xml) {
 	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");
 	if(holdingBrakeXML == nullptr) return Logger::warn("Could not find holding brake attribute");
 	if(holdingBrakeXML->QueryBoolAttribute("HasHoldingBrake", &servoMotor->actuatorConfig.b_supportsHoldingBrakeControl) != XML_SUCCESS) return Logger::warn("could not find has holdin brake attribute");
-	 
+	 */
     return true;
 }

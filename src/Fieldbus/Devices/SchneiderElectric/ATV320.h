@@ -16,6 +16,8 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	class ATV_Motor : public ActuatorInterface{
 	public:

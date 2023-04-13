@@ -13,19 +13,19 @@ public:
 	
 	virtual void inputProcess() override{};
 	
-	//saving & loading
-	virtual bool load(tinyxml2::XMLElement* xml) override {
-		double val;
-		if(xml->QueryDoubleAttribute("ConstantValue", &val) != tinyxml2::XML_SUCCESS){
-			Logger::warn("could not load constant value");
-			return false;
-		}
-		*constantValue = val;
-		return true;
+	
+	virtual bool onSerialization() override {
+		bool success = true;
+		success &= Node::onSerialization();
+		success &= serializeAttribute("ConstantValue", *constantValue);
+		return success;
 	}
-	virtual bool save(tinyxml2::XMLElement* xml) override {
-		xml->SetAttribute("ConstantValue", *constantValue);
-		return true;
+	
+	virtual bool onDeserialization() override {
+		bool success = true;
+		success &= Node::onDeserialization();
+		success &= deserializeAttribute("ConstantValue", *constantValue);
+		return success;
 	}
 	
 	virtual void onConstruction() override {

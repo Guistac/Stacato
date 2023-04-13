@@ -14,6 +14,8 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		Node::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	std::shared_ptr<bool> safetyStateValidSignal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> safetyLineValidSignal = std::make_shared<bool>(false);
@@ -39,9 +41,6 @@ public:
 	virtual void inputProcess() override;
 	
 	virtual void nodeSpecificGui() override;
-	
-	virtual bool save(tinyxml2::XMLElement* xml) override;
-	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); };

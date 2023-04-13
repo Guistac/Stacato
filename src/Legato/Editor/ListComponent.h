@@ -73,12 +73,17 @@ private:
 			abstractEntry.setSaveString(entrySaveString);
 			abstractEntry.xmlElement = entryXML;
 			
-			std::shared_ptr<T> loadedEntry = constructor(abstractEntry);
-			loadedEntry->xmlElement = entryXML;
-			loadedEntry->setSaveString(entrySaveString);
 			
-			if(loadedEntry->onDeserialization()) std::vector<std::shared_ptr<T>>::push_back(loadedEntry);
-			else b_allEntriesLoaded = false;
+			
+			if(std::shared_ptr<T> loadedEntry = constructor(abstractEntry)){
+				loadedEntry->xmlElement = entryXML;
+				loadedEntry->setSaveString(entrySaveString);
+				
+				if(loadedEntry->onDeserialization()) std::vector<std::shared_ptr<T>>::push_back(loadedEntry);
+				else b_allEntriesLoaded = false;
+			}else{
+				Logger::error("Failed to construct list element <{}>", entrySaveString);
+			}
 			
 			entryXML = entryXML->NextSiblingElement(entrySaveString.c_str());
 		}

@@ -191,9 +191,28 @@ void AxisNode::onPinDisconnection(std::shared_ptr<NodePin> pin){
 }
 
 
-bool AxisNode::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
+bool AxisNode::onSerialization(){
+	assert(false && "Cannot save or load this yet");
 	
+	bool success = true;
+	success &= Node::onSerialization();
+	
+	Serializable positionFeedbackData;
+	positionFeedbackData.setSaveString("PositionFeedbackMapping");
+	success &= positionFeedbackData.serializeIntoParent(this);
+	if(positionFeedbackMapping){
+		positionFeedbackData.serializeAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
+	}else positionFeedbackData.serializeAttribute("InterfacePinID", -1);
+	
+	Serializable velocityFeedbackData;
+	velocityFeedbackData.setSaveString("VelocityFeedbackMapping");
+	success &= velocityFeedbackData.serializeIntoParent(this);
+	if(velocityFeedbackMapping){
+		velocityFeedbackData.serializeAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
+	}velocityFeedbackData.serializeAttribute("InterfacePinID", -1);
+	
+	
+	/*
 	if(positionFeedbackMapping){
 		XMLElement* pfbXML = xml->InsertNewChildElement("PositionFeedbackMapping");
 		pfbXML->SetAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
@@ -243,12 +262,13 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	homingVelocityFine->save(xml);
 	maxHomingDistanceCoarse->save(xml);
 	maxHomingDistanceFine->save(xml);
-	
+	*/
 	return true;
 }
 
-bool AxisNode::load(tinyxml2::XMLElement* xml){
-	
+bool AxisNode::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	bool success = true;
 	
 	success &= controlModeParameter->load(xml);
@@ -283,12 +303,12 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= maxHomingDistanceFine->load(xml);
 	
 	manualAccelerationEntry = accelerationLimit->value;
-		
+		*/
 	return true;
 }
 
-bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
-
+bool AxisNode::loadAfterPinConnection(){
+/*
 	using namespace tinyxml2;
 	
 	auto actuatorPins = actuatorPin->getConnectedPins();
@@ -343,7 +363,7 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 	updateControlMode();
 	updateMovementType();
 	
-
+*/
 	return true;
 }
 

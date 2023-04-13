@@ -389,8 +389,9 @@ void PD4_E::writeOutputs() {
  
 }
 
-bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
-	
+bool PD4_E::onSerialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 
 	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
@@ -420,12 +421,13 @@ bool PD4_E::saveDeviceData(tinyxml2::XMLElement* xml) {
 
 	XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
 	encoderOffsetXML->SetAttribute("Revolutions", positionOffset_revolutions);
-
+*/
 	return true;
 }
 	 
-bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) { 
-	
+bool PD4_E::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 
 	XMLElement* limitsXML = xml->FirstChildElement("Limits");
@@ -465,7 +467,7 @@ bool PD4_E::loadDeviceData(tinyxml2::XMLElement* xml) {
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
 	servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
 	servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
-	
+	*/
 	return true;
 }
 

@@ -35,10 +35,10 @@ class ArtNetNode : public NetworkDevice{
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		NetworkDevice::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	virtual void nodeSpecificGui() override;
-	virtual bool load(tinyxml2::XMLElement* xml) override;
-	virtual bool save(tinyxml2::XMLElement* xml) override;
 	
 	std::unique_ptr<asio::ip::udp::socket> udpSocket;
 	

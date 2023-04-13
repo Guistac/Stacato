@@ -14,6 +14,8 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	//Process Data
 	std::shared_ptr<DS402Axis> axis;

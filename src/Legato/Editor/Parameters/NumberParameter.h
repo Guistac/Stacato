@@ -53,7 +53,7 @@ private:
 	
 	std::string prefix;
 	std::string format;
-	Unit unit;
+	Unit unit = Units::None::None;
 	std::string suffix;
 	std::string formatString;
 	
@@ -75,6 +75,7 @@ public:
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(defaultValue);
 		newParameter->setFormat(newParameter->getDefaultFormatString());
+		return newParameter;
 	}
 
 	virtual void setStepSize(double small, double large) override {

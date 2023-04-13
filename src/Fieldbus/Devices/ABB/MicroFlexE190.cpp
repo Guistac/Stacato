@@ -333,18 +333,17 @@ void MicroFlex_e190::writeOutputs() {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool MicroFlex_e190::saveDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	if(!axisParameters.save(xml)) return false;
-    return true;
+bool MicroFlex_e190::onSerialization(){
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
+	success &= axisParameters.save(xmlElement);
+	return success;
 }
 
 
-bool MicroFlex_e190::loadDeviceData(tinyxml2::XMLElement* xml) {
-    using namespace tinyxml2;
-	if(!axisParameters.load(xml)) return false;
-	velocityLimit_parameter->onEdit();
-	accelerationLimit_parameter->onEdit();
-	maxFollowingError_parameter->onEdit();
-    return true;
+bool MicroFlex_e190::onDeserialization(){
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
+	success &= axisParameters.load(xmlElement);
+	return success;
 }

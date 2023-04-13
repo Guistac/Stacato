@@ -64,13 +64,13 @@ void DeadMansSwitch::widgetGui(){
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			glm::vec2 size = ImGui::GetItemRectSize();
-			float timeoutProgress = timeSincePressRequest_seconds / requestTimeoutDelay->value;
+			float timeoutProgress = timeSincePressRequest_seconds / requestTimeoutDelay->getValue();
 			max.x -= size.x * timeoutProgress;
 			drawing->AddRectFilled(min, max, ImColor(1.f, 1.f, 1.f, .3f));
 		}
 			break;
 		case State::PRESSED:
-            if(b_shouldKeepPressing) backgroundText("Keep Pressing !", statusSize, Timing::getBlink(1.0 / requestBlinkFrequency->value) ? Colors::green : Colors::yellow);
+            if(b_shouldKeepPressing) backgroundText("Keep Pressing !", statusSize, Timing::getBlink(1.0 / requestBlinkFrequency->getValue()) ? Colors::green : Colors::yellow);
             else backgroundText("Pressed", statusSize, Colors::green);
 			break;
 	}

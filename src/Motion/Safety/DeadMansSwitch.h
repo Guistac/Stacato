@@ -2,7 +2,8 @@
 
 #include "Environnement/NodeGraph/Node.h"
 #include "Gui/Environnement/Dashboard/Widget.h"
-#include "Project/Editor/Parameter.h"
+
+#include "Legato/Editor/Parameters.h"
 
 class DeadMansSwitch : public Node {
 public:
@@ -13,6 +14,8 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		Node::onCopyFrom(source);
 	}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	enum class State{
 		NOT_CONNECTED,
@@ -36,10 +39,10 @@ private:
 	bool b_shouldRequestPress = false;
     bool b_shouldKeepPressing = false;
 	
-	std::shared_ptr<NumberParameter<double>> requestTimeoutDelay;
-	std::shared_ptr<NumberParameter<double>> requestBlinkFrequency;
-	std::shared_ptr<NumberParameter<double>> idleBlinkFrequency;
-	std::shared_ptr<NumberParameter<double>> idleBlinkLength;
+	Legato::NumberParam<double> requestTimeoutDelay;
+	Legato::NumberParam<double> requestBlinkFrequency;
+	Legato::NumberParam<double> idleBlinkFrequency;
+	Legato::NumberParam<double> idleBlinkLength;
 	
 	void handlePressRequest();
 	void updateLedState();
@@ -59,9 +62,6 @@ private:
 	virtual void outputProcess() override;
 	
 	virtual void nodeSpecificGui() override;
-	
-	virtual bool save(tinyxml2::XMLElement* xml) override;
-	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); };

@@ -16,26 +16,20 @@ public:
 		
 	};
 	
-	virtual bool load(tinyxml2::XMLElement* xml) override {
-		using namespace tinyxml2;
-		XMLElement* containerXML = xml->FirstChildElement("Container");
-		if(containerXML->QueryFloatAttribute("Width", &containerSize.x) != XML_SUCCESS){
-			Logger::warn("Could not find attribute container Width");
-			return false;
-		}
-		if(containerXML->QueryFloatAttribute("Height", &containerSize.x) != XML_SUCCESS){
-			Logger::warn("Could not find attribute container Height");
-			return false;
-		}
-		return true;
+	virtual bool onSerialization() override{
+		bool success = true;
+		success &= Node::onSerialization();
+		success &= serializeAttribute("Width", containerSize.x);
+		success &= serializeAttribute("Height", containerSize.y);
+		return success;
 	}
 	
-	virtual bool save(tinyxml2::XMLElement* xml) override {
-		using namespace tinyxml2;
-		XMLElement* containerXML = xml->InsertNewChildElement("Container");
-		containerXML->SetAttribute("Width", containerSize.x);
-		containerXML->SetAttribute("Height", containerSize.y);
-		return true;
+	virtual bool onDeserialization() override{
+		bool success = true;
+		success &= Node::onDeserialization();
+		success &= deserializeAttribute("Width", containerSize.x);
+		success &= deserializeAttribute("Height", containerSize.y);
+		return success;
 	}
 	
 	virtual void onConstruction() override {

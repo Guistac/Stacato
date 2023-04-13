@@ -89,17 +89,21 @@ void BusCoupler::writeOutputs(){
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
 
-bool BusCoupler::saveDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	saveModules(xml);
-	return true;
+
+
+bool BusCoupler::onSerialization() {
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
+	success &= saveModules(xmlElement);
+	return success;
 }
 
 
-bool BusCoupler::loadDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	if(!loadModules(xml)) return Logger::warn("Failed to load modules");
-	return true;
+bool BusCoupler::onDeserialization() {
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
+	success &= loadModules(xmlElement);
+	return success;
 }
 
 

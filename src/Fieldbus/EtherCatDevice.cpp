@@ -20,45 +20,45 @@ void EtherCatDevice::writeOutputs(){}
 void EtherCatDevice::onConnection(){}
 void EtherCatDevice::onDisconnection(){}
 
-bool EtherCatDevice::save(tinyxml2::XMLElement* xml) {
-    using namespace tinyxml2;
-    XMLElement* identificationXML = xml->InsertNewChildElement("Identification");
-    identificationXML->SetAttribute("Type", Enumerator::getSaveString(identificationType));
-    switch (identificationType) {
-		case EtherCatDevice::IdentificationType::STATION_ALIAS:
-            identificationXML->SetAttribute("StationAlias", stationAlias);
-            break;
-		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
-            identificationXML->SetAttribute("ExplicitDeviceID", explicitDeviceID);
-            break;
-    }
-    saveDeviceData(xml);
-    return true;
+bool EtherCatDevice::onSerialization() {
+	bool success = true;
+	success &= Node::onSerialization();
+	Serializable identificationData;
+	identificationData.setSaveString("Identification");
+	success &= identificationData.serializeIntoParent(this);
+	switch(identificationType){
+		case IdentificationType::STATION_ALIAS:
+			success &= identificationData.serializeAttribute("Type", "StationAlias");
+			success &= identificationData.serializeAttribute("Address", stationAlias);
+			break;
+		case IdentificationType::EXPLICIT_DEVICE_ID:
+			success &= identificationData.serializeAttribute("Type", "ExplicitDeviceID");
+			success &= identificationData.serializeAttribute("Address", explicitDeviceID);
+			break;
+	}
+	return success;
 }
 
-bool EtherCatDevice::load(tinyxml2::XMLElement* xml) {
-    using namespace tinyxml2;
-    
-    XMLElement* identificationXML = xml->FirstChildElement("Identification");
-    if (!identificationXML) return Logger::warn("Could not load identification attribute");
-    const char* identificationTypeString;
-    if (identificationXML->QueryStringAttribute("Type", &identificationTypeString) != XML_SUCCESS) return Logger::warn("Could not load identification Type");
-    if (!Enumerator::isValidSaveName<EtherCatDevice::IdentificationType>(identificationTypeString)) return Logger::warn("Could not read identification Type");
-	identificationType = Enumerator::getEnumeratorFromSaveString<EtherCatDevice::IdentificationType>(identificationTypeString);
-    switch (identificationType) {
-		case EtherCatDevice::IdentificationType::STATION_ALIAS:
-            int alias;
-            if (identificationXML->QueryIntAttribute("StationAlias", &alias) != XML_SUCCESS) return Logger::warn("Could not load Station Alias");
-            stationAlias = alias;
-            break;
-		case EtherCatDevice::IdentificationType::EXPLICIT_DEVICE_ID:
-            int id;
-            if (identificationXML->QueryIntAttribute("ExplicitDeviceID", &id) != XML_SUCCESS) return Logger::warn("Could not load Explicit Device ID");
-            explicitDeviceID = id;
-            break;
-    }
-    if (!loadDeviceData(xml)) return Logger::warn("Could not read device data");
-    return true;
+bool EtherCatDevice::onDeserialization() {
+	bool success = true;
+	success &= Node::onDeserialization();
+	Serializable identificationData;
+	identificationData.setSaveString("Identification");
+	success &= identificationData.deserializeFromParent(this);
+	std::string identificationTypeString;
+	success &= identificationData.deserializeAttribute("Type", identificationTypeString);
+	if(identificationTypeString == "StationAlias"){
+		int stationAliasAddress;
+		success &= identificationData.deserializeAttribute("Address", stationAliasAddress);
+		stationAlias = stationAliasAddress;
+	}
+	else if(identificationTypeString == "ExplicitDeviceID"){
+		int stationAliasIDAddress;
+		success &= identificationData.deserializeAttribute("Address", stationAliasIDAddress);
+		explicitDeviceID = stationAliasIDAddress;
+	}
+	else success = false;
+	return success;
 }
 
 

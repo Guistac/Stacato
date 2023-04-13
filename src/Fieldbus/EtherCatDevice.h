@@ -33,8 +33,6 @@
 	virtual uint32_t getIdentificationCode() override { return IdentificationCode; }\
 	virtual bool isEtherCatDeviceKnown() override { return true; }\
 	virtual bool startupConfiguration() override;\
-	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) override;\
-	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) override;\
 	virtual void deviceSpecificGui() override;\
 
 namespace tinyxml2{ class XMLElement; }
@@ -49,22 +47,12 @@ public:
 	virtual uint32_t getIdentificationCode(){ return 0; }
 	virtual bool isEtherCatDeviceKnown(){ return false; }
 	virtual bool startupConfiguration(){ return true; }
-	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
-	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual void deviceSpecificGui() {}
  
 protected:
 	 
-	 virtual bool onSerialization() override {
-		 Node::onSerialization();
-		 bool success = true;
-		 return success;
-	 }
-	 
-	 virtual bool onDeserialization() override {
-		 Node::onDeserialization();
-		 return true;
-	 }
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	 
 	 virtual void onConstruction() override {
 		 Node::onConstruction();
@@ -227,9 +215,6 @@ public:
     bool setStationAlias(uint16_t alias);
     uint16_t stationAliasToolValue = 0;
     DataTransferState stationAliasAssignState = DataTransferState::NO_TRANSFER;
-	
-	virtual bool save(tinyxml2::XMLElement* xml) override;
-	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 	int sdoServiceTimeout_nanoseconds = 10;
 	

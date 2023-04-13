@@ -116,7 +116,8 @@ void SafetySignal::inputProcess(){
 
 
 
-bool SafetySignal::save(tinyxml2::XMLElement* xml){
+bool SafetySignal::onSerialization(){
+	assert(false && "Cannot save and load this yet");
 	using namespace tinyxml2;
 
 	/*
@@ -131,7 +132,8 @@ bool SafetySignal::save(tinyxml2::XMLElement* xml){
 	return true;
 }
 
-bool SafetySignal::load(tinyxml2::XMLElement* xml){
+bool SafetySignal::onDeserialization(){
+	assert(false && "Cannot save and load this yet");
 	using namespace tinyxml2;
 
 	/*

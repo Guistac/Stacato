@@ -13,6 +13,8 @@ namespace PhoenixContact{
 		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 			EtherCAT::ModularDeviceProfile::ModularDevice::onCopyFrom(source);
 		};
+		virtual bool onSerialization() override;
+		virtual bool onDeserialization() override;
 		
 		class PhoenixContactGpioDevice : public GpioInterface{
 		public:

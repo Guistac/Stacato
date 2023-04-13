@@ -186,7 +186,9 @@ void ArtNetNode::writeOutputs(){
 
 
 
-bool ArtNetNode::save(tinyxml2::XMLElement* xml){
+bool ArtNetNode::onSerialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	
 	XMLElement* settingsXML = xml->InsertNewChildElement("Settings");
@@ -213,10 +215,13 @@ bool ArtNetNode::save(tinyxml2::XMLElement* xml){
 	scriptXML->SetText(script->getScriptText().c_str());
 	
 	return true;
+	 */
 }
 
 
-bool ArtNetNode::load(tinyxml2::XMLElement* xml){
+bool ArtNetNode::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	using namespace tinyxml2;
 	
 	XMLElement* settingsXML;
@@ -244,4 +249,5 @@ bool ArtNetNode::load(tinyxml2::XMLElement* xml){
 	script->load(scriptString);
 	
 	return true;
+	 */
 }

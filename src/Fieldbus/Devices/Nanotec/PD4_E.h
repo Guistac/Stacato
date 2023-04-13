@@ -10,6 +10,8 @@ class PD4_E : public EtherCatDevice {
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	class PD4EServoMotor : public ActuatorInterface{
 	public:

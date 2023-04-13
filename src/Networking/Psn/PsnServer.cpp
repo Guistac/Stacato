@@ -261,9 +261,10 @@ void PsnServer::setDefaultAddressSettings(){
 
 
 
-bool PsnServer::save(tinyxml2::XMLElement* xml){
+bool PsnServer::onSerialization(){
+	assert(false && "Cannot save or load this yet");
 	using namespace tinyxml2;
-	
+	/*
 	XMLElement* networkXML = xml->InsertNewChildElement("Network");
 	serverName->save(networkXML);
 	destinationIp0->save(networkXML);
@@ -280,14 +281,15 @@ bool PsnServer::save(tinyxml2::XMLElement* xml){
 	
 	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
-	
+	*/
 	return true;
 }
 
 
-bool PsnServer::load(tinyxml2::XMLElement* xml){
+bool PsnServer::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
 	using namespace tinyxml2;
-	
+	/*
 	XMLElement* networkXML;
 	if(!loadXMLElement("Network", xml, networkXML)) return false;
 	if(!serverName->load(networkXML)) return false;
@@ -310,6 +312,6 @@ bool PsnServer::load(tinyxml2::XMLElement* xml){
 	if(!loadXMLElement("Script", xml, scriptXML)) return false;
 	std::string scriptString = std::string(scriptXML->GetText());
 	script->load(scriptString);
-	
+	*/
 	return true;
 }

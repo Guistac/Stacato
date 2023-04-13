@@ -17,6 +17,9 @@ public:
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
 		Node::onCopyFrom(source);
 	};
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	virtual bool loadAfterPinConnection() override;
 	
 	std::shared_ptr<AxisInterface> axisInterface;
 	
@@ -52,10 +55,6 @@ public:
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
-	
-	virtual bool load(tinyxml2::XMLElement* xml) override;
-	virtual bool save(tinyxml2::XMLElement* xml) override;
-	virtual bool loadAfterLinksConnected(tinyxml2::XMLElement* xml) override;
 	
 	virtual void nodeSpecificGui() override;
 	
