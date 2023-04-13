@@ -154,6 +154,9 @@ bool ATV320::startupConfiguration() {
 	//[chcf] set control profile to "Not separate" (= 1) for pure CiA.402 Velocity Mode
 	if(!writeSDO_U16(0x2036, 0x2, 1)) return false;
 	
+	//[cls] set disable limit switch input to bit 11 of control word
+	if(!writeSDO_U16(0x205F, 0x8, 219)) return false;
+	
 	//—————————————— ASSIGN PDOS —————————————————
 	
 	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12)) return false;
@@ -281,6 +284,8 @@ void ATV320::writeOutputs() {
 	
 	if(b_reverseDirection) axis->setFrequency(-actuator->actuatorProcessData.velocityTarget * 60.0);
 	else axis->setFrequency(actuator->actuatorProcessData.velocityTarget * 60.0);
+	
+	axis->setManufacturerSpecificControlWordBit_11(b_disableLimitSwitches);
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);

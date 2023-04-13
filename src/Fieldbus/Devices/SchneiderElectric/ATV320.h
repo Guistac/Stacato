@@ -60,6 +60,8 @@ public:
 	bool b_waitingForEnable = false;
 	bool b_reverseDirection = false;
 	
+	bool b_disableLimitSwitches = false; //[CLS] clear limit switches if they cause problems
+	
 	bool b_referenceReached = false;
 	bool b_referenceOutsideLimits = false;
 	bool b_motorVoltagePresent = false;
