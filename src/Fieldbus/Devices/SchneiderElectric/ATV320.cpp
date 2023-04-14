@@ -126,8 +126,10 @@ void ATV320::initialize() {
 	txPdoAssignement.addNewModule(0x1A00);
 	
 	axis->processDataConfiguration.enableFrequencyMode();
+	axis->processDataConfiguration.frequencyActualValue = false;
 	axis->configureProcessData();
 	
+	txPdoAssignement.addEntry(0x6044, 0x0, 16, "VelocityActual", &velocityActual_rpm);
 	txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
 	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);

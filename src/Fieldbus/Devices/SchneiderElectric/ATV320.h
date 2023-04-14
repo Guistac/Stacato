@@ -79,7 +79,7 @@ public:
 	uint16_t stoState = 0;
 	int16_t motorPower = 0;
 	uint16_t lastFaultCode = 0x0;
-	
+	int16_t velocityActual_rpm = 0;
 	
 	
 	//—————————— DRIVE PARAMETER ENUMERATORS ————————————
