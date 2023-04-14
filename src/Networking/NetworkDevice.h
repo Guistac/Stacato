@@ -8,7 +8,6 @@
 	/*Node Specific*/\
 	DEFINE_NODE(className, Node::Type::IODEVICE, "none")\
 	/*Device Specific*/\
-	virtual Device::Type getDeviceType() override { return Type::NETWORK_DEVICE; }\
 	virtual void readInputs() override;\
 	virtual void writeOutputs() override;\
 	virtual bool isDetected() override;\

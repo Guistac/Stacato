@@ -2,9 +2,8 @@
 
 #include "Node.h"
 
-#define DEFINE_DEVICE_NODE(className, deviceType, category)\
+#define DEFINE_DEVICE_NODE(className, category)\
 	DEFINE_NODE(className, Node::Type::IODEVICE, category)\
-	virtual Device::Type getDeviceType() override { return deviceType; }\
 	virtual bool isDetected() override;\
 	virtual bool isConnected() override;\
 	virtual void onConnection() override;\
@@ -14,14 +13,6 @@
 
 class Device : public Node {
 public:
-
-	enum class Type {
-		ETHERCAT_DEVICE,
-		NETWORK_DEVICE,
-		USB_DEVICE
-	};
-
-	virtual Type getDeviceType() = 0;
 
 	//for device nodes, processing takes place inside the device.
 	//instead we only prepare input when data is available
@@ -34,12 +25,3 @@ public:
 	virtual void onConnection() = 0;
 	virtual void onDisconnection() = 0;
 };
-
-struct DeviceType {
-	Device::Type type;
-	const char* saveName;
-	const char* displayName;
-};
-
-DeviceType* getDeviceType(const char* saveName);
-DeviceType* getDeviceType(Device::Type t);

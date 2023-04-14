@@ -124,7 +124,7 @@ void NodeGraph::editorGui(ImVec2 size){
 					break;
 				case Node::Type::IODEVICE: {
 					std::shared_ptr<Device> device = std::static_pointer_cast<Device>(node);
-					ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
+					//ImGui::Text("Type: %s", getDeviceType(device->getDeviceType())->displayName);
 					if (device->isConnected()) ImGui::Text("Status: Online");
 					else if (device->isDetected()) ImGui::Text("Status: Detected");
 					else ImGui::Text("Status: Offline");

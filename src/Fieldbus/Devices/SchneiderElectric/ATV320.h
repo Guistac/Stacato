@@ -5,7 +5,6 @@
 
 #include "Motion/Interfaces.h"
 
-#include "Project/Editor/Parameter.h"
 #include "Legato/Editor/Parameters.h"
 
 class ATV320 : public EtherCatDevice{

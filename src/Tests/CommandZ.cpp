@@ -3,7 +3,6 @@
 #include <imgui.h>
 
 #include "Project/Editor/CommandHistory.h"
-#include "Project/Editor/Parameter.h"
 #include "Project/Editor/List.h"
 
 enum class NumberEnum{

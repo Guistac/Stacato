@@ -166,7 +166,6 @@ void ATV340::onConstruction() {
 			nominalMotorPower_Param->setDisabled(false);
 		}
 	});
-	motorParameterChoice_Param->onEdit();
 	
 	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
 	cosinusPhi_Param = Legato::NumberParameter<double>::createInstance(0.0, "Cosinus Phi", "CosinusPhi");
@@ -233,33 +232,32 @@ void ATV340::onConstruction() {
 		brakeReleaseFrequency_Param->setDisabled(brakeOutputUnassigned);
 		brakeEngageFrequency_Param->setDisabled(brakeOutputUnassigned);
 	});
-	brakeOutputAssignement_Param->onEdit();
 	
 	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
 	brakeMovementType_Param = Legato::OptionParameter::createInstance(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
 	
 	//[brt] brake release time
-	brakeReleaseTime_Param = NumberParameter<double>::createInstance(0.1, "Brake Release Time", "BrakeReleaseTime");
+	brakeReleaseTime_Param = Legato::NumberParameter<double>::createInstance(0.1, "Brake Release Time", "BrakeReleaseTime");
 	brakeReleaseTime_Param->setUnit(Units::Time::Second);
 	brakeReleaseTime_Param->allowNegatives(false);
 	
 	//[bet] brake engage time
-	brakeEngageTime_Param = NumberParameter<double>::createInstance(0.5, "Brake Engage Time", "BrakeEngageTime");
+	brakeEngageTime_Param = Legato::NumberParameter<double>::createInstance(0.5, "Brake Engage Time", "BrakeEngageTime");
 	brakeEngageTime_Param->setUnit(Units::Time::Second);
 	brakeEngageTime_Param->allowNegatives(false);
 	
 	//[ibr] brake release current (default is nominal motor current)
-	brakeReleaseCurrent_Param = NumberParameter<double>::createInstance(1.0, "Brake Release Current", "BrakeReleaseCurrent");
+	brakeReleaseCurrent_Param = Legato::NumberParameter<double>::createInstance(1.0, "Brake Release Current", "BrakeReleaseCurrent");
 	brakeReleaseCurrent_Param->setUnit(Units::Current::Ampere);
 	brakeReleaseCurrent_Param->allowNegatives(false);
 	
 	//[bir] brake release frequency (default is 0Hz)
-	brakeReleaseFrequency_Param = NumberParameter<double>::createInstance(0.0, "Brake Release Frequency", "BrakeReleaseFrequency");
+	brakeReleaseFrequency_Param = Legato::NumberParameter<double>::createInstance(0.0, "Brake Release Frequency", "BrakeReleaseFrequency");
 	brakeReleaseFrequency_Param->setUnit(Units::Frequency::Hertz);
 	brakeReleaseFrequency_Param->allowNegatives(false);
 	
 	//[ben] brake engage frequency (default is 0Hz)
-	brakeEngageFrequency_Param = NumberParameter<double>::createInstance(0.0, "Brake Engage Frequency", "BrakeEngageFrequency");
+	brakeEngageFrequency_Param = Legato::NumberParameter<double>::createInstance(0.0, "Brake Engage Frequency", "BrakeEngageFrequency");
 	brakeEngageFrequency_Param->setUnit(Units::Frequency::Hertz);
 	brakeEngageFrequency_Param->allowNegatives(false);
 	
@@ -290,13 +288,12 @@ void ATV340::onConstruction() {
 			embeddedEncoderUsage_Param->setDisabled(true);
 		}
 	});
-	embeddedEncoderType_Param->onEdit();
 	
 	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
 	embeddedEncoderVoltage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
 	
 	//[epg] pulses per encoder revolution
-	embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::createInstance(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution");
+	embeddedEncoderPulsesPerRevolution_Param = Legato::NumberParameter<int>::createInstance(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution");
 	embeddedEncoderPulsesPerRevolution_Param->allowNegatives(false);
 	
 	//[eeri] embedded encoder revolution inversion (0=No, 1=Yes)
@@ -351,22 +348,22 @@ void ATV340::onConstruction() {
 	analogInput2Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
 	
 	//[CrL1]
-	analogInputMinCurrent_Param = NumberParameter<double>::createInstance(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue");
+	analogInputMinCurrent_Param = Legato::NumberParameter<double>::createInstance(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue");
 	analogInputMinCurrent_Param->setUnit(Units::Current::Milliampere);
 	analogInputMinCurrent_Param->allowNegatives(false);
 	
 	//[CrH1]
-	analogInputMaxCurrent_Param = NumberParameter<double>::createInstance(20.0, "Analog Input Maximum Current", "AnalogInputMaximumCurrentValue");
+	analogInputMaxCurrent_Param = Legato::NumberParameter<double>::createInstance(20.0, "Analog Input Maximum Current", "AnalogInputMaximumCurrentValue");
 	analogInputMaxCurrent_Param->setUnit(Units::Current::Milliampere);
 	analogInputMaxCurrent_Param->allowNegatives(false);
 	
 	//[UIL1] = [UIL2] if voltage is selected
-	analogInputMinVoltage_Param = NumberParameter<double>::createInstance(0.0, "Analog Input Minimum Voltage", "AnalogInputMinimumVoltageValue");
+	analogInputMinVoltage_Param = Legato::NumberParameter<double>::createInstance(0.0, "Analog Input Minimum Voltage", "AnalogInputMinimumVoltageValue");
 	analogInputMinVoltage_Param->setUnit(Units::Voltage::Volt);
 	analogInputMinVoltage_Param->allowNegatives(false);
 	
 	//[UIH1] = [UIH2] if voltage is selected
-	analogInputMaxVoltage_Param = NumberParameter<double>::createInstance(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue");
+	analogInputMaxVoltage_Param = Legato::NumberParameter<double>::createInstance(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue");
 	analogInputMaxVoltage_Param->setUnit(Units::Voltage::Volt);
 	analogInputMaxVoltage_Param->allowNegatives(false);
 	
@@ -392,13 +389,9 @@ void ATV340::onConstruction() {
 		reverseLimitSignal_Param
 	});
 	
-	
-	
-
-	
-
-	
-	
+	motorParameterChoice_Param->onEdit();
+	brakeOutputAssignement_Param->onEdit();
+	embeddedEncoderType_Param->onEdit();
 
 }
 
@@ -425,6 +418,7 @@ void ATV340::configureProcessData(){
 	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "Safe torque Off function Status", &stoState);
 	axis->configureProcessData();
+
 }
 
 //==============================================================
@@ -432,7 +426,6 @@ void ATV340::configureProcessData(){
 //==============================================================
 
 bool ATV340::startupConfiguration() {
-	
 	
 	if(!axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY)) {
 		return Logger::error("failed to set operating mode");
@@ -469,6 +462,7 @@ bool ATV340::startupConfiguration() {
 //==============================================================
 
 void ATV340::readInputs() {
+	
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	axis->updateInputs();
 	
@@ -512,6 +506,7 @@ void ATV340::readInputs() {
 	//to normalize the value to a 0-1 range we divide by 10000
 	*analogInput1_value = double(analogInput1) / 10000.0;
 	*analogInput2_value = double(analogInput2) / 10000.0;
+	 
 }
 
 //==============================================================
@@ -572,6 +567,7 @@ void ATV340::writeOutputs() {
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
+	 
 }
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
@@ -640,7 +636,7 @@ bool ATV340::onDeserialization(){
 
 
 void ATV340::configureDrive(){
-	
+
 	if(isOffline()) {
 		Logger::warn("Can't upload configuration when device is offline");
 		return;
@@ -652,6 +648,7 @@ void ATV340::configureDrive(){
 	else Logger::info("Starting device configuration upload");
 	
 	std::thread driveConfigurationHandler = std::thread([this](){
+		
 		
 		//———— Unit Scaling Retrieval
 		uint16_t powerScalingCode;
@@ -694,39 +691,39 @@ void ATV340::configureDrive(){
 		
 		if(motorParameterChoice == options.NominalPower.getInt()){
 			//[npr] {Async} nominal motor power
-			uint16_t nominalMotorPower = nominalMotorPower_Param->value / powerScaling;
+			uint16_t nominalMotorPower = nominalMotorPower_Param->getValue() / powerScaling;
 			if(!writeSDO_U16(0x2042, 0xE, nominalMotorPower, "Nominal Motor Power")) return;
 		}else if(motorParameterChoice == options.CosinusPhi.getInt()){
 			//[cos] {Async} motor 1 cosinus phi (0.01 increments)
-			uint16_t motor1CosinusPhi = cosinusPhi_Param->value * 100.0;
+			uint16_t motor1CosinusPhi = cosinusPhi_Param->getValue() * 100.0;
 			if(!writeSDO_U16(0x2042, 0x7, motor1CosinusPhi, "Motor Cosinus Phi")) return;
 		}
 		
 		//[uns] {Async} nominal motor voltage (1v increments)
-		uint16_t nominalMotorVoltage = nominalMotorVoltage_Param->value;
+		uint16_t nominalMotorVoltage = nominalMotorVoltage_Param->getValue();
 		if(!writeSDO_U16(0x2042, 0x2, nominalMotorVoltage, "Motor Nominal Voltage")) return;
 		
 		//[ncr] {Async} nominal motor current
-		uint16_t nominalMotorCurrent = nominalMotorCurrent_Param->value / currentScaling;
+		uint16_t nominalMotorCurrent = nominalMotorCurrent_Param->getValue() / currentScaling;
 		if(!writeSDO_U16(0x2042, 0x4, nominalMotorCurrent, "Motor Nominal Current")) return;
 		
 		//[frs] {Async} nominal motor frequency (0.1Hz increments)
-		uint16_t nominalMotorFrequency = nominalMotorFrequency_Param->value * 10.0;
+		uint16_t nominalMotorFrequency = nominalMotorFrequency_Param->getValue() * 10.0;
 		if(!writeSDO_S16(0x2042, 0x3, nominalMotorFrequency, "Motor Nominal Frequency")) return;
 		
 		//[nsp] {Async} nominal motor speed (rpm)
-		uint16_t nominalMotorSpeed = nominalMotorSpeed_Param->value;
+		uint16_t nominalMotorSpeed = nominalMotorSpeed_Param->getValue();
 		if(!writeSDO_U16(0x2042, 0x5, nominalMotorSpeed, "Nominal Motor Speed")) return;
 		
 		//[ith] Motor Thermal Current
-		uint16_t motorThermalCurrent = motorThermalCurrent_Param->value / currentScaling;
+		uint16_t motorThermalCurrent = motorThermalCurrent_Param->getValue() / currentScaling;
 		if(!writeSDO_U16(0x2042, 0x17, motorThermalCurrent, "Motor Thermal Current")) return;
 		
 		
 		//———— Maximum Motor Frequency
 		
 		//[tfr] Motor Maximum Frequency (0.1 Hz increments)
-		uint16_t motorMaximumFrequency = motorMaximumFrequency_Param->value * 10.0;
+		uint16_t motorMaximumFrequency = motorMaximumFrequency_Param->getValue() * 10.0;
 		if(!writeSDO_U16(0x2001, 0x4, motorMaximumFrequency, "Motor Maximum Frequency")) return;
 
 		//———— Brake Logic Control
@@ -740,23 +737,23 @@ void ATV340::configureDrive(){
 		if(!writeSDO_U16(0x2046, 0x9, brakeMovementType, "Brake Movement Type")) return;
 		
 		//[brt] brake release time (int 0.01s increments)
-		uint16_t brakeReleaseTime = brakeReleaseTime_Param->value * 100.0;
+		uint16_t brakeReleaseTime = brakeReleaseTime_Param->getValue() * 100.0;
 		if(!writeSDO_U16(0x2046, 0x5, brakeReleaseTime, "Brake Release Time")) return;
 
 		//[bet] brake engage time
-		uint16_t brakeEngageTime = brakeEngageTime_Param->value * 100.0;
+		uint16_t brakeEngageTime = brakeEngageTime_Param->getValue() * 100.0;
 		if(!writeSDO_U16(0x2046, 0x6, brakeEngageTime, "Brake Engage Time")) return;
 		
 		//[ibr] brake release current (default is nominal motor current)
-		uint16_t brakeReleaseCurrent = brakeReleaseCurrent_Param->value / currentScaling;
+		uint16_t brakeReleaseCurrent = brakeReleaseCurrent_Param->getValue() / currentScaling;
 		if(!writeSDO_U16(0x2046, 0x7, brakeReleaseCurrent, "Brake Release Current")) return;
 		
 		//[bir] brake release frequency (default is 0Hz, in 0.1Hz increments)
-		uint16_t brakeReleaseFrequency = brakeReleaseFrequency_Param->value * 10.0;
+		uint16_t brakeReleaseFrequency = brakeReleaseFrequency_Param->getValue() * 10.0;
 		if(!writeSDO_U16(0x2046, 0xD, brakeReleaseFrequency, "Brake Release Frequency")) return;
 		
 		//[ben] brake engage frequency (default is 0Hz, in 0.1Hz increments)
-		uint16_t brakeEngageFrequency = brakeEngageFrequency_Param->value * 10.0;
+		uint16_t brakeEngageFrequency = brakeEngageFrequency_Param->getValue() * 10.0;
 		if(!writeSDO_U16(0x2046, 0x4, brakeEngageFrequency, "Brake Release Engage Frequency")) return;
 		
 		
@@ -775,7 +772,7 @@ void ATV340::configureDrive(){
 			if(!writeSDO_U16(0x201A, 0x50, encoderSupplyVoltage, "Encoder Supply Voltage")) return;
 			
 			//[epg] pulses per encoder revolution
-			uint16_t pulsesPerEncoderRevolution = embeddedEncoderPulsesPerRevolution_Param->value;
+			uint16_t pulsesPerEncoderRevolution = embeddedEncoderPulsesPerRevolution_Param->getValue();
 			if(!writeSDO_U16(0x201A, 0x48, pulsesPerEncoderRevolution, "Pulses Per Encoder Revolution")) return;
 			
 			//[eeri] emebedded encoder revolution inversion (0=No, 1=Yes)
@@ -808,15 +805,15 @@ void ATV340::configureDrive(){
 		if(!writeSDO_U16(0x203C, 0x15, rampIncrement, "Ramp Time Increment")) return;
 		
 		//[acc] acceleration ramp time (0.01 second increments)
-		uint16_t accelerationRampTime = accelerationRampTime_Param->value * 100;
+		uint16_t accelerationRampTime = accelerationRampTime_Param->getValue() * 100;
 		if(!writeSDO_U16(0x203C, 0x2, accelerationRampTime, "Acceleration Ramp Time")) return;
 		
 		//[dec] deceleration ramp time (0.01 second increments)
-		uint16_t decelerationRampTime = decelerationRampTime_Param->value * 100;
+		uint16_t decelerationRampTime = decelerationRampTime_Param->getValue() * 100;
 		if(!writeSDO_U16(0x203C, 0x3, decelerationRampTime, "Deceleration Ramp Time")) return;
 		
 		//[sfr] switching frequency (0.1KHz increments)
-		uint16_t switchingFrequency = switchingFrequency_Param->value * 10.0;
+		uint16_t switchingFrequency = switchingFrequency_Param->getValue() * 10.0;
 		if(!writeSDO_U16(0x2001, 0x3, switchingFrequency, "Switching Frequency")) return;
 		
 		
@@ -831,8 +828,8 @@ void ATV340::configureDrive(){
 		if(!writeSDO_S16(0x200E, 0x4, analogInput2Type, "Analog Input 2 Type")) return;
 		
 		if(analogInput1Type == options.AnalogInputTypeCurrent.getInt()){
-			uint16_t analogMinCurrent = analogInputMinCurrent_Param->value * 10.0;
-			uint16_t analogMaxCurrent = analogInputMaxCurrent_Param->value * 10.0;
+			uint16_t analogMinCurrent = analogInputMinCurrent_Param->getValue() * 10.0;
+			uint16_t analogMaxCurrent = analogInputMaxCurrent_Param->getValue() * 10.0;
 			//[CrL1]
 			if(!writeSDO_U16(0x200E, 0x21, analogMinCurrent, "Analog Input 1 Min Current")) return;
 			//[CrH1]
@@ -840,8 +837,8 @@ void ATV340::configureDrive(){
 		}
 		
 		if(analogInput1Type == options.AnalogInputTypeVoltage.getInt() || analogInput2Type == options.AnalogInputTypeVoltage.getInt()){
-			uint16_t analog2MinVoltage = analogInputMinVoltage_Param->value * 10.0;
-			uint16_t analog2MaxVoltage = analogInputMaxVoltage_Param->value * 10.0;
+			uint16_t analog2MinVoltage = analogInputMinVoltage_Param->getValue() * 10.0;
+			uint16_t analog2MaxVoltage = analogInputMaxVoltage_Param->getValue() * 10.0;
 			//[UIL1]
 			if(!writeSDO_U16(0x200E, 0xD, analog2MinVoltage, "Analog Input 1 Min Voltage")) return;
 			//[UIH1]
@@ -861,10 +858,10 @@ void ATV340::configureDrive(){
 			
 	});
 	driveConfigurationHandler.detach();
+
 }
 
 void ATV340::startStandardTuning(){
-	
 	if(isOffline()) Logger::warn("Can't start motor Tuning while drive is offline");
 	else if(!isStateOperational()) return Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
 	else if(!motor->isEnabled()) return Logger::warn("Can't start motor Tuning while the drive is not enabled");

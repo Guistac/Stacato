@@ -136,7 +136,7 @@ void AxisNode::inputProcess(){
 			b_isEnabling = false;
 			Logger::info("[{}] Axis Enabled", getName());
 		}
-		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
+		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->getValue()){
 			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 			b_isEnabling = false;
 			Logger::warn("[{}] Could not enable axis :", getName());
@@ -165,14 +165,14 @@ void AxisNode::inputProcess(){
 	//update axis position and position following error
 	if(auto mapping = positionFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
-		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->value;
+		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->getValue();
 		positionFollowingError = motionProfile.getPosition() - axisInterface->getPositionActual();
 	}
 	
 	//update axis velocity and velocity following error
 	if(auto mapping = velocityFeedbackMapping){
 		auto feedback = mapping->feedbackInterface;
-		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
+		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->getValue();
 		velocityFollowingError = motionProfile.getVelocity() - axisInterface->getVelocityActual();
 	}
 	processData.forceActual = 0.0;
@@ -248,7 +248,7 @@ void AxisNode::inputProcess(){
 	//check if the following errors exceed thresholds
 	if(axisInterface->isEnabled()){
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
-			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
+			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->getValue())){
 				Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
 				axisInterface->disable();
 			}
@@ -256,7 +256,7 @@ void AxisNode::inputProcess(){
 		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
 		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
 		   velocityFeedbackMapping){
-			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->value)){
+			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->getValue())){
 				Logger::warn("[{}] Velocity following error exceeded threshold, Disabling axis.", getName());
 				axisInterface->disable();
 			}
@@ -361,7 +361,7 @@ void AxisNode::outputProcess(){
 				if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
 					mapping->actuatorPositionOffset = 0.0;
 				}
-				mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->value;
+				mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->getValue();
 			}
 			break;
 	}
@@ -369,10 +369,10 @@ void AxisNode::outputProcess(){
 	//control loop update (depends on axis control mode)
 	double velocityCommand;
 	auto updatePositionControlLoop = [&](){
-		if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
+		if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->getValue()))
 			velocityCommand = 0.0;
 		else
-			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01 + positionFollowingError * positionLoop_proportionalGain->value;
+			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->getValue() * 0.01 + positionFollowingError * positionLoop_proportionalGain->getValue();
 	};
 	
 	switch(internalControlMode){
@@ -414,11 +414,11 @@ void AxisNode::outputProcess(){
 		auto actuator = mapping->actuatorInterface;
 		switch(mapping->controlMode){
 			case ActuatorMapping::POSITION_CONTROL:{
-				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits->value) + mapping->actuatorPositionOffset;
+				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits->getValue()) + mapping->actuatorPositionOffset;
 				actuator->setPositionTarget(actuatorPosition);
 				}break;
 			case ActuatorMapping::VELOCITY_CONTROL:{
-				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits->value;
+				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits->getValue();
 				actuator->setVelocityTarget(actuatorVelocity);
 				}break;
 			case ActuatorMapping::FORCE_CONTROL:
@@ -479,7 +479,7 @@ void AxisNode::overrideCurrentPosition(double newPosition){
 	for(auto actuatorMapping : actuatorMappings){
 		auto actuator = actuatorMapping->actuatorInterface;
 		if(actuator == positionFeedbackMapping->feedbackInterface) continue;
-		actuatorMapping->actuatorPositionOffset = actuator->getPosition() - newPosition * actuatorMapping->actuatorUnitsPerAxisUnits->value;
+		actuatorMapping->actuatorPositionOffset = actuator->getPosition() - newPosition * actuatorMapping->actuatorUnitsPerAxisUnits->getValue();
 	}
 }
 
@@ -500,13 +500,13 @@ void AxisNode::onFeedbackRatioUpdate(){
 	
 	auto positionFeedbackInterface = positionFeedbackMapping->feedbackInterface;
 	double newPositionFeedbackRatio = positionFeedbackInterface->getPosition() / newPositionForFeedbackRatio;
-	double oldPositionFeedbackRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+	double oldPositionFeedbackRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->getValue();
 	positionFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
 	
 	if(velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == positionFeedbackInterface)
 		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
 	else{
-		double newVelocityFeedbackRatio = velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+		double newVelocityFeedbackRatio = velocityFeedbackMapping->feedbackUnitsPerAxisUnit->getValue() * newPositionFeedbackRatio / oldPositionFeedbackRatio;
 		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newVelocityFeedbackRatio);
 	}
 	
@@ -517,7 +517,7 @@ void AxisNode::onFeedbackRatioUpdate(){
 		}
 		//else adjust the ratio of other actuators by the same amount the feedback ratio was adjusted
 		else{
-			double newActuatorRatio = actuatorMapping->actuatorUnitsPerAxisUnits->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+			double newActuatorRatio = actuatorMapping->actuatorUnitsPerAxisUnits->getValue() * newPositionFeedbackRatio / oldPositionFeedbackRatio;
 			actuatorMapping->actuatorUnitsPerAxisUnits->overwriteWithHistory(newActuatorRatio);
 		}
 	}

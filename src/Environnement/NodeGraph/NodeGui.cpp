@@ -35,6 +35,7 @@ void Node::nodeGui() {
     glm::vec4 labelColor = glm::vec4(0.1, 0.1, 0.6, 0.5);
     bool nodeIsOffline = false;
 
+	/*
     if (getType() == Node::Type::IODEVICE) {
         std::shared_ptr<Device> device = std::static_pointer_cast<Device>(shared_from_this());
         nodeIsOffline = !device->isDetected() && !device->isConnected();
@@ -50,6 +51,7 @@ void Node::nodeGui() {
                 break;
         }
     }
+	*/
 
     if (nodeIsOffline) {
         ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);

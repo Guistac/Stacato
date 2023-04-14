@@ -22,7 +22,6 @@
 #define DEFINE_ETHERCAT_DEVICE(className, manufacturerName, category, ManufacturerCode, IdentificationCode) public:\
 	DEFINE_NODE(className, Node::Type::IODEVICE, category)\
 	/*Device Specific*/\
-	virtual Device::Type getDeviceType() override { return Device::Type::ETHERCAT_DEVICE; }\
 	virtual void onConnection() override;\
 	virtual void onDisconnection() override;\
 	virtual void readInputs() override;\
@@ -41,7 +40,7 @@ namespace EtherCatFieldbus{ struct DeviceConnection; }
 class EtherCatDevice : public Device {
 public:
 	
-	DEFINE_DEVICE_NODE(EtherCatDevice, Device::Type::ETHERCAT_DEVICE, "Unknown Category")
+	DEFINE_DEVICE_NODE(EtherCatDevice, "Unknown Category")
 	virtual std::string getManufacturerName(){ return "Unknown Manufacturer"; }
 	virtual uint32_t getManufacturerCode(){ return 0; }
 	virtual uint32_t getIdentificationCode(){ return 0; }

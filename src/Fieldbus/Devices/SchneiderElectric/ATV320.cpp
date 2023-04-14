@@ -2,6 +2,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 void ATV320::onConnection() {
 }
 

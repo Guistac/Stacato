@@ -76,7 +76,7 @@ class ArtNetNode : public NetworkDevice{
 	
 	
 	
-	std::shared_ptr<NumberParameter<double>> sendingFrequency = NumberParameter<double>::make(1.0, "Sending frequency", "SendingFrequency", "%.1f", Units::Frequency::Hertz, false);
+	Legato::NumberParam<double> sendingFrequency;
 	
 	void resetToDefaultArtNetPort(){ portNumber->overwriteWithHistory(6454); }
 	

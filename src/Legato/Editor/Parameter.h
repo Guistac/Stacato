@@ -110,6 +110,7 @@ namespace Legato{
 			auto newGroup = ParameterGroup::createInstance();
 			newGroup->parameters = parameters;
 			newGroup->setSaveString(saveString);
+			return newGroup;
 		}
 		
 		virtual void onConstruction() override {

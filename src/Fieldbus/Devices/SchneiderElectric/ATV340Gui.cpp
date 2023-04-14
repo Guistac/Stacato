@@ -2,6 +2,7 @@
 #include "ATV340.h"
 
 #include <imgui.h>
+#include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
 
 #include "Gui/Utilities/CustomWidgets.h"

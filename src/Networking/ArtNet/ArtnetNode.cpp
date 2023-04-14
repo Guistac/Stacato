@@ -100,6 +100,10 @@ void ArtNetNode::onConstruction(){
 	networkMask2 = Legato::NumberParameter<uint8_t>::createInstance(255, "ArtNet Network Mask Octet 2", "NetworkMaskOctet2");
 	networkMask3 = Legato::NumberParameter<uint8_t>::createInstance(0, "ArtNet Network Mask Octet 3", "NetworkMaskOctet3");
 	
+	sendingFrequency = Legato::NumberParameter<double>::createInstance(1.0, "Sending frequency", "SendingFrequency");
+	sendingFrequency->setUnit(Units::Frequency::Hertz);
+	sendingFrequency->allowNegatives(false);
+	
 	ArtConfig config;
 }
 
@@ -118,7 +122,7 @@ void ArtNetNode::start(){
 	b_running = true;
 	std::thread dmxThread([this](){
 		
-		long long waitTimeMicros = 1000000.0 / sendingFrequency->value;
+		long long waitTimeMicros = 1000000.0 / sendingFrequency->getValue();
 		removeAllUniverses();
 		
 		script->compileAndRun();

@@ -3,7 +3,6 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/DS402Axis.h"
 
-#include "Project/Editor/Parameter.h"
 #include "Legato/Editor/Parameters.h"
 
 class ATV340 : public EtherCatDevice {

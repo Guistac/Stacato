@@ -6,6 +6,7 @@
 
 #include "Gui/Environnement/EnvironnementGui.h"
 
+#include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 

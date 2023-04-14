@@ -2,6 +2,7 @@
 
 #include "DeviceNode.h"
 
+/*
 std::vector<DeviceType> deviceTypes = {
 	{Device::Type::ETHERCAT_DEVICE, "EtherCatDevice", "EtherCAT Device"},
 	{Device::Type::NETWORK_DEVICE, "NetworkDevice", "Network Device"},
@@ -21,3 +22,4 @@ DeviceType* getDeviceType(Device::Type t) {
 	}
 	return nullptr;
 }
+*/

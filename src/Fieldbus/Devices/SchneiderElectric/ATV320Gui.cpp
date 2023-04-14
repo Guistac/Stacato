@@ -4,6 +4,9 @@
 #include <imgui_internal.h>
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 void ATV320::deviceSpecificGui(){
 	
 	if(ImGui::BeginTabItem("ATV320")){
