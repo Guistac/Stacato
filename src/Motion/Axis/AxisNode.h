@@ -5,6 +5,8 @@
 #include "Project/Editor/Parameter.h"
 #include "Motion/Curve/Profile.h"
 
+#include "Legato/Editor/Parameters.h"
+
 class FeedbackMapping;
 class ActuatorMapping;
 
@@ -78,27 +80,27 @@ private:
 		LINEAR = 0,
 		ANGULAR = 1
 	}movementType = LINEAR;
-	OptionParameter::Option option_movementType_Linear = 	OptionParameter::Option(MovementType::LINEAR, "Linear Motion", "LinearMotion");
-	OptionParameter::Option option_movementType_Angular = 	OptionParameter::Option(MovementType::ANGULAR, "Angular Motion", "AngularMotion");
-	OptionParam movementTypeParameter;
+	Legato::Option option_movementType_Linear = 	Legato::Option(MovementType::LINEAR, "Linear Motion", "LinearMotion");
+	Legato::Option option_movementType_Angular = 	Legato::Option(MovementType::ANGULAR, "Angular Motion", "AngularMotion");
+	Legato::OptionParam movementTypeParameter;
 	 
-	OptionParameter::Option option_positionUnit_Millimeter = 	OptionParameter::Option(0, "Millimeter", "Millimeter");
-	OptionParameter::Option option_positionUnit_Centimeter = 	OptionParameter::Option(1, "Centimeter", "Centimeter");
-	OptionParameter::Option option_positionUnit_Meter = 		OptionParameter::Option(2, "Meter", "Meter");
-	OptionParameter::Option option_positionUnit_Degree = 		OptionParameter::Option(3, "Degree", "Degree");
-	OptionParameter::Option option_positionUnit_Radian = 		OptionParameter::Option(4, "Radian", "Radian");
-	OptionParameter::Option option_positionUnit_Revolution = 	OptionParameter::Option(5, "Revolution", "Revolution");
-	OptionParam positionUnitParameter;
+	Legato::Option option_positionUnit_Millimeter = Legato::Option(0, "Millimeter", "Millimeter");
+	Legato::Option option_positionUnit_Centimeter = Legato::Option(1, "Centimeter", "Centimeter");
+	Legato::Option option_positionUnit_Meter = 		Legato::Option(2, "Meter", "Meter");
+	Legato::Option option_positionUnit_Degree = 	Legato::Option(3, "Degree", "Degree");
+	Legato::Option option_positionUnit_Radian = 	Legato::Option(4, "Radian", "Radian");
+	Legato::Option option_positionUnit_Revolution = Legato::Option(5, "Revolution", "Revolution");
+	Legato::OptionParam positionUnitParameter;
 	
 	enum ControlMode{
 		POSITION_CONTROL = 0,
 		VELOCITY_CONTROL = 1,
 		NO_CONTROL = 2
 	}controlMode = NO_CONTROL;
-	OptionParameter::Option option_controlMode_Position =	OptionParameter::Option(ControlMode::POSITION_CONTROL, "Position Control", "PositionControl");
-	OptionParameter::Option option_controlMode_Velocity =	OptionParameter::Option(ControlMode::VELOCITY_CONTROL, "Velocity Control", "VelocityControl");
-	OptionParameter::Option option_controlMode_None =		OptionParameter::Option(ControlMode::NO_CONTROL, "No Control", "No Control");
-	OptionParam controlModeParameter;
+	Legato::Option option_controlMode_Position =	Legato::Option(ControlMode::POSITION_CONTROL, "Position Control", "PositionControl");
+	Legato::Option option_controlMode_Velocity =	Legato::Option(ControlMode::VELOCITY_CONTROL, "Velocity Control", "VelocityControl");
+	Legato::Option option_controlMode_None =		Legato::Option(ControlMode::NO_CONTROL, "No Control", "No Control");
+	Legato::OptionParam controlModeParameter;
 	
 	enum LimitSignalType{
 		NONE = 0,
@@ -107,33 +109,32 @@ private:
 		SIGNAL_AT_ORIGIN = 3,
 		LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS = 4
 	}limitSignalType = NONE;
-	OptionParameter::Option option_LimitSignalType_NoLimitSignal = OptionParameter::Option(LimitSignalType::NONE,
-																						   "No limit signal", "NoLimitSignal");
-	OptionParameter::Option option_LimitSignalType_SignalAtLowerLimit = OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_LIMIT,
-																								"Signal at lower limit", "SignalAtLowerLimit");
-	OptionParameter::Option option_LimitSignalType_SignalAtLowerAndUpperLimits = OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS,
-																										 "Signal at lower and upper limit", "SignalAtLowerAndUpperLimit");
-	OptionParameter::Option option_LimitSignalType_SignalAtOrigin = OptionParameter::Option(LimitSignalType::SIGNAL_AT_ORIGIN,
-																							"Signal at origin", "SignalAtOrigin");
-	OptionParameter::Option option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits =
-		OptionParameter::Option(LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS,
-								"Limit and slowdown signals", "LimitAndSlowdownSignals");
-	OptionParam limitSignalTypeParameter;
+	Legato::Option option_LimitSignalType_NoLimitSignal = Legato::Option(LimitSignalType::NONE,
+																		 "No limit signal", "NoLimitSignal");
+	Legato::Option option_LimitSignalType_SignalAtLowerLimit = Legato::Option(LimitSignalType::SIGNAL_AT_LOWER_LIMIT,
+																			  "Signal at lower limit", "SignalAtLowerLimit");
+	Legato::Option option_LimitSignalType_SignalAtLowerAndUpperLimits = Legato::Option(LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS,
+																					   "Signal at lower and upper limit", "SignalAtLowerAndUpperLimit");
+	Legato::Option option_LimitSignalType_SignalAtOrigin = Legato::Option(LimitSignalType::SIGNAL_AT_ORIGIN,
+																		  "Signal at origin", "SignalAtOrigin");
+	Legato::Option option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits = Legato::Option(LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS,
+																								 "Limit and slowdown signals", "LimitAndSlowdownSignals");
+	Legato::OptionParam limitSignalTypeParameter;
 	
 	enum HomingDirection{
 		NEGATIVE = 0,
 		POSITIVE = 1
 	}homingDirection = NEGATIVE;
-	OptionParameter::Option option_HomingDirection_Negative = OptionParameter::Option(HomingDirection::NEGATIVE, "Negative", "Negative");
-	OptionParameter::Option option_HomingDirection_Positive = OptionParameter::Option(HomingDirection::POSITIVE, "Positive", "Positive");
+	Legato::Option option_HomingDirection_Negative = Legato::Option(HomingDirection::NEGATIVE, "Negative", "Negative");
+	Legato::Option option_HomingDirection_Positive = Legato::Option(HomingDirection::POSITIVE, "Positive", "Positive");
 	
 	enum SignalApproachMethod{
 		FIND_SIGNAL_EDGE = 0,
 		FIND_SIGNAL_CENTER = 1
 	}signalApproachMethod = FIND_SIGNAL_EDGE;
-	OptionParameter::Option option_SignalApproachMethod_FindSignalEdge = 	OptionParameter::Option(SignalApproachMethod::FIND_SIGNAL_EDGE,
+	Legato::Option option_SignalApproachMethod_FindSignalEdge = 	Legato::Option(SignalApproachMethod::FIND_SIGNAL_EDGE,
 																									"Find signal edge", "FindSignalEdge");
-	OptionParameter::Option option_SignalApproachMethod_FindSignalCenter = 	OptionParameter::Option(SignalApproachMethod::FIND_SIGNAL_CENTER,
+	Legato::Option option_SignalApproachMethod_FindSignalCenter = 	Legato::Option(SignalApproachMethod::FIND_SIGNAL_CENTER,
 																									"Find signal center", "FindSignalCenter");
 	
 	//General
@@ -165,8 +166,8 @@ private:
 	NumberParam<double> accelerationLimit;
 	
 	//Homing
-	OptionParam homingDirectionParameter;
-	OptionParam signalApproachParameter;
+	Legato::OptionParam homingDirectionParameter;
+	Legato::OptionParam signalApproachParameter;
 	NumberParam<double> homingVelocityCoarse;
 	NumberParam<double> homingVelocityFine;
 	NumberParam<double> maxHomingDistanceCoarse;
@@ -329,15 +330,15 @@ public:
 		if(!actuatorInterface->supportsVelocityControl()) actuatorMode_Velocity.disable();
 		if(!actuatorInterface->supportsForceControl()) actuatorMode_Force.disable();
 		
-		controlModeParameter = OptionParameter::make2(*defaultControlMode, {
-															&actuatorMode_None,
-															&actuatorMode_Position,
-															&actuatorMode_Velocity,
-															&actuatorMode_Force
-														}, "Control Mode", "ControlMode");
+		controlModeParameter = Legato::OptionParameter::createInstance(*defaultControlMode, {
+																		&actuatorMode_None,
+																		&actuatorMode_Position,
+																		&actuatorMode_Velocity,
+																		&actuatorMode_Force},
+																	   "Control Mode", "ControlMode");
 		
 		controlModeParameter->addEditCallback([this](){
-			controlMode = (ActuatorControlMode)controlModeParameter->value;
+			controlMode = (ActuatorControlMode)controlModeParameter->getValue();
 		});
 		controlModeParameter->onEdit();
 		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
@@ -352,11 +353,11 @@ public:
 		VELOCITY_CONTROL = 2,
 		FORCE_CONTROL = 3
 	}controlMode = ActuatorControlMode::NO_CONTROL;
-	OptionParameter::Option actuatorMode_None = 	OptionParameter::Option(0, "Disabled", "Disabled");
-	OptionParameter::Option actuatorMode_Position = OptionParameter::Option(1, "Position Control", "PositionControl");
-	OptionParameter::Option actuatorMode_Velocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
-	OptionParameter::Option actuatorMode_Force = 	OptionParameter::Option(3, "Force Control", "ForceControl");
-	OptionParam controlModeParameter;
+	Legato::Option actuatorMode_None = 	Legato::Option(0, "Disabled", "Disabled");
+	Legato::Option actuatorMode_Position = Legato::Option(1, "Position Control", "PositionControl");
+	Legato::Option actuatorMode_Velocity = Legato::Option(2, "Velocity Control", "VelocityControl");
+	Legato::Option actuatorMode_Force = 	Legato::Option(3, "Force Control", "ForceControl");
+	Legato::OptionParam controlModeParameter;
 	
 	NumberParam<double> actuatorUnitsPerAxisUnits;
 	

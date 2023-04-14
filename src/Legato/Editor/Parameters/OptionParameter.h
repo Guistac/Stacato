@@ -40,9 +40,13 @@ public:
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(defaultValue);
 		newParameter->optionList = options;
+		return newParameter;
 	}
 	
 	virtual void onGui() override;
+	
+	int getValue(){ return value; }
+	Option* getOptionValue(){ return findOption(value); }
 	
 	Option* findOption(int enumerator){
 		if(optionList.empty()) return nullptr;
@@ -137,5 +141,7 @@ private:
 	std::vector<Option*> optionList = {};
 	
 };
+
+using OptionParam = std::shared_ptr<OptionParameter>;
 
 };

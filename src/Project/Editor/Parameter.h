@@ -1121,6 +1121,7 @@ inline bool loadXMLElement(std::string elementName, tinyxml2::XMLElement* parent
 }
 
 
+/*
 class OptionParameter : public Parameter{
 public:
 
@@ -1260,3 +1261,4 @@ public:
 using OptionParam = std::shared_ptr<OptionParameter>;
 using Option = OptionParameter::Option;
 
+*/

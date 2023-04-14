@@ -109,10 +109,10 @@ void ATV340::onConstruction() {
 	}
 	
 	motorParameterChoice_Param->addEditCallback([this](){
-		if(motorParameterChoice_Param->value == options.NominalPower.getInt()){
+		if(motorParameterChoice_Param->getValue() == options.NominalPower.getInt()){
 			cosinusPhi_Param->setDisabled(true);
 			nominalMotorPower_Param->setDisabled(false);
-		}else if(motorParameterChoice_Param->value == options.CosinusPhi.getInt()){
+		}else if(motorParameterChoice_Param->getValue() == options.CosinusPhi.getInt()){
 			cosinusPhi_Param->setDisabled(false);
 			nominalMotorPower_Param->setDisabled(true);
 		}else{
@@ -123,7 +123,7 @@ void ATV340::onConstruction() {
 	motorParameterChoice_Param->onEdit();
 	
 	embeddedEncoderType_Param->addEditCallback([this](){
-		if(embeddedEncoderType_Param->value == options.EmbeddedEncoderTypeAB.getInt()){
+		if(embeddedEncoderType_Param->getValue() == options.EmbeddedEncoderTypeAB.getInt()){
 			embeddedEncoderVoltage_Param->setDisabled(false);
 			embeddedEncoderPulsesPerRevolution_Param->setDisabled(false);
 			embeddedEncoderInvertDirection_Param->setDisabled(false);
@@ -138,7 +138,7 @@ void ATV340::onConstruction() {
 	embeddedEncoderType_Param->onEdit();
 	
 	brakeOutputAssignement_Param->addEditCallback([this](){
-		bool brakeOutputUnassigned = brakeOutputAssignement_Param->value == options.NoDigitalOutput.getInt();
+		bool brakeOutputUnassigned = brakeOutputAssignement_Param->getValue() == options.NoDigitalOutput.getInt();
 		brakeMovementType_Param->setDisabled(brakeOutputUnassigned);
 		brakeReleaseTime_Param->setDisabled(brakeOutputUnassigned);
 		brakeEngageTime_Param->setDisabled(brakeOutputUnassigned);
@@ -429,14 +429,14 @@ void ATV340::configureDrive(){
 		//———— Motor Standard
 		
 		//[bfr] {Async} motor standard frequency
-		uint16_t motorStandard = motorStandartFrequency_Param->value;
+		uint16_t motorStandard = motorStandartFrequency_Param->getValue();
 		if(!writeSDO_U16(0x2000, 0x10, motorStandard, "Motor Standard Frequency")) return;
 		
 		
 		//———— Motor Nameplate
 		
 		//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
-		uint16_t motorParameterChoice = motorParameterChoice_Param->value;
+		uint16_t motorParameterChoice = motorParameterChoice_Param->getValue();
 		if(!writeSDO_U16(0x2042, 0xF, motorParameterChoice, "Motor Parameter Choice")) return;
 		
 		if(motorParameterChoice == options.NominalPower.getInt()){
@@ -479,11 +479,11 @@ void ATV340::configureDrive(){
 		//———— Brake Logic Control
 		
 		//[blc] brake assignement
-		uint16_t brakeAssignement = brakeOutputAssignement_Param->value;
+		uint16_t brakeAssignement = brakeOutputAssignement_Param->getValue();
 		if(!writeSDO_U16(0x2046, 0x2, brakeAssignement, "Brake Output Assignement")) return;
 		
 		//[bst] movement type
-		uint16_t brakeMovementType = brakeMovementType_Param->value;
+		uint16_t brakeMovementType = brakeMovementType_Param->getValue();
 		if(!writeSDO_U16(0x2046, 0x9, brakeMovementType, "Brake Movement Type")) return;
 		
 		//[brt] brake release time (int 0.01s increments)
@@ -513,12 +513,12 @@ void ATV340::configureDrive(){
 		//———— Embedded Encoder
 		
 		//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
-		uint16_t encoderType = embeddedEncoderType_Param->value;
+		uint16_t encoderType = embeddedEncoderType_Param->getValue();
 		if(!writeSDO_U16(0x201A, 0x47, encoderType, "Embedded Encoder Type")) return;
 		
 		if(encoderType == options.EmbeddedEncoderTypeAB.getInt()){
 			//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
-			uint16_t encoderSupplyVoltage = embeddedEncoderVoltage_Param->value;
+			uint16_t encoderSupplyVoltage = embeddedEncoderVoltage_Param->getValue();
 			if(!writeSDO_U16(0x201A, 0x50, encoderSupplyVoltage, "Encoder Supply Voltage")) return;
 			
 			//[epg] pulses per encoder revolution
@@ -530,14 +530,14 @@ void ATV340::configureDrive(){
 			if(!writeSDO_U16(0x201A, 0x4F, encoderinvertion, "Embedded Encoder Invert Direction")) return;
 			
 			//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-			uint16_t embeddedEncoderUsage = embeddedEncoderUsage_Param->value;
+			uint16_t embeddedEncoderUsage = embeddedEncoderUsage_Param->getValue();
 			if(!writeSDO_U16(0x201A, 0x4E, embeddedEncoderUsage, "Embedded Encoder Usage")) return;
 		}
 			
 		//———— Motor Control
 		
 		//[ctt] Motor Control Type
-		uint16_t motorControlType = motorControlType_Param->value;
+		uint16_t motorControlType = motorControlType_Param->getValue();
 		//0 = Sensorless flux vector V (no encoder feedback, multiple identical motors supported)
 		//2 = Full flux Vector (encoder feedback necessary)
 		if(!writeSDO_U16(0x2042, 0x8, motorControlType, "Motor Control Type")) return;
@@ -570,11 +570,11 @@ void ATV340::configureDrive(){
 		//———— IO Config
 		
 		//[AI1T]
-		uint16_t analogInput1Type = analogInput1Type_Param->value;
+		uint16_t analogInput1Type = analogInput1Type_Param->getValue();
 		if(!writeSDO_S16(0x200E, 0x3, analogInput1Type, "Analog Input 1 Type")) return;
 		
 		//[AI2T]
-		uint16_t analogInput2Type = analogInput2Type_Param->value;
+		uint16_t analogInput2Type = analogInput2Type_Param->getValue();
 		if(!writeSDO_S16(0x200E, 0x4, analogInput2Type, "Analog Input 2 Type")) return;
 		
 		if(analogInput1Type == options.AnalogInputTypeCurrent.getInt()){
@@ -596,11 +596,11 @@ void ATV340::configureDrive(){
 		}
 		
 		//[LAF] Stop forward limit assignement
-		uint16_t forwardLimitSignal = forwardLimitSignal_Param->value;
+		uint16_t forwardLimitSignal = forwardLimitSignal_Param->getValue();
 		if(!writeSDO_U16(0x2056, 0x2, forwardLimitSignal, "Forward Limit Signal")) return;
 		
 		//[LAR] Stop Reverse limit assignement
-		uint16_t reverseLimitSignal = reverseLimitSignal_Param->value;
+		uint16_t reverseLimitSignal = reverseLimitSignal_Param->getValue();
 		if(!writeSDO_U16(0x2056, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
 
 		if(!saveToEEPROM()) Logger::error("Failed to save configuration to EEPROM");

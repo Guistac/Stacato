@@ -344,10 +344,10 @@ void AxisNode::configurationTab(){
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("General")){
 			ImGui::PopFont();
-			movementTypeParameter->gui(Fonts::sansBold15);
-			positionUnitParameter->gui(Fonts::sansBold15);
-			controlModeParameter->gui(Fonts::sansBold15);
-			limitSignalTypeParameter->gui(Fonts::sansBold15);
+			movementTypeParameter->gui();
+			positionUnitParameter->gui();
+			controlModeParameter->gui();
+			limitSignalTypeParameter->gui();
 		}else ImGui::PopFont();
 		
 		
@@ -376,7 +376,7 @@ void AxisNode::configurationTab(){
 			positionControlSettingsGui();
 		}else ImGui::PopFont();
 		
-		if(controlModeParameter->value == ControlMode::POSITION_CONTROL){
+		if(controlModeParameter->getValue() == ControlMode::POSITION_CONTROL){
 			ImGui::PushFont(Fonts::sansBold20);
 			if(ImGui::CollapsingHeader("Homing")){
 				ImGui::PopFont();
@@ -479,8 +479,8 @@ void AxisNode::actuatorControlSettingsGui(){
 	
 		ImGui::TreePush();
 		
-		mapping->controlModeParameter->gui(Fonts::sansBold15);
-		mapping->actuatorUnitsPerAxisUnits->gui(Fonts::sansBold15);
+		mapping->controlModeParameter->gui();
+		mapping->actuatorUnitsPerAxisUnits->gui();
 
 		ImGui::TreePop();
 		ImGui::PopID();
@@ -530,7 +530,7 @@ void AxisNode::limitSettingsGui(){
 
 void AxisNode::positionControlSettingsGui(){
 	
-	ImGui::BeginDisabled(controlModeParameter->value != ControlMode::POSITION_CONTROL);
+	ImGui::BeginDisabled(controlModeParameter->getValue() != ControlMode::POSITION_CONTROL);
 	positionLoop_velocityFeedForward->gui(Fonts::sansBold15);
 	positionLoop_proportionalGain->gui(Fonts::sansBold15);
 	positionLoop_maxError->gui(Fonts::sansBold15);
@@ -538,18 +538,18 @@ void AxisNode::positionControlSettingsGui(){
 	ImGui::EndDisabled();
 	
 	velocityLoop_maxError->gui(Fonts::sansBold15);
-	ImGui::BeginDisabled(limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS);
+	ImGui::BeginDisabled(limitSignalTypeParameter->getValue() != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS);
 	limitSlowdownVelocity->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();
 }
 
 void AxisNode::homingSettingsGui(){
-	homingDirectionParameter->gui(Fonts::sansBold15);
-	signalApproachParameter->gui(Fonts::sansBold15);
-	homingVelocityCoarse->gui(Fonts::sansBold15);
-	homingVelocityFine->gui(Fonts::sansBold15);
-	maxHomingDistanceCoarse->gui(Fonts::sansBold15);
-	maxHomingDistanceFine->gui(Fonts::sansBold15);
+	homingDirectionParameter->gui();
+	signalApproachParameter->gui();
+	homingVelocityCoarse->gui();
+	homingVelocityFine->gui();
+	maxHomingDistanceCoarse->gui();
+	maxHomingDistanceFine->gui();
 }
 
 

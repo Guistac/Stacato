@@ -78,13 +78,13 @@ void AxisNode::onConstruction(){
 	
 	
 	
-	movementTypeParameter = OptionParameter::make2(option_movementType_Linear, {
+	movementTypeParameter = Legato::OptionParameter::createInstance(option_movementType_Linear, {
 														&option_movementType_Linear,
 														&option_movementType_Angular
 													}, "Movement Type", "MovementType");
 	movementTypeParameter->addEditCallback([this](){ updateMovementType(); });
 	
-	positionUnitParameter = OptionParameter::make2(option_positionUnit_Meter, {
+	positionUnitParameter = Legato::OptionParameter::createInstance(option_positionUnit_Meter, {
 														&option_positionUnit_Millimeter,
 														&option_positionUnit_Centimeter,
 														&option_positionUnit_Meter,
@@ -94,7 +94,7 @@ void AxisNode::onConstruction(){
 													}, "Position Unit", "PositionUnit");
 	positionUnitParameter->addEditCallback([this](){ updatePositionUnit(); });
 	
-	controlModeParameter = OptionParameter::make2(option_controlMode_None, {
+	controlModeParameter = Legato::OptionParameter::createInstance(option_controlMode_None, {
 		&option_controlMode_Position,
 		&option_controlMode_Velocity,
 		&option_controlMode_None
@@ -140,7 +140,7 @@ void AxisNode::onConstruction(){
 	
 	
 	
-	limitSignalTypeParameter = OptionParameter::make2(option_LimitSignalType_NoLimitSignal, {
+	limitSignalTypeParameter = Legato::OptionParameter::createInstance(option_LimitSignalType_NoLimitSignal, {
 															&option_LimitSignalType_NoLimitSignal,
 															&option_LimitSignalType_SignalAtLowerLimit,
 															&option_LimitSignalType_SignalAtLowerAndUpperLimits,
@@ -148,12 +148,12 @@ void AxisNode::onConstruction(){
 															&option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits
 														}, "Limit Signal Type", "LimitSignalType");
 	
-	homingDirectionParameter = 	OptionParameter::make2(option_HomingDirection_Negative, {
+	homingDirectionParameter = 	Legato::OptionParameter::createInstance(option_HomingDirection_Negative, {
 															&option_HomingDirection_Negative,
 															&option_HomingDirection_Positive
 														}, "Homing direction", "HomingDirection");
 	
-	signalApproachParameter = 	OptionParameter::make2(option_SignalApproachMethod_FindSignalEdge, {
+	signalApproachParameter = 	Legato::OptionParameter::createInstance(option_SignalApproachMethod_FindSignalEdge, {
 															&option_SignalApproachMethod_FindSignalEdge,
 															&option_SignalApproachMethod_FindSignalCenter
 														}, "Signal approach method", "SignalApproachMethod");
@@ -452,15 +452,15 @@ void AxisNode::updateConnectedModules(){
 
 void AxisNode::updateControlMode(){
 		
-	switch(controlModeParameter->value){
+	switch(controlModeParameter->getValue()){
 		case ControlMode::POSITION_CONTROL:
 			controlMode = ControlMode::POSITION_CONTROL;
 			option_LimitSignalType_SignalAtLowerLimit.enable();
 			option_LimitSignalType_SignalAtLowerAndUpperLimits.enable();
 			option_LimitSignalType_SignalAtOrigin.enable();
 			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.disable();
-			if(limitSignalTypeParameter->value == LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
-				limitSignalTypeParameter->overwrite(&option_LimitSignalType_SignalAtLowerAndUpperLimits);
+			if(limitSignalTypeParameter->getValue() == LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
+				limitSignalTypeParameter->overwrite(option_LimitSignalType_SignalAtLowerAndUpperLimits);
 				updateLimitSignalType();
 			}
 			break;
@@ -470,9 +470,9 @@ void AxisNode::updateControlMode(){
 			option_LimitSignalType_SignalAtLowerAndUpperLimits.disable();
 			option_LimitSignalType_SignalAtOrigin.disable();
 			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.enable();
-			if(limitSignalTypeParameter->value != LimitSignalType::NONE &&
-			   limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
-				limitSignalTypeParameter->overwrite(&option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits);
+			if(limitSignalTypeParameter->getValue() != LimitSignalType::NONE &&
+			   limitSignalTypeParameter->getValue() != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
+				limitSignalTypeParameter->overwrite(option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits);
 				updateLimitSignalType();
 			}
 			break;
@@ -482,8 +482,8 @@ void AxisNode::updateControlMode(){
 			option_LimitSignalType_SignalAtLowerAndUpperLimits.disable();
 			option_LimitSignalType_SignalAtOrigin.disable();
 			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.disable();
-			if(limitSignalTypeParameter->value != LimitSignalType::NONE){
-				limitSignalTypeParameter->overwrite(&option_LimitSignalType_NoLimitSignal);
+			if(limitSignalTypeParameter->getValue() != LimitSignalType::NONE){
+				limitSignalTypeParameter->overwrite(option_LimitSignalType_NoLimitSignal);
 				updateLimitSignalType();
 			}
 			break;
@@ -492,7 +492,7 @@ void AxisNode::updateControlMode(){
 }
 
 void AxisNode::updateLimitSignalType(){
-	switch(limitSignalTypeParameter->value){
+	switch(limitSignalTypeParameter->getValue()){
 		case LimitSignalType::NONE:
 			//remove
 			lowerLimitSignalPin->disconnectAllLinks();
@@ -527,8 +527,8 @@ void AxisNode::updateLimitSignalType(){
 			option_SignalApproachMethod_FindSignalCenter.disable();
 			option_HomingDirection_Negative.enable();
 			option_HomingDirection_Positive.disable();
-			homingDirectionParameter->overwrite(&option_HomingDirection_Negative);
-			signalApproachParameter->overwrite(&option_SignalApproachMethod_FindSignalEdge);
+			homingDirectionParameter->overwrite(option_HomingDirection_Negative);
+			signalApproachParameter->overwrite(option_SignalApproachMethod_FindSignalEdge);
 			break;
 		case LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
 			//add
@@ -546,7 +546,7 @@ void AxisNode::updateLimitSignalType(){
 			option_SignalApproachMethod_FindSignalCenter.disable();
 			option_HomingDirection_Negative.enable();
 			option_HomingDirection_Positive.enable();
-			signalApproachParameter->overwrite(&option_SignalApproachMethod_FindSignalEdge);
+			signalApproachParameter->overwrite(option_SignalApproachMethod_FindSignalEdge);
 			break;
 		case LimitSignalType::SIGNAL_AT_ORIGIN:
 			//add
@@ -585,9 +585,9 @@ void AxisNode::updateLimitSignalType(){
 			break;
 	}
 	
-	limitSignalType = (LimitSignalType)limitSignalTypeParameter->value;
-	homingDirection = (HomingDirection)homingDirectionParameter->value;
-	signalApproachMethod = (SignalApproachMethod)signalApproachParameter->value;
+	limitSignalType = (LimitSignalType)limitSignalTypeParameter->getValue();
+	homingDirection = (HomingDirection)homingDirectionParameter->getValue();
+	signalApproachMethod = (SignalApproachMethod)signalApproachParameter->getValue();
 	
 	updateAxisConfiguration();
 }
@@ -595,7 +595,7 @@ void AxisNode::updateLimitSignalType(){
 void AxisNode::updateAxisConfiguration(){
 	auto& config = axisInterface->configuration;
 
-	switch(controlModeParameter->value){
+	switch(controlModeParameter->getValue()){
 		case ControlMode::VELOCITY_CONTROL:
 			config.controlMode = AxisInterface::ControlMode::VELOCITY_CONTROL;
 			break;
@@ -661,8 +661,8 @@ void AxisNode::updateAxisConfiguration(){
 	config.b_supportsEffortFeedback = b_force;
 	
 	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL &&
-							limitSignalTypeParameter->value != LimitSignalType::NONE &&
-							limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
+							limitSignalTypeParameter->getValue() != LimitSignalType::NONE &&
+							limitSignalTypeParameter->getValue() != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
 	
 	
 	axisPin->updateConnectedPins();
@@ -670,7 +670,7 @@ void AxisNode::updateAxisConfiguration(){
 
 
 void AxisNode::updateMovementType(){
-	switch(movementTypeParameter->value){
+	switch(movementTypeParameter->getValue()){
 		case MovementType::LINEAR:
 			movementType = MovementType::LINEAR;
 			option_positionUnit_Millimeter.enable();
@@ -680,7 +680,7 @@ void AxisNode::updateMovementType(){
 			option_positionUnit_Radian.disable();
 			option_positionUnit_Revolution.disable();
 			if(axisInterface->getPositionUnit()->unitType != Units::Type::LINEAR_DISTANCE){
-				positionUnitParameter->overwrite(&option_positionUnit_Meter);
+				positionUnitParameter->overwrite(option_positionUnit_Meter);
 			}
 			break;
 		case MovementType::ANGULAR:
@@ -692,7 +692,7 @@ void AxisNode::updateMovementType(){
 			option_positionUnit_Radian.enable();
 			option_positionUnit_Revolution.enable();
 			if(axisInterface->getPositionUnit()->unitType != Units::Type::ANGULAR_DISTANCE){
-				positionUnitParameter->overwrite(&option_positionUnit_Degree);
+				positionUnitParameter->overwrite(option_positionUnit_Degree);
 			}
 			break;
 	}
@@ -702,7 +702,7 @@ void AxisNode::updateMovementType(){
 void AxisNode::updatePositionUnit(){
 	
 	Unit newPositionUnit = Units::None::None;
-	int unit = positionUnitParameter->value;
+	int unit = positionUnitParameter->getValue();
 	if(unit == option_positionUnit_Millimeter.getInt()) 		newPositionUnit = Units::LinearDistance::Millimeter;
 	else if(unit == option_positionUnit_Centimeter.getInt()) 	newPositionUnit = Units::LinearDistance::Centimeter;
 	else if(unit == option_positionUnit_Meter.getInt()) 		newPositionUnit = Units::LinearDistance::Meter;

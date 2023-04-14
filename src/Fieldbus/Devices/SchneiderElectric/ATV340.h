@@ -4,6 +4,7 @@
 #include "Fieldbus/Utilities/DS402Axis.h"
 
 #include "Project/Editor/Parameter.h"
+#include "Legato/Editor/Parameters.h"
 
 class ATV340 : public EtherCatDevice {
 public:
@@ -129,32 +130,32 @@ public:
 		invertRelay2_Param
 	});
 	
-	
 	//———— Parameter for the following parameters
 	
 	struct ParameterOptions{
+		
 		//[BFR]
-		Option Hz50 = Option(0, "50 Hz", "50Hz");
-		Option Hz60 = Option(1, "60 Hz", "60Hz");
-		std::vector<Option*> motorStandardFrequency_Options = {
+		Legato::Option Hz50 = Legato::Option(0, "50 Hz", "50Hz");
+		Legato::Option Hz60 = Legato::Option(1, "60 Hz", "60Hz");
+		std::vector<Legato::Option*> motorStandardFrequency_Options = {
 			&Hz50,
 			&Hz60
 		};
 
 		//[MPC]
-		Option NominalPower = Option(0, "Nominal Power", "NominalPower");
-		Option CosinusPhi = Option(1, "Cosinus Phi", "CosinusPhi");
-		std::vector<Option*> motorParameterChoice_Options = {
+		Legato::Option NominalPower = Legato::Option(0, "Nominal Power", "NominalPower");
+		Legato::Option CosinusPhi = Legato::Option(1, "Cosinus Phi", "CosinusPhi");
+		std::vector<Legato::Option*> motorParameterChoice_Options = {
 			&NominalPower,
 			&CosinusPhi
 		};
 		
 		//[BLC]
-		Option NoDigitalOutput = Option(0, "None", "None");
-		Option R2 = Option(2, 	"R2", 	"R2");
-		Option DQ1 = Option(64, "DQ0", 	"DQ0");
-		Option DQ2 = Option(65, "DQ1", 	"DQ1");
-		std::vector<Option*> digitalOutput_Options = {
+		Legato::Option NoDigitalOutput = Legato::Option(0, "None", "None");
+		Legato::Option R2 = Legato::Option(2, 	"R2", 	"R2");
+		Legato::Option DQ1 = Legato::Option(64, "DQ0", 	"DQ0");
+		Legato::Option DQ2 = Legato::Option(65, "DQ1", 	"DQ1");
+		std::vector<Legato::Option*> digitalOutput_Options = {
 			&NoDigitalOutput,
 			&R2,
 			&DQ1,
@@ -162,76 +163,76 @@ public:
 		};
 		
 		//[BST]
-		Option HorizontalMovement = Option(0, "Horizontal Travel", "HorizontalTravel");
-		Option Hoisting = Option(1, "Hoisting", "Hoisting");
-		std::vector<Option*> brakeMovementType_Options = {
+		Legato::Option HorizontalMovement = Legato::Option(0, "Horizontal Travel", "HorizontalTravel");
+		Legato::Option Hoisting = Legato::Option(1, "Hoisting", "Hoisting");
+		std::vector<Legato::Option*> brakeMovementType_Options = {
 			&HorizontalMovement,
 			&Hoisting
 		};
 		
 		//[EECP]
-		Option EmbeddedEncoderTypeNone = Option(0, "No Embedded Encoder", "None");
-		Option EmbeddedEncoderTypeAB = Option(1, "AB Incremental Encoder", "AB");
-		std::vector<Option*> embeddedEncoderType_Options = {
+		Legato::Option EmbeddedEncoderTypeNone = Legato::Option(0, "No Embedded Encoder", "None");
+		Legato::Option EmbeddedEncoderTypeAB = Legato::Option(1, "AB Incremental Encoder", "AB");
+		std::vector<Legato::Option*> embeddedEncoderType_Options = {
 			&EmbeddedEncoderTypeNone,
 			&EmbeddedEncoderTypeAB
 		};
 		
 		//[EECV]
-		Option EmbeddedEncoder5V = Option(5, "5V", "5V");
-		Option EmbeddedEncoder12V = Option(12, "12V", "12V");
-		Option EmbeddedEncoder24V = Option(24, "24V", "24V");
-		std::vector<Option*> embeddedEncoderVoltage_Options = {
+		Legato::Option EmbeddedEncoder5V = Legato::Option(5, "5V", "5V");
+		Legato::Option EmbeddedEncoder12V = Legato::Option(12, "12V", "12V");
+		Legato::Option EmbeddedEncoder24V = Legato::Option(24, "24V", "24V");
+		std::vector<Legato::Option*> embeddedEncoderVoltage_Options = {
 			&EmbeddedEncoder5V,
 			&EmbeddedEncoder12V,
 			&EmbeddedEncoder24V
 		};
 		
 		//[EENU] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-		Option EmbeddedEncoderNoUsage = Option(0, "No Usage", "NoUsage");
-		Option EmbeddedEncoderSpeedMonitoring = Option(1, "Speed Monitoring", "SpeedMonitoring");
-		Option EmbeddedEncoderSpeedRegulation = Option(2, "Speed Regulation", "SpeedRegulation");
-		std::vector<Option*> embeddedEncoderUsage_Options = {
+		Legato::Option EmbeddedEncoderNoUsage = Legato::Option(0, "No Usage", "NoUsage");
+		Legato::Option EmbeddedEncoderSpeedMonitoring = Legato::Option(1, "Speed Monitoring", "SpeedMonitoring");
+		Legato::Option EmbeddedEncoderSpeedRegulation = Legato::Option(2, "Speed Regulation", "SpeedRegulation");
+		std::vector<Legato::Option*> embeddedEncoderUsage_Options = {
 			&EmbeddedEncoderNoUsage,
 			&EmbeddedEncoderSpeedMonitoring,
 			&EmbeddedEncoderSpeedRegulation
 		};
 		
 		//[CTT]
-		Option SensorlessFullFlux = Option(0, "Sensorless Full Flux (Open Loop)", "SensorlessFullFlux");
-		Option FullFluxVector = Option(2, "Full Flux Vector (Closed Loop)", "FullFluxVector");
-		std::vector<Option*> motorControlType_Options = {
+		Legato::Option SensorlessFullFlux = Legato::Option(0, "Sensorless Full Flux (Open Loop)", "SensorlessFullFlux");
+		Legato::Option FullFluxVector = Legato::Option(2, "Full Flux Vector (Closed Loop)", "FullFluxVector");
+		std::vector<Legato::Option*> motorControlType_Options = {
 			&SensorlessFullFlux,
 			&FullFluxVector
 		};
 		
 		
 		//[AIOT]
-		Option AnalogInputTypeVoltage = Option(1, "Measure Voltage", "MeasureVoltage");
-		Option AnalogInputTypeCurrent = Option(2, "Measure Current", "MeasureCurrent");
-		Option AnalogInputTypeVoltageBipolar = Option(5, "Measure Voltage ±10V", "MeasureVoltageBipolar10V");
-		std::vector<Option*> analogInput1Type_Options = {
+		Legato::Option AnalogInputTypeVoltage = Legato::Option(1, "Measure Voltage", "MeasureVoltage");
+		Legato::Option AnalogInputTypeCurrent = Legato::Option(2, "Measure Current", "MeasureCurrent");
+		Legato::Option AnalogInputTypeVoltageBipolar = Legato::Option(5, "Measure Voltage ±10V", "MeasureVoltageBipolar10V");
+		std::vector<Legato::Option*> analogInput1Type_Options = {
 			&AnalogInputTypeVoltage,
 			&AnalogInputTypeCurrent
 		};
-		std::vector<Option*> analogInput2Type_Options = {
+		std::vector<Legato::Option*> analogInput2Type_Options = {
 			&AnalogInputTypeVoltage,
 			&AnalogInputTypeVoltageBipolar
 		};
 		
 		//[PSLIN]
-		Option NoDigitalInput = Option(0, "None", "NoInputAssignement");
-		Option DI1_High = Option(129, "DI1 (High Level)", "DI1High");
-		Option DI2_High = Option(130, "DI2 (High Level)", "DI2High");
-		Option DI3_High = Option(131, "DI3 (High Level)", "DI3High");
-		Option DI4_High = Option(132, "DI4 (High Level)", "DI4High");
-		Option DI5_High = Option(133, "DI5 (High Level)", "DI5High");
-		Option DI1_Low = Option(272, "DI1 (Low Level)", "DI1Low");
-		Option DI2_Low = Option(273, "DI2 (Low Level)", "DI2Low");
-		Option DI3_Low = Option(274, "DI3 (Low Level)", "DI3Low");
-		Option DI4_Low = Option(275, "DI4 (Low Level)", "DI4Low");
-		Option DI5_Low = Option(276, "DI5 (Low Level)", "DI5Low");
-		std::vector<Option*> digitalInput_Options = {
+		Legato::Option NoDigitalInput = Legato::Option(0, "None", "NoInputAssignement");
+		Legato::Option DI1_High = Legato::Option(129, "DI1 (High Level)", "DI1High");
+		Legato::Option DI2_High = Legato::Option(130, "DI2 (High Level)", "DI2High");
+		Legato::Option DI3_High = Legato::Option(131, "DI3 (High Level)", "DI3High");
+		Legato::Option DI4_High = Legato::Option(132, "DI4 (High Level)", "DI4High");
+		Legato::Option DI5_High = Legato::Option(133, "DI5 (High Level)", "DI5High");
+		Legato::Option DI1_Low = Legato::Option(272, "DI1 (Low Level)", "DI1Low");
+		Legato::Option DI2_Low = Legato::Option(273, "DI2 (Low Level)", "DI2Low");
+		Legato::Option DI3_Low = Legato::Option(274, "DI3 (Low Level)", "DI3Low");
+		Legato::Option DI4_Low = Legato::Option(275, "DI4 (Low Level)", "DI4Low");
+		Legato::Option DI5_Low = Legato::Option(276, "DI5 (Low Level)", "DI5Low");
+		std::vector<Legato::Option*> digitalInput_Options = {
 			&NoDigitalInput,
 			&DI1_High,
 			&DI1_Low,
@@ -256,10 +257,10 @@ public:
 	//———— Motor Nameplate
 	
 	//[bfr] {Async} motor standard frequency
-	OptionParam motorStandartFrequency_Param = OptionParameter::make(options.Hz50, options.motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
+	Legato::OptionParam motorStandartFrequency_Param = Legato::OptionParameter::createInstance(options.Hz50, options.motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
 	
 	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
-	OptionParam motorParameterChoice_Param = OptionParameter::make(options.NominalPower, options.motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
+	Legato::OptionParam motorParameterChoice_Param = Legato::OptionParameter::createInstance(options.NominalPower, options.motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
 	
 	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
 	NumberParam<double> cosinusPhi_Param = NumberParameter<double>::make(0.0, "Cosinus Phi", "CosinusPhi", "%.2f", Units::None::None, false);
@@ -286,6 +287,7 @@ public:
 	NumberParam<double> motorMaximumFrequency_Param = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
 	
 	ParameterGroup motorNameplateParameters = ParameterGroup("MotorNameplate", {
+		/*
 		motorStandartFrequency_Param,
 		motorParameterChoice_Param,
 		cosinusPhi_Param,
@@ -296,15 +298,16 @@ public:
 		nominalMotorSpeed_Param,
 		motorThermalCurrent_Param,
 		motorMaximumFrequency_Param
+		 */
 	});
 	
 	//———— Brake Logic
 	
 	//[blc] brake assignement
-	OptionParam brakeOutputAssignement_Param = OptionParameter::make(options.NoDigitalOutput, options.digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
+	Legato::OptionParam brakeOutputAssignement_Param = Legato::OptionParameter::createInstance(options.NoDigitalOutput, options.digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
 	
 	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
-	OptionParam brakeMovementType_Param = OptionParameter::make(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
+	Legato::OptionParam brakeMovementType_Param = Legato::OptionParameter::createInstance(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
 	
 	//[brt] brake release time
 	NumberParam<double> brakeReleaseTime_Param = NumberParameter<double>::make(0.1, "Brake Release Time", "BrakeReleaseTime", "%.2f", Units::Time::Second, false);
@@ -322,6 +325,7 @@ public:
 	NumberParam<double> brakeEngageFrequency_Param = NumberParameter<double>::make(0.0, "Brake Engage Frequency", "BrakeEngageFrequency", "%.1f", Units::Frequency::Hertz, false);
 	
 	ParameterGroup brakeLogicParameters = ParameterGroup("BrakeLogic", {
+		/*
 		brakeOutputAssignement_Param,
 		brakeMovementType_Param,
 		brakeReleaseTime_Param,
@@ -329,15 +333,16 @@ public:
 		brakeReleaseCurrent_Param,
 		brakeReleaseFrequency_Param,
 		brakeEngageFrequency_Param
+		*/
 	});
 	
 	//———— Embedded Encoder
 	
 	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
-	OptionParam embeddedEncoderType_Param = OptionParameter::make(options.EmbeddedEncoderTypeNone, options.embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
+	Legato::OptionParam embeddedEncoderType_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderTypeNone, options.embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
 	
 	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
-	OptionParam embeddedEncoderVoltage_Param = OptionParameter::make(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
+	Legato::OptionParam embeddedEncoderVoltage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
 	
 	//[epg] pulses per encoder revolution
 	NumberParam<int> embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::make(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution", "%i", Units::None::None, false);
@@ -346,20 +351,22 @@ public:
 	BoolParam embeddedEncoderInvertDirection_Param = BooleanParameter::make(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
 	
 	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-	OptionParam embeddedEncoderUsage_Param = OptionParameter::make(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
+	Legato::OptionParam embeddedEncoderUsage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
 	
 	ParameterGroup embeddedEncoderParameters = ParameterGroup("EmbeddedEncoder", {
+		/*
 		embeddedEncoderType_Param,
 		embeddedEncoderVoltage_Param,
 		embeddedEncoderPulsesPerRevolution_Param,
 		embeddedEncoderInvertDirection_Param,
 		embeddedEncoderUsage_Param
+		 */
 	});
 	
 	//———— Motor Control
 	
 	//[ctt] Motor Control Type
-	OptionParam motorControlType_Param = OptionParameter::make(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
+	Legato::OptionParam motorControlType_Param = Legato::OptionParameter::createInstance(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
 	
 	NumberParam<int> velocityLimitRPM_Param = NumberParameter<int>::make(1000, "Velocity Limit", "VelocityLimit", "%i rpm", Units::None::None, false);
 	
@@ -370,20 +377,22 @@ public:
 	NumberParam<double> switchingFrequency_Param = NumberParameter<double>::make(16, "Switching Frequency", "SwitchingFrequeny", "%.1f", Units::Frequency::Kilohertz, false);
 	
 	ParameterGroup motorControlParameters = ParameterGroup("MotorControl", {
+		/*
 		motorControlType_Param,
 		velocityLimitRPM_Param,
 		accelerationRampTime_Param,
 		decelerationRampTime_Param,
 		switchingFrequency_Param
+		 */
 	});
 	
 	//———— Analog IO Configuration
 	
 	//[AI1T]
-	OptionParam analogInput1Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
+	Legato::OptionParam analogInput1Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
 	
 	//[AI2T]
-	OptionParam analogInput2Type_Param = OptionParameter::make(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
+	Legato::OptionParam analogInput2Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
 	
 	//[CrL1]
 	NumberParam<double> analogInputMinCurrent_Param = NumberParameter<double>::make(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue", "%.1f", Units::Current::Milliampere, false);
@@ -398,25 +407,29 @@ public:
 	NumberParam<double> analogInputMaxVoltage_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue", "%.1f", Units::Voltage::Volt, false);
 	
 	ParameterGroup analogIoConfigParameters = ParameterGroup("AnalogIOConfig", {
+		/*
 		analogInput1Type_Param,
 		analogInput2Type_Param,
 		analogInputMinCurrent_Param,
 		analogInputMaxCurrent_Param,
 		analogInputMinVoltage_Param,
 		analogInputMaxVoltage_Param
+		 */
 	});
 	
 	//———— Digital IO Configuration
 	
 	//[LAF] Stop forward limit assignement
-	OptionParam forwardLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
+	Legato::OptionParam forwardLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
 	
 	//[LAR] Stop Reverse limit assignement
-	OptionParam reverseLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
+	Legato::OptionParam reverseLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
 	
 	ParameterGroup digitalIoConfigParameters = ParameterGroup("DigitalIOConfig", {
+		/*
 		forwardLimitSignal_Param,
 		reverseLimitSignal_Param
+		 */
 	});
 	
 	void configureDrive();
