@@ -7,7 +7,6 @@
 //#include "Machine/Machines/StateMachines/FlipStateMachine.h"
 //#include "Machine/Machines/StateMachines/AxisStateMachine.h"
 
-#include "Motion/Axis/Axis.h"
 #include "Motion/Axis/AxisNode.h"
 
 #include "Motion/Safety/DeadMansSwitch.h"
