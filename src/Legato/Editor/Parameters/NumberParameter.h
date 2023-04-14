@@ -4,66 +4,8 @@
 
 namespace Legato{
 
-class BaseNumberParameter : public Parameter{
-public:
-	std::shared_ptr<BaseNumberParameter> duplicate(){
-		return std::static_pointer_cast<BaseNumberParameter>(duplicatePrototype());
-	}
-protected:
-	BaseNumberParameter() : Parameter(false) {}
-	
-public:
-	
-	virtual void setStepSize(double small, double large) = 0;
-	
-	void setPrefix(std::string p) { prefix = p; updateFormatString(); }
-	void setFormat(std::string f) { format = f; updateFormatString();  }
-	void setUnit(Unit u){ unit = u; updateFormatString(); }
-	void setSuffix(std::string s) { suffix = s; updateFormatString();  }
-	void updateFormatString(){
-		const char* unitAbbreviated = unit->abbreviated;
-		if(unit == Units::Fraction::Percent) unitAbbreviated = "%%";
-		formatString = prefix + format + std::string(unitAbbreviated) + suffix;
-	}
-	const char* getFormatString(){ return formatString.c_str(); }
-	
-private:
-	
-	virtual void onConstruction() override {
-		Parameter::onConstruction();
-	}
-	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		Parameter::onCopyFrom(source);
-	}
-	
-	virtual bool onSerialization() override {
-		bool success = true;
-		success &= Parameter::onSerialization();
-		return success;
-	}
-	
-	virtual bool onDeserialization() override {
-		bool success = true;
-		success &= Parameter::onDeserialization();
-		return success;
-	}
-	
-private:
-	
-	std::string prefix;
-	std::string format;
-	Unit unit = Units::None::None;
-	std::string suffix;
-	std::string formatString;
-	
-};
-
-
-
-
 template<typename T>
-class NumberParameter : public BaseNumberParameter{
+class NumberParameter : public Parameter{
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NumberParameter)
 	
@@ -77,8 +19,13 @@ public:
 		newParameter->setFormat(newParameter->getDefaultFormatString());
 		return newParameter;
 	}
-
-	virtual void setStepSize(double small, double large) override {
+	
+	void setPrefix(std::string p) { prefix = p; updateFormatString(); }
+	void setFormat(std::string f) { format = f; updateFormatString();  }
+	void setUnit(Unit u){ unit = u; updateFormatString(); }
+	void setSuffix(std::string s) { suffix = s; updateFormatString();  }
+	void allowNegatives(bool allowNegatives){ b_allowNegatives = allowNegatives; }
+	void setStepSize(double small, double large) {
 		stepSmall = small;
 		if(stepSmall == 0) stepSmallPtr = nullptr;
 		else stepSmallPtr = &stepSmall;
@@ -87,11 +34,22 @@ public:
 		else stepLargePtr = &stepLarge;
 	}
 	
+	bool validateRange(double rangeMin, double rangeMax, bool withMin, bool withMax) {
+		bool valid = true;
+		if(withMin && value < rangeMin) valid = false;
+		else if(!withMin && value <= rangeMin) valid = false;
+		else if(withMax && value > rangeMax) valid = false;
+		else if(!withMax && value >= rangeMax) valid = false;
+		setValid(valid);
+		return valid;
+	};
+	
 	virtual void onGui() override;
 	
 	T getValue(){ return value; }
 	
 	void overwrite(T newValue){
+		if(!b_allowNegatives && newValue < 0) newValue = 0;
 		displayValue = newValue;
 		value = newValue;
 	}
@@ -113,6 +71,11 @@ public:
 	
 private:
 	
+	void updateFormatString(){
+		const char* unitAbbreviated = unit->abbreviated;
+		if(unit == Units::Fraction::Percent) unitAbbreviated = "%%";
+		formatString = prefix + format + std::string(unitAbbreviated) + suffix;
+	}
 	ImGuiDataType getImGuiDataType();
 	std::string getDefaultFormatString(){ return "%i"; } //template specialisation for real float and double types
 	
@@ -181,6 +144,14 @@ private:
 	T stepLarge;
 	T* stepSmallPtr;
 	T* stepLargePtr;
+	
+	std::string prefix;
+	std::string format;
+	Unit unit = Units::None::None;
+	std::string suffix;
+	std::string formatString;
+	
+	bool b_allowNegatives = true;
 };
 
 template<typename T>

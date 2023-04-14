@@ -82,13 +82,31 @@ void ArtNetNode::onConstruction(){
 		"\n";
 	script->load(defaultScript);
 	
+	
+	
+	ipAddress0 = Legato::NumberParameter<uint8_t>::createInstance(192, "ArtNet IP Octet 0", "IpOctet0");
+	ipAddress1 = Legato::NumberParameter<uint8_t>::createInstance(168, "ArtNet IP Octet 1", "IpOctet1");
+	ipAddress2 = Legato::NumberParameter<uint8_t>::createInstance(1, "ArtNet IP Octet 2", "IpOctet2");
+	ipAddress3 = Legato::NumberParameter<uint8_t>::createInstance(33, "ArtNet IP Octet 3", "IpOctet3");
+	portNumber = Legato::NumberParameter<uint16_t>::createInstance(6454, "ArtNet Port Number", "Port");
+	broadcast = Legato::BooleanParameter::createInstance(false, "ArtNet Broadcast", "Broadcast");
+	
+	networkIpAddress0 = Legato::NumberParameter<uint8_t>::createInstance(192, "ArtNet Network IP Octet 0", "NetworkIpOctet0");
+	networkIpAddress1 = Legato::NumberParameter<uint8_t>::createInstance(168, "ArtNet Network IP Octet 1", "NetworkIpOctet1");
+	networkIpAddress2 = Legato::NumberParameter<uint8_t>::createInstance(0, "ArtNet Network IP Octet 2", "NetworkIpOctet2");
+	networkIpAddress3 = Legato::NumberParameter<uint8_t>::createInstance(0, "ArtNet Network IP Octet 3", "NetworkIpOctet3");
+	networkMask0 = Legato::NumberParameter<uint8_t>::createInstance(255, "ArtNet Network Mask Octet 0", "NetworkMaskOctet0");
+	networkMask1 = Legato::NumberParameter<uint8_t>::createInstance(255, "ArtNet Network Mask Octet 1", "NetworkMaskOctet1");
+	networkMask2 = Legato::NumberParameter<uint8_t>::createInstance(255, "ArtNet Network Mask Octet 2", "NetworkMaskOctet2");
+	networkMask3 = Legato::NumberParameter<uint8_t>::createInstance(0, "ArtNet Network Mask Octet 3", "NetworkMaskOctet3");
+	
 	ArtConfig config;
 }
 
 void ArtNetNode::connect(){
 	//we are sending artnet packets over udp (broadcast or not)
 	if(broadcast->getValue()) udpSocket = Network::getUdpBroadcastSocket();
-	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
+	else udpSocket = Network::getUdpSocket(0, {ipAddress0->getValue(), ipAddress1->getValue(), ipAddress2->getValue(), ipAddress3->getValue()}, portNumber->getValue());
 	if(udpSocket){
 		b_running = true;
         start();
@@ -106,12 +124,12 @@ void ArtNetNode::start(){
 		script->compileAndRun();
 		script->callFunction("setup");
 		
-        uint32_t address_u32 = networkIpAddress0->value << 24 | networkIpAddress1->value << 16 | networkIpAddress2->value << 8 | networkIpAddress3->value;
-        uint32_t mask_u32 = networkMask0->value << 24 | networkMask1->value << 16 | networkMask2->value << 8 | networkMask3->value;
+        uint32_t address_u32 = networkIpAddress0->getValue() << 24 | networkIpAddress1->getValue() << 16 | networkIpAddress2->getValue() << 8 | networkIpAddress3->getValue();
+        uint32_t mask_u32 = networkMask0->getValue() << 24 | networkMask1->getValue() << 16 | networkMask2->getValue() << 8 | networkMask3->getValue();
         asio::ip::address_v4 address = asio::ip::make_address_v4(address_u32);
         asio::ip::address_v4 mask = asio::ip::make_address_v4(mask_u32);
         asio::ip::network_v4 network(address, mask);
-        asio::ip::udp::endpoint broadcastEndpoint(network.broadcast(), portNumber->value);
+        asio::ip::udp::endpoint broadcastEndpoint(network.broadcast(), portNumber->getValue());
 
 		bool b_broadcast = broadcast->getValue();
 		

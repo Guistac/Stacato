@@ -2,7 +2,6 @@
 
 #include "Environnement/NodeGraph/Node.h"
 #include "Motion/Interfaces.h"
-#include "Project/Editor/Parameter.h"
 #include "Motion/Curve/Profile.h"
 
 #include "Legato/Editor/Parameters.h"
@@ -138,17 +137,17 @@ private:
 																									"Find signal center", "FindSignalCenter");
 	
 	//General
-	NumberParam<double> maxEnableTimeSeconds;
+	Legato::NumberParam<double> maxEnableTimeSeconds;
 	
 	//Position Control
-	NumberParam<double> positionLoop_velocityFeedForward;
-	NumberParam<double> positionLoop_proportionalGain;
-	NumberParam<double> positionLoop_maxError;
-	NumberParam<double> positionLoop_minError;
+	Legato::NumberParam<double> positionLoop_velocityFeedForward;
+	Legato::NumberParam<double> positionLoop_proportionalGain;
+	Legato::NumberParam<double> positionLoop_maxError;
+	Legato::NumberParam<double> positionLoop_minError;
 	
 	//Velocity Control
-	NumberParam<double> limitSlowdownVelocity;
-	NumberParam<double> velocityLoop_maxError;
+	Legato::NumberParam<double> limitSlowdownVelocity;
+	Legato::NumberParam<double> velocityLoop_maxError;
 	
 	//Limits
 	double actuatorVelocityLimit;
@@ -158,20 +157,20 @@ private:
 	Legato::BoolParam enableLowerPositionLimit;
 	Legato::BoolParam enableUpperPositionLimit;
 	Legato::BoolParam limitPositionToFeedbackWorkingRange;
-	NumberParam<double> lowerPositionLimit;
-	NumberParam<double> upperPositionLimit;
-	NumberParam<double> lowerPositionLimitClearance;
-	NumberParam<double> upperPositionLimitClearance;
-	NumberParam<double> velocityLimit;
-	NumberParam<double> accelerationLimit;
+	Legato::NumberParam<double> lowerPositionLimit;
+	Legato::NumberParam<double> upperPositionLimit;
+	Legato::NumberParam<double> lowerPositionLimitClearance;
+	Legato::NumberParam<double> upperPositionLimitClearance;
+	Legato::NumberParam<double> velocityLimit;
+	Legato::NumberParam<double> accelerationLimit;
 	
 	//Homing
 	Legato::OptionParam homingDirectionParameter;
 	Legato::OptionParam signalApproachParameter;
-	NumberParam<double> homingVelocityCoarse;
-	NumberParam<double> homingVelocityFine;
-	NumberParam<double> maxHomingDistanceCoarse;
-	NumberParam<double> maxHomingDistanceFine;
+	Legato::NumberParam<double> homingVelocityCoarse;
+	Legato::NumberParam<double> homingVelocityFine;
+	Legato::NumberParam<double> maxHomingDistanceCoarse;
+	Legato::NumberParam<double> maxHomingDistanceFine;
 	
 	//Surveillance
 	Legato::BoolParam enableSurveillanceParameter = Legato::BooleanParameter::createInstance(false, "Enable Surveillance", "EnableSurveillance");
@@ -305,12 +304,12 @@ public:
 	FeedbackMapping(std::shared_ptr<NodePin> interfacePin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
 		feedbackInterface = interfacePin->getSharedPointer<MotionFeedbackInterface>();
 		interfacePinID = interfacePin->getUniqueID();
-		feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
+		feedbackUnitsPerAxisUnit = Legato::NumberParameter<double>::createInstance(1.0, "Feedback units per axis unit", "UnitConversion");
 		
 		feedbackUnitsPerAxisUnit->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
 	}
 	std::shared_ptr<MotionFeedbackInterface> feedbackInterface;
-	NumberParam<double> feedbackUnitsPerAxisUnit;
+	Legato::NumberParam<double> feedbackUnitsPerAxisUnit;
 	int interfacePinID = 0;
 	std::shared_ptr<AxisNode> axisNode;
 };
@@ -341,7 +340,7 @@ public:
 			controlMode = (ActuatorControlMode)controlModeParameter->getValue();
 		});
 		controlModeParameter->onEdit();
-		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
+		actuatorUnitsPerAxisUnits = Legato::NumberParameter<double>::createInstance(1.0, "Actuator units per axis units", "UnitConversion");
 		
 		actuatorUnitsPerAxisUnits->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
 		controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
@@ -359,7 +358,7 @@ public:
 	Legato::Option actuatorMode_Force = 	Legato::Option(3, "Force Control", "ForceControl");
 	Legato::OptionParam controlModeParameter;
 	
-	NumberParam<double> actuatorUnitsPerAxisUnits;
+	Legato::NumberParam<double> actuatorUnitsPerAxisUnits;
 	
 	double actuatorPositionOffset = 0.0;
 	std::shared_ptr<ActuatorInterface> actuatorInterface;

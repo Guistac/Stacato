@@ -2,7 +2,6 @@
 
 #include "Networking/NetworkDevice.h"
 
-#include "Project/Editor/Parameter.h"
 #include "Legato/Editor/Parameters.h"
 
 #include <asio.hpp>
@@ -59,21 +58,21 @@ class ArtNetNode : public NetworkDevice{
 	bool b_running = false;
 	bool b_isSending = false;
 	
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet IP Octet 0", "IpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet IP Octet 1", "IpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress2 = NumberParameter<uint8_t>::make(1, "ArtNet IP Octet 2", "IpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> ipAddress3 = NumberParameter<uint8_t>::make(33, "ArtNet IP Octet 3", "IpOctet3");
-	std::shared_ptr<NumberParameter<uint16_t>> portNumber = NumberParameter<uint16_t>::make(6454, "ArtNet Port Number", "Port");
-	Legato::BoolParam broadcast = Legato::BooleanParameter::createInstance(false, "ArtNet Broadcast", "Broadcast");
+	Legato::NumberParam<uint8_t> ipAddress0;
+	Legato::NumberParam<uint8_t> ipAddress1;
+	Legato::NumberParam<uint8_t> ipAddress2;
+	Legato::NumberParam<uint8_t> ipAddress3;
+	Legato::NumberParam<uint16_t> portNumber;
+	Legato::BoolParam broadcast;
 	
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet Network IP Octet 0", "NetworkIpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet Network IP Octet 1", "NetworkIpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress2 = NumberParameter<uint8_t>::make(0, "ArtNet Network IP Octet 2", "NetworkIpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress3 = NumberParameter<uint8_t>::make(0, "ArtNet Network IP Octet 3", "NetworkIpOctet3");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask0 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 0", "NetworkMaskOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask1 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 1", "NetworkMaskOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask2 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 2", "NetworkMaskOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> networkMask3 = NumberParameter<uint8_t>::make(0, "ArtNet Network Mask Octet 3", "NetworkMaskOctet3");
+	Legato::NumberParam<uint8_t> networkIpAddress0;
+	Legato::NumberParam<uint8_t> networkIpAddress1;
+	Legato::NumberParam<uint8_t> networkIpAddress2;
+	Legato::NumberParam<uint8_t> networkIpAddress3;
+	Legato::NumberParam<uint8_t> networkMask0;
+	Legato::NumberParam<uint8_t> networkMask1;
+	Legato::NumberParam<uint8_t> networkMask2;
+	Legato::NumberParam<uint8_t> networkMask3;
 	
 	
 	

@@ -5,8 +5,6 @@
 #include "Utilities/CircularBuffer.h"
 #include "Motion/Curve/Profile.h"
 
-#include "Project/Editor/Parameter.h"
-
 /*
 class Device;
 namespace Motion {

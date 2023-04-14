@@ -90,50 +90,7 @@ public:
 	std::shared_ptr<NodePin> digitalOutput2_Pin;
 	std::shared_ptr<NodePin> relaisOutput1_Pin;
 	std::shared_ptr<NodePin> relaisOutput2_Pin;
-	
-	//———— Process Data
-	
-	Legato::BoolParam pdo_digitalIn = Legato::BooleanParameter::createInstance(false, "Read Digital Inputs", "ConfigDigitalInputs");
-	Legato::BoolParam pdo_digitalOut = Legato::BooleanParameter::createInstance(false, "Write Digital Outputs", "ConfigDigitalOutputs");
-	Legato::BoolParam pdo_readAnalogIn1 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 1", "ConfigAnalogInput1");
-	Legato::BoolParam pdo_readAnalogIn2 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 2", "ConfigAnalogInput2");
-	Legato::BoolParam pdo_motorVelocity = Legato::BooleanParameter::createInstance(false, "Read Output Velocity", "ConfigMotorOutputVelocity");
-	Legato::BoolParam pdo_motorEffort = Legato::BooleanParameter::createInstance(false, "Read Motor Effort", "ConfigMotorEffort");
-	ParameterGroup pdoConfigParameters = ParameterGroup("PDOconfig",{
-		/*
-		pdo_digitalIn,
-		pdo_digitalOut,
-		pdo_readAnalogIn1,
-		pdo_readAnalogIn2,
-		pdo_motorVelocity,
-		pdo_motorEffort
-		*/
-	});
-	
-	
-	Legato::BoolParam invertDigitalInput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 1", "InvertDigitalInput1");
-	Legato::BoolParam invertDigitalInput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 2", "InvertDigitalInput2");
-	Legato::BoolParam invertDigitalInput3_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 3", "InvertDigitalInput3");
-	Legato::BoolParam invertDigitalInput4_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 4", "InvertDigitalInput4");
-	Legato::BoolParam invertDigitalInput5_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 5", "InvertDigitalInput5");
-	Legato::BoolParam invertDigitalOutput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
-	Legato::BoolParam invertDigitalOutput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
-	Legato::BoolParam invertRelay1_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 1", "InvertRelay1");
-	Legato::BoolParam invertRelay2_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 2", "InvertRelay1");
-	ParameterGroup digitalSignalInversion = ParameterGroup("Digital Signal Inversion", {
-		/*
-		invertDigitalInput1_Param,
-		invertDigitalInput2_Param,
-		invertDigitalInput3_Param,
-		invertDigitalInput4_Param,
-		invertDigitalInput5_Param,
-		invertDigitalOutput1_Param,
-		invertDigitalOutput2_Param,
-		invertRelay1_Param,
-		invertRelay2_Param
-		 */
-	});
-	
+		
 	//———— Parameter for the following parameters
 	
 	struct ParameterOptions{
@@ -250,191 +207,123 @@ public:
 			&DI5_Low
 		};
 		
-		
-		
 	};
 	static ParameterOptions options;
 	
 	
+	//———— Process Data
+	
+	Legato::BoolParam pdo_digitalIn;
+	Legato::BoolParam pdo_digitalOut;
+	Legato::BoolParam pdo_readAnalogIn1;
+	Legato::BoolParam pdo_readAnalogIn2;
+	Legato::BoolParam pdo_motorVelocity;
+	Legato::BoolParam pdo_motorEffort;
+	Legato::ParamGroup pdoConfigParameters;
+	
+	
+	Legato::BoolParam invertDigitalInput1_Param;
+	Legato::BoolParam invertDigitalInput2_Param;
+	Legato::BoolParam invertDigitalInput3_Param;
+	Legato::BoolParam invertDigitalInput4_Param;
+	Legato::BoolParam invertDigitalInput5_Param;
+	Legato::BoolParam invertDigitalOutput1_Param;
+	Legato::BoolParam invertDigitalOutput2_Param;
+	Legato::BoolParam invertRelay1_Param;
+	Legato::BoolParam invertRelay2_Param;
+	Legato::ParamGroup digitalSignalInversion;
 	
 	
 	//———— Motor Nameplate
 	
 	//[bfr] {Async} motor standard frequency
-	Legato::OptionParam motorStandartFrequency_Param = Legato::OptionParameter::createInstance(options.Hz50, options.motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
-	
+	Legato::OptionParam motorStandartFrequency_Param;
 	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
-	Legato::OptionParam motorParameterChoice_Param = Legato::OptionParameter::createInstance(options.NominalPower, options.motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
-	
+	Legato::OptionParam motorParameterChoice_Param;
 	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
-	NumberParam<double> cosinusPhi_Param = NumberParameter<double>::make(0.0, "Cosinus Phi", "CosinusPhi", "%.2f", Units::None::None, false);
-	
+	Legato::NumberParam<double> cosinusPhi_Param;
 	//[npr] {Async} nominal motor power (0.01 Watt increments)
-	NumberParam<double> nominalMotorPower_Param = NumberParameter<double>::make(0.0, "Nominal Motor Power", "NominalMotorPower", "%.2f", Units::Power::KiloWatt, false);
-	
+	Legato::NumberParam<double> nominalMotorPower_Param;
 	//[uns] {Async} nominal motor voltage (1v increments)
-	NumberParam<int> nominalMotorVoltage_Param = NumberParameter<int>::make(0, "Nominal Motor Voltage", "NominalMotorVoltage", "%i", Units::Voltage::Volt, false);
-	
+	Legato::NumberParam<int> nominalMotorVoltage_Param;
 	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
-	NumberParam<double> nominalMotorCurrent_Param = NumberParameter<double>::make(0.0, "Nominal Motor Current", "NominalMotorCurrent", "%.2f", Units::Current::Ampere, false);
-
+	Legato::NumberParam<double> nominalMotorCurrent_Param;
 	//[frs] {Async} nominal motor frequency (0.1Hz increments)
-	NumberParam<double> nominalMotorFrequency_Param = NumberParameter<double>::make(0.0, "Nominal Motor Frequency", "NominalMotorFrequency", "%.2f", Units::Frequency::Hertz, false);
-	
+	Legato::NumberParam<double> nominalMotorFrequency_Param;
 	//[nsp] {Async} nominal motor speed (rpm)
-	NumberParam<int> nominalMotorSpeed_Param = NumberParameter<int>::make(0, "Nominal Motor Speed", "NominalMotorSpeed", "%i rpm", Units::None::None, false);
-	
+	Legato::NumberParam<int> nominalMotorSpeed_Param;
 	//[ith] Motor Thermal Current (0.01 Ampere increments)
-	NumberParam<double> motorThermalCurrent_Param = NumberParameter<double>::make(0.0, "Motor Thermal Current", "MotorThermalCurrent", "%.2f", Units::Current::Ampere, false);
-	
+	Legato::NumberParam<double> motorThermalCurrent_Param;
 	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
-	NumberParam<double> motorMaximumFrequency_Param = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
-	
-	ParameterGroup motorNameplateParameters = ParameterGroup("MotorNameplate", {
-		/*
-		motorStandartFrequency_Param,
-		motorParameterChoice_Param,
-		cosinusPhi_Param,
-		nominalMotorPower_Param,
-		nominalMotorVoltage_Param,
-		nominalMotorCurrent_Param,
-		nominalMotorFrequency_Param,
-		nominalMotorSpeed_Param,
-		motorThermalCurrent_Param,
-		motorMaximumFrequency_Param
-		 */
-	});
+	Legato::NumberParam<double> motorMaximumFrequency_Param;
+	Legato::ParamGroup motorNameplateParameters;
 	
 	//———— Brake Logic
 	
 	//[blc] brake assignement
-	Legato::OptionParam brakeOutputAssignement_Param = Legato::OptionParameter::createInstance(options.NoDigitalOutput, options.digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
-	
+	Legato::OptionParam brakeOutputAssignement_Param;
 	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
-	Legato::OptionParam brakeMovementType_Param = Legato::OptionParameter::createInstance(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
-	
+	Legato::OptionParam brakeMovementType_Param;
 	//[brt] brake release time
-	NumberParam<double> brakeReleaseTime_Param = NumberParameter<double>::make(0.1, "Brake Release Time", "BrakeReleaseTime", "%.2f", Units::Time::Second, false);
-
+	Legato::NumberParam<double> brakeReleaseTime_Param;
 	//[bet] brake engage time
-	NumberParam<double> brakeEngageTime_Param = NumberParameter<double>::make(0.5, "Brake Engage Time", "BrakeEngageTime", "%.2f", Units::Time::Second, false);
-
+	Legato::NumberParam<double> brakeEngageTime_Param;
 	//[ibr] brake release current (default is nominal motor current)
-	NumberParam<double> brakeReleaseCurrent_Param = NumberParameter<double>::make(1.0, "Brake Release Current", "BrakeReleaseCurrent", "%.2f", Units::Current::Ampere, false);
-	
+	Legato::NumberParam<double> brakeReleaseCurrent_Param;
 	//[bir] brake release frequency (default is 0Hz)
-	NumberParam<double> brakeReleaseFrequency_Param = NumberParameter<double>::make(0.0, "Brake Release Frequency", "BrakeReleaseFrequency", "%.1f", Units::Frequency::Hertz, false);
-	
+	Legato::NumberParam<double> brakeReleaseFrequency_Param;
 	//[ben] brake engage frequency (default is 0Hz)
-	NumberParam<double> brakeEngageFrequency_Param = NumberParameter<double>::make(0.0, "Brake Engage Frequency", "BrakeEngageFrequency", "%.1f", Units::Frequency::Hertz, false);
-	
-	ParameterGroup brakeLogicParameters = ParameterGroup("BrakeLogic", {
-		/*
-		brakeOutputAssignement_Param,
-		brakeMovementType_Param,
-		brakeReleaseTime_Param,
-		brakeEngageTime_Param,
-		brakeReleaseCurrent_Param,
-		brakeReleaseFrequency_Param,
-		brakeEngageFrequency_Param
-		*/
-	});
+	Legato::NumberParam<double> brakeEngageFrequency_Param;
+	Legato::ParamGroup brakeLogicParameters;
 	
 	//———— Embedded Encoder
 	
 	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
-	Legato::OptionParam embeddedEncoderType_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderTypeNone, options.embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
-	
+	Legato::OptionParam embeddedEncoderType_Param;
 	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
-	Legato::OptionParam embeddedEncoderVoltage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
-	
+	Legato::OptionParam embeddedEncoderVoltage_Param;
 	//[epg] pulses per encoder revolution
-	NumberParam<int> embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::make(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution", "%i", Units::None::None, false);
-	
+	Legato::NumberParam<int> embeddedEncoderPulsesPerRevolution_Param;
 	//[eeri] embedded encoder revolution inversion (0=No, 1=Yes)
-	Legato::BoolParam embeddedEncoderInvertDirection_Param = Legato::BooleanParameter::createInstance(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
-	
+	Legato::BoolParam embeddedEncoderInvertDirection_Param;
 	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
-	Legato::OptionParam embeddedEncoderUsage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
-	
-	ParameterGroup embeddedEncoderParameters = ParameterGroup("EmbeddedEncoder", {
-		/*
-		embeddedEncoderType_Param,
-		embeddedEncoderVoltage_Param,
-		embeddedEncoderPulsesPerRevolution_Param,
-		embeddedEncoderInvertDirection_Param,
-		embeddedEncoderUsage_Param
-		 */
-	});
+	Legato::OptionParam embeddedEncoderUsage_Param;
+	Legato::ParamGroup embeddedEncoderParameters;
 	
 	//———— Motor Control
 	
 	//[ctt] Motor Control Type
-	Legato::OptionParam motorControlType_Param = Legato::OptionParameter::createInstance(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
-	
-	NumberParam<int> velocityLimitRPM_Param = NumberParameter<int>::make(1000, "Velocity Limit", "VelocityLimit", "%i rpm", Units::None::None, false);
-	
-	NumberParam<double> accelerationRampTime_Param = NumberParameter<double>::make(3.0, "Acceleration Ramp Time", "AccelerationRampTime", "%.1f", Units::Time::Second, false);
-	
-	NumberParam<double> decelerationRampTime_Param = NumberParameter<double>::make(3.0, "Deceleration Ramp Time", "DecelerationRampTime", "%.1f", Units::Time::Second, false);
-	
-	NumberParam<double> switchingFrequency_Param = NumberParameter<double>::make(16, "Switching Frequency", "SwitchingFrequeny", "%.1f", Units::Frequency::Kilohertz, false);
-	
-	ParameterGroup motorControlParameters = ParameterGroup("MotorControl", {
-		/*
-		motorControlType_Param,
-		velocityLimitRPM_Param,
-		accelerationRampTime_Param,
-		decelerationRampTime_Param,
-		switchingFrequency_Param
-		 */
-	});
+	Legato::OptionParam motorControlType_Param;
+	Legato::NumberParam<int> velocityLimitRPM_Param;
+	Legato::NumberParam<double> accelerationRampTime_Param;
+	Legato::NumberParam<double> decelerationRampTime_Param;
+	Legato::NumberParam<double> switchingFrequency_Param;
+	Legato::ParamGroup motorControlParameters;
 	
 	//———— Analog IO Configuration
 	
 	//[AI1T]
-	Legato::OptionParam analogInput1Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
-	
+	Legato::OptionParam analogInput1Type_Param;
 	//[AI2T]
-	Legato::OptionParam analogInput2Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
-	
+	Legato::OptionParam analogInput2Type_Param;
 	//[CrL1]
-	NumberParam<double> analogInputMinCurrent_Param = NumberParameter<double>::make(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue", "%.1f", Units::Current::Milliampere, false);
-	
+	Legato::NumberParam<double> analogInputMinCurrent_Param;
 	//[CrH1]
-	NumberParam<double> analogInputMaxCurrent_Param = NumberParameter<double>::make(20.0, "Analog Input Maximum Current", "AnalogInputMaximumCurrentValue", "%.1f", Units::Current::Milliampere, false);
-	
+	Legato::NumberParam<double> analogInputMaxCurrent_Param;
 	//[UIL1] = [UIL2] if voltage is selected
-	NumberParam<double> analogInputMinVoltage_Param = NumberParameter<double>::make(0.0, "Analog Input Minimum Voltage", "AnalogInputMinimumVoltageValue", "%.1f", Units::Voltage::Volt, false);
-	
+	Legato::NumberParam<double> analogInputMinVoltage_Param;
 	//[UIH1] = [UIH2] if voltage is selected
-	NumberParam<double> analogInputMaxVoltage_Param = NumberParameter<double>::make(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue", "%.1f", Units::Voltage::Volt, false);
-	
-	ParameterGroup analogIoConfigParameters = ParameterGroup("AnalogIOConfig", {
-		/*
-		analogInput1Type_Param,
-		analogInput2Type_Param,
-		analogInputMinCurrent_Param,
-		analogInputMaxCurrent_Param,
-		analogInputMinVoltage_Param,
-		analogInputMaxVoltage_Param
-		 */
-	});
+	Legato::NumberParam<double> analogInputMaxVoltage_Param;
+	Legato::ParamGroup analogIoConfigParameters;
 	
 	//———— Digital IO Configuration
 	
 	//[LAF] Stop forward limit assignement
-	Legato::OptionParam forwardLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
-	
+	Legato::OptionParam forwardLimitSignal_Param;
 	//[LAR] Stop Reverse limit assignement
-	Legato::OptionParam reverseLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
+	Legato::OptionParam reverseLimitSignal_Param;
+	Legato::ParamGroup digitalIoConfigParameters;
 	
-	ParameterGroup digitalIoConfigParameters = ParameterGroup("DigitalIOConfig", {
-		/*
-		forwardLimitSignal_Param,
-		reverseLimitSignal_Param
-		 */
-	});
 	
 	void configureDrive();
 	void startStandardTuning();
@@ -442,26 +331,6 @@ public:
 	void resetFactorySettings();
 	
 	bool saveToEEPROM();
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	void configureProcessData();
 	

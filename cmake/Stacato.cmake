@@ -189,7 +189,6 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/CommandHistory.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/CommandHistory.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Project/Editor/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Project/Editor/List.h
 
     ${STACATO_SOURCE_DIRECTORY}/Legato/Workspace.h

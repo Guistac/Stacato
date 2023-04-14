@@ -217,7 +217,7 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			std::ostringstream positionString;
 			positionString << std::fixed << std::setprecision(3)
-			<< positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value
+			<< positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->getValue()
 			<< " u";
 			
 			
@@ -250,7 +250,7 @@ void AxisNode::controlTab(){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Velocity Feedback");
 			ImGui::PopFont();
-			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit->getValue();
 			std::ostringstream velocityString;
 			velocityString << std::fixed << std::setprecision(3) << vel << " u/s";
 			ImGui::ProgressBar(std::abs(axisInterface->getVelocityNormalizedToLimits()), progressBarSize, velocityString.str().c_str());
@@ -282,7 +282,7 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			
 			auto feedback = positionFeedbackMapping->feedbackInterface;
-			double fbRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+			double fbRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->getValue();
 			double wrMin = feedback->getPositionLowerWorkingRangeBound() / fbRatio;
 			double wrMax = feedback->getPositionUpperWorkingRangeBound() / fbRatio;
 			double pos = axisInterface->getPositionActual();
@@ -313,9 +313,9 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			std::ostringstream positionErrorString;
 			positionErrorString << std::fixed << std::setprecision(4) << positionFollowingError << " u";
-			double errorNormalized = std::abs(positionFollowingError / positionLoop_maxError->value);
+			double errorNormalized = std::abs(positionFollowingError / positionLoop_maxError->getValue());
 			ImGui::ProgressBar(errorNormalized, progressBarSize, positionErrorString.str().c_str());
-			double minErrorNormalized = std::abs(positionLoop_minError->value) / std::abs(positionLoop_maxError->value);
+			double minErrorNormalized = std::abs(positionLoop_minError->getValue()) / std::abs(positionLoop_maxError->getValue());
 			ImVec2 min = ImGui::GetItemRectMin();
 			ImVec2 max = ImGui::GetItemRectMax();
 			ImVec2 size = ImGui::GetItemRectSize();
@@ -330,7 +330,7 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			std::ostringstream velocityErrorString;
 			velocityErrorString << std::fixed << std::setprecision(4) << velocityFollowingError << " u/s";
-			double errorNormalized = std::abs(velocityFollowingError / velocityLoop_maxError->value);
+			double errorNormalized = std::abs(velocityFollowingError / velocityLoop_maxError->getValue());
 			ImGui::ProgressBar(errorNormalized, progressBarSize, velocityErrorString.str().c_str());
 		}
 		
@@ -387,7 +387,7 @@ void AxisNode::configurationTab(){
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Miscellaneous")){
 			ImGui::PopFont();
-			maxEnableTimeSeconds->gui(Fonts::sansBold15);
+			maxEnableTimeSeconds->gui();
 		}else ImGui::PopFont();
 		
 		ImGui::EndTabItem();
@@ -426,7 +426,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 	if(positionFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Position Feedback Units per Axis Units");
-		ImGui::InputDouble("##pfbratio", &positionFeedbackMapping->feedbackUnitsPerAxisUnit->value);
+		positionFeedbackMapping->feedbackUnitsPerAxisUnit->gui();
 		ImGui::TreePop();
 	}
 	
@@ -462,7 +462,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 	if(velocityFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Velocity Feedback Units per Axis Units");
-		ImGui::InputDouble("##vfbratio", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value);
+		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->gui();
 		ImGui::TreePop();
 	}
 }
@@ -489,13 +489,13 @@ void AxisNode::actuatorControlSettingsGui(){
 
 void AxisNode::limitSettingsGui(){
 
-	velocityLimit->gui(Fonts::sansBold15);
+	velocityLimit->gui();
 	std::ostringstream actVelLimString;
 	actVelLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorVelocityLimit << " u/s";
 	ImGui::SameLine();
 	backgroundText(actVelLimString.str().c_str(), Colors::gray, Colors::black);
 	
-	accelerationLimit->gui(Fonts::sansBold15);
+	accelerationLimit->gui();
 	std::ostringstream actAccLimString;
 	actAccLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorAccelerationLimit << " u/s\xc2\xb2";
 	ImGui::SameLine();
@@ -506,24 +506,24 @@ void AxisNode::limitSettingsGui(){
 	ImGui::BeginDisabled(controlMode != ControlMode::POSITION_CONTROL);
 	
 	enableLowerPositionLimit->gui();
-	lowerPositionLimit->gui(Fonts::sansBold15);
+	lowerPositionLimit->gui();
 	std::ostringstream lowPosLimString;
 	lowPosLimString << "Min: " << std::fixed << std::setprecision(3) << feedbackLowerPositionLimit << " u";
 	ImGui::SameLine();
 	backgroundText(lowPosLimString.str().c_str(), Colors::gray, Colors::black);
 	
-	lowerPositionLimitClearance->gui(Fonts::sansBold15);
+	lowerPositionLimitClearance->gui();
 	
 	ImGui::Separator();
 	
 	enableUpperPositionLimit->gui();
-	upperPositionLimit->gui(Fonts::sansBold15);
+	upperPositionLimit->gui();
 	std::ostringstream highPosLimString;
 	highPosLimString << "Max: " << std::fixed << std::setprecision(3) << feedbackUpperPositionLimit << " u";
 	ImGui::SameLine();
 	backgroundText(highPosLimString.str().c_str(), Colors::gray, Colors::black);
 	
-	upperPositionLimitClearance->gui(Fonts::sansBold15);
+	upperPositionLimitClearance->gui();
 	
 	ImGui::EndDisabled();
 }
@@ -531,15 +531,15 @@ void AxisNode::limitSettingsGui(){
 void AxisNode::positionControlSettingsGui(){
 	
 	ImGui::BeginDisabled(controlModeParameter->getValue() != ControlMode::POSITION_CONTROL);
-	positionLoop_velocityFeedForward->gui(Fonts::sansBold15);
-	positionLoop_proportionalGain->gui(Fonts::sansBold15);
-	positionLoop_maxError->gui(Fonts::sansBold15);
-	positionLoop_minError->gui(Fonts::sansBold15);
+	positionLoop_velocityFeedForward->gui();
+	positionLoop_proportionalGain->gui();
+	positionLoop_maxError->gui();
+	positionLoop_minError->gui();
 	ImGui::EndDisabled();
 	
-	velocityLoop_maxError->gui(Fonts::sansBold15);
+	velocityLoop_maxError->gui();
 	ImGui::BeginDisabled(limitSignalTypeParameter->getValue() != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS);
-	limitSlowdownVelocity->gui(Fonts::sansBold15);
+	limitSlowdownVelocity->gui();
 	ImGui::EndDisabled();
 }
 

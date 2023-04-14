@@ -852,18 +852,13 @@ void VIPA_050_1BB40::onConstruction(){
 	outputBitCount = 96;
 	outputByteCount = 12;
 	 */
-	channel0MeasurementPeriod = NumberParameter<double>::make(0.1,
-															  "Channel 0 Measurement Period",
-															  "Ch0MeasurementPeriod",
-															  "%.4f",
-															  Units::Time::Second,
-															  false);
-	channel1MeasurementPeriod = NumberParameter<double>::make(0.1,
-															  "Channel 1 Measurement Period",
-															  "Ch1MeasurementPeriod",
-															  "%.4f",
-															  Units::Time::Second,
-															  false);
+	channel0MeasurementPeriod = Legato::NumberParameter<double>::createInstance(0.1, "Channel 0 Measurement Period", "Ch0MeasurementPeriod");
+	channel0MeasurementPeriod->setUnit(Units::Time::Second);
+	channel0MeasurementPeriod->allowNegatives(false);
+	
+	channel1MeasurementPeriod = Legato::NumberParameter<double>::createInstance(0.1, "Channel 1 Measurement Period", "Ch1MeasurementPeriod");
+	channel1MeasurementPeriod->setUnit(Units::Time::Second);
+	channel1MeasurementPeriod->allowNegatives(false);
 }
 
 void VIPA_050_1BB40::onSetIndex(int i){

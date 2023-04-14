@@ -3,6 +3,10 @@
 #include "SafetySignal.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
+
+#include "Gui/Assets/Colors.h"
+#include "Gui/Assets/Fonts.h"
+
 #include <imgui.h>
 
 void SafetySignal::nodeSpecificGui(){

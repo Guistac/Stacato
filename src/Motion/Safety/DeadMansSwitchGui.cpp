@@ -3,6 +3,9 @@
 #include "DeadMansSwitch.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 #include <imgui.h>
 
 void DeadMansSwitch::nodeSpecificGui(){

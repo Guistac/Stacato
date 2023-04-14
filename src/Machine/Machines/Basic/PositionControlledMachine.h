@@ -8,8 +8,6 @@
 
 #include "Animation/Animatables/AnimatablePosition.h"
 
-#include "Project/Editor/Parameter.h"
-
 #include "Animation/NewAnimation/AnimatableOwner.h"
 #include "Animation/NewAnimation/AnimatableRegistry.h"
 #include "Animation/NewAnimation/PositionAnimatable.h"

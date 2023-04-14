@@ -100,4 +100,48 @@ namespace Legato{
 	};
 
 
+
+
+	class ParameterGroup : public Component{
+		DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ParameterGroup)
+	public:
+		
+		static std::shared_ptr<ParameterGroup> createInstance(std::string saveString, std::vector<std::shared_ptr<Parameter>> parameters){
+			auto newGroup = ParameterGroup::createInstance();
+			newGroup->parameters = parameters;
+			newGroup->setSaveString(saveString);
+		}
+		
+		virtual void onConstruction() override {
+			Component::onConstruction();
+		};
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+			Component::onCopyFrom(source);
+		}
+		virtual bool onSerialization() override {
+			bool success = true;
+			success &= Component::onSerialization();
+			for(auto parameter : parameters){
+				success &= parameter->serializeIntoParent(this);
+			}
+			return success;
+		}
+		virtual bool onDeserialization() override {
+			bool success = true;
+			success &= Component::onDeserialization();
+			for(auto parameter : parameters){
+				success &= parameter->deserializeFromParent(this);
+			}
+			return success;
+		}
+		
+		const std::vector<std::shared_ptr<Parameter>>& getParameters(){ return parameters; }
+		
+	private:
+		std::vector<std::shared_ptr<Parameter>> parameters;
+	};
+
+	using ParamGroup = std::shared_ptr<ParameterGroup>;
+
+
 }

@@ -63,7 +63,7 @@ public:
 
 
 void testUndoHistory(){
-	
+	/*
 	static std::shared_ptr<List<std::shared_ptr<Parameter>>> parameterList;
 	
 	static bool b_init = false;
@@ -73,7 +73,7 @@ void testUndoHistory(){
 		std::vector<std::shared_ptr<Parameter>> parameters{
 			NumberParameter<int>::make(1, "test")
 			//std::make_shared<NumberParameter<int>>(1, "integer 0", "IntParam1", 1, 10, "%i added things"),
-			/*
+			
 			std::make_shared<NumberParameter<int>>(2, "integer 1", "IntParam2"),
 			std::make_shared<NumberParameter<int>>(3, "integer 2", "IntParam3", 1, 10),
 			std::make_shared<NumberParameter<int>>(4, "integer 3", "IntParam4", 1, 10),
@@ -104,7 +104,7 @@ void testUndoHistory(){
 			std::make_shared<VectorParameter<glm::vec2>>(glm::vec2(1.2, 3.4), 			"Vec2 Parameter 1", "Vec2Param0"),
 			std::make_shared<VectorParameter<glm::vec3>>(glm::vec3(5.6, 7.8, 9.0), 		"Vec3 Parameter 2", "Vec2Param1"),
 			std::make_shared<VectorParameter<glm::vec4>>(glm::vec4(0.0, 1.0, 2.0, 3.0), "Vec4 Parameter 3", "Vec2Param2")
-			 */
+			 
 		};
 		parameterList = std::make_shared<List<std::shared_ptr<Parameter>>>(parameters);
 		
@@ -162,27 +162,27 @@ void testUndoHistory(){
 			std::string name = "int8_t Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(NumberParameter<int8_t>::make(0, name, name));
 		}
-		/*
+
 		ImGui::Separator();
 		if(ImGui::MenuItem("Boolean")){
 			std::string name = "Boolean Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(std::make_shared<BooleanParameter>(false, name, name));
 		}
-		*/
-		/*
+		
+		
 		ImGui::Separator();
 		if(ImGui::MenuItem("String")){
 			std::string name = "String Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(std::make_shared<StringParameter>("", name, name, 256));
 		}
 		ImGui::Separator();
-		*/
-		/*
+		
+		
 		if(ImGui::MenuItem("Enumerator")){
 			std::string name = "Enumerator Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(std::make_shared<EnumeratorParameter<NumberEnum>>(NumberEnum::ONE, name, name));
 		}
-		*/
+		
 		ImGui::EndPopup();
 	}
 	
@@ -255,7 +255,7 @@ void testUndoHistory(){
 	}
 	
 	ImGui::EndChild();
-	
+	*/
 }
 
 

@@ -4,7 +4,6 @@
 #include "Utilities/ScrollingBuffer.h"
 
 #include "Fieldbus/Utilities/DS402Axis.h"
-#include "Project/Editor/Parameter.h"
 
 #include "Legato/Editor/Parameters.h"
 
@@ -106,21 +105,13 @@ public:
 	std::shared_ptr<NodePin> analogOut0_Pin;
 	
 	//Parameters
-	NumberParam<double> velocityLimit_parameter;
-	NumberParam<double> accelerationLimit_parameter;
+	Legato::NumberParam<double> velocityLimit_parameter;
+	Legato::NumberParam<double> accelerationLimit_parameter;
 	Legato::BoolParam  invertMotor_parameter;
-	NumberParam<double> currentLimit_parameter;
-	NumberParam<double> maxFollowingError_parameter;
+	Legato::NumberParam<double> currentLimit_parameter;
+	Legato::NumberParam<double> maxFollowingError_parameter;
 	
-	ParameterGroup axisParameters = ParameterGroup("Axis",{
-		/*
-		velocityLimit_parameter,
-		accelerationLimit_parameter,
-		invertMotor_parameter,
-		currentLimit_parameter,
-		maxFollowingError_parameter
-		*/
-	});
+	Legato::ParamGroup axisParameters;
 	
 	void configureSubmodules(){
 		auto& ac = servo->actuatorConfig;
@@ -128,9 +119,9 @@ public:
 		ac.b_supportsVelocityControl = true;
 		ac.b_supportsForceControl = true;
 		ac.b_supportsEffortFeedback = true;
-		ac.accelerationLimit = accelerationLimit_parameter->value;
-		ac.decelerationLimit = accelerationLimit_parameter->value;
-		ac.velocityLimit = velocityLimit_parameter->value;
+		ac.accelerationLimit = accelerationLimit_parameter->getValue();
+		ac.decelerationLimit = accelerationLimit_parameter->getValue();
+		ac.velocityLimit = velocityLimit_parameter->getValue();
 		ac.forceLimitPositive = 0.0;
 		ac.forceLimitNegative = 0.0;
 		

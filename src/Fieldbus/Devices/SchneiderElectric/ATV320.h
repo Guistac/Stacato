@@ -90,18 +90,12 @@ public:
 	//————— General Settings —————
 	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout
 	
-	std::shared_ptr<NumberParameter<double>> accelerationRampTime = NumberParameter<double>::make(3.0, "Acceleration Ramp", "AccelerationRamp",
-																								  "%.1f", Units::Time::Second, false);
-	std::shared_ptr<NumberParameter<double>> decelerationRampTime = NumberParameter<double>::make(1.0, "Deceleration Ramp", "DecelerationRamp",
-																								  "%.1f", Units::Time::Second, false);
-	std::shared_ptr<NumberParameter<int>> maxVelocityRPM = NumberParameter<int>::make(1400, "Max Velocity", "MaxVelocity", "%i ",
-																					  Units::AngularDistance::Revolution, false, 0, 0, "", "/min");
-	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz = NumberParameter<double>::make(5.0, "Slowdown Velocity", "SlowdownVelocity",
-																								"%.1f", Units::Frequency::Hertz, false);
-	Legato::BoolParam invertDirection = Legato::BooleanParameter::createInstance(false, "Invert Motion Direction", "InvertMotionDirection");
-	
-    std::shared_ptr<NumberParameter<double>> lowSpeedHertz = NumberParameter<double>::make(0.0, "Low Speed", "LowSpeed", "%.1f",
-                                                                                           Units::Frequency::Hertz, false);
+	Legato::NumberParam<double> accelerationRampTime;
+	Legato::NumberParam<double> decelerationRampTime;
+	Legato::NumberParam<int> maxVelocityRPM;
+	Legato::NumberParam<double> slowdownVelocityHertz;
+	Legato::BoolParam invertDirection;
+	Legato::NumberParam<double> lowSpeedHertz;
     
 	std::string getStatusString();
 	std::string getShortStatusString();

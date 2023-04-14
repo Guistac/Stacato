@@ -48,15 +48,40 @@ void ATV320::onConstruction() {
 	addNodePin(actualLoadPin);
 
 
-	maxVelocityRPM->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.velocityLimit = maxVelocityRPM->value / 60.0;
+	accelerationRampTime = Legato::NumberParameter<double>::createInstance(3.0, "Acceleration Ramp", "AccelerationRamp");
+	accelerationRampTime->setUnit(Units::Time::Second);
+	accelerationRampTime->allowNegatives(false);
+	accelerationRampTime->addEditCallback([this](){
+		actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->getValue();
 	});
-	accelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
+	
+	decelerationRampTime = Legato::NumberParameter<double>::createInstance(1.0, "Deceleration Ramp", "DecelerationRamp");
+	decelerationRampTime->setUnit(Units::Time::Second);
+	decelerationRampTime->allowNegatives(false);
+	decelerationRampTime->addEditCallback([this](){
+		actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->getValue();
 	});
-	decelerationRampTime->setEditCallback([this](std::shared_ptr<Parameter>){
-		actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
+	
+	maxVelocityRPM = Legato::NumberParameter<int>::createInstance(1400, "Max Velocity", "MaxVelocity");
+	maxVelocityRPM->setSuffix("rpm");
+	maxVelocityRPM->allowNegatives(false);
+	maxVelocityRPM->addEditCallback([this](){
+		actuator->actuatorConfig.velocityLimit = maxVelocityRPM->getValue() / 60.0;
 	});
+	
+	slowdownVelocityHertz = Legato::NumberParameter<double>::createInstance(5.0, "Slowdown Velocity", "SlowdownVelocity");
+	slowdownVelocityHertz->setUnit(Units::Frequency::Hertz);
+	slowdownVelocityHertz->allowNegatives(false);
+																							
+	invertDirection = Legato::BooleanParameter::createInstance(false, "Invert Motion Direction", "InvertMotionDirection");
+	
+	lowSpeedHertz = Legato::NumberParameter<double>::createInstance(0.0, "Low Speed", "LowSpeed");
+	lowSpeedHertz->setUnit(Units::Frequency::Hertz);
+	lowSpeedHertz->allowNegatives(false);
+	
+
+	
+	
 	
 	
 	rxPdoAssignement.addNewModule(0x1600);
@@ -112,7 +137,7 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2001, 0x4, maxOutputFrequency)) return false;
 	
 	//set minimum control speed in hertz to 0Hz (in .1Hz increments)
-    uint16_t lowSpeed = lowSpeedHertz->value * 10.0;
+    uint16_t lowSpeed = lowSpeedHertz->getValue() * 10.0;
 	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
 	
 	//set maximum control speed to in 0.1Hz increments
@@ -159,7 +184,7 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x2054, 0x2, presetSpeed2InputAssignement)) return false;
 	   
 	//set preset slowdown speed to 5Hz (in .1Hz Increments)
-	uint16_t presetSpeed2Frequency = slowdownVelocityHertz->value * 10.0;
+	uint16_t presetSpeed2Frequency = slowdownVelocityHertz->getValue() * 10.0;
 	if(!writeSDO_U16(0x2054, 0xB, presetSpeed2Frequency)) return false;
 	
 	
@@ -170,11 +195,11 @@ bool ATV320::startupConfiguration() {
 	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
 	
 	//set acceleration time
-	uint16_t accelerationTime = accelerationRampTime->value * 100.0;
+	uint16_t accelerationTime = accelerationRampTime->getValue() * 100.0;
 	if(!writeSDO_U16(0x203C, 0x2, accelerationTime)) return false;
 	
 	//set deceleration time
-	uint16_t decelerationTime = decelerationRampTime->value * 100.0;
+	uint16_t decelerationTime = decelerationRampTime->getValue() * 100.0;
 	if(!writeSDO_U16(0x203C, 0x3, decelerationTime)) return false;
 	
 	

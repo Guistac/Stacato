@@ -34,7 +34,7 @@ namespace Legato{
 	template<typename T>
 	void NumberParameter<T>::onGui() {
 		ImGui::BeginDisabled(isDisabled());
-		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
+		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, formatString.c_str(), ImGuiInputTextFlags_CharsScientific);
 		ImGui::EndDisabled();
 		if(ImGui::IsItemDeactivatedAfterEdit()){
 			overwriteWithHistory(displayValue);

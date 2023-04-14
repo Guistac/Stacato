@@ -101,30 +101,30 @@ void AxisNode::onConstruction(){
 	}, "Axis Control Mode", "AxisControlMode");
 	controlModeParameter->addEditCallback([this](){ updateControlMode(); });
 	
-	maxEnableTimeSeconds = NumberParameter<double>::make(0.2, "Max enable time (seconds)", "MaxEnableTime");
+	maxEnableTimeSeconds = Legato::NumberParameter<double>::createInstance(0.2, "Max enable time (seconds)", "MaxEnableTime");
 	maxEnableTimeSeconds->setUnit(Units::Time::Second);
 	
-	positionLoop_velocityFeedForward = NumberParameter<double>::make(100.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
+	positionLoop_velocityFeedForward = Legato::NumberParameter<double>::createInstance(100.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
 	positionLoop_velocityFeedForward->setUnit(Units::Fraction::Percent);
-	positionLoop_proportionalGain = NumberParameter<double>::make(0.0, "Position loop proportional gain (PKp)", "PositionLoopProportionalGain");
-	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
-	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
+	positionLoop_proportionalGain = Legato::NumberParameter<double>::createInstance(0.0, "Position loop proportional gain (PKp)", "PositionLoopProportionalGain");
+	positionLoop_maxError = Legato::NumberParameter<double>::createInstance(0.0, "Position loop max error", "PositionLoopMaxError");
+	positionLoop_minError = Legato::NumberParameter<double>::createInstance(0.0, "Position loop min error", "PositionLoopMinError");
 	
-	velocityLoop_maxError = NumberParameter<double>::make(0.0, "Velocity loop max error", "VelocityLoopMaxError");
+	velocityLoop_maxError = Legato::NumberParameter<double>::createInstance(0.0, "Velocity loop max error", "VelocityLoopMaxError");
 	velocityLoop_maxError->setSuffix("/s");
-	limitSlowdownVelocity = NumberParameter<double>::make(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
+	limitSlowdownVelocity = Legato::NumberParameter<double>::createInstance(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
 	limitSlowdownVelocity->setSuffix("/s");
 	
 	enableLowerPositionLimit = Legato::BooleanParameter::createInstance(false, "Enable Lower Position Limit", "EnableLowerPositionLimit");
 	enableUpperPositionLimit = Legato::BooleanParameter::createInstance(false, "Enable Upper Position Limit", "EnableUpperPositionLimit");
 	limitPositionToFeedbackWorkingRange = Legato::BooleanParameter::createInstance(true, "Limit position to feedback working range", "LimitPositionToFeedbackWorkingRange");
-	lowerPositionLimit = 			NumberParameter<double>::make(0.0, "Lower Position Limit", "LowerPositionLimit");
-	upperPositionLimit = 			NumberParameter<double>::make(0.0, "Upper Position Limit", "UpperPositionLimit");
-	lowerPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Lower Position Limit Clearance", "LowerPositionLimitClearance");
-	upperPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Upper Position Limit Clearance", "UpperPositionLimitClearance");
-	velocityLimit = 				NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit");
+	lowerPositionLimit = 			Legato::NumberParameter<double>::createInstance(0.0, "Lower Position Limit", "LowerPositionLimit");
+	upperPositionLimit = 			Legato::NumberParameter<double>::createInstance(0.0, "Upper Position Limit", "UpperPositionLimit");
+	lowerPositionLimitClearance = 	Legato::NumberParameter<double>::createInstance(0.0, "Lower Position Limit Clearance", "LowerPositionLimitClearance");
+	upperPositionLimitClearance = 	Legato::NumberParameter<double>::createInstance(0.0, "Upper Position Limit Clearance", "UpperPositionLimitClearance");
+	velocityLimit = 				Legato::NumberParameter<double>::createInstance(0.0, "Velocity Limit", "VelocityLimit");
 	velocityLimit->setSuffix("/s");
-	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
+	accelerationLimit = 			Legato::NumberParameter<double>::createInstance(0.0, "Acceleration Limit", "AccelerationLimit");
 	accelerationLimit->setSuffix("/s\xc2\xb2");
 	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
@@ -158,12 +158,12 @@ void AxisNode::onConstruction(){
 															&option_SignalApproachMethod_FindSignalCenter
 														}, "Signal approach method", "SignalApproachMethod");
 	
-	homingVelocityCoarse = 		NumberParameter<double>::make(0.0, "Homing velocity coarse", "HomingVelocityCoarse");
+	homingVelocityCoarse = 		Legato::NumberParameter<double>::createInstance(0.0, "Homing velocity coarse", "HomingVelocityCoarse");
 	homingVelocityCoarse->setSuffix("/s");
-	homingVelocityFine = 		NumberParameter<double>::make(0.0, "Homing velocity fine", "HomingVelocityFine");
+	homingVelocityFine = 		Legato::NumberParameter<double>::createInstance(0.0, "Homing velocity fine", "HomingVelocityFine");
 	homingVelocityFine->setSuffix("/s");
-	maxHomingDistanceCoarse = 	NumberParameter<double>::make(0.0, "Max homing distance coarse", "MaxHomingDistanceCoarse");
-	maxHomingDistanceFine = 	NumberParameter<double>::make(0.0, "Max homing distance fine", "MaxHomingDistanceFine");
+	maxHomingDistanceCoarse = 	Legato::NumberParameter<double>::createInstance(0.0, "Max homing distance coarse", "MaxHomingDistanceCoarse");
+	maxHomingDistanceFine = 	Legato::NumberParameter<double>::createInstance(0.0, "Max homing distance fine", "MaxHomingDistanceFine");
 	limitSignalTypeParameter->addEditCallback([this](){ updateLimitSignalType(); });
 	homingDirectionParameter->addEditCallback([this](){ updateLimitSignalType(); });
 	signalApproachParameter->addEditCallback([this](){ updateLimitSignalType(); });
@@ -611,33 +611,33 @@ void AxisNode::updateAxisConfiguration(){
 	double lowestActuatorAccelerationLimit = std::numeric_limits<double>::infinity();
 	for(auto actuatorMapping : actuatorMappings){
 		auto actuator = actuatorMapping->actuatorInterface;
-		double thisActuatorVelocityLimit = actuator->getVelocityLimit() / actuatorMapping->actuatorUnitsPerAxisUnits->value;
-		double thisActuatorAccelerationLimit = actuator->getAccelerationLimit()/ actuatorMapping->actuatorUnitsPerAxisUnits->value;
+		double thisActuatorVelocityLimit = actuator->getVelocityLimit() / actuatorMapping->actuatorUnitsPerAxisUnits->getValue();
+		double thisActuatorAccelerationLimit = actuator->getAccelerationLimit()/ actuatorMapping->actuatorUnitsPerAxisUnits->getValue();
 		lowestActuatorVelocityLimit = std::min(lowestActuatorVelocityLimit, thisActuatorVelocityLimit);
 		lowestActuatorAccelerationLimit = std::min(lowestActuatorAccelerationLimit, thisActuatorAccelerationLimit);
 	}
 	actuatorVelocityLimit = lowestActuatorVelocityLimit;
 	actuatorAccelerationLimit = lowestActuatorAccelerationLimit;
 	
-	if(actuatorVelocityLimit < velocityLimit->value) velocityLimit->overwriteWithHistory(actuatorVelocityLimit);
-	if(actuatorAccelerationLimit < accelerationLimit->value) accelerationLimit->overwriteWithHistory(actuatorAccelerationLimit);
+	if(actuatorVelocityLimit < velocityLimit->getValue()) velocityLimit->overwriteWithHistory(actuatorVelocityLimit);
+	if(actuatorAccelerationLimit < accelerationLimit->getValue()) accelerationLimit->overwriteWithHistory(actuatorAccelerationLimit);
 	
-	config.accelerationLimit = accelerationLimit->value;
-	config.decelerationLimit = accelerationLimit->value;
-	config.velocityLimit = velocityLimit->value;
+	config.accelerationLimit = accelerationLimit->getValue();
+	config.decelerationLimit = accelerationLimit->getValue();
+	config.velocityLimit = velocityLimit->getValue();
 	
 	if(positionFeedbackMapping){
 		auto feedback = positionFeedbackMapping->feedbackInterface;
 		
-		feedbackLowerPositionLimit = feedback->getPositionLowerWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
-		feedbackUpperPositionLimit = feedback->getPositionUpperWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+		feedbackLowerPositionLimit = feedback->getPositionLowerWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->getValue();
+		feedbackUpperPositionLimit = feedback->getPositionUpperWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->getValue();
 		
 		if(enableLowerPositionLimit->getValue())
-			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
+			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->getValue(), feedbackLowerPositionLimit, feedbackUpperPositionLimit);
 		else
 			lowerPositionLimitWithoutClearance = feedbackLowerPositionLimit;
 		if(enableUpperPositionLimit->getValue())
-			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
+			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->getValue(), feedbackLowerPositionLimit, feedbackUpperPositionLimit);
 		else
 			upperPositionLimitWithoutClearance = feedbackUpperPositionLimit;
 	}else{
@@ -645,8 +645,8 @@ void AxisNode::updateAxisConfiguration(){
 		upperPositionLimitWithoutClearance = std::numeric_limits<double>::infinity();
 	}
 		
-	config.lowerPositionLimit = lowerPositionLimitWithoutClearance + std::abs(lowerPositionLimitClearance->value);
-	config.upperPositionLimit = upperPositionLimitWithoutClearance - std::abs(upperPositionLimitClearance->value);
+	config.lowerPositionLimit = lowerPositionLimitWithoutClearance + std::abs(lowerPositionLimitClearance->getValue());
+	config.upperPositionLimit = upperPositionLimitWithoutClearance - std::abs(upperPositionLimitClearance->getValue());
 	config.b_supportsPositionFeedback = positionFeedbackMapping != nullptr;
 	config.b_supportsVelocityFeedback = velocityFeedbackMapping != nullptr;
 	config.b_supportsForceFeedback = false;
@@ -711,26 +711,22 @@ void AxisNode::updatePositionUnit(){
 	else if(unit == option_positionUnit_Revolution.getInt()) 	newPositionUnit = Units::AngularDistance::Revolution;
 	
 	axisInterface->configuration.positionUnit = newPositionUnit;
-	
-	std::vector<std::shared_ptr<BaseNumberParameter>> positionUnitParameters = {
-		positionLoop_maxError,
-		positionLoop_minError,
-		limitSlowdownVelocity,
-		velocityLoop_maxError,
-		lowerPositionLimit,
-		upperPositionLimit,
-		lowerPositionLimitClearance,
-		upperPositionLimitClearance,
-		velocityLimit,
-		accelerationLimit,
-		homingVelocityCoarse,
-		homingVelocityFine,
-		maxHomingDistanceCoarse,
-		maxHomingDistanceFine
-	};
-	for(auto unitParameter : positionUnitParameters){
-		unitParameter->setUnit(newPositionUnit);
-	}
+
+	positionLoop_maxError->setUnit(newPositionUnit);
+	positionLoop_minError->setUnit(newPositionUnit);
+	limitSlowdownVelocity->setUnit(newPositionUnit);
+	velocityLoop_maxError->setUnit(newPositionUnit);
+	lowerPositionLimit->setUnit(newPositionUnit);
+	upperPositionLimit->setUnit(newPositionUnit);
+	lowerPositionLimitClearance->setUnit(newPositionUnit);
+	upperPositionLimitClearance->setUnit(newPositionUnit);
+	velocityLimit->setUnit(newPositionUnit);
+	accelerationLimit->setUnit(newPositionUnit);
+	homingVelocityCoarse->setUnit(newPositionUnit);
+	homingVelocityFine->setUnit(newPositionUnit);
+	maxHomingDistanceCoarse->setUnit(newPositionUnit);
+	maxHomingDistanceFine->setUnit(newPositionUnit);
+
 	axisPin->updateConnectedPins();
 }
 

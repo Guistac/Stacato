@@ -58,15 +58,32 @@ void MicroFlex_e190::onConstruction() {
 	addNodePin(analogIn0_Pin);
 	addNodePin(analogOut0_Pin);
 	
-	velocityLimit_parameter = NumberParameter<double>::make(10.0, "Velocity Limit", "VelocityLimit", "%.1f",
-																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
-	accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
-																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
+	velocityLimit_parameter = Legato::NumberParameter<double>::createInstance(10.0, "Velocity Limit", "VelocityLimit");
+	velocityLimit_parameter->setUnit(Units::AngularDistance::Revolution);
+	velocityLimit_parameter->allowNegatives(false);
+	velocityLimit_parameter->setSuffix("/s");
+
+	accelerationLimit_parameter = Legato::NumberParameter<double>::createInstance(10.0, "Acceleration Limit", "AccelerationLimit");
+	accelerationLimit_parameter->setUnit(Units::AngularDistance::Revolution);
+	accelerationLimit_parameter->allowNegatives(false);
+	accelerationLimit_parameter->setSuffix("/s\xc2\xb2");
+																					
 	invertMotor_parameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "InvertDirection");
-	currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
-																			   Units::Fraction::Percent, false);
-	maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",
-																					Units::AngularDistance::Revolution, false);
+	currentLimit_parameter = Legato::NumberParameter<double>::createInstance(100.0, "Max Current", "MaxCurrent");
+	currentLimit_parameter->setUnit(Units::Fraction::Percent);
+	currentLimit_parameter->allowNegatives(false);
+																			   
+	maxFollowingError_parameter = Legato::NumberParameter<double>::createInstance(1.0, "Max Following Error", "MaxFollowingError");
+	maxFollowingError_parameter->setUnit(Units::AngularDistance::Revolution);
+	maxFollowingError_parameter->allowNegatives(false);
+	
+	axisParameters = Legato::ParameterGroup::createInstance("Axis",{
+		velocityLimit_parameter,
+		accelerationLimit_parameter,
+		invertMotor_parameter,
+		currentLimit_parameter,
+		maxFollowingError_parameter
+	});
 	
 	
 	velocityLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
@@ -129,12 +146,12 @@ bool MicroFlex_e190::startupConfiguration() {
 	//———— Current Limitation
 	
 	//as .1% increments of drive rated current
-	uint16_t maxCurrent = currentLimit_parameter->value * 10.0;
+	uint16_t maxCurrent = currentLimit_parameter->getValue() * 10.0;
 	if(!axis->setMaxCurrent(maxCurrent)) return false;
 	
 	//———— Max Following Error
 	
-	uint32_t maxFollowingError = maxFollowingError_parameter->value * incrementsPerPositionUnit;
+	uint32_t maxFollowingError = maxFollowingError_parameter->getValue() * incrementsPerPositionUnit;
 	if(!axis->setPositionFollowingErrorWindow(maxFollowingError)) return false;
 	
 	//———— Error Reactions
@@ -307,8 +324,8 @@ void MicroFlex_e190::writeOutputs() {
 	//if the servo pin is not connected, we allow manual velocity control of the axis
 	else{
 		double deltaT_s = EtherCatFieldbus::getCycleTimeDelta_seconds();
-		double acceleration = accelerationLimit_parameter->value;
-		double velocityLimit = velocityLimit_parameter->value;
+		double acceleration = accelerationLimit_parameter->getValue();
+		double velocityLimit = velocityLimit_parameter->getValue();
 		double deltaV = acceleration * deltaT_s;
 		if(manualVelocityTarget > profiler_velocity) {
 			profiler_velocity += deltaV;
@@ -334,16 +351,22 @@ void MicroFlex_e190::writeOutputs() {
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool MicroFlex_e190::onSerialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	bool success = true;
 	success &= EtherCatDevice::onSerialization();
-	success &= axisParameters.save(xmlElement);
+	success &= axisParameters->save(xmlElement);
 	return success;
+	 */
 }
 
 
 bool MicroFlex_e190::onDeserialization(){
+	assert(false && "Cannot save or load this yet");
+	/*
 	bool success = true;
 	success &= EtherCatDevice::onDeserialization();
 	success &= axisParameters.load(xmlElement);
 	return success;
+	 */
 }

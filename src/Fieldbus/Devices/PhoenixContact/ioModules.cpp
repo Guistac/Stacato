@@ -3,6 +3,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
+#include "Gui/Assets/Fonts.h"
+#include "Gui/Assets/Colors.h"
+
 namespace PhoenixContact{
 
 
@@ -331,22 +334,46 @@ void IB_IL_SSI_IN::onConstruction(){
 	outputPins.push_back(encoderPin);
 	outputPins.push_back(resetPin);
 	
-	resolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
+	resolutionParameter = Legato::NumberParameter<int>::createInstance(25, "Resolution", "Resolution");
+	resolutionParameter->setUnit(Units::Data::Bit);
+	resolutionParameter->allowNegatives(false);
+	resolutionParameter->addEditCallback([this](){
 		resolutionParameter->validateRange(8, 25, true, true);
 		singleturnResolutionParameter->onEdit();
 	});
-	singleturnResolutionParameter->setEditCallback([this](std::shared_ptr<Parameter> parameter){
-		singleturnResolutionParameter->validateRange(0, resolutionParameter->value, true, true);
+	
+	singleturnResolutionParameter = Legato::NumberParameter<int>::createInstance(12, "Singleturn Resolution", "SingleturnResolution");
+	singleturnResolutionParameter->setUnit(Units::Data::Bit);
+	singleturnResolutionParameter->allowNegatives(false);
+	singleturnResolutionParameter->addEditCallback([this](){
+		singleturnResolutionParameter->validateRange(0, resolutionParameter->getValue(), true, true);
 		updateEncoderWorkingRange();
 	});
+	
+	invertDirectionParameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "Invert");
+	
+	
+	parityParameter = Legato::OptionParameter::createInstance(option_parityNone, options_parity, "Parity", "Parity");
+	
+	baudrateParameter = Legato::OptionParameter::createInstance(option_baudrate100KHz, options_baudrate, "Baudrate", "Baudrate");
+	
+	codeParameter = Legato::OptionParameter::createInstance(option_codeGray, options_code, "Code", "Code");
+	
+	centerWorkingRangeOnZeroParameter = Legato::BooleanParameter::createInstance(true, "Center working range on zero", "CenterWorkingRangeOnZero");
 	centerWorkingRangeOnZeroParameter->addEditCallback([this](){
 		updateEncoderWorkingRange();
 	});
+	
+	hasResetSignalParameter = Legato::BooleanParameter::createInstance(true, "Has position reset signal", "HasResetSignal");
 	hasResetSignalParameter->addEditCallback([this](){
 		resetPin->setVisible(hasResetSignalParameter->getValue());
 	});
+	hasResetSignalParameter->onEdit();
 	
-	resetPin->setVisible(hasResetSignalParameter->getValue());
+	resetSignalTimeParameter = Legato::NumberParameter<double>::createInstance(10.0, "Reset Time", "ResetTime");
+	resetSignalTimeParameter->setUnit(Units::Time::Millisecond);
+	resetSignalTimeParameter->allowNegatives(false);
+	
 }
 void IB_IL_SSI_IN::onSetIndex(int i){
 	char buffer[64];
@@ -377,7 +404,7 @@ bool IB_IL_SSI_IN::configureParameters(){
 	uint8_t rev = 0x0;
 	if(invertDirectionParameter->getValue()) rev = 0x1;
 	
-	uint8_t resolution = std::clamp(resolutionParameter->value, 8, 25) - 7;
+	uint8_t resolution = std::clamp(resolutionParameter->getValue(), 8, 25) - 7;
 	
 	uint8_t speed = baudrateParameter->getValue();
 	
@@ -416,8 +443,8 @@ void IB_IL_SSI_IN::readInputs(){
 	else if(status == 0x50) statusCode = SSI::StatusCode::FAULT_INVALID_CONTROL_CODE;
 	else statusCode = SSI::StatusCode::UNKNOWN;
 	
-	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
-	uint32_t incrementsTotal = 0x1 << resolutionParameter->value;
+	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->getValue();
+	uint32_t incrementsTotal = 0x1 << resolutionParameter->getValue();
 	
 	if(centerWorkingRangeOnZeroParameter->getValue() && rawPositionData >= incrementsTotal / 2) positionSigned -= incrementsTotal;
 	
@@ -489,7 +516,7 @@ void IB_IL_SSI_IN::writeOutputs(){
 			updateEncoderWorkingRange();
 			Logger::info("[IB_IL_SSI_IN] Successfully reset SSI encoder position");
 		}
-		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000){
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->getValue() * 1000000){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
 			*resetPinValue = false;
@@ -500,8 +527,8 @@ void IB_IL_SSI_IN::writeOutputs(){
 }
 
 void IB_IL_SSI_IN::updateEncoderWorkingRange(){
-	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->value;
-	uint32_t incrementsTotal = 0x1 << resolutionParameter->value;
+	uint32_t incrementsPerRevolution = 0x1 << singleturnResolutionParameter->getValue();
+	uint32_t incrementsTotal = 0x1 << resolutionParameter->getValue();
 	
 	double workingRangeDelta = incrementsTotal / incrementsPerRevolution;
 	double workingRangeMin = 0.0;

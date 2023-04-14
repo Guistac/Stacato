@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Project/Editor/Parameter.h"
-
 namespace tinyxml2{ struct XMLElement; }
 
 class Widget : public std::enable_shared_from_this<Widget>{

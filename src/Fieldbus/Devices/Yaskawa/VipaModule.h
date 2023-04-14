@@ -20,8 +20,6 @@
 #include "VIPA-053-1EC01.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
 
-#include "Project/Editor/Parameter.h"
-
 #include "Legato/Editor/Parameters.h"
 
 class NodePin;
@@ -490,9 +488,8 @@ public:
 	Legato::OptionParam channel1InputFilter = Legato::OptionParameter::createInstance(option_inputFilter600KHz, options_inputFilter,
 																					  "Channel 1 Input Filter", "Ch1InputFilter");
 
-	std::shared_ptr<NumberParameter<double>> channel0MeasurementPeriod;
-	std::shared_ptr<NumberParameter<double>> channel1MeasurementPeriod;
-	
+	Legato::NumberParam<double> channel0MeasurementPeriod;
+	Legato::NumberParam<double> channel1MeasurementPeriod;	
 	
 	//==== Gui Stuff ====
 	virtual void moduleParameterGui();

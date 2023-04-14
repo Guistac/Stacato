@@ -50,7 +50,7 @@ void MicroFlex_e190::controlTab(){
 	else if(servo->isEmergencyStopActive()) backgroundText("Safe Torque Off", statusBoxSize, Timing::getBlink(.5) ? Colors::red : Colors::yellow);
 	else if(axis->hasFault()) {
 		static char faultString[256];
-		sprintf(faultString, "Fault : %x", axis->getErrorCode());
+		snprintf(faultString, 256, "Fault : %x", axis->getErrorCode());
 		backgroundText(faultString, statusBoxSize, Colors::red);
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
@@ -61,9 +61,9 @@ void MicroFlex_e190::controlTab(){
 	else if(servo->isEnabled()) backgroundText("Enabled", statusBoxSize, Colors::green);
 	else if(servo->isReady()) backgroundText("Ready", statusBoxSize, Colors::yellow);
 
-	double maxVel = velocityLimit_parameter->value;
+	double maxVel = velocityLimit_parameter->getValue();
 	char manualVelocityString[64];
-	sprintf(manualVelocityString, "Velocity Target: %.2f rev/s", manualVelocityTarget);
+	snprintf(manualVelocityString, 64, "Velocity Target: %.2f rev/s", manualVelocityTarget);
 	ImGui::SliderFloat("##vel", &manualVelocityTarget, -maxVel, maxVel, manualVelocityString);
 	if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget = 0.0;
 	
@@ -74,7 +74,7 @@ void MicroFlex_e190::controlTab(){
 	ImGui::ProgressBar(positionNormalized, progressBarSize, "");
 	ImGui::PopStyleColor();
 	char positionString[64];
-	sprintf(positionString, "Position: %.3f rev", servo->getPosition());
+	snprintf(positionString, 64, "Position: %.3f rev", servo->getPosition());
 	ImVec2 textPos(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
 				   ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
 	textAligned(positionString, textPos, TextAlignement::LEFT_MIDDLE);
@@ -84,7 +84,7 @@ void MicroFlex_e190::controlTab(){
 	ImGui::ProgressBar(velNormalized, progressBarSize, "");
 	ImGui::PopStyleColor();
 	char velocityString[64];
-	sprintf(velocityString, "Velocity: %.2f rev/s", servo->getVelocity());
+	snprintf(velocityString, 64, "Velocity: %.2f rev/s", servo->getVelocity());
 	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
 					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
 	textAligned(velocityString, textPos, TextAlignement::LEFT_MIDDLE);
@@ -104,14 +104,14 @@ void MicroFlex_e190::controlTab(){
 	ImGui::ProgressBar(loadProgress, progressBarSize, "");
 	ImGui::PopStyleColor(2);
 	char loadString[64];
-	sprintf(loadString, "Load: %.1f%%", servo->getEffort() * 100.0);
+	snprintf(loadString, 64, "Load: %.1f%%", servo->getEffort() * 100.0);
 	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
 					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);
 	textAligned(loadString, textPos, TextAlignement::LEFT_MIDDLE);
 	
-	float followingErrorProgress = std::abs(actualPositionFollowingError) / maxFollowingError_parameter->value;
+	float followingErrorProgress = std::abs(actualPositionFollowingError) / maxFollowingError_parameter->getValue();
 	char folErrString[64];
-	sprintf(folErrString, "Following Error: %.3f rev", actualPositionFollowingError);
+	snprintf(folErrString, 64, "Following Error: %.3f rev", actualPositionFollowingError);
 	ImGui::ProgressBar(followingErrorProgress, progressBarSize, "");
 	textPos = ImVec2(ImGui::GetItemRectMin().x + ImGui::GetStyle().FramePadding.x,
 					 ImGui::GetItemRectMin().y + ImGui::GetFrameHeight() * 0.5);

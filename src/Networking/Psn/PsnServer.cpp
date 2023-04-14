@@ -90,17 +90,36 @@ void PsnServer::onConstruction(){
 		"\n";
 	script->load(defaultScript);
 	
-	destinationIp0->setEditCallback([this](std::shared_ptr<Parameter>){
-		uint8_t IP_MSB = destinationIp0->value;
+	infoSendingFrequency = Legato::NumberParameter<double>::createInstance(1.0, "Info Packet sending frequency", "InfoPacketSendingFrequency");
+	infoSendingFrequency->setUnit(Units::Frequency::Hertz);
+	infoSendingFrequency->allowNegatives(false);
+	
+	dataSendingFrequency = Legato::NumberParameter<double>::createInstance(60.0, "Data Packet sending frequency", "DataPacketSendingFrequency");
+	dataSendingFrequency->setUnit(Units::Frequency::Hertz);
+	dataSendingFrequency->allowNegatives(false);
+
+	destinationIp0 = Legato::NumberParameter<uint8_t>::createInstance(236, "PSN Destination IP Octet 0", "DestinationIpOctet0");
+	destinationIp1 = Legato::NumberParameter<uint8_t>::createInstance(10, "PSN Destination IP Octet 1", "DestinationIpOctet1");
+	destinationIp2 = Legato::NumberParameter<uint8_t>::createInstance(10, "PSN Destination IP Octet 2", "DestinationIpOctet2");
+	destinationIp3 = Legato::NumberParameter<uint8_t>::createInstance(10, "PSN Destination IP Octet 3", "DestinationIpOctet3");
+	destinationPortNumber = Legato::NumberParameter<uint16_t>::createInstance(56565, "PSN Destination Port Number", "Port");
+	
+	localIp0 = Legato::NumberParameter<uint8_t>::createInstance(192, "PSN Local IP Octet 0", "LocalIpOctet0");
+	localIp1 = Legato::NumberParameter<uint8_t>::createInstance(168, "PSN Local IP Octet 1", "LocalIpOctet1");
+	localIp2 = Legato::NumberParameter<uint8_t>::createInstance(0, "PSN Local IP Octet 2", "LocalIpOctet2");
+	localIp3 = Legato::NumberParameter<uint8_t>::createInstance(0, "PSN Local IP Octet 3", "LocalIpOctet3");
+	
+	destinationIp0->addEditCallback([this](){
+		uint8_t IP_MSB = destinationIp0->getValue();
 		b_addressIsMulticast = IP_MSB >> 4 == 0b1110;
 	});
 	
 }
 
 void PsnServer::connect(){
-    udpSocket = Network::getUdpMulticastSocket({localIp0->value, localIp1->value, localIp2->value, localIp3->value},
-                                               {destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
-                                               destinationPortNumber->value);
+    udpSocket = Network::getUdpMulticastSocket({localIp0->getValue(), localIp1->getValue(), localIp2->getValue(), localIp3->getValue()},
+                                               {destinationIp0->getValue(), destinationIp1->getValue(), destinationIp2->getValue(), destinationIp3->getValue()},
+                                               destinationPortNumber->getValue());
 	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->getValue());
 	if(udpSocket != nullptr && startServer()) b_online = true;
 	else b_online = false;

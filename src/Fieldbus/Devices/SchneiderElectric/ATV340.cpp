@@ -67,6 +67,11 @@ void ATV340::onConstruction() {
 	addNodePin(relaisOutput1_Pin);
 	addNodePin(relaisOutput2_Pin);
 	
+	
+	
+	//———— Process Data
+	
+	pdo_digitalIn = Legato::BooleanParameter::createInstance(false, "Read Digital Inputs", "ConfigDigitalInputs");
 	//configure parameter callbacks
 	pdo_digitalIn->addEditCallback([this](){
 		digitalInput1_Pin->setVisible(pdo_digitalIn->getValue());
@@ -82,6 +87,7 @@ void ATV340::onConstruction() {
 			digitalInput5_Pin->disconnectAllLinks();
 		}
 	});
+	pdo_digitalOut = Legato::BooleanParameter::createInstance(false, "Write Digital Outputs", "ConfigDigitalOutputs");
 	pdo_digitalOut->addEditCallback([this](){
 		digitalOutput1_Pin->setVisible(pdo_digitalOut->getValue());
 		digitalOutput2_Pin->setVisible(pdo_digitalOut->getValue());
@@ -94,20 +100,60 @@ void ATV340::onConstruction() {
 			relaisOutput2_Pin->disconnectAllLinks();
 		}
 	});
+	pdo_readAnalogIn1 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 1", "ConfigAnalogInput1");
 	pdo_readAnalogIn1->addEditCallback([this](){
 		analogInput1_pin->setVisible(pdo_readAnalogIn1->getValue());
 		if(!pdo_readAnalogIn1->getValue()) analogInput1_pin->disconnectAllLinks();
 	});
+	pdo_readAnalogIn2 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 2", "ConfigAnalogInput2");
 	pdo_readAnalogIn2->addEditCallback([this](){
 		analogInput2_pin->setVisible(pdo_readAnalogIn2->getValue());
 		if(!pdo_readAnalogIn2->getValue()) analogInput2_pin->disconnectAllLinks();
 	});
-	
-	for(auto parameter : pdoConfigParameters.get()){
+	pdo_motorVelocity = Legato::BooleanParameter::createInstance(false, "Read Output Velocity", "ConfigMotorOutputVelocity");
+	pdo_motorEffort = Legato::BooleanParameter::createInstance(false, "Read Motor Effort", "ConfigMotorEffort");
+	pdoConfigParameters = Legato::ParameterGroup::createInstance("PDOconfig",{
+		pdo_digitalIn,
+		pdo_digitalOut,
+		pdo_readAnalogIn1,
+		pdo_readAnalogIn2,
+		pdo_motorVelocity,
+		pdo_motorEffort
+	});
+	for(auto parameter : pdoConfigParameters->getParameters()){
 		parameter->addEditCallback([this](){ configureProcessData(); });
 		parameter->onEdit();
 	}
 	
+	invertDigitalInput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 1", "InvertDigitalInput1");
+	invertDigitalInput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 2", "InvertDigitalInput2");
+	invertDigitalInput3_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 3", "InvertDigitalInput3");
+	invertDigitalInput4_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 4", "InvertDigitalInput4");
+	invertDigitalInput5_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 5", "InvertDigitalInput5");
+	invertDigitalOutput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	invertDigitalOutput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	invertRelay1_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 1", "InvertRelay1");
+	invertRelay2_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 2", "InvertRelay1");
+	digitalSignalInversion = Legato::ParameterGroup::createInstance("Digital Signal Inversion", {
+		invertDigitalInput1_Param,
+		invertDigitalInput2_Param,
+		invertDigitalInput3_Param,
+		invertDigitalInput4_Param,
+		invertDigitalInput5_Param,
+		invertDigitalOutput1_Param,
+		invertDigitalOutput2_Param,
+		invertRelay1_Param,
+		invertRelay2_Param
+	});
+	
+	
+	//———— Motor Nameplate
+	
+	//[bfr] {Async} motor standard frequency
+	motorStandartFrequency_Param = Legato::OptionParameter::createInstance(options.Hz50, options.motorStandardFrequency_Options, "Motor Standard Frequency", "MotorStandardFrequency");
+	
+	//[mpc] motor parameter choice (0=NominalPower,1=NominalCosinusPhi)
+	motorParameterChoice_Param = Legato::OptionParameter::createInstance(options.NominalPower, options.motorParameterChoice_Options, "Motor Parameter Choice", "MotorParameterChoice");
 	motorParameterChoice_Param->addEditCallback([this](){
 		if(motorParameterChoice_Param->getValue() == options.NominalPower.getInt()){
 			cosinusPhi_Param->setDisabled(true);
@@ -122,6 +168,115 @@ void ATV340::onConstruction() {
 	});
 	motorParameterChoice_Param->onEdit();
 	
+	//[cos] {Async} motor 1 cosinus phi (0.01 increments)
+	cosinusPhi_Param = Legato::NumberParameter<double>::createInstance(0.0, "Cosinus Phi", "CosinusPhi");
+	cosinusPhi_Param->allowNegatives(false);
+	
+	//[npr] {Async} nominal motor power (0.01 Watt increments)
+	nominalMotorPower_Param = Legato::NumberParameter<double>::createInstance(0.0, "Nominal Motor Power", "NominalMotorPower");
+	nominalMotorPower_Param->setUnit(Units::Power::KiloWatt);
+	nominalMotorPower_Param->allowNegatives(false);
+	
+	//[uns] {Async} nominal motor voltage (1v increments)
+	nominalMotorVoltage_Param = Legato::NumberParameter<int>::createInstance(0, "Nominal Motor Voltage", "NominalMotorVoltage");
+	nominalMotorVoltage_Param->setUnit(Units::Voltage::Volt);
+	nominalMotorVoltage_Param->allowNegatives(false);
+	
+	//[ncr] {Async} nominal motor current (0.01 Ampere increments)
+	nominalMotorCurrent_Param = Legato::NumberParameter<double>::createInstance(0.0, "Nominal Motor Current", "NominalMotorCurrent");
+	nominalMotorCurrent_Param->setUnit(Units::Current::Ampere);
+	nominalMotorCurrent_Param->allowNegatives(false);
+	
+	//[frs] {Async} nominal motor frequency (0.1Hz increments)
+	nominalMotorFrequency_Param = Legato::NumberParameter<double>::createInstance(0.0, "Nominal Motor Frequency", "NominalMotorFrequency");
+	nominalMotorFrequency_Param->setUnit(Units::Frequency::Hertz);
+	nominalMotorFrequency_Param->allowNegatives(false);
+	
+	//[nsp] {Async} nominal motor speed (rpm)
+	nominalMotorSpeed_Param = Legato::NumberParameter<int>::createInstance(0, "Nominal Motor Speed", "NominalMotorSpeed");
+	nominalMotorSpeed_Param->setSuffix("rpm");
+	nominalMotorSpeed_Param->allowNegatives(false);
+	
+	//[ith] Motor Thermal Current (0.01 Ampere increments)
+	motorThermalCurrent_Param = Legato::NumberParameter<double>::createInstance(0.0, "Motor Thermal Current", "MotorThermalCurrent");
+	motorThermalCurrent_Param->setUnit(Units::Current::Ampere);
+	motorThermalCurrent_Param->allowNegatives(false);
+	
+	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
+	motorMaximumFrequency_Param = Legato::NumberParameter<double>::createInstance(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency");
+	motorMaximumFrequency_Param->setUnit(Units::Frequency::Hertz);
+	motorMaximumFrequency_Param->allowNegatives(false);
+	
+	motorNameplateParameters = Legato::ParameterGroup::createInstance("MotorNameplate", {
+		motorStandartFrequency_Param,
+		motorParameterChoice_Param,
+		cosinusPhi_Param,
+		nominalMotorPower_Param,
+		nominalMotorVoltage_Param,
+		nominalMotorCurrent_Param,
+		nominalMotorFrequency_Param,
+		nominalMotorSpeed_Param,
+		motorThermalCurrent_Param,
+		motorMaximumFrequency_Param
+	});
+	
+	//———— Brake Logic
+	
+	//[blc] brake assignement
+	brakeOutputAssignement_Param = Legato::OptionParameter::createInstance(options.NoDigitalOutput, options.digitalOutput_Options, "Brake Output Assignement", "BrakeOutputAssignement");
+	brakeOutputAssignement_Param->addEditCallback([this](){
+		bool brakeOutputUnassigned = brakeOutputAssignement_Param->getValue() == options.NoDigitalOutput.getInt();
+		brakeMovementType_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseTime_Param->setDisabled(brakeOutputUnassigned);
+		brakeEngageTime_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseCurrent_Param->setDisabled(brakeOutputUnassigned);
+		brakeReleaseFrequency_Param->setDisabled(brakeOutputUnassigned);
+		brakeEngageFrequency_Param->setDisabled(brakeOutputUnassigned);
+	});
+	brakeOutputAssignement_Param->onEdit();
+	
+	//[bst] movement type (0= Horizontal Movement, 1=Hoisting)
+	brakeMovementType_Param = Legato::OptionParameter::createInstance(options.HorizontalMovement, options.brakeMovementType_Options, "Brake Movement Type", "BrakeMovementType");
+	
+	//[brt] brake release time
+	brakeReleaseTime_Param = NumberParameter<double>::createInstance(0.1, "Brake Release Time", "BrakeReleaseTime");
+	brakeReleaseTime_Param->setUnit(Units::Time::Second);
+	brakeReleaseTime_Param->allowNegatives(false);
+	
+	//[bet] brake engage time
+	brakeEngageTime_Param = NumberParameter<double>::createInstance(0.5, "Brake Engage Time", "BrakeEngageTime");
+	brakeEngageTime_Param->setUnit(Units::Time::Second);
+	brakeEngageTime_Param->allowNegatives(false);
+	
+	//[ibr] brake release current (default is nominal motor current)
+	brakeReleaseCurrent_Param = NumberParameter<double>::createInstance(1.0, "Brake Release Current", "BrakeReleaseCurrent");
+	brakeReleaseCurrent_Param->setUnit(Units::Current::Ampere);
+	brakeReleaseCurrent_Param->allowNegatives(false);
+	
+	//[bir] brake release frequency (default is 0Hz)
+	brakeReleaseFrequency_Param = NumberParameter<double>::createInstance(0.0, "Brake Release Frequency", "BrakeReleaseFrequency");
+	brakeReleaseFrequency_Param->setUnit(Units::Frequency::Hertz);
+	brakeReleaseFrequency_Param->allowNegatives(false);
+	
+	//[ben] brake engage frequency (default is 0Hz)
+	brakeEngageFrequency_Param = NumberParameter<double>::createInstance(0.0, "Brake Engage Frequency", "BrakeEngageFrequency");
+	brakeEngageFrequency_Param->setUnit(Units::Frequency::Hertz);
+	brakeEngageFrequency_Param->allowNegatives(false);
+	
+	brakeLogicParameters = Legato::ParameterGroup::createInstance("BrakeLogic", {
+		brakeOutputAssignement_Param,
+		brakeMovementType_Param,
+		brakeReleaseTime_Param,
+		brakeEngageTime_Param,
+		brakeReleaseCurrent_Param,
+		brakeReleaseFrequency_Param,
+		brakeEngageFrequency_Param
+	});
+	
+	//———— Embedded Encoder
+	
+	//[eecp] embedded encoder etype (0=None, 1=AB, 2=SinCos)
+	embeddedEncoderType_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderTypeNone, options.embeddedEncoderType_Options, "Embedded Encoder Type", "EmbeddedEncoderType");
 	embeddedEncoderType_Param->addEditCallback([this](){
 		if(embeddedEncoderType_Param->getValue() == options.EmbeddedEncoderTypeAB.getInt()){
 			embeddedEncoderVoltage_Param->setDisabled(false);
@@ -137,16 +292,114 @@ void ATV340::onConstruction() {
 	});
 	embeddedEncoderType_Param->onEdit();
 	
-	brakeOutputAssignement_Param->addEditCallback([this](){
-		bool brakeOutputUnassigned = brakeOutputAssignement_Param->getValue() == options.NoDigitalOutput.getInt();
-		brakeMovementType_Param->setDisabled(brakeOutputUnassigned);
-		brakeReleaseTime_Param->setDisabled(brakeOutputUnassigned);
-		brakeEngageTime_Param->setDisabled(brakeOutputUnassigned);
-		brakeReleaseCurrent_Param->setDisabled(brakeOutputUnassigned);
-		brakeReleaseFrequency_Param->setDisabled(brakeOutputUnassigned);
-		brakeEngageFrequency_Param->setDisabled(brakeOutputUnassigned);
+	//[eecv] embedded encoder supply voltage (5=5V, 12=12V, 24=24V)
+	embeddedEncoderVoltage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoder24V, options.embeddedEncoderVoltage_Options, "Embedded Encoder Voltage", "EmbeddedEncoderVoltage");
+	
+	//[epg] pulses per encoder revolution
+	embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::createInstance(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution");
+	embeddedEncoderPulsesPerRevolution_Param->allowNegatives(false);
+	
+	//[eeri] embedded encoder revolution inversion (0=No, 1=Yes)
+	embeddedEncoderInvertDirection_Param = Legato::BooleanParameter::createInstance(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
+	
+	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
+	embeddedEncoderUsage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
+	
+	embeddedEncoderParameters = Legato::ParameterGroup::createInstance("EmbeddedEncoder", {
+		embeddedEncoderType_Param,
+		embeddedEncoderVoltage_Param,
+		embeddedEncoderPulsesPerRevolution_Param,
+		embeddedEncoderInvertDirection_Param,
+		embeddedEncoderUsage_Param
 	});
-	brakeOutputAssignement_Param->onEdit();
+	
+	//———— Motor Control
+	
+	//[ctt] Motor Control Type
+	motorControlType_Param = Legato::OptionParameter::createInstance(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
+	
+	velocityLimitRPM_Param = Legato::NumberParameter<int>::createInstance(1000, "Velocity Limit", "VelocityLimit");
+	velocityLimitRPM_Param->setSuffix("rpm");
+	velocityLimitRPM_Param->allowNegatives(false);
+	
+	accelerationRampTime_Param = Legato::NumberParameter<double>::createInstance(3.0, "Acceleration Ramp Time", "AccelerationRampTime");
+	accelerationRampTime_Param->setUnit(Units::Time::Second);
+	accelerationRampTime_Param->allowNegatives(false);
+	
+	decelerationRampTime_Param = Legato::NumberParameter<double>::createInstance(3.0, "Deceleration Ramp Time", "DecelerationRampTime");
+	decelerationRampTime_Param->setUnit(Units::Time::Second);
+	decelerationRampTime_Param->allowNegatives(false);
+	
+	switchingFrequency_Param = Legato::NumberParameter<double>::createInstance(16, "Switching Frequency", "SwitchingFrequeny");
+	switchingFrequency_Param->setUnit(Units::Frequency::Kilohertz);
+	switchingFrequency_Param->allowNegatives(false);
+	
+	motorControlParameters = Legato::ParameterGroup::createInstance("MotorControl", {
+		motorControlType_Param,
+		velocityLimitRPM_Param,
+		accelerationRampTime_Param,
+		decelerationRampTime_Param,
+		switchingFrequency_Param
+	});
+	
+	//———— Analog IO Configuration
+	
+	//[AI1T]
+	analogInput1Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput1Type_Options, "Analog Input 1 Type", "AnalogInput1Type");
+	
+	//[AI2T]
+	analogInput2Type_Param = Legato::OptionParameter::createInstance(options.AnalogInputTypeVoltage, options.analogInput2Type_Options, "Analog Input 2 Type", "AnalogInput2Type");
+	
+	//[CrL1]
+	analogInputMinCurrent_Param = NumberParameter<double>::createInstance(4.0, "Analog Input Minimum Current", "AnalogInputMinimumCurrentValue");
+	analogInputMinCurrent_Param->setUnit(Units::Current::Milliampere);
+	analogInputMinCurrent_Param->allowNegatives(false);
+	
+	//[CrH1]
+	analogInputMaxCurrent_Param = NumberParameter<double>::createInstance(20.0, "Analog Input Maximum Current", "AnalogInputMaximumCurrentValue");
+	analogInputMaxCurrent_Param->setUnit(Units::Current::Milliampere);
+	analogInputMaxCurrent_Param->allowNegatives(false);
+	
+	//[UIL1] = [UIL2] if voltage is selected
+	analogInputMinVoltage_Param = NumberParameter<double>::createInstance(0.0, "Analog Input Minimum Voltage", "AnalogInputMinimumVoltageValue");
+	analogInputMinVoltage_Param->setUnit(Units::Voltage::Volt);
+	analogInputMinVoltage_Param->allowNegatives(false);
+	
+	//[UIH1] = [UIH2] if voltage is selected
+	analogInputMaxVoltage_Param = NumberParameter<double>::createInstance(10.0, "Analog Input Maximum Voltage", "AnalogInputMaximumVoltageValue");
+	analogInputMaxVoltage_Param->setUnit(Units::Voltage::Volt);
+	analogInputMaxVoltage_Param->allowNegatives(false);
+	
+	analogIoConfigParameters = Legato::ParameterGroup::createInstance("AnalogIOConfig", {
+		analogInput1Type_Param,
+		analogInput2Type_Param,
+		analogInputMinCurrent_Param,
+		analogInputMaxCurrent_Param,
+		analogInputMinVoltage_Param,
+		analogInputMaxVoltage_Param
+	});
+	
+	//———— Digital IO Configuration
+	
+	//[LAF] Stop forward limit assignement
+	forwardLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
+	
+	//[LAR] Stop Reverse limit assignement
+	reverseLimitSignal_Param = Legato::OptionParameter::createInstance(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
+	
+	digitalIoConfigParameters = Legato::ParameterGroup::createInstance("DigitalIOConfig", {
+		forwardLimitSignal_Param,
+		reverseLimitSignal_Param
+	});
+	
+	
+	
+
+	
+
+	
+	
+
 }
 
 void ATV340::configureProcessData(){

@@ -2,7 +2,6 @@
 
 #include "Networking/NetworkDevice.h"
 
-#include "Project/Editor/Parameter.h"
 #include "Legato/Editor/Parameters.h"
 
 #include <asio.hpp>
@@ -62,31 +61,21 @@ private:
 	long long serverEnvironnementStartTimeMicroseconds;
 	long long serverProgramStartTimeMicroseconds;
 	
-	Legato::StringParam serverName = Legato::StringParameter::createInstance("Stacato PSN Server", "PSN Server Name", "ServerName", 512);
+	Legato::StringParam serverName;
 	
-	std::shared_ptr<NumberParameter<double>> infoSendingFrequency = NumberParameter<double>::make(1.0,
-																								  "Info Packet sending frequency",
-																								  "InfoPacketSendingFrequency",
-																								  "%.1f",
-																								  Units::Frequency::Hertz,
-																								  false);
+	Legato::NumberParam<double> infoSendingFrequency;
+	Legato::NumberParam<double> dataSendingFrequency;
+																								
+	Legato::NumberParam<uint8_t> destinationIp0;
+	Legato::NumberParam<uint8_t> destinationIp1;
+	Legato::NumberParam<uint8_t> destinationIp2;
+	Legato::NumberParam<uint8_t> destinationIp3;
+	Legato::NumberParam<uint16_t> destinationPortNumber;
 	
-	std::shared_ptr<NumberParameter<double>> dataSendingFrequency = NumberParameter<double>::make(60.0,
-																								  "Data Packet sending frequency",
-																								  "DataPacketSendingFrequency",
-																								  "%.1f",
-																								  Units::Frequency::Hertz,
-																								  false);
-	std::shared_ptr<NumberParameter<uint8_t>> destinationIp0 = NumberParameter<uint8_t>::make(236, "PSN Destination IP Octet 0", "DestinationIpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> destinationIp1 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 1", "DestinationIpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> destinationIp2 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 2", "DestinationIpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> destinationIp3 = NumberParameter<uint8_t>::make(10, "PSN Destination IP Octet 3", "DestinationIpOctet3");
-	std::shared_ptr<NumberParameter<uint16_t>> destinationPortNumber = NumberParameter<uint16_t>::make(56565, "PSN Destination Port Number", "Port");
-	
-	std::shared_ptr<NumberParameter<uint8_t>> localIp0 = NumberParameter<uint8_t>::make(192, "PSN Local IP Octet 0", "LocalIpOctet0");
-	std::shared_ptr<NumberParameter<uint8_t>> localIp1 = NumberParameter<uint8_t>::make(168, "PSN Local IP Octet 1", "LocalIpOctet1");
-	std::shared_ptr<NumberParameter<uint8_t>> localIp2 = NumberParameter<uint8_t>::make(0, "PSN Local IP Octet 2", "LocalIpOctet2");
-	std::shared_ptr<NumberParameter<uint8_t>> localIp3 = NumberParameter<uint8_t>::make(0, "PSN Local IP Octet 3", "LocalIpOctet3");
+	Legato::NumberParam<uint8_t> localIp0;
+	Legato::NumberParam<uint8_t> localIp1;
+	Legato::NumberParam<uint8_t> localIp2;
+	Legato::NumberParam<uint8_t> localIp3;
 	
 	std::shared_ptr<LuaScript> script;
 	

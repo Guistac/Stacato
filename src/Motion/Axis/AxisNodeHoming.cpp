@@ -61,7 +61,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 	switch(homingStep){
 			
 		case HomingStep::NOT_STARTED:
-			setHomingVelocityTarget(-std::abs(homingVelocityCoarse->value));
+			setHomingVelocityTarget(-std::abs(homingVelocityCoarse->getValue()));
 			homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
 			break;
 			
@@ -74,7 +74,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			
 		case HomingStep::FOUND_LOW_LIMIT_COARSE:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
-				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+				setHomingVelocityTarget(std::abs(homingVelocityFine->getValue()));
 				homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
 			}
 			break;
@@ -172,11 +172,11 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 		case HomingStep::NOT_STARTED:
 			switch(homingDirection){
 				case NEGATIVE:
-					setHomingVelocityTarget(-std::abs(homingVelocityCoarse->value));
+					setHomingVelocityTarget(-std::abs(homingVelocityCoarse->getValue()));
 					homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE;
 					break;
 				case POSITIVE:
-					setHomingVelocityTarget(std::abs(homingVelocityCoarse->value));
+					setHomingVelocityTarget(std::abs(homingVelocityCoarse->getValue()));
 					homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE;
 					break;
 			}
@@ -194,7 +194,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 			
 		case HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
-				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+				setHomingVelocityTarget(std::abs(homingVelocityFine->getValue()));
 				homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE;
 			}
 			break;
@@ -218,7 +218,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 			
 		case HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0.0){
-				setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+				setHomingVelocityTarget(-std::abs(homingVelocityFine->getValue()));
 				homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE;
 			}
 			break;
@@ -239,7 +239,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 				homingOriginUpperEdgePosition = axisInterface->getPositionActual();
 				switch(homingDirection){
 					case NEGATIVE:
-						setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+						setHomingVelocityTarget(-std::abs(homingVelocityFine->getValue()));
 						homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE;
 						break;
 					case POSITIVE:
@@ -262,7 +262,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 						homingStep = HomingStep::MOVING_TO_ORIGIN_CENTER;
 						break;
 					case POSITIVE:
-						setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+						setHomingVelocityTarget(std::abs(homingVelocityFine->getValue()));
 						homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE;
 						break;
 				}

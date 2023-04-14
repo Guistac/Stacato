@@ -47,7 +47,7 @@ void ATV340::controlTab(){
 	else if(!axis->hasVoltage()) backgroundText("No Motor Voltage", statusBoxSize, Colors::orange);
 	else if(axis->hasFault()) {
 		static char faultString[256];
-		sprintf(faultString, "Fault %x", lastFaultCode);
+		snprintf(faultString, 256, "Fault %x", lastFaultCode);
 		backgroundText(faultString, statusBoxSize, Colors::red);
 		if(ImGui::IsItemHovered()){
 			ImGui::BeginTooltip();
@@ -61,7 +61,7 @@ void ATV340::controlTab(){
 	
 	if(ImGui::Button("Fault Reset")) axis->doFaultReset();
 	
-	ImGui::SliderInt("##manualvel", &manualVelocityTarget_rpm, -velocityLimitRPM_Param->value, velocityLimitRPM_Param->value);
+	ImGui::SliderInt("##manualvel", &manualVelocityTarget_rpm, -velocityLimitRPM_Param->getValue(), velocityLimitRPM_Param->getValue());
 	if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget_rpm = 0.0;
 	
 	ImGui::Separator();
@@ -77,9 +77,9 @@ void ATV340::controlTab(){
 }
 
 
-static void drawParameterGroup(const char* groupName, ParameterGroup& group){
+static void drawParameterGroup(std::string groupName, Legato::ParamGroup group){
 	ImGui::PushFont(Fonts::sansBold20);
-	if(ImGui::CollapsingHeader(groupName)){
+	if(ImGui::CollapsingHeader(groupName.c_str())){
 		ImGui::PopFont();
 		
 		if(ImGui::BeginTable("##parameters", 2, ImGuiTableFlags_RowBg)){
@@ -92,7 +92,7 @@ static void drawParameterGroup(const char* groupName, ParameterGroup& group){
 			ImVec2 offset(ImGui::GetStyle().CellPadding.y, (frameHeight - ImGui::GetTextLineHeight()) / 2.0);
 			ImGui::PopFont();
 			
-			for(auto parameter : group.get()){
+			for(auto parameter : group->getParameters()){
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
 				ImVec2 cursorPos = ImGui::GetCursorPos();
@@ -100,7 +100,7 @@ static void drawParameterGroup(const char* groupName, ParameterGroup& group){
 				
 				ImGui::BeginDisabled(parameter->isDisabled());
 				ImGui::PushFont(Fonts::sansBold15);
-				ImGui::Text("%s", parameter->getName());
+				ImGui::Text("%s", parameter->getName().c_str());
 				ImGui::PopFont();
 				ImGui::EndDisabled();
 				

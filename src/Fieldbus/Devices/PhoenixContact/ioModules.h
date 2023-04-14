@@ -6,7 +6,6 @@
 #include "Fieldbus/Utilities/EtherCatPDO.h"
 
 #include "Environnement/NodeGraph/NodePin.h"
-#include "Project/Editor/Parameter.h"
 
 #include "Legato/Editor/Parameters.h"
 
@@ -189,9 +188,9 @@ public:
 	
 	//————— User Parameters ——————
 	
-	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25, "Resolution", "Resolution", "%i", Units::Data::Bit, false);
-	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12, "Singleturn Resolution", "SingleturnResolution", "%i", Units::Data::Bit, false);
-	Legato::BoolParam invertDirectionParameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "Invert");
+	Legato::NumberParam<int> resolutionParameter;
+	Legato::NumberParam<int> singleturnResolutionParameter;
+	Legato::BoolParam invertDirectionParameter;
 	
 	enum Parity{
 		NONE = 0x0,
@@ -206,7 +205,7 @@ public:
 		&option_parityEven,
 		&option_parityOdd
 	};
-	Legato::OptionParam parityParameter = Legato::OptionParameter::createInstance(option_parityNone, options_parity, "Parity", "Parity");
+	Legato::OptionParam parityParameter;
 
 	enum Baudrate{
 		KHz_100 = 0x1,
@@ -227,7 +226,7 @@ public:
 		&option_baudrate800KHz,
 		&option_baudrate1Mhz
 	};
-	Legato::OptionParam baudrateParameter = Legato::OptionParameter::createInstance(option_baudrate100KHz, options_baudrate, "Baudrate", "Baudrate");
+	Legato::OptionParam baudrateParameter;
 
 	enum Code{
 		BINARY = 0x0,
@@ -239,11 +238,11 @@ public:
 		&option_codeBinary,
 		&option_codeGray
 	};
-	Legato::OptionParam codeParameter = Legato::OptionParameter::createInstance(option_codeGray, options_code, "Code", "Code");
+	Legato::OptionParam codeParameter;
 	
-	Legato::BoolParam centerWorkingRangeOnZeroParameter = Legato::BooleanParameter::createInstance(true, "Center working range on zero", "CenterWorkingRangeOnZero");
-	Legato::BoolParam hasResetSignalParameter = Legato::BooleanParameter::createInstance(true, "Has position reset signal", "HasResetSignal");
-	std::shared_ptr<NumberParameter<double>> resetSignalTimeParameter = NumberParameter<double>::make(10.0, "Reset Time", "ResetTime", "%.1f", Units::Time::Millisecond, false);
+	Legato::BoolParam centerWorkingRangeOnZeroParameter;
+	Legato::BoolParam hasResetSignalParameter;
+	Legato::NumberParam<double> resetSignalTimeParameter;
 	
 	//————— SubDevice ——————
 	

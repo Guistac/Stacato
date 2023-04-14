@@ -4,7 +4,6 @@ class Widget;
 class WidgetInstance;
 namespace tinyxml2{ struct XMLElement; }
 
-#include "Project/Editor/Parameter.h"
 #include "Legato/Editor/Parameters.h"
 
 class Dashboard{

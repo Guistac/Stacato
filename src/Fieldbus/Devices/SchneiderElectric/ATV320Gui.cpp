@@ -33,10 +33,10 @@ void ATV320::controlsGui(){
 	
 	ImGui::BeginDisabled(!actuator->isEnabled() || actuatorPin->isConnected());
 	
-	int16_t max = maxVelocityRPM->value;
-	int16_t min = -maxVelocityRPM->value;
+	int16_t max = maxVelocityRPM->getValue();
+	int16_t min = -maxVelocityRPM->getValue();
 	float velocityTarget_rps = 0.0;
-	float maxVel = maxVelocityRPM->value / 60.0;
+	float maxVel = maxVelocityRPM->getValue() / 60.0;
 	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, maxVel, -maxVel);
 	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rpm);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
