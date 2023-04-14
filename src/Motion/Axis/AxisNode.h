@@ -155,9 +155,9 @@ private:
 	double actuatorAccelerationLimit;
 	double feedbackLowerPositionLimit;
 	double feedbackUpperPositionLimit;
-	BoolParam enableLowerPositionLimit;
-	BoolParam enableUpperPositionLimit;
-	BoolParam limitPositionToFeedbackWorkingRange;
+	Legato::BoolParam enableLowerPositionLimit;
+	Legato::BoolParam enableUpperPositionLimit;
+	Legato::BoolParam limitPositionToFeedbackWorkingRange;
 	NumberParam<double> lowerPositionLimit;
 	NumberParam<double> upperPositionLimit;
 	NumberParam<double> lowerPositionLimitClearance;
@@ -174,7 +174,7 @@ private:
 	NumberParam<double> maxHomingDistanceFine;
 	
 	//Surveillance
-	BoolParam enableSurveillanceParameter = BooleanParameter::make(false, "Enable Surveillance", "EnableSurveillance");
+	Legato::BoolParam enableSurveillanceParameter = Legato::BooleanParameter::createInstance(false, "Enable Surveillance", "EnableSurveillance");
 	std::shared_ptr<MotionFeedbackInterface> surveillanceFeedbackModule;
 	double surveillanceFeedbackUnitsPerAxisUnits;
 	

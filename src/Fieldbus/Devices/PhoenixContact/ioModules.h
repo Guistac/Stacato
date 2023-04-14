@@ -8,6 +8,8 @@
 #include "Environnement/NodeGraph/NodePin.h"
 #include "Project/Editor/Parameter.h"
 
+#include "Legato/Editor/Parameters.h"
+
 
 class IL_EC_BK_BusCoupler;
 namespace tinyxml2{ struct XMLElement; }
@@ -190,12 +192,11 @@ public:
 	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25, "Resolution", "Resolution", "%i", Units::Data::Bit, false);
 	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12, "Singleturn Resolution", "SingleturnResolution", "%i", Units::Data::Bit, false);
 	std::shared_ptr<EnumeratorParameter<SSI::Parity>> parityParameter = EnumeratorParameter<SSI::Parity>::make(SSI::Parity::NONE, "Parity", "Parity");
-	std::shared_ptr<BooleanParameter> invertDirectionParameter = BooleanParameter::make(false, "Invert Direction", "Invert");
+	Legato::BoolParam invertDirectionParameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "Invert");
 	std::shared_ptr<EnumeratorParameter<SSI::Baudrate>> baudrateParameter = EnumeratorParameter<SSI::Baudrate>::make(SSI::Baudrate::KHz_100, "Baudrate", "Baudrate");
 	std::shared_ptr<EnumeratorParameter<SSI::Code>> codeParameter = EnumeratorParameter<SSI::Code>::make(SSI::Code::GRAY, "Code", "Code");
-	std::shared_ptr<BooleanParameter> centerWorkingRangeOnZeroParameter = BooleanParameter::make(true, "Center working range on zero", "CenterWorkingRangeOnZero");
-	
-	std::shared_ptr<BooleanParameter> hasResetSignalParameter = BooleanParameter::make(true, "Has position reset signal", "HasResetSignal");
+	Legato::BoolParam centerWorkingRangeOnZeroParameter = Legato::BooleanParameter::createInstance(true, "Center working range on zero", "CenterWorkingRangeOnZero");
+	Legato::BoolParam hasResetSignalParameter = Legato::BooleanParameter::createInstance(true, "Has position reset signal", "HasResetSignal");
 	std::shared_ptr<NumberParameter<double>> resetSignalTimeParameter = NumberParameter<double>::make(10.0, "Reset Time", "ResetTime", "%.1f", Units::Time::Millisecond, false);
 	
 	//————— SubDevice ——————

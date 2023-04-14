@@ -198,7 +198,7 @@ bool ATV320::startupConfiguration() {
 	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12)) return false;
 	if(!txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13)) return false;
 	
-	b_reverseDirection = invertDirection->value;
+	b_reverseDirection = invertDirection->getValue();
 	
 	return true;
 }

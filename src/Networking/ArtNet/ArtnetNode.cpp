@@ -87,7 +87,7 @@ void ArtNetNode::onConstruction(){
 
 void ArtNetNode::connect(){
 	//we are sending artnet packets over udp (broadcast or not)
-	if(broadcast->value) udpSocket = Network::getUdpBroadcastSocket();
+	if(broadcast->getValue()) udpSocket = Network::getUdpBroadcastSocket();
 	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);
 	if(udpSocket){
 		b_running = true;
@@ -113,7 +113,7 @@ void ArtNetNode::start(){
         asio::ip::network_v4 network(address, mask);
         asio::ip::udp::endpoint broadcastEndpoint(network.broadcast(), portNumber->value);
 
-		bool b_broadcast = broadcast->value;
+		bool b_broadcast = broadcast->getValue();
 		
 		while(b_running){
 			

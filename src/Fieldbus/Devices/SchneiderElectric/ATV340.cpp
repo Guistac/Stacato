@@ -69,12 +69,12 @@ void ATV340::onConstruction() {
 	
 	//configure parameter callbacks
 	pdo_digitalIn->addEditCallback([this](){
-		digitalInput1_Pin->setVisible(pdo_digitalIn->value);
-		digitalInput2_Pin->setVisible(pdo_digitalIn->value);
-		digitalInput3_Pin->setVisible(pdo_digitalIn->value);
-		digitalInput4_Pin->setVisible(pdo_digitalIn->value);
-		digitalInput5_Pin->setVisible(pdo_digitalIn->value);
-		if(!pdo_digitalIn->value){
+		digitalInput1_Pin->setVisible(pdo_digitalIn->getValue());
+		digitalInput2_Pin->setVisible(pdo_digitalIn->getValue());
+		digitalInput3_Pin->setVisible(pdo_digitalIn->getValue());
+		digitalInput4_Pin->setVisible(pdo_digitalIn->getValue());
+		digitalInput5_Pin->setVisible(pdo_digitalIn->getValue());
+		if(!pdo_digitalIn->getValue()){
 			digitalInput1_Pin->disconnectAllLinks();
 			digitalInput2_Pin->disconnectAllLinks();
 			digitalInput3_Pin->disconnectAllLinks();
@@ -83,11 +83,11 @@ void ATV340::onConstruction() {
 		}
 	});
 	pdo_digitalOut->addEditCallback([this](){
-		digitalOutput1_Pin->setVisible(pdo_digitalOut->value);
-		digitalOutput2_Pin->setVisible(pdo_digitalOut->value);
-		relaisOutput1_Pin->setVisible(pdo_digitalOut->value);
-		relaisOutput2_Pin->setVisible(pdo_digitalOut->value);
-		if(!pdo_digitalOut->value){
+		digitalOutput1_Pin->setVisible(pdo_digitalOut->getValue());
+		digitalOutput2_Pin->setVisible(pdo_digitalOut->getValue());
+		relaisOutput1_Pin->setVisible(pdo_digitalOut->getValue());
+		relaisOutput2_Pin->setVisible(pdo_digitalOut->getValue());
+		if(!pdo_digitalOut->getValue()){
 			digitalOutput1_Pin->disconnectAllLinks();
 			digitalOutput2_Pin->disconnectAllLinks();
 			relaisOutput1_Pin->disconnectAllLinks();
@@ -95,12 +95,12 @@ void ATV340::onConstruction() {
 		}
 	});
 	pdo_readAnalogIn1->addEditCallback([this](){
-		analogInput1_pin->setVisible(pdo_readAnalogIn1->value);
-		if(!pdo_readAnalogIn1->value) analogInput1_pin->disconnectAllLinks();
+		analogInput1_pin->setVisible(pdo_readAnalogIn1->getValue());
+		if(!pdo_readAnalogIn1->getValue()) analogInput1_pin->disconnectAllLinks();
 	});
 	pdo_readAnalogIn2->addEditCallback([this](){
-		analogInput2_pin->setVisible(pdo_readAnalogIn2->value);
-		if(!pdo_readAnalogIn2->value) analogInput2_pin->disconnectAllLinks();
+		analogInput2_pin->setVisible(pdo_readAnalogIn2->getValue());
+		if(!pdo_readAnalogIn2->getValue()) analogInput2_pin->disconnectAllLinks();
 	});
 	
 	for(auto parameter : pdoConfigParameters.get()){
@@ -161,12 +161,12 @@ void ATV340::configureProcessData(){
 	axis->processDataConfiguration.enableFrequencyMode();
 	axis->processDataConfiguration.frequencyActualValue = false;
 	
-	if(pdo_digitalIn->value) 		txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
-	if(pdo_digitalOut->value) 		rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
-	if(pdo_motorEffort->value) 		txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorEffort);
-	if(pdo_motorVelocity->value)	axis->processDataConfiguration.frequencyActualValue = true;
-	if(pdo_readAnalogIn1->value)	txPdoAssignement.addEntry(0x2016, 0x21, 16, "AI1 standardized value", &analogInput1);
-	if(pdo_readAnalogIn2->value) 	txPdoAssignement.addEntry(0x2016, 0x22, 16, "AI2 standardized value", &analogInput2);
+	if(pdo_digitalIn->getValue()) 		txPdoAssignement.addEntry(0x2016, 0x2, 16, "Logic Inputs Physical Image", &logicInputs);
+	if(pdo_digitalOut->getValue()) 		rxPdoAssignement.addEntry(0x2016, 0xD, 16, "Logic Outputs States", &logicOutputs);
+	if(pdo_motorEffort->getValue()) 		txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorEffort);
+	if(pdo_motorVelocity->getValue())	axis->processDataConfiguration.frequencyActualValue = true;
+	if(pdo_readAnalogIn1->getValue())	txPdoAssignement.addEntry(0x2016, 0x21, 16, "AI1 standardized value", &analogInput1);
+	if(pdo_readAnalogIn2->getValue()) 	txPdoAssignement.addEntry(0x2016, 0x22, 16, "AI2 standardized value", &analogInput2);
 	
 	//might be smarter to thread request of this data once the fault flag is up
 	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
@@ -249,11 +249,11 @@ void ATV340::readInputs() {
 	bool DI4 = logicInputs & (0x1 << 3);
 	bool DI5 = logicInputs & (0x1 << 4);
 	
-	*digitalInput1_Signal = invertDigitalInput1_Param->value ? !DI1 : DI1;
-	*digitalInput2_Signal = invertDigitalInput2_Param->value ? !DI2 : DI2;
-	*digitalInput3_Signal = invertDigitalInput3_Param->value ? !DI3 : DI3;
-	*digitalInput4_Signal = invertDigitalInput4_Param->value ? !DI4 : DI4;
-	*digitalInput5_Signal = invertDigitalInput5_Param->value ? !DI5 : DI5;
+	*digitalInput1_Signal = invertDigitalInput1_Param->getValue() ? !DI1 : DI1;
+	*digitalInput2_Signal = invertDigitalInput2_Param->getValue() ? !DI2 : DI2;
+	*digitalInput3_Signal = invertDigitalInput3_Param->getValue() ? !DI3 : DI3;
+	*digitalInput4_Signal = invertDigitalInput4_Param->getValue() ? !DI4 : DI4;
+	*digitalInput5_Signal = invertDigitalInput5_Param->getValue() ? !DI5 : DI5;
 	
 	//for standardized values, the value seems to be in 0.01% increments
 	//to normalize the value to a 0-1 range we divide by 10000
@@ -312,10 +312,10 @@ void ATV340::writeOutputs() {
 	if(digitalOutput2_Pin->isConnected()) digitalOutput2_Pin->copyConnectedPinValue();
 	
 	logicOutputs = 0x0;
-	if(*relaisOutput1_Signal != invertRelay1_Param->value)			logicOutputs |= 0x1 << 0;
-	if(*relaisOutput2_Signal != invertRelay2_Param->value)			logicOutputs |= 0x1 << 1;
-	if(*digitalOutput1_Signal != invertDigitalOutput1_Param->value)	logicOutputs |= 0x1 << 8;
-	if(*digitalOutput2_Signal != invertDigitalOutput2_Param->value)	logicOutputs |= 0x1 << 9;
+	if(*relaisOutput1_Signal != invertRelay1_Param->getValue())			logicOutputs |= 0x1 << 0;
+	if(*relaisOutput2_Signal != invertRelay2_Param->getValue())			logicOutputs |= 0x1 << 1;
+	if(*digitalOutput1_Signal != invertDigitalOutput1_Param->getValue())	logicOutputs |= 0x1 << 8;
+	if(*digitalOutput2_Signal != invertDigitalOutput2_Param->getValue())	logicOutputs |= 0x1 << 9;
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
@@ -526,7 +526,7 @@ void ATV340::configureDrive(){
 			if(!writeSDO_U16(0x201A, 0x48, pulsesPerEncoderRevolution, "Pulses Per Encoder Revolution")) return;
 			
 			//[eeri] emebedded encoder revolution inversion (0=No, 1=Yes)
-			uint16_t encoderinvertion = embeddedEncoderInvertDirection_Param->value ? 1 : 0;
+			uint16_t encoderinvertion = embeddedEncoderInvertDirection_Param->getValue() ? 1 : 0;
 			if(!writeSDO_U16(0x201A, 0x4F, encoderinvertion, "Embedded Encoder Invert Direction")) return;
 			
 			//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)

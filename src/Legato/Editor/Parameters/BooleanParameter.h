@@ -16,9 +16,12 @@ public:
 		newParameter->setName(name);
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(defaultValue);
+		return newParameter;
 	}
 		
 	virtual void onGui() override;
+	
+	bool getValue(){ return value; }
 	
 	void overwrite(bool newValue){
 		displayValue = newValue;
@@ -89,5 +92,7 @@ private:
 	bool value;
 	
 };
+
+using BoolParam = std::shared_ptr<BooleanParameter>;
 
 };

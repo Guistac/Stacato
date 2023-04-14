@@ -62,7 +62,7 @@ void MicroFlex_e190::onConstruction() {
 																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
 	accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
 																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
-	invertMotor_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	invertMotor_parameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "InvertDirection");
 	currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
 																			   Units::Fraction::Percent, false);
 	maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",

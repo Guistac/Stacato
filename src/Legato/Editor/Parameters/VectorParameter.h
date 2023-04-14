@@ -17,7 +17,10 @@ public:
 		newParameter->setName(name);
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(defaultValue);
+		return newParameter;
 	}
+	
+	T getValue(){ return value; }
 	
 	void setFormat(std::string format_){
 		format = format_;

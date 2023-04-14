@@ -505,7 +505,7 @@ void AxisNode::limitSettingsGui(){
 	
 	ImGui::BeginDisabled(controlMode != ControlMode::POSITION_CONTROL);
 	
-	enableLowerPositionLimit->gui(Fonts::sansBold15);
+	enableLowerPositionLimit->gui();
 	lowerPositionLimit->gui(Fonts::sansBold15);
 	std::ostringstream lowPosLimString;
 	lowPosLimString << "Min: " << std::fixed << std::setprecision(3) << feedbackLowerPositionLimit << " u";
@@ -516,7 +516,7 @@ void AxisNode::limitSettingsGui(){
 	
 	ImGui::Separator();
 	
-	enableUpperPositionLimit->gui(Fonts::sansBold15);
+	enableUpperPositionLimit->gui();
 	upperPositionLimit->gui(Fonts::sansBold15);
 	std::ostringstream highPosLimString;
 	highPosLimString << "Max: " << std::fixed << std::setprecision(3) << feedbackUpperPositionLimit << " u";

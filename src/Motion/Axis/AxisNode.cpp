@@ -115,9 +115,9 @@ void AxisNode::onConstruction(){
 	limitSlowdownVelocity = NumberParameter<double>::make(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
 	limitSlowdownVelocity->setSuffix("/s");
 	
-	enableLowerPositionLimit = BooleanParameter::make(false, "Enable Lower Position Limit", "EnableLowerPositionLimit");
-	enableUpperPositionLimit = BooleanParameter::make(false, "Enable Upper Position Limit", "EnableUpperPositionLimit");
-	limitPositionToFeedbackWorkingRange = BooleanParameter::make(true, "Limit position to feedback working range", "LimitPositionToFeedbackWorkingRange");
+	enableLowerPositionLimit = Legato::BooleanParameter::createInstance(false, "Enable Lower Position Limit", "EnableLowerPositionLimit");
+	enableUpperPositionLimit = Legato::BooleanParameter::createInstance(false, "Enable Upper Position Limit", "EnableUpperPositionLimit");
+	limitPositionToFeedbackWorkingRange = Legato::BooleanParameter::createInstance(true, "Limit position to feedback working range", "LimitPositionToFeedbackWorkingRange");
 	lowerPositionLimit = 			NumberParameter<double>::make(0.0, "Lower Position Limit", "LowerPositionLimit");
 	upperPositionLimit = 			NumberParameter<double>::make(0.0, "Upper Position Limit", "UpperPositionLimit");
 	lowerPositionLimitClearance = 	NumberParameter<double>::make(0.0, "Lower Position Limit Clearance", "LowerPositionLimitClearance");
@@ -632,11 +632,11 @@ void AxisNode::updateAxisConfiguration(){
 		feedbackLowerPositionLimit = feedback->getPositionLowerWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
 		feedbackUpperPositionLimit = feedback->getPositionUpperWorkingRangeBound() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
 		
-		if(enableLowerPositionLimit->value)
+		if(enableLowerPositionLimit->getValue())
 			lowerPositionLimitWithoutClearance = std::clamp(lowerPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
 		else
 			lowerPositionLimitWithoutClearance = feedbackLowerPositionLimit;
-		if(enableUpperPositionLimit->value)
+		if(enableUpperPositionLimit->getValue())
 			upperPositionLimitWithoutClearance = std::clamp(upperPositionLimit->value, feedbackLowerPositionLimit, feedbackUpperPositionLimit);
 		else
 			upperPositionLimitWithoutClearance = feedbackUpperPositionLimit;

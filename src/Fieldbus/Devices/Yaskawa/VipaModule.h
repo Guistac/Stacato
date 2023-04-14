@@ -478,6 +478,8 @@ public:
 		}
 	}
 	
+	
+	
 	std::shared_ptr<EnumeratorParameter<InputFilter>> channel0InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
 																															   "Channel 0 Input Filter",
 																															   "Ch0InputFilter");

@@ -3,6 +3,7 @@
 #include "Networking/NetworkDevice.h"
 
 #include "Project/Editor/Parameter.h"
+#include "Legato/Editor/Parameters.h"
 
 #include <asio.hpp>
 
@@ -63,7 +64,7 @@ class ArtNetNode : public NetworkDevice{
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress2 = NumberParameter<uint8_t>::make(1, "ArtNet IP Octet 2", "IpOctet2");
 	std::shared_ptr<NumberParameter<uint8_t>> ipAddress3 = NumberParameter<uint8_t>::make(33, "ArtNet IP Octet 3", "IpOctet3");
 	std::shared_ptr<NumberParameter<uint16_t>> portNumber = NumberParameter<uint16_t>::make(6454, "ArtNet Port Number", "Port");
-	std::shared_ptr<BooleanParameter> broadcast = BooleanParameter::make(false, "ArtNet Broadcast", "Broadcast");
+	Legato::BoolParam broadcast = Legato::BooleanParameter::createInstance(false, "ArtNet Broadcast", "Broadcast");
 	
 	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet Network IP Octet 0", "NetworkIpOctet0");
 	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet Network IP Octet 1", "NetworkIpOctet1");

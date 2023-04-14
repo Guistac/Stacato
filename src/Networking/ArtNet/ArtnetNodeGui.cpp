@@ -34,7 +34,7 @@ void ArtNetNode::networkSettingsGui(){
 	
     float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
     
-	if(broadcast->value){
+	if(broadcast->getValue()){
         
         ImGui::PushFont(Fonts::sansBold15);
         ImGui::Text("Network");

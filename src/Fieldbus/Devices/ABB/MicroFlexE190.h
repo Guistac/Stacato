@@ -6,6 +6,8 @@
 #include "Fieldbus/Utilities/DS402Axis.h"
 #include "Project/Editor/Parameter.h"
 
+#include "Legato/Editor/Parameters.h"
+
 class MicroFlex_e190 : public EtherCatDevice {
 public:
 
@@ -106,16 +108,18 @@ public:
 	//Parameters
 	NumberParam<double> velocityLimit_parameter;
 	NumberParam<double> accelerationLimit_parameter;
-	BoolParam  invertMotor_parameter;
+	Legato::BoolParam  invertMotor_parameter;
 	NumberParam<double> currentLimit_parameter;
 	NumberParam<double> maxFollowingError_parameter;
 	
 	ParameterGroup axisParameters = ParameterGroup("Axis",{
+		/*
 		velocityLimit_parameter,
 		accelerationLimit_parameter,
 		invertMotor_parameter,
 		currentLimit_parameter,
 		maxFollowingError_parameter
+		*/
 	});
 	
 	void configureSubmodules(){

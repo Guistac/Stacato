@@ -6,6 +6,7 @@
 #include "Motion/Interfaces.h"
 
 #include "Project/Editor/Parameter.h"
+#include "Legato/Editor/Parameters.h"
 
 class ATV320 : public EtherCatDevice{
 public:
@@ -97,7 +98,7 @@ public:
 																					  Units::AngularDistance::Revolution, false, 0, 0, "", "/min");
 	std::shared_ptr<NumberParameter<double>> slowdownVelocityHertz = NumberParameter<double>::make(5.0, "Slowdown Velocity", "SlowdownVelocity",
 																								"%.1f", Units::Frequency::Hertz, false);
-	std::shared_ptr<BooleanParameter> invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
+	Legato::BoolParam invertDirection = Legato::BooleanParameter::createInstance(false, "Invert Motion Direction", "InvertMotionDirection");
 	
     std::shared_ptr<NumberParameter<double>> lowSpeedHertz = NumberParameter<double>::make(0.0, "Low Speed", "LowSpeed", "%.1f",
                                                                                            Units::Frequency::Hertz, false);

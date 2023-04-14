@@ -93,32 +93,35 @@ public:
 	
 	//———— Process Data
 	
-	BoolParam pdo_digitalIn = BooleanParameter::make(false, "Read Digital Inputs", "ConfigDigitalInputs");
-	BoolParam pdo_digitalOut = BooleanParameter::make(false, "Write Digital Outputs", "ConfigDigitalOutputs");
-	BoolParam pdo_readAnalogIn1 = BooleanParameter::make(false, "Read Analog Input 1", "ConfigAnalogInput1");
-	BoolParam pdo_readAnalogIn2 = BooleanParameter::make(false, "Read Analog Input 2", "ConfigAnalogInput2");
-	BoolParam pdo_motorVelocity = BooleanParameter::make(false, "Read Output Velocity", "ConfigMotorOutputVelocity");
-	BoolParam pdo_motorEffort = BooleanParameter::make(false, "Read Motor Effort", "ConfigMotorEffort");
+	Legato::BoolParam pdo_digitalIn = Legato::BooleanParameter::createInstance(false, "Read Digital Inputs", "ConfigDigitalInputs");
+	Legato::BoolParam pdo_digitalOut = Legato::BooleanParameter::createInstance(false, "Write Digital Outputs", "ConfigDigitalOutputs");
+	Legato::BoolParam pdo_readAnalogIn1 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 1", "ConfigAnalogInput1");
+	Legato::BoolParam pdo_readAnalogIn2 = Legato::BooleanParameter::createInstance(false, "Read Analog Input 2", "ConfigAnalogInput2");
+	Legato::BoolParam pdo_motorVelocity = Legato::BooleanParameter::createInstance(false, "Read Output Velocity", "ConfigMotorOutputVelocity");
+	Legato::BoolParam pdo_motorEffort = Legato::BooleanParameter::createInstance(false, "Read Motor Effort", "ConfigMotorEffort");
 	ParameterGroup pdoConfigParameters = ParameterGroup("PDOconfig",{
+		/*
 		pdo_digitalIn,
 		pdo_digitalOut,
 		pdo_readAnalogIn1,
 		pdo_readAnalogIn2,
 		pdo_motorVelocity,
 		pdo_motorEffort
+		*/
 	});
 	
 	
-	BoolParam invertDigitalInput1_Param = BooleanParameter::make(false, "Invert Digital Input 1", "InvertDigitalInput1");
-	BoolParam invertDigitalInput2_Param = BooleanParameter::make(false, "Invert Digital Input 2", "InvertDigitalInput2");
-	BoolParam invertDigitalInput3_Param = BooleanParameter::make(false, "Invert Digital Input 3", "InvertDigitalInput3");
-	BoolParam invertDigitalInput4_Param = BooleanParameter::make(false, "Invert Digital Input 4", "InvertDigitalInput4");
-	BoolParam invertDigitalInput5_Param = BooleanParameter::make(false, "Invert Digital Input 5", "InvertDigitalInput5");
-	BoolParam invertDigitalOutput1_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
-	BoolParam invertDigitalOutput2_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
-	BoolParam invertRelay1_Param = BooleanParameter::make(false, "Invert Relay 1", "InvertRelay1");
-	BoolParam invertRelay2_Param = BooleanParameter::make(false, "Invert Relay 2", "InvertRelay1");
+	Legato::BoolParam invertDigitalInput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 1", "InvertDigitalInput1");
+	Legato::BoolParam invertDigitalInput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 2", "InvertDigitalInput2");
+	Legato::BoolParam invertDigitalInput3_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 3", "InvertDigitalInput3");
+	Legato::BoolParam invertDigitalInput4_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 4", "InvertDigitalInput4");
+	Legato::BoolParam invertDigitalInput5_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Input 5", "InvertDigitalInput5");
+	Legato::BoolParam invertDigitalOutput1_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	Legato::BoolParam invertDigitalOutput2_Param = Legato::BooleanParameter::createInstance(false, "Invert Digital Output 1", "InvertDigitalOutput1");
+	Legato::BoolParam invertRelay1_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 1", "InvertRelay1");
+	Legato::BoolParam invertRelay2_Param = Legato::BooleanParameter::createInstance(false, "Invert Relay 2", "InvertRelay1");
 	ParameterGroup digitalSignalInversion = ParameterGroup("Digital Signal Inversion", {
+		/*
 		invertDigitalInput1_Param,
 		invertDigitalInput2_Param,
 		invertDigitalInput3_Param,
@@ -128,6 +131,7 @@ public:
 		invertDigitalOutput2_Param,
 		invertRelay1_Param,
 		invertRelay2_Param
+		 */
 	});
 	
 	//———— Parameter for the following parameters
@@ -348,7 +352,7 @@ public:
 	NumberParam<int> embeddedEncoderPulsesPerRevolution_Param = NumberParameter<int>::make(0, "Embedded Encoder Pulses Per revolution", "EmbeddedEncoderPulsesPerRevolution", "%i", Units::None::None, false);
 	
 	//[eeri] embedded encoder revolution inversion (0=No, 1=Yes)
-	BoolParam embeddedEncoderInvertDirection_Param = BooleanParameter::make(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
+	Legato::BoolParam embeddedEncoderInvertDirection_Param = Legato::BooleanParameter::createInstance(false, "Invert Embedded Encoder Direction", "InvertEmbeddedEncoderDirection");
 	
 	//[eenu] embedded encoder usage (0=None, 1=SpeedMonitoring, 2=SpeedRegulation, 3=SpeedReference)
 	Legato::OptionParam embeddedEncoderUsage_Param = Legato::OptionParameter::createInstance(options.EmbeddedEncoderNoUsage, options.embeddedEncoderUsage_Options, "Embedded Encoder Usage", "EmbeddedEncoderUsage");
