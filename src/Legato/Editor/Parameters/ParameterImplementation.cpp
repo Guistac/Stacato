@@ -28,57 +28,6 @@ namespace Legato{
 			overwriteWithHistory(displayValue);
 		}
 	}
-	
-
-
-	template<typename T>
-	void NumberParameter<T>::onGui() {
-		ImGui::BeginDisabled(isDisabled());
-		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, formatString.c_str(), ImGuiInputTextFlags_CharsScientific);
-		ImGui::EndDisabled();
-		if(ImGui::IsItemDeactivatedAfterEdit()){
-			overwriteWithHistory(displayValue);
-		}
-	}
-
-	template<>
-	inline ImGuiDataType NumberParameter<float>::getImGuiDataType(){ return ImGuiDataType_Float; }
-	template<>
-	inline ImGuiDataType NumberParameter<double>::getImGuiDataType(){ return ImGuiDataType_Double; }
-	template<>
-	inline ImGuiDataType NumberParameter<uint8_t>::getImGuiDataType(){ return ImGuiDataType_U8; }
-	template<>
-	inline ImGuiDataType NumberParameter<int8_t>::getImGuiDataType(){ return ImGuiDataType_S8; }
-	template<>
-	inline ImGuiDataType NumberParameter<uint16_t>::getImGuiDataType(){ return ImGuiDataType_U16; }
-	template<>
-	inline ImGuiDataType NumberParameter<int16_t>::getImGuiDataType(){ return ImGuiDataType_S16; }
-	template<>
-	inline ImGuiDataType NumberParameter<uint32_t>::getImGuiDataType(){ return ImGuiDataType_U32; }
-	template<>
-	inline ImGuiDataType NumberParameter<int32_t>::getImGuiDataType(){ return ImGuiDataType_S32; }
-	template<>
-	inline ImGuiDataType NumberParameter<uint64_t>::getImGuiDataType(){ return ImGuiDataType_U64; }
-	template<>
-	inline ImGuiDataType NumberParameter<int64_t>::getImGuiDataType(){ return ImGuiDataType_S64; }
-
-	template<>
-	inline std::string NumberParameter<float>::getDefaultFormatString(){ return "%.3f"; }
-	template<>
-	inline std::string NumberParameter<double>::getDefaultFormatString(){ return "%.3f"; }
-
-
-	template class NumberParameter<float>;
-	template class NumberParameter<double>;
-	template class NumberParameter<uint8_t>;
-	template class NumberParameter<int8_t>;
-	template class NumberParameter<uint16_t>;
-	template class NumberParameter<int16_t>;
-	template class NumberParameter<uint32_t>;
-	template class NumberParameter<int32_t>;
-	template class NumberParameter<uint64_t>;
-	template class NumberParameter<int64_t>;
-
 
 	template<typename T>
 	void VectorParameter<T>::onGui() {

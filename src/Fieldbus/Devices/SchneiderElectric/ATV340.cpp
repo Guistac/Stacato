@@ -573,43 +573,38 @@ void ATV340::writeOutputs() {
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool ATV340::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
-	
-	if(!pdoConfigParameters.save(xml)) return false;
-	if(!motorNameplateParameters.save(xml)) return false;
-	if(!brakeLogicParameters.save(xml)) return false;
-	if(!embeddedEncoderParameters.save(xml)) return false;
-	if(!motorControlParameters.save(xml)) return false;
-	if(!analogIoConfigParameters.save(xml)) return false;
-	if(!digitalIoConfigParameters.save(xml)) return false;
-	*/
-	return true;
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
+	success &= pdoConfigParameters->serializeIntoParent(this);
+	success &= motorNameplateParameters->serializeIntoParent(this);
+	success &= brakeLogicParameters->serializeIntoParent(this);
+	success &= embeddedEncoderParameters->serializeIntoParent(this);
+	success &= motorControlParameters->serializeIntoParent(this);
+	success &= analogIoConfigParameters->serializeIntoParent(this);
+	success &= digitalIoConfigParameters->serializeIntoParent(this);
+	return success;
 }
 
 bool ATV340::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
+	success &= pdoConfigParameters->deserializeFromParent(this);
+	success &= motorNameplateParameters->deserializeFromParent(this);
+	success &= brakeLogicParameters->deserializeFromParent(this);
+	success &= embeddedEncoderParameters->deserializeFromParent(this);
+	success &= motorControlParameters->deserializeFromParent(this);
+	success &= analogIoConfigParameters->deserializeFromParent(this);
+	success &= digitalIoConfigParameters->deserializeFromParent(this);
 	
-	if(!pdoConfigParameters.load(xml)) return false;
-	if(!motorNameplateParameters.load(xml)) return false;
-	if(!brakeLogicParameters.load(xml)) return false;
-	if(!embeddedEncoderParameters.load(xml)) return false;
-	if(!motorControlParameters.load(xml)) return false;
-	//if(!analogIoConfigParameters.load(xml)) return false;
-	//if(!digitalIoConfigParameters.load(xml)) return false;
+	for(auto parameter : pdoConfigParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : motorNameplateParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : brakeLogicParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : embeddedEncoderParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : motorControlParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : digitalIoConfigParameters->getParameters()) parameter->onEdit();
+	for(auto parameter : analogIoConfigParameters->getParameters()) parameter->onEdit();
 	
-	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
-	for(auto parameter : motorNameplateParameters.get()) parameter->onEdit();
-	for(auto parameter : brakeLogicParameters.get()) parameter->onEdit();
-	for(auto parameter : embeddedEncoderParameters.get()) parameter->onEdit();
-	for(auto parameter : motorControlParameters.get()) parameter->onEdit();
-	for(auto parameter : digitalIoConfigParameters.get()) parameter->onEdit();
-	for(auto parameter : analogIoConfigParameters.get()) parameter->onEdit();
-	*/
-	return true;
+	return success;
 }
 
 

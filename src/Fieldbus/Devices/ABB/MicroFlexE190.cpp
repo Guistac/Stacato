@@ -84,6 +84,8 @@ void MicroFlex_e190::onConstruction() {
 		currentLimit_parameter,
 		maxFollowingError_parameter
 	});
+	axisParameters->setName("Servo Parameters");
+	axisParameters->setSaveString("ServoParameters");
 	
 	
 	velocityLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
@@ -351,22 +353,16 @@ void MicroFlex_e190::writeOutputs() {
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool MicroFlex_e190::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
 	bool success = true;
 	success &= EtherCatDevice::onSerialization();
-	success &= axisParameters->save(xmlElement);
+	success &= axisParameters->serializeIntoParent(this);
 	return success;
-	 */
 }
 
 
 bool MicroFlex_e190::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
 	bool success = true;
 	success &= EtherCatDevice::onDeserialization();
-	success &= axisParameters.load(xmlElement);
+	success &= axisParameters->deserializeFromParent(this);
 	return success;
-	 */
 }

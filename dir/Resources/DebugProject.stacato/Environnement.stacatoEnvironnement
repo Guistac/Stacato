@@ -1,7 +1,39 @@
 <Environnement Name="Default Component Name" HELLo="1234">
     <NodeGraph Name="Default Component Name">
         <NodeList>
-            <Node/>
+            <Node Name="Lexium32M" UniqueID="18" ClassName="Lexium32" NodeType="IODevice">
+                <NodeGraphPosition Split="0" X="178" Y="222"/>
+                <InputPins>
+                    <Pin Name="DQ0" UniqueID="19" SaveString="DQ0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ1" UniqueID="20" SaveString="DQ1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ2" UniqueID="21" SaveString="DQ2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                </InputPins>
+                <OutputPins>
+                    <Pin Name="Servo Motor" UniqueID="22" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Load" UniqueID="23" SaveString="Load" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Position" UniqueID="24" SaveString="Position" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Velocity" UniqueID="25" SaveString="Velocity" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="GPIO" UniqueID="26" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DI0" UniqueID="27" SaveString="DI0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI1" UniqueID="28" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI2" UniqueID="29" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI3" UniqueID="30" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI4" UniqueID="31" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI5" UniqueID="32" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                </OutputPins>
+                <Identification Type="StationAlias" Address="0"/>
+                <MotorProperties MaxVelocity="0" MaxCurrent="0" EncoderIsMultiturn="false"/>
+                <KinematicLimits velocityLimit_rps="0" accelerationLimit_rpsps="0" manualAcceleration_rpsps="0"/>
+                <InvertDirectionOfMovement Invert="false"/>
+                <MaxFollowingError revolutions="0"/>
+                <CurrentLimit amps="0"/>
+                <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                <NegativeLimitSwitch Pin="Unassigned"/>
+                <PositiveLimitSwitch Pin="Unassigned"/>
+                <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                <HoldingBrake HasHoldingBrake="false"/>
+            </Node>
         </NodeList>
         <LinkList/>
     </NodeGraph>

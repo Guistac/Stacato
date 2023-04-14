@@ -227,25 +227,22 @@ void VipaBusCoupler_053_1EC01::moveModuleDown(std::shared_ptr<VipaModule> module
 
 
 bool VipaBusCoupler_053_1EC01::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
+	EtherCatDevice::onSerialization();
 	using namespace tinyxml2;
-	XMLElement* ioModulesXML = xml->InsertNewChildElement("SLIOModules");
+	XMLElement* ioModulesXML = xmlElement->InsertNewChildElement("SLIOModules");
 	for (auto& module : modules) {
 		XMLElement* moduleXML = ioModulesXML->InsertNewChildElement("Module");
 		moduleXML->SetAttribute("Type", module->getSaveName());
 		module->save(moduleXML);
 	}
-	 */
 	return true;
 }
 
 
 bool VipaBusCoupler_053_1EC01::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
+	EtherCatDevice::onDeserialization();
 	using namespace tinyxml2;
-	XMLElement* ioModulesXML = xml->FirstChildElement("SLIOModules");
+	XMLElement* ioModulesXML = xmlElement->FirstChildElement("SLIOModules");
 	if (ioModulesXML == nullptr) return Logger::warn("Could not load SLIOModules attribute");
 	XMLElement* moduleXML = ioModulesXML->FirstChildElement("Module");
 	while (moduleXML != nullptr) {
@@ -257,6 +254,5 @@ bool VipaBusCoupler_053_1EC01::onDeserialization(){
 		addModule(module);
 		moduleXML = moduleXML->NextSiblingElement("Module");
 	}
-	 */
 	return true;
 }

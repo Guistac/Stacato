@@ -132,34 +132,5 @@ void MicroFlex_e190::controlTab(){
 }
 
 void MicroFlex_e190::settingsTab(){
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Velocity Limit");
-	ImGui::PopFont();
-	velocityLimit_parameter->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Acceleration Limit");
-	ImGui::PopFont();
-	accelerationLimit_parameter->gui();
-	
-	/*
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Invert Direction");
-	ImGui::PopFont();
-	invertMotor_parameter->gui();
-	ImGui::SameLine();
-	ImGui::Text("Motor direction is%s inverted", invertMotor_parameter->value ? "" : " not");
-	*/
-	 
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Current Limit");
-	ImGui::PopFont();
-	currentLimit_parameter->gui();
-	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Max Following Error");
-	ImGui::PopFont();
-	maxFollowingError_parameter->gui();
-	
+	axisParameters->gui();
 }

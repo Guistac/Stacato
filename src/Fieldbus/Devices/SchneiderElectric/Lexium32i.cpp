@@ -929,29 +929,30 @@ void Lexium32i::setStationAlias(uint16_t a) {
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool Lexium32i::onSerialization(){
-	/*
+	EtherCatDevice::onSerialization();
+	
     using namespace tinyxml2;
 
-	XMLElement* motorPropertiesXML = xml->InsertNewChildElement("MotorProperties");
+	XMLElement* motorPropertiesXML = xmlElement->InsertNewChildElement("MotorProperties");
 	motorPropertiesXML->SetAttribute("MaxVelocity", maxMotorVelocity);
 	motorPropertiesXML->SetAttribute("MaxCurrent", maxMotorCurrent_amps);
 	motorPropertiesXML->SetAttribute("EncoderIsMultiturn", b_encoderIsMultiturn);
 	
-    XMLElement* kinematicLimitsXML = xml->InsertNewChildElement("KinematicLimits");
+    XMLElement* kinematicLimitsXML = xmlElement->InsertNewChildElement("KinematicLimits");
     kinematicLimitsXML->SetAttribute("velocityLimit_rps", servoMotor->getVelocityLimit());
     kinematicLimitsXML->SetAttribute("accelerationLimit_rpsps", servoMotor->getAccelerationLimit());
     kinematicLimitsXML->SetAttribute("manualAcceleration_rpsps", manualAcceleration_rpsps);
 
-    XMLElement* invertDirectionOfMovementXML = xml->InsertNewChildElement("InvertDirectionOfMovement");
+    XMLElement* invertDirectionOfMovementXML = xmlElement->InsertNewChildElement("InvertDirectionOfMovement");
     invertDirectionOfMovementXML->SetAttribute("Invert", b_invertDirectionOfMotorMovement);
 	
-	XMLElement* maxFollowingErrorXML = xml->InsertNewChildElement("MaxFollowingError");
+	XMLElement* maxFollowingErrorXML = xmlElement->InsertNewChildElement("MaxFollowingError");
 	maxFollowingErrorXML->SetAttribute("revolutions", servoMotor->getFollowingErrorLimit());
 
-    XMLElement* currentLimitXML = xml->InsertNewChildElement("CurrentLimit");
+    XMLElement* currentLimitXML = xmlElement->InsertNewChildElement("CurrentLimit");
     currentLimitXML->SetAttribute("amps", maxCurrent_amps);
     
-    XMLElement* quickstopReactionXML = xml->InsertNewChildElement("Quickstop");
+    XMLElement* quickstopReactionXML = xmlElement->InsertNewChildElement("Quickstop");
     quickstopReactionXML->SetAttribute("Reaction", Enumerator::getSaveString(quickstopReaction));
     switch (quickstopReaction) {
         case QuickStopReaction::DECELERATION_RAMP:
@@ -962,63 +963,64 @@ bool Lexium32i::onSerialization(){
             break;
     }
 
-    XMLElement* negativeLimitSwitchXML = xml->InsertNewChildElement("NegativeLimitSwitch");
+    XMLElement* negativeLimitSwitchXML = xmlElement->InsertNewChildElement("NegativeLimitSwitch");
     negativeLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(negativeLimitSwitchPin));
     if (negativeLimitSwitchPin != InputPin::NONE) negativeLimitSwitchXML->SetAttribute("NormallyClosed", b_negativeLimitSwitchNormallyClosed);
 
-    XMLElement* positiveLimitSwitchXML = xml->InsertNewChildElement("PositiveLimitSwitch");
+    XMLElement* positiveLimitSwitchXML = xmlElement->InsertNewChildElement("PositiveLimitSwitch");
     positiveLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(positiveLimitSwitchPin));
     if (positiveLimitSwitchPin != InputPin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
 
-    XMLElement* pinInversionXML = xml->InsertNewChildElement("DigitalPinInversion");
+    XMLElement* pinInversionXML = xmlElement->InsertNewChildElement("DigitalPinInversion");
     pinInversionXML->SetAttribute("DI0", b_invertDI0);
     pinInversionXML->SetAttribute("DI1", b_invertDI1);
     pinInversionXML->SetAttribute("DI2", b_invertDI2);
     pinInversionXML->SetAttribute("DI3", b_invertDI3);
 
-    XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
+    XMLElement* encoderSettingsXML = xmlElement->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
 	encoderSettingsXML->SetAttribute("PositionOffset", servoMotor->positionOffset_revolutions);
 	
-	XMLElement* holdingBrakeXML = xml->InsertNewChildElement("HoldingBrake");
+	XMLElement* holdingBrakeXML = xmlElement->InsertNewChildElement("HoldingBrake");
 	holdingBrakeXML->SetAttribute("HasHoldingBrake", servoMotor->supportsHoldingBrakeControl());
-*/
+
     return true;
 }
 
 
 bool Lexium32i::onDeserialization(){
-/*
+	EtherCatDevice::onDeserialization();
+	
     using namespace tinyxml2;
 	
-	XMLElement* motorPropertiesXML = xml->FirstChildElement("MotorProperties");
+	XMLElement* motorPropertiesXML = xmlElement->FirstChildElement("MotorProperties");
 	if(motorPropertiesXML == nullptr) return Logger::warn("Could not find motor properties");
 	if(motorPropertiesXML->QueryDoubleAttribute("MaxVelocity", &maxMotorVelocity) != XML_SUCCESS) return Logger::warn("Could not read max motor velocity attribute");
 	if(motorPropertiesXML->QueryDoubleAttribute("MaxCurrent", &maxMotorCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read max motor current attribute");
 	if(motorPropertiesXML->QueryBoolAttribute("EncoderIsMultiturn", &b_encoderIsMultiturn) != XML_SUCCESS) return Logger::warn("Could not read encoder is multiturn attribute");
 
-    XMLElement* kinematicLimitsXML = xml->FirstChildElement("KinematicLimits");
+    XMLElement* kinematicLimitsXML = xmlElement->FirstChildElement("KinematicLimits");
     if (kinematicLimitsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
 	
     if (kinematicLimitsXML->QueryDoubleAttribute("velocityLimit_rps", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not read velocity limit attribute");
     if (kinematicLimitsXML->QueryDoubleAttribute("accelerationLimit_rpsps", &servoMotor->actuatorConfig.accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not read acceleration limit attribute");
     if (kinematicLimitsXML->QueryFloatAttribute("manualAcceleration_rpsps", &manualAcceleration_rpsps) != XML_SUCCESS) return Logger::warn("Could not read manual acceleration attribute");
 	 
-    XMLElement* invertDirectionOfMovementXML = xml->FirstChildElement("InvertDirectionOfMovement");
+    XMLElement* invertDirectionOfMovementXML = xmlElement->FirstChildElement("InvertDirectionOfMovement");
     if (invertDirectionOfMovementXML == nullptr) return Logger::warn("Could not find invert direction of movement attribute");
     if (invertDirectionOfMovementXML->QueryBoolAttribute("Invert", &b_invertDirectionOfMotorMovement) != XML_SUCCESS) return Logger::warn("Could not read direciton of movement attribute");
 
-	XMLElement* maxFollowingErrorXML = xml->FirstChildElement("MaxFollowingError");
+	XMLElement* maxFollowingErrorXML = xmlElement->FirstChildElement("MaxFollowingError");
 	if(maxFollowingErrorXML == nullptr) return Logger::warn("Could not find max following error attribute");
 	if(maxFollowingErrorXML->QueryAttribute("revolutions", &servoMotor->actuatorConfig.followingErrorLimit) != XML_SUCCESS) return Logger::warn("Could not read max following error attribute");
 	 
-    XMLElement* currentLimitsXML = xml->FirstChildElement("CurrentLimit");
+    XMLElement* currentLimitsXML = xmlElement->FirstChildElement("CurrentLimit");
     if (currentLimitsXML == nullptr) return Logger::warn("Could not find current limits attribute");
     if (currentLimitsXML->QueryDoubleAttribute("amps", &maxCurrent_amps) != XML_SUCCESS) return Logger::warn("Could not read Max Current Attribute");
 
 
 
-    XMLElement* quickstopReactionXML = xml->FirstChildElement("Quickstop");
+    XMLElement* quickstopReactionXML = xmlElement->FirstChildElement("Quickstop");
     if (quickstopReactionXML == nullptr) return Logger::warn("Could not find quickstop attribute");
     const char* quickstopReactionTypeString;
     if (quickstopReactionXML->QueryStringAttribute("Reaction", &quickstopReactionTypeString) != XML_SUCCESS) return Logger::warn("Could not find quickstop reaction type attribute");
@@ -1034,7 +1036,7 @@ bool Lexium32i::onDeserialization(){
             break;
     }
 
-    XMLElement* negativeLimitSwitchXML = xml->FirstChildElement("NegativeLimitSwitch");
+    XMLElement* negativeLimitSwitchXML = xmlElement->FirstChildElement("NegativeLimitSwitch");
     if (negativeLimitSwitchXML == nullptr) return Logger::warn("Could not find negative limit switch attribute");
     const char* negativeLimitSwitchPinString = "";
     negativeLimitSwitchXML->QueryStringAttribute("Pin", &negativeLimitSwitchPinString);
@@ -1044,7 +1046,7 @@ bool Lexium32i::onDeserialization(){
         if (negativeLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_negativeLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of negative limit switch");
     }
 
-    XMLElement* positiveLimitSwitchXML = xml->FirstChildElement("PositiveLimitSwitch");
+    XMLElement* positiveLimitSwitchXML = xmlElement->FirstChildElement("PositiveLimitSwitch");
     if (positiveLimitSwitchXML == nullptr) return Logger::warn("Could not find positive limit switch attribute");
     const char* positiveLimitSwitchPinString = "";
     positiveLimitSwitchXML->QueryStringAttribute("Pin", &positiveLimitSwitchPinString);
@@ -1054,22 +1056,22 @@ bool Lexium32i::onDeserialization(){
         if (positiveLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_positiveLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of positive limit switch");
     }
 
-    XMLElement* pinInversionXML = xml->FirstChildElement("DigitalPinInversion");
+    XMLElement* pinInversionXML = xmlElement->FirstChildElement("DigitalPinInversion");
     if (pinInversionXML == nullptr) return Logger::warn("Could not find pin inversion attribute");
     if (pinInversionXML->QueryBoolAttribute("DI0", &b_invertDI0) != XML_SUCCESS) return Logger::warn("Could not find inver DI0 attribute");
     if (pinInversionXML->QueryBoolAttribute("DI1", &b_invertDI1) != XML_SUCCESS) return Logger::warn("Could not find inver DI1 attribute");
     if (pinInversionXML->QueryBoolAttribute("DI2", &b_invertDI2) != XML_SUCCESS) return Logger::warn("Could not find inver DI2 attribute");
     if (pinInversionXML->QueryBoolAttribute("DI3", &b_invertDI3) != XML_SUCCESS) return Logger::warn("Could not find inver DI3 attribute");
 
-    XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
+    XMLElement* encoderSettingsXML = xmlElement->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");
     if (encoderSettingsXML->QueryBoolAttribute("RangeShifted", &b_encoderRangeShifted) != XML_SUCCESS) return Logger::warn("Could not find encoder range shift attribute");
 	if (encoderSettingsXML->QueryDoubleAttribute("PositionOffset", &servoMotor->positionOffset_revolutions) != XML_SUCCESS) return Logger::warn("Could not find position offset attribute");
 	updateEncoderWorkingRange();
 	
-	XMLElement* holdingBrakeXML = xml->FirstChildElement("HoldingBrake");
+	XMLElement* holdingBrakeXML = xmlElement->FirstChildElement("HoldingBrake");
 	if(holdingBrakeXML == nullptr) return Logger::warn("Could not find holding brake attribute");
 	if(holdingBrakeXML->QueryBoolAttribute("HasHoldingBrake", &servoMotor->actuatorConfig.b_supportsHoldingBrakeControl) != XML_SUCCESS) return Logger::warn("could not find has holdin brake attribute");
-	 */
+	 
     return true;
 }

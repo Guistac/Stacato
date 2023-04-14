@@ -3,86 +3,45 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/Utilities/EtherCatPDO.h"
 
-#define DEFINE_MODULAR_DEVICE_MODULE(className, saveName, displayName, u32_identifier) \
+#define DEFINE_MODULAR_DEVICE_MODULE(className, modelNameString, u32_identifier) \
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(className)\
 public:\
-	virtual const char* getSaveName() override { return saveName; }\
-	virtual const char* getDisplayName() override { return displayName; }\
+	virtual std::string getClassName() override { return #className; }\
+	virtual std::string getModelName() override { return modelNameString; };\
 	virtual uint32_t getIdentifier() override { return u32_identifier; }\
-	\
-	virtual std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule> getNewInstance() override {\
-	   auto newModule = std::make_shared<className>();\
-	   newModule->onConstruction();\
-	   return newModule;\
-	}\
-	virtual void onConstruction() override;\
 	virtual void onSetIndex(int i) override;\
-	\
 	virtual bool configureParameters() override;\
 	virtual void addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement) override;\
 	virtual void addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement) override;\
 	virtual void readInputs() override;\
 	virtual void writeOutputs() override;\
-	\
-	virtual bool save(tinyxml2::XMLElement* xml) override;\
-	virtual bool load(tinyxml2::XMLElement* xml) override;\
-	\
 	virtual void moduleGui() override;\
-
 
 namespace EtherCAT::ModularDeviceProfile{
 
-	class DeviceModule;
+	class ModularDevice;
 
-	class ModularDevice : public EtherCatDevice{
+	class DeviceModule : public Legato::Component{
+		DECLARE_PROTOTYPE_INTERFACE_METHODS(DeviceModule)
+		
 	public:
 		
-		//modules and module management
-		std::vector<std::shared_ptr<DeviceModule>> modules = {};
+		virtual bool onSerialization() override;
 		
-		//module list management
-		void addModule(std::shared_ptr<DeviceModule> module);
-		void removeModule(std::shared_ptr<DeviceModule> module);
-		void reorderModule(int oldIndex, int newIndex);
-		void moveModuleUp(std::shared_ptr<DeviceModule> module);
-		void moveModuleDown(std::shared_ptr<DeviceModule> module);
+		virtual bool onDeserialization() override;
 		
-		virtual void beforeModuleReordering(){}
+		virtual void onConstruction() override {
+			Component::onConstruction();
+		}
 		
-		//module configuration
-		bool discoverDeviceModules();
-		DataTransferState moduleDiscoveryStatus = DataTransferState::NO_TRANSFER;
-		bool configureModules();
-		
-		//module process data
-		void readModuleInputs();
-		void writeModuleOutputs();
-		
-		bool saveModules(tinyxml2::XMLElement* xml);
-		bool loadModules(tinyxml2::XMLElement* xml);
-		
-		//module factory
-		virtual std::vector<DeviceModule*>& getModuleFactory() = 0;
-		std::shared_ptr<DeviceModule> createModule(uint32_t identifier);
-		std::shared_ptr<DeviceModule> createModule(const char* saveString);
-		
-		//module management gui
-		void moduleManagerGui();
-		std::shared_ptr<DeviceModule> selectedModule = nullptr;
-	};
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+			Component::onCopyFrom(source);
+		}
 
-
-	class DeviceModule : public std::enable_shared_from_this<DeviceModule>{
-	public:
-
-		//module name as reported by the bus coupler
-		virtual const char* getSaveName() = 0;
-		//module name for gui display
-		virtual const char* getDisplayName() = 0;
 		//module u32 identifier
 		virtual uint32_t getIdentifier() = 0;
-		
-		virtual std::shared_ptr<DeviceModule> getNewInstance() = 0;
-		virtual void onConstruction() = 0;
+		virtual std::string getModelName(){}
+		virtual std::string getClassName(){}
 
 		std::shared_ptr<ModularDevice> parentDevice = nullptr;
 		void setParentDevice(std::shared_ptr<ModularDevice> parent){
@@ -123,10 +82,54 @@ namespace EtherCAT::ModularDeviceProfile{
 		
 		//gui stuff
 		virtual void moduleGui() = 0;
+	};
+
+
+
+	class ModularDevice : public EtherCatDevice{
+	public:
 		
-		//saving and loading
-		virtual bool save(tinyxml2::XMLElement* xml){ return true; }
-		virtual bool load(tinyxml2::XMLElement* xml){ return true; }
+		virtual bool onSerialization() override;
+		
+		virtual bool onDeserialization() override;
+		
+		virtual void onConstruction() override;
+		
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+			//EtherCatDevice::onCopyFrom(source);
+		}
+		
+		//module list management
+		std::vector<std::shared_ptr<DeviceModule>>& getModules(){ return moduleList->getEntries(); }
+		void addModule(std::shared_ptr<DeviceModule> module);
+		void removeModule(std::shared_ptr<DeviceModule> module);
+		void reorderModule(int oldIndex, int newIndex);
+		void moveModuleUp(std::shared_ptr<DeviceModule> module);
+		void moveModuleDown(std::shared_ptr<DeviceModule> module);
+		
+		virtual void beforeModuleReordering(){}
+		
+		//module configuration
+		bool discoverDeviceModules();
+		DataTransferState moduleDiscoveryStatus = DataTransferState::NO_TRANSFER;
+		bool configureModules();
+		
+		//module process data
+		void readModuleInputs();
+		void writeModuleOutputs();
+		
+		//module factory
+		virtual std::vector<std::shared_ptr<DeviceModule>>& getModuleFactory() = 0;
+		std::shared_ptr<DeviceModule> createModule(uint32_t identifier);
+		std::shared_ptr<DeviceModule> createModule(const char* saveString);
+		
+		//module management gui
+		void moduleManagerGui();
+		std::shared_ptr<DeviceModule> selectedModule = nullptr;
+		
+	private:
+		//modules and module management
+		std::shared_ptr<Legato::ListComponent<DeviceModule>> moduleList;
 	};
 
 

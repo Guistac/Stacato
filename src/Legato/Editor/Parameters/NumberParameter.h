@@ -57,15 +57,15 @@ public:
 	void overwriteWithHistory(T newValue){
 		overwrite(newValue);
 		/*
-		//=========Sanitize Value==========
-		if(!b_allowNegatives && newValue < 0) displayValue = 0;
-		else displayValue = newValue;
-		if(value == newValue) return;
-		//=========Invoke Command=========
-		std::shared_ptr<NumberParameter<T>> thisParameter = std::static_pointer_cast<NumberParameter<T>>(shared_from_this());
-		std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
-		std::make_shared<EditCommand>(thisParameter, commandName)->execute();
-		//=================================
+		 //=========Sanitize Value==========
+		 if(!b_allowNegatives && newValue < 0) displayValue = 0;
+		 else displayValue = newValue;
+		 if(value == newValue) return;
+		 //=========Invoke Command=========
+		 std::shared_ptr<NumberParameter<T>> thisParameter = std::static_pointer_cast<NumberParameter<T>>(shared_from_this());
+		 std::string commandName = "Changed " + std::string(getName()) + " from " + std::to_string(value) + " to " + std::to_string(displayValue);
+		 std::make_shared<EditCommand>(thisParameter, commandName)->execute();
+		 //=================================
 		 */
 	}
 	
@@ -77,36 +77,36 @@ private:
 		formatString = prefix + format + std::string(unitAbbreviated) + suffix;
 	}
 	ImGuiDataType getImGuiDataType();
-	std::string getDefaultFormatString(){ return "%i"; } //template specialisation for real float and double types
+	std::string getDefaultFormatString();
 	
 	/*
-	class EditCommand : public UndoableCommand{
-	public:
-		std::shared_ptr<NumberParameter<T>> parameter;
-		T newValue;
-		T previousValue;
-		EditCommand(std::shared_ptr<NumberParameter<T>> parameter_, std::string& commandName) : UndoableCommand(commandName){
-			parameter = parameter_;
-			newValue = parameter->displayValue;
-			previousValue = parameter->value;
-		}
-		void setNewValue(){
-			parameter->lockMutex();
-			parameter->value = newValue;
-			parameter->displayValue = newValue;
-			parameter->unlockMutex();
-		}
-		void setOldValue(){
-			parameter->lockMutex();
-			parameter->value = previousValue;
-			parameter->displayValue = previousValue;
-			parameter->unlockMutex();
-		}
-		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
-		virtual void onUndo(){ setOldValue(); }
-		virtual void onRedo(){ setNewValue(); }
-	};
-*/
+	 class EditCommand : public UndoableCommand{
+	 public:
+	 std::shared_ptr<NumberParameter<T>> parameter;
+	 T newValue;
+	 T previousValue;
+	 EditCommand(std::shared_ptr<NumberParameter<T>> parameter_, std::string& commandName) : UndoableCommand(commandName){
+	 parameter = parameter_;
+	 newValue = parameter->displayValue;
+	 previousValue = parameter->value;
+	 }
+	 void setNewValue(){
+	 parameter->lockMutex();
+	 parameter->value = newValue;
+	 parameter->displayValue = newValue;
+	 parameter->unlockMutex();
+	 }
+	 void setOldValue(){
+	 parameter->lockMutex();
+	 parameter->value = previousValue;
+	 parameter->displayValue = previousValue;
+	 parameter->unlockMutex();
+	 }
+	 virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
+	 virtual void onUndo(){ setOldValue(); }
+	 virtual void onRedo(){ setNewValue(); }
+	 };
+	 */
 	
 private:
 	
@@ -156,5 +156,57 @@ private:
 
 template<typename T>
 using NumberParam = std::shared_ptr<NumberParameter<T>>;
+
+template<typename T>
+void NumberParameter<T>::onGui() {
+	ImGui::BeginDisabled(isDisabled());
+	ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, formatString.c_str(), ImGuiInputTextFlags_CharsScientific);
+	ImGui::EndDisabled();
+	if(ImGui::IsItemDeactivatedAfterEdit()){
+		overwriteWithHistory(displayValue);
+	}
+}
+
+template<>
+inline ImGuiDataType NumberParameter<float>::getImGuiDataType(){ return ImGuiDataType_Float; }
+template<>
+inline ImGuiDataType NumberParameter<double>::getImGuiDataType(){ return ImGuiDataType_Double; }
+template<>
+inline ImGuiDataType NumberParameter<uint8_t>::getImGuiDataType(){ return ImGuiDataType_U8; }
+template<>
+inline ImGuiDataType NumberParameter<int8_t>::getImGuiDataType(){ return ImGuiDataType_S8; }
+template<>
+inline ImGuiDataType NumberParameter<uint16_t>::getImGuiDataType(){ return ImGuiDataType_U16; }
+template<>
+inline ImGuiDataType NumberParameter<int16_t>::getImGuiDataType(){ return ImGuiDataType_S16; }
+template<>
+inline ImGuiDataType NumberParameter<uint32_t>::getImGuiDataType(){ return ImGuiDataType_U32; }
+template<>
+inline ImGuiDataType NumberParameter<int32_t>::getImGuiDataType(){ return ImGuiDataType_S32; }
+template<>
+inline ImGuiDataType NumberParameter<uint64_t>::getImGuiDataType(){ return ImGuiDataType_U64; }
+template<>
+inline ImGuiDataType NumberParameter<int64_t>::getImGuiDataType(){ return ImGuiDataType_S64; }
+
+template<>
+inline std::string NumberParameter<uint8_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<int8_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<uint16_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<int16_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<uint32_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<int32_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<uint64_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<int64_t>::getDefaultFormatString(){ return "%i"; }
+template<>
+inline std::string NumberParameter<float>::getDefaultFormatString(){ return "%.3f"; }
+template<>
+inline std::string NumberParameter<double>::getDefaultFormatString(){ return "%.3f"; }
 
 };

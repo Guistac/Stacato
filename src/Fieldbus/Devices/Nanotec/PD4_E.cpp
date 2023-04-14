@@ -390,28 +390,28 @@ void PD4_E::writeOutputs() {
 }
 
 bool PD4_E::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
+	EtherCatDevice::onSerialization();
+	
 	using namespace tinyxml2;
 
-	XMLElement* limitsXML = xml->InsertNewChildElement("Limits");
+	XMLElement* limitsXML = xmlElement->InsertNewChildElement("Limits");
 	limitsXML->SetAttribute("VelocityLimit_revolutionsPerSecond", servoMotor->getVelocityLimit());
 	limitsXML->SetAttribute("AccelerationLimit_revolutionsPerSecondSquared", servoMotor->getAccelerationLimit());
 	limitsXML->SetAttribute("CurrentLimit_amps", currentLimit_amperes);
 	limitsXML->SetAttribute("MaxFollowingError_revolutions", maxFollowingError_revolutions);
 	limitsXML->SetAttribute("InvertDirectionOfMotion", invertDirectionOfMotion);
 
-	XMLElement* defaultManualAccelerationXML = xml->InsertNewChildElement("DefaultManualAcceleration");
+	XMLElement* defaultManualAccelerationXML = xmlElement->InsertNewChildElement("DefaultManualAcceleration");
 	defaultManualAccelerationXML->SetAttribute("revolutionsPerSecondSquared", defaultManualAcceleration_revolutionsPerSecondSquared);
 
-	XMLElement* tuningXML = xml->InsertNewChildElement("Tuning");
+	XMLElement* tuningXML = xmlElement->InsertNewChildElement("Tuning");
 	tuningXML->SetAttribute("PositionControllerProportionalGain", positionControllerProportionalGain);
 
-	XMLElement* limitSwitchesXML = xml->InsertNewChildElement("LimitSwitches");
+	XMLElement* limitSwitchesXML = xmlElement->InsertNewChildElement("LimitSwitches");
 	limitSwitchesXML->SetAttribute("UseDigitalInput1asNegativeLimit", negativeLimitSwitchOnDigitalIn1);
 	limitSwitchesXML->SetAttribute("UseDigitalInput2asPositiveLimit", positiveLimitSwitchOnDigitalIn2);
 
-	XMLElement* digitalInputInversionXML = xml->InsertNewChildElement("DigitalInputInversion");
+	XMLElement* digitalInputInversionXML = xmlElement->InsertNewChildElement("DigitalInputInversion");
 	digitalInputInversionXML->SetAttribute("DigitalIn1", invertDigitalInput1);
 	digitalInputInversionXML->SetAttribute("DigitalIn2", invertDigitalInput2);
 	digitalInputInversionXML->SetAttribute("DigitalIn3", invertDigitalInput3);
@@ -419,18 +419,18 @@ bool PD4_E::onSerialization(){
 	digitalInputInversionXML->SetAttribute("DigitalIn5", invertDigitalInput5);
 	digitalInputInversionXML->SetAttribute("DigitalIn6", invertDigitalInput6);
 
-	XMLElement* encoderOffsetXML = xml->InsertNewChildElement("EncoderOffset");
+	XMLElement* encoderOffsetXML = xmlElement->InsertNewChildElement("EncoderOffset");
 	encoderOffsetXML->SetAttribute("Revolutions", positionOffset_revolutions);
-*/
+
 	return true;
 }
 	 
 bool PD4_E::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
+	EtherCatDevice::onDeserialization();
+	
 	using namespace tinyxml2;
 
-	XMLElement* limitsXML = xml->FirstChildElement("Limits");
+	XMLElement* limitsXML = xmlElement->FirstChildElement("Limits");
 	if (limitsXML == nullptr) return Logger::warn("Could not find Limit attribute");
 	if (limitsXML->QueryDoubleAttribute("VelocityLimit_revolutionsPerSecond", &servoMotor->actuatorConfig.velocityLimit) != XML_SUCCESS) return Logger::warn("Could not find velocity Limit attribute");
 	if(limitsXML->QueryDoubleAttribute("AccelerationLimit_revolutionsPerSecondSquared", &servoMotor->actuatorConfig.accelerationLimit) != XML_SUCCESS) return Logger::warn("Could not find acceleration Limit attribute");
@@ -438,20 +438,20 @@ bool PD4_E::onDeserialization(){
 	if(limitsXML->QueryDoubleAttribute("MaxFollowingError_revolutions", &maxFollowingError_revolutions) != XML_SUCCESS) return Logger::warn("Could not find following error Limit attribute");
 	if(limitsXML->QueryBoolAttribute("InvertDirectionOfMotion", &invertDirectionOfMotion) != XML_SUCCESS) return Logger::warn("Could not find Invert direction of motion attribute");
 
-	XMLElement* defaultManualAccelerationXML = xml->FirstChildElement("DefaultManualAcceleration");
+	XMLElement* defaultManualAccelerationXML = xmlElement->FirstChildElement("DefaultManualAcceleration");
 	if (defaultManualAccelerationXML == nullptr) return Logger::warn("Could not find default manual acceleration value limit");
 	if (defaultManualAccelerationXML->QueryDoubleAttribute("revolutionsPerSecondSquared", &defaultManualAcceleration_revolutionsPerSecondSquared) != XML_SUCCESS) return Logger::warn("Could not load default manual acceleration attribute");
 
-	XMLElement* tuningXML = xml->FirstChildElement("Tuning");
+	XMLElement* tuningXML = xmlElement->FirstChildElement("Tuning");
 	if (tuningXML == nullptr) return Logger::warn("Could not find tuning attribute");
 	if (tuningXML->QueryDoubleAttribute("PositionControllerProportionalGain", &positionControllerProportionalGain) != XML_SUCCESS) return Logger::warn("Could not find proportional gain attribute");
 
-	XMLElement* limitSwitchesXML = xml->FirstChildElement("LimitSwitches");
+	XMLElement* limitSwitchesXML = xmlElement->FirstChildElement("LimitSwitches");
 	if (limitSwitchesXML == nullptr) return Logger::warn("Could not find limit switch attribute");
 	if (limitSwitchesXML->QueryBoolAttribute("UseDigitalInput1asNegativeLimit", &negativeLimitSwitchOnDigitalIn1) != XML_SUCCESS) return Logger::warn("Could not find negative limit switch attribute");
 	if (limitSwitchesXML->QueryBoolAttribute("UseDigitalInput2asPositiveLimit", &positiveLimitSwitchOnDigitalIn2) != XML_SUCCESS) return Logger::warn("Could not find negative limit switch attribute");
 
-	XMLElement* digitalInputInversionXML = xml->FirstChildElement("DigitalInputInversion");
+	XMLElement* digitalInputInversionXML = xmlElement->FirstChildElement("DigitalInputInversion");
 	if (digitalInputInversionXML == nullptr) return Logger::warn("Could not find digital input inversion attribute");
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn1", &invertDigitalInput1) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 1 Attribute");
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn2", &invertDigitalInput2) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 2 Attribute");
@@ -460,14 +460,14 @@ bool PD4_E::onDeserialization(){
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn5", &invertDigitalInput5) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 5 Attribute");
 	if(digitalInputInversionXML->QueryBoolAttribute("DigitalIn6", &invertDigitalInput6) != XML_SUCCESS) return Logger::warn("Could not Find Invert Digital Input 6 Attribute");
 	
-	XMLElement* encoderOffsetXML = xml->FirstChildElement("EncoderOffset");
+	XMLElement* encoderOffsetXML = xmlElement->FirstChildElement("EncoderOffset");
 	if (encoderOffsetXML == nullptr) return Logger::warn("Could not Find Encoder Offset Attribute");
 	if (encoderOffsetXML->QueryDoubleAttribute("Revolutions", &positionOffset_revolutions) != XML_SUCCESS) return Logger::warn("Could not load Encoder Offset Attribute");
 	
 	double maxEncoderRevolutions = 1 << encoderMultiTurnResolutionBits;
 	servoMotor->feedbackConfig.positionLowerWorkingRangeBound = (-maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
 	servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (maxEncoderRevolutions / 2.0) + positionOffset_revolutions;
-	*/
+
 	return true;
 }
 

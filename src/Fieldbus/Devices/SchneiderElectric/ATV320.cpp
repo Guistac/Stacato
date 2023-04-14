@@ -334,37 +334,27 @@ void ATV320::writeOutputs() {
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
 bool ATV320::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
-	XMLElement* kinematicsXML = xml->InsertNewChildElement("KinematicLimits");
-	accelerationRampTime->save(kinematicsXML);
-	decelerationRampTime->save(kinematicsXML);
-	maxVelocityRPM->save(kinematicsXML);
-	invertDirection->save(kinematicsXML);
-	slowdownVelocityHertz->save(kinematicsXML);
-    lowSpeedHertz->save(kinematicsXML);
-	return true;
-	 */
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
+	success &= accelerationRampTime->serializeIntoParent(this);
+	success &= decelerationRampTime->serializeIntoParent(this);
+	success &= maxVelocityRPM->serializeIntoParent(this);
+	success &= invertDirection->serializeIntoParent(this);
+	success &= slowdownVelocityHertz->serializeIntoParent(this);
+	success &= lowSpeedHertz->serializeIntoParent(this);
+	return success;
 }
 
 bool ATV320::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
-	XMLElement* kinematicsXML = xml->FirstChildElement("KinematicLimits");
-	if(kinematicsXML == nullptr) return Logger::warn("Could not find kinematic limits attribute");
-	if(!maxVelocityRPM->load(kinematicsXML)) return false;
-	if(!accelerationRampTime->load(kinematicsXML)) return false;
-	if(!decelerationRampTime->load(kinematicsXML)) return false;
-	maxVelocityRPM->onEdit();
-	accelerationRampTime->onEdit();
-	decelerationRampTime->onEdit();
-	if(!invertDirection->load(kinematicsXML)) return false;
-	if(!slowdownVelocityHertz->load(kinematicsXML)) return false;
-    if(!lowSpeedHertz->load(kinematicsXML)) return false;
-	return true;
-	 */
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
+	success &= accelerationRampTime->deserializeFromParent(this);
+	success &= decelerationRampTime->deserializeFromParent(this);
+	success &= maxVelocityRPM->deserializeFromParent(this);
+	success &= invertDirection->deserializeFromParent(this);
+	success &= slowdownVelocityHertz->deserializeFromParent(this);
+	success &= lowSpeedHertz->deserializeFromParent(this);
+	return success;
 }
 
 

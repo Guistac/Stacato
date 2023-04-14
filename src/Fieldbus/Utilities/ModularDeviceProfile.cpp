@@ -6,6 +6,13 @@
 
 namespace EtherCAT::ModularDeviceProfile{
 
+void ModularDevice::onConstruction(){
+	EtherCatDevice::onConstruction();
+	moduleList = Legato::ListComponent<DeviceModule>::createInstance();
+	moduleList->setSaveString("Modules");
+	moduleList->setEntrySaveString("Module");
+}
+
 bool ModularDevice::discoverDeviceModules(){
 	
 	moduleDiscoveryStatus = DataTransferState::TRANSFERRING;
@@ -49,13 +56,13 @@ bool ModularDevice::discoverDeviceModules(){
 			Logger::error("Could not identify module {}", moduleNumber);
 			return false;
 		}else{
-			Logger::info("Identified module {} as {}", moduleNumber, detectedModule->getDisplayName());
+			Logger::info("Identified module {} as {}", moduleNumber, detectedModule->getName());
 		}
 		
 		detectedModules.push_back(createModule(detectedModuleIdent));
 	}
 	
-	while(!modules.empty()) removeModule(modules[0]);
+	while(!getModules().empty()) removeModule(getModules()[0]);
 	
 	for(auto& module : detectedModules) addModule(module);
 	
@@ -66,7 +73,7 @@ bool ModularDevice::discoverDeviceModules(){
 std::shared_ptr<DeviceModule> ModularDevice::createModule(uint32_t identifier){
 	for(auto factoryModule : getModuleFactory()){
 		if(factoryModule->getIdentifier() == identifier){
-			return factoryModule->getNewInstance();
+			return factoryModule->duplicate();
 		}
 	}
 	return nullptr;
@@ -74,8 +81,8 @@ std::shared_ptr<DeviceModule> ModularDevice::createModule(uint32_t identifier){
 
 std::shared_ptr<DeviceModule> ModularDevice::createModule(const char* saveString){
 	for(auto factoryModule : getModuleFactory()){
-		if(strcmp(factoryModule->getSaveName(), saveString) == 0){
-			return factoryModule->getNewInstance();
+		if(strcmp(factoryModule->getSaveString().c_str(), saveString) == 0){
+			return factoryModule->duplicate();
 		}
 	}
 	return nullptr;
@@ -84,21 +91,21 @@ std::shared_ptr<DeviceModule> ModularDevice::createModule(const char* saveString
 
 bool ModularDevice::configureModules(){
 	
-	for(int i = 0; i < modules.size(); i++){
-		auto module = modules[i];
+	for(int i = 0; i < getModules().size(); i++){
+		auto deviceModule = getModules()[i];
 		uint8_t subindex = i + 1;
-		if(!writeSDO_U32(0xF030, subindex, module->getIdentifier())) {
-			return Logger::error("{} : Could not write Configured Module Ident of module {}", getName(), module->getDisplayName());
+		if(!writeSDO_U32(0xF030, subindex, deviceModule->getIdentifier())) {
+			return Logger::error("{} : Could not write Configured Module Ident of module {}", getName(), deviceModule->getName());
 		}
 	}
 	
 	//===== Module Parameter Configuration =====
-	for(auto& module : modules) {
-		if(!module->configureParameters()){
-			return Logger::error("{} : Module {} configuration failed", getName(), module->getDisplayName());
-		}else Logger::trace("{} : Configured Module {}", getName(), module->getDisplayName());
+	for(auto& deviceModule : getModules()) {
+		if(!deviceModule->configureParameters()){
+			return Logger::error("{} : Module {} configuration failed", getName(), deviceModule->getName());
+		}else Logger::trace("{} : Configured Module {}", getName(), deviceModule->getName());
 	}
-	Logger::info("{} : successfully configured {} modules", getName(), modules.size());
+	Logger::info("{} : successfully configured {} modules", getName(), getModules().size());
 	
 	//===== Module PDO Mapping =====
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex(), supportsCoE_PDOconfig())){
@@ -108,7 +115,7 @@ bool ModularDevice::configureModules(){
 		return Logger::error("{} : Failed to upload Tx-PDO Configuration", getName());
 	}
 	
-	Logger::info("{} : successfully configured module process data", getName(), modules.size());
+	Logger::info("{} : successfully configured module process data", getName(), getModules().size());
 	
 	return true;
 	
@@ -116,21 +123,21 @@ bool ModularDevice::configureModules(){
 
 
 void ModularDevice::readModuleInputs(){
-	for(auto& module : modules) module->readInputs();
+	for(auto& deviceModule : getModules()) deviceModule->readInputs();
 }
 
 void ModularDevice::writeModuleOutputs(){
-	for(auto& module : modules) module->writeOutputs();
+	for(auto& deviceModule : getModules()) deviceModule->writeOutputs();
 }
 
 
 void ModularDevice::addModule(std::shared_ptr<DeviceModule> deviceModule){
-	if(modules.empty()) beforeModuleReordering();
+	if(getModules().empty()) beforeModuleReordering();
 	
 	std::shared_ptr<ModularDevice> thisDevice = std::static_pointer_cast<ModularDevice>(shared_from_this());
 	deviceModule->setParentDevice(thisDevice);
-	deviceModule->setIndex(modules.size());
-	modules.push_back(deviceModule);
+	deviceModule->setIndex((int)getModules().size());
+	moduleList->addEntry(deviceModule);
 	selectedModule = deviceModule;
 	for(auto& inputPin : deviceModule->inputPins) addNodePin(inputPin);
 	for(auto& outputPin : deviceModule->outputPins) addNodePin(outputPin);
@@ -140,31 +147,26 @@ void ModularDevice::addModule(std::shared_ptr<DeviceModule> deviceModule){
 }
 
 void ModularDevice::removeModule(std::shared_ptr<DeviceModule> deviceModule){
-	for(int i = modules.size() - 1; i >= 0; i--){
-		if(modules[i] == deviceModule){
-			modules.erase(modules.begin() + i);
-			break;
-		}
-	}
+	moduleList->removeEntry(deviceModule);
 	if(selectedModule == deviceModule) selectedModule = nullptr;
 	for(auto& inputPin : deviceModule->inputPins) removeNodePin(inputPin);
 	for(auto& outputPin : deviceModule->outputPins) removeNodePin(outputPin);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
-	for(int i = 0; i < modules.size(); i++) {
-		modules[i]->setIndex(i);
-		modules[i]->addTxPdoMappingModule(txPdoAssignement);
-		modules[i]->addRxPdoMappingModule(rxPdoAssignement);
+	for(int i = 0; i < getModules().size(); i++) {
+		getModules()[i]->setIndex(i);
+		getModules()[i]->addTxPdoMappingModule(txPdoAssignement);
+		getModules()[i]->addRxPdoMappingModule(rxPdoAssignement);
 	}
 }
 
 void ModularDevice::reorderModule(int oldIndex, int newIndex){
 	//stored the moved module in a temporary buffer
-	std::shared_ptr<DeviceModule> temp = modules[oldIndex];
+	std::shared_ptr<DeviceModule> temp = getModules()[oldIndex];
 	
 	//erase the module and insert it at the new index
-	modules.erase(modules.begin() + oldIndex);
-	modules.insert(modules.begin() + newIndex, temp);
+	getModules().erase(getModules().begin() + oldIndex);
+	getModules().insert(getModules().begin() + newIndex, temp);
 	
 	//erase all input pins from the nodes pin vectors
 	std::vector<std::shared_ptr<NodePin>>& inputPins = getInputPins();
@@ -174,24 +176,24 @@ void ModularDevice::reorderModule(int oldIndex, int newIndex){
 	
 	//add back all pins in the correct order
 	//outputPins.push_back(gpioDeviceLink);
-	for(auto& module : modules){
+	for(auto& module : getModules()){
 		inputPins.insert(inputPins.end(), module->inputPins.begin(), module->inputPins.end());
 		outputPins.insert(outputPins.end(), module->outputPins.begin(), module->outputPins.end());
 	}
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	beforeModuleReordering();
-	for(int i = 0; i < modules.size(); i++) {
-		modules[i]->setIndex(i);
-		modules[i]->addTxPdoMappingModule(txPdoAssignement);
-		modules[i]->addRxPdoMappingModule(rxPdoAssignement);
+	for(int i = 0; i < getModules().size(); i++) {
+		getModules()[i]->setIndex(i);
+		getModules()[i]->addTxPdoMappingModule(txPdoAssignement);
+		getModules()[i]->addRxPdoMappingModule(rxPdoAssignement);
 	}
 }
 
-void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> module){
+void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> movedModule){
 	int oldIndex;
-	for(int i = 0; i < modules.size(); i++){
-		if(module == modules[i]){
+	for(int i = 0; i < getModules().size(); i++){
+		if(movedModule == getModules()[i]){
 			oldIndex = i;
 			break;
 		}
@@ -200,55 +202,67 @@ void ModularDevice::moveModuleUp(std::shared_ptr<DeviceModule> module){
 	else reorderModule(oldIndex, oldIndex - 1);
 }
 
-void ModularDevice::moveModuleDown(std::shared_ptr<DeviceModule> module){
+void ModularDevice::moveModuleDown(std::shared_ptr<DeviceModule> movedModule){
 	int oldIndex;
-	for(int i = 0; i < modules.size(); i++){
-		if(module == modules[i]){
+	for(int i = 0; i < getModules().size(); i++){
+		if(movedModule == getModules()[i]){
 			oldIndex = i;
 			break;
 		}
 	}
-	if(oldIndex >= modules.size() - 1) return;
+	if(oldIndex >= getModules().size() - 1) return;
 	else reorderModule(oldIndex, oldIndex + 1);
 }
 
-bool ModularDevice::saveModules(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	
-	XMLElement* modularDeviceProfileXML = xml->InsertNewChildElement("ModularDeviceProfile");
-	XMLElement* modulesXML = modularDeviceProfileXML->InsertNewChildElement("Modules");
-	
-	for(auto module : modules){
-		XMLElement* moduleXML = modulesXML->InsertNewChildElement("Module");
-		moduleXML->SetAttribute("Type", module->getSaveName());
-		module->save(moduleXML);
-	}
-
-	return true;
+bool ModularDevice::onSerialization() {
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
+	success &= moduleList->serializeIntoParent(this);
+	return success;
 }
 
-bool ModularDevice::loadModules(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
+bool ModularDevice::onDeserialization() {
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
 	
-	XMLElement* modularDeviceProfileXML = xml->FirstChildElement("ModularDeviceProfile");
-	if(modularDeviceProfileXML == nullptr) return Logger::warn("failed to load Modular Device Profile");
+	//load all modules into a temporary list
+	std::shared_ptr<Legato::ListComponent<DeviceModule>> loadedModules = Legato::ListComponent<DeviceModule>::createInstance();
+	loadedModules->setSaveString("Modules");
+	loadedModules->setEntrySaveString("Module");
+	loadedModules->setEntryConstructor([this](Serializable& abstractEntry) -> std::shared_ptr<DeviceModule> {
+		std::string className;
+		if(abstractEntry.deserializeAttribute("ClassName", className)){
+			for(auto factoryModule : getModuleFactory()){
+				if(factoryModule->getClassName() == className){
+					std::shared_ptr<DeviceModule> newModule = factoryModule->duplicate();
+					return newModule;
+				}
+			}
+		}
+		return nullptr;
+	});
+	success &= loadedModules->deserializeFromParent(this);
 	
-	XMLElement* modulesXML = modularDeviceProfileXML->FirstChildElement("Modules");
-	if(modulesXML == nullptr) return Logger::warn("failed to load Device Modules");
-	
-	XMLElement* moduleXML = modulesXML->FirstChildElement("Module");
-	while(moduleXML != nullptr){
-		const char* moduleTypeString;
-		if(moduleXML->QueryStringAttribute("Type", &moduleTypeString) != XML_SUCCESS) return Logger::warn("Failed to load module type");
-		std::shared_ptr<DeviceModule> loadedModule = createModule(moduleTypeString);
-		if(loadedModule == nullptr) return Logger::warn("Failed to identify module type '{}'", moduleTypeString);
-		if(!loadedModule->load(moduleXML)) return Logger::warn("Failed to load module {}", moduleTypeString);
+	//add all modules to the device
+	for(auto loadedModule : loadedModules->getEntries()){
 		addModule(loadedModule);
-		moduleXML = moduleXML->NextSiblingElement("Module");
 	}
 	
-	return true;
-	
+	return success;
 }
+
+bool DeviceModule::onSerialization() {
+	bool success = true;
+	success &= Component::onSerialization();
+	success &= serializeAttribute("ClassName", getClassName());
+	return success;
+}
+
+bool DeviceModule::onDeserialization() {
+	bool success = true;
+	success &= Component::onDeserialization();
+	return success;
+}
+
 
 };

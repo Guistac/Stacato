@@ -38,11 +38,11 @@ void ModularDevice::moduleManagerGui(){
 		
 		float rowHeight = ImGui::GetFrameHeight() + ImGui::GetTextLineHeight() * 0.2;
 		
-		for(int i = 0; i < modules.size(); i++){
+		for(int i = 0; i < getModules().size(); i++){
 			
 			ImGui::PushID(i);
 			
-			std::shared_ptr<DeviceModule> deviceModule = modules[i];
+			std::shared_ptr<DeviceModule> deviceModule = getModules()[i];
 			ImGui::TableNextRow();
 			if(deviceModule == selectedModule) ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImColor(Colors::blue));
 			
@@ -56,7 +56,7 @@ void ModularDevice::moduleManagerGui(){
 			if (ImGui::ArrowButton("##moveUp", ImGuiDir_Up)) movedUpModule = deviceModule;
 			ImGui::EndDisabled();
 			ImGui::SameLine();
-			disableButton = i == modules.size() - 1;
+			disableButton = i == getModules().size() - 1;
 			ImGui::BeginDisabled(disableButton);
 			if (ImGui::ArrowButton("##moveDown", ImGuiDir_Down)) movedDownModule = deviceModule;
 			ImGui::EndDisabled();
@@ -64,15 +64,15 @@ void ModularDevice::moduleManagerGui(){
 			
 			ImGui::TableSetColumnIndex(1);
 			static char indexLabelString[16];
-			sprintf(indexLabelString, "%i", deviceModule->moduleIndex);
+			snprintf(indexLabelString, 16, "%i", deviceModule->moduleIndex);
 			ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SpanAllColumns;
 			if (ImGui::Selectable(indexLabelString, false, selectable_flags, ImVec2(0.0, 0.0))){
 				selectedModule = deviceModule;
 			}
 			ImGui::TableSetColumnIndex(2);
-			ImGui::Text("%s", deviceModule->getDisplayName());
+			ImGui::Text("%s", deviceModule->getName().c_str());
 			ImGui::TableSetColumnIndex(3);
-			ImGui::Text("%s", deviceModule->getSaveName());
+			ImGui::Text("%s", deviceModule->getModelName().c_str());
 			
 			ImGui::PopID();
 		}
@@ -85,15 +85,15 @@ void ModularDevice::moduleManagerGui(){
 		if (ImGui::BeginPopup("ModuleAdderPopup")) {
 			for (auto deviceModule : getModuleFactory()) {
 				static char moduleItemString[128];
-				sprintf(moduleItemString, "%s (%s)", deviceModule->getDisplayName(), deviceModule->getSaveName());
+				snprintf(moduleItemString, 128, "%s (%s)", deviceModule->getName().c_str(), deviceModule->getSaveString().c_str());
 				if(ImGui::MenuItem(moduleItemString)){
-					addModule(deviceModule->getNewInstance());
+					addModule(deviceModule->duplicate());
 				}
 			}
 			ImGui::EndPopup();
 		}
 		 
-		if(modules.empty()){
+		if(getModules().empty()){
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("No Modules");
 		}
@@ -109,11 +109,11 @@ void ModularDevice::moduleManagerGui(){
 	
 	if(selectedModule){
 		ImGui::PushFont(Fonts::sansBold20);
-		ImGui::Text("%s", selectedModule->getDisplayName());
+		ImGui::Text("%s", selectedModule->getName().c_str());
 		ImGui::PopFont();
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansRegular20);
-		ImGui::Text("%s", selectedModule->getSaveName());
+		ImGui::Text("%s", selectedModule->getSaveString().c_str());
 		ImGui::PopFont();
 		selectedModule->moduleGui();
 	}

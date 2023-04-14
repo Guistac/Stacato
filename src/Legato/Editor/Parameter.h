@@ -138,6 +138,8 @@ namespace Legato{
 		
 		const std::vector<std::shared_ptr<Parameter>>& getParameters(){ return parameters; }
 		
+		void gui();
+		
 	private:
 		std::vector<std::shared_ptr<Parameter>> parameters;
 	};

@@ -9,7 +9,7 @@
 namespace PhoenixContact{
 
 
-std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& BusCoupler::getModuleFactory(){
+std::vector<std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule>>& BusCoupler::getModuleFactory(){
 	return ModuleFactory::getModules();
 }
 
@@ -23,12 +23,12 @@ void BusCoupler::beforeModuleReordering(){
 }
 
 void BusCoupler::onDisconnection() {
-	for(auto& module : modules) module->onDisconnection();
+	for(auto& deviceModule : getModules()) deviceModule->onDisconnection();
 	gpioDevice->state = DeviceState::OFFLINE;
 }
 
 void BusCoupler::onConnection() {
-	for(auto& module : modules) module->onConnection();
+	for(auto& deviceModule : getModules()) deviceModule->onConnection();
 	gpioDevice->state = DeviceState::ENABLED;
 }
 
@@ -93,16 +93,14 @@ void BusCoupler::writeOutputs(){
 
 bool BusCoupler::onSerialization() {
 	bool success = true;
-	success &= EtherCatDevice::onSerialization();
-	success &= saveModules(xmlElement);
+	success &= EtherCAT::ModularDeviceProfile::ModularDevice::onSerialization();
 	return success;
 }
 
 
 bool BusCoupler::onDeserialization() {
 	bool success = true;
-	success &= EtherCatDevice::onDeserialization();
-	success &= loadModules(xmlElement);
+	success &= EtherCAT::ModularDeviceProfile::ModularDevice::onDeserialization();
 	return success;
 }
 

@@ -10,12 +10,12 @@ namespace PhoenixContact{
 
 
 namespace ModuleFactory{
-	std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModules(){
-		static std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*> moduleList = {
-			new IB_IL_24_DI_4(),
-			new IB_IL_24_DO_4(),
-			new IB_IL_24_48_DOR_2(),
-			new IB_IL_SSI_IN()
+	std::vector<std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule>>& getModules(){
+		static std::vector<std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule>> moduleList = {
+			IB_IL_24_DI_4::createInstance(),
+			IB_IL_24_DO_4::createInstance(),
+			IB_IL_24_48_DOR_2::createInstance(),
+			IB_IL_SSI_IN::createInstance()
 		};
 		return moduleList;
 	}
@@ -28,6 +28,8 @@ namespace ModuleFactory{
 //=================================================================
 
 void IB_IL_24_DI_4::onConstruction(){
+	EtherCAT::ModularDeviceProfile::DeviceModule::onConstruction();
+	setName("Digital Input x4 (24V)");
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		int inputNumber = i + 1;
@@ -37,6 +39,12 @@ void IB_IL_24_DI_4::onConstruction(){
 		pin->assignData(pinValue);
 		outputPinValues.push_back(pinValue);
 		outputPins.push_back(pin);
+		
+		char parameterName[64];
+		char parameterSaveString[64];
+		snprintf(parameterName, 64, "Invert Input %i", i);
+		snprintf(parameterSaveString, 64, "InvertInput%i", i);
+		inversionParameters.push_back(Legato::BooleanParameter::createInstance(false, parameterName, parameterSaveString));
 	}
 }
 void IB_IL_24_DI_4::onSetIndex(int i){
@@ -60,7 +68,7 @@ bool IB_IL_24_DI_4::configureParameters(){ return true; }
 void IB_IL_24_DI_4::readInputs(){
 	for(int i = 0; i < 4; i++){
 		bool value = (inputByte >> i) & 0x1;
-		*outputPinValues[i] = invertInputs[i] ? !value : value;
+		*outputPinValues[i] = inversionParameters[i]->getValue() ? !value : value;
 	}
 }
 void IB_IL_24_DI_4::writeOutputs(){}
@@ -70,7 +78,7 @@ void IB_IL_24_DI_4::moduleGui(){
 	ImGui::PopFont();
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
-		ImGui::Checkbox("##invert", &invertInputs[i]);
+		inversionParameters[i]->gui();
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", outputPins[i]->getName().c_str());
@@ -79,38 +87,27 @@ void IB_IL_24_DI_4::moduleGui(){
 		ImGui::SameLine();
 		ImGui::PopStyleVar();
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		if(invertInputs[i]) ImGui::Text(" is inverted");
+		if(inversionParameters[i]->getValue()) ImGui::Text(" is inverted");
 		else ImGui::Text(" is not inverted");
 		ImGui::PopStyleColor();
 		ImGui::PopID();
 	}
 }
-bool IB_IL_24_DI_4::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
-	char attributeName[64];
+bool IB_IL_24_DI_4::onSerialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onSerialization();
 	for(int i = 0; i < 4; i++){
-		int inputNumber = i + 1;
-		snprintf(attributeName, 64, "InvertInput%i", inputNumber);
-		inversionXML->SetAttribute(attributeName, invertInputs[i]);
+		success &= inversionParameters[i]->serializeIntoParent(this);
 	}
-	return true;
+	return success;
 }
-bool IB_IL_24_DI_4::load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
-	if(inversionXML == nullptr) {
-		return Logger::warn("could not find signal inversion attribute");
-	}
-	char attributeName[32];
+bool IB_IL_24_DI_4::onDeserialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onDeserialization();
 	for(int i = 0; i < 4; i++){
-		int inputNumber = i + 1;
-		snprintf(attributeName, 32, "InvertInput%i", inputNumber);
-		if(inversionXML->QueryBoolAttribute(attributeName, &invertInputs[i]) != XML_SUCCESS) {
-			return Logger::warn("could not find input %i inversion attribute", inputNumber);
-		}
+		success &= inversionParameters[i]->deserializeFromParent(this);
 	}
-	return true;
+	return success;
 }
 
 //=================================================================
@@ -118,6 +115,8 @@ bool IB_IL_24_DI_4::load(tinyxml2::XMLElement* xml){
 //=================================================================
 
 void IB_IL_24_DO_4::onConstruction(){
+	EtherCAT::ModularDeviceProfile::DeviceModule::onConstruction();
+	setName("Digital Output x4 (24V 500mA)");
 	for(int i = 0; i < 4; i++){
 		static char pinName[64];
 		int outputNumber = i + 1;
@@ -127,6 +126,12 @@ void IB_IL_24_DO_4::onConstruction(){
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
+		
+		char parameterName[64];
+		char parameterSaveString[64];
+		snprintf(parameterName, 64, "Invert Output %i", i);
+		snprintf(parameterSaveString, 64, "InvertOutput%i", i);
+		inversionParameters.push_back(Legato::BooleanParameter::createInstance(false, parameterName, parameterSaveString));
 	}
 }
 void IB_IL_24_DO_4::onSetIndex(int i){
@@ -153,7 +158,7 @@ void IB_IL_24_DO_4::writeOutputs(){
 	for(int i = 0; i < 4; i++){
 		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
 		bool inputPinValue = *inputPinValues[i];
-		if(invertOutputs[i]) inputPinValue = !inputPinValue;
+		if(inversionParameters[i]->getValue()) inputPinValue = !inputPinValue;
 		if(inputPinValue) outputByte |= (0x1 << i);
 	}
 }
@@ -167,7 +172,7 @@ void IB_IL_24_DO_4::moduleGui(){
 	ImGui::PopFont();
 	for(int i = 0; i < 4; i++){
 		ImGui::PushID(i);
-		ImGui::Checkbox("##invert", &invertOutputs[i]);
+		inversionParameters[i]->gui();
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", inputPins[i]->getName().c_str());
@@ -176,38 +181,28 @@ void IB_IL_24_DO_4::moduleGui(){
 		ImGui::SameLine();
 		ImGui::PopStyleVar();
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		if(invertOutputs[i]) ImGui::Text(" is inverted");
+		if(inversionParameters[i]->getValue()) ImGui::Text(" is inverted");
 		else ImGui::Text(" is not inverted");
 		ImGui::PopStyleColor();
 		ImGui::PopID();
 	}
 }
-bool IB_IL_24_DO_4::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
-	char attributeName[64];
+
+bool IB_IL_24_DO_4::onSerialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onSerialization();
 	for(int i = 0; i < 4; i++){
-		int outputNumber = i + 1;
-		snprintf(attributeName, 64, "InvertOutput%i", outputNumber);
-		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
+		success &= inversionParameters[i]->serializeIntoParent(this);
 	}
-	return true;
+	return success;
 }
-bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
-	if(inversionXML == nullptr) {
-		return Logger::warn("could not find signal inversion attribute");
-	}
-	char attributeName[32];
+bool IB_IL_24_DO_4::onDeserialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onDeserialization();
 	for(int i = 0; i < 4; i++){
-		int outputNumber = i + 1;
-		snprintf(attributeName, 32, "InvertOutput%i", outputNumber);
-		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
-			return Logger::warn("could not find output %i inversion attribute", outputNumber);
-		}
+		success &= inversionParameters[i]->deserializeFromParent(this);
 	}
-	return true;
+	return success;
 }
 
 
@@ -218,6 +213,9 @@ bool IB_IL_24_DO_4::load(tinyxml2::XMLElement* xml){
 
 
 void IB_IL_24_48_DOR_2::onConstruction(){
+	EtherCAT::ModularDeviceProfile::DeviceModule::onConstruction();
+	setName("Relais Output x2");
+	
 	for(int i = 0; i < 2; i++){
 		static char pinName[64];
 		int outputNumber = i + 1;
@@ -227,6 +225,12 @@ void IB_IL_24_48_DOR_2::onConstruction(){
 		pin->assignData(pinValue);
 		inputPinValues.push_back(pinValue);
 		inputPins.push_back(pin);
+		
+		char parameterName[64];
+		char parameterSaveString[64];
+		snprintf(parameterName, 64, "Invert Output %i", i);
+		snprintf(parameterSaveString, 64, "InvertOutput%i", i);
+		inversionParameters.push_back(Legato::BooleanParameter::createInstance(false, parameterName, parameterSaveString));
 	}
 }
 
@@ -254,7 +258,7 @@ void IB_IL_24_48_DOR_2::writeOutputs(){
 	for(int i = 0; i < 2; i++){
 		if(inputPins[i]->isConnected()) inputPins[i]->copyConnectedPinValue();
 		bool inputPinValue = *inputPinValues[i];
-		if(invertOutputs[i]) inputPinValue = !inputPinValue;
+		if(inversionParameters[i]->getValue()) inputPinValue = !inputPinValue;
 		if(inputPinValue) outputByte |= (0x1 << i);
 	}
 }
@@ -268,7 +272,7 @@ void IB_IL_24_48_DOR_2::moduleGui(){
 	ImGui::PopFont();
 	for(int i = 0; i < 2; i++){
 		ImGui::PushID(i);
-		ImGui::Checkbox("##invert", &invertOutputs[i]);
+		inversionParameters[i]->gui();
 		ImGui::SameLine();
 		ImGui::PushFont(Fonts::sansBold15);
 		ImGui::Text("%s", inputPins[i]->getName().c_str());
@@ -277,38 +281,27 @@ void IB_IL_24_48_DOR_2::moduleGui(){
 		ImGui::SameLine();
 		ImGui::PopStyleVar();
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-		if(invertOutputs[i]) ImGui::Text(" is inverted");
+		if(inversionParameters[i]->getValue()) ImGui::Text(" is inverted");
 		else ImGui::Text(" is not inverted");
 		ImGui::PopStyleColor();
 		ImGui::PopID();
 	}
 }
-bool IB_IL_24_48_DOR_2::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->InsertNewChildElement("SignalInversion");
-	char attributeName[64];
+bool IB_IL_24_48_DOR_2::onSerialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onSerialization();
 	for(int i = 0; i < 2; i++){
-		int outputNumber = i + 1;
-		snprintf(attributeName, 64, "InvertOutput%i", outputNumber);
-		inversionXML->SetAttribute(attributeName, invertOutputs[i]);
+		success &= inversionParameters[i]->serializeIntoParent(this);
 	}
-	return true;
+	return success;
 }
-bool IB_IL_24_48_DOR_2::load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	XMLElement* inversionXML = xml->FirstChildElement("SignalInversion");
-	if(inversionXML == nullptr) {
-		return Logger::warn("could not find signal inversion attribute");
-	}
-	char attributeName[32];
+bool IB_IL_24_48_DOR_2::onDeserialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onDeserialization();
 	for(int i = 0; i < 2; i++){
-		int outputNumber = i + 1;
-		snprintf(attributeName, 32, "InvertOutput%i", outputNumber);
-		if(inversionXML->QueryBoolAttribute(attributeName, &invertOutputs[i]) != XML_SUCCESS){
-			return Logger::warn("could not find output %i inversion attribute", outputNumber);
-		}
+		success &= inversionParameters[i]->deserializeFromParent(this);
 	}
-	return true;
+	return success;
 }
 
 
@@ -319,6 +312,9 @@ bool IB_IL_24_48_DOR_2::load(tinyxml2::XMLElement* xml){
 //=================================================================
 
 void IB_IL_SSI_IN::onConstruction(){
+	EtherCAT::ModularDeviceProfile::DeviceModule::onConstruction();
+	
+	setName("SSI Input");
 	
 	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
 	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
@@ -641,42 +637,37 @@ void IB_IL_SSI_IN::moduleGui(){
 	
 }
 
-bool IB_IL_SSI_IN::save(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	assert(false && "cannot load or save this yet");
-	/*
-	resolutionParameter->save(xml);
-	singleturnResolutionParameter->save(xml);
-	parityParameter->save(xml);
-	invertDirectionParameter->save(xml);
-	baudrateParameter->save(xml);
-	codeParameter->save(xml);
-	centerWorkingRangeOnZeroParameter->save(xml);
-	hasResetSignalParameter->save(xml);
-	resetSignalTimeParameter->save(xml);
-	xml->SetAttribute("PositionOffset", positionOffset);
-	 */
-	return true;
+bool IB_IL_SSI_IN::onSerialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onSerialization();
+	success &= resolutionParameter->serializeIntoParent(this);
+	success &= singleturnResolutionParameter->serializeIntoParent(this);
+	success &= parityParameter->serializeIntoParent(this);
+	success &= invertDirectionParameter->serializeIntoParent(this);
+	success &= baudrateParameter->serializeIntoParent(this);
+	success &= codeParameter->serializeIntoParent(this);
+	success &= centerWorkingRangeOnZeroParameter->serializeIntoParent(this);
+	success &= hasResetSignalParameter->serializeIntoParent(this);
+	success &= resetSignalTimeParameter->serializeIntoParent(this);
+	success &= serializeAttribute("PositionOffset", positionOffset);
+	return success;
 }
-bool IB_IL_SSI_IN::load(tinyxml2::XMLElement* xml){
-	using namespace tinyxml2;
-	assert(false && "cannot load or save this yet");
-	/*
-	if(!resolutionParameter->load(xml)) return false;
-	if(!singleturnResolutionParameter->load(xml)) return false;
-	if(!parityParameter->load(xml)) return false;
-	if(!invertDirectionParameter->load(xml)) return false;
-	if(!baudrateParameter->load(xml)) return false;
-	if(!codeParameter->load(xml)) return false;
-	if(!centerWorkingRangeOnZeroParameter->load(xml)) return false;
-	if(!hasResetSignalParameter->load(xml)) return false;
-	if(!resetSignalTimeParameter->load(xml)) return false;
-	if(xml->QueryDoubleAttribute("PositionOffset", &positionOffset) != XML_SUCCESS) return false;
-	
+bool IB_IL_SSI_IN::onDeserialization(){
+	bool success = true;
+	success &= EtherCAT::ModularDeviceProfile::DeviceModule::onDeserialization();
+	success &= resolutionParameter->deserializeFromParent(this);
+	success &= singleturnResolutionParameter->deserializeFromParent(this);
+	success &= parityParameter->deserializeFromParent(this);
+	success &= invertDirectionParameter->deserializeFromParent(this);
+	success &= baudrateParameter->deserializeFromParent(this);
+	success &= codeParameter->deserializeFromParent(this);
+	success &= centerWorkingRangeOnZeroParameter->deserializeFromParent(this);
+	success &= hasResetSignalParameter->deserializeFromParent(this);
+	success &= resetSignalTimeParameter->deserializeFromParent(this);
+	success &= deserializeAttribute("PositionOffset", positionOffset);
 	updateEncoderWorkingRange();
-	resetPin->setVisible(hasResetSignalParameter->value);
-	 */
-	return true;
+	resetPin->setVisible(hasResetSignalParameter->getValue());
+	return success;
 }
 
 

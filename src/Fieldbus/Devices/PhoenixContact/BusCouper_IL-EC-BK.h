@@ -28,7 +28,7 @@ namespace PhoenixContact{
 		std::shared_ptr<PhoenixContactGpioDevice> gpioDevice;
 		std::shared_ptr<NodePin> gpioDeviceLink;
 		
-		virtual std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModuleFactory() override;
+		virtual std::vector<std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule>>& getModuleFactory() override;
 		
 		virtual void beforeModuleReordering() override;
 		

@@ -16,7 +16,7 @@ namespace tinyxml2{ struct XMLElement; }
 
 
 namespace PhoenixContact::ModuleFactory{
-	std::vector<EtherCAT::ModularDeviceProfile::DeviceModule*>& getModules();
+	std::vector<std::shared_ptr<EtherCAT::ModularDeviceProfile::DeviceModule>>& getModules();
 }
 
 
@@ -30,7 +30,12 @@ namespace PhoenixContact{
 
 class IB_IL_24_DI_4 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
-	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4-PAC", "Digital Input x4 (24V)", 0x41BE)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4", 0x41BE)
+	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	//pdo data
 	uint8_t inputByte;
@@ -39,7 +44,7 @@ public:
 	std::vector<std::shared_ptr<bool>> outputPinValues;
 	
 	//parameters
-	bool invertInputs[4] = {false, false, false, false};
+	std::vector<Legato::BoolParam> inversionParameters;
 };
 
 }
@@ -52,7 +57,12 @@ namespace PhoenixContact{
 
 class IB_IL_24_DO_4 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
-	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4-PAC", "Digital Output x4 (24V 500mA)", 0x41BD)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4", 0x41BD)
+	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	//pdo data
 	uint8_t outputByte;
@@ -61,7 +71,7 @@ public:
 	std::vector<std::shared_ptr<bool>> inputPinValues;
 	
 	//parameters
-	bool invertOutputs[4] = {false, false, false, false};
+	std::vector<Legato::BoolParam> inversionParameters;
 };
 
 }
@@ -74,7 +84,12 @@ namespace PhoenixContact{
 
 class IB_IL_24_48_DOR_2 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
-	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2", 0x123)
+	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	//pdo data
 	uint8_t outputByte;
@@ -83,7 +98,7 @@ public:
 	std::vector<std::shared_ptr<bool>> inputPinValues;
 	
 	//parameters
-	bool invertOutputs[2] = {false, false};
+	std::vector<Legato::BoolParam> inversionParameters;
 };
 
 }
@@ -161,7 +176,12 @@ namespace PhoenixContact{
 
 class IB_IL_SSI_IN : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
-	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN-PAC", "SSI input", 0x25F)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN", 0x25F)
+	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	//————— Node Pins ———————
 	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
