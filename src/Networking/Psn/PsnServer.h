@@ -3,6 +3,7 @@
 #include "Networking/NetworkDevice.h"
 
 #include "Project/Editor/Parameter.h"
+#include "Legato/Editor/Parameters.h"
 
 #include <asio.hpp>
 #include <psn_defs.hpp>
@@ -61,7 +62,7 @@ private:
 	long long serverEnvironnementStartTimeMicroseconds;
 	long long serverProgramStartTimeMicroseconds;
 	
-	std::shared_ptr<StringParameter> serverName = StringParameter::make("Stacato PSN Server", "PSN Server Name", "ServerName", 512);
+	Legato::StringParam serverName = Legato::StringParameter::createInstance("Stacato PSN Server", "PSN Server Name", "ServerName", 512);
 	
 	std::shared_ptr<NumberParameter<double>> infoSendingFrequency = NumberParameter<double>::make(1.0,
 																								  "Info Packet sending frequency",

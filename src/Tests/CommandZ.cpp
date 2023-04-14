@@ -169,12 +169,14 @@ void testUndoHistory(){
 			parameterList->addElement(std::make_shared<BooleanParameter>(false, name, name));
 		}
 		*/
+		/*
 		ImGui::Separator();
 		if(ImGui::MenuItem("String")){
 			std::string name = "String Parameter " + std::to_string(parameterList->size());
 			parameterList->addElement(std::make_shared<StringParameter>("", name, name, 256));
 		}
 		ImGui::Separator();
+		*/
 		/*
 		if(ImGui::MenuItem("Enumerator")){
 			std::string name = "Enumerator Parameter " + std::to_string(parameterList->size());

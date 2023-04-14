@@ -101,7 +101,7 @@ void PsnServer::connect(){
     udpSocket = Network::getUdpMulticastSocket({localIp0->value, localIp1->value, localIp2->value, localIp3->value},
                                                {destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
                                                destinationPortNumber->value);
-	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->value);
+	psnEncoder = std::make_shared<psn::psn_encoder>(serverName->getValue());
 	if(udpSocket != nullptr && startServer()) b_online = true;
 	else b_online = false;
      

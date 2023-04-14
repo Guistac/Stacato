@@ -18,6 +18,7 @@ public:
 		newParameter->setName(name);
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(value);
+		return newParameter;
 	}
 	
 	static std::shared_ptr<StringParameter> createInstanceWithoutNameParameter(){
@@ -115,6 +116,8 @@ private:
 	size_t bufferSize;
 	std::string value;
 };
+
+using StringParam = std::shared_ptr<StringParameter>;
 
 
 }

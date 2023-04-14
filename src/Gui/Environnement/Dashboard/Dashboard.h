@@ -5,6 +5,7 @@ class WidgetInstance;
 namespace tinyxml2{ struct XMLElement; }
 
 #include "Project/Editor/Parameter.h"
+#include "Legato/Editor/Parameters.h"
 
 class Dashboard{
 public:
@@ -34,7 +35,7 @@ public:
 	std::shared_ptr<WidgetInstance> selectedWidget = nullptr;
 	std::shared_ptr<WidgetInstance> draggedWidget = nullptr;
 	
-	std::shared_ptr<StringParameter> name = std::make_shared<StringParameter>("Dashboard", "name", "name", 256);
+	Legato::StringParam name = Legato::StringParameter::createInstance("Dashboard", "name", "name", 256);
 	
 	float scale = 1.0;
 	float minScale = 0.1;
