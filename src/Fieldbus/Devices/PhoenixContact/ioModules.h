@@ -191,10 +191,56 @@ public:
 	
 	std::shared_ptr<NumberParameter<int>> resolutionParameter = NumberParameter<int>::make(25, "Resolution", "Resolution", "%i", Units::Data::Bit, false);
 	std::shared_ptr<NumberParameter<int>> singleturnResolutionParameter = NumberParameter<int>::make(12, "Singleturn Resolution", "SingleturnResolution", "%i", Units::Data::Bit, false);
-	std::shared_ptr<EnumeratorParameter<SSI::Parity>> parityParameter = EnumeratorParameter<SSI::Parity>::make(SSI::Parity::NONE, "Parity", "Parity");
 	Legato::BoolParam invertDirectionParameter = Legato::BooleanParameter::createInstance(false, "Invert Direction", "Invert");
-	std::shared_ptr<EnumeratorParameter<SSI::Baudrate>> baudrateParameter = EnumeratorParameter<SSI::Baudrate>::make(SSI::Baudrate::KHz_100, "Baudrate", "Baudrate");
-	std::shared_ptr<EnumeratorParameter<SSI::Code>> codeParameter = EnumeratorParameter<SSI::Code>::make(SSI::Code::GRAY, "Code", "Code");
+	
+	enum Parity{
+		NONE = 0x0,
+		EVEN = 0x1,
+		ODD = 0x2
+	};
+	Legato::Option option_parityNone = Legato::Option(Parity::NONE, "No Parity", "None");
+	Legato::Option option_parityEven = Legato::Option(Parity::EVEN, "Even", "Even");
+	Legato::Option option_parityOdd = Legato::Option(Parity::ODD, "Odd", "Odd");
+	std::vector<Legato::Option*> options_parity = {
+		&option_parityNone,
+		&option_parityEven,
+		&option_parityOdd
+	};
+	Legato::OptionParam parityParameter = Legato::OptionParameter::createInstance(option_parityNone, options_parity, "Parity", "Parity");
+
+	enum Baudrate{
+		KHz_100 = 0x1,
+		KHz_200 = 0x2,
+		KHz_400 = 0x3,
+		KHz_800 = 0x4,
+		MHz_1 = 0x5
+	};
+	Legato::Option option_baudrate100KHz = Legato::Option(Baudrate::KHz_100, "100 Khz", "100KHz");
+	Legato::Option option_baudrate200KHz = Legato::Option(Baudrate::KHz_200, "200 Khz", "200KHz");
+	Legato::Option option_baudrate400KHz = Legato::Option(Baudrate::KHz_400, "400 Khz", "400KHz");
+	Legato::Option option_baudrate800KHz = Legato::Option(Baudrate::KHz_800, "800 Khz", "800KHz");
+	Legato::Option option_baudrate1Mhz = Legato::Option(Baudrate::MHz_1, "1 MHz", "1MHz");
+	std::vector<Legato::Option*> options_baudrate = {
+		&option_baudrate100KHz,
+		&option_baudrate200KHz,
+		&option_baudrate400KHz,
+		&option_baudrate800KHz,
+		&option_baudrate1Mhz
+	};
+	Legato::OptionParam baudrateParameter = Legato::OptionParameter::createInstance(option_baudrate100KHz, options_baudrate, "Baudrate", "Baudrate");
+
+	enum Code{
+		BINARY = 0x0,
+		GRAY = 0x1
+	};
+	Legato::Option option_codeBinary = Legato::Option(Code::BINARY, "Binary", "Binary");
+	Legato::Option option_codeGray = Legato::Option(Code::GRAY, "Gray", "Gray");
+	std::vector<Legato::Option*> options_code = {
+		&option_codeBinary,
+		&option_codeGray
+	};
+	Legato::OptionParam codeParameter = Legato::OptionParameter::createInstance(option_codeGray, options_code, "Code", "Code");
+	
 	Legato::BoolParam centerWorkingRangeOnZeroParameter = Legato::BooleanParameter::createInstance(true, "Center working range on zero", "CenterWorkingRangeOnZero");
 	Legato::BoolParam hasResetSignalParameter = Legato::BooleanParameter::createInstance(true, "Has position reset signal", "HasResetSignal");
 	std::shared_ptr<NumberParameter<double>> resetSignalTimeParameter = NumberParameter<double>::make(10.0, "Reset Time", "ResetTime", "%.1f", Units::Time::Millisecond, false);

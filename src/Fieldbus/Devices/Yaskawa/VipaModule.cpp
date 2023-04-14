@@ -901,8 +901,8 @@ void VIPA_050_1BB40::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 
 bool VIPA_050_1BB40::configureParameters(){
 	uint16_t settingsObjectIndex = 0x3100 + moduleIndex;
-	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, getInputFilterCode(channel0InputFilter->value)));
-	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x4, getInputFilterCode(channel1InputFilter->value)));
+	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, channel0InputFilter->getValue()));
+	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x4, channel1InputFilter->getValue()));
 	return true;
 }
 
@@ -952,15 +952,20 @@ void VIPA_050_1BB40::moduleParameterGui(){
 
 bool VIPA_050_1BB40::save(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	assert(false || "Cannot save or load this yet");
+	/*
 	channel0InputFilter->save(xml);
 	channel1InputFilter->save(xml);
 	channel0MeasurementPeriod->save(xml);
 	channel1MeasurementPeriod->save(xml);
+	 */
 	return true;
 }
 
 bool VIPA_050_1BB40::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
+	assert(false || "Cannot save or load this yet");
+	/*
 	if(!channel0InputFilter->load(xml)){
 		Logger::warn("could not load attribute channel 0 input filter of vipa module frequency counter");
 		return false;
@@ -977,5 +982,6 @@ bool VIPA_050_1BB40::load(tinyxml2::XMLElement* xml){
 		Logger::warn("could not load attribute channel 1 measurement time of vipa module frequency counter");
 		return false;
 	}
+	 */
 	return true;
 }

@@ -372,32 +372,16 @@ bool IB_IL_SSI_IN::configureParameters(){
 	
 	uint8_t controlCode = SSI::ControlCode::READ_POSITION;
 	
-	uint8_t parity;
-	switch(parityParameter->value){
-		case SSI::Parity::NONE:	parity = 0x0; break;
-		case SSI::Parity::ODD:	parity = 0x1; break;
-		case SSI::Parity::EVEN:	parity = 0x2; break;
-	}
+	uint8_t parity = parityParameter->getValue();
 	
 	uint8_t rev = 0x0;
 	if(invertDirectionParameter->getValue()) rev = 0x1;
 	
 	uint8_t resolution = std::clamp(resolutionParameter->value, 8, 25) - 7;
 	
-	uint8_t speed;
-	switch(baudrateParameter->value){
-		case SSI::Baudrate::KHz_100: 	speed = 0x1; break;
-		case SSI::Baudrate::KHz_200: 	speed = 0x2; break;
-		case SSI::Baudrate::KHz_400: 	speed = 0x3; break;
-		case SSI::Baudrate::KHz_800: 	speed = 0x4; break;
-		case SSI::Baudrate::MHz_1:		speed = 0x5; break;
-	}
+	uint8_t speed = baudrateParameter->getValue();
 	
-	uint8_t code;
-	switch(codeParameter->value){
-		case SSI::Code::BINARY: code = 0x0; break;
-		case SSI::Code::GRAY:	code = 0x1; break;
-	}
+	uint8_t code = codeParameter->getValue();
 	
 	uint8_t byte0 = (controlCode & 0x7F) << 1;
 	uint8_t byte1 = ((parity & 0x3) << 4) | (rev & 0x1);

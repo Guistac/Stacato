@@ -22,6 +22,8 @@
 
 #include "Project/Editor/Parameter.h"
 
+#include "Legato/Editor/Parameters.h"
+
 class NodePin;
 class VipaBusCoupler_053_1EC01;
 namespace tinyxml2{ struct XMLElement; }
@@ -452,40 +454,42 @@ public:
 	uint16_t fm_control_ch0;
 	uint16_t fm_control_ch1;
 
-	enum class InputFilter{
-		KHZ_600,
-		KHZ_250,
-		KHZ_100,
-		KHZ_60,
-		KHZ_30,
-		KHZ_10,
-		KHZ_5,
-		KHZ_2,
-		KHZ_1
+	enum InputFilter{
+		KHZ_600 = 0x0,
+		KHZ_250 = 0x1,
+		KHZ_100 = 0x2,
+		KHZ_60 = 0x3,
+		KHZ_30 = 0x4,
+		KHZ_10 = 0x6,
+		KHZ_5 = 0x7,
+		KHZ_2 = 0x8,
+		KHZ_1 = 0x9
 	};
-	
-	uint8_t getInputFilterCode(InputFilter filter){
-		switch(filter){
-			case InputFilter::KHZ_600: return 0x0;
-			case InputFilter::KHZ_250: return 0x1;
-			case InputFilter::KHZ_100: return 0x2;
-			case InputFilter::KHZ_60: return 0x3;
-			case InputFilter::KHZ_30: return 0x4;
-			case InputFilter::KHZ_10: return 0x6;
-			case InputFilter::KHZ_5: return 0x7;
-			case InputFilter::KHZ_2: return 0x8;
-			case InputFilter::KHZ_1: return 0x9;
-		}
-	}
-	
-	
-	
-	std::shared_ptr<EnumeratorParameter<InputFilter>> channel0InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
-																															   "Channel 0 Input Filter",
-																															   "Ch0InputFilter");
-	std::shared_ptr<EnumeratorParameter<InputFilter>> channel1InputFilter = std::make_shared<EnumeratorParameter<InputFilter>>(InputFilter::KHZ_600,
-																															   "Channel 1 Input Filter",
-																															   "Ch1InputFilter");
+	Legato::Option option_inputFilter600KHz =	Legato::Option(InputFilter::KHZ_600, "600 KHz", "600KHz");
+	Legato::Option option_inputFilter250KHz =	Legato::Option(InputFilter::KHZ_250, "250 KHz", "250KHz");
+	Legato::Option option_inputFilter100KHz =	Legato::Option(InputFilter::KHZ_100, "100 KHz", "100KHz");
+	Legato::Option option_inputFilter60KHz =	Legato::Option(InputFilter::KHZ_60, "60 KHz", "60KHz");
+	Legato::Option option_inputFilter30KHz =	Legato::Option(InputFilter::KHZ_30, "30 KHz", "30KHz");
+	Legato::Option option_inputFilter10KHz =	Legato::Option(InputFilter::KHZ_10, "10 KHz", "10KHz");
+	Legato::Option option_inputFilter5KHz =		Legato::Option(InputFilter::KHZ_5, "5 KHz", "5KHz");
+	Legato::Option option_inputFilter2KHz =		Legato::Option(InputFilter::KHZ_2, "2 KHz", "2KHz");
+	Legato::Option option_inputFilter1KHz =		Legato::Option(InputFilter::KHZ_1, "1 KHz", "1KHz");
+	std::vector<Legato::Option*> options_inputFilter = {
+		&option_inputFilter600KHz,
+		&option_inputFilter250KHz,
+		&option_inputFilter100KHz,
+		&option_inputFilter60KHz,
+		&option_inputFilter30KHz,
+		&option_inputFilter10KHz,
+		&option_inputFilter5KHz,
+		&option_inputFilter2KHz,
+		&option_inputFilter1KHz
+	};
+	Legato::OptionParam channel0InputFilter = Legato::OptionParameter::createInstance(option_inputFilter600KHz, options_inputFilter,
+																					  "Channel 0 Input Filter", "Ch0InputFilter");
+	Legato::OptionParam channel1InputFilter = Legato::OptionParameter::createInstance(option_inputFilter600KHz, options_inputFilter,
+																					  "Channel 1 Input Filter", "Ch1InputFilter");
+
 	std::shared_ptr<NumberParameter<double>> channel0MeasurementPeriod;
 	std::shared_ptr<NumberParameter<double>> channel1MeasurementPeriod;
 	
