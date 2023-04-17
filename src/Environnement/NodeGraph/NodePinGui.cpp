@@ -8,6 +8,14 @@
 #include "Environnement/NodeGraph/NodeGraph.h"
 
 bool NodePin::shouldDisplayDataGui() {
+	switch (dataType) {
+		case DataType::BOOLEAN:
+		case DataType::INTEGER:
+		case DataType::REAL:
+			break;
+		default:
+			return false;
+	}
     if (b_noDataField) return false;
     else if (b_forceDataField) return true;
     else if (isConnected()) return false;

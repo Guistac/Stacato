@@ -83,7 +83,7 @@ void Node::nodeGui() {
 
         //===== do some text size calculations to be able to cleanly align output nodes to the right =====
 
-        getTitleWidth();
+
 
         //find the widest pin line
         float titleTextWidth = getTitleWidth();
