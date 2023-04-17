@@ -21,8 +21,8 @@ public:
 
 	int getUniqueID() { return uniqueID; }
 
-	std::shared_ptr<NodePin> getInputPin() { return outputPin; }
-	std::shared_ptr<NodePin> getOutputPin() { return inputPin; }
+	std::shared_ptr<NodePin> getInputPin() { return inputPin; }
+	std::shared_ptr<NodePin> getOutputPin() { return outputPin; }
 
 	std::shared_ptr<NodePin> outputPin = nullptr;
 	std::shared_ptr<NodePin> inputPin = nullptr;

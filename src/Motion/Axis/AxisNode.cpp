@@ -192,8 +192,6 @@ void AxisNode::onPinDisconnection(std::shared_ptr<NodePin> pin){
 
 
 bool AxisNode::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	
 	bool success = true;
 	success &= Node::onSerialization();
 	
@@ -201,115 +199,106 @@ bool AxisNode::onSerialization(){
 	positionFeedbackData.setSaveString("PositionFeedbackMapping");
 	success &= positionFeedbackData.serializeIntoParent(this);
 	if(positionFeedbackMapping){
-		positionFeedbackData.serializeAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
-	}else positionFeedbackData.serializeAttribute("InterfacePinID", -1);
+		success &= positionFeedbackData.serializeAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
+		success &= positionFeedbackMapping->feedbackUnitsPerAxisUnit->serializeIntoParent(positionFeedbackData);
+	}else success &= positionFeedbackData.serializeAttribute("InterfacePinID", -1);
 	
 	Serializable velocityFeedbackData;
 	velocityFeedbackData.setSaveString("VelocityFeedbackMapping");
 	success &= velocityFeedbackData.serializeIntoParent(this);
 	if(velocityFeedbackMapping){
-		velocityFeedbackData.serializeAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
-	}velocityFeedbackData.serializeAttribute("InterfacePinID", -1);
+		success &= velocityFeedbackData.serializeAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
+		success &= velocityFeedbackMapping->feedbackUnitsPerAxisUnit->serializeIntoParent(velocityFeedbackData);
+	}else success &= velocityFeedbackData.serializeAttribute("InterfacePinID", -1);
 	
 	
-	/*
-	if(positionFeedbackMapping){
-		XMLElement* pfbXML = xml->InsertNewChildElement("PositionFeedbackMapping");
-		pfbXML->SetAttribute("InterfacePinID", positionFeedbackMapping->interfacePinID);
-		positionFeedbackMapping->feedbackUnitsPerAxisUnit->save(pfbXML);
-	}
-	if(velocityFeedbackMapping){
-		XMLElement* vfbXML = xml->InsertNewChildElement("VelocityFeedbackMapping");
-		vfbXML->SetAttribute("InterfacePinID", velocityFeedbackMapping->interfacePinID);
-		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->save(vfbXML);
-	}
-	
-	XMLElement* actuatorMappingsXML = xml->InsertNewChildElement("ActuatorMappings");
+	tinyxml2::XMLElement* actuatorMappingsXML = xmlElement->InsertNewChildElement("ActuatorMappings");
 	for(auto actuatorMapping : actuatorMappings){
-		XMLElement* actXML = actuatorMappingsXML->InsertNewChildElement("ActuatorMapping");
+		tinyxml2::XMLElement* actXML = actuatorMappingsXML->InsertNewChildElement("ActuatorMapping");
 		actXML->SetAttribute("InterfacePinID", actuatorMapping->interfacePinID);
-		actuatorMapping->actuatorUnitsPerAxisUnits->save(actXML);
-		actuatorMapping->controlModeParameter->save(actXML);
+		Serializable actuatorMappingData;
+		actuatorMappingData.xmlElement = actXML;
+		success &= actuatorMapping->actuatorUnitsPerAxisUnits->serializeIntoParent(actuatorMappingData);
+		success &= actuatorMapping->controlModeParameter->serializeIntoParent(actuatorMappingData);
 	}
+
+	success &= movementTypeParameter->serializeIntoParent(this);
+	success &= positionUnitParameter->serializeIntoParent(this);
+	success &= limitSignalTypeParameter->serializeIntoParent(this);
+	success &= controlModeParameter->serializeIntoParent(this);
 	
-	movementTypeParameter->save(xml);
-	positionUnitParameter->save(xml);
-	limitSignalTypeParameter->save(xml);
-	controlModeParameter->save(xml);
+	success &= velocityLimit->serializeIntoParent(this);
+	success &= accelerationLimit->serializeIntoParent(this);
 	
-	velocityLimit->save(xml);
-	accelerationLimit->save(xml);
+	success &= positionLoop_velocityFeedForward->serializeIntoParent(this);
+	success &= positionLoop_proportionalGain->serializeIntoParent(this);
+	success &= positionLoop_maxError->serializeIntoParent(this);
+	success &= positionLoop_minError->serializeIntoParent(this);
+	success &= velocityLoop_maxError->serializeIntoParent(this);
+	success &= limitSlowdownVelocity->serializeIntoParent(this);
 	
-	positionLoop_velocityFeedForward->save(xml);
-	positionLoop_proportionalGain->save(xml);
-	positionLoop_maxError->save(xml);
-	positionLoop_minError->save(xml);
-	velocityLoop_maxError->save(xml);
-	limitSlowdownVelocity->save(xml);
+	success &= enableLowerPositionLimit->serializeIntoParent(this);
+	success &= enableUpperPositionLimit->serializeIntoParent(this);
+	success &= lowerPositionLimit->serializeIntoParent(this);
+	success &= upperPositionLimit->serializeIntoParent(this);
+	success &= lowerPositionLimitClearance->serializeIntoParent(this);
+	success &= upperPositionLimitClearance->serializeIntoParent(this);
+	success &= velocityLimit->serializeIntoParent(this);
+	success &= accelerationLimit->serializeIntoParent(this);
 	
-	enableLowerPositionLimit->save(xml);
-	enableUpperPositionLimit->save(xml);
-	lowerPositionLimit->save(xml);
-	upperPositionLimit->save(xml);
-	lowerPositionLimitClearance->save(xml);
-	upperPositionLimitClearance->save(xml);
-	velocityLimit->save(xml);
-	accelerationLimit->save(xml);
+	success &= homingDirectionParameter->serializeIntoParent(this);
+	success &= signalApproachParameter->serializeIntoParent(this);
+	success &= homingVelocityCoarse->serializeIntoParent(this);
+	success &= homingVelocityFine->serializeIntoParent(this);
+	success &= maxHomingDistanceCoarse->serializeIntoParent(this);
+	success &= maxHomingDistanceFine->serializeIntoParent(this);
 	
-	homingDirectionParameter->save(xml);
-	signalApproachParameter->save(xml);
-	homingVelocityCoarse->save(xml);
-	homingVelocityFine->save(xml);
-	maxHomingDistanceCoarse->save(xml);
-	maxHomingDistanceFine->save(xml);
-	*/
-	return true;
+	return success;
 }
 
 bool AxisNode::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
 	bool success = true;
+	success &= Node::onDeserialization();
 	
-	success &= controlModeParameter->load(xml);
-	success &= limitSignalTypeParameter->load(xml);
-	success &= movementTypeParameter->load(xml);
-	success &= positionUnitParameter->load(xml);
+	success &= controlModeParameter->serializeIntoParent(this);
+	success &= limitSignalTypeParameter->serializeIntoParent(this);
+	success &= movementTypeParameter->serializeIntoParent(this);
+	success &= positionUnitParameter->serializeIntoParent(this);
 	
-	success &= velocityLimit->load(xml);
-	success &= accelerationLimit->load(xml);
-	success &= positionLoop_velocityFeedForward->load(xml);
-	success &= positionLoop_proportionalGain->load(xml);
-	success &= positionLoop_maxError->load(xml);
-	success &= positionLoop_minError->load(xml);
-	success &= velocityLoop_maxError->load(xml);
-	success &= limitSlowdownVelocity->load(xml);
+	success &= velocityLimit->serializeIntoParent(this);
+	success &= accelerationLimit->serializeIntoParent(this);
+	success &= positionLoop_velocityFeedForward->serializeIntoParent(this);
+	success &= positionLoop_proportionalGain->serializeIntoParent(this);
+	success &= positionLoop_maxError->serializeIntoParent(this);
+	success &= positionLoop_minError->serializeIntoParent(this);
+	success &= velocityLoop_maxError->serializeIntoParent(this);
+	success &= limitSlowdownVelocity->serializeIntoParent(this);
 	
 	
-	success &= enableLowerPositionLimit->load(xml);
-	success &= enableUpperPositionLimit->load(xml);
-	success &= lowerPositionLimit->load(xml);
-	success &= upperPositionLimit->load(xml);
-	success &= lowerPositionLimitClearance->load(xml);
-	success &= upperPositionLimitClearance->load(xml);
-	success &= velocityLimit->load(xml);
-	success &= accelerationLimit->load(xml);
+	success &= enableLowerPositionLimit->serializeIntoParent(this);
+	success &= enableUpperPositionLimit->serializeIntoParent(this);
+	success &= lowerPositionLimit->serializeIntoParent(this);
+	success &= upperPositionLimit->serializeIntoParent(this);
+	success &= lowerPositionLimitClearance->serializeIntoParent(this);
+	success &= upperPositionLimitClearance->serializeIntoParent(this);
+	success &= velocityLimit->serializeIntoParent(this);
+	success &= accelerationLimit->serializeIntoParent(this);
 	
-	success &= homingDirectionParameter->load(xml);
-	success &= signalApproachParameter->load(xml);
-	success &= homingVelocityCoarse->load(xml);
-	success &= homingVelocityFine->load(xml);
-	success &= maxHomingDistanceCoarse->load(xml);
-	success &= maxHomingDistanceFine->load(xml);
+	success &= homingDirectionParameter->serializeIntoParent(this);
+	success &= signalApproachParameter->serializeIntoParent(this);
+	success &= homingVelocityCoarse->serializeIntoParent(this);
+	success &= homingVelocityFine->serializeIntoParent(this);
+	success &= maxHomingDistanceCoarse->serializeIntoParent(this);
+	success &= maxHomingDistanceFine->serializeIntoParent(this);
 	
-	manualAccelerationEntry = accelerationLimit->value;
-		*/
-	return true;
+	manualAccelerationEntry = accelerationLimit->getValue();
+		
+	return success;
 }
 
 bool AxisNode::loadAfterPinConnection(){
-/*
-	using namespace tinyxml2;
+
+	bool success = true;
 	
 	auto actuatorPins = actuatorPin->getConnectedPins();
 	auto feedbackPins = feedbackPin->getConnectedPins();
@@ -317,41 +306,54 @@ bool AxisNode::loadAfterPinConnection(){
 	allFeedbackPins.insert(allFeedbackPins.end(), feedbackPins.begin(), feedbackPins.end());
 	allFeedbackPins.insert(allFeedbackPins.end(), actuatorPins.begin(), actuatorPins.end());
 	
-	if(XMLElement* pfbXML = xml->FirstChildElement("PositionFeedbackMapping")){
-		int pinID;
-		if(pfbXML->QueryAttribute("InterfacePinID", &pinID) != XML_SUCCESS) return false;
+	using namespace tinyxml2;
+	
+	
+	Serializable positionFeedbackData;
+	positionFeedbackData.setSaveString("PositionFeedbackMapping");
+	success &= positionFeedbackData.deserializeFromParent(this);
+	int positionFeedbackPinID;
+	success &= positionFeedbackData.deserializeAttribute("InterfacePinID", positionFeedbackPinID);
+	if(positionFeedbackPinID != -1){
 		for(auto fbPin : allFeedbackPins){
-			if(fbPin->getUniqueID() == pinID){
+			if(fbPin->getUniqueID() == positionFeedbackPinID){
 				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
-				if(!positionFeedbackMapping->feedbackUnitsPerAxisUnit->load(pfbXML)) return false;
+				success &= positionFeedbackMapping->feedbackUnitsPerAxisUnit->deserializeFromParent(positionFeedbackData);
 				break;
 			}
 		}
 	}
 	
-	if(XMLElement* vfbXML = xml->FirstChildElement("VelocityFeedbackMapping")){
-		int pinID;
-		if(vfbXML->QueryAttribute("InterfacePinID", &pinID) != XML_SUCCESS) return false;
+	Serializable velocityFeedbackData;
+	velocityFeedbackData.setSaveString("VelocityFeedbackMapping");
+	success &= velocityFeedbackData.deserializeFromParent(this);
+	int velocityFeedbackPinID;
+	success &= velocityFeedbackData.deserializeAttribute("InterfacePinID", velocityFeedbackPinID);
+	if(velocityFeedbackPinID != -1){
 		for(auto fbPin : allFeedbackPins){
-			if(fbPin->getUniqueID() == pinID){
+			if(fbPin->getUniqueID() == velocityFeedbackPinID){
 				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
-				if(!velocityFeedbackMapping->feedbackUnitsPerAxisUnit->load(vfbXML)) return false;
+				success &= velocityFeedbackMapping->feedbackUnitsPerAxisUnit->deserializeFromParent(velocityFeedbackData);
 				break;
 			}
 		}
 	}
 	
-	if(XMLElement* actuatorMappingsXML = xml->FirstChildElement("ActuatorMappings")){
+
+	
+	if(XMLElement* actuatorMappingsXML = xmlElement->FirstChildElement("ActuatorMappings")){
 		XMLElement* actXML = actuatorMappingsXML->FirstChildElement("ActuatorMapping");
 		while(actXML){
 			int interfacePinID;
 			if(actXML->QueryAttribute("InterfacePinID", &interfacePinID) != XML_SUCCESS) return false;
 			for(auto mapping : actuatorMappings){
 				if(mapping->interfacePinID == interfacePinID){
-					if(!mapping->actuatorUnitsPerAxisUnits->load(actXML)) return false;
-					if(!mapping->controlModeParameter->load(actXML)) return false;
+					Serializable actuatorMappingData;
+					actuatorMappingData.xmlElement = actXML;
+					success &= mapping->actuatorUnitsPerAxisUnits->deserializeFromParent(actuatorMappingData);
+					success &= mapping->controlModeParameter->deserializeFromParent(actuatorMappingData);
 					mapping->controlModeParameter->onEdit();
 					break;
 				}
@@ -363,8 +365,8 @@ bool AxisNode::loadAfterPinConnection(){
 	updateControlMode();
 	updateMovementType();
 	
-*/
-	return true;
+
+	return success;
 }
 
 

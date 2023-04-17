@@ -281,56 +281,52 @@ void PsnServer::setDefaultAddressSettings(){
 
 
 bool PsnServer::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	using namespace tinyxml2;
-	/*
-	XMLElement* networkXML = xml->InsertNewChildElement("Network");
-	serverName->save(networkXML);
-	destinationIp0->save(networkXML);
-	destinationIp1->save(networkXML);
-	destinationIp2->save(networkXML);
-	destinationIp3->save(networkXML);
-	destinationPortNumber->save(networkXML);
-	localIp0->save(networkXML);
-	localIp1->save(networkXML);
-	localIp2->save(networkXML);
-	localIp3->save(networkXML);
-	infoSendingFrequency->save(networkXML);
-	dataSendingFrequency->save(networkXML);
+	bool success = true;
+	success &= NetworkDevice::onSerialization();
 	
-	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
+	success &= serverName->serializeIntoParent(this);
+	success &= destinationIp0->serializeIntoParent(this);
+	success &= destinationIp1->serializeIntoParent(this);
+	success &= destinationIp2->serializeIntoParent(this);
+	success &= destinationIp3->serializeIntoParent(this);
+	success &= destinationPortNumber->serializeIntoParent(this);
+	success &= localIp0->serializeIntoParent(this);
+	success &= localIp1->serializeIntoParent(this);
+	success &= localIp2->serializeIntoParent(this);
+	success &= localIp3->serializeIntoParent(this);
+	success &= infoSendingFrequency->serializeIntoParent(this);
+	success &= dataSendingFrequency->serializeIntoParent(this);
+	
+	tinyxml2::XMLElement* scriptXML = xmlElement->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
-	*/
-	return true;
+	
+	return success;
 }
 
 
 bool PsnServer::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	using namespace tinyxml2;
-	/*
-	XMLElement* networkXML;
-	if(!loadXMLElement("Network", xml, networkXML)) return false;
-	if(!serverName->load(networkXML)) return false;
+	bool success = true;
+	success &= NetworkDevice::onDeserialization();
 	
-	if(!destinationIp0->load(networkXML)) return false;
-	if(!destinationIp1->load(networkXML)) return false;
-	if(!destinationIp2->load(networkXML)) return false;
-	if(!destinationIp3->load(networkXML)) return false;
-	if(!destinationPortNumber->load(networkXML)) return false;
-    if(!localIp0->load(networkXML)) return false;
-    if(!localIp1->load(networkXML)) return false;
-    if(!localIp2->load(networkXML)) return false;
-    if(!localIp3->load(networkXML)) return false;
-	 
-	if(!infoSendingFrequency->load(networkXML)) return false;
-	if(!dataSendingFrequency->load(networkXML)) return false;
-	destinationIp0->onEdit();
+	success &= serverName->deserializeFromParent(this);
+	success &= destinationIp0->deserializeFromParent(this);
+	success &= destinationIp1->deserializeFromParent(this);
+	success &= destinationIp2->deserializeFromParent(this);
+	success &= destinationIp3->deserializeFromParent(this);
+	success &= destinationPortNumber->deserializeFromParent(this);
+	success &= localIp0->deserializeFromParent(this);
+	success &= localIp1->deserializeFromParent(this);
+	success &= localIp2->deserializeFromParent(this);
+	success &= localIp3->deserializeFromParent(this);
+	success &= infoSendingFrequency->deserializeFromParent(this);
+	success &= dataSendingFrequency->deserializeFromParent(this);
 	
-	XMLElement* scriptXML;
-	if(!loadXMLElement("Script", xml, scriptXML)) return false;
-	std::string scriptString = std::string(scriptXML->GetText());
-	script->load(scriptString);
-	*/
-	return true;
+	if(tinyxml2::XMLElement* scriptXML = xmlElement->FirstChildElement("Script")){
+		std::string scriptString = std::string(scriptXML->GetText());
+		script->load(scriptString);
+		success &= true;
+	}
+	else success &= false;
+	
+	return success;
 }

@@ -57,6 +57,15 @@ public:
 		return nullptr;
 	}
 	
+	Option* findOption(std::string saveString){
+		if(optionList.empty()) return nullptr;
+		for(auto option : optionList){
+			if(option->saveString == saveString) return option;
+		}
+		Logger::error("Parmaeter {} : option with savestring {} not found", getName(), saveString);
+		return nullptr;
+	}
+	
 	void overwrite(Option& newValue){
 		value = newValue.enumerator;
 		displayValue = &newValue;
@@ -122,15 +131,22 @@ private:
 	virtual bool onSerialization() override {
 		bool success = true;
 		success &= Parameter::onSerialization();
-		success &= serializeAttribute("Value", value);
+		if(Option* option = findOption(value)){
+			success &= serializeAttribute("Value", option->saveString);
+		}
+		else success &= serializeAttribute("Value", 0);
 		return success;
 	}
 	
 	virtual bool onDeserialization() override {
 		bool success = true;
 		success &= Parameter::onDeserialization();
-		success &= deserializeAttribute("Value", value);
-		overwrite(value);
+		std::string valueSaveString;
+		success &= deserializeAttribute("Value", valueSaveString);
+		if(Option* option = findOption(valueSaveString)){
+			overwrite(*option);
+		}
+		else success &= false;
 		return success;
 	}
 	

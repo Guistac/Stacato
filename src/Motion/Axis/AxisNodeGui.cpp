@@ -398,6 +398,7 @@ void AxisNode::configurationTab(){
 void AxisNode::motionFeedbackSettingsGui(){
 	ImGui::Text("Position Feedback");
 	std::string pfbMappingString = positionFeedbackMapping ? positionFeedbackMapping->feedbackInterface->getName() : "None";
+
 	if(ImGui::BeginCombo("##pfb", pfbMappingString.c_str())){
 		for(auto connectedFeedbackPin : feedbackPin->getConnectedPins()){
 			auto feedbackInterface = connectedFeedbackPin->getSharedPointer<MotionFeedbackInterface>();
@@ -424,12 +425,14 @@ void AxisNode::motionFeedbackSettingsGui(){
 		ImGui::EndCombo();
 	}
 	
+	ImGui::PushID("PosFeedback");
 	if(positionFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Position Feedback Units per Axis Units");
 		positionFeedbackMapping->feedbackUnitsPerAxisUnit->gui();
 		ImGui::TreePop();
 	}
+	ImGui::PopID();
 	
 	
 	ImGui::Text("Velocity Feedback");
@@ -460,12 +463,14 @@ void AxisNode::motionFeedbackSettingsGui(){
 		ImGui::EndCombo();
 	}
 	
+	ImGui::PushID("VelFeedback");
 	if(velocityFeedbackMapping){
 		ImGui::TreePush();
 		ImGui::Text("Velocity Feedback Units per Axis Units");
 		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->gui();
 		ImGui::TreePop();
 	}
+	ImGui::PopID();
 }
 
 void AxisNode::actuatorControlSettingsGui(){

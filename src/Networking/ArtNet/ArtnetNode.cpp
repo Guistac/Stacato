@@ -209,67 +209,58 @@ void ArtNetNode::writeOutputs(){
 
 
 bool ArtNetNode::onSerialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
+	bool success = true;
+	success &= NetworkDevice::onSerialization();
 	
-	XMLElement* settingsXML = xml->InsertNewChildElement("Settings");
-	ipAddress0->save(settingsXML);
-	ipAddress1->save(settingsXML);
-	ipAddress2->save(settingsXML);
-	ipAddress3->save(settingsXML);
-	broadcast->save(settingsXML);
-	portNumber->save(settingsXML);
-	sendingFrequency->save(settingsXML);
-    
-    networkIpAddress0->save(settingsXML);
-    networkIpAddress1->save(settingsXML);
-    networkIpAddress2->save(settingsXML);
-    networkIpAddress3->save(settingsXML);
-    networkMask0->save(settingsXML);
-    networkMask1->save(settingsXML);
-    networkMask2->save(settingsXML);
-    networkMask3->save(settingsXML);
-    
-    
+	success &= ipAddress0->serializeIntoParent(this);
+	success &= ipAddress1->serializeIntoParent(this);
+	success &= ipAddress2->serializeIntoParent(this);
+	success &= ipAddress3->serializeIntoParent(this);
+	success &= broadcast->serializeIntoParent(this);
+	success &= portNumber->serializeIntoParent(this);
+	success &= sendingFrequency->serializeIntoParent(this);
 	
-	XMLElement* scriptXML = xml->InsertNewChildElement("Script");
+	success &= networkIpAddress0->serializeIntoParent(this);
+	success &= networkIpAddress1->serializeIntoParent(this);
+	success &= networkIpAddress2->serializeIntoParent(this);
+	success &= networkIpAddress3->serializeIntoParent(this);
+	success &= networkMask0->serializeIntoParent(this);
+	success &= networkMask1->serializeIntoParent(this);
+	success &= networkMask2->serializeIntoParent(this);
+	success &= networkMask3->serializeIntoParent(this);
+	
+	tinyxml2::XMLElement* scriptXML = xmlElement->InsertNewChildElement("Script");
 	scriptXML->SetText(script->getScriptText().c_str());
 	
-	return true;
-	 */
+	return success;
 }
 
 
 bool ArtNetNode::onDeserialization(){
-	assert(false && "Cannot save or load this yet");
-	/*
-	using namespace tinyxml2;
+	bool success = true;
+	success &= NetworkDevice::onSerialization();
+	success &= ipAddress0->deserializeFromParent(this);
+	success &= ipAddress1->deserializeFromParent(this);
+	success &= ipAddress2->deserializeFromParent(this);
+	success &= ipAddress3->deserializeFromParent(this);
+	success &= broadcast->deserializeFromParent(this);
+	success &= portNumber->deserializeFromParent(this);
+	success &= sendingFrequency->deserializeFromParent(this);
+	success &= networkIpAddress0->deserializeFromParent(this);
+	success &= networkIpAddress1->deserializeFromParent(this);
+	success &= networkIpAddress2->deserializeFromParent(this);
+	success &= networkIpAddress3->deserializeFromParent(this);
+	success &= networkMask0->deserializeFromParent(this);
+	success &= networkMask1->deserializeFromParent(this);
+	success &= networkMask2->deserializeFromParent(this);
+	success &= networkMask3->deserializeFromParent(this);
 	
-	XMLElement* settingsXML;
-	if(!loadXMLElement("Settings", xml, settingsXML)) return false;
+	if(tinyxml2::XMLElement* scriptXML = xmlElement->FirstChildElement("Script")){
+		std::string scriptString = std::string(scriptXML->GetText());
+		script->load(scriptString);
+		success &= true;
+	}
+	else success &= false;
 	
-	if(!ipAddress0->load(settingsXML)) return false;
-	if(!ipAddress1->load(settingsXML)) return false;
-	if(!ipAddress2->load(settingsXML)) return false;
-	if(!ipAddress3->load(settingsXML)) return false;
-	if(!portNumber->load(settingsXML)) return false;
-	if(!broadcast->load(settingsXML)) return false;
-	if(!sendingFrequency->load(settingsXML)) return false;
-    if(!networkIpAddress0->load(settingsXML)) return false;
-    if(!networkIpAddress1->load(settingsXML)) return false;
-    if(!networkIpAddress2->load(settingsXML)) return false;
-    if(!networkIpAddress3->load(settingsXML)) return false;
-    if(!networkMask0->load(settingsXML)) return false;
-    if(!networkMask1->load(settingsXML)) return false;
-    if(!networkMask2->load(settingsXML)) return false;
-    if(!networkMask3->load(settingsXML)) return false;
-	
-	XMLElement* scriptXML;
-	if(!loadXMLElement("Script", xml, scriptXML)) return false;
-	std::string scriptString = std::string(scriptXML->GetText());
-	script->load(scriptString);
-	
-	return true;
-	 */
+	return success;
 }

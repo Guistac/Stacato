@@ -76,8 +76,16 @@ const char* NodePin::getValueString() {
 
 std::vector<std::shared_ptr<NodePin>> NodePin::getConnectedPins() {
 	std::vector<std::shared_ptr<NodePin>> output;
-	if (isInput()) for (auto& link : nodeLinks) output.push_back(link->getInputPin());
-	else for (auto& link : nodeLinks) output.push_back(link->getOutputPin());
+	if (isInput()){
+		for (auto& link : nodeLinks) {
+			output.push_back(link->getInputPin());
+		}
+	}
+	else {
+		for (auto& link : nodeLinks) {
+			output.push_back(link->getOutputPin());
+		}
+	}
 	return output;
 }
 

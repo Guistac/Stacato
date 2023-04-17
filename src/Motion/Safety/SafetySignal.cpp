@@ -117,40 +117,20 @@ void SafetySignal::inputProcess(){
 
 
 bool SafetySignal::onSerialization(){
-	assert(false && "Cannot save and load this yet");
-	using namespace tinyxml2;
-
-	/*
-	XMLElement* settingsXML = xml->InsertNewChildElement("Settings");
-	faultResetPulseTime->save(settingsXML);
-	unclearedFaultLedBlinkFrequency->save(settingsXML);
-	
-	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
-	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
-	*/
-	 
-	return true;
+	bool success = true;
+	success &= Node::onSerialization();
+	success &= faultResetPulseTime->serializeIntoParent(this);
+	success &= unclearedFaultLedBlinkFrequency->serializeIntoParent(this);
+	success &= serializeAttribute("WidgetUniqueID", controlWidget->uniqueID);
+	return success;
 }
 
 bool SafetySignal::onDeserialization(){
-	assert(false && "Cannot save and load this yet");
-	using namespace tinyxml2;
-
-	/*
-	XMLElement* settingsXML;
-	if(!loadXMLElement("Settings", xml, settingsXML)) return false;
-	if(!faultResetPulseTime->load(settingsXML)) return false;
-	if(!unclearedFaultLedBlinkFrequency->load(settingsXML)) return false;
-
-	XMLElement* controlWidgetXML;
-	if(!loadXMLElement("ControlWidget", xml, controlWidgetXML)) return false;
-	if(controlWidgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS){
-		Logger::warn("could not load dead mans switch control widget unique id");
-		return false;
-	}
-	*/
-	
-	return true;
-	
+	bool success = true;
+	success &= Node::onDeserialization();
+	success &= faultResetPulseTime->deserializeFromParent(this);
+	success &= unclearedFaultLedBlinkFrequency->deserializeFromParent(this);
+	success &= deserializeAttribute("WidgetUniqueID", controlWidget->uniqueID);
+	return success;
 }
 

@@ -1,25 +1,82 @@
 <Environnement Name="Default Component Name" HELLo="1234">
     <NodeGraph Name="Default Component Name">
         <NodeList>
-            <Node Name="Lexium32M" UniqueID="18" ClassName="Lexium32" NodeType="IODevice">
-                <NodeGraphPosition Split="0" X="178" Y="222"/>
+            <Node Name="Axis" UniqueID="34" ClassName="AxisNode" NodeType="Processor">
+                <NodeGraphPosition Split="0" X="360" Y="232"/>
                 <InputPins>
-                    <Pin Name="DQ0" UniqueID="19" SaveString="DQ0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="DQ1" UniqueID="20" SaveString="DQ1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="DQ2" UniqueID="21" SaveString="DQ2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Actuator" UniqueID="35" SaveString="Actuator" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Feedback" UniqueID="36" SaveString="Feedback" DataType="MotionFeedbackInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="GPIO" UniqueID="37" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Lower Limit Signal" UniqueID="38" SaveString="LowerLimitSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Lower Slowdown Signal" UniqueID="39" SaveString="LowerSlowdownSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Upper Slowdown Signal" UniqueID="40" SaveString="UpperSlowdownSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Upper Limit Signal" UniqueID="41" SaveString="UpperLimitSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Reference Signal" UniqueID="42" SaveString="ReferenceSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Surveillance Fault Reset" UniqueID="43" SaveString="SurveillanceFaultReset" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </InputPins>
                 <OutputPins>
-                    <Pin Name="Servo Motor" UniqueID="22" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Load" UniqueID="23" SaveString="Load" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="Position" UniqueID="24" SaveString="Position" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="Velocity" UniqueID="25" SaveString="Velocity" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="GPIO" UniqueID="26" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="DI0" UniqueID="27" SaveString="DI0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI1" UniqueID="28" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI2" UniqueID="29" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI3" UniqueID="30" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI4" UniqueID="31" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI5" UniqueID="32" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Axis" UniqueID="44" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="1" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Brake Control Signal" UniqueID="45" SaveString="BrakeControlSignal" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Surveillance Valid Signal" UniqueID="46" SaveString="SurveillanceValidSignal" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                </OutputPins>
+                <PositionFeedbackMapping InterfacePinID="52">
+                    <UnitConversion Name="Feedback units per axis unit" Value="1"/>
+                </PositionFeedbackMapping>
+                <VelocityFeedbackMapping InterfacePinID="52">
+                    <UnitConversion Name="Feedback units per axis unit" Value="1"/>
+                </VelocityFeedbackMapping>
+                <ActuatorMappings>
+                    <ActuatorMapping InterfacePinID="52">
+                        <UnitConversion Name="Actuator units per axis units" Value="3"/>
+                        <ControlMode Name="Control Mode" Value="PositionControl"/>
+                    </ActuatorMapping>
+                </ActuatorMappings>
+                <MovementType Name="Movement Type" Value="LinearMotion"/>
+                <PositionUnit Name="Position Unit" Value="Meter"/>
+                <LimitSignalType Name="Limit Signal Type" Value="NoLimitSignal"/>
+                <AxisControlMode Name="Axis Control Mode" Value="No Control"/>
+                <VelocityLimit Name="Velocity Limit" Value="0"/>
+                <AccelerationLimit Name="Acceleration Limit" Value="0"/>
+                <PositionLoopVelocityFeedForward Name="Position loop velocity feed forward (PvFF)" Value="100"/>
+                <PositionLoopProportionalGain Name="Position loop proportional gain (PKp)" Value="0"/>
+                <PositionLoopMaxError Name="Position loop max error" Value="0"/>
+                <PositionLoopMinError Name="Position loop min error" Value="0"/>
+                <VelocityLoopMaxError Name="Velocity loop max error" Value="0"/>
+                <LimitSlowdownVelocity Name="Limit Slowdown Velocity" Value="0"/>
+                <EnableLowerPositionLimit Name="Enable Lower Position Limit" Value="0"/>
+                <EnableUpperPositionLimit Name="Enable Upper Position Limit" Value="0"/>
+                <LowerPositionLimit Name="Lower Position Limit" Value="0"/>
+                <UpperPositionLimit Name="Upper Position Limit" Value="0"/>
+                <LowerPositionLimitClearance Name="Lower Position Limit Clearance" Value="0"/>
+                <UpperPositionLimitClearance Name="Upper Position Limit Clearance" Value="0"/>
+                <VelocityLimit Name="Velocity Limit" Value="0"/>
+                <AccelerationLimit Name="Acceleration Limit" Value="0"/>
+                <HomingDirection Name="Homing direction" Value="Negative"/>
+                <SignalApproachMethod Name="Signal approach method" Value="FindSignalEdge"/>
+                <HomingVelocityCoarse Name="Homing velocity coarse" Value="0"/>
+                <HomingVelocityFine Name="Homing velocity fine" Value="0"/>
+                <MaxHomingDistanceCoarse Name="Max homing distance coarse" Value="0"/>
+                <MaxHomingDistanceFine Name="Max homing distance fine" Value="0"/>
+            </Node>
+            <Node Name="Lexium32M" UniqueID="48" ClassName="Lexium32" NodeType="IODevice">
+                <NodeGraphPosition Split="0" X="86" Y="279"/>
+                <InputPins>
+                    <Pin Name="DQ0" UniqueID="49" SaveString="DQ0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ1" UniqueID="50" SaveString="DQ1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DQ2" UniqueID="51" SaveString="DQ2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                </InputPins>
+                <OutputPins>
+                    <Pin Name="Servo Motor" UniqueID="52" SaveString="ServoMotor" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Load" UniqueID="53" SaveString="Load" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Position" UniqueID="54" SaveString="Position" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Velocity" UniqueID="55" SaveString="Velocity" DataType="Real" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="GPIO" UniqueID="56" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DI0" UniqueID="57" SaveString="DI0" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI1" UniqueID="58" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI2" UniqueID="59" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI3" UniqueID="60" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI4" UniqueID="61" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI5" UniqueID="62" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
                 </OutputPins>
                 <Identification Type="StationAlias" Address="0"/>
                 <MotorProperties MaxVelocity="0" MaxCurrent="0" EncoderIsMultiturn="false"/>
@@ -35,6 +92,8 @@
                 <HoldingBrake HasHoldingBrake="false"/>
             </Node>
         </NodeList>
-        <LinkList/>
+        <LinkList>
+            <Link Start="Lexium32M : Servo Motor" End="Lexium32M : Servo Motor" UniqueID="64" InputPinID="52" OutputPinID="35"/>
+        </LinkList>
     </NodeGraph>
 </Environnement>

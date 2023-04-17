@@ -79,6 +79,9 @@ class OscDevice : public NetworkDevice{
 		NetworkDevice::onCopyFrom(source);
 	};
 	
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	
 	void networkGui();
 	void outgoingMessagesGui();
 	void incomingMessagesGui();
@@ -115,9 +118,7 @@ class OscDevice : public NetworkDevice{
 	std::shared_ptr<OSC::Message> selectedOutgoingMessage = nullptr;
 	std::shared_ptr<OSC::Message> selectedIncomingMessage = nullptr;
 	
-	virtual void nodeSpecificGui();\
-	virtual bool load(tinyxml2::XMLElement* xml);\
-	virtual bool save(tinyxml2::XMLElement* xml);\
+	virtual void nodeSpecificGui() override;
 };
 
 

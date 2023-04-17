@@ -420,20 +420,22 @@ int Message::getArgumentIndex(std::shared_ptr<Argument> arg){
 
 
 
-bool OscDevice::save(tinyxml2::XMLElement* xml){
+bool OscDevice::onSerialization(){
+	NetworkDevice::onSerialization();
+	
 	using namespace tinyxml2;
 	
-	XMLElement* remoteIPXML = xml->InsertNewChildElement("RemoteIP");
+	XMLElement* remoteIPXML = xmlElement->InsertNewChildElement("RemoteIP");
 	remoteIPXML->SetAttribute("ipv4-0", remoteIP[0]);
 	remoteIPXML->SetAttribute("ipv4-1", remoteIP[1]);
 	remoteIPXML->SetAttribute("ipv4-2", remoteIP[2]);
 	remoteIPXML->SetAttribute("ipv4-3", remoteIP[3]);
 	
-	XMLElement* portsXML = xml->InsertNewChildElement("Ports");
+	XMLElement* portsXML = xmlElement->InsertNewChildElement("Ports");
 	portsXML->SetAttribute("send", remotePort);
 	portsXML->SetAttribute("receive", listeningPort);
 	
-	XMLElement* outgoingMessagesXML = xml->InsertNewChildElement("OutgoingMessages");
+	XMLElement* outgoingMessagesXML = xmlElement->InsertNewChildElement("OutgoingMessages");
 	for(auto& message : outgoingMessages){
 		XMLElement* messageXML = outgoingMessagesXML->InsertNewChildElement("OSCMessage");
 		messageXML->SetAttribute("Path", message->path);
@@ -446,7 +448,7 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 		}
 	}
 	
-	XMLElement* incomingMessagesXML = xml->InsertNewChildElement("IncomingMessages");
+	XMLElement* incomingMessagesXML = xmlElement->InsertNewChildElement("IncomingMessages");
 	for(auto& message : incomingMessages){
 		XMLElement* messageXML = incomingMessagesXML->InsertNewChildElement("OSCMessage");
 		messageXML->SetAttribute("Path", message->path);
@@ -461,10 +463,13 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 }
 
 
-bool OscDevice::load(tinyxml2::XMLElement* xml){
+bool OscDevice::onDeserialization(){
+	
+	NetworkDevice::onDeserialization();
+	
 	using namespace tinyxml2;
 
-	XMLElement* remoteIPXML = xml->FirstChildElement("RemoteIP");
+	XMLElement* remoteIPXML = xmlElement->FirstChildElement("RemoteIP");
 	if(remoteIPXML == nullptr) return Logger::warn("Could not find remote ip attribute");
 	int ipv4[4];
 	if(remoteIPXML->QueryAttribute("ipv4-0", &ipv4[0]) != XML_SUCCESS) return Logger::warn("could not find ipv4#0 attribute");
@@ -473,7 +478,7 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 	if(remoteIPXML->QueryAttribute("ipv4-3", &ipv4[3]) != XML_SUCCESS) return Logger::warn("could not find ipv4#3 attribute");
 	for(int i = 0; i < 4; i++) remoteIP[i] = ipv4[i];
 	
-	XMLElement* portsXML = xml->FirstChildElement("Ports");
+	XMLElement* portsXML = xmlElement->FirstChildElement("Ports");
 	if(portsXML == nullptr) return Logger::warn("Could not find port attribute");
 	int sendPort, receivePort;
 	if(portsXML->QueryAttribute("send", &sendPort) != XML_SUCCESS) return Logger::warn("Could not find send port attribute");
@@ -481,7 +486,7 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 	remotePort = sendPort;
 	listeningPort = receivePort;
 	
-	XMLElement* outgoingMessagesXML = xml->FirstChildElement("OutgoingMessages");
+	XMLElement* outgoingMessagesXML = xmlElement->FirstChildElement("OutgoingMessages");
 	if(outgoingMessagesXML == nullptr) return Logger::warn("Could not find Outgoing Messages Attribute");
 	
 	XMLElement* outMessageXML = outgoingMessagesXML->FirstChildElement("OSCMessage");
@@ -523,7 +528,7 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 		outMessageXML = outMessageXML->NextSiblingElement("OSCMessage");
 	}
 	
-	XMLElement* incomingMessagesXML = xml->FirstChildElement("IncomingMessages");
+	XMLElement* incomingMessagesXML = xmlElement->FirstChildElement("IncomingMessages");
 	if(incomingMessagesXML == nullptr) return Logger::warn("Could not find Incoming Messages Attribute");
 	
 	XMLElement* inMessageXML = incomingMessagesXML->FirstChildElement("OSCMessage");
