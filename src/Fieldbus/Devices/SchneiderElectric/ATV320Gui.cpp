@@ -37,7 +37,7 @@ void ATV320::controlsGui(){
 	ImGui::PopFont();
 	
 	float velocityTarget_rps = 0.0;
-	float maxVel = nominalMotorSpeedParameter->value / 60.0;
+	float maxVel = nominalMotorSpeedParameter->getValue() / 60.0;
 	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVel, maxVel);
 	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rps);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
@@ -48,7 +48,7 @@ void ATV320::controlsGui(){
 	glm::vec2 sizeIndicator = ImGui::GetItemRectSize();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGuiCol_Button), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	float velocityNormalized = (float)velocityActual_rpm / nominalMotorSpeedParameter->value;
+	float velocityNormalized = (float)velocityActual_rpm / nominalMotorSpeedParameter->getValue();
 	float sizeIndicatorWidthHalf = sizeIndicator.x / 2.0;
 	float velocityWidth = velocityNormalized * sizeIndicatorWidthHalf;
 	if(velocityNormalized > 0.0f){
@@ -99,7 +99,7 @@ void ATV320::settingsGui(){
 	ImGui::SameLine();
 	ImGui::TextColored(Colors::gray, "%s", standstillTuningTask.getStatusString().c_str());
 	
-	auto drawParameterGroup = [](std::string groupName, std::vector<std::shared_ptr<Parameter>> parameters){
+	auto drawParameterGroup = [](std::string groupName, std::vector<std::shared_ptr<Legato::Parameter>> parameters){
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader(groupName.c_str())){
 			ImGui::PopFont();
@@ -122,7 +122,7 @@ void ATV320::settingsGui(){
 					
 					ImGui::BeginDisabled(parameter->isDisabled());
 					ImGui::PushFont(Fonts::sansBold15);
-					ImGui::Text("%s", parameter->getName());
+					ImGui::Text("%s", parameter->getName().c_str());
 					ImGui::PopFont();
 					ImGui::EndDisabled();
 					

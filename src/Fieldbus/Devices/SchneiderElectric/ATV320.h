@@ -110,7 +110,7 @@ public:
 		V_F_QUADRATIC = 6,
 		ENERGY_SAVING = 7
 	};
-	Legato::OptionParam option_motorControlType_sensorlessFluxVector = Legato::Option(MotorControlType::SENSORLESS_FLUX_VECTOR,
+	Legato::Option option_motorControlType_sensorlessFluxVector = Legato::Option(MotorControlType::SENSORLESS_FLUX_VECTOR,
 																					  "Sensorless flux vector V", "SensorlessFluxVectorV");
 	Legato::Option option_motorControlType_standardMotorLaw = Legato::Option(MotorControlType::STANDARD_MOTOR_LAW,
 																			 "Standard Motor Law", "StandardMotorLaw");
@@ -170,6 +170,13 @@ public:
 	};
 	
 	//———————————— DRIVE PARAMETERS —————————————
+	
+	//————— General Settings —————
+	Legato::NumberParam<double> accelerationRampTime;
+	Legato::NumberParam<double> decelerationRampTime;
+	Legato::BoolParam invertDirection;
+	Legato::NumberParam<double> lowControlFrequencyParameter;
+	Legato::NumberParam<double> highControlFrequencyParameter;
 	
 	//————— Motor Parameters —————
 	

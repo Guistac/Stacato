@@ -48,3 +48,5 @@ function exit()
 	Logger:info("Exiting Stage Visualizer Script at", of.getElapsedTimef(), "seconds.")
 end
 
+
+

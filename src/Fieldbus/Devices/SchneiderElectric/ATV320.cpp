@@ -16,8 +16,8 @@ void ATV320::onDisconnection() {
 
 void ATV320::updateActuatorInterface(){
 	actuator->actuatorConfig.velocityLimit = nominalMotorSpeedParameter->getValue() / 60.0;
-	actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
-	actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
+	actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->getValue();
+	actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->getValue();
 }
 
 void ATV320::onConstruction() {
@@ -64,56 +64,42 @@ void ATV320::onConstruction() {
 	addNodePin(actualVelocityPin);
 	addNodePin(actualLoadPin);
 	
-	slowdownVelocityHertz = Legato::NumberParameter<double>::createInstance(5.0, "Slowdown Velocity", "SlowdownVelocity");
-	slowdownVelocityHertz->setUnit(Units::Frequency::Hertz);
-	slowdownVelocityHertz->allowNegatives(false);
-																							
-	invertDirection = Legato::BooleanParameter::createInstance(false, "Invert Motion Direction", "InvertMotionDirection");
-	
-	lowSpeedHertz = Legato::NumberParameter<double>::createInstance(0.0, "Low Speed", "LowSpeed");
-	lowSpeedHertz->setUnit(Units::Frequency::Hertz);
-	lowSpeedHertz->allowNegatives(false);
-	
-
-	
-	
-	
 	
 	//————— General Settings —————
 	
-	accelerationRampTime = NumberParameter<double>::make(3.0, "Acceleration Ramp", "AccelerationRamp");
+	accelerationRampTime = Legato::NumberParameter<double>::createInstance(3.0, "Acceleration Ramp", "AccelerationRamp");
 	accelerationRampTime->setUnit(Units::Time::Second);
 	accelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
 	
-	decelerationRampTime = NumberParameter<double>::make(1.0, "Deceleration Ramp", "DecelerationRamp");
+	decelerationRampTime = Legato::NumberParameter<double>::createInstance(1.0, "Deceleration Ramp", "DecelerationRamp");
 	decelerationRampTime->setUnit(Units::Time::Second);
 	decelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
 	
-	invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
+	invertDirection = Legato::BooleanParameter::createInstance(false, "Invert Motion Direction", "InvertMotionDirection");
 	
-	lowControlFrequencyParameter = NumberParameter<double>::make(0.0, "Minimum Control Frequency", "MinControlFrequency");
+	lowControlFrequencyParameter = Legato::NumberParameter<double>::createInstance(0.0, "Minimum Control Frequency", "MinControlFrequency");
 	lowControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
 	
-	highControlFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Control Frequency", "MaxControlFrequency");
+	highControlFrequencyParameter = Legato::NumberParameter<double>::createInstance(50.0, "Maximum Control Frequency", "MaxControlFrequency");
 	highControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
 	
 	
 	//————— Motor Parameters —————
 	
-	standartMotorFrequencyParameter = OptionParameter::make2(option_frequency50Hz, options_standartMotorFrequency, "Standart Motor Frequency [bfr]", "StandartMotorFrequency");
+	standartMotorFrequencyParameter = Legato::OptionParameter::createInstance(option_frequency50Hz, options_standartMotorFrequency, "Standart Motor Frequency [bfr]", "StandartMotorFrequency");
 	
-	motorControlTypeParameter = OptionParameter::make2(option_motorControlType_standardMotorLaw, options_motorControlType, "Motor Control Type [ctt]", "MotorControlType");
+	motorControlTypeParameter = Legato::OptionParameter::createInstance(option_motorControlType_standardMotorLaw, options_motorControlType, "Motor Control Type [ctt]", "MotorControlType");
 	
-	ratedMotorPowerParameter = NumberParameter<double>::make(0.0, "Rated Motor Power [npr]", "RatedMotorPower");
+	ratedMotorPowerParameter = Legato::NumberParameter<double>::createInstance(0.0, "Rated Motor Power [npr]", "RatedMotorPower");
 	ratedMotorPowerParameter->setUnit(Units::Power::KiloWatt);
 	
-	nominalMotorVoltageParameter = NumberParameter<double>::make(0.0, "Rated Motor Voltage [uns]", "RatedMotorVoltage");
+	nominalMotorVoltageParameter = Legato::NumberParameter<double>::createInstance(0.0, "Rated Motor Voltage [uns]", "RatedMotorVoltage");
 	nominalMotorVoltageParameter->setUnit(Units::Voltage::Volt);
 	
-	nominalMotorCurrentParameter = NumberParameter<double>::make(0.0, "Rated Motor Current [ncr]", "RatedMotorCurrent");
+	nominalMotorCurrentParameter = Legato::NumberParameter<double>::createInstance(0.0, "Rated Motor Current [ncr]", "RatedMotorCurrent");
 	nominalMotorCurrentParameter->setUnit(Units::Current::Ampere);
 	
-	nominalMotorSpeedParameter = NumberParameter<double>::make(1400.0, "Motor Rated Speed [nps]", "MotorRatedSpeed");
+	nominalMotorSpeedParameter = Legato::NumberParameter<double>::createInstance(1400.0, "Motor Rated Speed [nps]", "MotorRatedSpeed");
 	nominalMotorSpeedParameter->setUnit(Units::AngularDistance::Revolution);
 	nominalMotorSpeedParameter->setSuffix("/min");
 	nominalMotorSpeedParameter->addEditCallback([this](){ updateActuatorInterface(); });
@@ -121,35 +107,35 @@ void ATV320::onConstruction() {
 	
 	//————— Limit signal configuration —————
 
-	forwardStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Forward limit input", "ForwardStopSignal");
+	forwardStopLimitAssignementParameter = Legato::OptionParameter::createInstance(option_logicInput_none, options_logicInput, "Forward limit input", "ForwardStopSignal");
 	
-	reverseStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Reverse limit input", "ReverseStopSignal");
+	reverseStopLimitAssignementParameter = Legato::OptionParameter::createInstance(option_logicInput_none, options_logicInput, "Reverse limit input", "ReverseStopSignal");
 	
-	stopLimitConfigurationParameter = OptionParameter::make2(option_activeHigh, options_activeLowHigh, "Stop limit configuration", "StopLimitConfiguration");
+	stopLimitConfigurationParameter = Legato::OptionParameter::createInstance(option_activeHigh, options_activeLowHigh, "Stop limit configuration", "StopLimitConfiguration");
 	
 	
 	//————— Logic input configuration —————
 	
-	auto clampInputOnDelay = [](NumberParam<int> onDelay){
-		if(onDelay->value < 0) onDelay->overwrite(0);
-		else if(onDelay->value > 200) onDelay->overwrite(200);
+	auto clampInputOnDelay = [](Legato::NumberParam<int> onDelay){
+		if(onDelay->getValue() < 0) onDelay->overwrite(0);
+		else if(onDelay->getValue() > 200) onDelay->overwrite(200);
 	};
-	logicInput1OnDelayParameter = NumberParameter<int>::make(0, "LI1 On Delay", "LI1OnDelay");
+	logicInput1OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI1 On Delay", "LI1OnDelay");
 	logicInput1OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput1OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput1OnDelayParameter); });
-	logicInput2OnDelayParameter = NumberParameter<int>::make(0, "LI2 On Delay", "LI2OnDelay");
+	logicInput2OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI2 On Delay", "LI2OnDelay");
 	logicInput2OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput2OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput2OnDelayParameter); });
-	logicInput3OnDelayParameter = NumberParameter<int>::make(0, "LI3 On Delay", "LI3OnDelay");
+	logicInput3OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI3 On Delay", "LI3OnDelay");
 	logicInput3OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput3OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput3OnDelayParameter); });
-	logicInput4OnDelayParameter = NumberParameter<int>::make(0, "LI4 On Delay", "LI4OnDelay");
+	logicInput4OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI4 On Delay", "LI4OnDelay");
 	logicInput4OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput4OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput4OnDelayParameter); });
-	logicInput5OnDelayParameter = NumberParameter<int>::make(0, "LI5 On Delay", "LI5OnDelay");
+	logicInput5OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI5 On Delay", "LI5OnDelay");
 	logicInput5OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput5OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput5OnDelayParameter); });
-	logicInput6OnDelayParameter = NumberParameter<int>::make(0, "LI6 On Delay", "LI6OnDelay");
+	logicInput6OnDelayParameter = Legato::NumberParameter<int>::createInstance(0, "LI6 On Delay", "LI6OnDelay");
 	logicInput6OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput6OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput6OnDelayParameter); });
 	
@@ -202,7 +188,7 @@ bool ATV320::startupConfiguration() {
 	
 	//——— cache parameter values
 	
-	b_reverseDirection = invertDirection->value;
+	b_reverseDirection = invertDirection->getValue();
 	
 	return true;
 }
@@ -331,85 +317,86 @@ void ATV320::writeOutputs() {
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
+bool ATV320::onSerialization() {
+	bool success = true;
+	success &= EtherCatDevice::onSerialization();
 	
 	//————— General Settings —————
-	XMLElement* generalSettingsXML = xml->InsertNewChildElement("GeneralSettings");
-	accelerationRampTime->save(generalSettingsXML);
-	decelerationRampTime->save(generalSettingsXML);
-	invertDirection->save(generalSettingsXML);
-	lowControlFrequencyParameter->save(generalSettingsXML);
-	highControlFrequencyParameter->save(generalSettingsXML);
+	
+	success &= accelerationRampTime->serializeIntoParent(this);
+	success &= decelerationRampTime->serializeIntoParent(this);
+	success &= invertDirection->serializeIntoParent(this);
+	success &= lowControlFrequencyParameter->serializeIntoParent(this);
+	success &= highControlFrequencyParameter->serializeIntoParent(this);
 	
 	//————— Motor Parameters —————
-	XMLElement* motorParametersXML = xml->InsertNewChildElement("MotorParameters");
-	standartMotorFrequencyParameter->save(motorParametersXML);
-	motorControlTypeParameter->save(motorParametersXML);
-	ratedMotorPowerParameter->save(motorParametersXML);
-	nominalMotorVoltageParameter->save(motorParametersXML);
-	nominalMotorCurrentParameter->save(motorParametersXML);
-	nominalMotorSpeedParameter->save(motorParametersXML);
+	
+	success &= standartMotorFrequencyParameter->serializeIntoParent(this);
+	success &= motorControlTypeParameter->serializeIntoParent(this);
+	success &= ratedMotorPowerParameter->serializeIntoParent(this);
+	success &= nominalMotorVoltageParameter->serializeIntoParent(this);
+	success &= nominalMotorCurrentParameter->serializeIntoParent(this);
+	success &= nominalMotorSpeedParameter->serializeIntoParent(this);
 	
 	//————— Limit signal configuration —————
-	XMLElement* limitSignalsXML = xml->InsertNewChildElement("LimitSignals");
-	forwardStopLimitAssignementParameter->save(limitSignalsXML);
-	reverseStopLimitAssignementParameter->save(limitSignalsXML);
-	stopLimitConfigurationParameter->save(limitSignalsXML);
+	
+	success &= forwardStopLimitAssignementParameter->serializeIntoParent(this);
+	success &= reverseStopLimitAssignementParameter->serializeIntoParent(this);
+	success &= stopLimitConfigurationParameter->serializeIntoParent(this);
 	
 	//————— Logic input configuration —————
-	XMLElement* logicInputXML = xml->InsertNewChildElement("LogicInputSettings");
-	logicInput1OnDelayParameter->save(logicInputXML);
-	logicInput2OnDelayParameter->save(logicInputXML);
-	logicInput3OnDelayParameter->save(logicInputXML);
-	logicInput4OnDelayParameter->save(logicInputXML);
-	logicInput5OnDelayParameter->save(logicInputXML);
-	logicInput6OnDelayParameter->save(logicInputXML);
 	
-	return true;
+	success &= logicInput1OnDelayParameter->serializeIntoParent(this);
+	success &= logicInput2OnDelayParameter->serializeIntoParent(this);
+	success &= logicInput3OnDelayParameter->serializeIntoParent(this);
+	success &= logicInput4OnDelayParameter->serializeIntoParent(this);
+	success &= logicInput5OnDelayParameter->serializeIntoParent(this);
+	success &= logicInput6OnDelayParameter->serializeIntoParent(this);
+	
+	return success;
 }
 
-bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
+bool ATV320::onDeserialization(){
+	bool success = true;
+	success &= EtherCatDevice::onDeserialization();
 	
 	//————— General Settings —————
-	if(XMLElement* generalSettingsXML = xml->FirstChildElement("GeneralSettings")){
-		accelerationRampTime->load(generalSettingsXML);
-		decelerationRampTime->load(generalSettingsXML);
-		invertDirection->load(generalSettingsXML);
-		lowControlFrequencyParameter->load(generalSettingsXML);
-		highControlFrequencyParameter->load(generalSettingsXML);
-	}
+	
+	success &= accelerationRampTime->deserializeFromParent(this);
+	success &= decelerationRampTime->deserializeFromParent(this);
+	success &= invertDirection->deserializeFromParent(this);
+	success &= lowControlFrequencyParameter->deserializeFromParent(this);
+	success &= highControlFrequencyParameter->deserializeFromParent(this);
+	
 	
 	//————— Motor Parameters —————
-	if(XMLElement* motorParametersXML = xml->FirstChildElement("MotorParameters")){
-		standartMotorFrequencyParameter->load(motorParametersXML);
-		motorControlTypeParameter->load(motorParametersXML);
-		ratedMotorPowerParameter->load(motorParametersXML);
-		nominalMotorVoltageParameter->load(motorParametersXML);
-		nominalMotorCurrentParameter->load(motorParametersXML);
-		nominalMotorSpeedParameter->load(motorParametersXML);
-	}
+	
+	success &= standartMotorFrequencyParameter->deserializeFromParent(this);
+	success &= motorControlTypeParameter->deserializeFromParent(this);
+	success &= ratedMotorPowerParameter->deserializeFromParent(this);
+	success &= nominalMotorVoltageParameter->deserializeFromParent(this);
+	success &= nominalMotorCurrentParameter->deserializeFromParent(this);
+	success &= nominalMotorSpeedParameter->deserializeFromParent(this);
+	
 	
 	//————— Limit signal configuration —————
-	if(XMLElement* limitSignalsXML = xml->FirstChildElement("LimitSignals")){
-		forwardStopLimitAssignementParameter->load(limitSignalsXML);
-		reverseStopLimitAssignementParameter->load(limitSignalsXML);
-		stopLimitConfigurationParameter->load(limitSignalsXML);
-	}
+	
+	success &= forwardStopLimitAssignementParameter->deserializeFromParent(this);
+	success &= reverseStopLimitAssignementParameter->deserializeFromParent(this);
+	success &= stopLimitConfigurationParameter->deserializeFromParent(this);
+
 	
 	//————— Logic input configuration —————
-	if(XMLElement* logicInputXML = xml->FirstChildElement("LogicInputSettings")){
-		logicInput1OnDelayParameter->load(logicInputXML);
-		logicInput2OnDelayParameter->load(logicInputXML);
-		logicInput3OnDelayParameter->load(logicInputXML);
-		logicInput4OnDelayParameter->load(logicInputXML);
-		logicInput5OnDelayParameter->load(logicInputXML);
-		logicInput6OnDelayParameter->load(logicInputXML);
-	}
+	
+	success &= logicInput1OnDelayParameter->deserializeFromParent(this);
+	success &= logicInput2OnDelayParameter->deserializeFromParent(this);
+	success &= logicInput3OnDelayParameter->deserializeFromParent(this);
+	success &= logicInput4OnDelayParameter->deserializeFromParent(this);
+	success &= logicInput5OnDelayParameter->deserializeFromParent(this);
+	success &= logicInput6OnDelayParameter->deserializeFromParent(this);
 	
 	updateActuatorInterface();
-	return true;
+	return success;
 }
 
 
@@ -537,7 +524,7 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 	//[lsp] min control frequency in Hz
 	uint16_t nominalMotorFrequency;
 	uint16_t maxMotorFrequency;
-	switch(atv320->standartMotorFrequencyParameter->value){
+	switch(atv320->standartMotorFrequencyParameter->getValue()){
 		case StandartMotorFrequency::HZ_50:
 			nominalMotorFrequency = 50;
 			maxMotorFrequency = 60;
@@ -556,27 +543,27 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		
 		//—————— Motor Configuration ———————
 		//[bfr] Standart Motor Frequency (0 = 50Hz / 1 = 60Hz)
-		SDOTask::prepareUpload(0x2000, 0x10, uint16_t(atv320->standartMotorFrequencyParameter->value), "Standart motor frequency [bfr]"),
+		SDOTask::prepareUpload(0x2000, 0x10, uint16_t(atv320->standartMotorFrequencyParameter->getValue()), "Standart motor frequency [bfr]"),
 		//[ctt] Motor Control Type
-		SDOTask::prepareUpload(0x2042, 0x8, uint16_t(atv320->motorControlTypeParameter->value), "Motor control type [ctt]"),
+		SDOTask::prepareUpload(0x2042, 0x8, uint16_t(atv320->motorControlTypeParameter->getValue()), "Motor control type [ctt]"),
 		//[mpc] set motor parameter choice to motor power (= 0)
 		SDOTask::prepareUpload(0x2042, 0xF, uint16_t(0), "Motor parameter choice [mpc]"),
 		//[uns] rated motor voltage in 1V increments
-		SDOTask::prepareUpload(0x2042, 0x2, uint16_t(atv320->nominalMotorVoltageParameter->value), "Nominal motor voltage [uns]"),
+		SDOTask::prepareUpload(0x2042, 0x2, uint16_t(atv320->nominalMotorVoltageParameter->getValue()), "Nominal motor voltage [uns]"),
 		//[npr] rated motor power in 0.1Kw increments
-		SDOTask::prepareUpload(0x2042, 0xE, uint16_t(atv320->ratedMotorPowerParameter->value * 100), "Rated motor power [uns]"),
+		SDOTask::prepareUpload(0x2042, 0xE, uint16_t(atv320->ratedMotorPowerParameter->getValue() * 100), "Rated motor power [uns]"),
 		//[ncr] nominal motor current in 0.1A increments
-		SDOTask::prepareUpload(0x2042, 0x4, uint16_t(atv320->nominalMotorCurrentParameter->value * 10), "Nominal Motor current [ncr]"),
+		SDOTask::prepareUpload(0x2042, 0x4, uint16_t(atv320->nominalMotorCurrentParameter->getValue() * 10), "Nominal Motor current [ncr]"),
 		//[nsp] nominal motor speed (in rpm)
-		SDOTask::prepareUpload(0x2042, 0x5, uint16_t(atv320->nominalMotorSpeedParameter->value), "Nominal motor speed [nsp]"),
+		SDOTask::prepareUpload(0x2042, 0x5, uint16_t(atv320->nominalMotorSpeedParameter->getValue()), "Nominal motor speed [nsp]"),
 		//[frs] nominal motor frequency (in .1Hz increments) (should be identical to [bfr])
 		SDOTask::prepareUpload(0x2042, 0x3, uint16_t(nominalMotorFrequency * 10), "Nominal motor frequency [frs]"),
 		
 		//————————— Control Settings —————————————
 		//[lsp] set minimum control speed in hertz to 0Hz (in .1Hz increments)
-		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
+		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->getValue() * 10), "Low speed [lsp]"),
 		//[hsp] set maximum control speed to in 0.1Hz increments
-		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
+		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->getValue() * 10), "High Speed [hsp]"),
 		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments)
 		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(maxMotorFrequency * 10), "Max output frequency"),
 		//set drive switching frequency to 16 Khz (max)
@@ -586,26 +573,26 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//[inr] set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)
 		SDOTask::prepareUpload(0x203C, 0x15, uint16_t(0), "Ramp unit increment"),
 		//[acc] set acceleration time
-		SDOTask::prepareUpload(0x203C, 0x2, uint16_t(atv320->accelerationRampTime->value * 100.0), "Acceleration ramp time [acc]"),
+		SDOTask::prepareUpload(0x203C, 0x2, uint16_t(atv320->accelerationRampTime->getValue() * 100.0), "Acceleration ramp time [acc]"),
 		//[dec] set deceleration time
-		SDOTask::prepareUpload(0x203C, 0x3, uint16_t(atv320->decelerationRampTime->value * 100.0), "Deceleration ramp time [dec]"),
+		SDOTask::prepareUpload(0x203C, 0x3, uint16_t(atv320->decelerationRampTime->getValue() * 100.0), "Deceleration ramp time [dec]"),
 		
 		//—————————————— Limit signal Configuration ———————————————
 		//[saf] forward limit stop
-		SDOTask::prepareUpload(0x205F, 0x2, uint16_t(atv320->forwardStopLimitAssignementParameter->value), "Forward stop limit assignement [saf]"),
+		SDOTask::prepareUpload(0x205F, 0x2, uint16_t(atv320->forwardStopLimitAssignementParameter->getValue()), "Forward stop limit assignement [saf]"),
 		//[sar] reverse limit stop
-		SDOTask::prepareUpload(0x205F, 0x3, uint16_t(atv320->reverseStopLimitAssignementParameter->value), "Reverse stop limit assignement [sar]"),
+		SDOTask::prepareUpload(0x205F, 0x3, uint16_t(atv320->reverseStopLimitAssignementParameter->getValue()), "Reverse stop limit assignement [sar]"),
 		//[sal] //stop signal active high or low
-		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->value), "Stop limit configuration [sal]"),
+		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->getValue()), "Stop limit configuration [sal]"),
 		
 		//—————————— Digital IO Configuration ———————————
 		//[l1d] -> [l6d] logic input on delay parameters
-		SDOTask::prepareUpload(0x200A, 0x2, uint16_t(atv320->logicInput1OnDelayParameter->value), "Logic input 1 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x3, uint16_t(atv320->logicInput2OnDelayParameter->value), "Logic input 2 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x4, uint16_t(atv320->logicInput3OnDelayParameter->value), "Logic input 3 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x5, uint16_t(atv320->logicInput4OnDelayParameter->value), "Logic input 4 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x6, uint16_t(atv320->logicInput5OnDelayParameter->value), "Logic input 5 on-time"),
-		SDOTask::prepareUpload(0x200A, 0x7, uint16_t(atv320->logicInput6OnDelayParameter->value), "Logic input 6 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x2, uint16_t(atv320->logicInput1OnDelayParameter->getValue()), "Logic input 1 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x3, uint16_t(atv320->logicInput2OnDelayParameter->getValue()), "Logic input 2 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x4, uint16_t(atv320->logicInput3OnDelayParameter->getValue()), "Logic input 3 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x5, uint16_t(atv320->logicInput4OnDelayParameter->getValue()), "Logic input 4 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x6, uint16_t(atv320->logicInput5OnDelayParameter->getValue()), "Logic input 5 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x7, uint16_t(atv320->logicInput6OnDelayParameter->getValue()), "Logic input 6 on-time"),
 		
 		//————————— Save Parameters —————————
 		//[scs] save parameters to congiration #0 (= 1)
