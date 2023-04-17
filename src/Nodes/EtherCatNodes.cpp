@@ -12,6 +12,7 @@
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 #include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
 #include "Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h"
+#include "Fieldbus/Devices/Kinco/KincoFD.h"
 
 namespace NodeFactory{
 	

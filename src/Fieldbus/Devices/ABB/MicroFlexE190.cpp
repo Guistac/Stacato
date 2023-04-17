@@ -221,9 +221,9 @@ void MicroFlex_e190::readInputs() {
 	//		cyclic modes 0 = target ignored
 	//b13 : homing mode 1 = homing error
 	//		cyclic position 1 = following error
-	bool b_targetReached = axis->getOperatingModeSpeciricStatusWordBit_10();
-	bool b_homingAttainedOrFollowingTarget = axis->getOperatingModeSpeciricStatusWordBit_12();
-	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpeciricStatusWordBit_13();
+	bool b_targetReached = axis->getOperatingModeSpecificStatusWordBit_10();
+	bool b_homingAttainedOrFollowingTarget = axis->getOperatingModeSpecificStatusWordBit_12();
+	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpecificStatusWordBit_13();
 	
 	//convert DS402 increments to our units
 	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;

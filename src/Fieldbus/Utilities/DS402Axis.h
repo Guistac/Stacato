@@ -331,6 +331,40 @@ public:
 	void setTargetPowerState(TargetPowerState target){ powerStateTarget = target; }
 	TargetPowerState getTargetPowerState(){ return powerStateTarget; }
 	PowerState getActualPowerState(){ return powerStateActual; }
+	static std::string getPowerStateString(PowerState state){
+		switch(state){
+			case PowerState::NOT_READY_TO_SWITCH_ON: return "Not ready to switch on";
+			case PowerState::SWITCH_ON_DISABLED: return "Switch on disabled";
+			case PowerState::READY_TO_SWITCH_ON: return "Ready to switch on";
+			case PowerState::SWITCHED_ON: return "Switched on";
+			case PowerState::OPERATION_ENABLED: return "Operation enabled";
+			case PowerState::QUICKSTOP_ACTIVE: return "Quickstop active";
+			case PowerState::FAULT_REACTION_ACTIVE: return "Fault reaction active";
+			case PowerState::FAULT: return "Fault";
+		}
+	}
+	static std::string getTargetPowerStateString(TargetPowerState state){
+		switch(state){
+			case TargetPowerState::DISABLED: return "Disabled";
+			case TargetPowerState::ENABLED: return "Enabled";
+			case TargetPowerState::QUICKSTOP_ACTIVE: return "Quickstop Active";
+		}
+	}
+	static std::string getOperatingModeString(OperatingMode mode){
+		switch(mode){
+			case OperatingMode::NONE: return "None";
+			case OperatingMode::PROFILE_POSITION: return "Profile position";
+			case OperatingMode::VELOCITY: return "Velocity";
+			case OperatingMode::PROFILE_VELOCITY: return "Profile Velocity";
+			case OperatingMode::PROFILE_TORQUE: return "Profile Torque";
+			case OperatingMode::HOMING: return "Homing";
+			case OperatingMode::INTERPOLATED_POSITION: return "Interpolated position";
+			case OperatingMode::CYCLIC_SYNCHRONOUS_POSITION: return "Cyclic Synchronous Position";
+			case OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY: return "Cyclic Synchronous Velocity";
+			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE: return "Cyclic Synchronous Torque";
+			case OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE: return "Cyclic Synchronous Torque With Communtation Angle";
+		}
+	}
 	
 	OperatingMode getOperatingModeActual(){ return operatingModeActual; }
 	OperatingMode getOperatingModeTarget(){ return operatingModeTarget; }
@@ -378,9 +412,9 @@ public:
 	void setManufacturerSpecificControlWordBit_14(bool bit){ controlWord_ManSpecBit_14 = bit; }
 	void setManufacturerSpecificControlWordBit_15(bool bit){ controlWord_ManSpecBit_15 = bit; }
 	
-	bool getOperatingModeSpeciricStatusWordBit_10(){ return statusWord_OpSpecBit_10; }
-	bool getOperatingModeSpeciricStatusWordBit_12(){ return statusWord_OpSpecBit_12; }
-	bool getOperatingModeSpeciricStatusWordBit_13(){ return statusWord_OpSpecBit_13; }
+	bool getOperatingModeSpecificStatusWordBit_10(){ return statusWord_OpSpecBit_10; }
+	bool getOperatingModeSpecificStatusWordBit_12(){ return statusWord_OpSpecBit_12; }
+	bool getOperatingModeSpecificStatusWordBit_13(){ return statusWord_OpSpecBit_13; }
 	
 	bool getManufacturerSpecificStatusWordBit_8(){ return statusWord_ManSpecBit_8; }
 	bool getManufacturerSpecificStatusWordBit_14(){ return statusWord_ManSpecBit_14; }

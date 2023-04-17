@@ -1,14 +1,23 @@
 #include "ATV320.h"
 
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "Fieldbus/Utilities/SDOTask.h"
 
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 
 void ATV320::onConnection() {
+	
 }
 
 void ATV320::onDisconnection() {
+	
+}
+
+void ATV320::updateActuatorInterface(){
+	actuator->actuatorConfig.velocityLimit = nominalMotorSpeedParameter->getValue() / 60.0;
+	actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
+	actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
 }
 
 void ATV320::onConstruction() {
@@ -17,9 +26,14 @@ void ATV320::onConstruction() {
 	
 	setName("ATV320");
 	
-	std::shared_ptr<ATV320> thisDrive = std::static_pointer_cast<ATV320>(shared_from_this());
-	actuator = std::make_shared<ATV_Motor>(thisDrive);
-	gpio = std::make_shared<ATV_GPIO>(thisDrive);
+	auto thisATV320 = std::static_pointer_cast<ATV320>(shared_from_this());
+	
+	axis = DS402Axis::make(thisATV320);
+	actuator = std::make_shared<ATV_Motor>(thisATV320);
+	gpio = std::make_shared<ATV_GPIO>(thisATV320);
+	
+	configurationUploadTask.setAtv320(thisATV320);
+	standstillTuningTask.setAtv320(thisATV320);
 	
 	digitalInput1Pin = NodePin::createInstance(digitalInput1Signal, NodePin::Direction::NODE_OUTPUT, "DI1", "DI1", NodePin::Flags::DisableDataField);
 	digitalInput2Pin = NodePin::createInstance(digitalInput2Signal, NodePin::Direction::NODE_OUTPUT, "DI2", "DI2", NodePin::Flags::DisableDataField);
@@ -49,28 +63,6 @@ void ATV320::onConstruction() {
 	addNodePin(digitalInput6Pin);
 	addNodePin(actualVelocityPin);
 	addNodePin(actualLoadPin);
-
-
-	accelerationRampTime = Legato::NumberParameter<double>::createInstance(3.0, "Acceleration Ramp", "AccelerationRamp");
-	accelerationRampTime->setUnit(Units::Time::Second);
-	accelerationRampTime->allowNegatives(false);
-	accelerationRampTime->addEditCallback([this](){
-		actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->getValue();
-	});
-	
-	decelerationRampTime = Legato::NumberParameter<double>::createInstance(1.0, "Deceleration Ramp", "DecelerationRamp");
-	decelerationRampTime->setUnit(Units::Time::Second);
-	decelerationRampTime->allowNegatives(false);
-	decelerationRampTime->addEditCallback([this](){
-		actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->getValue();
-	});
-	
-	maxVelocityRPM = Legato::NumberParameter<int>::createInstance(1400, "Max Velocity", "MaxVelocity");
-	maxVelocityRPM->setSuffix("rpm");
-	maxVelocityRPM->allowNegatives(false);
-	maxVelocityRPM->addEditCallback([this](){
-		actuator->actuatorConfig.velocityLimit = maxVelocityRPM->getValue() / 60.0;
-	});
 	
 	slowdownVelocityHertz = Legato::NumberParameter<double>::createInstance(5.0, "Slowdown Velocity", "SlowdownVelocity");
 	slowdownVelocityHertz->setUnit(Units::Frequency::Hertz);
@@ -87,17 +79,97 @@ void ATV320::onConstruction() {
 	
 	
 	
-	rxPdoAssignement.addNewModule(0x1600);
-	rxPdoAssignement.addEntry(0x6040, 0x0, 16, "ControlWorld", &ds402Control.controlWord);
-	rxPdoAssignement.addEntry(0x6042, 0x0, 16, "VelocityTarget", &velocityTarget_rpm);
+	//————— General Settings —————
 	
+	accelerationRampTime = NumberParameter<double>::make(3.0, "Acceleration Ramp", "AccelerationRamp");
+	accelerationRampTime->setUnit(Units::Time::Second);
+	accelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
+	
+	decelerationRampTime = NumberParameter<double>::make(1.0, "Deceleration Ramp", "DecelerationRamp");
+	decelerationRampTime->setUnit(Units::Time::Second);
+	decelerationRampTime->addEditCallback([this](){ updateActuatorInterface(); });
+	
+	invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
+	
+	lowControlFrequencyParameter = NumberParameter<double>::make(0.0, "Minimum Control Frequency", "MinControlFrequency");
+	lowControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
+	
+	highControlFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Control Frequency", "MaxControlFrequency");
+	highControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
+	
+	
+	//————— Motor Parameters —————
+	
+	standartMotorFrequencyParameter = OptionParameter::make2(option_frequency50Hz, options_standartMotorFrequency, "Standart Motor Frequency [bfr]", "StandartMotorFrequency");
+	
+	motorControlTypeParameter = OptionParameter::make2(option_motorControlType_standardMotorLaw, options_motorControlType, "Motor Control Type [ctt]", "MotorControlType");
+	
+	ratedMotorPowerParameter = NumberParameter<double>::make(0.0, "Rated Motor Power [npr]", "RatedMotorPower");
+	ratedMotorPowerParameter->setUnit(Units::Power::KiloWatt);
+	
+	nominalMotorVoltageParameter = NumberParameter<double>::make(0.0, "Rated Motor Voltage [uns]", "RatedMotorVoltage");
+	nominalMotorVoltageParameter->setUnit(Units::Voltage::Volt);
+	
+	nominalMotorCurrentParameter = NumberParameter<double>::make(0.0, "Rated Motor Current [ncr]", "RatedMotorCurrent");
+	nominalMotorCurrentParameter->setUnit(Units::Current::Ampere);
+	
+	nominalMotorSpeedParameter = NumberParameter<double>::make(1400.0, "Motor Rated Speed [nps]", "MotorRatedSpeed");
+	nominalMotorSpeedParameter->setUnit(Units::AngularDistance::Revolution);
+	nominalMotorSpeedParameter->setSuffix("/min");
+	nominalMotorSpeedParameter->addEditCallback([this](){ updateActuatorInterface(); });
+	
+	
+	//————— Limit signal configuration —————
+
+	forwardStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Forward limit input", "ForwardStopSignal");
+	
+	reverseStopLimitAssignementParameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Reverse limit input", "ReverseStopSignal");
+	
+	stopLimitConfigurationParameter = OptionParameter::make2(option_activeHigh, options_activeLowHigh, "Stop limit configuration", "StopLimitConfiguration");
+	
+	
+	//————— Logic input configuration —————
+	
+	auto clampInputOnDelay = [](NumberParam<int> onDelay){
+		if(onDelay->value < 0) onDelay->overwrite(0);
+		else if(onDelay->value > 200) onDelay->overwrite(200);
+	};
+	logicInput1OnDelayParameter = NumberParameter<int>::make(0, "LI1 On Delay", "LI1OnDelay");
+	logicInput1OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput1OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput1OnDelayParameter); });
+	logicInput2OnDelayParameter = NumberParameter<int>::make(0, "LI2 On Delay", "LI2OnDelay");
+	logicInput2OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput2OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput2OnDelayParameter); });
+	logicInput3OnDelayParameter = NumberParameter<int>::make(0, "LI3 On Delay", "LI3OnDelay");
+	logicInput3OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput3OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput3OnDelayParameter); });
+	logicInput4OnDelayParameter = NumberParameter<int>::make(0, "LI4 On Delay", "LI4OnDelay");
+	logicInput4OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput4OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput4OnDelayParameter); });
+	logicInput5OnDelayParameter = NumberParameter<int>::make(0, "LI5 On Delay", "LI5OnDelay");
+	logicInput5OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput5OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput5OnDelayParameter); });
+	logicInput6OnDelayParameter = NumberParameter<int>::make(0, "LI6 On Delay", "LI6OnDelay");
+	logicInput6OnDelayParameter->setUnit(Units::Time::Millisecond);
+	logicInput6OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput6OnDelayParameter); });
+	
+	updateActuatorInterface();
+	
+	//———— configure pdo data ———
+	
+	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
-	txPdoAssignement.addEntry(0x6041, 0x0, 16, "StatusWord", &ds402Status.statusWord);
+	
+	axis->processDataConfiguration.enableFrequencyMode();
+	axis->processDataConfiguration.frequencyActualValue = false;
+	axis->configureProcessData();
+	
 	txPdoAssignement.addEntry(0x6044, 0x0, 16, "VelocityActual", &velocityActual_rpm);
 	txPdoAssignement.addEntry(0x2002, 0xC, 16, "MotorPower", &motorPower);
 	txPdoAssignement.addEntry(0x2016, 0x3, 16, "LogicInputs", &logicInputs);
 	txPdoAssignement.addEntry(0x207B, 0x17, 16, "STOstate", &stoState);
 	txPdoAssignement.addEntry(0x2029, 0x16, 16, "LastFaultCode", &lastFaultCode);
+
 }
 
 //==============================================================
@@ -106,127 +178,31 @@ void ATV320::onConstruction() {
 
 bool ATV320::startupConfiguration() {
 	
-	//———————————— MOTOR SETTINGS ———————————
+	if(!axis->setOperatingMode(DS402Axis::OperatingMode::VELOCITY)) {
+		return Logger::error("failed to set operating mode");
+	}
 	
-	//set motor frequency to 50Hz (0 = 50Hz / 1 = 60Hz)
-	uint16_t standartMotorFrequency = 0;
-	if(!writeSDO_U16(0x2000, 0x10, standartMotorFrequency)) return false;
+	//[fr1] set frequency reference 1 to Communication card = 169
+	if(!writeSDO_U16(0x2036, 0xE, 169)) return false;
 	
-	//rated motor voltage in 1V increments
-	uint16_t ratedMotorVoltage = 400;
-	if(!writeSDO_U16(0x2042, 0x2, ratedMotorVoltage)) return false;
+	//[rfc] set reference switching to reference 1 fixed = 96
+	if(!writeSDO_U16(0x2036, 0xC, 96)) return false;
 	
-	//rated motor power in 0.1Kw increments
-	uint16_t ratedMotorPower = 75;
-	if(!writeSDO_U16(0x2042, 0xE, ratedMotorPower)) return false;
+	//[chcf] set control profile to "Not separate" (= 1) for pure CiA.402 Velocity Mode
+	if(!writeSDO_U16(0x2036, 0x2, 1)) return false;
 	
-	//rate motor current in 0.1A increments
-	uint16_t ratedMotorCurrent = 35;
-	if(!writeSDO_U16(0x2042, 0x4, ratedMotorCurrent)) return false;
-	
-	//nominal rate motor speed in rpm
-	uint16_t nominalMotorSpeed = 1400;
-	if(!writeSDO_U16(0x2042, 0x5, nominalMotorSpeed)) return false;
-
-	//TODO: this must be configured when the fieldbus is not active
-	//set motor control type to standart (Standart aynchronous motor control = 3)
-	//uint16_t motorControlType = 3;
-	//if(!writeSDO_U16(0x2042, 0x8, motorControlType)) return false;
-	
-	//————————— CONTROL SETTINGS —————————————
-	
-	//set max output frequency to 50Hz (in 0.1Hz increments)
-	uint16_t maxOutputFrequency = 500;
-	if(!writeSDO_U16(0x2001, 0x4, maxOutputFrequency)) return false;
-	
-	//set minimum control speed in hertz to 0Hz (in .1Hz increments)
-    uint16_t lowSpeed = lowSpeedHertz->getValue() * 10.0;
-	if(!writeSDO_U16(0x2001, 0x6, lowSpeed)) return false;
-	
-	//set maximum control speed to in 0.1Hz increments
-	uint16_t highSpeed = 500;
-	if(!writeSDO_U16(0x2001, 0x5, highSpeed)) return false;
-	
-	//set drive switching frequency to 16 Khz (max)
-	uint16_t switchingFrequency = 160;
-	if(!writeSDO_U16(0x2001, 0x3, switchingFrequency)) return false;
-	
-	
-	//—————————————— IO SETTINGS ———————————————
-	
-	//set terminal block control to Two Wire (0 = 2-Wire / 1 = 3-Wire)
-	uint16_t twoOrThreeWireControl = 0;
-	if(!writeSDO_U16(0x2051, 0x2, twoOrThreeWireControl)) return false;
-	
-	//2-Wire Control level detection is -Signal Transition-
-	uint16_t twoWireControlType = 1;
-	if(!writeSDO_U16(0x2051, 0x3, twoWireControlType)) return false;
-	
-	//set Forward input to Logic Input 1 (LI1)
-	uint16_t forwardInputAssignement = 129;
-	if(!writeSDO_U16(0x2051, 0x5, forwardInputAssignement)) return false;
-	
-	//set reverse input to Logic Input 2 (LI2)
-	uint16_t reverseInputAssignement = 130;
-	if(!writeSDO_U16(0x2051, 0x6, reverseInputAssignement)) return false;
-	
-	//set fault reset input assignement to pin LI5
-	uint16_t faultResetInputAssignement = 133;
-	if(!writeSDO_U16(0x2029, 0x19, faultResetInputAssignement)) return false;
-	
-	//set method of switching between frequency references (LI3 = 131)
-	uint16_t referenceSwitchingInputAssignement = 131;
-	if(!writeSDO_U16(0x2036, 0xC, referenceSwitchingInputAssignement)) return false;
-	
-	//set external fault pin to Logic Input 6 (LI6 = 134)
-	uint16_t externalFaultInputAssignement = 134;
-	if(!writeSDO_U16(0x2029, 0x20, externalFaultInputAssignement)) return false;
-	
-	//set preset slowdown speed input assignement to pin LI4 = 132
-	uint16_t presetSpeed2InputAssignement = 132;
-	if(!writeSDO_U16(0x2054, 0x2, presetSpeed2InputAssignement)) return false;
-	   
-	//set preset slowdown speed to 5Hz (in .1Hz Increments)
-	uint16_t presetSpeed2Frequency = slowdownVelocityHertz->getValue() * 10.0;
-	if(!writeSDO_U16(0x2054, 0xB, presetSpeed2Frequency)) return false;
-	
-	
-	//—————————————— RAMP SETTINGS ——————————————
-	
-	//set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)
-	uint16_t rampIncrement = 0;
-	if(!writeSDO_U16(0x203C, 0x15, rampIncrement)) return false;
-	
-	//set acceleration time
-	uint16_t accelerationTime = accelerationRampTime->getValue() * 100.0;
-	if(!writeSDO_U16(0x203C, 0x2, accelerationTime)) return false;
-	
-	//set deceleration time
-	uint16_t decelerationTime = decelerationRampTime->getValue() * 100.0;
-	if(!writeSDO_U16(0x203C, 0x3, decelerationTime)) return false;
-	
-	
-	//——————————————— Network Control Settings ——————————
-	
-	//set frequency reference 1 to Analog Input 1 (AI1)
-	uint16_t reference1 = 1;
-	if(!writeSDO_U16(0x2036, 0xE, reference1)) return false;
-	
-	//set frequency reference 2 to communication card (EtherCAT Card)
-	uint16_t reference2 = 169;
-	if(!writeSDO_U16(0x2036, 0xF, reference2)) return false;
-	
-	//set control profile to "Not separate" for pure CiA.402 Velocity Mode
-	uint16_t controlProfile = 1;
-	if(!writeSDO_U16(0x2036, 0x2, controlProfile)) return false;
-	
+	//[cls] set disable limit switch input to bit 11 of control word
+	b_canDisableLimitSwitches = writeSDO_U16(0x205F, 0x8, 219);
+	b_disableLimitSwitches = false;
 	
 	//—————————————— ASSIGN PDOS —————————————————
 	
 	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12)) return false;
 	if(!txPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C13)) return false;
 	
-	b_reverseDirection = invertDirection->getValue();
+	//——— cache parameter values
+	
+	b_reverseDirection = invertDirection->value;
 	
 	return true;
 }
@@ -237,59 +213,82 @@ bool ATV320::startupConfiguration() {
 
 void ATV320::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
+	axis->updateInputs();
 	
+/*
 	//read power state and react to change
 	auto newPowerState = ds402Status.getPowerState();
 	if(newPowerState != actualPowerState){
 		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
-		pushEvent(message.c_str(), false /*!DS402::isNominal(newPowerState)*/);
+		pushEvent(message.c_str(), false);
 	}
 	actualPowerState = newPowerState;
 	
 	//enable request timeout
-	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && actualPowerState != DS402::PowerState::OPERATION_ENABLED){
+	//ATV320 seems to consider 'Switched On' as a valid 'Enabled' power state
+	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && !(actualPowerState == DS402::PowerState::OPERATION_ENABLED
+																		|| actualPowerState == DS402::PowerState::SWITCHED_ON)){
 		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
 			Logger::warn("{} : Enable Request Timeout", getName());
 			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 		}
 	}
+*/
+	
+	if(b_waitingForEnable){
+		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
+		//for some reason switched on is sometimes a valid 'enabled' power state with ATV320
+		if(axis->getActualPowerState() == DS402Axis::PowerState::OPERATION_ENABLED || axis->getActualPowerState() == DS402Axis::PowerState::SWITCHED_ON) {
+			Logger::info("Drive Enabled");
+			b_waitingForEnable = false;
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
+			Logger::warn("Enable request timed out");
+			b_waitingForEnable = false;
+			axis->disable();
+		}
+	}
 	
 	//update general state
-	b_remoteControlEnabled = ds402Status.isRemoteControlled();
+	b_motorVoltagePresent = axis->hasVoltage();								//b4
+	b_remoteControlEnabled = axis->isRemoteControlActive();					//b9
+	b_referenceReached = axis->getOperatingModeSpecificStatusWordBit_10();	//b10
+	b_referenceOutsideLimits = axis->isInternalLimitReached();				//b11
+	b_stopKeyPressed = axis->getOperatingModeSpecificStatusWordBit_12();	//b12
 	b_stoActive = stoState != 0;
-	b_hasFault = ds402Status.hasFault();
-	b_motorVoltagePresent = ds402Status.statusWord & 0x10;
+	b_hasFault = axis->hasFault();
+	
+	auto actualPowerState = axis->getActualPowerState();
+	if(isOffline())																actuator->state = DeviceState::OFFLINE;
+	else if(!axis->isRemoteControlActive()) 									actuator->state = DeviceState::NOT_READY;
+	else if(b_stoActive)														actuator->state = DeviceState::NOT_READY;
+	else if(!axis->hasVoltage())												actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON)	actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402Axis::PowerState::SWITCH_ON_DISABLED)		actuator->state = DeviceState::NOT_READY;
+	else if(actualPowerState == DS402Axis::PowerState::SWITCHED_ON)				actuator->state = DeviceState::ENABLED;
+	else if(actualPowerState == DS402Axis::PowerState::OPERATION_ENABLED)		actuator->state = DeviceState::ENABLED;
+	else 																		actuator->state = DeviceState::READY;
+	
+	if(isOffline())						gpio->state = DeviceState::OFFLINE;
+	else if(b_stoActive)				gpio->state = DeviceState::NOT_READY;
+	else if(isStateSafeOperational()) 	gpio->state = DeviceState::READY;
+	else if(isStateOperational())		gpio->state = DeviceState::ENABLED;
+	else 								gpio->state = DeviceState::NOT_READY;
+	
+	actuator->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
+	actuator->actuatorProcessData.effortActual = (double)motorPower / 100.0;
+	actuator->feedbackProcessData.velocityActual = axis->getActualVelocity() / 60.0;
+	actuator->actuatorConfig.b_supportsHoldingBrakeControl = false;
 	
 	//update output pin data
-	*actualVelocity = velocityActual_rpm / 60;
-	*actualLoad = motorPower / 100.0;
+	*actualVelocity = actuator->getVelocity();
+	*actualLoad = actuator->getEffort();
 	*digitalInput1Signal = logicInputs & 0x1;
 	*digitalInput2Signal = logicInputs & 0x2;
 	*digitalInput3Signal = logicInputs & 0x4;
 	*digitalInput4Signal = logicInputs & 0x8;
 	*digitalInput5Signal = logicInputs & 0x10;
 	*digitalInput6Signal = logicInputs & 0x20;
-	
-	//update subdevices
-	if(!isConnected()) 														actuator->state = DeviceState::OFFLINE;
-	if(!b_remoteControlEnabled)												actuator->state = DeviceState::NOT_READY;
-	else if(b_stoActive) 													actuator->state = DeviceState::NOT_READY;
-	else if(!b_motorVoltagePresent) 										actuator->state = DeviceState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) 	actuator->state = DeviceState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::SWITCH_ON_DISABLED)		actuator->state = DeviceState::NOT_READY;
-	else if(actualPowerState == DS402::PowerState::OPERATION_ENABLED) 		actuator->state = DeviceState::ENABLED;
-	else 																	actuator->state = DeviceState::READY;
-
-	if(!isConnected()) 					gpio->state = DeviceState::OFFLINE;
-	else if(b_stoActive)				gpio->state = DeviceState::NOT_READY;
-	else if(isStateSafeOperational()) 	gpio->state = DeviceState::READY;
-	else if(isStateOperational()) 		gpio->state = DeviceState::ENABLED;
-	else 								gpio->state = DeviceState::NOT_READY;
-	
-	actuator->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
-	actuator->actuatorProcessData.effortActual = (double)motorPower / 100.0;
-	//actuator->actualVelocity = velocityActual_rpm;
-	actuator->actuatorConfig.b_supportsHoldingBrakeControl = false;
 }
 
 //==============================================================
@@ -298,63 +297,119 @@ void ATV320::readInputs() {
 
 void ATV320::writeOutputs() {
 	
-	//state change commands
-	if(actuator->actuatorProcessData.b_enable){
-		actuator->actuatorProcessData.b_enable = false;
-		requestedPowerState = DS402::PowerState::OPERATION_ENABLED;
-		enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-	}
+	//handle enabling & disabling
 	if(actuator->actuatorProcessData.b_disable){
 		actuator->actuatorProcessData.b_disable = false;
-		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+		b_waitingForEnable = false;
+		axis->disable();
 	}
-	if(actuator->actuatorProcessData.b_quickstop){
-		actuator->actuatorProcessData.b_quickstop = false;
-		requestedPowerState = DS402::PowerState::QUICKSTOP_ACTIVE;
+	else if(actuator->actuatorProcessData.b_enable){
+		if(axis->hasFault()) axis->doFaultReset();
+		else {
+			actuator->actuatorProcessData.b_enable = false;
+			b_waitingForEnable = true;
+			enableRequestTime_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			axis->enable();
+		}
 	}
-	ds402Control.setPowerState(requestedPowerState, actualPowerState);
 	
-	//clear errors when we enable the power stage
-	if(b_hasFault && !b_isResettingFault && requestedPowerState == DS402::PowerState::OPERATION_ENABLED){
-		b_isResettingFault = true;
-		ds402Control.performFaultReset();
-	}else b_isResettingFault = false;
-	ds402Control.updateControlWord();
+	//fault handling
+	if(axis->hasFault()){
+		//auto clear fault during enable
+		if(b_waitingForEnable) axis->doFaultReset();
+		else axis->disable();
+	}
 	
-	//set target velocity
-	if(b_reverseDirection) velocityTarget_rpm = -actuator->actuatorProcessData.velocityTarget * 60.0;
-	else velocityTarget_rpm = actuator->actuatorProcessData.velocityTarget * 60.0;
+	if(b_reverseDirection) axis->setFrequency(-actuator->actuatorProcessData.velocityTarget * 60.0);
+	else axis->setFrequency(actuator->actuatorProcessData.velocityTarget * 60.0);
 	
+	axis->setManufacturerSpecificControlWordBit_11(b_disableLimitSwitches);
 	
-	//Logger::warn("{}", velocityTarget_rpm);
-	
+	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
 
 //============================= SAVING AND LOADING DEVICE DATA ============================
 
-bool ATV320::onSerialization(){
-	bool success = true;
-	success &= EtherCatDevice::onSerialization();
-	success &= accelerationRampTime->serializeIntoParent(this);
-	success &= decelerationRampTime->serializeIntoParent(this);
-	success &= maxVelocityRPM->serializeIntoParent(this);
-	success &= invertDirection->serializeIntoParent(this);
-	success &= slowdownVelocityHertz->serializeIntoParent(this);
-	success &= lowSpeedHertz->serializeIntoParent(this);
-	return success;
+bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	//————— General Settings —————
+	XMLElement* generalSettingsXML = xml->InsertNewChildElement("GeneralSettings");
+	accelerationRampTime->save(generalSettingsXML);
+	decelerationRampTime->save(generalSettingsXML);
+	invertDirection->save(generalSettingsXML);
+	lowControlFrequencyParameter->save(generalSettingsXML);
+	highControlFrequencyParameter->save(generalSettingsXML);
+	
+	//————— Motor Parameters —————
+	XMLElement* motorParametersXML = xml->InsertNewChildElement("MotorParameters");
+	standartMotorFrequencyParameter->save(motorParametersXML);
+	motorControlTypeParameter->save(motorParametersXML);
+	ratedMotorPowerParameter->save(motorParametersXML);
+	nominalMotorVoltageParameter->save(motorParametersXML);
+	nominalMotorCurrentParameter->save(motorParametersXML);
+	nominalMotorSpeedParameter->save(motorParametersXML);
+	
+	//————— Limit signal configuration —————
+	XMLElement* limitSignalsXML = xml->InsertNewChildElement("LimitSignals");
+	forwardStopLimitAssignementParameter->save(limitSignalsXML);
+	reverseStopLimitAssignementParameter->save(limitSignalsXML);
+	stopLimitConfigurationParameter->save(limitSignalsXML);
+	
+	//————— Logic input configuration —————
+	XMLElement* logicInputXML = xml->InsertNewChildElement("LogicInputSettings");
+	logicInput1OnDelayParameter->save(logicInputXML);
+	logicInput2OnDelayParameter->save(logicInputXML);
+	logicInput3OnDelayParameter->save(logicInputXML);
+	logicInput4OnDelayParameter->save(logicInputXML);
+	logicInput5OnDelayParameter->save(logicInputXML);
+	logicInput6OnDelayParameter->save(logicInputXML);
+	
+	return true;
 }
 
-bool ATV320::onDeserialization(){
-	bool success = true;
-	success &= EtherCatDevice::onDeserialization();
-	success &= accelerationRampTime->deserializeFromParent(this);
-	success &= decelerationRampTime->deserializeFromParent(this);
-	success &= maxVelocityRPM->deserializeFromParent(this);
-	success &= invertDirection->deserializeFromParent(this);
-	success &= slowdownVelocityHertz->deserializeFromParent(this);
-	success &= lowSpeedHertz->deserializeFromParent(this);
-	return success;
+bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	//————— General Settings —————
+	if(XMLElement* generalSettingsXML = xml->FirstChildElement("GeneralSettings")){
+		accelerationRampTime->load(generalSettingsXML);
+		decelerationRampTime->load(generalSettingsXML);
+		invertDirection->load(generalSettingsXML);
+		lowControlFrequencyParameter->load(generalSettingsXML);
+		highControlFrequencyParameter->load(generalSettingsXML);
+	}
+	
+	//————— Motor Parameters —————
+	if(XMLElement* motorParametersXML = xml->FirstChildElement("MotorParameters")){
+		standartMotorFrequencyParameter->load(motorParametersXML);
+		motorControlTypeParameter->load(motorParametersXML);
+		ratedMotorPowerParameter->load(motorParametersXML);
+		nominalMotorVoltageParameter->load(motorParametersXML);
+		nominalMotorCurrentParameter->load(motorParametersXML);
+		nominalMotorSpeedParameter->load(motorParametersXML);
+	}
+	
+	//————— Limit signal configuration —————
+	if(XMLElement* limitSignalsXML = xml->FirstChildElement("LimitSignals")){
+		forwardStopLimitAssignementParameter->load(limitSignalsXML);
+		reverseStopLimitAssignementParameter->load(limitSignalsXML);
+		stopLimitConfigurationParameter->load(limitSignalsXML);
+	}
+	
+	//————— Logic input configuration —————
+	if(XMLElement* logicInputXML = xml->FirstChildElement("LogicInputSettings")){
+		logicInput1OnDelayParameter->load(logicInputXML);
+		logicInput2OnDelayParameter->load(logicInputXML);
+		logicInput3OnDelayParameter->load(logicInputXML);
+		logicInput4OnDelayParameter->load(logicInputXML);
+		logicInput5OnDelayParameter->load(logicInputXML);
+		logicInput6OnDelayParameter->load(logicInputXML);
+	}
+	
+	updateActuatorInterface();
+	return true;
 }
 
 
@@ -370,8 +425,8 @@ std::string ATV320::getShortStatusString(){
 	else if(!b_remoteControlEnabled) return "Remote Disabled";
 	else if(b_stoActive) return "STO Active";
 	else if(b_hasFault) return "Fault Code " + std::to_string(lastFaultCode);
-	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Restart Needed";
-	else return Enumerator::getDisplayString(actualPowerState);
+	else if(axis->getActualPowerState() == DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON) return "Restart Needed";
+	else return axis->getPowerStateString(axis->getActualPowerState());
 }
 
 
@@ -381,8 +436,8 @@ std::string ATV320::getStatusString(){
 	else if(!b_remoteControlEnabled) return "Network Control Disabled : Disable Local Controls";
 	else if(b_stoActive) return "STO Active : Release Emergency Stop";
 	else if(b_hasFault) return getFaultString();
-	else if(actualPowerState == DS402::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive needs a restart...";
-	else return Enumerator::getDisplayString(actualPowerState);
+	else if(axis->getActualPowerState() == DS402Axis::PowerState::NOT_READY_TO_SWITCH_ON) return "Drive needs a restart...";
+	else return axis->getPowerStateString(axis->getActualPowerState());
 }
 
 glm::vec4 ATV320::getStatusColor(){
@@ -461,4 +516,204 @@ std::string ATV320::getFaultString(){
 		case 109: return 	"109 : FB stop fault";
 		default: return 	std::to_string(lastFaultCode) + "Unknown Fault";
 	}
+}
+
+
+
+
+bool ATV320::ConfigurationUploadTask::canStart(){
+	if(atv320->isOffline()) return false;
+	else if(atv320->isStateOperational()) return false;
+	return true;
+}
+
+void ATV320::ConfigurationUploadTask::onExecution(){
+	
+	//[nsp] nominal motor speed (in rpm)
+	//[bfr] standart motor frequency, 50Hz or 60Hz, setting this modifies [hsp] [frs] [tfr] and should be set first
+	//[frs] rated motor frequency, identical to [bfr] but can go from 10 to 800Hz
+	//[tfr] max frequency overspeed error threshold (should be 110% of [hsp]) 60Hz if [bfr] is 50Hz and 72Hz if [bfr] is 60Hz, 10 to 599Hz, should not exceed 10x [frs]
+	//[hsp] max control frequency in Hz
+	//[lsp] min control frequency in Hz
+	uint16_t nominalMotorFrequency;
+	uint16_t maxMotorFrequency;
+	switch(atv320->standartMotorFrequencyParameter->value){
+		case StandartMotorFrequency::HZ_50:
+			nominalMotorFrequency = 50;
+			maxMotorFrequency = 60;
+			break;
+		case StandartMotorFrequency::HZ_60:
+			nominalMotorFrequency = 60;
+			maxMotorFrequency = 72;
+			break;
+		default:
+			nominalMotorFrequency = 0;
+			maxMotorFrequency = 0;
+			break;
+	}
+	
+	std::vector<std::shared_ptr<SDOTask>> configUploadList = {
+		
+		//—————— Motor Configuration ———————
+		//[bfr] Standart Motor Frequency (0 = 50Hz / 1 = 60Hz)
+		SDOTask::prepareUpload(0x2000, 0x10, uint16_t(atv320->standartMotorFrequencyParameter->value), "Standart motor frequency [bfr]"),
+		//[ctt] Motor Control Type
+		SDOTask::prepareUpload(0x2042, 0x8, uint16_t(atv320->motorControlTypeParameter->value), "Motor control type [ctt]"),
+		//[mpc] set motor parameter choice to motor power (= 0)
+		SDOTask::prepareUpload(0x2042, 0xF, uint16_t(0), "Motor parameter choice [mpc]"),
+		//[uns] rated motor voltage in 1V increments
+		SDOTask::prepareUpload(0x2042, 0x2, uint16_t(atv320->nominalMotorVoltageParameter->value), "Nominal motor voltage [uns]"),
+		//[npr] rated motor power in 0.1Kw increments
+		SDOTask::prepareUpload(0x2042, 0xE, uint16_t(atv320->ratedMotorPowerParameter->value * 100), "Rated motor power [uns]"),
+		//[ncr] nominal motor current in 0.1A increments
+		SDOTask::prepareUpload(0x2042, 0x4, uint16_t(atv320->nominalMotorCurrentParameter->value * 10), "Nominal Motor current [ncr]"),
+		//[nsp] nominal motor speed (in rpm)
+		SDOTask::prepareUpload(0x2042, 0x5, uint16_t(atv320->nominalMotorSpeedParameter->value), "Nominal motor speed [nsp]"),
+		//[frs] nominal motor frequency (in .1Hz increments) (should be identical to [bfr])
+		SDOTask::prepareUpload(0x2042, 0x3, uint16_t(nominalMotorFrequency * 10), "Nominal motor frequency [frs]"),
+		
+		//————————— Control Settings —————————————
+		//[lsp] set minimum control speed in hertz to 0Hz (in .1Hz increments)
+		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
+		//[hsp] set maximum control speed to in 0.1Hz increments
+		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
+		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments)
+		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(maxMotorFrequency * 10), "Max output frequency"),
+		//set drive switching frequency to 16 Khz (max)
+		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(160), "Drive switching frequency"),
+		
+		//———————— Ramp Settings ———————————
+		//[inr] set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)
+		SDOTask::prepareUpload(0x203C, 0x15, uint16_t(0), "Ramp unit increment"),
+		//[acc] set acceleration time
+		SDOTask::prepareUpload(0x203C, 0x2, uint16_t(atv320->accelerationRampTime->value * 100.0), "Acceleration ramp time [acc]"),
+		//[dec] set deceleration time
+		SDOTask::prepareUpload(0x203C, 0x3, uint16_t(atv320->decelerationRampTime->value * 100.0), "Deceleration ramp time [dec]"),
+		
+		//—————————————— Limit signal Configuration ———————————————
+		//[saf] forward limit stop
+		SDOTask::prepareUpload(0x205F, 0x2, uint16_t(atv320->forwardStopLimitAssignementParameter->value), "Forward stop limit assignement [saf]"),
+		//[sar] reverse limit stop
+		SDOTask::prepareUpload(0x205F, 0x3, uint16_t(atv320->reverseStopLimitAssignementParameter->value), "Reverse stop limit assignement [sar]"),
+		//[sal] //stop signal active high or low
+		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->value), "Stop limit configuration [sal]"),
+		
+		//—————————— Digital IO Configuration ———————————
+		//[l1d] -> [l6d] logic input on delay parameters
+		SDOTask::prepareUpload(0x200A, 0x2, uint16_t(atv320->logicInput1OnDelayParameter->value), "Logic input 1 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x3, uint16_t(atv320->logicInput2OnDelayParameter->value), "Logic input 2 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x4, uint16_t(atv320->logicInput3OnDelayParameter->value), "Logic input 3 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x5, uint16_t(atv320->logicInput4OnDelayParameter->value), "Logic input 4 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x6, uint16_t(atv320->logicInput5OnDelayParameter->value), "Logic input 5 on-time"),
+		SDOTask::prepareUpload(0x200A, 0x7, uint16_t(atv320->logicInput6OnDelayParameter->value), "Logic input 6 on-time"),
+		
+		//————————— Save Parameters —————————
+		//[scs] save parameters to congiration #0 (= 1)
+		SDOTask::prepareUpload(0x2032, 0x2, uint16_t(1), "Save Parameters to Configuration 1")
+		
+	};
+	
+
+	setStatusString("Uploading configuration");
+	
+	if(!atv320->executeSDOTasks(configUploadList)){
+		setStatusString("Configuration upload failed");
+		Logger::warn("[{}] Failed to upload configuration", atv320->getName());
+		return;
+	}
+	
+	setStatusString("Saving to EEPROM");
+			
+	Timing::Timer saveTimer;
+	saveTimer.setExpirationSeconds(1.0);
+	
+	while(true){
+		uint16_t savestate;
+		if(atv320->readSDO_U16(0x2032, 0x2, savestate)) {
+			if(savestate == 0x0){
+				setStatusString("Upload Suceeded");
+				Logger::info("[{}] Configuration saved on device", atv320->getName());
+				return;
+			}
+		}
+		if(saveTimer.isExpired()) {
+			setStatusString("Configuration Upload Failed, could not save to EEPROM");
+			Logger::warn("[{}] Configuration save timed out (took more than 5 seconds)", atv320->getName());
+			return;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
+
+bool ATV320::StandstillTuningTask::canStart(){
+	if(atv320->isOffline()) return false;
+	else if(atv320->actuator->isEnabled()) return false;
+	return true;
+}
+
+void ATV320::StandstillTuningTask::onExecution(){
+
+	//———— Standstill motor tune after motor parameter assignement
+	
+	setStatusString("Autotuning started");
+	
+	std::vector<std::shared_ptr<SDOTask>> autotuningCommands = {
+		SDOTask::prepareUpload(0x2042, 0x9, 2, "Tuning: Erase Tune [tun]"),
+		SDOTask::prepareUpload(0x2042, 0x9, 0, "Tuning: No Action [tun]"),
+		SDOTask::prepareUpload(0x2042, 0x9, 1, "Tuning: Do tune [tun]")
+	};
+	
+	if(!atv320->executeSDOTasks(autotuningCommands)){
+		setStatusString("Autotuning request failed");
+		return;
+	}
+	
+	Timing::Timer autotuningTimer;
+	autotuningTimer.setExpirationSeconds(5.0);
+	while(true){
+		//[tus] auto tuning status (0 = not done, 1 = pending, 2 = in progress, 3 = failed, 4 = done)
+		uint16_t autotuningStatus;
+		if(atv320->readSDO_U16(0x2042, 0xA, autotuningStatus)){
+			if(autotuningStatus == 3){
+				setStatusString("Autotuning Started but Failed");
+				return;
+			}
+			else if(autotuningStatus == 4) break;
+		}
+		
+		if(autotuningTimer.isExpired()) {
+			setStatusString("Autotuning timed out");
+			return;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	
+	setStatusString("Saving to EEPROM");
+			
+	if(!atv320->writeSDO_U16(0x2032, 0x2, 1)){
+		setStatusString("Could not save to EEPROM");
+		return;
+	}
+	
+	Timing::Timer saveTimer;
+	saveTimer.setExpirationSeconds(1.0);
+	
+	while(true){
+		uint16_t savestate;
+		if(atv320->readSDO_U16(0x2032, 0x2, savestate)) {
+			if(savestate == 0x0){
+				setStatusString("Tuning Suceeded");
+				Logger::info("[{}] Configuration saved on device", atv320->getName());
+				return;
+			}
+		}
+		if(saveTimer.isExpired()) {
+			setStatusString("Tuning succeeded but could not to save to EEPROM");
+			Logger::warn("[{}] Configuration save timed out (took more than 5 seconds)", atv320->getName());
+			return;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	
 }

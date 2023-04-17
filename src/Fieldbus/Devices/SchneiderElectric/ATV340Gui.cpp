@@ -72,7 +72,7 @@ void ATV340::controlTab(){
 	ImGui::Text("Warning: %i", axis->hasWarning());
 	ImGui::Text("Remote Control: %i", axis->isRemoteControlActive());
 	ImGui::Text("Internal Limit Reached: %i", axis->isInternalLimitReached());
-	ImGui::Text("Target Reached: %i", axis->getOperatingModeSpeciricStatusWordBit_10());
+	ImGui::Text("Target Reached: %i", axis->getOperatingModeSpecificStatusWordBit_10());
 	ImGui::Text("Power State Target: %s", Enumerator::getDisplayString(axis->getTargetPowerState()));
 	ImGui::Text("Power State Actual: %s", Enumerator::getDisplayString(axis->getActualPowerState()));
 }

@@ -253,6 +253,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Timing.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.h
     ${STACATO_SOURCE_DIRECTORY}/Utilities/Units.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Utilities/AsynchronousTask.h
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp
@@ -299,6 +300,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfile.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/ModularDeviceProfileGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Utilities/SDOTask.h
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/Lexium32.cpp
@@ -312,6 +314,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV340.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV340.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/SchneiderElectric/ATV340Gui.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Kinco/KincoFD.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Kinco/KincoFD.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Kinco/KincoFDGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Yaskawa/VIPA-053-1EC01.cpp

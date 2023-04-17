@@ -337,14 +337,17 @@ void Lexium32i::writeOutputs() {
 		b_isHoming = true;
 	}
 	
-	if(b_isHoming){
-		servoMotor->setPositionTarget(servoMotor->getPosition());
+
+	
+	
+	if(!servoMotor->isEnabled() || b_isHoming){
+		servoMotor->actuatorProcessData.positionTarget = servoMotor->getPosition();
+		servoMotor->actuatorProcessData.velocityTarget = servoMotor->getVelocity();
+		servoMotor->actuatorProcessData.forceTarget = servoMotor->getForce();
 	}
-	else if(!servoMotorPin->isConnected()){
-		if(!servoMotor->isEnabled()){
-			//------ motor profile follows actual data ------
-			servoMotor->setPositionTarget(servoMotor->getPosition());
-		}else{
+	else{
+		
+		if(!servoMotorPin->isConnected()){
 			//------ internal profile generator ------
 			double deltaT_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 			double deltaV_rps = manualAcceleration_rpsps * deltaT_seconds;
@@ -359,20 +362,25 @@ void Lexium32i::writeOutputs() {
 			}else newVelocityCommand = previousVelocityCommand;
 			servoMotor->setVelocityTarget(newVelocityCommand);
 		}
+		
+		//update the target fields of inactive control modes, this allows us to switch between modes seamlessly
+		if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::POSITION)
+			servoMotor->actuatorProcessData.positionTarget = servoMotor->getPosition();
+		if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::VELOCITY)
+			servoMotor->actuatorProcessData.velocityTarget = servoMotor->getVelocity();
+		//if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::FORCE)
+		//	servoMotor->actuatorProcessData.forceTarget = servoMotor->getForce();
+		
 	}
 	
 	
-	//update the target fields of inactive control modes
-	//this allows us to switch between modes seamlessly
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::POSITION){
-		servoMotor->actuatorProcessData.positionTarget = servoMotor->getPosition();
-	}
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::VELOCITY){
-		servoMotor->actuatorProcessData.velocityTarget = servoMotor->getVelocity();
-	}
-	if(servoMotor->actuatorProcessData.controlMode != ActuatorInterface::ControlMode::FORCE){
-		servoMotor->actuatorProcessData.forceTarget = servoMotor->getForce();
-	}
+	
+	
+	
+	
+	
+	
+	
 	
     //handle power state transitions
     if (servoMotor->actuatorProcessData.b_enable) {
@@ -407,6 +415,17 @@ void Lexium32i::writeOutputs() {
 	}
 	BRK_release = servoMotor->actuatorProcessData.b_holdingBrakeIsReleased ? 1 : 0;
 	
+	
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
+		servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		updateEncoderWorkingRange();
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	
     //========== PREPARE RXPDO OUTPUTS ==========
     //DCOMcontrol   (uint16_t)  2
     //DCOMopmode    (int8_t)    1
@@ -432,16 +451,15 @@ void Lexium32i::writeOutputs() {
 		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION);
 	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::VELOCITY)
 		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY);
-	/*
-	else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::FORCE)
-		ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE);
-	*/
+	//else if(servoMotor->actuatorProcessData.controlMode == ActuatorInterface::ControlMode::FORCE)
+	//	ds402Control.setOperatingMode(DS402::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE);
 	else
 		ds402Control.setOperatingMode(DS402::OperatingMode::NONE);
 	
 	//PPp_target
 	PPp_target = (int32_t)((servoMotor->actuatorProcessData.positionTarget - servoMotor->positionOffset_revolutions) * positionUnitsPerRevolution);
 	PVv_target = (int32_t)(servoMotor->actuatorProcessData.velocityTarget * velocityUnitsPerRpm * 60.0);
+	PTtq_target = 0;
 	//PTtq_target = (int16_t)(servoMotor->actuatorProcessData.forceTarget * ???);
 	
 	//IO_DQ_set
