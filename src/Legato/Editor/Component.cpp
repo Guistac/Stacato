@@ -30,14 +30,14 @@ bool Component::onDeserialization() {
 		std::string componentName;
 		success &= deserializeAttribute("Name", componentName);
 		nameParameter->overwrite(componentName);
+		nameParameter->onEdit();
 	}
 	return success;
 }
 
 void Component::onConstruction() {
 	if(b_hasNameParameter){
-		nameParameter = StringParameter::createInstanceWithoutNameParameter();
-		nameParameter->overwrite("Default Component Name");
+		nameParameter = StringParameter::createInstance("Default Component Name", "Name", "Name");
 	}else{
 		nonParametricName = "Name";
 	}

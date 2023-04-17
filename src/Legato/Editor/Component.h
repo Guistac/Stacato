@@ -53,7 +53,7 @@ class StringParameter;
 		
 	public:
 		
-		void setName(std::string name);
+		virtual void setName(std::string name);
 		const std::string& getName();
 		
 	protected:
@@ -88,7 +88,7 @@ class StringParameter;
 		
 		std::shared_ptr<StringParameter> nameParameter;
 		
-	private:
+	protected:
 		std::string nonParametricName;
 		
 		std::vector<std::shared_ptr<Component>> children;

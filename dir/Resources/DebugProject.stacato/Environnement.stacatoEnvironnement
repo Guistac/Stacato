@@ -1,53 +1,42 @@
 <Environnement Name="Default Component Name" HELLo="1234">
     <NodeGraph Name="Default Component Name">
         <NodeList>
-            <Node Name="Axis" UniqueID="34" ClassName="AxisNode" NodeType="Processor">
-                <NodeGraphPosition Split="0" X="132" Y="298"/>
-                <InputPins>
-                    <Pin Name="Actuator" UniqueID="35" SaveString="Actuator" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Feedback" UniqueID="36" SaveString="Feedback" DataType="MotionFeedbackInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="GPIO" UniqueID="37" SaveString="GPIO" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="1" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Lower Limit Signal" UniqueID="38" SaveString="LowerLimitSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Lower Slowdown Signal" UniqueID="39" SaveString="LowerSlowdownSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Upper Slowdown Signal" UniqueID="40" SaveString="UpperSlowdownSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Upper Limit Signal" UniqueID="41" SaveString="UpperLimitSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Reference Signal" UniqueID="42" SaveString="ReferenceSignal" DataType="Boolean" Visible="0" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Surveillance Fault Reset" UniqueID="43" SaveString="SurveillanceFaultReset" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                </InputPins>
+            <Node Name="ATV320 hello" UniqueID="83" ClassName="ATV320" NodeType="IODevice">
+                <NodeGraphPosition Split="0" X="-176" Y="257"/>
+                <InputPins/>
                 <OutputPins>
-                    <Pin Name="Axis" UniqueID="44" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="1" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Brake Control Signal" UniqueID="45" SaveString="BrakeControlSignal" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Surveillance Valid Signal" UniqueID="46" SaveString="SurveillanceValidSignal" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Actuator" UniqueID="84" SaveString="Actuator" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Gpio" UniqueID="85" SaveString="Gpio" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="DI1" UniqueID="86" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI2" UniqueID="87" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI3" UniqueID="88" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI4" UniqueID="89" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI5" UniqueID="90" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="DI6" UniqueID="91" SaveString="DI6" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
+                    <Pin Name="Velocity" UniqueID="92" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Load" UniqueID="93" SaveString="Load" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </OutputPins>
-                <PositionFeedbackMapping InterfacePinID="-1"/>
-                <VelocityFeedbackMapping InterfacePinID="-1"/>
-                <ActuatorMappings/>
-                <MovementType Name="Movement Type" Value="LinearMotion"/>
-                <PositionUnit Name="Position Unit" Value="Meter"/>
-                <LimitSignalType Name="Limit Signal Type" Value="NoLimitSignal"/>
-                <AxisControlMode Name="Axis Control Mode" Value="No Control"/>
-                <VelocityLimit Name="Velocity Limit" Value="0"/>
-                <AccelerationLimit Name="Acceleration Limit" Value="0"/>
-                <PositionLoopVelocityFeedForward Name="Position loop velocity feed forward (PvFF)" Value="100"/>
-                <PositionLoopProportionalGain Name="Position loop proportional gain (PKp)" Value="0"/>
-                <PositionLoopMaxError Name="Position loop max error" Value="0"/>
-                <PositionLoopMinError Name="Position loop min error" Value="0"/>
-                <VelocityLoopMaxError Name="Velocity loop max error" Value="0"/>
-                <LimitSlowdownVelocity Name="Limit Slowdown Velocity" Value="0"/>
-                <EnableLowerPositionLimit Name="Enable Lower Position Limit" Value="0"/>
-                <EnableUpperPositionLimit Name="Enable Upper Position Limit" Value="0"/>
-                <LowerPositionLimit Name="Lower Position Limit" Value="0"/>
-                <UpperPositionLimit Name="Upper Position Limit" Value="0"/>
-                <LowerPositionLimitClearance Name="Lower Position Limit Clearance" Value="0"/>
-                <UpperPositionLimitClearance Name="Upper Position Limit Clearance" Value="0"/>
-                <VelocityLimit Name="Velocity Limit" Value="0"/>
-                <AccelerationLimit Name="Acceleration Limit" Value="0"/>
-                <HomingDirection Name="Homing direction" Value="Negative"/>
-                <SignalApproachMethod Name="Signal approach method" Value="FindSignalEdge"/>
-                <HomingVelocityCoarse Name="Homing velocity coarse" Value="0"/>
-                <HomingVelocityFine Name="Homing velocity fine" Value="0"/>
-                <MaxHomingDistanceCoarse Name="Max homing distance coarse" Value="0"/>
-                <MaxHomingDistanceFine Name="Max homing distance fine" Value="0"/>
+                <Identification Type="StationAlias" Address="0"/>
+                <AccelerationRamp Value="3"/>
+                <DecelerationRamp Value="1"/>
+                <InvertMotionDirection Value="0"/>
+                <MinControlFrequency Value="0"/>
+                <MaxControlFrequency Value="50"/>
+                <StandartMotorFrequency Value="50Hz"/>
+                <MotorControlType Value="StandardMotorLaw"/>
+                <RatedMotorPower Value="0"/>
+                <RatedMotorVoltage Value="0"/>
+                <RatedMotorCurrent Value="0"/>
+                <MotorRatedSpeed Value="1400"/>
+                <ForwardStopSignal Value="None"/>
+                <ReverseStopSignal Value="None"/>
+                <StopLimitConfiguration Value="ActiveHigh"/>
+                <LI1OnDelay Value="0"/>
+                <LI2OnDelay Value="0"/>
+                <LI3OnDelay Value="0"/>
+                <LI4OnDelay Value="0"/>
+                <LI5OnDelay Value="0"/>
+                <LI6OnDelay Value="0"/>
             </Node>
         </NodeList>
         <LinkList/>

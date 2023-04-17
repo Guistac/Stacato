@@ -58,15 +58,14 @@ namespace Legato{
 			return std::static_pointer_cast<Parameter>(duplicatePrototype());
 		}
 	protected:
-		Parameter(){}
-		Parameter(bool withoutNameParameter) : Component(withoutNameParameter){}
+		Parameter() : Component(true){}
 		
 	public:
 		
 		virtual void onConstruction() override;
 		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override { Component::onCopyFrom(source); }
-		virtual bool onSerialization() override { return Component::onSerialization(); }
-		virtual bool onDeserialization() override { return Component::onDeserialization(); }
+		virtual bool onSerialization() override;
+		virtual bool onDeserialization() override;
 		
 		void setDisabled(bool disabled){ b_disabled = disabled; }
 		bool isDisabled(){ return b_disabled; }
@@ -89,6 +88,8 @@ namespace Legato{
 		void unlockMutex(){ mutex.unlock(); }
 		
 		const char* getImGuiID(){ return imGuiID.c_str(); }
+		
+		virtual void setName(std::string name) override;
 		
 	private:
 		std::vector<std::function<void()>> editCallbacks;

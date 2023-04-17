@@ -21,12 +21,6 @@ public:
 		return newParameter;
 	}
 	
-	static std::shared_ptr<StringParameter> createInstanceWithoutNameParameter(){
-		std::shared_ptr<StringParameter> instance = std::shared_ptr<StringParameter>(new StringParameter(true));
-		instance->onConstruction();
-		return instance;
-	}
-	
 	const std::string& getValue(){ return value; }
 	
 	virtual void onGui() override;
@@ -80,8 +74,6 @@ public:
 	*/
 	
 private:
-	
-	StringParameter(bool withoutNameParameter) : Parameter(withoutNameParameter){}
 	
 	virtual void onConstruction() override {
 		Parameter::onConstruction();

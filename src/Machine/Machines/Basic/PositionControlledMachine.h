@@ -18,27 +18,19 @@ public:
 	
 	DEFINE_MACHINE(PositionControlledMachine)
 	
-	virtual bool onSerialization() override {
-		Machine::onSerialization();
-		return true;
-	}
-	
-	virtual bool onDeserialization() override {
-		Machine::onDeserialization();
-		return true;
-	}
-	
-	virtual void onConstruction() override {
-		Machine::onConstruction();
-	}
-	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
-		Machine::onCopyFrom(source);
-	}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 	
 	virtual void inputProcess() override {}
 	virtual void outputProcess() override {}
 	virtual bool needsOutputProcess() override {}
+	
+private:
+	
+	std::shared_ptr<AnimationSystem::PositionAnimatable> positionAnimatable;
+	std::shared_ptr<NodePin> axisPin;
 	
 };
 

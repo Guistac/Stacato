@@ -16,6 +16,35 @@
 
 #include "Motion/Safety/DeadMansSwitch.h"
 
+
+
+bool PositionControlledMachine::onSerialization() {
+	bool success = Machine::onSerialization();
+	return success;
+}
+
+bool PositionControlledMachine::onDeserialization() {
+	bool success = Machine::onDeserialization();
+	return success;
+}
+
+void PositionControlledMachine::onConstruction() {
+	Machine::onConstruction();
+	
+	setName("Position Controlled Machine");
+	
+	axisPin = NodePin::createInstance(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis", "Axis");
+	addNodePin(axisPin);
+	
+	positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
+	addAnimatable(positionAnimatable);
+}
+
+void PositionControlledMachine::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+	Machine::onCopyFrom(source);
+}
+
+
 /*
 void PositionControlledMachine::initialize() {
 	//inputs
