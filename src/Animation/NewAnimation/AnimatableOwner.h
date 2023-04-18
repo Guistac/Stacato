@@ -9,18 +9,8 @@ namespace AnimationSystem{
 	class AnimatableOwner : public virtual Legato::NamedObject{
 	public:
 		
-		void addAnimatable(std::shared_ptr<Animatable> animatable){
-			animatables.push_back(animatable);
-		}
-		
-		void removeAnimatable(std::shared_ptr<Animatable> animatable){
-			for(int i = (int)animatables.size(); i >= 0; i--){
-				if(animatables[i] == animatable){
-					animatables.erase(animatables.begin() + i);
-					break;
-				}
-			}
-		}
+		void addAnimatable(std::shared_ptr<Animatable> animatable);
+		void removeAnimatable(std::shared_ptr<Animatable> animatable);
 		
 		std::vector<std::shared_ptr<Animatable>>& getAnimatables(){ return animatables; }
 		

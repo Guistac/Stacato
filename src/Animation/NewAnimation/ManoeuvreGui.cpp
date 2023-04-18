@@ -8,6 +8,7 @@
 #include "Animation/NewAnimation/AnimatableRegistry.h"
 #include "Animation/NewAnimation/AnimatableOwner.h"
 #include "Animation/NewAnimation/Animatable.h"
+#include "Animation/NewAnimation/Animation.h"
 
 #include "Gui/Assets/Images.h"
 #include "Gui/Assets/Colors.h"
@@ -37,9 +38,22 @@ namespace AnimationSystem{
 				
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Name of Animatable");
+				ImGui::Text("%s : %s", animation->getAnimatable()->getOwner()->getName().c_str(), animation->getAnimatable()->getName().c_str());
 				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("Animation Parameters");
+				ImGui::Text("Animation Parameters...");
+				
+				if(animation->isCompositeAnimation()){
+					for(auto childAnimation : animation->getChildAnimations()){
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+						ImGui::Text("%s", childAnimation->getAnimatable()->getName().c_str());
+						ImGui::TableSetColumnIndex(1);
+						ImGui::Text("Child Animation Parameters...");
+					}
+				}
+				if(animation->isTopLevelAnimation()){
+					
+				}
 				
 			}
 			

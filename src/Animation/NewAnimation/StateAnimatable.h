@@ -4,8 +4,26 @@
 
 namespace AnimationSystem{
 
-class StateAnimatable : public AnimationSystem::Animatable{
+class StateAnimatable : public AnimationSystem::LeafAnimatable{
+
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StateAnimatable)
+	
 public:
+	
+	virtual void onConstruction() override{
+		LeafAnimatable::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		LeafAnimatable::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = LeafAnimatable::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = LeafAnimatable::onDeserialization();
+		return success;
+	}
 	
 	virtual AnimatableType getType() override {
 		return AnimatableType::STATE;
@@ -25,6 +43,14 @@ public:
 			AnimationSystem::TargetAnimationConstraintType::NONE
 		};
 		return supportedTargetAnimationConstraintTypes;
+	}
+	
+	virtual void updateAnimationValue() override {}
+	
+	virtual int getCurveCount() override { return 1; }
+	virtual std::vector<std::string>& getCurveNames() override {
+		static std::vector<std::string> curveNames = {};
+		return curveNames;
 	}
 	
 };

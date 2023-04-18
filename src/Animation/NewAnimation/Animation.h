@@ -1,6 +1,8 @@
 #pragma once
 
 #include "AnimationTypes.h"
+#include "Legato/Editor/Component.h"
+#include "Legato/Editor/ListComponent.h"
 
 namespace AnimationSystem{
 
@@ -9,8 +11,26 @@ class CompositeAnimation;
 
 
 
-class Animation : public std::enable_shared_from_this<Animation>{
+class Animation : public Legato::Component{
+	
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Animation)
+	
 public:
+	
+	virtual void onConstruction() override{
+		Component::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Component::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = Component::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Component::onDeserialization();
+		return success;
+	}
 	
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
@@ -32,7 +52,8 @@ protected:
 	
 	//Composite Structure
 	std::shared_ptr<CompositeAnimation> parentComposite = nullptr;
-	std::vector<std::shared_ptr<Animation>> childAnimations;
+	
+	std::vector<std::shared_ptr<Animation>> childAnimations = {};
 	
 	//Animatable
 	std::shared_ptr<Animatable> animatable = nullptr;
@@ -42,10 +63,28 @@ protected:
 
 
 class CompositeAnimation : public Animation{
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(CompositeAnimation)
+	
 public:
 	
-	void setType(AnimationType animationType) { type = animationType; }
-	virtual AnimationType getType() override { return type; }
+	virtual void onConstruction() override{
+		Animation::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Animation::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = Animation::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Animation::onSerialization();
+		return success;
+	}
+	
+	void setType(AnimationType animationType){ type = animationType; }
+	virtual AnimationType getType() override { return type; }
 	
 	virtual bool isCompositeAnimation() override { return true; }
 	
@@ -75,7 +114,39 @@ private:
 };
 
 
+
+
+
+
+
+
+
+//————————— LEAF ANIMATIONS
+
+
+
+
+
 class TargetAnimation : public Animation{
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(TargetAnimation)
+	
+public:
+	
+	virtual void onConstruction() override{
+		Animation::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Animation::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = Animation::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Animation::onDeserialization();
+		return success;
+	}
 	
 	virtual AnimationType getType() override { return AnimationType::TARGET; }
 	
@@ -93,6 +164,25 @@ class TargetAnimation : public Animation{
 
 class SequenceAnimation : public Animation{
 	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(SequenceAnimation)
+	
+public:
+	
+	virtual void onConstruction() override{
+		Animation::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Animation::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = Animation::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Animation::onDeserialization();
+		return success;
+	}
+	
 	virtual AnimationType getType() override { return AnimationType::SEQUENCE; }
 	
 	virtual bool canStartPlayback() override { return false; }
@@ -107,6 +197,25 @@ class SequenceAnimation : public Animation{
 };
 
 class StopAnimation : public Animation{
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StopAnimation)
+	
+public:
+	
+	virtual void onConstruction() override{
+		Animation::onConstruction();
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Animation::onCopyFrom(source);
+	}
+	virtual bool onSerialization() override{
+		bool success = Animation::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Animation::onDeserialization();
+		return success;
+	}
 	
 	virtual AnimationType getType() override { return AnimationType::STOP; }
 	

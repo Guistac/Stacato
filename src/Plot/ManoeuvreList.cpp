@@ -14,8 +14,8 @@
 
 
 void ManoeuvreList::addManoeuvre() {
-	auto newManoeuvre = std::make_shared<AnimationSystem::Manoeuvre>();
-	manoeuvres.push_back(newManoeuvre);
+	auto newManoeuvre = AnimationSystem::Manoeuvre::createInstance();
+	manoeuvres->addEntry(newManoeuvre);
 }
 
 /*

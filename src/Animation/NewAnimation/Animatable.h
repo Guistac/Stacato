@@ -1,15 +1,35 @@
 #pragma once
 
 #include "AnimationTypes.h"
+#include "Legato/Editor/Component.h"
 
 namespace AnimationSystem{
 
 	class Animation;
 	class AnimationValue;
 	class CompositeAnimatable;
+	class AnimatableOwner;
 
-	class Animatable : public std::enable_shared_from_this<Animatable>{
+	class Animatable : public Legato::Component{
+		
+		DECLARE_PROTOTYPE_INTERFACE_METHODS(Animatable)
+		
 	public:
+		
+		virtual void onConstruction() override{
+			Component::onConstruction();
+		}
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+			Component::onCopyFrom(source);
+		}
+		virtual bool onSerialization() override{
+			bool success = Component::onSerialization();
+			return success;
+		}
+		virtual bool onDeserialization() override{
+			bool success = Component::onDeserialization();
+			return success;
+		}
 		
 		AnimatableStatus status = AnimatableStatus::OFFLINE;
 		
@@ -36,6 +56,8 @@ namespace AnimationSystem{
 		
 		std::shared_ptr<Animation> makeAnimation(AnimationType type);
 		
+		std::shared_ptr<AnimatableOwner> getOwner(){ return owner; }
+		
 	protected:
 		
 		//Composite Structure
@@ -45,14 +67,36 @@ namespace AnimationSystem{
 		//Animations
 		std::vector<std::shared_ptr<Animation>> animations = {};
 		std::shared_ptr<Animation> playingAnimation = nullptr;
-
+		
+		friend class AnimatableOwner;
+		
+		//Owner
+		std::shared_ptr<AnimatableOwner> owner = nullptr;
 		
 	};
 
 
 
 	class CompositeAnimatable : public Animatable{
+	
+		DECLARE_PROTOTYPE_IMPLENTATION_METHODS(CompositeAnimatable)
+		
 	public:
+		
+		virtual void onConstruction() override{
+			Animatable::onConstruction();
+		}
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+			Animatable::onCopyFrom(source);
+		}
+		virtual bool onSerialization() override{
+			bool success = Animatable::onSerialization();
+			return success;
+		}
+		virtual bool onDeserialization() override{
+			bool success = Animatable::onDeserialization();
+			return success;
+		}
 		
 		virtual AnimatableType getType() override { return AnimatableType::COMPOSITE; }
 		
@@ -71,9 +115,12 @@ namespace AnimationSystem{
 			}
 		}
 		
+		void setSupportedAnimationTypes(std::vector<AnimationType> supportedTypes){
+			supportedAnimationTypes = supportedTypes;
+		}
+		
 		virtual std::vector<AnimationType>& getSupportedAnimationTypes() override {
-			static std::vector<AnimationType> output;
-			return output;
+			return supportedAnimationTypes;
 		}
 		
 		virtual std::vector<TargetAnimationConstraintType>& getSupportTargetAnimationConstraintTypes() override {
@@ -84,11 +131,31 @@ namespace AnimationSystem{
 		
 	private:
 		
+		std::vector<AnimationType> supportedAnimationTypes = {};
+		
 	};
 
 
 	class LeafAnimatable : public Animatable{
+	
+		DECLARE_PROTOTYPE_INTERFACE_METHODS(LeafAnimatable)
+		
 	public:
+		
+		virtual void onConstruction() override{
+			Animatable::onConstruction();
+		}
+		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+			Animatable::onCopyFrom(source);
+		}
+		virtual bool onSerialization() override{
+			bool success = Animatable::onSerialization();
+			return success;
+		}
+		virtual bool onDeserialization() override{
+			bool success = Animatable::onDeserialization();
+			return success;
+		}
 		
 		std::shared_ptr<AnimationValue> getAnimationValue(){ return animationValue; }
 		virtual void updateAnimationValue() = 0;

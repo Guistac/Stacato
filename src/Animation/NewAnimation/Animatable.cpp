@@ -12,7 +12,7 @@ std::shared_ptr<Animation> Animatable::makeAnimation(AnimationType type){
 	
 	if(isCompositeAnimatable()){
 		
-		auto newCompositeAnimation = std::make_shared<CompositeAnimation>();
+		auto newCompositeAnimation = CompositeAnimation::createInstance();
 		
 		for(auto childAnimatable : childAnimatables){
 			auto childAnimation = childAnimatable->makeAnimation(type);
@@ -24,18 +24,18 @@ std::shared_ptr<Animation> Animatable::makeAnimation(AnimationType type){
 	}else{
 		switch(type){
 			case AnimationType::TARGET:
-				newAnimation = std::make_shared<TargetAnimation>();
+				newAnimation = TargetAnimation::createInstance();
 				break;
 			case AnimationType::SEQUENCE:
-				newAnimation = std::make_shared<SequenceAnimation>();
+				newAnimation = SequenceAnimation::createInstance();
 				break;
 			case AnimationType::STOP:
-				newAnimation = std::make_shared<StopAnimation>();
+				newAnimation = StopAnimation::createInstance();
 				break;
 		}
 	}
 	
-	newAnimation->animatable = shared_from_this();
+	newAnimation->animatable = std::static_pointer_cast<Animatable>(shared_from_this());
 	
 	return newAnimation;
 }

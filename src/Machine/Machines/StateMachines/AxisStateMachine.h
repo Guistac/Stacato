@@ -27,11 +27,20 @@ class AxisStateMachine : public Machine{
 		Machine::onConstruction();
 		setName("Axis State Machine");
 		
-		positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
-		stateAnimatable = std::make_shared<AnimationSystem::StateAnimatable>();
-		compositeAnimatable = std::make_shared<AnimationSystem::CompositeAnimatable>();
+		positionAnimatable = AnimationSystem::PositionAnimatable::createInstance();
+		positionAnimatable->setName("Velocity");
+		stateAnimatable = AnimationSystem::StateAnimatable::createInstance();
+		stateAnimatable->setName("State");
+		compositeAnimatable = AnimationSystem::CompositeAnimatable::createInstance();
+		compositeAnimatable->setName("State & Velocity");
+		
 		compositeAnimatable->addChildAnimatable(stateAnimatable);
 		compositeAnimatable->addChildAnimatable(positionAnimatable);
+		compositeAnimatable->setSupportedAnimationTypes({
+			AnimationSystem::AnimationType::STOP,
+			AnimationSystem::AnimationType::SEQUENCE,
+			AnimationSystem::AnimationType::TARGET
+		});
 		addAnimatable(compositeAnimatable);
 	}
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{

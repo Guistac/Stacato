@@ -11,7 +11,8 @@
 
 std::shared_ptr<Plot> Plot::create(){
 	auto plot = std::make_shared<Plot>();
-	plot->manoeuvreList = std::make_shared<ManoeuvreList>(plot);
+	plot->manoeuvreList = ManoeuvreList::createInstance();
+	plot->manoeuvreList->setParentPlot(plot);
 	return plot;
 }
 

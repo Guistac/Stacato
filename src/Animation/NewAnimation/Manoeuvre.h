@@ -1,14 +1,22 @@
 #pragma once
 
+#include "Legato/Editor/Component.h"
+
 namespace AnimationSystem{
 
 class Animation;
 class Animatable;
 
-class Manoeuvre{
+class Manoeuvre : public Legato::Component{
+	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(Manoeuvre)
+	
 public:
 	
-	Manoeuvre(){}
+	virtual void onConstruction() override{}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual bool onSerialization() override{}
+	virtual bool onDeserialization() override{}
 	
 	void editorGui();
 	

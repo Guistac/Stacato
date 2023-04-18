@@ -35,7 +35,8 @@ void PositionControlledMachine::onConstruction() {
 	
 	//———— Animatables
 	
-	positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
+	positionAnimatable = AnimationSystem::PositionAnimatable::createInstance();
+	positionAnimatable->setName("Position");
 	addAnimatable(positionAnimatable);
 	
 	//———— Parameters
