@@ -10,59 +10,63 @@ static std::shared_ptr<ClassName> get(){ \
 	return singleton; \
 }\
 
-class Window : public std::enable_shared_from_this<Window>{
-public:
-	
-	Window(std::string name_, bool padding = true) : name(name_), b_hasPadding(padding){}
-	
-	void open();
-	void close();
-	void focus();
-	void draw();
-	
-	bool isOpen();
-	bool isFocused();
-	
-	void setName(std::string name_){ name = name_; }
-	void setPadding(float padding = -1.0);
-	
-	std::string& getName(){ return name; }
-	
-	virtual void onOpen(){}
-	virtual void onDraw() = 0;
-	virtual void onClose(){}
-	
-	bool b_isOpen = false;
-	bool b_isFocused = false;
-	
-	ImGuiWindow* imguiWindow = nullptr;
-	
-private:
-	std::string name;
-	
-	bool b_hasPadding = true;
-};
+namespace Legato{
 
-class Popup : public std::enable_shared_from_this<Popup>{
-public:
-	
-	Popup(std::string name_, bool modal, bool canClose) : name(name_), b_isModal(modal), b_canClose(canClose) {}
-	
-	std::string name;
-	bool b_isOpen = false;
-	bool b_isModal = false;
-	bool b_canClose = false;
+	class Window : public std::enable_shared_from_this<Window>{
+	public:
 		
-	void open();
-	void close();
-	void draw();
-	
-	virtual void onOpen(){}
-	virtual void onDraw() = 0;
-	virtual void onClose(){}
-	virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
-	
-};
+		Window(std::string name_, bool padding = true) : name(name_), b_hasPadding(padding){}
+		
+		void open();
+		void close();
+		void focus();
+		void draw();
+		
+		bool isOpen();
+		bool isFocused();
+		
+		void setName(std::string name_){ name = name_; }
+		void setPadding(float padding = -1.0);
+		
+		std::string& getName(){ return name; }
+		
+		virtual void onOpen(){}
+		virtual void onDraw() = 0;
+		virtual void onClose(){}
+		
+		bool b_isOpen = false;
+		bool b_isFocused = false;
+		
+		ImGuiWindow* imguiWindow = nullptr;
+		
+	private:
+		std::string name;
+		
+		bool b_hasPadding = true;
+	};
+
+	class Popup : public std::enable_shared_from_this<Popup>{
+	public:
+		
+		Popup(std::string name_, bool modal, bool canClose) : name(name_), b_isModal(modal), b_canClose(canClose) {}
+		
+		std::string name;
+		bool b_isOpen = false;
+		bool b_isModal = false;
+		bool b_canClose = false;
+		
+		void open();
+		void close();
+		void draw();
+		
+		virtual void onOpen(){}
+		virtual void onDraw() = 0;
+		virtual void onClose(){}
+		virtual glm::vec2 getSize(){ return glm::vec2(.0f,.0f); }
+		
+	};
+
+}
 
 
 

@@ -1,42 +1,20 @@
 <Environnement Name="Default Component Name" HELLo="1234">
     <NodeGraph Name="Default Component Name">
         <NodeList>
-            <Node Name="ATV320 hello" UniqueID="83" ClassName="ATV320" NodeType="IODevice">
-                <NodeGraphPosition Split="0" X="-176" Y="257"/>
-                <InputPins/>
+            <Node Name="Position Controlled Machine" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
+                <NodeGraphPosition Split="0" X="87" Y="424"/>
+                <InputPins>
+                    <Pin Name="Position Controlled Axis" UniqueID="97" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                </InputPins>
                 <OutputPins>
-                    <Pin Name="Actuator" UniqueID="84" SaveString="Actuator" DataType="ActuatorInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Gpio" UniqueID="85" SaveString="Gpio" DataType="GpioInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="DI1" UniqueID="86" SaveString="DI1" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI2" UniqueID="87" SaveString="DI2" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI3" UniqueID="88" SaveString="DI3" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI4" UniqueID="89" SaveString="DI4" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI5" UniqueID="90" SaveString="DI5" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="DI6" UniqueID="91" SaveString="DI6" DataType="Boolean" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="1"/>
-                    <Pin Name="Velocity" UniqueID="92" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
-                    <Pin Name="Load" UniqueID="93" SaveString="Load" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Position" UniqueID="98" SaveString="Position" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
+                    <Pin Name="Velocity" UniqueID="99" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </OutputPins>
-                <Identification Type="StationAlias" Address="0"/>
-                <AccelerationRamp Value="3"/>
-                <DecelerationRamp Value="1"/>
-                <InvertMotionDirection Value="0"/>
-                <MinControlFrequency Value="0"/>
-                <MaxControlFrequency Value="50"/>
-                <StandartMotorFrequency Value="50Hz"/>
-                <MotorControlType Value="StandardMotorLaw"/>
-                <RatedMotorPower Value="0"/>
-                <RatedMotorVoltage Value="0"/>
-                <RatedMotorCurrent Value="0"/>
-                <MotorRatedSpeed Value="1400"/>
-                <ForwardStopSignal Value="None"/>
-                <ReverseStopSignal Value="None"/>
-                <StopLimitConfiguration Value="ActiveHigh"/>
-                <LI1OnDelay Value="0"/>
-                <LI2OnDelay Value="0"/>
-                <LI3OnDelay Value="0"/>
-                <LI4OnDelay Value="0"/>
-                <LI5OnDelay Value="0"/>
-                <LI6OnDelay Value="0"/>
+            </Node>
+            <Node Name="Axis State Machine" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
+                <NodeGraphPosition Split="0" X="112" Y="336"/>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </NodeList>
         <LinkList/>

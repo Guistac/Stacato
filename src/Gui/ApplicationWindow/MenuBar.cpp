@@ -254,12 +254,14 @@ namespace Stacato::Gui {
 				
 				auto project = Stacato::Editor::getCurrentProject();
 				auto layoutList = project->getLayouts();
-				auto& layouts = layoutList->get();
+				auto& layouts = layoutList->getList();
 				auto currentLayout = layoutList->getCurrent();
 				auto defaultLayout = layoutList->getDefault();
 				
 				ImGui::Separator();
-				if(ImGui::MenuItem("Capture New Layout")) layoutList->captureNew();
+				if(ImGui::MenuItem("Capture New Layout")) {
+					LayoutCreationPopup::open(project->getLayouts());
+				}
 				
 				
 				ImGui::Separator();
@@ -293,8 +295,9 @@ namespace Stacato::Gui {
 				ImGui::BeginDisabled(layoutList->getCurrent() == nullptr);
 				if(ImGui::MenuItem("Make Default Layout")) layoutList->makeCurrentDefault();
 				if(ImGui::MenuItem("Overwrite Layout")) currentLayout->overwrite();
+				if(ImGui::MenuItem("Reset Layout")) layoutList->makeCurrent(currentLayout);
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
-				if(ImGui::MenuItem("Rename Layout")) {}
+				if(ImGui::MenuItem("Rename Layout")) LayoutEditPopup::open(currentLayout);
 				ImGui::EndDisabled();
 			}
 			

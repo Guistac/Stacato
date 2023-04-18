@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Legato/Editor/Component.h"
+#include "Window.h"
 
 class Layout : public Legato::Component{
 

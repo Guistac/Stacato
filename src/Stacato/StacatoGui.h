@@ -13,21 +13,21 @@ namespace Stacato::Gui{
 	bool save();
 	bool saveAs();
 
-	class AboutPopup : public Popup{
+	class AboutPopup : public Legato::Popup{
 	public:
 		AboutPopup() : Popup("About", true, true){}
 		SINGLETON_GET_METHOD(AboutPopup);
 		virtual void onDraw() override;
 	};
 
-	class QuitApplicationPopup : public Popup{
+	class QuitApplicationPopup : public Legato::Popup{
 	public:
 		QuitApplicationPopup() : Popup("Quit Application", true, true){}
 		SINGLETON_GET_METHOD(QuitApplicationPopup);
 		virtual void onDraw() override;
 	};
 
-	class CloseProjectPopup : public Popup{
+	class CloseProjectPopup : public Legato::Popup{
 	public:
 		CloseProjectPopup() : Popup("Close Project", true, true){}
 		virtual void onDraw() override;

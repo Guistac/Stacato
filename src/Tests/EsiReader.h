@@ -2,7 +2,7 @@
 
 #include "Legato/Gui/Window.h"
 
-class EsiReaderWindow : public Window{
+class EsiReaderWindow : public Legato::Window{
 public:
 	EsiReaderWindow() : Window("ESI Reader", true){}
 	virtual void onDraw() override;

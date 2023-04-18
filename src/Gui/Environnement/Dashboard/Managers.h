@@ -16,7 +16,7 @@ namespace DashboardManager{
 
 };
 
-class DashboardWindow : public Window{
+class DashboardWindow : public Legato::Window{
 public:
 	DashboardWindow() : Window("Dashboard", false){}
 	virtual void onDraw() override;

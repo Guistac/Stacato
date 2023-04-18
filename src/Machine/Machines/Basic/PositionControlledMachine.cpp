@@ -16,7 +16,48 @@
 
 #include "Motion/Safety/DeadMansSwitch.h"
 
+void PositionControlledMachine::onConstruction() {
+	
+	//———— Component
+	
+	Machine::onConstruction();
+	setName("Position Controlled Machine");
+	
+	//———— Node Pins
+	
+	axisPin = NodePin::createInstance(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis", "Axis");
+	positionPin = NodePin::createInstance(positionPinValue, NodePin::Direction::NODE_OUTPUT, "Position", "Position");
+	velocityPin = NodePin::createInstance(velocityPinValue, NodePin::Direction::NODE_OUTPUT, "Velocity", "Velocity");
+	
+	addNodePin(axisPin);
+	addNodePin(positionPin);
+	addNodePin(velocityPin);
+	
+	//———— Animatables
+	
+	positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
+	addAnimatable(positionAnimatable);
+	
+	//———— Parameters
+	
+	invertAxis = Legato::BooleanParameter::createInstance(false, "Invert Axis", "InvertAxis");
+	axisOffset = Legato::NumberParameter<double>::createInstance(0.0, "Axis Offset", "AxisOffset");
+	lowerPositionLimit = Legato::NumberParameter<double>::createInstance(0.0, "Lower Position Limit", "LowerPositionLimit");
+	upperPositionLimit = Legato::NumberParameter<double>::createInstance(0.0, "Upper Position Limit", "UpperPositionLimit");
+	
+	allowUserZeroEdit = Legato::BooleanParameter::createInstance(false, "Allow User Zero Edit", "AllowUserZeroEdit");
+	allowUserLowerLimitEdit = Legato::BooleanParameter::createInstance(false, "Allow User Lower Limit Edit", "AllowUserLowerLimitEdit");
+	allowUserUpperLimitEdit = Legato::BooleanParameter::createInstance(false, "Allow User Upper Limit Edit", "AllowUserUpperLimitEdit");
+	allowUserHoming = Legato::BooleanParameter::createInstance(false, "Allow User Homing", "AllowUserHoming");
+	allowUserEncoderValueOverride = Legato::BooleanParameter::createInstance(false, "Allow User Encoder Value Override", "AllowUserEncoderValueOverride");
+	allowUserEncoderRangeReset = Legato::BooleanParameter::createInstance(false, "Allow User Encoder Range Reset", "AllowUserEncoderRangeReset");
+	invertControlGui = Legato::BooleanParameter::createInstance(false, "Invert Control Gui", "InvertControlGui");
+	
+}
 
+void PositionControlledMachine::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+	Machine::onCopyFrom(source);
+}
 
 bool PositionControlledMachine::onSerialization() {
 	bool success = Machine::onSerialization();
@@ -28,20 +69,12 @@ bool PositionControlledMachine::onDeserialization() {
 	return success;
 }
 
-void PositionControlledMachine::onConstruction() {
-	Machine::onConstruction();
+void PositionControlledMachine::inputProcess(){
 	
-	setName("Position Controlled Machine");
-	
-	axisPin = NodePin::createInstance(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Position Controlled Axis", "Axis");
-	addNodePin(axisPin);
-	
-	positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
-	addAnimatable(positionAnimatable);
 }
 
-void PositionControlledMachine::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	Machine::onCopyFrom(source);
+void PositionControlledMachine::outputProcess(){
+	
 }
 
 

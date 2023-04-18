@@ -8,7 +8,7 @@ namespace Sequencer::Gui{
 
 	void transportControls(float height);
 
-	class SequencerWindow : public Window{
+	class SequencerWindow : public Legato::Window{
 	public:
 		SequencerWindow() : Window("Sequencer", false){}
 		virtual void onDraw() override { Sequencer::Gui::editor(); };

@@ -8,8 +8,10 @@ void terminate();
 
 };
 
-class Window;
-class Popup;
+namespace Legato{
+	class Window;
+	class Popup;
+}
 
 namespace Legato::Gui::WindowManager{
 	

@@ -5,7 +5,7 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-class SnakeGameWindow : public Window{
+class SnakeGameWindow : public Legato::Window{
 public:
 	
 	SnakeGameWindow() : Window("Snake", true){}

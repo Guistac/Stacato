@@ -7,24 +7,29 @@
 
 
 
-class Base{
+class Prototype{
 public:
 	virtual void doThing(){}
+	virtual Prototype* getPrototype(){ return this; }
 };
 
-class SpecialClass{
+class NodeClass : public Prototype{
 public:
-	void doSpecialThing(){}
+	void doNodeThing(){}
+	virtual Prototype* getPrototype(){ return this; }
 };
 
-class Derived1 : public Base{
+class AnimatableOwnerClass : public Prototype{
+public:
+	void doOwnerThing(){}
+	virtual void doThing() override {}
+	virtual Prototype* getPrototype() override { return this; }
+};
+
+class MachineClass : public NodeClass, public AnimatableOwnerClass{
 public:
 	virtual void doThing() override {}
-};
-
-class Derived2 : public Base, public SpecialClass{
-public:
-	virtual void doThing() override {}
+	//virtual Prototype* getPrototype(){ return this; }
 };
 
 
@@ -39,14 +44,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 int main(int argcount, const char ** args){
 #endif
 	
-
-	std::shared_ptr<Base> derived1 = std::make_shared<Derived1>();
-	std::shared_ptr<Base> derived2 = std::make_shared<Derived2>();
-	
-	std::shared_ptr<SpecialClass> special1 = std::dynamic_pointer_cast<SpecialClass>(derived1);
-	std::shared_ptr<SpecialClass> special2 = std::dynamic_pointer_cast<SpecialClass>(derived2);
-	
-	
+	auto machine = std::make_shared<MachineClass>();
+	machine->doThing();
+	auto owner = std::static_pointer_cast<AnimatableOwnerClass>(machine);
+	owner->doThing();
 	
 	//configure application
 	Application::setInitializationFunction(Stacato::Application::initialize);

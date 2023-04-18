@@ -5,8 +5,23 @@
 #include "Legato/Gui/Layout.h"
 #include "Legato/Gui/Gui.h"
 
+void LayoutList::onConstruction() {
+	FileComponent::onConstruction();
+	setSaveString("LayoutList");
+	layouts = Legato::ListComponent<Layout>::createInstance();
+	layouts->setSaveString("Layouts");
+	layouts->setEntrySaveString("Layout");
+	layouts->setEntryConstructor([](Serializable&) -> std::shared_ptr<Layout> { return Layout::createInstance(); });
+}
+
+void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+	Component::onCopyFrom(source);
+}
+
 bool LayoutList::onSerialization() {
 	bool success = true;
+	
+	success &= FileComponent::onSerialization();
 	
 	if(defaultLayout != nullptr){
 		Serializable defaultLayoutSerializable;
@@ -14,21 +29,21 @@ bool LayoutList::onSerialization() {
 		defaultLayoutSerializable.serializeIntoParent(this);
 		defaultLayoutSerializable.serializeAttribute("Name", defaultLayout->getName());
 	}
-		
-	success &= layouts.serializeIntoParent(this);
+	success &= layouts->serializeIntoParent(this);
 	return success;
 }
 
 bool LayoutList::onDeserialization() {
 	bool success = true;
-	success &= layouts.deserializeFromParent(this);
+	
+	success &= layouts->deserializeFromParent(this);
 	
 	Serializable defaultLayoutSerializable;
 	defaultLayoutSerializable.setSaveString("DefaultLayout");
 	if(defaultLayoutSerializable.deserializeFromParent(this)){
 		std::string defaultLayoutName;
 		if(defaultLayoutSerializable.deserializeAttribute("Name", defaultLayoutName)){
-			for(auto layout : layouts){
+			for(auto layout : layouts->getEntries()){
 				if(layout->getName() == defaultLayoutName){
 					defaultLayout = layout;
 					makeCurrent(layout);
@@ -41,26 +56,40 @@ bool LayoutList::onDeserialization() {
 	return success;
 }
 
-void LayoutList::onConstruction() {
-	Component::onConstruction();
-	setSaveString("LayoutList");
-	layouts.setSaveString("Layouts");
-	layouts.setEntrySaveString("Layout");
-	layouts.setEntryConstructor(Layout::createInstance);
-}
-
-void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	Component::onCopyFrom(source);
-}
-
-void LayoutList::captureNew(){
-	auto newLayout = Legato::Gui::WindowManager::captureCurentLayout();
-	newLayout->setName("New Layout");
-	layouts.push_back(newLayout);
-	currentLayout = newLayout;
-}
-
 void LayoutList::makeCurrent(std::shared_ptr<Layout> layout){
 	currentLayout = layout;
 	Legato::Gui::WindowManager::applyLayout(layout);
 }
+
+
+
+void LayoutCreationPopup::onDraw(){
+	ImGui::Text("Layout Name");
+	nameParameter->gui();
+	if(ImGui::Button("Save")){
+		auto newLayout = Legato::Gui::WindowManager::captureCurentLayout();
+		newLayout->setName(nameParameter->getValue());
+		layoutList->add(newLayout);
+		layoutList->makeCurrent(newLayout);
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+}
+
+
+void LayoutEditPopup::onDraw(){
+	ImGui::Text("Layout Name");
+	nameParameter->gui();
+	if(ImGui::Button("Save")){
+		editedLayout->setName(nameParameter->getValue());
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+}
+

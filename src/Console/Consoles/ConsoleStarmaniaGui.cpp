@@ -401,7 +401,7 @@ void Ball::draw(ImDrawList* drawing){
 
 
 
-class PongGameWindow : public Window{
+class PongGameWindow : public Legato::Window{
 public:
 	
     PongGameWindow(std::shared_ptr<ConsoleStarmania> c) : Window("Pong", true), console(c) {

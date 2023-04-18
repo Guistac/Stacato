@@ -1,6 +1,7 @@
 #pragma once
 
-class Window;
+#include "Legato/Gui/Window.h"
+
 class File;
 class StacatoProject;
 
@@ -22,8 +23,8 @@ void unlock();
 void lock();
 bool checkEditorPassword(std::string& password);
 
-std::vector<std::shared_ptr<Window>>& getUserWindows();
-std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
+std::vector<std::shared_ptr<Legato::Window>>& getUserWindows();
+std::vector<std::shared_ptr<Legato::Window>>& getAdministratorWindows();
 
 
 

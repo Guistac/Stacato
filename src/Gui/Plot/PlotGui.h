@@ -10,14 +10,14 @@ namespace PlotGui{
 	//void spatialEditor();
 
 
-	class ManoeuvreListWindow : public Window{
+	class ManoeuvreListWindow : public Legato::Window{
 	public:
 		ManoeuvreListWindow() : Window("Manoeuvre List", true){}
 		virtual void onDraw() override { manoeuvreList(); };
 		SINGLETON_GET_METHOD(ManoeuvreListWindow)
 	};
 
-	class TrackSheetEditorWindow : public Window{
+	class TrackSheetEditorWindow : public Legato::Window{
 	public:
 		TrackSheetEditorWindow() : Window("Track Sheet Editor", true){}
 		virtual void onDraw() override {
@@ -26,7 +26,7 @@ namespace PlotGui{
 		SINGLETON_GET_METHOD(TrackSheetEditorWindow)
 	};
 
-	class CurveEditorWindow : public Window{
+	class CurveEditorWindow : public Legato::Window{
 	public:
 		CurveEditorWindow() : Window("Curve Editor", true){}
 		virtual void onDraw() override {
@@ -35,7 +35,7 @@ namespace PlotGui{
 		SINGLETON_GET_METHOD(CurveEditorWindow)
 	};
 
-	class SpatialEditorWindow : public Window{
+	class SpatialEditorWindow : public Legato::Window{
 	public:
 		SpatialEditorWindow() : Window("Spatial Editor", true){}
 		virtual void onDraw() override {
@@ -45,7 +45,7 @@ namespace PlotGui{
 	};
 
 
-	class NewPlotPopup : public Popup{
+	class NewPlotPopup : public Legato::Popup{
 	public:
 		NewPlotPopup() : Popup("New Plot", true, true){}
 		virtual void onOpen() override;
@@ -54,7 +54,7 @@ namespace PlotGui{
 		SINGLETON_GET_METHOD(NewPlotPopup);
 	};
 
-	class PlotEditorPopup : public Popup{
+	class PlotEditorPopup : public Legato::Popup{
 	public:
 		PlotEditorPopup(std::shared_ptr<Plot> editedPlot) : Popup("Edit Plot", true, true), plot(editedPlot){}
 		virtual void onOpen() override;
@@ -67,7 +67,7 @@ namespace PlotGui{
 		}
 	};
 
-	class PlotDeletePopup : public Popup{
+	class PlotDeletePopup : public Legato::Popup{
 	public:
 		PlotDeletePopup(std::shared_ptr<Plot> deletedPlot) : Popup("Delete Plot", true, true), plot(deletedPlot){}
 		virtual void onDraw() override;

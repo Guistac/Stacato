@@ -2,8 +2,14 @@
 
 #include "Animatable.h"
 
+namespace AnimationSystem{
+
 class StateAnimatable : public AnimationSystem::Animatable{
 public:
+	
+	virtual AnimatableType getType() override {
+		return AnimatableType::STATE;
+	};
 	
 	virtual std::vector<AnimationSystem::AnimationType>& getSupportedAnimationTypes() override {
 		static std::vector<AnimationSystem::AnimationType> supportedAnimationTypes = {
@@ -18,7 +24,9 @@ public:
 		static std::vector<AnimationSystem::TargetAnimationConstraintType> supportedTargetAnimationConstraintTypes = {
 			AnimationSystem::TargetAnimationConstraintType::NONE
 		};
-		return supportedTargetAnimationCosntraintTypes;
+		return supportedTargetAnimationConstraintTypes;
 	}
 	
 };
+
+}

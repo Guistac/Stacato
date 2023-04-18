@@ -71,6 +71,17 @@ namespace AnimationSystem{
 			}
 		}
 		
+		virtual std::vector<AnimationType>& getSupportedAnimationTypes() override {
+			static std::vector<AnimationType> output;
+			return output;
+		}
+		
+		virtual std::vector<TargetAnimationConstraintType>& getSupportTargetAnimationConstraintTypes() override {
+			static std::vector<TargetAnimationConstraintType> output;
+			return output;
+		}
+		
+		
 	private:
 		
 	};

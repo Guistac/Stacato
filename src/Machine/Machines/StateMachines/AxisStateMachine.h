@@ -7,6 +7,65 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
+
+#include "Animation/NewAnimation/PositionAnimatable.h"
+#include "Animation/NewAnimation/StateAnimatable.h"
+
+class AxisStateMachine : public Machine{
+	
+	DEFINE_MACHINE(AxisStateMachine)
+	
+	virtual bool onSerialization() override{
+		bool success = Machine::onSerialization();
+		return success;
+	}
+	virtual bool onDeserialization() override{
+		bool success = Machine::onDeserialization();
+		return success;
+	}
+	virtual void onConstruction() override{
+		Machine::onConstruction();
+		setName("Axis State Machine");
+		
+		positionAnimatable = std::make_shared<AnimationSystem::PositionAnimatable>();
+		stateAnimatable = std::make_shared<AnimationSystem::StateAnimatable>();
+		compositeAnimatable = std::make_shared<AnimationSystem::CompositeAnimatable>();
+		compositeAnimatable->addChildAnimatable(stateAnimatable);
+		compositeAnimatable->addChildAnimatable(positionAnimatable);
+		addAnimatable(compositeAnimatable);
+	}
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		Machine::onCopyFrom(source);
+	}
+	
+	virtual void inputProcess() override{}
+	virtual void outputProcess() override{}
+	virtual bool needsOutputProcess() override { return true; }
+	
+private:
+	
+	std::shared_ptr<AnimationSystem::PositionAnimatable> positionAnimatable;
+	std::shared_ptr<AnimationSystem::StateAnimatable> stateAnimatable;
+	std::shared_ptr<AnimationSystem::CompositeAnimatable> compositeAnimatable;
+	
+	std::shared_ptr<NodePin> axisPin;
+	std::shared_ptr<NodePin> positionPin;
+	std::shared_ptr<NodePin> velocityPin;
+	
+	bool isAxisConnected();
+	std::shared_ptr<AxisInterface> getAxisInterface();
+	
+	//——————— Output Pins ——————————
+	
+	std::shared_ptr<double> positionPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> velocityPinValue = std::make_shared<double>(0.0);
+	
+	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override{}
+	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override{}
+	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override{}
+	
+};
+
 /*
 
 class AxisStateMachine : public Machine {

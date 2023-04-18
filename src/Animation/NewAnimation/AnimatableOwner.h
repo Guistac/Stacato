@@ -1,10 +1,27 @@
 #pragma once
 
+#include "Legato/Editor/Component.h"
+
 namespace AnimationSystem{
 
 class Animatable;
 
-	class AnimatableOwner{
+	class AnimatableOwner /*: public Legato::Component*/{
+		
+		/*
+		//DECLARE_PROTOTYPE_IMPLENTATION_METHODS(AnimatableOwner)
+		
+	protected:
+		AnimatableOwner(){}
+	private:
+		std::shared_ptr<PrototypeBase> createPrototypeInstance_private() override{
+			std::shared_ptr<AnimatableOwner> newPrototypeInstance = std::shared_ptr<AnimatableOwner>(new AnimatableOwner());
+			newPrototypeInstance->onConstruction();
+			return newPrototypeInstance;
+			return nullptr;
+		};
+		*/
+		 
 	public:
 		
 		void addAnimatable(std::shared_ptr<Animatable> animatable){

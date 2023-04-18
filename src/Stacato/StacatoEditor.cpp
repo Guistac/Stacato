@@ -16,14 +16,12 @@
 #include "Project/StacatoProject.h"
 #include "Legato/Workspace.h"
 
-class Window;
-
 namespace Stacato::Editor{
 
-std::vector<std::shared_ptr<Window>> userWindows;
-std::vector<std::shared_ptr<Window>> administratorWindows;
-std::vector<std::shared_ptr<Window>>& getUserWindows(){ return userWindows; }
-std::vector<std::shared_ptr<Window>>& getAdministratorWindows(){ return administratorWindows; }
+std::vector<std::shared_ptr<Legato::Window>> userWindows;
+std::vector<std::shared_ptr<Legato::Window>> administratorWindows;
+std::vector<std::shared_ptr<Legato::Window>>& getUserWindows(){ return userWindows; }
+std::vector<std::shared_ptr<Legato::Window>>& getAdministratorWindows(){ return administratorWindows; }
 
 bool b_isLocked = false;
 

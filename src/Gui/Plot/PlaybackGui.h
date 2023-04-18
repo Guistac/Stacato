@@ -8,7 +8,7 @@ namespace Playback::Gui{
 
 	void sequencerPlaybackControls(float height);
 
-	class PlaybackManagerWindow : public Window{
+	class PlaybackManagerWindow : public Legato::Window{
 	public:
 		PlaybackManagerWindow() : Window("Playback Manager", true){}
 		virtual void onDraw() override;
