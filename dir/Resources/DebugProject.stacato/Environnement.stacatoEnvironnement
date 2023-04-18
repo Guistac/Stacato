@@ -1,7 +1,7 @@
 <Environnement Name="Default Component Name" HELLo="1234">
-    <NodeGraph Name="Default Component Name">
+    <NodeGraph Name="Default Object Name">
         <NodeList>
-            <Node Name="Position Controlled Machine" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
+            <Node Name="Position" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="87" Y="424"/>
                 <InputPins>
                     <Pin Name="Position Controlled Axis" UniqueID="97" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
@@ -11,7 +11,7 @@
                     <Pin Name="Velocity" UniqueID="99" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </OutputPins>
             </Node>
-            <Node Name="Axis State Machine" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
+            <Node Name="Axis State Machine nope" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="112" Y="336"/>
                 <InputPins/>
                 <OutputPins/>

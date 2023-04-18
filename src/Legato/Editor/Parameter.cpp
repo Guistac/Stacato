@@ -6,25 +6,11 @@
 namespace Legato{
 
 void Parameter::onConstruction() {
-	//parameters don't have a name parameter
-}
-
-bool Parameter::onSerialization() {
-	//parameters don't have a name parameter
-	return true;
-}
-bool Parameter::onDeserialization() {
-	//parameters don't have a name parameter
-	return true;
-}
-
-void Parameter::setName(std::string name){
-	if(b_hasNameParameter) {
-		nameParameter->overwrite(name);
-		nameParameter->onEdit();
-	}
-	else nonParametricName = name;
-	imGuiID = "##" + name;
+	disableNameParameter();
+	addNameEditCallback([this](){
+		imGuiID = "##" + getName();
+	});
+	Component::onConstruction();
 }
 
 void ParameterGroup::gui(){

@@ -2,6 +2,7 @@
 
 #include "PrototypeBase.h"
 #include "Serializable.h"
+#include "NamedObject.h"
 
 /*
  
@@ -41,24 +42,27 @@ IMPLEMENTATION EXAMPLE
  
 */
 
+
+//Components:
+//-Nodes
+//-Parameters
+//-Documents
+//-Layouts
+
+
+
 class ProjectComponent;
 
 namespace Legato{
 
-class StringParameter;
-
-	class Component : public PrototypeBase, public Serializable{
+	class Component : public PrototypeBase, public Serializable, public virtual NamedObject{
 		
 		DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
 		
 	public:
 		
-		virtual void setName(std::string name);
-		const std::string& getName();
-		
-	protected:
-		
 		//————————— COMPONENT
+		
 		virtual void addChild(std::shared_ptr<Component> child) {
 			child->parent = std::static_pointer_cast<Component>(shared_from_this());
 			children.push_back(child);
@@ -76,20 +80,19 @@ class StringParameter;
 			for(auto child : children) child->project = project_;
 		}
 		std::shared_ptr<ProjectComponent> getProject(){ return project; }
-		//—————————— COMPONENT
+		
+		
+		//—————————— SERIALIZABLE
 		
 		virtual bool onSerialization() override;
 		virtual bool onDeserialization() override;
+		
+		//—————————— PROTOTYPE
+		
 		virtual void onConstruction() override;
 		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
 		
-		bool b_hasNameParameter = true;
-		Component(bool withoutNameParameter){ b_hasNameParameter = false; }
-		
-		std::shared_ptr<StringParameter> nameParameter;
-		
 	protected:
-		std::string nonParametricName;
 		
 		std::vector<std::shared_ptr<Component>> children;
 		std::shared_ptr<Component> parent = nullptr;

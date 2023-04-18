@@ -1,4 +1,4 @@
-<LayoutList Name="Default Component Name" HELLo="1234">
+<LayoutList Name="Default Object Name" HELLo="1234">
     <DefaultLayout Name="Node Editor"/>
     <Layouts>
         <Layout Name="Node Editor">

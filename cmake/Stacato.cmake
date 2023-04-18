@@ -198,6 +198,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Logger.h
 
+
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/NamedObject.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/NamedObject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/PrototypeBase.h

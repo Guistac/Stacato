@@ -10,7 +10,10 @@ class StringParameter : public Parameter{
 	
 public:
 	
-	static std::shared_ptr<StringParameter> createInstance(std::string value, std::string name, std::string saveString, size_t bufferSize = 128){
+	static std::shared_ptr<StringParameter> createInstance(std::string value,
+														   std::string name,
+														   std::string saveString,
+														   size_t bufferSize = 128){
 		auto newParameter = StringParameter::createInstance();
 		delete newParameter->displayValue;
 		newParameter->displayValue = new char[bufferSize];
@@ -20,6 +23,8 @@ public:
 		newParameter->overwrite(value);
 		return newParameter;
 	}
+	
+public:
 	
 	const std::string& getValue(){ return value; }
 	

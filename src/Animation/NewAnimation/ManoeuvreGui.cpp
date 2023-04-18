@@ -70,6 +70,32 @@ namespace AnimationSystem{
 				return b_pressed;
 			};
 			
+			auto animationSelector = [&](std::shared_ptr<Animatable> animatable) -> bool {
+				for(auto animationType : animatable->getSupportedAnimationTypes()){
+					switch(animationType){
+						case AnimationType::TARGET:
+							if(manoeuvreTypeSelector(Images::TargetIcon, "Target", 300)){
+								addAnimation(animatable->makeAnimation(animationType));
+								return true;
+							}
+							break;
+						case AnimationType::SEQUENCE:
+							if(manoeuvreTypeSelector(Images::SequenceIcon, "Sequence", 300)){
+								addAnimation(animatable->makeAnimation(animationType));
+								return true;
+							}
+							break;
+						case AnimationType::STOP:
+							if(manoeuvreTypeSelector(Images::KeyIcon, "Stop", 300)){
+								addAnimation(animatable->makeAnimation(animationType));
+								return true;
+							}
+							break;
+					}
+				}
+				return false;
+			};
+			
 			if (ImGui::BeginPopup("AnimatableSelector")) {
 				
 				auto project = Stacato::Editor::getCurrentProject();
@@ -82,42 +108,17 @@ namespace AnimationSystem{
 					
 					ImGui::PushID(i);
 					
-					if(ImGui::BeginMenu("Animatable Owner")){
+					if(ImGui::BeginMenu(animatableOwner->getName().c_str())){
 					
-						for(int j = 0; j < animatables.size(); j++){
-							
-							auto animatable = animatables[j];
-							
-							if(ImGui::BeginMenu("Animatable")){
-								
-								for(auto animationType : animatable->getSupportedAnimationTypes()){
-									
-									switch(animationType){
-										case AnimationType::TARGET:
-											if(manoeuvreTypeSelector(Images::TargetIcon, "Target", 300)){
-												addAnimation(animatable->makeAnimation(animationType));
-												ImGui::CloseCurrentPopup();
-											}
-											break;
-										case AnimationType::SEQUENCE:
-											if(manoeuvreTypeSelector(Images::SequenceIcon, "Sequence", 300)){
-												addAnimation(animatable->makeAnimation(animationType));
-												ImGui::CloseCurrentPopup();
-											}
-											break;
-										case AnimationType::STOP:
-											if(manoeuvreTypeSelector(Images::KeyIcon, "Stop", 300)){
-												addAnimation(animatable->makeAnimation(animationType));
-												ImGui::CloseCurrentPopup();
-											}
-											break;
-									}
-									
-								}
-								
-								ImGui::EndMenu();
+						auto& animatables = animatableOwner->getAnimatables();
+						if(animatables.size() == 1){
+							if(animationSelector(animatables[0])) ImGui::CloseCurrentPopup();
+						}
+						else if(!animatables.empty()){
+							for(int j = 0; j < animatables.size(); j++){
+								auto animatable = animatables[j];
+								if(animationSelector(animatable)) ImGui::CloseCurrentPopup();
 							}
-							
 						}
 						
 						ImGui::EndMenu();
