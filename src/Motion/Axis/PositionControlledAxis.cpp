@@ -172,6 +172,10 @@ void PositionControlledAxis::updateSurveillance(){
 		}
 		else if(surveillanceVelocityError > maxVelocityDeviation->value){
 			triggerSurveillanceError("Max Velocity Deviation Exceeded");
+			Logger::critical("Requested velocity was {}", requestedVelocity);
+			Logger::critical("Surveillance Velocity was {}", surveillanceVelocity);
+			Logger::critical("Surveillance Velocity error was {}", surveillanceVelocityError);
+			Logger::critical("Max Velocity Deviation is {}", maxVelocityDeviation->value);
 		}
 		else{
 			b_hasSurveillanceError = false;
