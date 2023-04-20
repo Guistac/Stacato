@@ -23,7 +23,7 @@ public:
 		defaultManoeuvreList->setName("Default Manoeuvre List");
 		addManoeuvreList(defaultManoeuvreList);
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	

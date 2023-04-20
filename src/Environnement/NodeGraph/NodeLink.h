@@ -13,7 +13,7 @@ class NodeLink : public Legato::Component{
 public:
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	

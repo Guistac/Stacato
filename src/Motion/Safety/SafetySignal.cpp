@@ -34,7 +34,7 @@ void SafetySignal::onConstruction(){
 	
 	addNodePin(resetSafetyFaultPin);
 	addNodePin(stateLedPin);
-	std::shared_ptr<SafetySignal> thisSafetySignal = std::static_pointer_cast<SafetySignal>(shared_from_this());
+	std::shared_ptr<SafetySignal> thisSafetySignal = downcasted_shared_from_this<SafetySignal>();
 	controlWidget = std::make_shared<ControlWidget>(thisSafetySignal);
 }
 

@@ -9,7 +9,7 @@ public:
 		EtherCatDevice::onConstruction();
 		setName("CU1128 8-Port EtherCAT Junction");
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
@@ -27,7 +27,7 @@ public:
 		EtherCatDevice::onConstruction();
 		setName("CU1124 4-Port EtherCAT Junction");
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{

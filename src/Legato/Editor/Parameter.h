@@ -9,10 +9,7 @@ namespace Legato{
 
 	class Parameter : public Component{
 
-	public:
-		std::shared_ptr<Parameter> duplicate(){
-			return std::static_pointer_cast<Parameter>(duplicatePrototype());
-		}
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Parameter)
 		
 	public:
 		
@@ -66,7 +63,7 @@ namespace Legato{
 		virtual void onConstruction() override {
 			Component::onConstruction();
 		};
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			Component::onCopyFrom(source);
 		}
 		virtual bool onSerialization() override {

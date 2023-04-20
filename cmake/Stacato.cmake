@@ -204,7 +204,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/NamedObject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/PrototypeBase.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Prototype.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/FileComponent.h

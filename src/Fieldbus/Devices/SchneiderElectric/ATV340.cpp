@@ -16,9 +16,9 @@ void ATV340::onConstruction() {
 	setName("ATV340");
 	
 	//create submodules
-	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
-	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
-	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
+	axis = DS402Axis::make(downcasted_shared_from_this<EtherCatDevice>());
+	motor = std::make_shared<ATV340_Motor>(downcasted_shared_from_this<ATV340>());
+	gpio = std::make_shared<ATV340_GPIO>(downcasted_shared_from_this<ATV340>());
 	
 	
 	motor_pin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator", "Actuator");

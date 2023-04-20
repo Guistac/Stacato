@@ -73,7 +73,7 @@ bool ModularDevice::discoverDeviceModules(){
 std::shared_ptr<DeviceModule> ModularDevice::createModule(uint32_t identifier){
 	for(auto factoryModule : getModuleFactory()){
 		if(factoryModule->getIdentifier() == identifier){
-			return factoryModule->duplicate();
+			return factoryModule->duplicate<DeviceModule>();
 		}
 	}
 	return nullptr;
@@ -82,7 +82,7 @@ std::shared_ptr<DeviceModule> ModularDevice::createModule(uint32_t identifier){
 std::shared_ptr<DeviceModule> ModularDevice::createModule(const char* saveString){
 	for(auto factoryModule : getModuleFactory()){
 		if(strcmp(factoryModule->getSaveString().c_str(), saveString) == 0){
-			return factoryModule->duplicate();
+			return factoryModule->duplicate<DeviceModule>();
 		}
 	}
 	return nullptr;
@@ -134,7 +134,7 @@ void ModularDevice::writeModuleOutputs(){
 void ModularDevice::addModule(std::shared_ptr<DeviceModule> deviceModule){
 	if(getModules().empty()) beforeModuleReordering();
 	
-	std::shared_ptr<ModularDevice> thisDevice = std::static_pointer_cast<ModularDevice>(shared_from_this());
+	std::shared_ptr<ModularDevice> thisDevice = downcasted_shared_from_this<ModularDevice>();
 	deviceModule->setParentDevice(thisDevice);
 	deviceModule->setIndex((int)getModules().size());
 	moduleList->addEntry(deviceModule);
@@ -234,7 +234,7 @@ bool ModularDevice::onDeserialization() {
 		if(abstractEntry.deserializeAttribute("ClassName", className)){
 			for(auto factoryModule : getModuleFactory()){
 				if(factoryModule->getClassName() == className){
-					std::shared_ptr<DeviceModule> newModule = factoryModule->duplicate();
+					std::shared_ptr<DeviceModule> newModule = factoryModule->duplicate<DeviceModule>();
 					return newModule;
 				}
 			}

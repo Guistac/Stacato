@@ -22,7 +22,7 @@ namespace EtherCAT::ModularDeviceProfile{
 	class ModularDevice;
 
 	class DeviceModule : public Legato::Component{
-		DECLARE_PROTOTYPE_INTERFACE_METHODS(DeviceModule)
+		//DECLARE_PROTOTYPE_INTERFACE_METHODS(DeviceModule)
 		
 	public:
 		
@@ -34,7 +34,7 @@ namespace EtherCAT::ModularDeviceProfile{
 			Component::onConstruction();
 		}
 		
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			Component::onCopyFrom(source);
 		}
 
@@ -95,7 +95,7 @@ namespace EtherCAT::ModularDeviceProfile{
 		
 		virtual void onConstruction() override;
 		
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			//EtherCatDevice::onCopyFrom(source);
 		}
 		

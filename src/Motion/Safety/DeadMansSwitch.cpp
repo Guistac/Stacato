@@ -20,7 +20,7 @@ void DeadMansSwitch::onConstruction(){
 	addNodePin(gpioDevicePin);
 	addNodePin(switchPressedPin);
 	addNodePin(switchLedPin);
-	std::shared_ptr<DeadMansSwitch> thisDeadMansSwitch = std::static_pointer_cast<DeadMansSwitch>(shared_from_this());
+	std::shared_ptr<DeadMansSwitch> thisDeadMansSwitch = downcasted_shared_from_this<DeadMansSwitch>();
 	deadMansSwitchLink->assignData(thisDeadMansSwitch);
 	addNodePin(deadMansSwitchLink);
 	

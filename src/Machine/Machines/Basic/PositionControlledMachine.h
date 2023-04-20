@@ -21,7 +21,7 @@ class PositionControlledMachine : public Machine{
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	
 	virtual void inputProcess() override;
 	virtual void outputProcess() override;

@@ -316,7 +316,7 @@ void IB_IL_SSI_IN::onConstruction(){
 	
 	setName("SSI Input");
 	
-	auto thisEncoderModule = std::static_pointer_cast<IB_IL_SSI_IN>(shared_from_this());
+	auto thisEncoderModule = downcasted_shared_from_this<IB_IL_SSI_IN>();
 	encoder = std::make_shared<IB_IL_SSI_IN::SsiEncoder>(thisEncoderModule);
 	
 	encoderPin = NodePin::createInstance(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder", "SSIEncoder");

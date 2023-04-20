@@ -26,7 +26,7 @@ public:
 		displayInput->assignData(inputPinValue);
 		addNodePin(displayInput);
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override { Component::onCopyFrom(source); }
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override { Component::onCopyFrom(source); }
 	
 	
 };

@@ -22,7 +22,7 @@ namespace AnimationSystem{
 			else return nullptr;
 		});
 	}
-	void Manoeuvre::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+	void Manoeuvre::onCopyFrom(std::shared_ptr<Prototype> source){
 		Component::onCopyFrom(source);
 	}
 	bool Manoeuvre::onSerialization(){

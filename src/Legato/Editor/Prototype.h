@@ -15,7 +15,7 @@ USAGE
  
 IMPLEMENTATION
  
- each class implementation derived from PrototypeBase has to implement the following
+ each class implementation derived from Prototype has to implement the following
  -One of two macros:
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS()
 		Only use in a completely implemented type, no virtual classes and interfaces
@@ -28,14 +28,14 @@ IMPLEMENTATION
 	void onConstruction()
 		In this method the object can initialize itself
 		When nesting subclasses, the method should call ParentClass::onConstruction()
-	void copyFrom(std::shared_ptr<PrototypeBase> original)
+	void copyFrom(std::shared_ptr<Prototype> original)
 		In this method the argument is cast to the implemented type using std::static_pointer_cast
 		Then all fields are copied from the original
 		When nesting subclasses, the method should call ParentClass::copyFrom()
 
 IMPLEMENTATION EXAMPLE
  
-	class PrototypeImplementation : public PrototypeBase{
+	class PrototypeImplementation : public Prototype{
 		DECLARE_PROTOTYPE_BASE_METHODS(PrototypeImplementation)
  
 	protected:
@@ -45,7 +45,7 @@ IMPLEMENTATION EXAMPLE
 			field = 1238;
 		}
  
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			ParentClass::copyFrom(source); //optional
 			auto original = std::static_pointer_cast<PrototypeImplementation>(source);
 			field = field->number;
@@ -57,40 +57,36 @@ IMPLEMENTATION EXAMPLE
 
  ————————————————————————————————————————————————————————————————*/
 
-#define DECLARE_PROTOTYPE_INTERFACE_METHODS(Typename)\
-public:\
-	std::shared_ptr<Typename> duplicate(){\
-		return std::static_pointer_cast<Typename>(duplicatePrototype());\
-	}\
-
-
 
 #define DECLARE_PROTOTYPE_IMPLENTATION_METHODS(Typename) \
 	DECLARE_SHARED_CONTRUCTION(Typename)\
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(Typename)\
 private:\
-	std::shared_ptr<PrototypeBase> createPrototypeInstance_private() override{\
-		std::shared_ptr<Typename> newPrototypeInstance = std::shared_ptr<Typename>(new Typename());\
-		newPrototypeInstance->onConstruction();\
-		return newPrototypeInstance;\
+	std::shared_ptr<Prototype> createPrototypeInstance() override{\
+		return Typename::createInstance();\
 	};\
 
 namespace Legato{
 
-class PrototypeBase : public SharedObject<PrototypeBase>{
-protected:
-	
-	std::shared_ptr<PrototypeBase> duplicatePrototype(){
-		std::shared_ptr<PrototypeBase> copy = createPrototypeInstance_private();
-		copy->onCopyFrom(shared_from_this());
-		return copy;
-	}
-	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
-	
-private:
-	
-	virtual std::shared_ptr<PrototypeBase> createPrototypeInstance_private() = 0;
-};
+	class Prototype : public SharedObject<Prototype>{
+	public:
+		
+		template<class ClassName>
+		std::shared_ptr<ClassName> duplicate(){
+			std::shared_ptr<Prototype> prototypeCopy = duplicatePrototype();
+			return prototypeCopy->downcasted_shared_from_this<ClassName>();
+		}
+		
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) {}
+		
+	private:
+		
+		std::shared_ptr<Prototype> duplicatePrototype(){
+			std::shared_ptr<Prototype> copy = createPrototypeInstance();
+			copy->onCopyFrom(shared_from_this());
+			return copy;
+		}
+		
+		virtual std::shared_ptr<Prototype> createPrototypeInstance() = 0;
+	};
 
 }

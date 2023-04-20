@@ -26,7 +26,7 @@ void ATV320::onConstruction() {
 	
 	setName("ATV320");
 	
-	auto thisATV320 = std::static_pointer_cast<ATV320>(shared_from_this());
+	auto thisATV320 = downcasted_shared_from_this<ATV320>();
 	
 	axis = DS402Axis::make(thisATV320);
 	actuator = std::make_shared<ATV_Motor>(thisATV320);

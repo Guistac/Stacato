@@ -36,7 +36,7 @@ std::shared_ptr<Animation> Animatable::makeAnimation(AnimationType type){
 		}
 	}
 	
-	newAnimation->animatable = std::static_pointer_cast<Animatable>(shared_from_this());
+	newAnimation->animatable = downcasted_shared_from_this<Animatable>();
 	
 	return newAnimation;
 }

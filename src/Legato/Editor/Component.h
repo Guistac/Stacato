@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PrototypeBase.h"
+#include "Prototype.h"
 #include "Serializable.h"
 #include "NamedObject.h"
 
@@ -34,7 +34,7 @@ IMPLEMENTATION EXAMPLE
 		 Component::onConstruction();
 	 }
 	 
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	 virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		 Component::onCopyFrom(source);
 	 }
 	 
@@ -55,16 +55,16 @@ class ProjectComponent;
 
 namespace Legato{
 
-	class Component : public PrototypeBase, public virtual Serializable, public virtual NamedObject{
+	class Component : public virtual Prototype, public virtual Serializable, public virtual NamedObject{
 		
-		DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
+		//DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
 		
 	public:
 		
 		//————————— COMPONENT
 		
 		virtual void addChild(std::shared_ptr<Component> child) {
-			child->parent = PrototypeBase::downcasted_shared_from_this<Component>();
+			child->parent = Prototype::downcasted_shared_from_this<Component>();
 			children.push_back(child);
 		}
 		const std::vector<std::shared_ptr<Component>>& getChildren(){ return children; }
@@ -90,7 +90,7 @@ namespace Legato{
 		//—————————— PROTOTYPE
 		
 		virtual void onConstruction() override;
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 		
 	protected:
 		

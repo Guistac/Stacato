@@ -49,7 +49,7 @@ void EnvironnementObject::onConstruction(){
 	
 }
 
-void EnvironnementObject::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+void EnvironnementObject::onCopyFrom(std::shared_ptr<Prototype> source){
 	Component::onCopyFrom(source);
 }
 

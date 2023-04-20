@@ -42,7 +42,7 @@ void BusCoupler::onConstruction() {
 	
 	//by default, this node only has one pin
 	//no modules are loaded by default
-	auto thisCoupler = std::static_pointer_cast<BusCoupler>(shared_from_this());
+	auto thisCoupler = downcasted_shared_from_this<BusCoupler>();
 	gpioDevice = std::make_shared<PhoenixContactGpioDevice>(thisCoupler);
 	auto abstractGpioDevice = std::static_pointer_cast<GpioInterface>(gpioDevice);
 	gpioDeviceLink->assignData(abstractGpioDevice);

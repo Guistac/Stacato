@@ -23,14 +23,14 @@ class NodeGraph;
 
 class Node : public Legato::Component{
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
 	
 public:
 	
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	
 	bool loadPins();
 	virtual bool loadAfterPinConnection() { return true; }

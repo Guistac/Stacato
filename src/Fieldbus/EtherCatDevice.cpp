@@ -240,7 +240,7 @@ bool EtherCatDevice::writeSDO_String(uint16_t index, uint8_t subindex, const cha
 }
 
 bool EtherCatDevice::executeSDOTasks(std::vector<std::shared_ptr<SDOTask>>& taskList){
-	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
+	auto thisDevice = downcasted_shared_from_this<EtherCatDevice>();
 	for(auto task : taskList){
 		if(!task->execute(thisDevice)) return false;
 	}

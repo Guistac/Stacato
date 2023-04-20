@@ -10,7 +10,7 @@
 #include <tinyxml2.h>
 
 
-void Plot::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+void Plot::onCopyFrom(std::shared_ptr<Prototype> source){
 	Component::onCopyFrom(source);
 	/*
 	auto copy = create();

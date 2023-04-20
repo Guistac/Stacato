@@ -14,7 +14,7 @@ void LayoutList::onConstruction() {
 	layouts->setEntryConstructor([](Serializable&) -> std::shared_ptr<Layout> { return Layout::createInstance(); });
 }
 
-void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void LayoutList::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Component::onCopyFrom(source);
 }
 

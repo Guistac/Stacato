@@ -56,7 +56,7 @@ void PositionControlledMachine::onConstruction() {
 	
 }
 
-void PositionControlledMachine::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void PositionControlledMachine::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Machine::onCopyFrom(source);
 }
 

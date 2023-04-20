@@ -16,7 +16,7 @@ public:
 	
 	virtual void onConstruction() override;
 	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	}
 	

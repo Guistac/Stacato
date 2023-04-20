@@ -15,7 +15,7 @@ void NodeGraph::onConstruction() {
 	
 }
 
-void NodeGraph::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void NodeGraph::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Component::onCopyFrom(source);
 }
 
@@ -102,7 +102,7 @@ void NodeGraph::addNode(std::shared_ptr<Node> newNode) {
 	if(newNode->uniqueID == -1) newNode->uniqueID = getNewUniqueID();
 	else registerUniqueID(newNode->uniqueID);
 	
-	newNode->nodeGraph = std::static_pointer_cast<NodeGraph>(shared_from_this());
+	newNode->nodeGraph = downcasted_shared_from_this<NodeGraph>();
 	nodeList->addEntry(newNode);
 	
 	auto handleNodePinIDs = [this](std::vector<std::shared_ptr<NodePin>> pins){

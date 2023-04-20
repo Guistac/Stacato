@@ -13,7 +13,7 @@ public:
 	virtual void onConstruction() override{
 		LeafAnimatable::onConstruction();
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		LeafAnimatable::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{

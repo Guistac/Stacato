@@ -20,7 +20,7 @@ void Lexium32::onConstruction() {
 	
 	setName("Lexium32M");
 	
-	auto thisLexiumDrive = std::static_pointer_cast<Lexium32>(shared_from_this());
+	auto thisLexiumDrive = downcasted_shared_from_this<Lexium32>();
 	servoMotor = std::make_shared<LexiumServoMotor>(thisLexiumDrive);
 	gpioDevice = std::make_shared<LexiumGpio>(thisLexiumDrive);
 	

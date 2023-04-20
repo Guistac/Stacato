@@ -23,7 +23,7 @@ protected:
 		//initialize object
 	}
 	 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Component::onCopyFrom(source);
 		//copy project content
 	}
@@ -59,7 +59,7 @@ class UndoableAction;
 
 class Project : public Legato::Component, public File{
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(Project)
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Project)
 	
 public:
 	

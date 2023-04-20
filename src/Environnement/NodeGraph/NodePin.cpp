@@ -52,7 +52,7 @@ void NodePin::onConstruction() {
 	Component::onConstruction();
 }
 
-void NodePin::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void NodePin::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Component::onCopyFrom(source);
 }
 
@@ -126,7 +126,7 @@ bool NodePin::matches(std::string& saveStr, NodePin::DataType type) {
 
 bool NodePin::isConnectionValid(std::shared_ptr<NodePin> otherPin){
 	
-	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
+	auto thisPin = downcasted_shared_from_this<NodePin>();
 	
 	//only allow connection between an input and an output
 	if (thisPin->isInput() && otherPin->isInput()) return false;
@@ -156,7 +156,7 @@ std::shared_ptr<NodeLink> NodePin::connectTo(std::shared_ptr<NodePin> otherPin, 
 	
 	newLink->nodeGraph = parentNode->nodeGraph;
 	
-	auto thisPin = std::static_pointer_cast<NodePin>(shared_from_this());
+	auto thisPin = downcasted_shared_from_this<NodePin>();
 	
 	newLink->inputPin = thisPin->isOutput() ? thisPin : otherPin;
 	newLink->outputPin = otherPin->isInput() ? otherPin : thisPin;

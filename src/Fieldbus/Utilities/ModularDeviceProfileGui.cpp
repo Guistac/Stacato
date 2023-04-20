@@ -87,7 +87,7 @@ void ModularDevice::moduleManagerGui(){
 				static char moduleItemString[128];
 				snprintf(moduleItemString, 128, "%s (%s)", deviceModule->getName().c_str(), deviceModule->getSaveString().c_str());
 				if(ImGui::MenuItem(moduleItemString)){
-					addModule(deviceModule->duplicate());
+					addModule(deviceModule->duplicate<DeviceModule>());
 				}
 			}
 			ImGui::EndPopup();

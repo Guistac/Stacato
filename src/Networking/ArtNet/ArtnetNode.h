@@ -32,7 +32,7 @@ class ArtNetNode : public NetworkDevice{
 	DEFINE_NETWORK_DEVICE(ArtNetNode)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		NetworkDevice::onCopyFrom(source);
 	};
 	virtual bool onSerialization() override;

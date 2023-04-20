@@ -70,7 +70,7 @@ void Layout::onConstruction() {
 	setSaveString("Layout");
 }
 
-void Layout::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void Layout::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Component::onCopyFrom(source);
 }
 

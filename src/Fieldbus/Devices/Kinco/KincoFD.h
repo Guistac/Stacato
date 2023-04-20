@@ -9,7 +9,7 @@ public:
 	DEFINE_ETHERCAT_DEVICE(KincoFD, "Kinco", "Servo Drives", 0x681168, 0x464445)
 
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	};
 	virtual bool onSerialization() override;

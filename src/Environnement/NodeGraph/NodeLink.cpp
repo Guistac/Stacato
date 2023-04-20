@@ -8,7 +8,7 @@ void NodeLink::onConstruction(){
 	Component::onConstruction();
 }
 
-void NodeLink::onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
+void NodeLink::onCopyFrom(std::shared_ptr<Prototype> source) {}
 
 bool NodeLink::onSerialization() {
 	//we don't call this since we don't need a saved name for links
@@ -39,7 +39,7 @@ void NodeLink::disconnect(){
 	std::vector<std::shared_ptr<NodeLink>>& inputDataLinks = inputPin->nodeLinks;
 	std::vector<std::shared_ptr<NodeLink>>& outputDataLinks = outputPin->nodeLinks;
 
-	auto thisLink = std::static_pointer_cast<NodeLink>(shared_from_this());
+	auto thisLink = downcasted_shared_from_this<NodeLink>();
 	
 	for (int i = 0; i < inputDataLinks.size(); i++) {
 		if (inputDataLinks[i] == thisLink) {

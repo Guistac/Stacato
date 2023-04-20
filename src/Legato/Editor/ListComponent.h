@@ -8,24 +8,7 @@ template<typename T, typename = std::enable_if_t<std::is_base_of_v<Serializable,
 class ListComponent : public Component, public std::vector<std::shared_ptr<T>>{
 	
 	//DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
-	
-
-	DECLARE_SHARED_CONTRUCTION(ListComponent<T>)
-public:
-	std::shared_ptr<ListComponent<T>> duplicate(){
-		auto prototypeCopy = duplicatePrototype();
-		auto downcastedCopy = prototypeCopy->template downcasted_shared_from_this();
-		//auto downcastedCopy = prototypeCopy->downcasted_shared_from_this<ListComponent<T>>();
-		return downcastedCopy;
-		/*return std::static_pointer_cast<Typename>(duplicatePrototype());*/
-	}
-private:
-	std::shared_ptr<PrototypeBase> createPrototypeInstance_private() override{
-		std::shared_ptr<ListComponent> newPrototypeInstance = std::shared_ptr<ListComponent>(new ListComponent());
-		newPrototypeInstance->onConstruction();
-		return newPrototypeInstance;
-	};
-	
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
 	
 public:
 	void setEntrySaveString(std::string entrySaveString_){
@@ -112,12 +95,12 @@ private:
 		Component::onConstruction();
 	}
 	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Component::onCopyFrom(source);
 		auto listComponent = source->downcasted_shared_from_this<ListComponent<T>>();
 		//auto listComponent = std::static_pointer_cast<ListComponent<T>>(source);
 		for(auto originalEntry : *listComponent.get()){ //get the raw pointer and dereference it to get the vector
-			auto copy = originalEntry->duplicate();
+			auto copy = originalEntry->template duplicate<T>();
 			std::vector<std::shared_ptr<T>>::push_back(copy); //we need to specify the push_back method of the specific vector subclass
 		}
 	}

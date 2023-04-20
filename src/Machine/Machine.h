@@ -24,7 +24,7 @@ namespace tinyxml2{ struct XMLElement; }
 class Machine : public Node, public AnimationSystem::AnimatableOwner{
 public:
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(Machine)
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Machine)
 	
 	virtual std::string getNodeCategory() override { return "Machines"; }
 	virtual Node::Type getType() override { return Node::Type::PROCESSOR; }\
@@ -49,7 +49,7 @@ public:
 													"Dead Man's Switch", "DeadMansSwitch", NodePin::Flags::AcceptMultipleInputs);
 	}
 	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	

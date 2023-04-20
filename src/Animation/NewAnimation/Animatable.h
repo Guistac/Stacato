@@ -12,14 +12,14 @@ namespace AnimationSystem{
 
 	class Animatable : public Legato::Component{
 		
-		DECLARE_PROTOTYPE_INTERFACE_METHODS(Animatable)
+		//DECLARE_PROTOTYPE_INTERFACE_METHODS(Animatable)
 		
 	public:
 		
 		virtual void onConstruction() override{
 			Component::onConstruction();
 		}
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Component::onCopyFrom(source);
 		}
 		virtual bool onSerialization() override{
@@ -90,7 +90,7 @@ namespace AnimationSystem{
 		virtual void onConstruction() override{
 			Animatable::onConstruction();
 		}
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Animatable::onCopyFrom(source);
 		}
 		virtual bool onSerialization() override{
@@ -143,14 +143,14 @@ namespace AnimationSystem{
 
 	class LeafAnimatable : public Animatable{
 	
-		DECLARE_PROTOTYPE_INTERFACE_METHODS(LeafAnimatable)
+		//DECLARE_PROTOTYPE_INTERFACE_METHODS(LeafAnimatable)
 		
 	public:
 		
 		virtual void onConstruction() override{
 			Animatable::onConstruction();
 		}
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Animatable::onCopyFrom(source);
 		}
 		virtual bool onSerialization() override{

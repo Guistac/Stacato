@@ -13,7 +13,7 @@ public:
     DEFINE_ETHERCAT_DEVICE(Lexium32i, "Schneider Electric", "Servo Drives", 0x800005A, 0x16E72)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override;

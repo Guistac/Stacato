@@ -15,7 +15,7 @@ public:
 	DEFINE_NODE(AxisNode, Node::Type::PROCESSOR, "")
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	};
 	virtual bool onSerialization() override;

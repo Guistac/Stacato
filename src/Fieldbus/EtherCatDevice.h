@@ -59,7 +59,7 @@ protected:
 		 setName("Unknown EtherCAT Device");
 	 }
 	 
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	 virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		 Node::onCopyFrom(source);
 	 }
 	

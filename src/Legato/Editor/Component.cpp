@@ -27,8 +27,8 @@ void Component::onConstruction() {
 	NamedObject::onConstruction();
 }
 
-void Component::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	auto original = std::static_pointer_cast<Component>(source);
+void Component::onCopyFrom(std::shared_ptr<Prototype> source) {
+	auto original = downcasted_shared_from_this<Component>();
 	setName(original->getName() + " copy");
 }
 

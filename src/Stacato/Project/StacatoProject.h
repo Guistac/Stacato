@@ -28,7 +28,7 @@ class EnvironnementObject;
 protected:
 	 
 	 virtual void onConstruction() override;
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	 virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	 virtual bool onWriteFile() override;
 	 virtual bool onReadFile() override;
 	 virtual void onOpen() override;

@@ -78,7 +78,7 @@ namespace NodeFactory{
 	std::shared_ptr<EtherCatDevice> getEtherCatDeviceByIdCodes(uint32_t manufacturerCode, uint32_t identificationCode){
 		for(auto device : allEtherCatDevices){
 			if(device->getManufacturerCode() == manufacturerCode && device->getIdentificationCode() == identificationCode){
-				return std::static_pointer_cast<EtherCatDevice>(device->duplicate());
+				return std::static_pointer_cast<EtherCatDevice>(device->duplicate<EtherCatDevice>());
 			}
 		}
 		return EtherCatDevice::createInstance();

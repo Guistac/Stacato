@@ -23,7 +23,7 @@ IMPLEMENTATION
 	bool onSerialization()
 	bool onDeserialization()
 	void onConstruction()
-	void onCopyFrom(std::shared_ptr<PrototypeBase> source);
+	void onCopyFrom(std::shared_ptr<Prototype> source);
 
 IMPLEMENTATION EXAMPLE
  
@@ -52,7 +52,7 @@ IMPLEMENTATION EXAMPLE
 			//initialize stuff
 		 }
 		 
-		 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		 virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			Component::onCopyFrom(source);
 			auto original = std::static_pointer_cas<FileComponentImplementation>(source);
 			 //copy stuff
@@ -66,7 +66,7 @@ namespace Legato{
 
 class FileComponent : public Legato::Component, public File{
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(FileComponent)
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(FileComponent)
 	
 public:
 	

@@ -13,14 +13,14 @@ class CompositeAnimation;
 
 class Animation : public Legato::Component{
 	
-	DECLARE_PROTOTYPE_INTERFACE_METHODS(Animation)
+	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Animation)
 	
 public:
 	
 	virtual void onConstruction() override{
 		//Component::onConstruction();
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		//Component::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
@@ -96,7 +96,7 @@ public:
 			else return nullptr;
 		});
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Animation::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
@@ -117,7 +117,7 @@ public:
 	
 	void addChildAnimation(std::shared_ptr<Animation> animation){
 		childAnimations->addEntry(animation);
-		animation->setParentComposite(std::static_pointer_cast<CompositeAnimation>(shared_from_this()));
+		animation->setParentComposite(downcasted_shared_from_this<CompositeAnimation>());
 	}
 	
 	void removeChildAnimation(std::shared_ptr<Animation> animation){
@@ -163,7 +163,7 @@ public:
 	virtual void onConstruction() override{
 		Animation::onConstruction();
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Animation::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
@@ -198,7 +198,7 @@ public:
 	virtual void onConstruction() override{
 		Animation::onConstruction();
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Animation::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
@@ -232,7 +232,7 @@ public:
 	virtual void onConstruction() override{
 		Animation::onConstruction();
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Animation::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{

@@ -405,7 +405,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
@@ -416,7 +416,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
@@ -443,7 +443,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
 				updateAxisConfiguration();
 			}
@@ -454,7 +454,7 @@ void AxisNode::motionFeedbackSettingsGui(){
 			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
 			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
 			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
 				updateAxisConfiguration();
 			}

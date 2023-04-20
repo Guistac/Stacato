@@ -8,7 +8,7 @@ void KincoFD::onConnection() {}
 void KincoFD::onConstruction() {
 	EtherCatDevice::onConstruction();
 	
-	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
+	auto thisDevice = downcasted_shared_from_this<EtherCatDevice>();
 	axis = DS402Axis::make(thisDevice);
 	
 	axis->processDataConfiguration.enableCyclicSynchronousPositionMode();

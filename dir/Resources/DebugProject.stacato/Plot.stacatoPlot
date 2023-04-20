@@ -1,7 +1,19 @@
 <Plot>
     <ManoeuvreLists>
         <ManoeuvreList Name="Manoeuvre List">
-            <Manoeuvres/>
+            <Manoeuvres>
+                <Manoeuvre Name="Default Object Name">
+                    <Animations>
+                        <Animation Type="Target"/>
+                        <Animation Type="Sequence" IsComposite="1">
+                            <ChildAnimations>
+                                <Animation Type="Sequence"/>
+                                <Animation Type="Sequence"/>
+                            </ChildAnimations>
+                        </Animation>
+                    </Animations>
+                </Manoeuvre>
+            </Manoeuvres>
         </ManoeuvreList>
     </ManoeuvreLists>
 </Plot>

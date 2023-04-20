@@ -24,7 +24,7 @@ void VipaBusCoupler_053_1EC01::onConstruction() {
 	
     //by default, this node only has one pin
     //no modules are loaded by default
-	auto thisCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());
+	auto thisCoupler = downcasted_shared_from_this<VipaBusCoupler_053_1EC01>();
 	gpioDevice = std::make_shared<VipaGpioDevice>(thisCoupler);
 	auto abstractGpioDevice = std::static_pointer_cast<GpioInterface>(gpioDevice);
 	
@@ -139,7 +139,7 @@ bool VipaBusCoupler_053_1EC01::downloadDeviceModules(std::vector<std::shared_ptr
 
 
 void VipaBusCoupler_053_1EC01::addModule(std::shared_ptr<VipaModule> module){
-	std::shared_ptr<VipaBusCoupler_053_1EC01> thisBusCoupler = std::static_pointer_cast<VipaBusCoupler_053_1EC01>(shared_from_this());
+	std::shared_ptr<VipaBusCoupler_053_1EC01> thisBusCoupler = downcasted_shared_from_this<VipaBusCoupler_053_1EC01>();
 	module->setParentBusCoupler(thisBusCoupler);
 	module->setIndex(modules.size());
 	modules.push_back(module);

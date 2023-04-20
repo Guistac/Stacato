@@ -23,7 +23,7 @@ public:
 		output_seconds->assignData(outputPinValue);
 		addNodePin(output_seconds);
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override { Component::onCopyFrom(source); }
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override { Component::onCopyFrom(source); }
 	
 };
 

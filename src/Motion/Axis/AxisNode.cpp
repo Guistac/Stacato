@@ -317,7 +317,7 @@ bool AxisNode::loadAfterPinConnection(){
 	if(positionFeedbackPinID != -1){
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == positionFeedbackPinID){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				positionFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
 				success &= positionFeedbackMapping->feedbackUnitsPerAxisUnit->deserializeFromParent(positionFeedbackData);
 				break;
@@ -333,7 +333,7 @@ bool AxisNode::loadAfterPinConnection(){
 	if(velocityFeedbackPinID != -1){
 		for(auto fbPin : allFeedbackPins){
 			if(fbPin->getUniqueID() == velocityFeedbackPinID){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+				auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(fbPin, thisAxisNode);
 				success &= velocityFeedbackMapping->feedbackUnitsPerAxisUnit->deserializeFromParent(velocityFeedbackData);
 				break;
@@ -400,7 +400,7 @@ void AxisNode::updateConnectedModules(){
 			}
 		}
 		if(!b_interfaceFound){
-			auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+			auto thisAxisNode = downcasted_shared_from_this<AxisNode>();
 			auto newMapping = std::make_shared<ActuatorMapping>(actuatorPin, thisAxisNode);
 			actuatorMappings.push_back(newMapping);
 		}

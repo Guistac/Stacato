@@ -123,9 +123,9 @@ private:
 		Parameter::onConstruction();
 	}
 	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Parameter::onCopyFrom(source);
-		auto original = std::static_pointer_cast<StringParameter>(source);
+		auto original = source->downcasted_shared_from_this<OptionParameter>();
 	}
 	
 	virtual bool onSerialization() override {

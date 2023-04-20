@@ -7,7 +7,7 @@ class PD4_E : public EtherCatDevice {
 	DEFINE_ETHERCAT_DEVICE(PD4_E, "Nanotec", "Servo Drives", 0x26C, 0xC9);
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		EtherCatDevice::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override;

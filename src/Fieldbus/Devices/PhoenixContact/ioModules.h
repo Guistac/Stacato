@@ -33,7 +33,7 @@ public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DI_4, "IB IL 24 DI 4", 0x41BE)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	
@@ -60,7 +60,7 @@ public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_DO_4, "IB IL 24 DO 4", 0x41BD)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	
@@ -87,7 +87,7 @@ public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2", 0x123)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	
@@ -179,7 +179,7 @@ public:
 	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_SSI_IN, "IB IL SSI-IN", 0x25F)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{}
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	

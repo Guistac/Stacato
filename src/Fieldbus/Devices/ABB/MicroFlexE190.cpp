@@ -15,7 +15,7 @@ void MicroFlex_e190::onConstruction() {
 	
 	setName("MicroFlex e190");
 	
-	auto thisMicroflex = std::static_pointer_cast<MicroFlex_e190>(shared_from_this());
+	auto thisMicroflex = downcasted_shared_from_this<MicroFlex_e190>();
 	
 	servoPin = NodePin::createInstance(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Servo Motor", "ServoMotor");
 	gpioPin = NodePin::createInstance(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Gpio", "Gpio");
@@ -92,7 +92,7 @@ void MicroFlex_e190::onConstruction() {
 	accelerationLimit_parameter->addEditCallback([this](){ configureSubmodules(); });
 	configureSubmodules();
 	
-	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
+	auto thisDevice = downcasted_shared_from_this<EtherCatDevice>();
 	axis = DS402Axis::make(thisDevice);
 	
 	axis->processDataConfiguration.enableCyclicSynchronousPositionMode();

@@ -14,7 +14,7 @@ public:
 	DEFINE_ETHERCAT_DEVICE(ATV320, "Schneider Electric", "Motor Drives", 0x800005A, 0x389)
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		EtherCatDevice::onCopyFrom(source);
 	};
 	virtual bool onSerialization() override;

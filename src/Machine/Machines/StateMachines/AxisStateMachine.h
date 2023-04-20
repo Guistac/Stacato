@@ -43,7 +43,7 @@ class AxisStateMachine : public Machine{
 		});
 		addAnimatable(compositeAnimatable);
 	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Machine::onCopyFrom(source);
 	}
 	

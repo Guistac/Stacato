@@ -11,7 +11,7 @@ public:
 	DEFINE_NODE(SafetySignal, Node::Type::PROCESSOR, "Safety")
 	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	};
 	virtual bool onSerialization() override;

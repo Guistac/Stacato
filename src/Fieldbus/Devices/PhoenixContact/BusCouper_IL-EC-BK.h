@@ -10,7 +10,7 @@ namespace PhoenixContact{
 		DEFINE_ETHERCAT_DEVICE(BusCoupler, "Phoenix Contact", "I/O", 0x84, 0x293CAB)
 		
 		virtual void onConstruction() override;
-		virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 			EtherCAT::ModularDeviceProfile::ModularDevice::onCopyFrom(source);
 		};
 		virtual bool onSerialization() override;

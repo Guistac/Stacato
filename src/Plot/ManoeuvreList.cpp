@@ -26,7 +26,7 @@ void ManoeuvreList::onConstruction(){
 	manoeuvres->setEntrySaveString("Manoeuvre");
 	manoeuvres->setEntryConstructor([](Serializable& abstract){ return AnimationSystem::Manoeuvre::createInstance(); });
 }
-void ManoeuvreList::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+void ManoeuvreList::onCopyFrom(std::shared_ptr<Prototype> source){
 	Component::onCopyFrom(source);
 }
 bool ManoeuvreList::onSerialization(){

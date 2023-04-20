@@ -15,7 +15,7 @@ void Node::onConstruction() {
 	outputPins->setEntrySaveString("Pin");
 }
 
-void Node::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void Node::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Component::onCopyFrom(source);
 	
 }
@@ -126,12 +126,12 @@ void Node::addNodePin(std::shared_ptr<NodePin> pin) {
 	if (pin->isInput()) inputPins->addEntry(pin);
 	else if (pin->isOutput()) outputPins->addEntry(pin);
 	
-	pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
+	pin->parentNode = downcasted_shared_from_this<Node>();
 	
 	//if a pins gets added after if the node is already in the nodegraph, this handles everything
 	if (nodeGraph != nullptr) {
 		pin->uniqueID = nodeGraph->getNewUniqueID();
-		pin->parentNode = std::static_pointer_cast<Node>(shared_from_this());
+		pin->parentNode = downcasted_shared_from_this<Node>();
 	}
 }
 

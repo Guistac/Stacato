@@ -36,7 +36,7 @@ public:
 		addNodePin(pin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -90,7 +90,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -159,7 +159,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -215,7 +215,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -283,7 +283,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -329,7 +329,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -368,7 +368,7 @@ public:
 		addNodePin(output);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -408,7 +408,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -446,7 +446,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -483,7 +483,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -520,7 +520,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -569,7 +569,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -606,7 +606,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -652,7 +652,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	
@@ -699,7 +699,7 @@ public:
 		addNodePin(outputPin);
 	}
 
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
 	}
 	

@@ -18,9 +18,9 @@ void StacatoProject::onConstruction() {
 	layouts = LayoutList::createInstance();
 }
 
-void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
+void StacatoProject::onCopyFrom(std::shared_ptr<Prototype> source) {
 	Project::onCopyFrom(source);
-	auto original = std::static_pointer_cast<StacatoProject>(source);
+	auto original = downcasted_shared_from_this<StacatoProject>();
 }
 
 bool StacatoProject::onWriteFile() {

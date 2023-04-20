@@ -7,7 +7,7 @@ namespace Legato{
 template<typename T>
 class NumberParameter : public Parameter{
 	
-	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NumberParameter)
+	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(NumberParameter<T>)
 	
 public:
 	
@@ -114,9 +114,9 @@ private:
 		Parameter::onConstruction();
 	}
 	
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override {
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Parameter::onCopyFrom(source);
-		auto original = std::static_pointer_cast<StringParameter>(source);
+		auto original = downcasted_shared_from_this<StringParameter>();
 	}
 	
 	virtual bool onSerialization() override {
