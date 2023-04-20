@@ -5,6 +5,10 @@
 
 namespace AnimationSystem{
 
+	void AnimatableOwner::onConstruction(){
+		animatables = Legato::ListComponent<Animatable>::createInstance();
+	}
+
 	bool AnimatableOwner::onSerialization(){
 		bool success = true;
 		return success;

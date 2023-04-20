@@ -9,11 +9,13 @@
 
 namespace AnimationSystem{
 
-	class AnimatableOwner : public virtual Legato::NamedObject, public virtual Legato::Serializable, public Legato::SharedObject<AnimatableOwner>{
+	class AnimatableOwner : public virtual Legato::Component{
 	public:
 		
+		virtual void onConstruction() override;
 		virtual bool onSerialization() override;
 		virtual bool onDeserialization() override;
+		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {}
 		
 		void addAnimatable(std::shared_ptr<Animatable> animatable);
 		void removeAnimatable(std::shared_ptr<Animatable> animatable);
@@ -23,7 +25,7 @@ namespace AnimationSystem{
 	private:
 		
 		friend class AnimatableRegistry;
-		std::shared_ptr<Legato::ListComponent<Animatable>> animatables = Legato::ListComponent<Animatable>::createInstance();
+		std::shared_ptr<Legato::ListComponent<Animatable>> animatables;
 		
 	};
 

@@ -24,14 +24,21 @@ namespace tinyxml2{ struct XMLElement; }
 class Machine : public Node, public AnimationSystem::AnimatableOwner{
 public:
 	
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Machine)
-	
 	virtual std::string getNodeCategory() override { return "Machines"; }
 	virtual Node::Type getType() override { return Node::Type::PROCESSOR; }\
+	
+	virtual void onConstruction() override {
+		Node::onConstruction();
+		AnimationSystem::AnimatableOwner::onConstruction();
+		deadMansSwitchPin = NodePin::createInstance(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
+													"Dead Man's Switch", "DeadMansSwitch", NodePin::Flags::AcceptMultipleInputs);
+		//addNodePin(deadMansSwitchPin);
+	}
 	
 	virtual bool onSerialization() override {
 		bool success = true;
 		success &= Node::onSerialization();
+		success &= AnimationSystem::AnimatableOwner::onSerialization();
 		success &= AnimationSystem::AnimatableOwner::onSerialization();
 		return true;
 	}
@@ -40,17 +47,13 @@ public:
 		bool success = true;
 		success &= Node::onDeserialization();
 		success &= AnimationSystem::AnimatableOwner::onDeserialization();
+		success &= AnimationSystem::AnimatableOwner::onDeserialization();
 		return true;
-	}
-	
-	virtual void onConstruction() override {
-		Node::onConstruction();
-		deadMansSwitchPin = NodePin::createInstance(NodePin::DataType::DEAD_MANS_SWITCH, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
-													"Dead Man's Switch", "DeadMansSwitch", NodePin::Flags::AcceptMultipleInputs);
 	}
 	
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Node::onCopyFrom(source);
+		AnimationSystem::AnimatableOwner::onCopyFrom(source);
 	}
 	
 	DeviceState getState() { return state; }

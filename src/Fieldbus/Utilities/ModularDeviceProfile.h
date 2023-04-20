@@ -22,7 +22,6 @@ namespace EtherCAT::ModularDeviceProfile{
 	class ModularDevice;
 
 	class DeviceModule : public Legato::Component{
-		//DECLARE_PROTOTYPE_INTERFACE_METHODS(DeviceModule)
 		
 	public:
 		

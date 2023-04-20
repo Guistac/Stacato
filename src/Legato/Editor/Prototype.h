@@ -20,9 +20,6 @@ IMPLEMENTATION
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS()
 		Only use in a completely implemented type, no virtual classes and interfaces
 		Declares the basic methods which allow duplication and force shared_ptr instancing
-	DECLARE_PROTOTYPE_INTERFACE_METHODS()
-		Only use in incomplete interface types
-		Allows duplication at the interface level
  
  -Optional protected virtual methods:
 	void onConstruction()
@@ -81,9 +78,10 @@ namespace Legato{
 	private:
 		
 		std::shared_ptr<Prototype> duplicatePrototype(){
-			std::shared_ptr<Prototype> copy = createPrototypeInstance();
-			copy->onCopyFrom(shared_from_this());
-			return copy;
+			std::shared_ptr<Prototype> newInstance = createPrototypeInstance();
+			std::shared_ptr<Prototype> thisPrototype = downcasted_shared_from_this<Prototype>();
+			newInstance->onCopyFrom(thisPrototype);
+			return newInstance;
 		}
 		
 		virtual std::shared_ptr<Prototype> createPrototypeInstance() = 0;

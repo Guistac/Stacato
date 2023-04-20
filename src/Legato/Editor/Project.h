@@ -59,8 +59,6 @@ class UndoableAction;
 
 class Project : public Legato::Component, public File{
 	
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Project)
-	
 public:
 	
 	virtual bool canClose() = 0;

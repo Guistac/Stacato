@@ -13,18 +13,13 @@ class CompositeAnimation;
 
 class Animation : public Legato::Component{
 	
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Animation)
-	
 public:
 	
-	virtual void onConstruction() override{
-		//Component::onConstruction();
-	}
-	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
-		//Component::onCopyFrom(source);
-	}
+	virtual void onConstruction() override{}
+	
+	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
+	
 	virtual bool onSerialization() override{
-		//bool success = Component::onSerialization();
 		bool success = true;
 		switch(getType()){
 			case AnimationType::TARGET:
@@ -37,11 +32,11 @@ public:
 				success &= serializeAttribute("Type", "Stop");
 				break;
 		}
-		if(isCompositeAnimation()) success &= serializeAttribute("IsComposite", true);
+		success &= serializeAttribute("IsComposite", isCompositeAnimation());
 		return success;
 	}
+	
 	virtual bool onDeserialization() override{
-		//bool success = Component::onDeserialization();
 		bool success = true;
 		return success;
 	}

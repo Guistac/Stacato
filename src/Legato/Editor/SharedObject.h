@@ -32,7 +32,9 @@ namespace Legato{
 		//but wants to use the feature.
 		template <class DownCastedClass>
 		std::shared_ptr<DownCastedClass> downcasted_shared_from_this(){
-			return std::dynamic_pointer_cast<DownCastedClass>(BaseSharedObject::shared_from_this());
+			std::shared_ptr<BaseSharedObject> sharedBase = BaseSharedObject::shared_from_this();
+			std::shared_ptr<DownCastedClass> downcasted = std::dynamic_pointer_cast<DownCastedClass>(sharedBase);
+			return downcasted;
 		}
 		
 		virtual void onConstruction() = 0;

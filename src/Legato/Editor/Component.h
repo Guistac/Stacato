@@ -55,9 +55,7 @@ class ProjectComponent;
 
 namespace Legato{
 
-	class Component : public virtual Prototype, public virtual Serializable, public virtual NamedObject{
-		
-		//DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
+	class Component : public Prototype, public Serializable, public NamedObject{
 		
 	public:
 		

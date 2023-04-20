@@ -8,8 +8,6 @@
 namespace Legato{
 
 	class Parameter : public Component{
-
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Parameter)
 		
 	public:
 		

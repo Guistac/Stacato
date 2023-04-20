@@ -7,7 +7,6 @@ namespace Legato{
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<Serializable, T>>>
 class ListComponent : public Component, public std::vector<std::shared_ptr<T>>{
 	
-	//DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ListComponent<T>)
 	
 public:
@@ -74,8 +73,6 @@ private:
 			abstractEntry.setSaveString(entrySaveString);
 			abstractEntry.xmlElement = entryXML;
 			
-			
-			
 			if(std::shared_ptr<T> loadedEntry = constructor(abstractEntry)){
 				loadedEntry->xmlElement = entryXML;
 				loadedEntry->setSaveString(entrySaveString);
@@ -97,9 +94,8 @@ private:
 	
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override {
 		Component::onCopyFrom(source);
-		auto listComponent = source->downcasted_shared_from_this<ListComponent<T>>();
-		//auto listComponent = std::static_pointer_cast<ListComponent<T>>(source);
-		for(auto originalEntry : *listComponent.get()){ //get the raw pointer and dereference it to get the vector
+		auto original = source->downcasted_shared_from_this<ListComponent<T>>();
+		for(auto originalEntry : original->getEntries()){ //get the raw pointer and dereference it to get the vector
 			auto copy = originalEntry->template duplicate<T>();
 			std::vector<std::shared_ptr<T>>::push_back(copy); //we need to specify the push_back method of the specific vector subclass
 		}

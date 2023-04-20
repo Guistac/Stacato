@@ -66,8 +66,6 @@ namespace Legato{
 
 class FileComponent : public Legato::Component, public File{
 	
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(FileComponent)
-	
 public:
 	
 	virtual bool onWriteFile() override {

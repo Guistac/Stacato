@@ -21,9 +21,7 @@ namespace tinyxml2 { class XMLElement; }
 
 class NodeGraph;
 
-class Node : public Legato::Component{
-	
-	//DECLARE_PROTOTYPE_INTERFACE_METHODS(Node)
+class Node : public virtual Legato::Component{
 	
 public:
 	

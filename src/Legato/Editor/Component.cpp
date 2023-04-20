@@ -28,7 +28,7 @@ void Component::onConstruction() {
 }
 
 void Component::onCopyFrom(std::shared_ptr<Prototype> source) {
-	auto original = downcasted_shared_from_this<Component>();
+	auto original = source->downcasted_shared_from_this<Component>();
 	setName(original->getName() + " copy");
 }
 

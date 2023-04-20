@@ -12,8 +12,6 @@ namespace AnimationSystem{
 
 	class Animatable : public Legato::Component{
 		
-		//DECLARE_PROTOTYPE_INTERFACE_METHODS(Animatable)
-		
 	public:
 		
 		virtual void onConstruction() override{
@@ -142,8 +140,6 @@ namespace AnimationSystem{
 
 
 	class LeafAnimatable : public Animatable{
-	
-		//DECLARE_PROTOTYPE_INTERFACE_METHODS(LeafAnimatable)
 		
 	public:
 		
