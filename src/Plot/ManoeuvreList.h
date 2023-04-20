@@ -10,30 +10,15 @@ class Plot;
 namespace tinyxml2{ struct XMLElement; }
 
 class ManoeuvreList : public Legato::Component{
-public:
 	
 	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(ManoeuvreList)
 	
-	virtual void onConstruction() override{
-		Component::onConstruction();
-		manoeuvres = Legato::ListComponent<AnimationSystem::Manoeuvre>::createInstance();
-		manoeuvres->setSaveString("Manoeuvres");
-		manoeuvres->setEntrySaveString("Manoeuvre");
-		manoeuvres->setEntryConstructor([](Serializable& abstract){ return AnimationSystem::Manoeuvre::createInstance(); });
-	}
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
-		Component::onCopyFrom(source);
-	}
-	virtual bool onSerialization() override{
-		bool success = Component::onSerialization();
-		success &= manoeuvres->serializeIntoParent(this);
-		return success;
-	}
-	virtual bool onDeserialization() override{
-		bool success = Component::onSerialization();
-		success &= manoeuvres->deserializeFromParent(this);
-		return success;
-	}
+public:
+	
+	virtual void onConstruction() override;
+	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 
 public:
 	

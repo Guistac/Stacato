@@ -9,14 +9,9 @@
 
 #include <tinyxml2.h>
 
-std::shared_ptr<Plot> Plot::create(){
-	auto plot = std::make_shared<Plot>();
-	plot->manoeuvreList = ManoeuvreList::createInstance();
-	plot->manoeuvreList->setParentPlot(plot);
-	return plot;
-}
 
-std::shared_ptr<Plot> Plot::duplicate(){
+void Plot::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+	Component::onCopyFrom(source);
 	/*
 	auto copy = create();
 	copy->setName("copy of " + std::string(getName()));
@@ -34,7 +29,17 @@ std::shared_ptr<Plot> Plot::duplicate(){
 	
 	return copy;
 	 */
-	return nullptr;
+}
+
+bool Plot::onSerialization(){
+	bool success = manoeuvreLists->serializeIntoParent(this);
+	return success;
+}
+
+bool Plot::onDeserialization(){
+	bool success = manoeuvreLists->deserializeFromParent(this);
+	selectedManoeuvreList = manoeuvreLists->getEntries().back();
+	return success;
 }
 
 void Plot::selectManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre){
@@ -42,6 +47,7 @@ void Plot::selectManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre
 	//if(manoeuvre) selectedManoeuvre->requestCurveRefocus();
 }
 
-bool Plot::isCurrent(){
-	return Stacato::Editor::getCurrentProject()->getCurrentPlot() == shared_from_this();
+void Plot::selectManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList){
+	selectedManoeuvreList = manoeuvreList;
+	selectedManoeuvre = nullptr;
 }

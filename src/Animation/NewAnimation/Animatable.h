@@ -24,10 +24,12 @@ namespace AnimationSystem{
 		}
 		virtual bool onSerialization() override{
 			bool success = Component::onSerialization();
+			success &= serializeAttribute("UniqueID", uniqueID);
 			return success;
 		}
 		virtual bool onDeserialization() override{
 			bool success = Component::onDeserialization();
+			success &= deserializeAttribute("UniqueID", uniqueID);
 			return success;
 		}
 		
@@ -69,9 +71,11 @@ namespace AnimationSystem{
 		std::shared_ptr<Animation> playingAnimation = nullptr;
 		
 		friend class AnimatableOwner;
+		friend class AnimatableRegistry;
 		
 		//Owner
 		std::shared_ptr<AnimatableOwner> owner = nullptr;
+		int uniqueID = -1;
 		
 	};
 
@@ -99,10 +103,11 @@ namespace AnimationSystem{
 		}
 		
 		virtual AnimatableType getType() override { return AnimatableType::COMPOSITE; }
+		virtual bool isCompositeAnimatable() override { return true; }
 		
 		void addChildAnimatable(std::shared_ptr<Animatable> animatable){
 			childAnimatables.push_back(animatable);
-			animatable->setParentComposite(std::static_pointer_cast<CompositeAnimatable>(shared_from_this()));
+			animatable->setParentComposite(downcasted_shared_from_this<CompositeAnimatable>());
 		}
 		
 		void removeChildAnimatable(std::shared_ptr<Animatable> animatable){

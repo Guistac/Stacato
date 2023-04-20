@@ -18,6 +18,30 @@ void ManoeuvreList::addManoeuvre() {
 	manoeuvres->addEntry(newManoeuvre);
 }
 
+void ManoeuvreList::onConstruction(){
+	Component::onConstruction();
+	setName("Manoeuvre List");
+	manoeuvres = Legato::ListComponent<AnimationSystem::Manoeuvre>::createInstance();
+	manoeuvres->setSaveString("Manoeuvres");
+	manoeuvres->setEntrySaveString("Manoeuvre");
+	manoeuvres->setEntryConstructor([](Serializable& abstract){ return AnimationSystem::Manoeuvre::createInstance(); });
+}
+void ManoeuvreList::onCopyFrom(std::shared_ptr<PrototypeBase> source){
+	Component::onCopyFrom(source);
+}
+bool ManoeuvreList::onSerialization(){
+	bool success = Component::onSerialization();
+	//auto& manoeuvressss = getManoeuvres();
+	//size_t s = manoeuvres->getEntries().size();
+	success &= manoeuvres->serializeIntoParent(this);
+	return success;
+}
+bool ManoeuvreList::onDeserialization(){
+	bool success = Component::onSerialization();
+	success &= manoeuvres->deserializeFromParent(this);
+	return success;
+}
+
 /*
 class AddManoeuvreCommand : public UndoableCommand{
 public:

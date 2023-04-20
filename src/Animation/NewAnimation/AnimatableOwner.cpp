@@ -5,19 +5,24 @@
 
 namespace AnimationSystem{
 
+	bool AnimatableOwner::onSerialization(){
+		bool success = true;
+		return success;
+	}
+
+	bool AnimatableOwner::onDeserialization(){
+		bool success = true;
+		return success;
+	}
+
 	void AnimatableOwner::addAnimatable(std::shared_ptr<Animatable> animatable){
-		//animatable->owner = shared_from_this();
-		animatables.push_back(animatable);
+		animatable->owner = downcasted_shared_from_this<AnimatableOwner>();
+		animatables->addEntry(animatable);
 	}
 
 	void AnimatableOwner::removeAnimatable(std::shared_ptr<Animatable> animatable){
-		for(int i = (int)animatables.size(); i >= 0; i--){
-			if(animatables[i] == animatable){
-				//animatable->owner = nullptr;
-				animatables.erase(animatables.begin() + i);
-				break;
-			}
-		}
+		animatable->owner = nullptr;
+		animatables->removeEntry(animatable);
 	}
 
 }

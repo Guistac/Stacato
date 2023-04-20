@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Legato/Gui/Window.h"
+#include "Legato/Editor/Parameters.h"
+
+class ManoeuvreList;
 
 namespace PlotGui{
 
@@ -45,37 +48,34 @@ namespace PlotGui{
 	};
 
 
-	class NewPlotPopup : public Legato::Popup{
+	class ManoeuvreListCreationPopup : public Legato::Popup{
 	public:
-		NewPlotPopup() : Popup("New Plot", true, true){}
-		virtual void onOpen() override;
+		ManoeuvreListCreationPopup() : Popup("New Manoeuvre List", true, true){}
 		virtual void onDraw() override;
-		char newNameBuffer[256];
-		SINGLETON_GET_METHOD(NewPlotPopup);
+		static void open(std::shared_ptr<Plot> plot);
+	private:
+		std::shared_ptr<Plot> targetPlot;
+		Legato::StringParam nameParameter = Legato::StringParameter::createInstance("", "ManoeuvreListName", "");
 	};
 
-	class PlotEditorPopup : public Legato::Popup{
+	class ManoeuvreListEditPopup : public Legato::Popup{
 	public:
-		PlotEditorPopup(std::shared_ptr<Plot> editedPlot) : Popup("Edit Plot", true, true), plot(editedPlot){}
-		virtual void onOpen() override;
+		ManoeuvreListEditPopup() : Popup("Edit Manoeuvre List", true, true){}
 		virtual void onDraw() override;
-		std::shared_ptr<Plot> plot;
-		char newNameBuffer[256];
-		static void open(std::shared_ptr<Plot> plot){
-			auto popup = std::make_shared<PlotEditorPopup>(plot);
-			popup->Popup::open();
-		}
+		static void open(std::shared_ptr<ManoeuvreList> manoeuvreList);
+	private:
+		std::shared_ptr<ManoeuvreList> editedManoeuvreList;
+		Legato::StringParam nameParameter = Legato::StringParameter::createInstance("", "ManoeuvreListName", "");
 	};
 
-	class PlotDeletePopup : public Legato::Popup{
+	class ManoeuvreListDeletePopup : public Legato::Popup{
 	public:
-		PlotDeletePopup(std::shared_ptr<Plot> deletedPlot) : Popup("Delete Plot", true, true), plot(deletedPlot){}
+		ManoeuvreListDeletePopup() : Popup("Delete Manoeuvre List", true, true) {}
 		virtual void onDraw() override;
-		std::shared_ptr<Plot> plot;
-		static void open(std::shared_ptr<Plot> plot){
-			auto popup = std::make_shared<PlotDeletePopup>(plot);
-			popup->Popup::open();
-		}
+		static void open(std::shared_ptr<Plot> plot, std::shared_ptr<ManoeuvreList> manoeuvreList);
+	private:
+		std::shared_ptr<ManoeuvreList> deletedManoeuvreList;
+		std::shared_ptr<Plot> targetPlot;
 	};
 
 }

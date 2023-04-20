@@ -37,15 +37,17 @@ namespace PlotGui{
 		}
 		
 		auto currentProject = Stacato::Editor::getCurrentProject();
+		auto currentPlot = currentProject->getPlot();
+		auto& manoeuvreLists = currentPlot->getManoeuvreLists();
+		auto selectedManoeuvreList = currentPlot->getSelectedManoeuvreList();
 		
 		//================= MANOEUVRE LIST =======================
 
-		std::shared_ptr<Plot> plot = Stacato::Editor::getCurrentProject()->getCurrentPlot();
 		float width = ImGui::GetContentRegionAvail().x;
 		
 		ImGui::PushFont(Fonts::sansBold20);
 		float titleBarHeight = ImGui::GetFrameHeight();
-		if(customButton(plot->getName(),
+		if(customButton(selectedManoeuvreList->getName().c_str(),
 						glm::vec2(width, ImGui::GetFrameHeight()),
 						Colors::darkGray,
 						ImGui::GetStyle().FrameRounding,
@@ -64,17 +66,16 @@ namespace PlotGui{
 			ImGui::PopStyleColor();
 			ImGui::PopFont();
 			ImGui::Separator();
-			auto& plots = Stacato::Editor::getCurrentProject()->getPlots();
-			for(int i = 0; i < plots.size(); i++){
-				auto plot = plots[i];
+			for(int i = 0; i < manoeuvreLists.size(); i++){
+				auto manoeuvreList = manoeuvreLists[i];
 				ImGui::PushID(i);
-				bool b_isCurrent = plot->isCurrent();
+				bool b_isCurrent = manoeuvreList == selectedManoeuvreList;
 				if(b_isCurrent) {
 					ImGui::PushFont(Fonts::sansBold15);
 					ImGui::PushStyleColor(ImGuiCol_Text, Colors::yellow);
 				}
-                if(ImGui::Selectable(plot->getName())) {
-					Stacato::Editor::getCurrentProject()->setCurrentPlot(plot);
+                if(ImGui::Selectable(manoeuvreList->getName().c_str())) {
+					currentPlot->selectManoeuvreList(manoeuvreList);
                 }
 				if(b_isCurrent) {
 					ImGui::PopFont();
@@ -95,8 +96,7 @@ namespace PlotGui{
 		glm::vec2 manoeuvreListSize = ImGui::GetContentRegionAvail();
         if(!currentProject->isPlotEditLocked()) manoeuvreListSize.y -= managerHeight;
 		
-		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
-		auto& manoeuvres = manoeuvreList->getManoeuvres();
+		auto& manoeuvres = selectedManoeuvreList->getManoeuvres();
 		std::shared_ptr<AnimationSystem::Manoeuvre> clickedManoeuvre = nullptr;
 		
 		if(ReorderableList::begin("CueList", manoeuvreListSize, !currentProject->isPlotEditLocked())){
@@ -110,10 +110,10 @@ namespace PlotGui{
 			
 			if(ImGui::IsWindowFocused()){
 				if(ImGui::IsKeyPressed(GLFW_KEY_UP)) {
-					manoeuvreList->selectPreviousManoeuvre();
+					//manoeuvreList->selectPreviousManoeuvre();
 				}
 				if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)) {
-					manoeuvreList->selectNextManoeuvre();
+					//manoeuvreList->selectNextManoeuvre();
 				}
 			}
 			
@@ -161,10 +161,10 @@ namespace PlotGui{
 		
 		
 		//list interaction
-		if (clickedManoeuvre) plot->selectManoeuvre(clickedManoeuvre);
+		if (clickedManoeuvre) currentPlot->selectManoeuvre(clickedManoeuvre);
 		int fromIndex, toIndex;
 		if (ReorderableList::wasReordered(fromIndex, toIndex)) {
-			manoeuvreList->moveManoeuvre(manoeuvres[fromIndex], toIndex);
+			selectedManoeuvreList->moveManoeuvre(manoeuvres[fromIndex], toIndex);
 		}
 
         
@@ -182,77 +182,19 @@ namespace PlotGui{
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(1.0));
             
             if(customButton("Create", managerButtonSize, defaultButtonColor, buttonRounding, ImDrawFlags_RoundCornersLeft)){
-                ImGui::OpenPopup("Create Manoeuvre");
-                createPopupPosition = ImGui::GetMousePos();
+				selectedManoeuvreList->addManoeuvre();
             }
             
             float popupWidth = ImGui::GetTextLineHeight() * 5.0;
             float selectorHeight = ImGui::GetFrameHeight();
             glm::vec2 popupSize(popupWidth, selectorHeight * 3.0 + ImGui::GetStyle().WindowBorderSize * 2.0);
             
-            ImGui::SetNextWindowPos(createPopupPosition + glm::vec2(0.0, -popupSize.y));
-            ImGui::SetNextWindowSize(popupSize);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(0.0));
-            if(ImGui::BeginPopup("Create Manoeuvre")){
-                
-                auto manoeuvreTypeSelector = [](Image& image, const char* txt, float width) -> bool {
-                    float height = ImGui::GetFrameHeight();
-                    
-                    ImGui::PushID(txt);
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.0f, .0f, .0f, .0f));
-                    bool b_pressed = ImGui::Button("##", glm::vec2(width, height));
-                    ImGui::PopStyleColor();
-                    ImGui::PopID();
-                    
-                    glm::vec2 buttonPos = ImGui::GetItemRectMin();
-                    glm::vec2 imageShrink(height * .1f);
-                    glm::vec2 imageMin = buttonPos + imageShrink;
-                    glm::vec2 imageMax = buttonPos + glm::vec2(height) - imageShrink;
-                    
-                    ImDrawList* drawing = ImGui::GetWindowDrawList();
-                    drawing->AddImage(image.getID(), imageMin, imageMax);
-                    glm::vec2 textPos(buttonPos.x + height, buttonPos.y + (height - ImGui::GetTextLineHeight()) / 2.0);
-                    drawing->AddText(textPos, ImColor(Colors::white), txt);
-                    
-                    return b_pressed;
-                };
-                
-                
-                /*
-                if(manoeuvreTypeSelector(Images::KeyIcon, "Key", popupWidth)) {
-                    manoeuvreList->addManoeuvre(ManoeuvreType::KEY);
-                    ImGui::CloseCurrentPopup();
-                }
-                if(manoeuvreTypeSelector(Images::TargetIcon, "Target", popupWidth)) {
-                    manoeuvreList->addManoeuvre(ManoeuvreType::TARGET);
-                    ImGui::CloseCurrentPopup();
-                }
-                if(manoeuvreTypeSelector(Images::SequenceIcon, "Sequence", popupWidth)) {
-                    manoeuvreList->addManoeuvre(ManoeuvreType::SEQUENCE);
-                    ImGui::CloseCurrentPopup();
-                }
-				 */
-				 
-				
-				if(manoeuvreTypeSelector(Images::TargetIcon, "Target", popupWidth)) {
-					manoeuvreList->addManoeuvre();
-					ImGui::CloseCurrentPopup();
-				}
-				
-				
-				
-				
-				
-                
-                ImGui::EndPopup();
-            }
-            ImGui::PopStyleVar();
-            
-            
+
+                        
             ImGui::SameLine();
             
             if(customButton("Duplicate", managerButtonSize, defaultButtonColor, buttonRounding, ImDrawFlags_RoundCornersNone)){
-                manoeuvreList->duplicateSelectedManoeuvre();
+				selectedManoeuvreList->duplicateSelectedManoeuvre();
             }
             
             ImGui::SameLine();
@@ -261,7 +203,7 @@ namespace PlotGui{
             if(b_waitingForDeleteConfirmation){
                 ImVec4 confirmColor = Timing::getBlink(.5) ? Colors::red : Colors::darkRed;
                 if(customButton("Confirm", managerButtonSize, confirmColor, buttonRounding, ImDrawFlags_RoundCornersRight)){
-                    manoeuvreList->deleteSelectedManoeuvre();
+					selectedManoeuvreList->deleteSelectedManoeuvre();
                 }
                 if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) b_waitingForDeleteConfirmation = false;
             }else{
@@ -282,7 +224,7 @@ namespace PlotGui{
 			return true;
 		}
 		
-		if (Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre() == nullptr) {
+		if (Stacato::Editor::getCurrentProject()->getPlot()->getSelectedManoeuvre() == nullptr) {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("No Manoeuvre Selected.");
@@ -310,19 +252,24 @@ void spatialEditor(){
 void trackSheetEditor(){
 	if(noSelectionDisplay()) return;
 	//Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->sheetEditor();
-	Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()->editorGui();
+	Stacato::Editor::getCurrentProject()->getPlot()->getSelectedManoeuvre()->editorGui();
 }
 
-void NewPlotPopup::onOpen(){
-	sprintf(newNameBuffer, "New Plot");
+
+void ManoeuvreListCreationPopup::open(std::shared_ptr<Plot> plot){
+	static auto popup = std::make_shared<ManoeuvreListCreationPopup>();
+	popup->targetPlot = plot;
+	popup->Legato::Popup::open();
+	popup->nameParameter->overwrite("New Manoeuvre List");
 }
 
-void NewPlotPopup::onDraw(){
-	ImGui::Text("Enter a name for the new Plot:");
-	ImGui::InputText("##plotName", newNameBuffer, 256);
+void ManoeuvreListCreationPopup::onDraw(){
+	ImGui::Text("Enter a name for the new Manoeuvre List:");
+	nameParameter->gui();
 	if(ImGui::Button("Confirm")){
-		auto newPlot = Stacato::Editor::getCurrentProject()->createNewPlot();
-		newPlot->setName(newNameBuffer);
+		auto newManoeuvreList = ManoeuvreList::createInstance();
+		newManoeuvreList->setName(nameParameter->getValue());
+		targetPlot->addManoeuvreList(newManoeuvreList);
 		close();
 	}
 	ImGui::SameLine();
@@ -332,15 +279,18 @@ void NewPlotPopup::onDraw(){
 }
 
 
-void PlotEditorPopup::onOpen(){
-	strcpy(newNameBuffer, plot->getName());
+void ManoeuvreListEditPopup::open(std::shared_ptr<ManoeuvreList> manoeuvreList){
+	static auto popup = std::make_shared<ManoeuvreListEditPopup>();
+	popup->editedManoeuvreList = manoeuvreList;
+	popup->Legato::Popup::open();
+	popup->nameParameter->overwrite(manoeuvreList->getName());
 }
 
-void PlotEditorPopup::onDraw(){
-	ImGui::Text("Plot Name:");
-	ImGui::InputText("##plotName", newNameBuffer, 256);
+void ManoeuvreListEditPopup::onDraw(){
+	ImGui::Text("Manoeuvre List Name:");
+	nameParameter->gui();
 	if(ImGui::Button("Confirm")){
-		plot->setName(newNameBuffer);
+		editedManoeuvreList->setName(nameParameter->getValue());
 		close();
 	}
 	ImGui::SameLine();
@@ -349,14 +299,20 @@ void PlotEditorPopup::onDraw(){
 	}
 }
 
+void ManoeuvreListDeletePopup::open(std::shared_ptr<Plot> plot, std::shared_ptr<ManoeuvreList> manoeuvreList){
+	static auto popup = std::make_shared<ManoeuvreListDeletePopup>();
+	popup->deletedManoeuvreList = manoeuvreList;
+	popup->targetPlot = plot;
+	popup->Popup::open();
+}
 
-void PlotDeletePopup::onDraw(){
+void ManoeuvreListDeletePopup::onDraw(){
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::red);
-	ImGui::Text("Do you really want to delete %s ?", plot->getName());
+	ImGui::Text("Do you really want to delete %s ?", deletedManoeuvreList->getName().c_str());
 	ImGui::PopStyleColor();
 	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkRed);
 	if(ImGui::Button("Delete")) {
-		Stacato::Editor::getCurrentProject()->deletePlot(plot);
+		targetPlot->removeManoeuvreList(deletedManoeuvreList);
 		close();
 	}
 	ImGui::PopStyleColor();

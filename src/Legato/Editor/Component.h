@@ -55,7 +55,7 @@ class ProjectComponent;
 
 namespace Legato{
 
-	class Component : public PrototypeBase, public Serializable, public virtual NamedObject{
+	class Component : public PrototypeBase, public virtual Serializable, public virtual NamedObject{
 		
 		DECLARE_PROTOTYPE_INTERFACE_METHODS(Component)
 		
@@ -64,7 +64,7 @@ namespace Legato{
 		//————————— COMPONENT
 		
 		virtual void addChild(std::shared_ptr<Component> child) {
-			child->parent = std::static_pointer_cast<Component>(shared_from_this());
+			child->parent = PrototypeBase::downcasted_shared_from_this<Component>();
 			children.push_back(child);
 		}
 		const std::vector<std::shared_ptr<Component>>& getChildren(){ return children; }

@@ -26,8 +26,8 @@ namespace Workspace{
 	bool openFile(std::filesystem::path file);
 	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback);
 
-	std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
-	void pushToClipboard(std::shared_ptr<PrototypeBase> object);
-	void pushToClipboard(std::vector<std::shared_ptr<PrototypeBase>> objects);
+	std::vector<std::shared_ptr<Legato::PrototypeBase>>& getClipboard();
+	void pushToClipboard(std::shared_ptr<Legato::PrototypeBase> object);
+	void pushToClipboard(std::vector<std::shared_ptr<Legato::PrototypeBase>> objects);
 };
 

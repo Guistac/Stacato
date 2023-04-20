@@ -1,0 +1,7 @@
+<Plot>
+    <ManoeuvreLists>
+        <ManoeuvreList Name="Manoeuvre List">
+            <Manoeuvres/>
+        </ManoeuvreList>
+    </ManoeuvreLists>
+</Plot>

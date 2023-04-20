@@ -83,8 +83,6 @@ public:
 			return false;
 		}
 		
-		xmlElement->SetAttribute("HELLo", 1234);
-		
 		XMLError result = xmlDocument.SaveFile(filePath.c_str());
 		switch(result){
 			case XMLError::XML_SUCCESS:

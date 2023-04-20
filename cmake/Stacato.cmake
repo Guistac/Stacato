@@ -128,6 +128,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationValue.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.cpp
@@ -198,7 +199,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Logger.h
 
-
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SharedObject.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/NamedObject.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/NamedObject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h

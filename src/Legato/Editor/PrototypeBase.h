@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SharedObject.h"
+
 /*————————————————————————————————————————————————————————————————
  
 DESCRIPTION
@@ -83,10 +85,10 @@ private:\
 		newPrototypeInstance->onConstruction();\
 		return newPrototypeInstance;\
 	};\
-	
 
+namespace Legato{
 
-class PrototypeBase : public std::enable_shared_from_this<PrototypeBase>{
+class PrototypeBase : public SharedObject<PrototypeBase>{
 protected:
 	
 	std::shared_ptr<PrototypeBase> duplicatePrototype(){
@@ -95,11 +97,11 @@ protected:
 		return copy;
 	}
 	
-	virtual void onConstruction() {}
-	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
 	
 private:
 	
 	virtual std::shared_ptr<PrototypeBase> createPrototypeInstance_private() = 0;
 };
+
+}

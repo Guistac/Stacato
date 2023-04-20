@@ -18,19 +18,35 @@ class Animation : public Legato::Component{
 public:
 	
 	virtual void onConstruction() override{
-		Component::onConstruction();
+		//Component::onConstruction();
 	}
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
-		Component::onCopyFrom(source);
+		//Component::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
-		bool success = Component::onSerialization();
+		//bool success = Component::onSerialization();
+		bool success = true;
+		switch(getType()){
+			case AnimationType::TARGET:
+				success &= serializeAttribute("Type", "Target");
+				break;
+			case AnimationType::SEQUENCE:
+				success &= serializeAttribute("Type", "Sequence");
+				break;
+			case AnimationType::STOP:
+				success &= serializeAttribute("Type", "Stop");
+				break;
+		}
+		if(isCompositeAnimation()) success &= serializeAttribute("IsComposite", true);
 		return success;
 	}
 	virtual bool onDeserialization() override{
-		bool success = Component::onDeserialization();
+		//bool success = Component::onDeserialization();
+		bool success = true;
 		return success;
 	}
+	
+	static std::shared_ptr<Animation> createInstanceFromTypeString(bool b_isComposite, std::string typeString);
 	
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
@@ -44,7 +60,6 @@ public:
 	bool isTopLevelAnimation(){ return parentComposite == nullptr; }
 	void setParentComposite(std::shared_ptr<CompositeAnimation> parent){ parentComposite = parent; }
 	std::shared_ptr<CompositeAnimation> getParentComposite(){ return parentComposite; }
-	const std::vector<std::shared_ptr<Animation>>& getChildAnimations(){ return childAnimations; }
 	
 protected:
 	
@@ -52,8 +67,6 @@ protected:
 	
 	//Composite Structure
 	std::shared_ptr<CompositeAnimation> parentComposite = nullptr;
-	
-	std::vector<std::shared_ptr<Animation>> childAnimations = {};
 	
 	//Animatable
 	std::shared_ptr<Animatable> animatable = nullptr;
@@ -70,16 +83,30 @@ public:
 	
 	virtual void onConstruction() override{
 		Animation::onConstruction();
+		childAnimations = Legato::ListComponent<Animation>::createInstance();
+		childAnimations->setSaveString("ChildAnimations");
+		childAnimations->setEntrySaveString("Animation");
+		childAnimations->setEntryConstructor([](Serializable& abstract) -> std::shared_ptr<Animation> {
+			bool b_isComposite;
+			abstract.deserializeAttribute("IsComposite", b_isComposite);
+			std::string typeString;
+			if(abstract.deserializeAttribute("Type", typeString)){
+				return Animation::createInstanceFromTypeString(b_isComposite, typeString);
+			}
+			else return nullptr;
+		});
 	}
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override{
 		Animation::onCopyFrom(source);
 	}
 	virtual bool onSerialization() override{
 		bool success = Animation::onSerialization();
+		success &= childAnimations->serializeIntoParent(this);
 		return success;
 	}
 	virtual bool onDeserialization() override{
 		bool success = Animation::onSerialization();
+		success &= childAnimations->deserializeFromParent(this);
 		return success;
 	}
 	
@@ -89,27 +116,27 @@ public:
 	virtual bool isCompositeAnimation() override { return true; }
 	
 	void addChildAnimation(std::shared_ptr<Animation> animation){
-		childAnimations.push_back(animation);
+		childAnimations->addEntry(animation);
 		animation->setParentComposite(std::static_pointer_cast<CompositeAnimation>(shared_from_this()));
 	}
 	
 	void removeChildAnimation(std::shared_ptr<Animation> animation){
-		for(int i = (int)childAnimations.size() - 1; i >= 0; i--){
-			if(childAnimations[i] == animation){
-				animation->setParentComposite(nullptr);
-				childAnimations.erase(childAnimations.begin() + i);
-				break;
-			}
-		}
+		childAnimations->removeEntry(animation);
+		animation->setParentComposite(nullptr);
 	}
 	
 	virtual bool canStartPlayback() override { return false; }
 	virtual void startPlayback() override {}
 	virtual void stopPlayback() override {}
 	
+	const std::vector<std::shared_ptr<Animation>>& getChildAnimations(){ return childAnimations->getEntries(); }
+	
 private:
 	
 	AnimationType type;
+	
+	//Composite Structure
+	std::shared_ptr<Legato::ListComponent<Animation>> childAnimations = nullptr;
 	
 };
 

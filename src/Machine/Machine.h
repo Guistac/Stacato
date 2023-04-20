@@ -30,12 +30,16 @@ public:
 	virtual Node::Type getType() override { return Node::Type::PROCESSOR; }\
 	
 	virtual bool onSerialization() override {
-		Node::onSerialization();
+		bool success = true;
+		success &= Node::onSerialization();
+		success &= AnimationSystem::AnimatableOwner::onSerialization();
 		return true;
 	}
 	
 	virtual bool onDeserialization() override {
-		Node::onDeserialization();
+		bool success = true;
+		success &= Node::onDeserialization();
+		success &= AnimationSystem::AnimatableOwner::onDeserialization();
 		return true;
 	}
 	

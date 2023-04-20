@@ -13,16 +13,10 @@ class EnvironnementObject;
 	 DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StacatoProject)
 	 
  public:
-	 std::vector<std::shared_ptr<Plot>>& getPlots(){ return plots; }
-	 std::shared_ptr<Plot> getCurrentPlot(){ return currentPlot; }
-	 void setCurrentPlot(std::shared_ptr<Plot> plot);
-	 std::shared_ptr<Plot> createNewPlot();
-	 void deletePlot(std::shared_ptr<Plot> plot);
-	 void duplicatePlot(std::shared_ptr<Plot> plot);
-
-	 void deleteAllPlots();
-	 void addPlot(std::shared_ptr<Plot> plot);
-
+	 
+	 std::shared_ptr<EnvironnementObject> getEnvironnement(){ return environnement; }
+	 
+	 std::shared_ptr<Plot> getPlot() { return plot; }
 	 void lockPlotEdit(){ b_plotEditLocked = true; }
 	 void unlockPlotEdit(){ b_plotEditLocked = false; }
 	 bool isPlotEditLocked(){ return b_plotEditLocked; }
@@ -30,7 +24,6 @@ class EnvironnementObject;
 	 virtual bool canClose() override;
 	 
 	 std::shared_ptr<LayoutList> getLayouts(){ return layouts; }
-	 std::shared_ptr<EnvironnementObject> getEnvironnement(){ return environnement; }
 	 
 protected:
 	 
@@ -43,11 +36,10 @@ protected:
 	 
  private:
 	 
-	 std::shared_ptr<LayoutList> layouts;
+	 std::shared_ptr<EnvironnementObject> environnement = nullptr;
 	 
-	 std::vector<std::shared_ptr<Plot>> plots;
-	 std::shared_ptr<Plot> currentPlot;
+	 std::shared_ptr<Plot> plot;
 	 bool b_plotEditLocked = true;
 	 
-	 std::shared_ptr<EnvironnementObject> environnement = nullptr;
+	 std::shared_ptr<LayoutList> layouts;
  };

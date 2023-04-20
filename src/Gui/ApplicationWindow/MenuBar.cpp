@@ -143,6 +143,8 @@ namespace Stacato::Gui {
 					else currentProject->lockPlotEdit();
 				}
 				
+				/*
+				
 				if(!currentProject->isPlotEditLocked()){
 					if(ImGui::MenuItem("Create New Plot")) PlotGui::NewPlotPopup::get()->open();
 				}
@@ -202,6 +204,8 @@ namespace Stacato::Gui {
 					}
 				}
 				
+				 */
+				 
 				/*
 				 if(!currentProject->isPlotEditLocked()){
 				 

@@ -106,7 +106,9 @@ std::shared_ptr<File> openFile(std::filesystem::path path){
 
 bool hasCurrentProject(){ return currentProject != nullptr; }
 
-std::shared_ptr<StacatoProject> getCurrentProject(){ return currentProject; }
+std::shared_ptr<StacatoProject> getCurrentProject(){
+	return currentProject;
+}
 
 void closeCurrentProject(){
 	currentProject = nullptr;

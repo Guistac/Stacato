@@ -1,5 +1,5 @@
-<LayoutList Name="Default Object Name" HELLo="1234">
-    <DefaultLayout Name="Node Editor"/>
+<LayoutList Name="Default Object Name">
+    <DefaultLayout Name="Plot Editor"/>
     <Layouts>
         <Layout Name="Node Editor">
             <OpenWindows>
