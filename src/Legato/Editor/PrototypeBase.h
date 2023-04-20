@@ -62,23 +62,12 @@ public:\
 	std::shared_ptr<Typename> duplicate(){\
 		return std::static_pointer_cast<Typename>(duplicatePrototype());\
 	}\
-protected:\
-	Typename(){}\
 
 
 
 #define DECLARE_PROTOTYPE_IMPLENTATION_METHODS(Typename) \
-public:\
-	static std::shared_ptr<Typename> createInstance(){\
-		std::shared_ptr<Typename> newInstance = std::shared_ptr<Typename>(new Typename());\
-		newInstance->onConstruction();\
-		return newInstance;\
-	}\
-	std::shared_ptr<Typename> duplicate(){\
-		return std::static_pointer_cast<Typename>(duplicatePrototype());\
-	}\
-protected:\
-Typename(){}\
+	DECLARE_SHARED_CONTRUCTION(Typename)\
+	DECLARE_PROTOTYPE_INTERFACE_METHODS(Typename)\
 private:\
 	std::shared_ptr<PrototypeBase> createPrototypeInstance_private() override{\
 		std::shared_ptr<Typename> newPrototypeInstance = std::shared_ptr<Typename>(new Typename());\
