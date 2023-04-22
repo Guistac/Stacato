@@ -151,6 +151,18 @@ public:
 		return true;
 	}
 	
+	bool deserializeList(std::string entryString, std::vector<Serializable>& output){
+		output.clear();
+		tinyxml2::XMLElement* entryXML = xmlElement->FirstChildElement(entryString.c_str());
+		if(entryXML == nullptr) return false;
+		while(entryXML){
+			output.push_back(Serializable());
+			output.back().xmlElement = entryXML;
+			entryXML = entryXML->NextSiblingElement(entryString.c_str());
+		}
+		return true;
+	}
+	
 	
 public:
 	

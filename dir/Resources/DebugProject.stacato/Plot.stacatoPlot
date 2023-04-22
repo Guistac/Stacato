@@ -4,11 +4,11 @@
             <Manoeuvres>
                 <Manoeuvre Name="Default Object Name">
                     <Animations>
-                        <Animation Type="Target"/>
+                        <Animation Type="Target" IsComposite="0"/>
                         <Animation Type="Sequence" IsComposite="1">
                             <ChildAnimations>
-                                <Animation Type="Sequence"/>
-                                <Animation Type="Sequence"/>
+                                <Animation Type="Sequence" IsComposite="0"/>
+                                <Animation Type="Sequence" IsComposite="0"/>
                             </ChildAnimations>
                         </Animation>
                     </Animations>

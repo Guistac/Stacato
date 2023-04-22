@@ -12,10 +12,12 @@ std::shared_ptr<Animation> Animatable::makeAnimation(AnimationType type){
 	
 	if(isCompositeAnimatable()){
 		
+		auto compositeAnimatable = downcasted_shared_from_this<CompositeAnimatable>();
+		
 		auto newCompositeAnimation = CompositeAnimation::createInstance();
 		newCompositeAnimation->setType(type);
 		
-		for(auto childAnimatable : childAnimatables){
+		for(auto childAnimatable : compositeAnimatable->getChildAnimatables()){
 			auto childAnimation = childAnimatable->makeAnimation(type);
 			newCompositeAnimation->addChildAnimation(childAnimation);
 		}

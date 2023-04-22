@@ -1,23 +1,21 @@
 #pragma once
 
+#include "Legato/Editor/Parameters/OptionParameter.h"
+
 namespace AnimationSystem{
 
+	enum AnimatableType{
+		COMPOSITE = 0,
+		BOOLEAN = 1,
+		INTEGER = 2,
+		REAL = 3,
+		STATE = 4,
+		POSITION = 7,
+		VELOCITY = 8
+	};
 
-enum class AnimatableType{
-	   BOOLEAN,
-	   INTEGER,
-	   REAL,
-	   STATE,
-	   VECTOR_2D,
-	   VECTOR_3D,
-	   POSITION,
-	   POSITION_2D,
-	   POSITION_3D,
-	   VELOCITY,
-	   VELOCITY_2D,
-	   VELOCITY_3D,
-	   COMPOSITE
-   };
+	Legato::Option* getAnimatableType(AnimatableType type);
+	Legato::Option* getAnimatableType(std::string saveString);
 
    enum class AnimatableStatus{
 	   OFFLINE,

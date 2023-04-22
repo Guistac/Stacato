@@ -125,6 +125,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationTypes.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationTypes.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h

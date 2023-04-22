@@ -39,14 +39,12 @@ public:
 		bool success = true;
 		success &= Node::onSerialization();
 		success &= AnimationSystem::AnimatableOwner::onSerialization();
-		success &= AnimationSystem::AnimatableOwner::onSerialization();
 		return true;
 	}
 	
 	virtual bool onDeserialization() override {
 		bool success = true;
 		success &= Node::onDeserialization();
-		success &= AnimationSystem::AnimatableOwner::onDeserialization();
 		success &= AnimationSystem::AnimatableOwner::onDeserialization();
 		return true;
 	}

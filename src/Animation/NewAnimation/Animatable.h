@@ -2,6 +2,7 @@
 
 #include "AnimationTypes.h"
 #include "Legato/Editor/Component.h"
+#include "Legato/Editor/ListComponent.h"
 
 namespace AnimationSystem{
 
@@ -22,12 +23,12 @@ namespace AnimationSystem{
 		}
 		virtual bool onSerialization() override{
 			bool success = Component::onSerialization();
-			success &= serializeAttribute("UniqueID", uniqueID);
+			success &= serializeAttribute("SaveString", saveString);
 			return success;
 		}
 		virtual bool onDeserialization() override{
 			bool success = Component::onDeserialization();
-			success &= deserializeAttribute("UniqueID", uniqueID);
+			success &= deserializeAttribute("SaveString", saveString);
 			return success;
 		}
 		
@@ -52,7 +53,6 @@ namespace AnimationSystem{
 		bool isTopLevelAnimatable(){ return parentComposite == nullptr; }
 		void setParentComposite(std::shared_ptr<CompositeAnimatable> parentAnimatable){ parentComposite = parentAnimatable; }
 		std::shared_ptr<CompositeAnimatable> getParentComposite(){ return parentComposite; }
-		const std::vector<std::shared_ptr<Animatable>>& getChildAnimatables(){ return childAnimatables; }
 		
 		std::shared_ptr<Animation> makeAnimation(AnimationType type);
 		
@@ -62,7 +62,6 @@ namespace AnimationSystem{
 		
 		//Composite Structure
 		std::shared_ptr<CompositeAnimatable> parentComposite = nullptr;
-		std::vector<std::shared_ptr<Animatable>> childAnimatables;
 		
 		//Animations
 		std::vector<std::shared_ptr<Animation>> animations = {};
@@ -73,7 +72,6 @@ namespace AnimationSystem{
 		
 		//Owner
 		std::shared_ptr<AnimatableOwner> owner = nullptr;
-		int uniqueID = -1;
 		
 	};
 
@@ -87,16 +85,21 @@ namespace AnimationSystem{
 		
 		virtual void onConstruction() override{
 			Animatable::onConstruction();
+			childAnimatables = Legato::ListComponent<Animatable>::createInstance();
+			childAnimatables->setSaveString("ChildAnimatables");
+			childAnimatables->setEntrySaveString("Animatable");
 		}
 		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Animatable::onCopyFrom(source);
 		}
 		virtual bool onSerialization() override{
 			bool success = Animatable::onSerialization();
+			success &= childAnimatables->serializeIntoParent(this);
 			return success;
 		}
 		virtual bool onDeserialization() override{
 			bool success = Animatable::onDeserialization();
+			//success &= childAnimatables->deserializeFromParent(this);
 			return success;
 		}
 		
@@ -104,18 +107,13 @@ namespace AnimationSystem{
 		virtual bool isCompositeAnimatable() override { return true; }
 		
 		void addChildAnimatable(std::shared_ptr<Animatable> animatable){
-			childAnimatables.push_back(animatable);
+			childAnimatables->addEntry(animatable);
 			animatable->setParentComposite(downcasted_shared_from_this<CompositeAnimatable>());
 		}
 		
 		void removeChildAnimatable(std::shared_ptr<Animatable> animatable){
-			for(int i = (int)childAnimatables.size() - 1; i >= 0; i--){
-				if(childAnimatables[i] == animatable){
-					animatable->setParentComposite(nullptr);
-					childAnimatables.erase(childAnimatables.begin() + i);
-					break;
-				}
-			}
+			animatable->setParentComposite(nullptr);
+			childAnimatables->removeEntry(animatable);
 		}
 		
 		void setSupportedAnimationTypes(std::vector<AnimationType> supportedTypes){
@@ -131,8 +129,12 @@ namespace AnimationSystem{
 			return output;
 		}
 		
+		const std::vector<std::shared_ptr<Animatable>>& getChildAnimatables(){ return childAnimatables->getEntries(); }
+		
 		
 	private:
+		
+		std::shared_ptr<Legato::ListComponent<Animatable>> childAnimatables = nullptr;
 		
 		std::vector<AnimationType> supportedAnimationTypes = {};
 		

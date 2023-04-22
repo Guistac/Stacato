@@ -1,7 +1,7 @@
 <Environnement Name="Default Component Name">
     <NodeGraph Name="Default Object Name">
         <NodeList>
-            <Node Name="Positionnable Machine" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
+            <Node Name="Positionnable Machine" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor" AnimatableOwnerUniqueID="1">
                 <NodeGraphPosition Split="0" X="87" Y="424"/>
                 <InputPins>
                     <Pin Name="Position Controlled Axis" UniqueID="97" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
@@ -10,11 +10,22 @@
                     <Pin Name="Position" UniqueID="98" SaveString="Position" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                     <Pin Name="Velocity" UniqueID="99" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </OutputPins>
+                <Animatables>
+                    <Animatable Type="Position" SaveString="Position"/>
+                </Animatables>
             </Node>
-            <Node Name="State Machine" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
+            <Node Name="State Machine" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor" AnimatableOwnerUniqueID="2">
                 <NodeGraphPosition Split="0" X="112" Y="336"/>
                 <InputPins/>
                 <OutputPins/>
+                <Animatables>
+                    <Animatable Type="Composite" SaveString="">
+                        <ChildAnimatables>
+                            <Animatable Type="State" SaveString=""/>
+                            <Animatable Type="Position" SaveString=""/>
+                        </ChildAnimatables>
+                    </Animatable>
+                </Animatables>
             </Node>
         </NodeList>
         <LinkList/>

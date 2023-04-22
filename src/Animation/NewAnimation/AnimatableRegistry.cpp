@@ -2,16 +2,13 @@
 #include "AnimatableRegistry.h"
 
 #include "AnimatableOwner.h"
-#include "Animatable.h"
 
 namespace AnimationSystem{
 
 	void AnimatableRegistry::registerAnimatableOwner(std::shared_ptr<AnimatableOwner> animatableOwner){
-		for(auto animatable : animatableOwner->getAnimatables()){
-			if(animatable->uniqueID == -1){
-				animatable->uniqueID = uniqueIDCounter;
-				uniqueIDCounter++;
-			}
+		if(animatableOwner->animatableOwnerUniqueID == -1){
+			animatableOwner->animatableOwnerUniqueID = uniqueIDCounter;
+			uniqueIDCounter++;
 		}
 		animatableOwners.push_back(animatableOwner);
 	}

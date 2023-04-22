@@ -18,6 +18,7 @@ public:
 	void disable(){ b_enabled = false; }
 	bool isEnabled(){ return b_enabled; }
 	int getInt(){ return enumerator; }
+	const std::string& getSaveString(){ return saveString; }
 private:
 	friend class OptionParameter;
 	int enumerator = 0;
