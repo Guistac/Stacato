@@ -20,3 +20,33 @@ void CU1128::deviceSpecificGui() {
 	}
 }
 
+void EK1100::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("CU1128")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
+
+void EL2008::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL2008")){
+		
+		for(int i = 0; i < 8; i++){
+			ImGui::PushID(i);
+			
+			char name[32];
+			snprintf(name, 32, "Channel %i", i + 1);
+			ImGui::Checkbox(name, &outputs[i]);
+			
+			ImGui::PopID();
+		}
+		
+		ImGui::EndTabItem();
+	}
+}
+
+void EL5001::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("CU1128")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
