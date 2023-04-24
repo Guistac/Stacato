@@ -543,18 +543,11 @@ void AxisNode::limitSettingsGui(){
 	
 	ImGui::Separator();
 	
-	advancedAccelerationLimit->gui(Fonts::sansBold15);
-	
-	if(advancedAccelerationLimit->value){
-		speedupAccelerationLimit->gui(Fonts::sansBold15);
-		slowdownAccelerationLimit->gui(Fonts::sansBold15);
-	}else{
-		accelerationLimit->gui(Fonts::sansBold15);
-		std::ostringstream actAccLimString;
-		actAccLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorAccelerationLimit << " u/s\xc2\xb2";
-		ImGui::SameLine();
-		backgroundText(actAccLimString.str().c_str(), Colors::gray, Colors::black);
-	}
+	accelerationLimit->gui(Fonts::sansBold15);
+	std::ostringstream actAccLimString;
+	actAccLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorAccelerationLimit << " u/s\xc2\xb2";
+	ImGui::SameLine();
+	backgroundText(actAccLimString.str().c_str(), Colors::gray, Colors::black);
 	
 	ImGui::Separator();
 	

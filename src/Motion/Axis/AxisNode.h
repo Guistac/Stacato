@@ -159,11 +159,7 @@ private:
 	NumberParam<double> lowerPositionLimitClearance;
 	NumberParam<double> upperPositionLimitClearance;
 	
-	
 	NumberParam<double> accelerationLimit;
-	BoolParam advancedAccelerationLimit;
-	NumberParam<double> speedupAccelerationLimit;
-	NumberParam<double> slowdownAccelerationLimit;
 	
 	NumberParam<double> velocityLimit;
 	BoolParam advancedVelocityLimit;

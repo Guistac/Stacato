@@ -133,12 +133,6 @@ void AxisNode::initialize(){
 	maxPositiveVelocityLimit = NumberParameter<double>::make(0.0, "Max Positive Velocity Limit", "MaxPositiveVelocityLimit");
 	maxPositiveVelocityLimit->setSuffix("/s");
 	
-	advancedAccelerationLimit = BooleanParameter::make(false, "Advanced Acceleration Limit", "AdvancedAccelerationLimit");
-	speedupAccelerationLimit = NumberParameter<double>::make(0.0, "Speedup Acceleration Limit", "SpeedupAccelerationLimit");
-	speedupAccelerationLimit->setSuffix("/s\xc2\xb2");
-	slowdownAccelerationLimit = NumberParameter<double>::make(0.0, "Slowdown Acceleration Limit", "SlowdownAccelerationLimit");
-	slowdownAccelerationLimit->setSuffix("/s\xc2\xb2");
-	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
 	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
 	enableUpperPositionLimit->addEditCallback(updateInterfaceCallback);
@@ -154,9 +148,6 @@ void AxisNode::initialize(){
 	maxNegativeVelocityLimit->addEditCallback(updateInterfaceCallback);
 	minPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
 	maxPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
-	advancedAccelerationLimit->addEditCallback(updateInterfaceCallback);
-	speedupAccelerationLimit->addEditCallback(updateInterfaceCallback);
-	slowdownAccelerationLimit->addEditCallback(updateInterfaceCallback);
 	
 	
 	
@@ -246,9 +237,6 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	maxNegativeVelocityLimit->save(xml);
 	minPositiveVelocityLimit->save(xml);
 	maxPositiveVelocityLimit->save(xml);
-	advancedAccelerationLimit->save(xml);
-	speedupAccelerationLimit->save(xml);
-	slowdownAccelerationLimit->save(xml);
 	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
@@ -299,9 +287,6 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= maxNegativeVelocityLimit->load(xml);
 	success &= minPositiveVelocityLimit->load(xml);
 	success &= maxPositiveVelocityLimit->load(xml);
-	success &= advancedAccelerationLimit->load(xml);
-	success &= speedupAccelerationLimit->load(xml);
-	success &= slowdownAccelerationLimit->load(xml);
 	
 	success &= enableLowerPositionLimit->load(xml);
 	success &= enableUpperPositionLimit->load(xml);
