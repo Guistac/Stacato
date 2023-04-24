@@ -220,14 +220,18 @@ void AxisNode::inputProcess(){
 		case LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
 			lowerLimitSignalPin->copyConnectedPinValue();
 			upperLimitSignalPin->copyConnectedPinValue();
-			if(axisInterface->isEnabled() && !axisInterface->isHoming()){
-				if(*lowerLimitSignal && motionProfile.getVelocity() < 0.0) {
-					axisInterface->disable();
-					Logger::warn("[{}] Triggered lower limit switch, disabling axis", getName());
-				}
-				if(*upperLimitSignal && motionProfile.getVelocity() > 0.0) {
-					axisInterface->disable();
-					Logger::warn("[{}] Triggered upper limit switch, disabling axis", getName());
+			axisInterface->processData.b_isAtUpperLimit = *upperLimitSignal;
+			axisInterface->processData.b_isAtLowerLimit = *lowerLimitSignal;
+			if(controlMode == POSITION_CONTROL){
+				if(axisInterface->isEnabled() && !axisInterface->isHoming()){
+					if(*lowerLimitSignal && motionProfile.getVelocity() < 0.0) {
+						axisInterface->disable();
+						Logger::warn("[{}] Triggered lower limit switch, disabling axis", getName());
+					}
+					if(*upperLimitSignal && motionProfile.getVelocity() > 0.0) {
+						axisInterface->disable();
+						Logger::warn("[{}] Triggered upper limit switch, disabling axis", getName());
+					}
 				}
 			}
 			break;
@@ -239,6 +243,8 @@ void AxisNode::inputProcess(){
 			upperLimitSignalPin->copyConnectedPinValue();
 			lowerSlowdownSignalPin->copyConnectedPinValue();
 			upperSlowdownSignalPin->copyConnectedPinValue();
+			axisInterface->processData.b_isAtUpperLimit = *upperLimitSignal;
+			axisInterface->processData.b_isAtLowerLimit = *lowerLimitSignal;
 			break;
 	}
 	
@@ -322,8 +328,26 @@ void AxisNode::outputProcess(){
 				double maxPos = axisInterface->getUpperPositionLimit();
 				motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds, internalVelocityTarget, acc, minPos, maxPos, acc);
 			}else{
+				
 				double acc = axisInterface->getAccelerationLimit();
-				motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, acc);
+				
+				switch(limitSignalType){
+					case SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
+						if(axisInterface->isAtLowerLimit() && internalVelocityTarget < 0){
+							motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+							break;
+						}
+						else if(axisInterface->isAtUpperLimit() && internalVelocityTarget > 0){
+							motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+							break;
+						}
+					case LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
+						//we should implement slowdown here
+					default:
+						motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, acc);
+						break;
+				}
+				
 			}
 			break;
 		case InternalControlMode::MANUAL_POSITION_INTERPOLATION:
@@ -350,7 +374,22 @@ void AxisNode::outputProcess(){
 			double accLim = std::abs(axisInterface->getAccelerationLimit());
 			double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
 			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
-			motionProfile.matchVelocity(profileTimeDelta_seconds, velTar, accTar);
+			switch(limitSignalType){
+				case SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
+					if(axisInterface->isAtLowerLimit() && internalVelocityTarget < 0){
+						motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accTar);
+						break;
+					}
+					else if(axisInterface->isAtUpperLimit() && internalVelocityTarget > 0){
+						motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accTar);
+						break;
+					}
+				case LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
+					//we should implement slowdown here
+				default:
+					motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, accTar);
+					break;
+			}
 			}break;
 		case InternalControlMode::NO_CONTROL:
 			motionProfile.setPosition(axisInterface->getPositionActual());

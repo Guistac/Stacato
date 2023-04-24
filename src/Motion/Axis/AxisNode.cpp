@@ -123,6 +123,22 @@ void AxisNode::initialize(){
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	accelerationLimit->setSuffix("/s\xc2\xb2");
 	
+	advancedVelocityLimit = BooleanParameter::make(false, "Advanced Velocity Limit", "AdvancedVelocityLimit");
+	minNegativeVelocityLimit = NumberParameter<double>::make(0.0, "Min Negative Velocity Limit", "MinNegativeVelocityLimit");
+	minNegativeVelocityLimit->setSuffix("/s");
+	maxNegativeVelocityLimit = NumberParameter<double>::make(0.0, "Max Negative Velocity Limit", "MaxNegativeVelocityLimit");
+	maxNegativeVelocityLimit->setSuffix("/s");
+	minPositiveVelocityLimit = NumberParameter<double>::make(0.0, "Min Positive Velocity Limit", "MinPositiveVelocityLimit");
+	minPositiveVelocityLimit->setSuffix("/s");
+	maxPositiveVelocityLimit = NumberParameter<double>::make(0.0, "Max Positive Velocity Limit", "MaxPositiveVelocityLimit");
+	maxPositiveVelocityLimit->setSuffix("/s");
+	
+	advancedAccelerationLimit = BooleanParameter::make(false, "Advanced Acceleration Limit", "AdvancedAccelerationLimit");
+	speedupAccelerationLimit = NumberParameter<double>::make(0.0, "Speedup Acceleration Limit", "SpeedupAccelerationLimit");
+	speedupAccelerationLimit->setSuffix("/s\xc2\xb2");
+	slowdownAccelerationLimit = NumberParameter<double>::make(0.0, "Slowdown Acceleration Limit", "SlowdownAccelerationLimit");
+	slowdownAccelerationLimit->setSuffix("/s\xc2\xb2");
+	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
 	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
 	enableUpperPositionLimit->addEditCallback(updateInterfaceCallback);
@@ -133,6 +149,14 @@ void AxisNode::initialize(){
 	upperPositionLimitClearance->addEditCallback(updateInterfaceCallback);
 	velocityLimit->addEditCallback(updateInterfaceCallback);
 	accelerationLimit->addEditCallback(updateInterfaceCallback);
+	advancedVelocityLimit->addEditCallback(updateInterfaceCallback);
+	minNegativeVelocityLimit->addEditCallback(updateInterfaceCallback);
+	maxNegativeVelocityLimit->addEditCallback(updateInterfaceCallback);
+	minPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
+	maxPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
+	advancedAccelerationLimit->addEditCallback(updateInterfaceCallback);
+	speedupAccelerationLimit->addEditCallback(updateInterfaceCallback);
+	slowdownAccelerationLimit->addEditCallback(updateInterfaceCallback);
 	
 	
 	
@@ -217,6 +241,15 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
+	advancedVelocityLimit->save(xml);
+	minNegativeVelocityLimit->save(xml);
+	maxNegativeVelocityLimit->save(xml);
+	minPositiveVelocityLimit->save(xml);
+	maxPositiveVelocityLimit->save(xml);
+	advancedAccelerationLimit->save(xml);
+	speedupAccelerationLimit->save(xml);
+	slowdownAccelerationLimit->save(xml);
+	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
 	positionLoop_maxError->save(xml);
@@ -261,6 +294,14 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= velocityLoop_maxError->load(xml);
 	success &= limitSlowdownVelocity->load(xml);
 	
+	success &= advancedVelocityLimit->load(xml);
+	success &= minNegativeVelocityLimit->load(xml);
+	success &= maxNegativeVelocityLimit->load(xml);
+	success &= minPositiveVelocityLimit->load(xml);
+	success &= maxPositiveVelocityLimit->load(xml);
+	success &= advancedAccelerationLimit->load(xml);
+	success &= speedupAccelerationLimit->load(xml);
+	success &= slowdownAccelerationLimit->load(xml);
 	
 	success &= enableLowerPositionLimit->load(xml);
 	success &= enableUpperPositionLimit->load(xml);
@@ -443,7 +484,7 @@ void AxisNode::updateControlMode(){
 		case ControlMode::VELOCITY_CONTROL:
 			controlMode = ControlMode::VELOCITY_CONTROL;
 			option_LimitSignalType_SignalAtLowerLimit.disable();
-			option_LimitSignalType_SignalAtLowerAndUpperLimits.disable();
+			option_LimitSignalType_SignalAtLowerAndUpperLimits.enable();
 			option_LimitSignalType_SignalAtOrigin.disable();
 			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.enable();
 			if(limitSignalTypeParameter->value != LimitSignalType::NONE &&

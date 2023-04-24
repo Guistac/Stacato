@@ -261,6 +261,9 @@ public:
 	double getLowerPositionLimit(){ return configuration.lowerPositionLimit; }
 	double getUpperPositionLimit(){ return configuration.upperPositionLimit; }
 	
+	bool isAtLowerLimit(){ return processData.b_isAtLowerLimit; }
+	bool isAtUpperLimit(){ return processData.b_isAtUpperLimit; }
+	
 private:
 	
 	friend class AxisNode;
@@ -296,6 +299,8 @@ private:
 		bool b_isEmergencyStopActive;
 		bool b_enable;
 		bool b_disable;
+		bool b_isAtLowerLimit;
+		bool b_isAtUpperLimit;
 	}processData;
 };
 

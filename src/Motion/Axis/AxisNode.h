@@ -150,6 +150,7 @@ private:
 	double actuatorAccelerationLimit;
 	double feedbackLowerPositionLimit;
 	double feedbackUpperPositionLimit;
+	
 	BoolParam enableLowerPositionLimit;
 	BoolParam enableUpperPositionLimit;
 	BoolParam limitPositionToFeedbackWorkingRange;
@@ -157,8 +158,20 @@ private:
 	NumberParam<double> upperPositionLimit;
 	NumberParam<double> lowerPositionLimitClearance;
 	NumberParam<double> upperPositionLimitClearance;
-	NumberParam<double> velocityLimit;
+	
+	
 	NumberParam<double> accelerationLimit;
+	BoolParam advancedAccelerationLimit;
+	NumberParam<double> speedupAccelerationLimit;
+	NumberParam<double> slowdownAccelerationLimit;
+	
+	NumberParam<double> velocityLimit;
+	BoolParam advancedVelocityLimit;
+	NumberParam<double> minNegativeVelocityLimit;
+	NumberParam<double> maxNegativeVelocityLimit;
+	NumberParam<double> minPositiveVelocityLimit;
+	NumberParam<double> maxPositiveVelocityLimit;
+	
 	
 	//Homing
 	OptionParam homingDirectionParameter;

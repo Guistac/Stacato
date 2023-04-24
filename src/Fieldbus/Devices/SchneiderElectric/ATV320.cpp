@@ -23,6 +23,9 @@ void ATV320::initialize() {
 	
 	axis = DS402Axis::make(thisATV320);
 	actuator = std::make_shared<ATV_Motor>(thisATV320);
+	actuator->feedbackConfig.b_supportsVelocityFeedback = true;
+	actuator->actuatorConfig.b_supportsEffortFeedback = true;
+	actuator->actuatorConfig.b_supportsVelocityControl = true;
 	gpio = std::make_shared<ATV_GPIO>(thisATV320);
 	
 	configurationUploadTask.setAtv320(thisATV320);
@@ -179,27 +182,7 @@ bool ATV320::startupConfiguration() {
 void ATV320::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	axis->updateInputs();
-	
-/*
-	//read power state and react to change
-	auto newPowerState = ds402Status.getPowerState();
-	if(newPowerState != actualPowerState){
-		std::string message = "Power State changed to " + std::string(Enumerator::getDisplayString(newPowerState));
-		pushEvent(message.c_str(), false);
-	}
-	actualPowerState = newPowerState;
-	
-	//enable request timeout
-	//ATV320 seems to consider 'Switched On' as a valid 'Enabled' power state
-	if(requestedPowerState == DS402::PowerState::OPERATION_ENABLED && !(actualPowerState == DS402::PowerState::OPERATION_ENABLED
-																		|| actualPowerState == DS402::PowerState::SWITCHED_ON)){
-		if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > enableRequestTimeout_nanoseconds){
-			Logger::warn("{} : Enable Request Timeout", getName());
-			requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
-		}
-	}
-*/
-	
+		
 	if(b_waitingForEnable){
 		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
 		//for some reason switched on is sometimes a valid 'enabled' power state with ATV320
