@@ -430,13 +430,16 @@ void VIPA_050_1BS00::readInputs(){
 	encoderPosition_revolutions = (float)encoderValue / (float)incrementsPerRevolution;
 	if(b_centerRangeOnZero && encoderPosition_revolutions >= maxRevolutions / 2) encoderPosition_revolutions -= maxRevolutions;
 	
-	uint16_t deltaT_microseconds = time_microseconds - previousReadingTime_microseconds;
-	double readingDeltaT_seconds = double(deltaT_microseconds) / 1000000.0;
-	double positionDelta_revolutions = encoderPosition_revolutions - previousEncoderPosition_revolutions;
-	encoderVelocity_revolutionsPerSecond = positionDelta_revolutions / readingDeltaT_seconds;
-	
-	previousReadingTime_microseconds = time_microseconds;
-	previousEncoderPosition_revolutions = encoderPosition_revolutions;
+	//update the velocity value only if the reading time is actually incremented.
+	//if we don't do this, we might have a time delta == 0, then divide by it to get velocity and end up with infinite velocity
+	if(time_microseconds != previousReadingTime_microseconds){
+		uint16_t deltaT_microseconds = time_microseconds - previousReadingTime_microseconds;
+		double readingDeltaT_seconds = double(deltaT_microseconds) / 1000000.0;
+		double positionDelta_revolutions = encoderPosition_revolutions - previousEncoderPosition_revolutions;
+		encoderVelocity_revolutionsPerSecond = positionDelta_revolutions / readingDeltaT_seconds;
+		previousReadingTime_microseconds = time_microseconds;
+		previousEncoderPosition_revolutions = encoderPosition_revolutions;
+	}
 	
 	encoder->position = encoderPosition_revolutions;
 	encoder->velocity = encoderVelocity_revolutionsPerSecond;
