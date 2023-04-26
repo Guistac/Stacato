@@ -1,9 +1,27 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockEdit="false"/>
+    <Dashboard Scale="0.27313077" OffsetX="729.5788" OffsetY="-194.18484" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59975" SizeY="184.46478"/>
+        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59975" SizeY="184.46478"/>
+        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59975" SizeY="183.46478"/>
+        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59975" SizeY="182.46478"/>
+        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59975" SizeY="184.17227"/>
+        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59975" SizeY="184.87976"/>
+        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59975" SizeY="184.87976"/>
+        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59975" SizeY="181.46477"/>
+        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59975" SizeY="184.12602"/>
+        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59975" SizeY="182.12601"/>
+        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59975" SizeY="184.78725"/>
+        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59975" SizeY="183.17227"/>
+        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59975" SizeY="183.8335"/>
+        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59975" SizeY="182.21852"/>
+        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59975" SizeY="183.87976"/>
+        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10011" SizeY="389.93991"/>
+        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10011" SizeY="388.27869"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2511-A" Split="false" CustomName="Convertisseur RJ-45 Fibre (Emetteur) [A] (Alias:900)" UniqueID="68">
-                <NodeEditorPosition x="-224" y="-368"/>
+                <NodeEditorPosition x="1248" y="-2624"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="900"/>
                 </NodeSpecificData>
@@ -11,7 +29,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2511-B" Split="false" CustomName="Convertisseur Fibre-RJ45 (Recepteur) [B] (Alias:1000)" UniqueID="69">
-                <NodeEditorPosition x="-240" y="-1568"/>
+                <NodeEditorPosition x="1904" y="-2448"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1000"/>
                 </NodeSpecificData>
@@ -19,7 +37,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Dispatch (Alias:1001)" UniqueID="70">
-                <NodeEditorPosition x="-344" y="-1859"/>
+                <NodeEditorPosition x="1800" y="-2739"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1001"/>
                     <ModularDeviceProfile>
@@ -48,7 +66,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT dispatch (Alias:1002)" UniqueID="80">
-                <NodeEditorPosition x="-16" y="-1840"/>
+                <NodeEditorPosition x="2128" y="-2720"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1002"/>
                 </NodeSpecificData>
@@ -56,7 +74,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1003)" UniqueID="81">
-                <NodeEditorPosition x="-16" y="-1776"/>
+                <NodeEditorPosition x="2128" y="-2656"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1003"/>
                 </NodeSpecificData>
@@ -64,7 +82,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1004)" UniqueID="82">
-                <NodeEditorPosition x="-16" y="-1712"/>
+                <NodeEditorPosition x="2128" y="-2592"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1004"/>
                 </NodeSpecificData>
@@ -72,7 +90,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1005)" UniqueID="83">
-                <NodeEditorPosition x="-16" y="-1648"/>
+                <NodeEditorPosition x="2128" y="-2528"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1005"/>
                 </NodeSpecificData>
@@ -80,7 +98,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Costiere Corbeau (Alias:122)" UniqueID="84">
-                <NodeEditorPosition x="1089" y="-464"/>
+                <NodeEditorPosition x="2443" y="-451"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="122"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="0" EncoderIsMultiturn="true"/>
@@ -92,7 +110,7 @@
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset="-952.79969"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset="-952.79969000000006"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -115,7 +133,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32i" Split="false" CustomName="Tournette Corbeau (Alias:123)" UniqueID="99">
-                <NodeEditorPosition x="1075" y="-656"/>
+                <NodeEditorPosition x="2429" y="-643"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="123"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="0" EncoderIsMultiturn="true"/>
@@ -147,7 +165,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:101)" UniqueID="111">
-                <NodeEditorPosition x="69" y="-1408"/>
+                <NodeEditorPosition x="768" y="-1492"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="101"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -170,7 +188,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:102)" UniqueID="122">
-                <NodeEditorPosition x="469" y="-1406"/>
+                <NodeEditorPosition x="1387" y="-1496"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="102"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -193,7 +211,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:103)" UniqueID="133">
-                <NodeEditorPosition x="869" y="-1408"/>
+                <NodeEditorPosition x="1996" y="-1498"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="103"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -216,7 +234,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:104)" UniqueID="144">
-                <NodeEditorPosition x="869" y="-1178"/>
+                <NodeEditorPosition x="1994" y="-1288"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="104"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -239,7 +257,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:105)" UniqueID="155">
-                <NodeEditorPosition x="1260" y="-1409"/>
+                <NodeEditorPosition x="2601" y="-1505"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="105"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -262,7 +280,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:106)" UniqueID="166">
-                <NodeEditorPosition x="869" y="-942"/>
+                <NodeEditorPosition x="1990" y="-1075"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="106"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -285,7 +303,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:107)" UniqueID="177">
-                <NodeEditorPosition x="1253" y="-938"/>
+                <NodeEditorPosition x="2594" y="-1073"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="107"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -308,7 +326,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32i" Split="false" CustomName="Chariot Light Jardin (Alias:150)" UniqueID="188">
-                <NodeEditorPosition x="238" y="-694"/>
+                <NodeEditorPosition x="1839" y="-560"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="150"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="0" EncoderIsMultiturn="false"/>
@@ -340,7 +358,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:201)" UniqueID="245">
-                <NodeEditorPosition x="-1706" y="-1418"/>
+                <NodeEditorPosition x="759" y="-2309"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="201"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -363,7 +381,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:202)" UniqueID="256">
-                <NodeEditorPosition x="-1292" y="-1417"/>
+                <NodeEditorPosition x="1381" y="-2306"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="202"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -386,7 +404,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:203)" UniqueID="267">
-                <NodeEditorPosition x="-877" y="-1414"/>
+                <NodeEditorPosition x="2004" y="-2305"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="203"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -409,7 +427,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:204)" UniqueID="278">
-                <NodeEditorPosition x="-471" y="-1411"/>
+                <NodeEditorPosition x="2622" y="-2304"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="204"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -432,7 +450,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:205)" UniqueID="289">
-                <NodeEditorPosition x="-1721" y="-950"/>
+                <NodeEditorPosition x="763" y="-1853"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="205"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -455,7 +473,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:206)" UniqueID="300">
-                <NodeEditorPosition x="-1297" y="-1164"/>
+                <NodeEditorPosition x="1376" y="-2083"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="206"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -478,7 +496,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:207)" UniqueID="311">
-                <NodeEditorPosition x="-889" y="-944"/>
+                <NodeEditorPosition x="2007" y="-1859"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="207"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -501,7 +519,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:208)" UniqueID="322">
-                <NodeEditorPosition x="-475" y="-1162"/>
+                <NodeEditorPosition x="2618" y="-2084"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="208"/>
                     <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
@@ -524,7 +542,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 101" UniqueID="334">
-                <NodeEditorPosition x="264" y="-1423"/>
+                <NodeEditorPosition x="951" y="-1493"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="112" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -549,7 +567,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 102" UniqueID="352">
-                <NodeEditorPosition x="664" y="-1419"/>
+                <NodeEditorPosition x="1570" y="-1499"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="123" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -574,7 +592,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 103" UniqueID="365">
-                <NodeEditorPosition x="1056" y="-1423"/>
+                <NodeEditorPosition x="2181" y="-1501"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="134" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -598,8 +616,8 @@
                     <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="377" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 104" UniqueID="378">
-                <NodeEditorPosition x="1448" y="-1429"/>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 105" UniqueID="378">
+                <NodeEditorPosition x="2783" y="-1507"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="156" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -624,7 +642,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 104" UniqueID="391">
-                <NodeEditorPosition x="1056" y="-1195"/>
+                <NodeEditorPosition x="2175" y="-1291"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="145" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -649,7 +667,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 106" UniqueID="404">
-                <NodeEditorPosition x="1056" y="-959"/>
+                <NodeEditorPosition x="2173" y="-1078"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="167" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -674,7 +692,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 107" UniqueID="417">
-                <NodeEditorPosition x="1448" y="-955"/>
+                <NodeEditorPosition x="2775" y="-1074"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="178" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -699,7 +717,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 201" UniqueID="454">
-                <NodeEditorPosition x="-1515" y="-1435"/>
+                <NodeEditorPosition x="947" y="-2310"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="246" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -724,7 +742,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 205" UniqueID="467">
-                <NodeEditorPosition x="-1527" y="-949"/>
+                <NodeEditorPosition x="951" y="-1855"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="290" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -749,7 +767,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 202" UniqueID="480">
-                <NodeEditorPosition x="-1099" y="-1435"/>
+                <NodeEditorPosition x="1572" y="-2305"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="257" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -774,7 +792,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 206" UniqueID="493">
-                <NodeEditorPosition x="-1103" y="-1163"/>
+                <NodeEditorPosition x="1570" y="-2086"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="301" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -799,7 +817,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 203" UniqueID="506">
-                <NodeEditorPosition x="-683" y="-1435"/>
+                <NodeEditorPosition x="2190" y="-2306"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="268" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -824,7 +842,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 207" UniqueID="519">
-                <NodeEditorPosition x="-695" y="-943"/>
+                <NodeEditorPosition x="2201" y="-1862"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="312" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -849,7 +867,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 204" UniqueID="532">
-                <NodeEditorPosition x="-275" y="-1429"/>
+                <NodeEditorPosition x="2810" y="-2306"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="279" UnitConversion="1.875"/>
                     <ActuatorMappings>
@@ -874,7 +892,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Croix 208" UniqueID="545">
-                <NodeEditorPosition x="-280" y="-1153"/>
+                <NodeEditorPosition x="2809" y="-2085"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="10" AccelerationLimit="4" AdvancedVelocityLimit="true" MinNegativeVelocityLimit="5" MaxNegativeVelocityLimit="5" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="10" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="10000" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <VelocityFeedbackMapping InterfacePinID="323" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -899,7 +917,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tournette Corbeau" UniqueID="591">
-                <NodeEditorPosition x="1368" y="-673"/>
+                <NodeEditorPosition x="2722" y="-660"/>
                 <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="15" AccelerationLimit="5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-190" UpperPositionLimit="5" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="1" SignalApproachMethod="1" HomingVelocityCoarse="5" HomingVelocityFine="2" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="102" UnitConversion="2.0737380000000001"/>
                     <VelocityFeedbackMapping InterfacePinID="102" UnitConversion="2.0737380000000001"/>
@@ -925,7 +943,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Costiere Corbeau" UniqueID="604">
-                <NodeEditorPosition x="1368" y="-475"/>
+                <NodeEditorPosition x="2722" y="-462"/>
                 <NodeSpecificData MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.12" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.050000000000000003" UpperPositionLimit="9.9600000000000009" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.080000000000000002" HomingVelocityFine="0.040000000000000001" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="88" UnitConversion="62.352884000000003"/>
                     <VelocityFeedbackMapping InterfacePinID="88" UnitConversion="62.352884000000003"/>
@@ -950,8 +968,8 @@
                     <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="616" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Rotation Corbeau" UniqueID="623">
-                <NodeEditorPosition x="1614" y="-673"/>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Rot. Corbeau" UniqueID="623">
+                <NodeEditorPosition x="2968" y="-660"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="3.2999999999999998" LowerPositionLimit="-184" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
@@ -966,8 +984,8 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="627" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Costière Corbeau" UniqueID="628">
-                <NodeEditorPosition x="1608" y="-468"/>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Cost. Corbeau" UniqueID="628">
+                <NodeEditorPosition x="2962" y="-455"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0.050000000000000003" UpperPositionLimit="9.9600000000000009"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
@@ -980,6 +998,201 @@
                 <OutputPins>
                     <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="631" Visible="true"/>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="632" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 205" UniqueID="636">
+                <NodeEditorPosition x="1146" y="-1803"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="3"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="637" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="638" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="639" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 207" UniqueID="642">
+                <NodeEditorPosition x="2396" y="-1810"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="4"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="643" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="644" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="645" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 206" UniqueID="647">
+                <NodeEditorPosition x="1763" y="-2036"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="648" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="649" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="650" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 208" UniqueID="652">
+                <NodeEditorPosition x="3004" y="-2037"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="6"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="653" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="654" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="655" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 201" UniqueID="657">
+                <NodeEditorPosition x="1140" y="-2260"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="7"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="658" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="659" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="660" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 203" UniqueID="662">
+                <NodeEditorPosition x="2379" y="-2256"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="8"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="663" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="664" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="665" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 204" UniqueID="667">
+                <NodeEditorPosition x="3000" y="-2257"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="9"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="668" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="669" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="670" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 202" UniqueID="672">
+                <NodeEditorPosition x="1765" y="-2255"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="10"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="673" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="674" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="675" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 101" UniqueID="677">
+                <NodeEditorPosition x="1141" y="-1443"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="11"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="678" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="679" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="680" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 102" UniqueID="681">
+                <NodeEditorPosition x="1760" y="-1449"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="12"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="682" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="683" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="684" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 103" UniqueID="685">
+                <NodeEditorPosition x="2373" y="-1449"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="13"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="686" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="687" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="688" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 104" UniqueID="689">
+                <NodeEditorPosition x="2365" y="-1239"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="14"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="690" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="691" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="692" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 106" UniqueID="693">
+                <NodeEditorPosition x="2363" y="-1028"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="15"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="694" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="695" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="696" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 105" UniqueID="697">
+                <NodeEditorPosition x="2971" y="-1457"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="16"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="698" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="699" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="700" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Croix 107" UniqueID="701">
+                <NodeEditorPosition x="2963" y="-1024"/>
+                <NodeSpecificData ShortName="M">
+                    <ControlWidget UniqueID="17"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="702" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="VelocityControlledAxis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="703" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="704" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -1052,6 +1265,21 @@
             <Link UniqueID="622" StartPin="93" EndPin="608"/>
             <Link UniqueID="633" StartPin="614" EndPin="630"/>
             <Link UniqueID="634" StartPin="601" EndPin="625"/>
+            <Link UniqueID="640" StartPin="477" EndPin="638"/>
+            <Link UniqueID="646" StartPin="529" EndPin="644"/>
+            <Link UniqueID="651" StartPin="503" EndPin="649"/>
+            <Link UniqueID="656" StartPin="555" EndPin="654"/>
+            <Link UniqueID="661" StartPin="464" EndPin="659"/>
+            <Link UniqueID="666" StartPin="516" EndPin="664"/>
+            <Link UniqueID="671" StartPin="542" EndPin="669"/>
+            <Link UniqueID="676" StartPin="490" EndPin="674"/>
+            <Link UniqueID="705" StartPin="362" EndPin="683"/>
+            <Link UniqueID="706" StartPin="344" EndPin="679"/>
+            <Link UniqueID="707" StartPin="375" EndPin="687"/>
+            <Link UniqueID="708" StartPin="401" EndPin="691"/>
+            <Link UniqueID="709" StartPin="414" EndPin="695"/>
+            <Link UniqueID="710" StartPin="427" EndPin="703"/>
+            <Link UniqueID="711" StartPin="388" EndPin="699"/>
         </Links>
     </NodeGraph>
 </Environnement>

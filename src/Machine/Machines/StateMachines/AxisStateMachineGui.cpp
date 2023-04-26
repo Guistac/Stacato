@@ -12,7 +12,7 @@
 
 #include "Gui/Utilities/CustomWidgets.h"
 
-/*
+
 
 void AxisStateMachine::controlsGui() {
 	ImGui::PushFont(Fonts::sansBold20);
@@ -57,8 +57,8 @@ void AxisStateMachine::widgetGui(){
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
 		ImGui::BeginDisabled();
-		customButton("", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersTop);
-		customButton("", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersBottom);
+		customButton("##", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersTop);
+		customButton("##", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersBottom);
 		ImGui::EndDisabled();
 		ImGui::PopStyleVar();
 		
@@ -142,4 +142,3 @@ void AxisStateMachine::widgetGui(){
 	machineStateControlGui(widgetWidth);
 }
 
-*/

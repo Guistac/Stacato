@@ -212,7 +212,6 @@ private:
 	double profileTimeDelta_seconds;
 	double enableRequestTime_seconds;
 	bool b_isEnabling = false;
-	///bool b_isDisabling = false;
 	enum class InternalControlMode{
 		MANUAL_VELOCITY_TARGET,				//command through the axis velocity slider
 		MANUAL_POSITION_INTERPOLATION,		//command through the axis start move buttons

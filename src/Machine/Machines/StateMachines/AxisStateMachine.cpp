@@ -8,7 +8,7 @@
 
 #include "Animation/Animation.h"
 
-/*
+
 AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
 AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
 AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{-2, "Moving To Negative Limit", "MovingToNegativeLimit"};
@@ -77,6 +77,8 @@ void AxisStateMachine::inputProcess() {
 			break;
 		case DeviceState::NOT_READY:
 		case DeviceState::READY:
+		case DeviceState::ENABLING:
+		case DeviceState::DISABLING:
             animatableState->state = Animatable::State::NOT_READY;
             animatableVelocity->state = Animatable::State::NOT_READY;
             break;
@@ -90,16 +92,16 @@ void AxisStateMachine::inputProcess() {
 	//get actual axis state
 	if(axis->isAtLowerLimit()) actualState = State::AT_NEGATIVE_LIMIT;
 	else if(axis->isAtUpperLimit()) actualState = State::AT_POSITIVE_LIMIT;
-	else if(axis->getProfileVelocity_axisUnitsPerSecond() > 0.0) actualState = State::MOVING_TO_POSITIVE_LIMIT;
-	else if(axis->getProfileVelocity_axisUnitsPerSecond() < 0.0) actualState = State::MOVING_TO_NEGATIVE_LIMIT;
-	else if(axis->getProfileVelocity_axisUnitsPerSecond() == 0.0) actualState = State::STOPPED;
+	else if(axis->getVelocityActual() > 0.0) actualState = State::MOVING_TO_POSITIVE_LIMIT;
+	else if(axis->getVelocityActual() < 0.0) actualState = State::MOVING_TO_NEGATIVE_LIMIT;
+	else if(axis->getVelocityActual() == 0.0) actualState = State::STOPPED;
 	else actualState = State::UNKNOWN;
 	
 	//update actual value of animatables
 	std::shared_ptr<AnimatableStateValue> newStateValue = AnimationValue::makeState();
 	std::shared_ptr<AnimatableRealValue> newVelocityValue = AnimationValue::makeReal();
 	newStateValue->value = getStateStruct(actualState);
-	newVelocityValue->value = *axis->actualVelocity;
+	newVelocityValue->value = axis->getVelocityActual();
 	animatableState->updateActualValue(newStateValue);
 	animatableVelocity->updateActualValue(newVelocityValue);
 
@@ -150,7 +152,7 @@ void AxisStateMachine::outputProcess(){
 		}
 		
 		auto axis = getAxis();
-		axis->setVelocityCommand(velocityTarget, axis->getAccelerationLimit());
+		axis->setVelocityTarget(velocityTarget, axis->getAccelerationLimit());
 		
 	}
 }
@@ -201,27 +203,26 @@ void AxisStateMachine::onDisableHardware() {
 
  
 void AxisStateMachine::simulateInputProcess() {
-	
+	/*
 	if(state != DeviceState::ENABLED) state = DeviceState::READY;
 	
-	*stateIntegerValue = getStateInteger(actualState);
+	*stateInteger = getStateInteger(actualState);
 	
 	auto actualValue = AnimationValue::makeState();
 	switch(actualState){
-		case State::UNKNOWN:			actualValue->value = &stateUnknown; break;
-		case State::STOPPED:			actualValue->value = &stateStopped; break;
-		case State::CLOSED:				actualValue->value = &stateClosed; break;
-		case State::OPENING_CLOSING:	actualValue->value = &stateClosingOpening; break;
-		case State::OPEN_LOWERED:		actualValue->value = &stateOpenLowered; break;
-		case State::LOWERING_RAISING:	actualValue->value = &stateRaisingLowering; break;
-		case State::RAISED:				actualValue->value = &stateRaised; break;
+		case State::UNKNOWN:					actualValue->value = &stateUnknown; break;
+		case State::STOPPED:					actualValue->value = &stateStopped; break;
+		case State::MOVING_TO_POSITIVE_LIMIT:	actualValue->value = &stateMovingToPositiveLimit; break;
+		case State::MOVING_TO_NEGATIVE_LIMIT:	actualValue->value = &stateMovingToNegativeLimit; break;
+		case State::AT_POSITIVE_LIMIT:			actualValue->value = &statePositiveLimit; break;
+		case State::AT_NEGATIVE_LIMIT:			actualValue->value = &stateNegativeLimit; break;
 	}
 	animatableState->updateActualValue(actualValue);
-	 
+	 */
 }
 
 void AxisStateMachine::simulateOutputProcess() {
-	
+	/*
 	//update outputs signals
 	if (isEnabled()) {
 		
@@ -241,7 +242,7 @@ void AxisStateMachine::simulateOutputProcess() {
 		if(requestedState == State::STOPPED) actualState = State::CLOSED;
 		else actualState = requestedState;
 	}
-	
+*/
 }
 
 bool AxisStateMachine::isSimulationReady(){
@@ -254,16 +255,15 @@ void AxisStateMachine::onDisableSimulation() {}
 
 
 
-bool isAxisConnected();
-std::shared_ptr<VelocityControlledAxis> getAxis();
+
 
 
 bool AxisStateMachine::isAxisConnected(){
 	return axisPin->isConnected();
 }
 
-std::shared_ptr<VelocityControlledAxis> AxisStateMachine::getAxis(){
-	return axisPin->getConnectedPin()->getSharedPointer<VelocityControlledAxis>();
+std::shared_ptr<AxisInterface> AxisStateMachine::getAxis(){
+	return axisPin->getConnectedPin()->getSharedPointer<AxisInterface>();
 }
 
 bool AxisStateMachine::areAllPinsConnected() {
@@ -331,7 +331,7 @@ void AxisStateMachine::fillAnimationDefaults(std::shared_ptr<Animation> animatio
 void AxisStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {
 	if(isAxisConnected()){
 		auto axis = getAxis();
-		axis->getDevices(output);
+		//axis->getDevices(output);
 	}
 }
 
@@ -356,5 +356,3 @@ bool AxisStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;
 }
-
- */

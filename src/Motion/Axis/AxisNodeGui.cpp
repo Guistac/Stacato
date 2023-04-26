@@ -76,7 +76,7 @@ void AxisNode::controlTab(){
 
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
-		ImGui::BeginDisabled(false /* !axisInterface->isEnabled() || axisPin->isConnected()*/);
+		ImGui::BeginDisabled(!axisInterface->isEnabled() || axisPin->isConnected());
 		
 		if(axisInterface->configuration.controlMode != AxisInterface::ControlMode::NONE){
 			

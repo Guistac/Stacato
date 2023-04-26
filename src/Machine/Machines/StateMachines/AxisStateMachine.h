@@ -7,7 +7,6 @@
 
 #include "Gui/Environnement/Dashboard/Widget.h"
 
-/*
 
 class AxisStateMachine : public Machine {
 public:
@@ -16,7 +15,7 @@ public:
 
 	//————— Input Pins —————
 	
-	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::VELOCITY_CONTROLLED_AXIS,
+	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE,
 																 NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
 																 "Velocity Controlled Axis",
 																 "VelocityControlledAxis");
@@ -96,7 +95,7 @@ public:
 	
 	bool areAllPinsConnected();
 	bool isAxisConnected();
-	std::shared_ptr<VelocityControlledAxis> getAxis();
+	std::shared_ptr<AxisInterface> getAxis();
 	
 	//————— Control Widget —————
 	
@@ -124,5 +123,3 @@ public:
 {.enumerator = AxisStateMachine::State::AT_NEGATIVE_LIMIT,        .displayString = "", .saveString = ""}\
 
 DEFINE_ENUMERATOR(AxisStateMachine::State, axisStateMachineStrings)
-
-*/
