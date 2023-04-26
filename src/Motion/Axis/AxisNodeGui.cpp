@@ -80,12 +80,17 @@ void AxisNode::controlTab(){
 		
 		if(axisInterface->configuration.controlMode != AxisInterface::ControlMode::NONE){
 			
-			ImGui::SetNextItemWidth(progressBarSize.x);
 			float sliderVelocityTarget = 0.0;
 			std::ostringstream manVelString;
 			manVelString << std::fixed << std::setprecision(2) << "Manual Velocity Target : " << internalVelocityTarget;
-			double velLim = axisInterface->getVelocityLimit();
+			
+			double velLim;
+			if(advancedVelocityLimit->value) velLim = std::max(std::abs(maxPositiveVelocityLimit->value), std::abs(maxNegativeVelocityLimit->value));
+			else velLim = axisInterface->getVelocityLimit();
+			
+			ImGui::SetNextItemWidth(progressBarSize.x);
 			ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
+			
 			if(ImGui::IsItemActive()) {
 				if(advancedVelocityLimit->value){
 					sliderVelocityTarget = getFilteredVelocity(sliderVelocityTarget);
