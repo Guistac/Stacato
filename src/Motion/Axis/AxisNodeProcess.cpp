@@ -323,21 +323,20 @@ void AxisNode::outputProcess(){
 	switch(internalControlMode){
 		case InternalControlMode::MANUAL_VELOCITY_TARGET:
 			if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
+				double vel = getFilteredVelocity(internalVelocityTarget);
 				double acc = axisInterface->getAccelerationLimit();
 				double minPos = axisInterface->getLowerPositionLimit();
 				double maxPos = axisInterface->getUpperPositionLimit();
-				motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds, internalVelocityTarget, acc, minPos, maxPos, acc);
+				motionProfile.matchVelocityAndRespectPositionLimits(profileTimeDelta_seconds, vel, acc, minPos, maxPos, acc);
 			}else{
 				
 				double acc = axisInterface->getAccelerationLimit();
+				double vel = getFilteredVelocity(internalVelocityTarget);
 				
 				switch(limitSignalType){
 					case SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
-						if(axisInterface->isAtLowerLimit() && internalVelocityTarget < 0){
-							motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
-							break;
-						}
-						else if(axisInterface->isAtUpperLimit() && internalVelocityTarget > 0){
+						if((axisInterface->isAtLowerLimit() && (internalVelocityTarget < 0 || motionProfile.getVelocity() < 0.0)) ||
+							(axisInterface->isAtUpperLimit() && (internalVelocityTarget > 0 || motionProfile.getVelocity() > 0.0))){
 							motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
 							break;
 						}
@@ -370,24 +369,20 @@ void AxisNode::outputProcess(){
 			motionProfile.matchPositionAndRespectPositionLimits(profileTimeDelta_seconds, posTar, velTar, accTar, accLim, velLim, lposLim, uposLim);
 			}break;
 		case InternalControlMode::EXTERNAL_VELOCITY_TARGET:{
-			double velLim = std::abs(axisInterface->getVelocityLimit());
 			double accLim = std::abs(axisInterface->getAccelerationLimit());
-			double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
 			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
+			double velTar = getFilteredVelocity(axisInterface->processData.velocityTarget);
 			switch(limitSignalType){
 				case SIGNAL_AT_LOWER_AND_UPPER_LIMITS:
-					if(axisInterface->isAtLowerLimit() && internalVelocityTarget < 0){
-						motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accTar);
-						break;
-					}
-					else if(axisInterface->isAtUpperLimit() && internalVelocityTarget > 0){
+					if((axisInterface->isAtLowerLimit() && (velTar < 0 || motionProfile.getVelocity() < 0)) ||
+					   (axisInterface->isAtUpperLimit() && (velTar > 0 || motionProfile.getVelocity() > 0))){
 						motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, accTar);
 						break;
 					}
 				case LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
 					//we should implement slowdown here
 				default:
-					motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, accTar);
+					motionProfile.matchVelocity(profileTimeDelta_seconds, velTar, accTar);
 					break;
 			}
 			}break;
@@ -473,8 +468,21 @@ void AxisNode::outputProcess(){
 
 bool AxisNode::needsOutputProcess(){ return !axisPin->isConnected(); }
 
-
-
+double AxisNode::getFilteredVelocity(double requestedVelocity){
+	if(advancedVelocityLimit->value){
+		if(requestedVelocity < 0.0 && requestedVelocity < -std::abs(minNegativeVelocityLimit->value)){
+			return std::clamp(requestedVelocity, -std::abs(maxNegativeVelocityLimit->value), -std::abs(minNegativeVelocityLimit->value));
+		}
+		else if(requestedVelocity > 0.0 && requestedVelocity > std::abs(minPositiveVelocityLimit->value)){
+			return std::clamp(requestedVelocity, std::abs(minPositiveVelocityLimit->value), std::abs(maxPositiveVelocityLimit->value));
+		}
+		else return 0.0;
+	}
+	else{
+		return std::clamp(requestedVelocity, -std::abs(velocityLimit->value), std::abs(velocityLimit->value));
+	}
+}
+	
 void AxisNode::setManualVelocityTarget(double velocity){
 	internalControlMode = InternalControlMode::MANUAL_VELOCITY_TARGET;
 	double velLim = std::abs(axisInterface->getVelocityLimit());

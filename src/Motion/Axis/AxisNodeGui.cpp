@@ -76,7 +76,7 @@ void AxisNode::controlTab(){
 
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
-		ImGui::BeginDisabled(!axisInterface->isEnabled() || axisPin->isConnected());
+		ImGui::BeginDisabled(false /* !axisInterface->isEnabled() || axisPin->isConnected()*/);
 		
 		if(axisInterface->configuration.controlMode != AxisInterface::ControlMode::NONE){
 			
@@ -87,6 +87,9 @@ void AxisNode::controlTab(){
 			double velLim = axisInterface->getVelocityLimit();
 			ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
 			if(ImGui::IsItemActive()) {
+				if(advancedVelocityLimit->value){
+					sliderVelocityTarget = getFilteredVelocity(sliderVelocityTarget);
+				}
 				setManualVelocityTarget(sliderVelocityTarget);
 			}
 			if(ImGui::IsItemDeactivatedAfterEdit()) {
@@ -235,14 +238,15 @@ void AxisNode::controlTab(){
 		}
 		
 		
-		ImVec2 halfWidgetSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5, ImGui::GetFrameHeight());
-		ImGui::SetNextItemWidth(halfWidgetSize.x);
-		std::ostringstream positionOverrideString;
-		positionOverrideString << std::fixed << std::setprecision(3) << newPositionForFeedbackRatio << axisInterface->getPositionUnit()->abbreviated;
-		ImGui::InputDouble("##posovrd", &newPositionForFeedbackRatio, 0, 0, positionOverrideString.str().c_str());
-		ImGui::SameLine();
-		if(ImGui::Button("Set Axis Position", halfWidgetSize)) updateFeedbackRatioToMatchPosition();
-		
+		if(axisInterface->configuration.b_supportsPositionFeedback){
+			ImVec2 halfWidgetSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5, ImGui::GetFrameHeight());
+			ImGui::SetNextItemWidth(halfWidgetSize.x);
+			std::ostringstream positionOverrideString;
+			positionOverrideString << std::fixed << std::setprecision(3) << newPositionForFeedbackRatio << axisInterface->getPositionUnit()->abbreviated;
+			ImGui::InputDouble("##posovrd", &newPositionForFeedbackRatio, 0, 0, positionOverrideString.str().c_str());
+			ImGui::SameLine();
+			if(ImGui::Button("Set Axis Position", halfWidgetSize)) updateFeedbackRatioToMatchPosition();
+		}
 			
 		ImGui::EndDisabled(); //end disabled when axis not enabled or axis pin connected
 		

@@ -473,6 +473,7 @@ void AxisNode::updateControlMode(){
 			option_LimitSignalType_SignalAtOrigin.disable();
 			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.enable();
 			if(limitSignalTypeParameter->value != LimitSignalType::NONE &&
+			   limitSignalTypeParameter->value != LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS &&
 			   limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
 				limitSignalTypeParameter->overwrite(&option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits);
 				updateLimitSignalType();
@@ -490,6 +491,12 @@ void AxisNode::updateControlMode(){
 			}
 			break;
 	}
+	
+	if(controlMode != VELOCITY_CONTROL){
+		//advanced velocity limits are only available in velocity control mode
+		advancedVelocityLimit->overwrite(false);
+	}
+	
 	updateLimitSignalType();
 }
 

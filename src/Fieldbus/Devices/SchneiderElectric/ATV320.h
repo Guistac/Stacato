@@ -171,6 +171,7 @@ public:
 	std::shared_ptr<BooleanParameter> invertDirection;
 	std::shared_ptr<NumberParameter<double>> lowControlFrequencyParameter;
 	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter;
+	NumberParam<double> switchingFrequencyParameter;	//[sfr]
 	
 	//————— Motor Parameters —————
 	
@@ -195,7 +196,12 @@ public:
 	NumberParam<int> logicInput4OnDelayParameter;
 	NumberParam<int> logicInput5OnDelayParameter;
 	NumberParam<int> logicInput6OnDelayParameter;
-	
+	BoolParam invertLogicInput1Parameter;
+	BoolParam invertLogicInput2Parameter;
+	BoolParam invertLogicInput3Parameter;
+	BoolParam invertLogicInput4Parameter;
+	BoolParam invertLogicInput5Parameter;
+	BoolParam invertLogicInput6Parameter;
 	
 	
 	//————————————— TASKS ———————————

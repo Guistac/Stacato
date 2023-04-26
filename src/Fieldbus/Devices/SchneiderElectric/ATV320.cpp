@@ -65,6 +65,12 @@ void ATV320::initialize() {
 	highControlFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Control Frequency", "MaxControlFrequency");
 	highControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
 	
+	switchingFrequencyParameter = NumberParameter<double>::make(4.0, "Switching Frequency [sfr]", "SwitchingFrequency");
+	switchingFrequencyParameter->setUnit(Units::Frequency::Kilohertz);
+	switchingFrequencyParameter->addEditCallback([this](){
+		if(switchingFrequencyParameter->value > 16.0) switchingFrequencyParameter->overwrite(16.0);
+		else if(switchingFrequencyParameter->value < 2.0) switchingFrequencyParameter->overwrite(2.0);
+	});
 	
 	//————— Motor Parameters —————
 	
@@ -85,7 +91,6 @@ void ATV320::initialize() {
 	nominalMotorSpeedParameter->setUnit(Units::AngularDistance::Revolution);
 	nominalMotorSpeedParameter->setSuffix("/min");
 	nominalMotorSpeedParameter->addEditCallback([this](){ updateActuatorInterface(); });
-	
 	
 	//————— Limit signal configuration —————
 
@@ -120,6 +125,13 @@ void ATV320::initialize() {
 	logicInput6OnDelayParameter = NumberParameter<int>::make(0, "LI6 On Delay", "LI6OnDelay");
 	logicInput6OnDelayParameter->setUnit(Units::Time::Millisecond);
 	logicInput6OnDelayParameter->addEditCallback([&,this](){ clampInputOnDelay(logicInput6OnDelayParameter); });
+	
+	invertLogicInput1Parameter = BooleanParameter::make(false, "Invert Logic Input 1", "InvertLogicInput1");
+	invertLogicInput2Parameter = BooleanParameter::make(false, "Invert Logic Input 2", "InvertLogicInput2");
+	invertLogicInput3Parameter = BooleanParameter::make(false, "Invert Logic Input 3", "InvertLogicInput3");
+	invertLogicInput4Parameter = BooleanParameter::make(false, "Invert Logic Input 4", "InvertLogicInput4");
+	invertLogicInput5Parameter = BooleanParameter::make(false, "Invert Logic Input 5", "InvertLogicInput5");
+	invertLogicInput6Parameter = BooleanParameter::make(false, "Invert Logic Input 6", "InvertLogicInput6");
 	
 	updateActuatorInterface();
 	
@@ -225,18 +237,18 @@ void ATV320::readInputs() {
 	
 	actuator->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
 	actuator->actuatorProcessData.effortActual = (double)motorPower / 100.0;
-	actuator->feedbackProcessData.velocityActual = axis->getActualVelocity() / 60.0;
+	actuator->feedbackProcessData.velocityActual = velocityActual_rpm / 60.0;
 	actuator->actuatorConfig.b_supportsHoldingBrakeControl = false;
 	
 	//update output pin data
 	*actualVelocity = actuator->getVelocity();
 	*actualLoad = actuator->getEffort();
-	*digitalInput1Signal = logicInputs & 0x1;
-	*digitalInput2Signal = logicInputs & 0x2;
-	*digitalInput3Signal = logicInputs & 0x4;
-	*digitalInput4Signal = logicInputs & 0x8;
-	*digitalInput5Signal = logicInputs & 0x10;
-	*digitalInput6Signal = logicInputs & 0x20;
+	*digitalInput1Signal = invertLogicInput1Parameter->value ? logicInputs & 0x1 : !(logicInputs & 0x1);
+	*digitalInput2Signal = invertLogicInput2Parameter->value ? logicInputs & 0x2 : !(logicInputs & 0x2);
+	*digitalInput3Signal = invertLogicInput3Parameter->value ? logicInputs & 0x4 : !(logicInputs & 0x4);
+	*digitalInput4Signal = invertLogicInput4Parameter->value ? logicInputs & 0x8 : !(logicInputs & 0x8);
+	*digitalInput5Signal = invertLogicInput5Parameter->value ? logicInputs & 0x10 : !(logicInputs & 0x10);
+	*digitalInput6Signal = invertLogicInput6Parameter->value ? logicInputs & 0x20 : !(logicInputs & 0x20);
 }
 
 //==============================================================
@@ -289,6 +301,7 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	invertDirection->save(generalSettingsXML);
 	lowControlFrequencyParameter->save(generalSettingsXML);
 	highControlFrequencyParameter->save(generalSettingsXML);
+	switchingFrequencyParameter->save(generalSettingsXML);
 	
 	//————— Motor Parameters —————
 	XMLElement* motorParametersXML = xml->InsertNewChildElement("MotorParameters");
@@ -313,6 +326,13 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	logicInput4OnDelayParameter->save(logicInputXML);
 	logicInput5OnDelayParameter->save(logicInputXML);
 	logicInput6OnDelayParameter->save(logicInputXML);
+	invertLogicInput1Parameter->save(logicInputXML);
+	invertLogicInput2Parameter->save(logicInputXML);
+	invertLogicInput3Parameter->save(logicInputXML);
+	invertLogicInput4Parameter->save(logicInputXML);
+	invertLogicInput5Parameter->save(logicInputXML);
+	invertLogicInput6Parameter->save(logicInputXML);
+	
 	
 	return true;
 }
@@ -327,6 +347,7 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 		invertDirection->load(generalSettingsXML);
 		lowControlFrequencyParameter->load(generalSettingsXML);
 		highControlFrequencyParameter->load(generalSettingsXML);
+		switchingFrequencyParameter->load(generalSettingsXML);
 	}
 	
 	//————— Motor Parameters —————
@@ -354,6 +375,12 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 		logicInput4OnDelayParameter->load(logicInputXML);
 		logicInput5OnDelayParameter->load(logicInputXML);
 		logicInput6OnDelayParameter->load(logicInputXML);
+		invertLogicInput1Parameter->load(logicInputXML);
+		invertLogicInput2Parameter->load(logicInputXML);
+		invertLogicInput3Parameter->load(logicInputXML);
+		invertLogicInput4Parameter->load(logicInputXML);
+		invertLogicInput5Parameter->load(logicInputXML);
+		invertLogicInput6Parameter->load(logicInputXML);
 	}
 	
 	updateActuatorInterface();
@@ -527,8 +554,8 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
 		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments)
 		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(maxMotorFrequency * 10), "Max output frequency"),
-		//set drive switching frequency to 16 Khz (max)
-		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(160), "Drive switching frequency"),
+		//[sfr] switching frequency (in 0.1KHz increments)
+		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(atv320->switchingFrequencyParameter->value * 10), "Switching Frequency [sfr]"),
 		
 		//———————— Ramp Settings ———————————
 		//[inr] set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)

@@ -139,7 +139,8 @@ void ATV320::settingsGui(){
 		motorControlTypeParameter,
 		ratedMotorPowerParameter,
 		nominalMotorVoltageParameter,
-		nominalMotorCurrentParameter
+		nominalMotorCurrentParameter,
+		switchingFrequencyParameter
 	});
 
 	drawParameterGroup("Motion Control", {
@@ -164,6 +165,16 @@ void ATV320::settingsGui(){
 		logicInput4OnDelayParameter,
 		logicInput5OnDelayParameter,
 		logicInput6OnDelayParameter
+	});
+	
+	drawParameterGroup("Logic Input Inversion", {
+		invertLogicInput1Parameter,
+		invertLogicInput2Parameter,
+		invertLogicInput3Parameter,
+		invertLogicInput4Parameter,
+		invertLogicInput5Parameter,
+		invertLogicInput6Parameter,
+		
 	});
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());

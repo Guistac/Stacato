@@ -103,17 +103,16 @@ private:
 		SIGNAL_AT_ORIGIN = 3,
 		LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS = 4
 	}limitSignalType = NONE;
-	OptionParameter::Option option_LimitSignalType_NoLimitSignal = OptionParameter::Option(LimitSignalType::NONE,
-																						   "No limit signal", "NoLimitSignal");
-	OptionParameter::Option option_LimitSignalType_SignalAtLowerLimit = OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_LIMIT,
-																								"Signal at lower limit", "SignalAtLowerLimit");
-	OptionParameter::Option option_LimitSignalType_SignalAtLowerAndUpperLimits = OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS,
-																										 "Signal at lower and upper limit", "SignalAtLowerAndUpperLimit");
-	OptionParameter::Option option_LimitSignalType_SignalAtOrigin = OptionParameter::Option(LimitSignalType::SIGNAL_AT_ORIGIN,
-																							"Signal at origin", "SignalAtOrigin");
+	OptionParameter::Option option_LimitSignalType_NoLimitSignal =
+		OptionParameter::Option(LimitSignalType::NONE, "No limit signal", "NoLimitSignal");
+	OptionParameter::Option option_LimitSignalType_SignalAtLowerLimit =
+		OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_LIMIT, "Signal at lower limit", "SignalAtLowerLimit");
+	OptionParameter::Option option_LimitSignalType_SignalAtLowerAndUpperLimits =
+		OptionParameter::Option(LimitSignalType::SIGNAL_AT_LOWER_AND_UPPER_LIMITS, "Signal at lower and upper limit", "SignalAtLowerAndUpperLimit");
+	OptionParameter::Option option_LimitSignalType_SignalAtOrigin =
+		OptionParameter::Option(LimitSignalType::SIGNAL_AT_ORIGIN, "Signal at origin", "SignalAtOrigin");
 	OptionParameter::Option option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits =
-		OptionParameter::Option(LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS,
-								"Limit and slowdown signals", "LimitAndSlowdownSignals");
+		OptionParameter::Option(LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS, "Limit and slowdown signals", "LimitAndSlowdownSignals");
 	OptionParam limitSignalTypeParameter;
 	
 	enum HomingDirection{
@@ -167,6 +166,8 @@ private:
 	NumberParam<double> maxNegativeVelocityLimit;
 	NumberParam<double> minPositiveVelocityLimit;
 	NumberParam<double> maxPositiveVelocityLimit;
+	
+	double getFilteredVelocity(double requestedVelocity);
 	
 	
 	//Homing
