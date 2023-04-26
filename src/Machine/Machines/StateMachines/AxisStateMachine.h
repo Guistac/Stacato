@@ -42,13 +42,45 @@ public:
 	void requestState(State newState);
 	void requestVelocityNormalized(double velocity);
 	
+	//————— Animation —————
+		
+	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
+	std::shared_ptr<AnimatableReal> animatableVelocity = AnimatableReal::make("Velocity", Units::None::None, "/s");
+	
+	double manualVelocitySliderValue = 0.0;
+	double movementVelocity = 0.0;
+	
+	//————— Machine State —————
+	
+	bool areAllPinsConnected();
+	bool isAxisConnected();
+	std::shared_ptr<AxisInterface> getAxis();
+	
+	//————— Control Widget —————
+	
+	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
+	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
+	void widgetGui();
+	class ControlWidget : public Widget{
+	public:
+		ControlWidget(std::shared_ptr<AxisStateMachine> machine_) : Widget("Machines"), machine(machine_){}
+		std::shared_ptr<AxisStateMachine> machine;
+		virtual void gui() override;
+		virtual std::string getName() override { return machine->getName(); }
+	};
+	std::shared_ptr<ControlWidget> controlWidget;
+	
+	NumberParam<double> minNegativeVelocity;
+	NumberParam<double> maxNegativeVelocity;
+	NumberParam<double> minPositiveVelocity;
+	NumberParam<double> maxPositiveVelocity;
+	
 	static AnimatableStateStruct stateUnknown;
 	static AnimatableStateStruct stateStopped;
 	static AnimatableStateStruct stateMovingToNegativeLimit;
 	static AnimatableStateStruct stateMovingToPositiveLimit;
 	static AnimatableStateStruct stateNegativeLimit;
 	static AnimatableStateStruct statePositiveLimit;
-	
 	static std::vector<AnimatableStateStruct*> allStates;
 	static std::vector<AnimatableStateStruct*> selectableStates;
 	
@@ -83,43 +115,4 @@ public:
 		return State::UNKNOWN;
 	}
 	
-	//————— Animation —————
-		
-	std::shared_ptr<AnimatableState> animatableState = AnimatableState::make("State", allStates, selectableStates, &stateStopped);
-	std::shared_ptr<AnimatableReal> animatableVelocity = AnimatableReal::make("Velocity", Units::None::None, "/s");
-	
-	double manualVelocitySliderValue = 0.0;
-	double movementVelocity = 0.0;
-	
-	//————— Machine State —————
-	
-	bool areAllPinsConnected();
-	bool isAxisConnected();
-	std::shared_ptr<AxisInterface> getAxis();
-	
-	//————— Control Widget —————
-	
-	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); };
-	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
-	void widgetGui();
-	class ControlWidget : public Widget{
-	public:
-		ControlWidget(std::shared_ptr<AxisStateMachine> machine_) : Widget("Machines"), machine(machine_){}
-		std::shared_ptr<AxisStateMachine> machine;
-		virtual void gui() override;
-		virtual std::string getName() override { return machine->getName(); }
-	};
-	std::shared_ptr<ControlWidget> controlWidget;
-	
-	
 };
-
-#define axisStateMachineStrings \
-{.enumerator = AxisStateMachine::State::UNKNOWN,                  .displayString = "", .saveString = ""},\
-{.enumerator = AxisStateMachine::State::STOPPED,                  .displayString = "", .saveString = ""},\
-{.enumerator = AxisStateMachine::State::MOVING_TO_POSITIVE_LIMIT, .displayString = "", .saveString = ""},\
-{.enumerator = AxisStateMachine::State::MOVING_TO_NEGATIVE_LIMIT, .displayString = "", .saveString = ""},\
-{.enumerator = AxisStateMachine::State::AT_POSITIVE_LIMIT,        .displayString = "", .saveString = ""},\
-{.enumerator = AxisStateMachine::State::AT_NEGATIVE_LIMIT,        .displayString = "", .saveString = ""}\
-
-DEFINE_ENUMERATOR(AxisStateMachine::State, axisStateMachineStrings)

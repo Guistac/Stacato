@@ -190,7 +190,7 @@ void DS402Axis::updateInputs(){
 	else
 		powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
 	
-	if(previousPowerState != powerStateActual)
+	if(previousPowerState != powerStateActual && b_warnPowerStateChanges)
 		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
 	
 	//=== update actual operating mode

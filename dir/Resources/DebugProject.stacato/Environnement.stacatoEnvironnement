@@ -1,22 +1,22 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.27313077" OffsetX="729.5788" OffsetY="-194.18484" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59975" SizeY="184.46478"/>
-        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59975" SizeY="184.46478"/>
-        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59975" SizeY="183.46478"/>
-        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59975" SizeY="182.46478"/>
-        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59975" SizeY="184.17227"/>
-        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59975" SizeY="184.87976"/>
-        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59975" SizeY="184.87976"/>
-        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59975" SizeY="181.46477"/>
-        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59975" SizeY="184.12602"/>
-        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59975" SizeY="182.12601"/>
-        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59975" SizeY="184.78725"/>
-        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59975" SizeY="183.17227"/>
-        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59975" SizeY="183.8335"/>
-        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59975" SizeY="182.21852"/>
-        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59975" SizeY="183.87976"/>
-        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10011" SizeY="389.93991"/>
-        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10011" SizeY="388.27869"/>
+    <Dashboard Scale="0.32261094" OffsetX="729.5788" OffsetY="-89.16748" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59993" SizeY="187.48819"/>
+        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59993" SizeY="187.48819"/>
+        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59993" SizeY="189.58783"/>
+        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59993" SizeY="188.58777"/>
+        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59993" SizeY="187.8694"/>
+        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59993" SizeY="189.25089"/>
+        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59993" SizeY="189.25089"/>
+        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59993" SizeY="187.58789"/>
+        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59993" SizeY="189.68753"/>
+        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59993" SizeY="187.68759"/>
+        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59993" SizeY="189.78723"/>
+        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59993" SizeY="189.96924"/>
+        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59993" SizeY="190.06894"/>
+        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59993" SizeY="190.25095"/>
+        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59993" SizeY="188.25081"/>
+        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10034" SizeY="393.41241"/>
+        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10034" SizeY="392.31265"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -105,11 +105,11 @@
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="10" manualAcceleration_rpsps="5"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
-                    <CurrentLimit amps="3"/>
+                    <CurrentLimit amps="10"/>
                     <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="18"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
-                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="-952.79969000000006"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
@@ -1265,21 +1265,21 @@
             <Link UniqueID="622" StartPin="93" EndPin="608"/>
             <Link UniqueID="633" StartPin="614" EndPin="630"/>
             <Link UniqueID="634" StartPin="601" EndPin="625"/>
-            <Link UniqueID="640" StartPin="477" EndPin="638"/>
-            <Link UniqueID="646" StartPin="529" EndPin="644"/>
-            <Link UniqueID="651" StartPin="503" EndPin="649"/>
-            <Link UniqueID="656" StartPin="555" EndPin="654"/>
-            <Link UniqueID="661" StartPin="464" EndPin="659"/>
-            <Link UniqueID="666" StartPin="516" EndPin="664"/>
-            <Link UniqueID="671" StartPin="542" EndPin="669"/>
-            <Link UniqueID="676" StartPin="490" EndPin="674"/>
-            <Link UniqueID="705" StartPin="362" EndPin="683"/>
-            <Link UniqueID="706" StartPin="344" EndPin="679"/>
-            <Link UniqueID="707" StartPin="375" EndPin="687"/>
-            <Link UniqueID="708" StartPin="401" EndPin="691"/>
-            <Link UniqueID="709" StartPin="414" EndPin="695"/>
-            <Link UniqueID="710" StartPin="427" EndPin="703"/>
-            <Link UniqueID="711" StartPin="388" EndPin="699"/>
+            <Link UniqueID="713" StartPin="344" EndPin="679"/>
+            <Link UniqueID="714" StartPin="362" EndPin="683"/>
+            <Link UniqueID="715" StartPin="375" EndPin="687"/>
+            <Link UniqueID="716" StartPin="401" EndPin="691"/>
+            <Link UniqueID="717" StartPin="414" EndPin="695"/>
+            <Link UniqueID="718" StartPin="427" EndPin="703"/>
+            <Link UniqueID="719" StartPin="388" EndPin="699"/>
+            <Link UniqueID="720" StartPin="464" EndPin="659"/>
+            <Link UniqueID="721" StartPin="477" EndPin="638"/>
+            <Link UniqueID="722" StartPin="490" EndPin="674"/>
+            <Link UniqueID="723" StartPin="503" EndPin="649"/>
+            <Link UniqueID="724" StartPin="516" EndPin="664"/>
+            <Link UniqueID="725" StartPin="529" EndPin="644"/>
+            <Link UniqueID="726" StartPin="542" EndPin="669"/>
+            <Link UniqueID="727" StartPin="555" EndPin="654"/>
         </Links>
     </NodeGraph>
 </Environnement>

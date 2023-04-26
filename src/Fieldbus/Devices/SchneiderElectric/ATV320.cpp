@@ -22,6 +22,7 @@ void ATV320::initialize() {
 	auto thisATV320 = std::static_pointer_cast<ATV320>(shared_from_this());
 	
 	axis = DS402Axis::make(thisATV320);
+	axis->warnPowerStateChanged(false);
 	actuator = std::make_shared<ATV_Motor>(thisATV320);
 	actuator->feedbackConfig.b_supportsVelocityFeedback = true;
 	actuator->actuatorConfig.b_supportsEffortFeedback = true;

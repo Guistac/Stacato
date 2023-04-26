@@ -1,3 +1,22 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="Cour Levé" Description="" Type="Target">
+            <Animation Machine="Croix 101" MachineUniqueID="677" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 102" MachineUniqueID="681" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 103" MachineUniqueID="685" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 104" MachineUniqueID="689" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 105" MachineUniqueID="697" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 106" MachineUniqueID="693" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 107" MachineUniqueID="701" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Cour Baissé" Description="" Type="Target">
+            <Animation Machine="Croix 101" MachineUniqueID="677" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 102" MachineUniqueID="681" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 103" MachineUniqueID="685" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 104" MachineUniqueID="689" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 105" MachineUniqueID="697" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 106" MachineUniqueID="693" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Croix 107" MachineUniqueID="701" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>

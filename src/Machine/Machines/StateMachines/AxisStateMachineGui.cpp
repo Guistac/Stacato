@@ -20,7 +20,12 @@ void AxisStateMachine::controlsGui() {
 	ImGui::PopFont();
 	widgetGui();
 }
-void AxisStateMachine::settingsGui() {}
+void AxisStateMachine::settingsGui() {
+	minNegativeVelocity->gui(Fonts::sansBold15);
+	maxNegativeVelocity->gui(Fonts::sansBold15);
+	minPositiveVelocity->gui(Fonts::sansBold15);
+	maxPositiveVelocity->gui(Fonts::sansBold15);
+}
 void AxisStateMachine::axisGui() {}
 void AxisStateMachine::deviceGui() {}
 void AxisStateMachine::metricsGui() {}
@@ -57,8 +62,8 @@ void AxisStateMachine::widgetGui(){
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .1f));
 		ImGui::BeginDisabled();
-		customButton("##", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersTop);
-		customButton("##", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersBottom);
+		customButton(" ", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersTop);
+		customButton(" ", commandButtonSize, Colors::blue, rounding, ImDrawFlags_RoundCornersBottom);
 		ImGui::EndDisabled();
 		ImGui::PopStyleVar();
 		

@@ -10,12 +10,15 @@ private:
 	
 	DS402Axis(std::shared_ptr<EtherCatDevice> parentDevice_) : parentDevice(parentDevice_){}
 	std::shared_ptr<EtherCatDevice> parentDevice = nullptr;
+	bool b_warnPowerStateChanges = true;
 	
 public:
 	
 	static std::shared_ptr<DS402Axis> make(std::shared_ptr<EtherCatDevice> parentDevice_){
 		return std::shared_ptr<DS402Axis>(new DS402Axis(parentDevice_));
 	}
+	
+	void warnPowerStateChanged(bool warn){ b_warnPowerStateChanges = warn; }
 
 	enum class OperatingMode{
 		NONE,

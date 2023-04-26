@@ -8,28 +8,6 @@
 
 #include "Animation/Animation.h"
 
-
-AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
-AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
-AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{-2, "Moving To Negative Limit", "MovingToNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::stateMovingToPositiveLimit =	{2, "Moving To Positive Limit", "MovingToPositiveLimit"};
-AnimatableStateStruct AxisStateMachine::stateNegativeLimit =			{-1, "At Negative Limit", 		"AtNegativeLimit"};
-AnimatableStateStruct AxisStateMachine::statePositiveLimit =			{1, "At Positive Limit", 		"AtPositiveLimit"};
-
-std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
-	&AxisStateMachine::stateUnknown,
-	&AxisStateMachine::stateStopped,
-	&AxisStateMachine::stateMovingToNegativeLimit,
-	&AxisStateMachine::stateMovingToPositiveLimit,
-	&AxisStateMachine::stateNegativeLimit,
-	&AxisStateMachine::statePositiveLimit
-};
-
-std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
-	&AxisStateMachine::stateNegativeLimit,
-	&AxisStateMachine::statePositiveLimit
-};
-
 void AxisStateMachine::initialize() {
 		
 	//input pin
@@ -43,6 +21,24 @@ void AxisStateMachine::initialize() {
 	
 	auto thisMachine = std::static_pointer_cast<AxisStateMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
+	
+	
+	Unit positionUnit = Units::None::None;
+	//if(auto axis = getAxis()) positionUnit = axis->getPositionUnit();
+	
+	minNegativeVelocity = NumberParameter<double>::make(0.0, "Min Negative Velocity", "MinNegativeVelocity");
+	minNegativeVelocity->setUnit(positionUnit);
+	minNegativeVelocity->setSuffix("/s");
+	maxNegativeVelocity = NumberParameter<double>::make(0.0, "Max Negative Velocity", "MaxNegativeVelocity");
+	maxNegativeVelocity->setUnit(positionUnit);
+	maxNegativeVelocity->setSuffix("/s");
+	minPositiveVelocity = NumberParameter<double>::make(0.0, "Min Positive Velocity", "MinPositiveVelocity");
+	minPositiveVelocity->setUnit(positionUnit);
+	minPositiveVelocity->setSuffix("/s");
+	maxPositiveVelocity = NumberParameter<double>::make(0.0, "Max Positive Velocity", "MaxPositiveVelocity");
+	maxPositiveVelocity->setUnit(positionUnit);
+	maxPositiveVelocity->setSuffix("/s");
+	
 }
 
 std::string AxisStateMachine::getStatusString(){
@@ -356,3 +352,31 @@ bool AxisStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;
 }
+
+
+
+
+
+
+
+
+AnimatableStateStruct AxisStateMachine::stateUnknown =					{-3, "Unknown", 					"Unknown"};
+AnimatableStateStruct AxisStateMachine::stateStopped =					{0, "Stopped", 					"Stopped"};
+AnimatableStateStruct AxisStateMachine::stateMovingToNegativeLimit =	{-2, "Moving To Negative Limit", "MovingToNegativeLimit"};
+AnimatableStateStruct AxisStateMachine::stateMovingToPositiveLimit =	{2, "Moving To Positive Limit", "MovingToPositiveLimit"};
+AnimatableStateStruct AxisStateMachine::stateNegativeLimit =			{-1, "Negative Limit", 		"NegativeLimit"};
+AnimatableStateStruct AxisStateMachine::statePositiveLimit =			{1, "Positive Limit", 		"PositiveLimit"};
+
+std::vector<AnimatableStateStruct*> AxisStateMachine::allStates = {
+	&AxisStateMachine::stateUnknown,
+	&AxisStateMachine::stateStopped,
+	&AxisStateMachine::stateMovingToNegativeLimit,
+	&AxisStateMachine::stateMovingToPositiveLimit,
+	&AxisStateMachine::stateNegativeLimit,
+	&AxisStateMachine::statePositiveLimit
+};
+
+std::vector<AnimatableStateStruct*> AxisStateMachine::selectableStates = {
+	&AxisStateMachine::stateNegativeLimit,
+	&AxisStateMachine::statePositiveLimit
+};
