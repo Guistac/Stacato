@@ -1,3 +1,48 @@
 <Plot Name="Acte 2">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="Mise Acte 2" Description="test..." Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-965" Duration="600" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-965" Duration="600" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-965" Duration="600" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Précipité" Description="test..." Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>

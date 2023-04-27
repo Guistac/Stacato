@@ -1,22 +1,26 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="Cour Levé" Description="" Type="Target">
-            <Animation Machine="Croix 101" MachineUniqueID="677" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 102" MachineUniqueID="681" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 103" MachineUniqueID="685" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 104" MachineUniqueID="689" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 105" MachineUniqueID="697" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 106" MachineUniqueID="693" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 107" MachineUniqueID="701" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        <Manoeuvre Name="Mise" Description="remise à l&apos;origine des 3 axes" Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
         </Manoeuvre>
-        <Manoeuvre Name="Cour Baissé" Description="" Type="Target">
-            <Animation Machine="Croix 101" MachineUniqueID="677" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 102" MachineUniqueID="681" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 103" MachineUniqueID="685" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 104" MachineUniqueID="689" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 105" MachineUniqueID="697" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 106" MachineUniqueID="693" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
-            <Animation Machine="Croix 107" MachineUniqueID="701" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        <Manoeuvre Name="M-1" Description="" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

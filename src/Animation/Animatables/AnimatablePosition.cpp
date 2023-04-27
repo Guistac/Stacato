@@ -555,6 +555,8 @@ void AnimatablePosition::followActualValue(double time_seconds, double deltaTime
 	mutex.lock();
 	profileTime_seconds = time_seconds;
 	deltaTime_seconds = deltaTime_seconds;
+	controlMode = POSITION_SETPOINT;
+	positionSetpoint = actualValue->position;
 	motionProfile.setPosition(actualValue->position);
 	motionProfile.setVelocity(actualValue->velocity);
 	motionProfile.setAcceleration(actualValue->acceleration);
@@ -654,6 +656,9 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		
 	//generate an output target value to be read by the machine
 	copyMotionProfilerValueToTargetValue();
+	
+	Logger::warn("{} Target = {}", getName(), targetValue->position);
+	
 	mutex.unlock();
 }
 
