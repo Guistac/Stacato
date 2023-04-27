@@ -1,10 +1,10 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.75206268" OffsetX="-121.68634" OffsetY="291.71756" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Inter" UniqueID="2" PositionX="279" PositionY="187" SizeX="149.1001" SizeY="397.78922"/>
-        <Widget Name="Central" UniqueID="1" PositionX="124" PositionY="187" SizeX="149.1001" SizeY="397.78922"/>
-        <Widget Name="Extérieur" UniqueID="3" PositionX="433" PositionY="188" SizeX="149.1001" SizeY="398.11887"/>
-        <Widget Name="AU" UniqueID="4" PositionX="357" PositionY="73" SizeX="157.50002" SizeY="110.22691"/>
-        <Widget Name="Homme mort" UniqueID="5" PositionX="173" PositionY="40" SizeX="178.50003" SizeY="141.89725"/>
+    <Dashboard Scale="0.33497071" OffsetX="-121.68634" OffsetY="1047.5272" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Inter" UniqueID="2" PositionX="279" PositionY="187" SizeX="149.09982" SizeY="389.74533"/>
+        <Widget Name="Central" UniqueID="1" PositionX="124" PositionY="187" SizeX="149.09982" SizeY="389.74533"/>
+        <Widget Name="Extérieur" UniqueID="3" PositionX="433" PositionY="188" SizeX="149.09982" SizeY="388.74536"/>
+        <Widget Name="AU" UniqueID="4" PositionX="357" PositionY="73" SizeX="157.50009" SizeY="109.68096"/>
+        <Widget Name="Homme mort" UniqueID="5" PositionX="173" PositionY="40" SizeX="178.49983" SizeY="139.69566"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
