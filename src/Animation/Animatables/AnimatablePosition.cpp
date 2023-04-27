@@ -657,8 +657,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	//generate an output target value to be read by the machine
 	copyMotionProfilerValueToTargetValue();
 	
-	Logger::warn("{} Target = {}", getName(), targetValue->position);
-	
 	mutex.unlock();
 }
 

@@ -1,16 +1,16 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.75206268" OffsetX="-121.68634" OffsetY="291.23358" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Inter" UniqueID="2" PositionX="279" PositionY="187" SizeX="149.1001" SizeY="398.27319"/>
-        <Widget Name="Central" UniqueID="1" PositionX="124" PositionY="187" SizeX="149.1001" SizeY="398.27319"/>
-        <Widget Name="Extérieur" UniqueID="3" PositionX="433" PositionY="188" SizeX="149.1001" SizeY="398.60284"/>
-        <Widget Name="AU" UniqueID="4" PositionX="357" PositionY="73" SizeX="157.50002" SizeY="109.38121"/>
-        <Widget Name="Homme mort" UniqueID="5" PositionX="173" PositionY="40" SizeX="178.50003" SizeY="141.05151"/>
+    <Dashboard Scale="0.75206268" OffsetX="-121.68634" OffsetY="291.71756" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Inter" UniqueID="2" PositionX="279" PositionY="187" SizeX="149.1001" SizeY="397.78922"/>
+        <Widget Name="Central" UniqueID="1" PositionX="124" PositionY="187" SizeX="149.1001" SizeY="397.78922"/>
+        <Widget Name="Extérieur" UniqueID="3" PositionX="433" PositionY="188" SizeX="149.1001" SizeY="398.11887"/>
+        <Widget Name="AU" UniqueID="4" PositionX="357" PositionY="73" SizeX="157.50002" SizeY="110.22691"/>
+        <Widget Name="Homme mort" UniqueID="5" PositionX="173" PositionY="40" SizeX="178.50003" SizeY="141.89725"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="VipaBusCoupler-053-1EC01" Split="true" CustomName="VIPA Bus Coupler (Alias:0)" UniqueID="2">
-                <InputNodeEditorPosition x="808" y="6"/>
-                <OutputNodeEditorPosition x="74" y="215"/>
+                <InputNodeEditorPosition x="760" y="6"/>
+                <OutputNodeEditorPosition x="66" y="158"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <SLIOModules>
@@ -20,18 +20,18 @@
                         <Module Type="VIPA 022-1BF00">
                             <SignalInversion InvertOutput0="false" InvertOutput1="false" InvertOutput2="false" InvertOutput3="false" InvertOutput4="false" InvertOutput5="false" InvertOutput6="false" InvertOutput7="false"/>
                         </Module>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="false" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="104.260498046875"/>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="false" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="194.448974609375"/>
-                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="false" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="38.645751953125"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="10" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="0"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="10" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="0"/>
+                        <Module Type="VIPA 050-1BS00" Encoding="Gray" TransmissionRate="500Khz" IdleTime="32" CenterRangeOnZero="true" HasResetSignal="true" ResetTime="10" TotalBitCount="24" SingleTurnBitCount="12" IgnoredBitCount="0" BitShiftDirection="MSBFirst" ClockEdge="RisingEdge" PositionOffset="0"/>
                     </SLIOModules>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Module1DigitalOutput0" DisplayString="DO0 Acquittement" DataType="Boolean" UniqueID="57" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="D01 Voyant homme mort" DataType="Boolean" UniqueID="58" Visible="true"/>
-                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="Module 1 Digital Output 2" DataType="Boolean" UniqueID="59" Visible="false"/>
-                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="Module 1 Digital Output 3" DataType="Boolean" UniqueID="60" Visible="false"/>
+                    <InputPin SaveString="Module1DigitalOutput1" DisplayString="DO1 Reset Codeur Central" DataType="Boolean" UniqueID="58" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput2" DisplayString="DO2 Voyant homme mort" DataType="Boolean" UniqueID="59" Visible="true"/>
+                    <InputPin SaveString="Module1DigitalOutput3" DisplayString="DO3 Reset Codeur Extérieur" DataType="Boolean" UniqueID="60" Visible="true"/>
                     <InputPin SaveString="Module1DigitalOutput4" DisplayString="Module 1 Digital Output 4" DataType="Boolean" UniqueID="61" Visible="false"/>
-                    <InputPin SaveString="Module1DigitalOutput5" DisplayString="Module 1 Digital Output 5" DataType="Boolean" UniqueID="62" Visible="false"/>
+                    <InputPin SaveString="Module1DigitalOutput5" DisplayString="DO5 Reset Codeur Intermédiaire" DataType="Boolean" UniqueID="62" Visible="true"/>
                     <InputPin SaveString="Module1DigitalOutput6" DisplayString="Module 1 Digital Output 6" DataType="Boolean" UniqueID="63" Visible="false"/>
                     <InputPin SaveString="Module1DigitalOutput7" DisplayString="Module 1 Digital Output 7" DataType="Boolean" UniqueID="64" Visible="false"/>
                 </InputPins>
@@ -46,11 +46,11 @@
                     <OutputPin SaveString="Module0DigitalInput6" DisplayString="Module 0 Digital Input 6" DataType="Boolean" UniqueID="55" Visible="false"/>
                     <OutputPin SaveString="Module0DigitalInput7" DisplayString="Module 0 Digital Input 7" DataType="Boolean" UniqueID="56" Visible="false"/>
                     <OutputPin SaveString="Module2SSIEncoder" DisplayString="Codeur SSI Central" DataType="MotionFeedbackInterface" UniqueID="65" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module2EncoderReset" DisplayString="Module 2 SSI Encoder Reset" DataType="Boolean" UniqueID="66" Visible="false"/>
+                    <OutputPin SaveString="Module2EncoderReset" DisplayString="Module 2 SSI Encoder Reset" DataType="Boolean" UniqueID="66" Visible="true"/>
                     <OutputPin SaveString="Module3SSIEncoder" DisplayString="Codeur SSI Intermédiaire" DataType="MotionFeedbackInterface" UniqueID="67" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module3EncoderReset" DisplayString="Module 3 SSI Encoder Reset" DataType="Boolean" UniqueID="68" Visible="false"/>
+                    <OutputPin SaveString="Module3EncoderReset" DisplayString="Module 3 SSI Encoder Reset" DataType="Boolean" UniqueID="68" Visible="true"/>
                     <OutputPin SaveString="Module4SSIEncoder" DisplayString="Codeur SSI Extérieur" DataType="MotionFeedbackInterface" UniqueID="69" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Module4EncoderReset" DisplayString="Module 4 SSI Encoder Reset" DataType="Boolean" UniqueID="70" Visible="false"/>
+                    <OutputPin SaveString="Module4EncoderReset" DisplayString="Module 4 SSI Encoder Reset" DataType="Boolean" UniqueID="70" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Central (Alias:100)" UniqueID="4">
@@ -160,11 +160,11 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Central" UniqueID="72">
                 <NodeEditorPosition x="488" y="246"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.25" PositionLoopProportionalGain="0.25" PositionLoopMaxError="5" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="65" UnitConversion="0.04131096733940972"/>
-                    <VelocityFeedbackMapping InterfacePinID="65" UnitConversion="0.04131096733940972"/>
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.25" PositionLoopProportionalGain="0.25" PositionLoopMaxError="5" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="0.40000000000000002" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="65" UnitConversion="0.041306061921296294"/>
+                    <VelocityFeedbackMapping InterfacePinID="8" UnitConversion="2.0649999999999999"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="8" UnitConversion="2.0655267403546294" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="8" UnitConversion="2.065281472016983" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
@@ -186,11 +186,11 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Intermédiaire" UniqueID="102">
                 <NodeEditorPosition x="488" y="508"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.3" PositionLoopProportionalGain="0.29999999999999999" PositionLoopMaxError="5" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="67" UnitConversion="0.071797010633680561"/>
-                    <VelocityFeedbackMapping InterfacePinID="67" UnitConversion="0.071797010633680561"/>
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.3" PositionLoopProportionalGain="0.29999999999999999" PositionLoopMaxError="5" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="0.40000000000000002" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="67" UnitConversion="0.07178064416956019"/>
+                    <VelocityFeedbackMapping InterfacePinID="23" UnitConversion="3.589"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="23" UnitConversion="3.589852199830954" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="23" UnitConversion="3.5890338762446738" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
@@ -212,11 +212,11 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Extérieur" UniqueID="119">
                 <NodeEditorPosition x="488" y="768"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.34999999999999" PositionLoopProportionalGain="0.29999999999999999" PositionLoopMaxError="5" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="69" UnitConversion="0.10738932291666667"/>
-                    <VelocityFeedbackMapping InterfacePinID="69" UnitConversion="0.10738932291666667"/>
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="14" AccelerationLimit="1.5" AdvancedVelocityLimit="false" MinNegativeVelocityLimit="0" MaxNegativeVelocityLimit="0" MinPositiveVelocityLimit="0" MaxPositiveVelocityLimit="0" PositionLoopVelocityFeedForward="100.34999999999999" PositionLoopProportionalGain="0.29999999999999999" PositionLoopMaxError="5" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="4" HomingVelocityFine="0.40000000000000002" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="69" UnitConversion="0.10734691478587963"/>
+                    <VelocityFeedbackMapping InterfacePinID="38" UnitConversion="5.367"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="38" UnitConversion="5.3694661462085289" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="38" UnitConversion="5.3673457396690285" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
@@ -342,11 +342,14 @@
             <Link UniqueID="174" StartPin="173" EndPin="162"/>
             <Link UniqueID="181" StartPin="3" EndPin="177"/>
             <Link UniqueID="182" StartPin="49" EndPin="178"/>
-            <Link UniqueID="183" StartPin="179" EndPin="58"/>
             <Link UniqueID="189" StartPin="65" EndPin="74"/>
-            <Link UniqueID="194" StartPin="129" EndPin="153"/>
-            <Link UniqueID="195" StartPin="112" EndPin="148"/>
-            <Link UniqueID="196" StartPin="82" EndPin="143"/>
+            <Link UniqueID="191" StartPin="179" EndPin="59"/>
+            <Link UniqueID="193" StartPin="66" EndPin="58"/>
+            <Link UniqueID="194" StartPin="68" EndPin="62"/>
+            <Link UniqueID="195" StartPin="70" EndPin="60"/>
+            <Link UniqueID="197" StartPin="82" EndPin="143"/>
+            <Link UniqueID="198" StartPin="112" EndPin="148"/>
+            <Link UniqueID="199" StartPin="129" EndPin="153"/>
         </Links>
     </NodeGraph>
 </Environnement>

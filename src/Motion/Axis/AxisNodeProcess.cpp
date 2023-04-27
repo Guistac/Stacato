@@ -259,6 +259,7 @@ void AxisNode::inputProcess(){
 				axisInterface->disable();
 			}
 		}
+		/*
 		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
 		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
 		   velocityFeedbackMapping){
@@ -267,6 +268,7 @@ void AxisNode::inputProcess(){
 				axisInterface->disable();
 			}
 		}
+		*/
 	}
 	
 	
@@ -517,7 +519,7 @@ void AxisNode::setHomingVelocityTarget(double velocity){
 }
 
 void AxisNode::moveToHomingPositionTarget(double position){
-	motionProfile.moveToPositionInTime(profileTime_seconds, position, 0.0, axisInterface->getAccelerationLimit(), axisInterface->getVelocityLimit());
+	motionProfile.moveToPositionWithVelocity(profileTime_seconds, position, homingVelocityFine->value, axisInterface->getAccelerationLimit());
 	internalControlMode = InternalControlMode::HOMING_POSITION_INTERPOLATION;
 }
 

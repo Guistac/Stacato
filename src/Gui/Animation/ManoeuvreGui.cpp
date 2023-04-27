@@ -306,7 +306,7 @@ void Manoeuvre::sheetEditor(){
 	
 	auto currentProject = Stacato::Editor::getCurrentProject();
 	
-	if(!currentProject->isPlotEditLocked()){
+	if(currentProject->isPlotEditLocked()){
 		
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		ImDrawListSplitter layers;

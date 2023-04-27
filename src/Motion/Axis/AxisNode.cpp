@@ -106,8 +106,8 @@ void AxisNode::initialize(){
 	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
 	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
 	
-	velocityLoop_maxError = NumberParameter<double>::make(0.0, "Velocity loop max error", "VelocityLoopMaxError");
-	velocityLoop_maxError->setSuffix("/s");
+	//velocityLoop_maxError = NumberParameter<double>::make(0.0, "Velocity loop max error", "VelocityLoopMaxError");
+	//velocityLoop_maxError->setSuffix("/s");
 	limitSlowdownVelocity = NumberParameter<double>::make(0.0, "Limit Slowdown Velocity", "LimitSlowdownVelocity");
 	limitSlowdownVelocity->setSuffix("/s");
 	
@@ -242,7 +242,7 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	positionLoop_proportionalGain->save(xml);
 	positionLoop_maxError->save(xml);
 	positionLoop_minError->save(xml);
-	velocityLoop_maxError->save(xml);
+	//velocityLoop_maxError->save(xml);
 	limitSlowdownVelocity->save(xml);
 	
 	enableLowerPositionLimit->save(xml);
@@ -279,7 +279,7 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= positionLoop_proportionalGain->load(xml);
 	success &= positionLoop_maxError->load(xml);
 	success &= positionLoop_minError->load(xml);
-	success &= velocityLoop_maxError->load(xml);
+	//success &= velocityLoop_maxError->load(xml);
 	success &= limitSlowdownVelocity->load(xml);
 	
 	success &= advancedVelocityLimit->load(xml);
@@ -725,7 +725,7 @@ void AxisNode::updatePositionUnit(){
 		positionLoop_maxError,
 		positionLoop_minError,
 		limitSlowdownVelocity,
-		velocityLoop_maxError,
+		//velocityLoop_maxError,
 		lowerPositionLimit,
 		upperPositionLimit,
 		lowerPositionLimitClearance,
