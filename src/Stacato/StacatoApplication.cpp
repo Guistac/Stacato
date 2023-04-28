@@ -41,8 +41,8 @@ bool initialize(){
 	#if defined(STACATO_DEBUG)
 	Stacato::Editor::unlock();
 	#else
-	//Stacato::Editor::lock();
-	Stacato::Editor::unlock();
+	Stacato::Editor::lock();
+	//Stacato::Editor::unlock();
 	
 	#endif
 	
