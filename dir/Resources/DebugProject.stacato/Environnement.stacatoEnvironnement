@@ -1,22 +1,25 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.32261094" OffsetX="729.5788" OffsetY="-89.16748" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59993" SizeY="187.48819"/>
-        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59993" SizeY="187.48819"/>
-        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59993" SizeY="189.58783"/>
-        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59993" SizeY="188.58777"/>
-        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59993" SizeY="187.8694"/>
-        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59993" SizeY="189.25089"/>
-        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59993" SizeY="189.25089"/>
-        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59993" SizeY="187.58789"/>
-        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59993" SizeY="189.68753"/>
-        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59993" SizeY="187.68759"/>
-        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59993" SizeY="189.78723"/>
-        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59993" SizeY="189.96924"/>
-        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59993" SizeY="190.06894"/>
-        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59993" SizeY="190.25095"/>
-        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59993" SizeY="188.25081"/>
-        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10034" SizeY="393.41241"/>
-        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10034" SizeY="392.31265"/>
+    <Dashboard Scale="0.32261094" OffsetX="729.5788" OffsetY="-88.625549" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59993" SizeY="190.04587"/>
+        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59993" SizeY="190.04587"/>
+        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59993" SizeY="189.04599"/>
+        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59993" SizeY="188.04593"/>
+        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59993" SizeY="187.32756"/>
+        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59993" SizeY="188.70885"/>
+        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59993" SizeY="188.70885"/>
+        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59993" SizeY="190.14557"/>
+        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59993" SizeY="189.14569"/>
+        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59993" SizeY="190.24527"/>
+        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59993" SizeY="189.24539"/>
+        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59993" SizeY="189.4272"/>
+        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59993" SizeY="189.52692"/>
+        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59993" SizeY="189.70891"/>
+        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59993" SizeY="187.70897"/>
+        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10034" SizeY="392.87057"/>
+        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10034" SizeY="394.87051"/>
+        <Widget Name="Safety Signal" UniqueID="18" PositionX="-32" PositionY="681" SizeX="157.50006" SizeY="105.31014"/>
+        <Widget Name="Homme Mort 1" UniqueID="19" PositionX="-51" PositionY="798" SizeX="178.49989" SizeY="137.09616"/>
+        <Widget Name="Homme Mort 2" UniqueID="20" PositionX="-51" PositionY="944" SizeX="178.49989" SizeY="136.78249"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -29,15 +32,16 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2511-B" Split="false" CustomName="Convertisseur Fibre-RJ45 (Recepteur) [B] (Alias:1000)" UniqueID="69">
-                <NodeEditorPosition x="1904" y="-2448"/>
+                <NodeEditorPosition x="2256" y="-2438"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1000"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Dispatch (Alias:1001)" UniqueID="70">
-                <NodeEditorPosition x="1800" y="-2739"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Dispatch (Alias:1001)" UniqueID="70">
+                <InputNodeEditorPosition x="2328" y="-2857"/>
+                <OutputNodeEditorPosition x="1654" y="-2882"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1001"/>
                     <ModularDeviceProfile>
@@ -66,7 +70,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT dispatch (Alias:1002)" UniqueID="80">
-                <NodeEditorPosition x="2128" y="-2720"/>
+                <NodeEditorPosition x="2320" y="-2694"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1002"/>
                 </NodeSpecificData>
@@ -74,7 +78,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1003)" UniqueID="81">
-                <NodeEditorPosition x="2128" y="-2656"/>
+                <NodeEditorPosition x="2320" y="-2630"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1003"/>
                 </NodeSpecificData>
@@ -82,7 +86,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1004)" UniqueID="82">
-                <NodeEditorPosition x="2128" y="-2592"/>
+                <NodeEditorPosition x="2320" y="-2566"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1004"/>
                 </NodeSpecificData>
@@ -90,7 +94,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="Switch EtherCAT Dispatch (Alias:1005)" UniqueID="83">
-                <NodeEditorPosition x="2128" y="-2528"/>
+                <NodeEditorPosition x="2320" y="-2502"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1005"/>
                 </NodeSpecificData>
@@ -1195,6 +1199,60 @@
                     <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="704" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="Safety Signal" UniqueID="729">
+                <NodeEditorPosition x="2054" y="-2695"/>
+                <NodeSpecificData>
+                    <Settings FaultResetPulseTime="0.20000000000000001" UnclearedFaultLedBlinkFrequency="5"/>
+                    <ControlWidget UniqueID="18"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="730" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="SafetyLineValid" DisplayString="Safety Line Valid" DataType="Boolean" UniqueID="731" Visible="true"/>
+                    <InputPin SaveString="SafetyStateValid" DisplayString="Safety State Valid" DataType="Boolean" UniqueID="732" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="733" Visible="true"/>
+                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="734" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="738">
+                <NodeEditorPosition x="1728" y="-2668"/>
+                <NodeSpecificData ConstantValue="1"/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="739" Visible="true" ForceDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 1" UniqueID="742">
+                <NodeEditorPosition x="2056" y="-3024"/>
+                <NodeSpecificData>
+                    <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
+                    <ControlWidget UniqueID="19"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="743" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="744" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="745" Visible="true"/>
+                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="746" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Homme Mort 2" UniqueID="747">
+                <NodeEditorPosition x="2056" y="-2858"/>
+                <NodeSpecificData>
+                    <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
+                    <ControlWidget UniqueID="20"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="748" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="749" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="750" Visible="true"/>
+                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="751" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="347" StartPin="112" EndPin="335"/>
@@ -1280,6 +1338,16 @@
             <Link UniqueID="725" StartPin="529" EndPin="644"/>
             <Link UniqueID="726" StartPin="542" EndPin="669"/>
             <Link UniqueID="727" StartPin="555" EndPin="654"/>
+            <Link UniqueID="736" StartPin="71" EndPin="730"/>
+            <Link UniqueID="740" StartPin="75" EndPin="732"/>
+            <Link UniqueID="741" StartPin="739" EndPin="731"/>
+            <Link UniqueID="752" StartPin="72" EndPin="744"/>
+            <Link UniqueID="753" StartPin="73" EndPin="749"/>
+            <Link UniqueID="754" StartPin="71" EndPin="743"/>
+            <Link UniqueID="755" StartPin="71" EndPin="748"/>
+            <Link UniqueID="756" StartPin="750" EndPin="78"/>
+            <Link UniqueID="757" StartPin="745" EndPin="77"/>
+            <Link UniqueID="758" StartPin="733" EndPin="76"/>
         </Links>
     </NodeGraph>
 </Environnement>

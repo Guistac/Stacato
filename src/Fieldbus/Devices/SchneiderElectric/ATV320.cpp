@@ -8,7 +8,8 @@ void ATV320::onConnection() {
 }
 
 void ATV320::onDisconnection() {
-	
+	actuator->state = DeviceState::OFFLINE;
+	gpio->state = DeviceState::OFFLINE;
 }
 
 void ATV320::updateActuatorInterface(){

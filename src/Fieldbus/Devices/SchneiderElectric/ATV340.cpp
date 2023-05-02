@@ -7,7 +7,10 @@ ATV340::ParameterOptions ATV340::options;
 
 void ATV340::onConnection() {}
 
-void ATV340::onDisconnection() {}
+void ATV340::onDisconnection() {
+	motor->state = DeviceState::OFFLINE;
+	gpio->state = DeviceState::OFFLINE;
+}
 
 void ATV340::initialize() {
 	
