@@ -575,6 +575,12 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//[sal] //stop signal active high or low
 		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->value), "Stop limit configuration [sal]"),
 		
+		//[mstp] disable the memostop function
+		//else the drive will remember limit switches
+		//this caused many weird issues where the motor just did not want to move after limit switch configuration changed
+		//or even after the signals were disconnected and reconnected
+		SDOTask::prepareUpload(0x205F, 0x18, uint16_t(0), "Disable Memo Stop [mstp]"),
+		
 		//—————————— Digital IO Configuration ———————————
 		//[l1d] -> [l6d] logic input on delay parameters
 		SDOTask::prepareUpload(0x200A, 0x2, uint16_t(atv320->logicInput1OnDelayParameter->value), "Logic input 1 on-time"),
@@ -592,24 +598,13 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 	
 
 	setStatusString("Uploading configuration");
-	
 	if(!atv320->executeSDOTasks(configUploadList)){
 		setStatusString("Configuration upload failed");
 		Logger::warn("[{}] Failed to upload configuration", atv320->getName());
 		return;
 	}
 	
-	if(atv320->forwardStopLimitAssignementParameter->value != LogicInput::NONE || atv320->reverseStopLimitAssignementParameter->value != LogicInput::NONE){
-		//if a stop limit was configured, disable the memostop function
-		//else the drive will remember limit switches
-		//this caused many weird issues where the motor just did not want to move after limit switch configuration changed
-		//or even after the signals were disconnected and reconnected
-		uint16_t no = 0;
-		atv320->writeSDO_U16(0x205F, 0x18, no, "[mstp] Memo Stop");
-	}
-	
 	setStatusString("Saving to EEPROM");
-			
 	Timing::Timer saveTimer;
 	saveTimer.setExpirationSeconds(1.0);
 	
@@ -634,7 +629,7 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 
 bool ATV320::StandstillTuningTask::canStart(){
 	if(atv320->isOffline()) return false;
-	else if(atv320->actuator->isEnabled()) return false;
+	//else if(atv320->actuator->isEnabled()) return false;
 	return true;
 }
 
@@ -645,9 +640,9 @@ void ATV320::StandstillTuningTask::onExecution(){
 	setStatusString("Autotuning started");
 	
 	std::vector<std::shared_ptr<SDOTask>> autotuningCommands = {
-		SDOTask::prepareUpload(0x2042, 0x9, 2, "Tuning: Erase Tune [tun]"),
-		SDOTask::prepareUpload(0x2042, 0x9, 0, "Tuning: No Action [tun]"),
-		SDOTask::prepareUpload(0x2042, 0x9, 1, "Tuning: Do tune [tun]")
+		SDOTask::prepareUpload(0x2042, 0x9, uint16_t(2), "Tuning: Erase Tune [tun]"),
+		//SDOTask::prepareUpload(0x2042, 0x9, uint16_t(0), "Tuning: No Action [tun]"),
+		SDOTask::prepareUpload(0x2042, 0x9, uint16_t(1), "Tuning: Do tune [tun]")
 	};
 	
 	if(!atv320->executeSDOTasks(autotuningCommands)){
@@ -656,11 +651,12 @@ void ATV320::StandstillTuningTask::onExecution(){
 	}
 	
 	Timing::Timer autotuningTimer;
-	autotuningTimer.setExpirationSeconds(5.0);
+	autotuningTimer.setExpirationSeconds(3.0);
 	while(true){
 		//[tus] auto tuning status (0 = not done, 1 = pending, 2 = in progress, 3 = failed, 4 = done)
 		uint16_t autotuningStatus;
 		if(atv320->readSDO_U16(0x2042, 0xA, autotuningStatus)){
+			Logger::warn("tuning state = {}", autotuningStatus);
 			if(autotuningStatus == 3){
 				setStatusString("Autotuning Started but Failed");
 				return;
