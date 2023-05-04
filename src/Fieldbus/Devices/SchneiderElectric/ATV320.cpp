@@ -599,6 +599,15 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		return;
 	}
 	
+	if(atv320->forwardStopLimitAssignementParameter->value != LogicInput::NONE || atv320->reverseStopLimitAssignementParameter->value != LogicInput::NONE){
+		//if a stop limit was configured, disable the memostop function
+		//else the drive will remember limit switches
+		//this caused many weird issues where the motor just did not want to move after limit switch configuration changed
+		//or even after the signals were disconnected and reconnected
+		uint16_t no = 0;
+		atv320->writeSDO_U16(0x205F, 0x18, no, "[mstp] Memo Stop");
+	}
+	
 	setStatusString("Saving to EEPROM");
 			
 	Timing::Timer saveTimer;

@@ -731,6 +731,8 @@ void Lexium32i::updateEncoderWorkingRange() {
 		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = 0.0;
 		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits);
 	}
+	servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
+	servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
 }
 
 
