@@ -10,6 +10,13 @@ class PositionAnimatable : public AnimationSystem::LeafAnimatable{
 	
 public:
 	
+	static std::shared_ptr<PositionAnimatable> createInstance(std::string name, std::string saveString){
+		auto newAnimatable = createInstance();
+		newAnimatable->setName(name);
+		newAnimatable->setSaveString(saveString);
+		return newAnimatable;
+	}
+	
 	virtual void onConstruction() override{
 		LeafAnimatable::onConstruction();
 	}

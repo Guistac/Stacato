@@ -31,6 +31,21 @@ void Plot::onCopyFrom(std::shared_ptr<Prototype> source){
 	 */
 }
 
+void Plot::onConstruction(){
+	manoeuvreLists = Legato::ListComponent<ManoeuvreList>::createInstance();
+	manoeuvreLists->setSaveString("ManoeuvreLists");
+	manoeuvreLists->setEntrySaveString("ManoeuvreList");
+	manoeuvreLists->setEntryConstructor([this](Serializable& abstract) -> std::shared_ptr<ManoeuvreList>{
+		auto newList = ManoeuvreList::createInstance();
+		newList->setAnimatableRegistry(animatableRegistry);
+		return newList;
+	});
+	auto defaultManoeuvreList = ManoeuvreList::createInstance();
+	defaultManoeuvreList->setName("Default Manoeuvre List");
+	defaultManoeuvreList->setAnimatableRegistry(animatableRegistry);
+	addManoeuvreList(defaultManoeuvreList);
+}
+
 bool Plot::onSerialization(){
 	bool success = manoeuvreLists->serializeIntoParent(this);
 	return success;

@@ -11,10 +11,12 @@
 void StacatoProject::onConstruction() {
 	Project::onConstruction();
 	
+	environnement = EnvironnementObject::createInstance();
+	
 	plot = Plot::createInstance();
 	plot->setSaveString("Plot");
+	plot->setAnimatableRegistry(environnement->getAnimatableRegistry());
 	
-	environnement = EnvironnementObject::createInstance();
 	layouts = LayoutList::createInstance();
 }
 

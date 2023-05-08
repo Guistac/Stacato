@@ -8,40 +8,23 @@ namespace AnimationSystem{
 
 class Animatable;
 class CompositeAnimation;
-
+class AnimatableRegistry;
 
 
 class Animation : public Legato::Component{
 	
 public:
 	
+	static std::shared_ptr<Animation> createInstanceFromAbstractSerializable(Serializable& abstract);
+	
+	void setAnimatableRegistry(std::shared_ptr<AnimatableRegistry> registry){ animatableRegistry = registry; }
+	
 	virtual void onConstruction() override{}
 	
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
 	
-	virtual bool onSerialization() override{
-		bool success = true;
-		switch(getType()){
-			case AnimationType::TARGET:
-				success &= serializeAttribute("Type", "Target");
-				break;
-			case AnimationType::SEQUENCE:
-				success &= serializeAttribute("Type", "Sequence");
-				break;
-			case AnimationType::STOP:
-				success &= serializeAttribute("Type", "Stop");
-				break;
-		}
-		success &= serializeAttribute("IsComposite", isCompositeAnimation());
-		return success;
-	}
-	
-	virtual bool onDeserialization() override{
-		bool success = true;
-		return success;
-	}
-	
-	static std::shared_ptr<Animation> createInstanceFromTypeString(bool b_isComposite, std::string typeString);
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
 	
@@ -56,6 +39,9 @@ public:
 	void setParentComposite(std::shared_ptr<CompositeAnimation> parent){ parentComposite = parent; }
 	std::shared_ptr<CompositeAnimation> getParentComposite(){ return parentComposite; }
 	
+	int getAnimatableUniqueID(){ return animatableUniqueID; }
+	void setAnimatable(std::shared_ptr<Animatable> animatable_){ animatable = animatable_; }
+	
 protected:
 	
 	friend class Animatable;
@@ -65,6 +51,9 @@ protected:
 	
 	//Animatable
 	std::shared_ptr<Animatable> animatable = nullptr;
+	int animatableUniqueID = -1;
+	
+	std::shared_ptr<AnimatableRegistry> animatableRegistry = nullptr;
 	
 };
 
@@ -76,34 +65,12 @@ class CompositeAnimation : public Animation{
 	
 public:
 	
-	virtual void onConstruction() override{
-		Animation::onConstruction();
-		childAnimations = Legato::ListComponent<Animation>::createInstance();
-		childAnimations->setSaveString("ChildAnimations");
-		childAnimations->setEntrySaveString("Animation");
-		childAnimations->setEntryConstructor([](Serializable& abstract) -> std::shared_ptr<Animation> {
-			bool b_isComposite;
-			abstract.deserializeAttribute("IsComposite", b_isComposite);
-			std::string typeString;
-			if(abstract.deserializeAttribute("Type", typeString)){
-				return Animation::createInstanceFromTypeString(b_isComposite, typeString);
-			}
-			else return nullptr;
-		});
-	}
+	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 		Animation::onCopyFrom(source);
 	}
-	virtual bool onSerialization() override{
-		bool success = Animation::onSerialization();
-		success &= childAnimations->serializeIntoParent(this);
-		return success;
-	}
-	virtual bool onDeserialization() override{
-		bool success = Animation::onSerialization();
-		success &= childAnimations->deserializeFromParent(this);
-		return success;
-	}
+	virtual bool onSerialization() override;
+	virtual bool onDeserialization() override;
 	
 	void setType(AnimationType animationType){ type = animationType; }
 	virtual AnimationType getType() override { return type; }

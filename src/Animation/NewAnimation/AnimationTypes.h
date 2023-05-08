@@ -29,10 +29,13 @@ namespace AnimationSystem{
 	   VELOCITY
    };
 
-	enum class AnimationType{
-		TARGET,
-		SEQUENCE,
-		STOP
+	enum AnimationType{
+		TARGET = 1,
+		SEQUENCE = 2,
+		STOP = 3
 	};
+
+	Legato::Option* getAnimationType(AnimationType type);
+	Legato::Option* getAnimationType(std::string saveString);
 
 };

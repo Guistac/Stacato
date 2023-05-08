@@ -27,15 +27,12 @@ class AxisStateMachine : public Machine{
 		Machine::onConstruction();
 		setName("Axis State Machine");
 		
-		positionAnimatable = AnimationSystem::PositionAnimatable::createInstance();
-		positionAnimatable->setName("Velocity");
-		stateAnimatable = AnimationSystem::StateAnimatable::createInstance();
-		stateAnimatable->setName("State");
-		compositeAnimatable = AnimationSystem::CompositeAnimatable::createInstance();
-		compositeAnimatable->setName("State & Velocity");
-		
-		compositeAnimatable->addChildAnimatable(stateAnimatable);
-		compositeAnimatable->addChildAnimatable(positionAnimatable);
+		positionAnimatable = AnimationSystem::PositionAnimatable::createInstance("Velocity", "Velocity");
+		stateAnimatable = AnimationSystem::StateAnimatable::createInstance("State", "State");
+		compositeAnimatable = AnimationSystem::CompositeAnimatable::createInstance("State & Velocity", "StateAndVelocity", {
+			positionAnimatable,
+			stateAnimatable
+		});
 		compositeAnimatable->setSupportedAnimationTypes({
 			AnimationSystem::AnimationType::STOP,
 			AnimationSystem::AnimationType::SEQUENCE,

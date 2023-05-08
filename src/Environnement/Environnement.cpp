@@ -125,7 +125,6 @@ void EnvironnementObject::addNode(std::shared_ptr<Node> node) {
 		animatableRegistry->registerAnimatableOwner(animatableOwner);
 	}
 	
-	
 }
 
 void EnvironnementObject::removeNode(std::shared_ptr<Node> node){

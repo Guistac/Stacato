@@ -6,7 +6,10 @@
 
 namespace AnimationSystem{
 	class Manoeuvre;
+	class AnimatableRegistry;
 }
+
+class StacatoProject;
 
 class Plot : public Legato::FileComponent{
 	
@@ -14,29 +17,19 @@ class Plot : public Legato::FileComponent{
 	
 public:
 	
-	virtual void onConstruction() override {
-		manoeuvreLists = Legato::ListComponent<ManoeuvreList>::createInstance();
-		manoeuvreLists->setSaveString("ManoeuvreLists");
-		manoeuvreLists->setEntrySaveString("ManoeuvreList");
-		manoeuvreLists->setEntryConstructor([](Serializable& abstract){ return ManoeuvreList::createInstance(); });
-		auto defaultManoeuvreList = ManoeuvreList::createInstance();
-		defaultManoeuvreList->setName("Default Manoeuvre List");
-		addManoeuvreList(defaultManoeuvreList);
-	}
+	virtual void onConstruction() override;
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override;
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	
-public:
-	
 	void addManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList){
-		manoeuvreList->setParentPlot(downcasted_shared_from_this<Plot>());
+		manoeuvreList->setAnimatableRegistry(animatableRegistry);
 		manoeuvreLists->addEntry(manoeuvreList);
 		selectedManoeuvreList = manoeuvreList;
 	}
 	
 	void removeManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList){
-		manoeuvreList->setParentPlot(nullptr);
+		manoeuvreList->setAnimatableRegistry(animatableRegistry);
 		manoeuvreLists->removeEntry(manoeuvreList);
 		if(manoeuvreList == selectedManoeuvreList) selectedManoeuvreList = nullptr;
 	}
@@ -48,6 +41,9 @@ public:
 	void selectManoeuvreList(std::shared_ptr<ManoeuvreList> manoeuvreList);
 	void selectManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre);
 	
+	void setAnimatableRegistry(std::shared_ptr<AnimationSystem::AnimatableRegistry> registry){ animatableRegistry = registry; }
+	
+	
 private:
 	
 	std::shared_ptr<Legato::ListComponent<ManoeuvreList>> manoeuvreLists = nullptr;
@@ -55,5 +51,7 @@ private:
 	std::shared_ptr<AnimationSystem::Manoeuvre> selectedManoeuvre = nullptr;
 
 	bool b_scrollToSelectedManoeuvre = false;
+	
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> animatableRegistry = nullptr;
 	
 };

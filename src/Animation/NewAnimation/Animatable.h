@@ -15,22 +15,16 @@ namespace AnimationSystem{
 		
 	public:
 		
+		static std::shared_ptr<Animatable> createInstanceFromAbstractSerializable(Serializable& abstract);
+		
 		virtual void onConstruction() override{
 			Component::onConstruction();
 		}
 		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Component::onCopyFrom(source);
 		}
-		virtual bool onSerialization() override{
-			bool success = Component::onSerialization();
-			success &= serializeAttribute("SaveString", saveString);
-			return success;
-		}
-		virtual bool onDeserialization() override{
-			bool success = Component::onDeserialization();
-			success &= deserializeAttribute("SaveString", saveString);
-			return success;
-		}
+		virtual bool onSerialization() override;
+		virtual bool onDeserialization() override;
 		
 		AnimatableStatus status = AnimatableStatus::OFFLINE;
 		
@@ -57,6 +51,7 @@ namespace AnimationSystem{
 		std::shared_ptr<Animation> makeAnimation(AnimationType type);
 		
 		std::shared_ptr<AnimatableOwner> getOwner(){ return owner; }
+		int getUniqueID(){ return uniqueID; }
 		
 	protected:
 		
@@ -73,6 +68,8 @@ namespace AnimationSystem{
 		//Owner
 		std::shared_ptr<AnimatableOwner> owner = nullptr;
 		
+		int uniqueID = -1;
+		
 	};
 
 
@@ -83,6 +80,14 @@ namespace AnimationSystem{
 		
 	public:
 		
+		static std::shared_ptr<CompositeAnimatable> createInstance(std::string name, std::string saveString, std::vector<std::shared_ptr<Animatable>> children){
+			auto newComposite = CompositeAnimatable::createInstance();
+			newComposite->setName(name);
+			newComposite->setSaveString(saveString);
+			for(auto child : children) newComposite->addChildAnimatable(child);
+			return newComposite;
+		}
+		
 		virtual void onConstruction() override{
 			Animatable::onConstruction();
 			childAnimatables = Legato::ListComponent<Animatable>::createInstance();
@@ -92,16 +97,8 @@ namespace AnimationSystem{
 		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Animatable::onCopyFrom(source);
 		}
-		virtual bool onSerialization() override{
-			bool success = Animatable::onSerialization();
-			success &= childAnimatables->serializeIntoParent(this);
-			return success;
-		}
-		virtual bool onDeserialization() override{
-			bool success = Animatable::onDeserialization();
-			//success &= childAnimatables->deserializeFromParent(this);
-			return success;
-		}
+		virtual bool onSerialization() override;
+		virtual bool onDeserialization() override;
 		
 		virtual AnimatableType getType() override { return AnimatableType::COMPOSITE; }
 		virtual bool isCompositeAnimatable() override { return true; }
@@ -129,7 +126,7 @@ namespace AnimationSystem{
 			return output;
 		}
 		
-		const std::vector<std::shared_ptr<Animatable>>& getChildAnimatables(){ return childAnimatables->getEntries(); }
+		std::vector<std::shared_ptr<Animatable>>& getChildAnimatables(){ return childAnimatables->getEntries(); }
 		
 		
 	private:

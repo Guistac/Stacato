@@ -35,9 +35,7 @@ void PositionControlledMachine::onConstruction() {
 	
 	//———— Animatables
 	
-	positionAnimatable = AnimationSystem::PositionAnimatable::createInstance();
-	positionAnimatable->setName("Position");
-	positionAnimatable->setSaveString("Position");
+	positionAnimatable = AnimationSystem::PositionAnimatable::createInstance("Position", "Position");
 	addAnimatable(positionAnimatable);
 	
 	//———— Parameters

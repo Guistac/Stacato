@@ -8,6 +8,7 @@
 
 class Plot;
 namespace tinyxml2{ struct XMLElement; }
+namespace AnimationSystem{ class AnimatableRegistry; };
 
 class ManoeuvreList : public Legato::Component{
 	
@@ -22,11 +23,8 @@ public:
 
 public:
 	
-	//ManoeuvreList(std::shared_ptr<Plot> plot_) : plot(plot_){}
-	bool load(tinyxml2::XMLElement* xml);
-	bool save(tinyxml2::XMLElement* xml);
-	
-	void setParentPlot(std::shared_ptr<Plot> plot_){ plot = plot_; }
+	void setAnimatableRegistry(std::shared_ptr<AnimationSystem::AnimatableRegistry> registry){ animatableRegistry = registry; }
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> getAnimatableRegistry(){ return animatableRegistry; }
 	
 	std::vector<std::shared_ptr<AnimationSystem::Manoeuvre>>& getManoeuvres(){ return manoeuvres->getEntries(); }
 	bool containsManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre);
@@ -42,12 +40,9 @@ public:
 	
 	void pasteManoeuvre(std::shared_ptr<AnimationSystem::Manoeuvre> manoeuvre);
 	
-	std::shared_ptr<Plot> getPlot(){ return plot; }
-	
 private:
 	
-	std::shared_ptr<Plot> plot;
-	
+	std::shared_ptr<AnimationSystem::AnimatableRegistry> animatableRegistry = nullptr;
 	std::shared_ptr<Legato::ListComponent<AnimationSystem::Manoeuvre>> manoeuvres;
 	
 };

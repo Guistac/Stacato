@@ -12,14 +12,10 @@ namespace AnimationSystem{
 		animations = Legato::ListComponent<Animation>::createInstance();
 		animations->setSaveString("Animations");
 		animations->setEntrySaveString("Animation");
-		animations->setEntryConstructor([](Serializable& abstract) -> std::shared_ptr<Animation> {
-			bool b_isComposite;
-			abstract.deserializeAttribute("IsComposite", b_isComposite);
-			std::string typeString;
-			if(abstract.deserializeAttribute("Type", typeString)){
-				return Animation::createInstanceFromTypeString(b_isComposite, typeString);
-			}
-			else return nullptr;
+		animations->setEntryConstructor([this](Serializable& abstract) -> std::shared_ptr<Animation> {
+			auto newAnimation = Animation::createInstanceFromAbstractSerializable(abstract);
+			newAnimation->setAnimatableRegistry(animatableRegistry);
+			return newAnimation;
 		});
 	}
 	void Manoeuvre::onCopyFrom(std::shared_ptr<Prototype> source){

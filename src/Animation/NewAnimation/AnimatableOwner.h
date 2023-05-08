@@ -26,7 +26,6 @@ namespace AnimationSystem{
 		
 		friend class AnimatableRegistry;
 		std::shared_ptr<Legato::ListComponent<Animatable>> animatables;
-		int animatableOwnerUniqueID = -1;
 		
 	};
 

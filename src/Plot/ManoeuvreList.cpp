@@ -24,15 +24,17 @@ void ManoeuvreList::onConstruction(){
 	manoeuvres = Legato::ListComponent<AnimationSystem::Manoeuvre>::createInstance();
 	manoeuvres->setSaveString("Manoeuvres");
 	manoeuvres->setEntrySaveString("Manoeuvre");
-	manoeuvres->setEntryConstructor([](Serializable& abstract){ return AnimationSystem::Manoeuvre::createInstance(); });
+	manoeuvres->setEntryConstructor([this](Serializable& abstract){
+		auto newList = AnimationSystem::Manoeuvre::createInstance();
+		newList->setAnimatableRegistry(animatableRegistry);
+		return newList;
+	});
 }
 void ManoeuvreList::onCopyFrom(std::shared_ptr<Prototype> source){
 	Component::onCopyFrom(source);
 }
 bool ManoeuvreList::onSerialization(){
 	bool success = Component::onSerialization();
-	//auto& manoeuvressss = getManoeuvres();
-	//size_t s = manoeuvres->getEntries().size();
 	success &= manoeuvres->serializeIntoParent(this);
 	return success;
 }

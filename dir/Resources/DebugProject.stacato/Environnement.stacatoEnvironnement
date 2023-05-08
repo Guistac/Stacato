@@ -1,7 +1,7 @@
 <Environnement Name="Default Component Name">
     <NodeGraph Name="Default Object Name">
         <NodeList>
-            <Node Name="Positionnable Machine" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor" AnimatableOwnerUniqueID="1">
+            <Node Name="Positionnable Machine nice" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="87" Y="424"/>
                 <InputPins>
                     <Pin Name="Position Controlled Axis" UniqueID="97" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
@@ -11,18 +11,18 @@
                     <Pin Name="Velocity" UniqueID="99" SaveString="Velocity" DataType="Real" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
                 </OutputPins>
                 <Animatables>
-                    <Animatable Type="Position" SaveString="Position"/>
+                    <Animatable Type="Position" SaveString="Position" UniqueID="1"/>
                 </Animatables>
             </Node>
-            <Node Name="State Machine" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor" AnimatableOwnerUniqueID="2">
+            <Node Name="State Machine haha" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="112" Y="336"/>
                 <InputPins/>
                 <OutputPins/>
                 <Animatables>
-                    <Animatable Type="Composite" SaveString="">
+                    <Animatable Type="Composite" SaveString="StateAndVelocity" UniqueID="2">
                         <ChildAnimatables>
-                            <Animatable Type="State" SaveString=""/>
-                            <Animatable Type="Position" SaveString=""/>
+                            <Animatable Type="Position" SaveString="Velocity" UniqueID="3"/>
+                            <Animatable Type="State" SaveString="State" UniqueID="4"/>
                         </ChildAnimatables>
                     </Animatable>
                 </Animatables>
