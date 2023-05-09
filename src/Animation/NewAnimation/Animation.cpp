@@ -8,7 +8,6 @@ namespace AnimationSystem{
 
 
 	std::shared_ptr<Animation> Animation::createInstanceFromAbstractSerializable(Serializable& abstract){
-		
 		bool b_success = true;
 		
 		bool b_isComposite;
@@ -21,7 +20,6 @@ namespace AnimationSystem{
 		if(typeOption == nullptr || !b_success) return nullptr;
 		
 		AnimationType animationType = AnimationType(typeOption->getInt());
-		
 		if(b_isComposite){
 			auto compositeAnimation = CompositeAnimation::createInstance();
 			compositeAnimation->setType(animationType);
@@ -34,28 +32,33 @@ namespace AnimationSystem{
 				case STOP:		return StopAnimation::createInstance();
 			}
 		}
-		
 	}
 
 
 
 	bool Animation::onSerialization(){
 		bool success = true;
-		
 		success &= serializeAttribute("Type", getAnimationType(getType())->getSaveString());
 		success &= serializeAttribute("IsComposite", isCompositeAnimation());
 		success &= serializeAttribute("AnimatableUniqueID", animatable->getUniqueID());
-		
 		return success;
 	}
 
 	bool Animation::onDeserialization(){
 		bool success = true;
 		success &= deserializeAttribute("AnimatableUniqueID", animatableUniqueID);
-		//we can't find the animatable here, since composite children cannot find the animatable in the registry
-		//maybe we should relink all animatables somewhere else...
-		animatable = animatableRegistry->getAnimatable(animatableUniqueID);
-		success &= animatable != nullptr;
+		
+		//relink animation with animatable
+		//only top level animations should do this
+		//composites handle their own relinking
+		if(isTopLevelAnimation()){
+			animatable = animatableRegistry->getAnimatable(animatableUniqueID);
+			success &= animatable != nullptr;
+			if(!success) {
+				Logger::critical("Could not relink animatable");
+			}
+		}
+		
 		return success;
 	}
 
@@ -67,6 +70,7 @@ namespace AnimationSystem{
 		childAnimations->setEntryConstructor([this](Serializable& abstract) -> std::shared_ptr<Animation> {
 			auto newAnimation = Animation::createInstanceFromAbstractSerializable(abstract);
 			newAnimation->setAnimatableRegistry(animatableRegistry);
+			newAnimation->setParentComposite(downcasted_shared_from_this<CompositeAnimation>());
 			return newAnimation;
 		});
 	}
@@ -79,31 +83,49 @@ namespace AnimationSystem{
 
 	bool CompositeAnimation::onDeserialization(){
 		bool success = Animation::onDeserialization();
-		
 		success &= childAnimations->deserializeFromParent(this);
 		
-		std::function<bool(std::shared_ptr<CompositeAnimation>)> relinkCompositeAnimatable;
-		relinkCompositeAnimatable = [](std::shared_ptr<CompositeAnimation> compositeAnimation) -> bool {
-			bool b_allAnimatablesFound = true;
-			for(auto unlinkedChildAnimation : compositeAnimation->getChildAnimations()){
-				bool b_animatableFound = false;
-				auto compositeAnimatable = compositeAnimation->animatable->downcasted_shared_from_this<CompositeAnimatable>();
-				for(auto childAnimatable : compositeAnimatable->getChildAnimatables()){
-					if(unlinkedChildAnimation->getAnimatableUniqueID() == childAnimatable->getUniqueID()){
-						unlinkedChildAnimation->setAnimatable(childAnimatable);
-						b_animatableFound = true;
-						break;
+		
+		//relink all composite child animations with their animatable
+		//only top level animations are able to do this
+		if(isTopLevelAnimation()){
+			
+			std::function<bool(std::shared_ptr<CompositeAnimation>)> relinkCompositeAnimatable;
+			relinkCompositeAnimatable = [&](std::shared_ptr<CompositeAnimation> compositeAnimation) -> bool {
+				
+				if(compositeAnimation->animatable == nullptr) {
+					Logger::warn("Could not relink animatable of composite animation with ID {}, animatable was nullptr", compositeAnimation->getAnimatableUniqueID());
+					return false;
+				}
+				
+				bool b_allAnimatablesFound = true;
+				for(auto unlinkedChildAnimation : compositeAnimation->getChildAnimations()){
+					bool b_animatableFound = false;
+					auto compositeAnimatable = compositeAnimation->animatable->downcasted_shared_from_this<CompositeAnimatable>();
+					for(auto childAnimatable : compositeAnimatable->getChildAnimatables()){
+						if(unlinkedChildAnimation->getAnimatableUniqueID() == childAnimatable->getUniqueID()){
+							unlinkedChildAnimation->setAnimatable(childAnimatable);
+							b_animatableFound = true;
+							//if the child animation is a composite, recursively relink all the lower level children with their animatable
+							if(unlinkedChildAnimation->isCompositeAnimation()){
+								auto childCompositeAnimation = unlinkedChildAnimation->downcasted_shared_from_this<CompositeAnimation>();
+								b_allAnimatablesFound &= relinkCompositeAnimatable(childCompositeAnimation);
+							}
+							break;
+						}
+					}
+					if(!b_animatableFound) {
+						Logger::warn("Could not relink animatable of animation with ID {}, animatable not found", unlinkedChildAnimation->getAnimatableUniqueID());
+						b_allAnimatablesFound = false;
 					}
 				}
-				if(!b_animatableFound) b_allAnimatablesFound = false;
-			}
-			return b_allAnimatablesFound;
-		};
-		
-		if(animatable == nullptr) return false;
-		
-		auto thisCompositeAnimation = downcasted_shared_from_this<CompositeAnimation>();
-		success &= relinkCompositeAnimatable(thisCompositeAnimation);
+				return b_allAnimatablesFound;
+			};
+			
+			auto thisCompositeAnimation = downcasted_shared_from_this<CompositeAnimation>();
+			success &= relinkCompositeAnimatable(thisCompositeAnimation);
+			
+		}
 		
 		return success;
 	}

@@ -80,11 +80,14 @@ namespace AnimationSystem{
 		
 	public:
 		
-		static std::shared_ptr<CompositeAnimatable> createInstance(std::string name, std::string saveString, std::vector<std::shared_ptr<Animatable>> children){
+		static std::shared_ptr<CompositeAnimatable> createInstance(std::string name, std::string saveString,
+																   std::vector<std::shared_ptr<Animatable>> children = {},
+																   std::vector<AnimationType> supportedAnimationTypes = {}){
 			auto newComposite = CompositeAnimatable::createInstance();
 			newComposite->setName(name);
 			newComposite->setSaveString(saveString);
 			for(auto child : children) newComposite->addChildAnimatable(child);
+			newComposite->setSupportedAnimationTypes(supportedAnimationTypes);
 			return newComposite;
 		}
 		
@@ -136,6 +139,10 @@ namespace AnimationSystem{
 		std::vector<AnimationType> supportedAnimationTypes = {};
 		
 	};
+
+
+
+
 
 
 	class LeafAnimatable : public Animatable{

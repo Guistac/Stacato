@@ -16,13 +16,10 @@ class Animation : public Legato::Component{
 public:
 	
 	static std::shared_ptr<Animation> createInstanceFromAbstractSerializable(Serializable& abstract);
-	
 	void setAnimatableRegistry(std::shared_ptr<AnimatableRegistry> registry){ animatableRegistry = registry; }
 	
 	virtual void onConstruction() override{}
-	
 	virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{}
-	
 	virtual bool onSerialization() override;
 	virtual bool onDeserialization() override;
 	

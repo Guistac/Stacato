@@ -13,6 +13,24 @@
                                 <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4"/>
                             </ChildAnimations>
                         </Animation>
+                        <Animation Type="Sequence" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3"/>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4"/>
+                            </ChildAnimations>
+                        </Animation>
+                        <Animation Type="Stop" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="3"/>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="4"/>
+                            </ChildAnimations>
+                        </Animation>
+                        <Animation Type="Target" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="3"/>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="4"/>
+                            </ChildAnimations>
+                        </Animation>
                     </Animations>
                 </Manoeuvre>
             </Manoeuvres>
