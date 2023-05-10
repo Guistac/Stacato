@@ -147,10 +147,13 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/TargetAnimation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/TargetAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/TargetAnimationGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/SequenceAnimation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/SequenceAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/SequenceAnimationGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/StopAnimation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/StopAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/StopAnimationGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h

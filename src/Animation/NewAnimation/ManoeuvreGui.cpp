@@ -18,6 +18,7 @@
 #include "Stacato/Project/StacatoProject.h"
 
 #include "Gui/Utilities/ReorderableList.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 namespace AnimationSystem{
 
@@ -108,62 +109,59 @@ namespace AnimationSystem{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.15));
 		ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit;
 	
-
-		if(ImGui::BeginTable("##animations", 4, tableFlags)){
+		ImDrawList* drawing = ImGui::GetWindowDrawList();
+		float frameHeight = ImGui::GetFrameHeight();
+		float iconPadding = ImGui::GetTextLineHeight() * 0.1;
+		
 			
-			ImGui::TableSetupColumn("Type");
-			ImGui::TableSetupColumn("Owner");
-			ImGui::TableSetupColumn("Animatable");
-			ImGui::TableSetupColumn("Parameters");
-			ImGui::TableHeadersRow();
+		for(int i = 0; i < animations->size(); i++){
+			auto animation = animations->getEntries()[i];
+			ImGui::PushID(i);
 			
-			for(int i = 0; i < animations->size(); i++){
-				std::shared_ptr<Animation> animation = animations->getEntries()[i];
-				
-				ImGui::TableNextRow();
-				
-				ImGui::TableSetColumnIndex(0);
-				float frameHeight = ImGui::GetFrameHeight();
-				ImVec2 iconSize(frameHeight, frameHeight);
-				switch(animation->getType()){
-					case AnimationType::TARGET:
-						ImGui::Image(Images::TargetIcon.getID(), iconSize);
-						break;
-					case AnimationType::SEQUENCE:
-						ImGui::Image(Images::SequenceIcon.getID(), iconSize);
-						break;
-					case AnimationType::STOP:
-						ImGui::Image(Images::KeyIcon.getID(), iconSize);
-						break;
-				}
-				
-				if(animation->isCompositeAnimation()){
-					
-					auto compositeAnimation = animation->downcasted_shared_from_this<CompositeAnimation>();
-					
-					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("%s", compositeAnimation->getAnimatable()->getOwner()->getName().c_str());
-					
-					auto& childAnimations = compositeAnimation->getChildAnimations();
-					for(int i = 0; i < childAnimations.size(); i++){
-						if(i != 0) ImGui::TableNextRow();
-						auto childAnimation = childAnimations[i];
-						ImGui::TableSetColumnIndex(2);
-						ImGui::Text("%s", childAnimation->getAnimatable()->getName().c_str());
-						ImGui::TableSetColumnIndex(3);
-						ImGui::Text("Child Animation Parameters...");
-					}
-				}
-				else{
-					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("%s", animation->getAnimatable()->getOwner()->getName().c_str());
-					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("%s", animation->getAnimatable()->getName().c_str());
-					ImGui::TableSetColumnIndex(3);
-					ImGui::Text("Animation Parameters...");
+			ImDrawListSplitter layers;
+			layers.Split(drawing, 2);
+			layers.SetCurrentChannel(drawing, 1);
+			
+			ImGui::BeginGroup();
+			ImGui::Dummy(glm::vec2(frameHeight,frameHeight));
+			drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImColor(Colors::gray), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTopLeft);
+			Image* animationIcon;
+			switch(animation->getType()){
+				case AnimationType::TARGET: animationIcon = &Images::TargetIcon; break;
+				case AnimationType::SEQUENCE: animationIcon = &Images::SequenceIcon; break;
+				case AnimationType::STOP: animationIcon = &Images::KeyIcon; break;
+			}
+			glm::vec2 iconMin = glm::vec2(ImGui::GetItemRectMin()) + glm::vec2(iconPadding,iconPadding);
+			glm::vec2 iconMax = glm::vec2(ImGui::GetItemRectMax()) - glm::vec2(iconPadding,iconPadding);
+			drawing->AddImage(animationIcon->getID(), iconMin, iconMax, glm::vec2(0,0), glm::vec2(1,1), ImColor(Colors::black));
+			ImGui::SameLine(0.0, 0.0);
+			backgroundText(animation->getAnimatable()->getOwner()->getName().c_str(), ImVec2(0, frameHeight), Colors::darkGray, Colors::white, ImDrawFlags_RoundCornersNone);
+			ImGui::SameLine(0.0, 0.0);
+			backgroundText(animation->getAnimatable()->getName().c_str(), ImVec2(0, frameHeight), Colors::veryDarkGray, Colors::white, ImDrawFlags_RoundCornersRight);
+			
+			if(animation->isCompositeAnimation()){
+				auto compositeAnimation = animation->downcasted_shared_from_this<CompositeAnimation>();
+				for(int j = 0; j < compositeAnimation->getChildAnimations().size(); j++){
+					auto childAnimation = compositeAnimation->getChildAnimations()[j];
+					ImGui::PushID(j);
+					backgroundText(childAnimation->getAnimatable()->getName().c_str(), ImVec2(0, frameHeight), ImColor(Colors::veryDarkGray), ImColor(Colors::white));
+					ImGui::TreePush();
+					childAnimation->parameterGui();
+					ImGui::TreePop();
+					ImGui::PopID();
 				}
 			}
-			ImGui::EndTable();
+			else animation->parameterGui();
+			ImGui::Dummy(glm::vec2(0,0));
+			ImGui::EndGroup();
+			
+			layers.SetCurrentChannel(drawing, 0);
+			glm::vec2 groupMin = ImGui::GetItemRectMin();
+			glm::vec2 groupMax = glm::vec2(groupMin.x + ImGui::GetContentRegionAvail().x, ImGui::GetItemRectMax().y);
+			drawing->AddRectFilled(groupMin, groupMax, ImColor(Colors::almostBlack), ImGui::GetStyle().FrameRounding);
+			layers.Merge(drawing);
+			
+			ImGui::PopID();
 		}
 		
 		if(ImGui::Button("Add Animation")) ImGui::OpenPopup("AnimatableSelector");

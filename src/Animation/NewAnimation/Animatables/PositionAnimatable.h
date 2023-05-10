@@ -61,6 +61,8 @@ public:
 		return curveNames;
 	}
 	
+	virtual std::shared_ptr<Legato::Parameter> createParameter() override;
+	
 };
 
 }

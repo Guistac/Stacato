@@ -5,31 +5,159 @@
                 <Manoeuvre Name="Cool Manoeuvre !">
                     <Description Value="hehe nice this is working lekflzkejflzkjeflzke lk lzkef zlk jl l jkl"/>
                     <Animations>
-                        <Animation Type="Target" IsComposite="0" AnimatableUniqueID="1"/>
-                        <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="1"/>
-                        <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="1"/>
+                        <Animation Type="Target" IsComposite="0" AnimatableUniqueID="1">
+                            <Target Value="0"/>
+                            <InRamp Value="0"/>
+                            <OutRamp Value="0"/>
+                        </Animation>
+                        <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="1">
+                            <Start Value="0"/>
+                            <Target Value="0"/>
+                            <Delta Value="0"/>
+                            <Duration Value="0"/>
+                            <InRamp Value="0"/>
+                            <OutRamp Value="0"/>
+                        </Animation>
+                        <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="1">
+                            <StopRamp Value="0"/>
+                        </Animation>
                         <Animation Type="Sequence" IsComposite="1" AnimatableUniqueID="2">
                             <ChildAnimations>
-                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3"/>
-                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4"/>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3">
+                                    <Start Value="0"/>
+                                    <Target Value="0"/>
+                                    <Delta Value="0"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4">
+                                    <Start Value="default"/>
+                                    <Target Value="default"/>
+                                    <Delta Value="default"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
                             </ChildAnimations>
                         </Animation>
                         <Animation Type="Sequence" IsComposite="1" AnimatableUniqueID="2">
                             <ChildAnimations>
-                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3"/>
-                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4"/>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3">
+                                    <Start Value="0"/>
+                                    <Target Value="0"/>
+                                    <Delta Value="0"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4">
+                                    <Start Value="default"/>
+                                    <Target Value="default"/>
+                                    <Delta Value="default"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
                             </ChildAnimations>
                         </Animation>
                         <Animation Type="Stop" IsComposite="1" AnimatableUniqueID="2">
                             <ChildAnimations>
-                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="3"/>
-                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="4"/>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="3">
+                                    <StopRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="4">
+                                    <StopRamp Value="default"/>
+                                </Animation>
                             </ChildAnimations>
                         </Animation>
                         <Animation Type="Target" IsComposite="1" AnimatableUniqueID="2">
                             <ChildAnimations>
-                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="3"/>
-                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="4"/>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="3">
+                                    <Target Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="4">
+                                    <Target Value="default"/>
+                                    <InRamp Value="2.1221124359117303e-314"/>
+                                    <OutRamp Value="2.1221124359117303e-314"/>
+                                </Animation>
+                            </ChildAnimations>
+                        </Animation>
+                    </Animations>
+                </Manoeuvre>
+                <Manoeuvre Name="New Manoeuvre">
+                    <Description Value="A very very veyr veyr loooooooong description for a dummy maoeuvre..."/>
+                    <Animations>
+                        <Animation Type="Target" IsComposite="0" AnimatableUniqueID="1">
+                            <Target Value="0"/>
+                            <InRamp Value="0"/>
+                            <OutRamp Value="0"/>
+                        </Animation>
+                        <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="1">
+                            <Start Value="0"/>
+                            <Target Value="0"/>
+                            <Delta Value="0"/>
+                            <Duration Value="0"/>
+                            <InRamp Value="0"/>
+                            <OutRamp Value="0"/>
+                        </Animation>
+                        <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="1">
+                            <StopRamp Value="0"/>
+                        </Animation>
+                        <Animation Type="Target" IsComposite="0" AnimatableUniqueID="1">
+                            <Target Value="0"/>
+                            <InRamp Value="0"/>
+                            <OutRamp Value="0"/>
+                        </Animation>
+                    </Animations>
+                </Manoeuvre>
+                <Manoeuvre Name="New Manoeuvre">
+                    <Description Value=""/>
+                    <Animations>
+                        <Animation Type="Stop" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="3">
+                                    <StopRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Stop" IsComposite="0" AnimatableUniqueID="4">
+                                    <StopRamp Value="default"/>
+                                </Animation>
+                            </ChildAnimations>
+                        </Animation>
+                        <Animation Type="Sequence" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="3">
+                                    <Start Value="0"/>
+                                    <Target Value="0"/>
+                                    <Delta Value="0"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="4">
+                                    <Start Value="default"/>
+                                    <Target Value="default"/>
+                                    <Delta Value="default"/>
+                                    <Duration Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                            </ChildAnimations>
+                        </Animation>
+                        <Animation Type="Target" IsComposite="1" AnimatableUniqueID="2">
+                            <ChildAnimations>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="3">
+                                    <Target Value="0"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
+                                <Animation Type="Target" IsComposite="0" AnimatableUniqueID="4">
+                                    <Target Value="default"/>
+                                    <InRamp Value="0"/>
+                                    <OutRamp Value="0"/>
+                                </Animation>
                             </ChildAnimations>
                         </Animation>
                     </Animations>

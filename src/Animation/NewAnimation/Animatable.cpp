@@ -62,6 +62,7 @@ std::shared_ptr<Animation> Animatable::makeAnimation(AnimationType type){
 	}
 	
 	newAnimation->animatable = downcasted_shared_from_this<Animatable>();
+	newAnimation->onSetAnimatable();
 	
 	return newAnimation;
 }

@@ -465,13 +465,13 @@ Collapsed=0
 
 [Window][Track Sheet Editor]
 Pos=435,29
-Size=831,465
+Size=831,862
 Collapsed=0
 DockId=0x00000008,0
 
 [Window][Curve Editor]
-Pos=695,496
-Size=571,471
+Pos=695,893
+Size=571,74
 Collapsed=0
 DockId=0x0000000B,0
 
@@ -660,8 +660,8 @@ Size=676,254
 Collapsed=0
 
 [Window][Playback Manager]
-Pos=435,496
-Size=258,471
+Pos=435,893
+Size=258,74
 Collapsed=0
 DockId=0x0000000A,0
 
@@ -812,8 +812,8 @@ DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X
   DockNode        ID=0x00000001 Parent=0xD5272B65 SizeRef=1266,938 Split=X Selected=0xAE98FAB7
     DockNode      ID=0x00000006 Parent=0x00000001 SizeRef=433,938 HiddenTabBar=1 Selected=0xEBD2820B
     DockNode      ID=0x00000007 Parent=0x00000001 SizeRef=1293,938 Split=Y
-      DockNode    ID=0x00000008 Parent=0x00000007 SizeRef=1293,465 HiddenTabBar=1 Selected=0x47C7A3F3
-      DockNode    ID=0x00000009 Parent=0x00000007 SizeRef=1293,471 Split=X
+      DockNode    ID=0x00000008 Parent=0x00000007 SizeRef=1293,862 HiddenTabBar=1 Selected=0x47C7A3F3
+      DockNode    ID=0x00000009 Parent=0x00000007 SizeRef=1293,74 Split=X
         DockNode  ID=0x0000000A Parent=0x00000009 SizeRef=258,471 HiddenTabBar=1 Selected=0x8E074A3E
         DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1033,471 CentralNode=1 HiddenTabBar=1 Selected=0x8506A884
   DockNode        ID=0x00000002 Parent=0xD5272B65 SizeRef=460,938 Split=Y Selected=0x64F50EE5

@@ -1,7 +1,7 @@
 <Environnement Name="Default Component Name">
     <NodeGraph Name="Default Object Name">
         <NodeList>
-            <Node Name="Positionnable Machine nice" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
+            <Node Name="Costière Jardin" UniqueID="96" ClassName="PositionControlledMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="87" Y="424"/>
                 <InputPins>
                     <Pin Name="Position Controlled Axis" UniqueID="97" SaveString="Axis" DataType="AxisInterface" Visible="1" AcceptsMultipleConnections="0" Disabled="0" NoDataField="0" ForceDataField="0" DisableDataField="0"/>
@@ -14,7 +14,7 @@
                     <Animatable Type="Position" SaveString="Position" UniqueID="1"/>
                 </Animatables>
             </Node>
-            <Node Name="State Machine haha" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
+            <Node Name="Croix A-1" UniqueID="100" ClassName="AxisStateMachine" NodeType="Processor">
                 <NodeGraphPosition Split="0" X="112" Y="336"/>
                 <InputPins/>
                 <OutputPins/>

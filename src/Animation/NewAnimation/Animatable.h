@@ -170,9 +170,10 @@ namespace AnimationSystem{
 		virtual int getCurveCount() = 0;
 		virtual std::vector<std::string>& getCurveNames() = 0;
 		
+		virtual std::shared_ptr<Legato::Parameter> createParameter() = 0;
+		
 		/*
 		virtual std::vector<InterpolationType>& getCompatibleInterpolationTypes() = 0;
-		virtual std::shared_ptr<Parameter> makeParameter() = 0;
 		virtual void setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value) = 0;
 		virtual void copyParameterValue(std::shared_ptr<Parameter> from, std::shared_ptr<Parameter> to) = 0;
 		virtual std::shared_ptr<AnimationValue> parameterValueToAnimationValue(std::shared_ptr<Parameter> parameter) = 0;

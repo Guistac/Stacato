@@ -41,7 +41,7 @@ bool ManoeuvreList::onSerialization(){
 bool ManoeuvreList::onDeserialization(){
 	bool success = Component::onSerialization();
 	success &= manoeuvres->deserializeFromParent(this);
-	return success;
+	return true; //always return true else the list will get deleted
 }
 
 /*

@@ -37,7 +37,11 @@ namespace AnimationSystem{
 		std::shared_ptr<CompositeAnimation> getParentComposite(){ return parentComposite; }
 		
 		int getAnimatableUniqueID(){ return animatableUniqueID; }
-		void setAnimatable(std::shared_ptr<Animatable> animatable_){ animatable = animatable_; }
+		void setAnimatable(std::shared_ptr<Animatable> animatable_){
+			animatable = animatable_;
+			onSetAnimatable();
+		}
+		virtual void onSetAnimatable() = 0;
 		
 		virtual void parameterGui() = 0;
 		
@@ -93,6 +97,8 @@ namespace AnimationSystem{
 		const std::vector<std::shared_ptr<Animation>>& getChildAnimations(){ return childAnimations->getEntries(); }
 		
 		virtual void parameterGui() override {}
+		
+		virtual void onSetAnimatable() override {}
 		
 	private:
 		

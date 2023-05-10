@@ -16,6 +16,7 @@ public:
 		newParameter->setName(name);
 		newParameter->setSaveString(saveString);
 		newParameter->overwrite(defaultValue);
+		return newParameter;
 	}
 	
 	

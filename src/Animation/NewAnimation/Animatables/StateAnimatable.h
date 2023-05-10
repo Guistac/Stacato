@@ -60,6 +60,10 @@ public:
 		return curveNames;
 	}
 	
+	Legato::Option defaultOption = Legato::Option(0, "default", "default");
+	
+	virtual std::shared_ptr<Legato::Parameter> createParameter() override;
+	
 };
 
 }

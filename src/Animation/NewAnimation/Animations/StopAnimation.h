@@ -11,20 +11,12 @@ namespace AnimationSystem{
 		
 	public:
 		
-		virtual void onConstruction() override{
-			Animation::onConstruction();
-		}
+		virtual void onConstruction() override;
 		virtual void onCopyFrom(std::shared_ptr<Prototype> source) override{
 			Animation::onCopyFrom(source);
 		}
-		virtual bool onSerialization() override{
-			bool success = Animation::onSerialization();
-			return success;
-		}
-		virtual bool onDeserialization() override{
-			bool success = Animation::onDeserialization();
-			return success;
-		}
+		virtual bool onSerialization() override;
+		virtual bool onDeserialization() override;
 		
 		virtual AnimationType getType() override { return AnimationType::STOP; }
 		
@@ -32,7 +24,7 @@ namespace AnimationSystem{
 		virtual void startPlayback() override {}
 		virtual void stopPlayback() override {}
 		
-		virtual void parameterGui() override{}
+		virtual void parameterGui() override;
 		
 	private:
 		
@@ -42,6 +34,8 @@ namespace AnimationSystem{
 		
 		
 		std::shared_ptr<Legato::Parameter> stopRampParameter;
+		
+		virtual void onSetAnimatable() override;
 		
 	};
 
