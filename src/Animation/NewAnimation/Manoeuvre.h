@@ -2,6 +2,8 @@
 
 #include "Legato/Editor/Component.h"
 #include "Legato/Editor/ListComponent.h"
+#include "Legato/Editor/Parameters.h"
+
 #include "Animation.h"
 
 namespace AnimationSystem{
@@ -24,9 +26,13 @@ namespace AnimationSystem{
 		virtual bool onDeserialization() override;
 		
 		void editorGui();
+		void listGui();
 		
 		void addAnimation(std::shared_ptr<Animation> animation);
 		void removeAnimation(std::shared_ptr<Animation> animation);
+		
+		Legato::StringParam descriptionParameter;
+		glm::vec3 colorStripColor = glm::vec3(.5, .5, .5);
 		
 	private:
 		

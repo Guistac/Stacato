@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Animatable.h"
+#include "../Animatable.h"
 
 namespace AnimationSystem{
 
@@ -47,7 +47,7 @@ public:
 	
 	virtual std::vector<TargetAnimationConstraintType>& getSupportTargetAnimationConstraintTypes() override {
 		static std::vector<AnimationSystem::TargetAnimationConstraintType> supportedTargetAnimationConstraintTypes = {
-			AnimationSystem::TargetAnimationConstraintType::NONE
+			AnimationSystem::TargetAnimationConstraintType::TARGET_CONSTRAINT_NONE
 		};
 		return supportedTargetAnimationConstraintTypes;
 	}

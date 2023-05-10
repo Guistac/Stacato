@@ -123,7 +123,7 @@ namespace PlotGui{
 			for (auto& manoeuvre : manoeuvres) {
 				
 				if(ReorderableList::beginItem(cueSizeY)){
-					ImGui::Text("Manoeuvre");
+					//ImGui::Text("Manoeuvre");
 					/*
 					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 						ImGui::SetScrollHereY(.5f);
@@ -132,7 +132,7 @@ namespace PlotGui{
 					*/
 					
 					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
-					//manoeuvre->listGui();
+					manoeuvre->listGui();
 					ReorderableList::endItem();
 				}
 				/*

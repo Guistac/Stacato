@@ -100,4 +100,6 @@ private:
 	
 };
 
+using TimeParam = std::shared_ptr<TimeParameter>;
+
 };

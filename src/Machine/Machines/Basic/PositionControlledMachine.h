@@ -9,7 +9,7 @@
 #include "Animation/Animatables/AnimatablePosition.h"
 
 #include "Animation/NewAnimation/AnimatableRegistry.h"
-#include "Animation/NewAnimation/PositionAnimatable.h"
+#include "Animation/NewAnimation/Animatables/PositionAnimatable.h"
 
 #include "Legato/Editor/Parameters.h"
 

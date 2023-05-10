@@ -1,10 +1,10 @@
 #include <pch.h>
 
 #include "Animatable.h"
-#include "Animation.h"
+#include "Animations.h"
 
-#include "PositionAnimatable.h"
-#include "StateAnimatable.h"
+#include "Animatables/PositionAnimatable.h"
+#include "Animatables/StateAnimatable.h"
 
 namespace AnimationSystem{
 

@@ -2,7 +2,8 @@
     <ManoeuvreLists>
         <ManoeuvreList Name="Manoeuvre List">
             <Manoeuvres>
-                <Manoeuvre Name="Default Object Name">
+                <Manoeuvre Name="Cool Manoeuvre !">
+                    <Description Value="hehe nice this is working lekflzkejflzkjeflzke lk lzkef zlk jl l jkl"/>
                     <Animations>
                         <Animation Type="Target" IsComposite="0" AnimatableUniqueID="1"/>
                         <Animation Type="Sequence" IsComposite="0" AnimatableUniqueID="1"/>

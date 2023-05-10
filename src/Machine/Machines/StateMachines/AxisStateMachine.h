@@ -8,8 +8,8 @@
 #include "Gui/Environnement/Dashboard/Widget.h"
 
 
-#include "Animation/NewAnimation/PositionAnimatable.h"
-#include "Animation/NewAnimation/StateAnimatable.h"
+#include "Animation/NewAnimation/Animatables/PositionAnimatable.h"
+#include "Animation/NewAnimation/Animatables/StateAnimatable.h"
 
 class AxisStateMachine : public Machine{
 	

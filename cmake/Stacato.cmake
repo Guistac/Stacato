@@ -130,6 +130,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatable.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimationValue.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Manoeuvre.cpp
@@ -139,8 +140,17 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableRegistry.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/AnimatableRegistry.cpp
 
-    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/PositionAnimatable.h
-    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/StateAnimatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatables/PositionAnimatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatables/PositionAnimatable.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatables/StateAnimatable.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animatables/StateAnimatable.cpp
+
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/TargetAnimation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/TargetAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/SequenceAnimation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/SequenceAnimation.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/StopAnimation.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/NewAnimation/Animations/StopAnimation.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machine.h
@@ -152,7 +162,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Plot/Plot.h
     ${STACATO_SOURCE_DIRECTORY}/Plot/ManoeuvreList.cpp
     ${STACATO_SOURCE_DIRECTORY}/Plot/ManoeuvreList.h
-    ${STACATO_SOURCE_DIRECTORY}/Plot/PlotSaveFile.cpp
     ${STACATO_SOURCE_DIRECTORY}/Plot/Sequencer.cpp
     ${STACATO_SOURCE_DIRECTORY}/Plot/Sequencer.h
 

@@ -17,17 +17,21 @@ namespace AnimationSystem{
 			newAnimation->setAnimatableRegistry(animatableRegistry);
 			return newAnimation;
 		});
+		setName("New Manoeuvre");
+		descriptionParameter = Legato::StringParameter::createInstance("", "Manoeuvre description", "Description");
 	}
 	void Manoeuvre::onCopyFrom(std::shared_ptr<Prototype> source){
 		Component::onCopyFrom(source);
 	}
 	bool Manoeuvre::onSerialization(){
 		bool success = Component::onSerialization();
+		success &= descriptionParameter->serializeIntoParent(this);
 		success &= animations->serializeIntoParent(this);
 		return success;
 	}
 	bool Manoeuvre::onDeserialization(){
 		bool success = Component::onDeserialization();
+		success &= descriptionParameter->deserializeFromParent(this);
 		success &= animations->deserializeFromParent(this);
 		return success;
 	}
