@@ -294,7 +294,7 @@ namespace Stacato::Gui {
 				if(ImGui::MenuItem("Make Default Layout")) layoutList->makeCurrentDefault();
 				if(ImGui::MenuItem("Overwrite Layout")) currentLayout->overwrite();
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
-				if(ImGui::MenuItem("Rename Layout")) {}
+				if(ImGui::MenuItem("Rename Layout")) RenameLayoutPopup::open(currentLayout);
 				ImGui::EndDisabled();
 			}
 			

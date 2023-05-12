@@ -13,6 +13,7 @@
 
 void AxisNode::initialize(){
 	axisInterface = std::make_shared<AxisInterface>();
+	axisInterface->configuration.homingStateStringCallback = [this]() -> std::string { return getHomingStepString(); };
 	
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);

@@ -1,25 +1,25 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.40037769" OffsetX="1118.1174" OffsetY="-209.97974" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.60031" SizeY="190.04573"/>
-        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.60031" SizeY="190.04573"/>
-        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.60031" SizeY="189.0457"/>
-        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.60031" SizeY="190.54347"/>
-        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.60031" SizeY="189.35944"/>
-        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.60031" SizeY="189.67316"/>
-        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.60031" SizeY="189.67316"/>
-        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.60031" SizeY="189.54343"/>
-        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.60031" SizeY="188.5434"/>
-        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.60031" SizeY="189.04112"/>
-        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59985" SizeY="190.53874"/>
-        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.60031" SizeY="188.35941"/>
-        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.60031" SizeY="190.35474"/>
-        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.60031" SizeY="190.67319"/>
-        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.60001" SizeY="188.67313"/>
-        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.1002" SizeY="391.78885"/>
-        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.1002" SizeY="391.29126"/>
-        <Widget Name="Safety Signal" UniqueID="18" PositionX="-32" PositionY="681" SizeX="157.49986" SizeY="106.18494"/>
-        <Widget Name="Homme Mort 1" UniqueID="19" PositionX="-51" PositionY="798" SizeX="178.49994" SizeY="139.04347"/>
-        <Widget Name="Homme Mort 2" UniqueID="20" PositionX="-51" PositionY="944" SizeX="178.49994" SizeY="140.40434"/>
+    <Dashboard Scale="0.32261094" OffsetX="729.5788" OffsetY="-88.945068" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Croix 101" UniqueID="11" PositionX="43" PositionY="215" SizeX="180.59993" SizeY="190.3654"/>
+        <Widget Name="Croix 102" UniqueID="12" PositionX="227" PositionY="215" SizeX="180.59993" SizeY="190.3654"/>
+        <Widget Name="Croix 103" UniqueID="13" PositionX="411" PositionY="216" SizeX="180.59993" SizeY="189.36534"/>
+        <Widget Name="Croix 105" UniqueID="16" PositionX="595" PositionY="217" SizeX="180.59993" SizeY="188.36546"/>
+        <Widget Name="Croix 104" UniqueID="14" PositionX="411" PositionY="413" SizeX="180.59993" SizeY="187.64711"/>
+        <Widget Name="Croix 106" UniqueID="15" PositionX="412" PositionY="610" SizeX="180.59993" SizeY="189.0284"/>
+        <Widget Name="Croix 107" UniqueID="17" PositionX="598" PositionY="610" SizeX="180.59993" SizeY="189.0284"/>
+        <Widget Name="Croix 204" UniqueID="9" PositionX="-172" PositionY="218" SizeX="180.59993" SizeY="187.3654"/>
+        <Widget Name="Croix 203" UniqueID="8" PositionX="-355" PositionY="219" SizeX="180.59993" SizeY="189.46504"/>
+        <Widget Name="Croix 202" UniqueID="10" PositionX="-538" PositionY="221" SizeX="180.59993" SizeY="187.4651"/>
+        <Widget Name="Croix 201" UniqueID="7" PositionX="-721" PositionY="222" SizeX="180.59993" SizeY="189.56494"/>
+        <Widget Name="Croix 208" UniqueID="6" PositionX="-171" PositionY="414" SizeX="180.59993" SizeY="189.74675"/>
+        <Widget Name="Croix 206" UniqueID="5" PositionX="-538" PositionY="417" SizeX="180.59993" SizeY="189.84645"/>
+        <Widget Name="Croix 207" UniqueID="4" PositionX="-355" PositionY="609" SizeX="180.59993" SizeY="190.02846"/>
+        <Widget Name="Croix 205" UniqueID="3" PositionX="-722" PositionY="611" SizeX="180.59993" SizeY="188.02832"/>
+        <Widget Name="Cost. Corbeau" UniqueID="2" PositionX="278" PositionY="815" SizeX="149.10034" SizeY="393.18994"/>
+        <Widget Name="Rot. Corbeau" UniqueID="1" PositionX="433" PositionY="813" SizeX="149.10034" SizeY="392.09036"/>
+        <Widget Name="Safety Signal" UniqueID="18" PositionX="-32" PositionY="681" SizeX="157.50006" SizeY="105.6295"/>
+        <Widget Name="Homme Mort 1" UniqueID="19" PositionX="-51" PositionY="798" SizeX="178.49989" SizeY="137.41551"/>
+        <Widget Name="Homme Mort 2" UniqueID="20" PositionX="-51" PositionY="944" SizeX="178.49989" SizeY="137.10202"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

@@ -264,6 +264,8 @@ public:
 	bool isAtLowerLimit(){ return processData.b_isAtLowerLimit; }
 	bool isAtUpperLimit(){ return processData.b_isAtUpperLimit; }
 	
+	std::string getHomingStepString(){ return configuration.homingStateStringCallback(); }
+	
 private:
 	
 	friend class AxisNode;
@@ -281,6 +283,7 @@ private:
 		double accelerationLimit;
 		double decelerationLimit;
 		ControlMode controlMode;
+		std::function<std::string(void)> homingStateStringCallback;
 	}configuration;
 	
 	struct AxisProcessData{

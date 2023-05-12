@@ -529,7 +529,8 @@ void PositionControlledMachine::setupGui(){
 		else if(didHomingSucceed()) progressIndicatorColor = Colors::green;
 		else if(didHomingFail()) progressIndicatorColor = Colors::red;
 
-		backgroundText(getHomingString(), homingProgressSize, Colors::darkGray);
+		std::string homingString = getHomingString();
+		backgroundText(homingString.c_str(), homingProgressSize, Colors::darkGray);
 
 	}
 		

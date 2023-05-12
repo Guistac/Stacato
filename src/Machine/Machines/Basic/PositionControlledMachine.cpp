@@ -370,9 +370,11 @@ bool PositionControlledMachine::didHomingSucceed(){
 bool PositionControlledMachine::didHomingFail(){
 	return !getAxisInterface()->isHoming() && getAxisInterface()->didHomingSucceed();
 }
-const char* PositionControlledMachine::getHomingString(){
-	return "No homing string available";
-	//return Enumerator::getDisplayString(getAxisInterface()->getHomingStep());
+std::string PositionControlledMachine::getHomingString(){
+	std::string homingString;
+	if(isAxisConnected()) homingString = getAxisInterface()->getHomingStepString();
+	else homingString = "No axis connected";
+	return homingString;
 }
 
 

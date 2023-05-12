@@ -53,6 +53,10 @@ public:
 	void setName(std::string name);
 	const std::string& getName();
 	
+	std::shared_ptr<NewStringParameter> getNameParameter(){
+		return nameParameter;
+	}
+	
 protected:
 	
 	//————————— COMPONENT

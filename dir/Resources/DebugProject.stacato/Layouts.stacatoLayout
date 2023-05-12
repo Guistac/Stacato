@@ -1,8 +1,8 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="New Layout"/>
+    <DefaultLayout Name="testing"/>
     <Layouts>
         <Layout>
-            <ComponentName Value="New Layout"/>
+            <ComponentName Value="testing"/>
             <OpenWindows>
                 <Window Name="Node Editor"/>
                 <Window Name="Dashboard"/>

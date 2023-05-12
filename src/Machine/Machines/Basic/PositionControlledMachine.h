@@ -82,7 +82,7 @@ class PositionControlledMachine : public Machine{
 	void stopHoming();
 	bool didHomingSucceed();
 	bool didHomingFail();
-	const char* getHomingString();
+	std::string getHomingString();
 	
 	//——————————— Control Widget ————————————
 		

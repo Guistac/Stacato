@@ -83,6 +83,20 @@ void Layout::overwrite(){
 }
 
 
+void RenameLayoutPopup::onDraw(){
+	ImGui::Text("Layout Name");
+	
+	ImGui::InputText("##layoutame", nameBuffer, 128);
+	
+	if(ImGui::Button("Cancel")){
+		close();
+	}
+	ImGui::SameLine();
+	if(ImGui::Button("Ok")){
+		renamedLayout->setName(nameBuffer);
+		close();
+	}
+}
 
 
 
