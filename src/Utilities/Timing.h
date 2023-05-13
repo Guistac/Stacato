@@ -5,8 +5,8 @@ namespace Timing {
 	using namespace std::chrono;
 
 	inline long long getProgramTime_nanoseconds() {
-		static system_clock::time_point programStartTime = system_clock::now();
-		return duration_cast<nanoseconds>(system_clock::now() - programStartTime).count();
+		static steady_clock::time_point programStartTime = steady_clock::now();
+		return duration_cast<nanoseconds>(steady_clock::now() - programStartTime).count();
 	}
 
 	inline double getProgramTime_microseconds() { return (double)getProgramTime_nanoseconds() / 1000.0; }
