@@ -345,9 +345,9 @@ void AnimatablePosition::onPlaybackStart(std::shared_ptr<Animation> animation){
 	mutex.unlock();
 }
 void AnimatablePosition::onPlaybackPause(){
-	mutex.lock();
+	//mutex.lock();
 	currentAnimation = nullptr;
-	mutex.unlock();
+	//mutex.unlock();
 }
 void AnimatablePosition::onPlaybackStop(){
 	mutex.lock();
