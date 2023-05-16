@@ -195,7 +195,15 @@ public:
 		if(!parentDevice->writeSDO_U8(0x60C2, 0x1, base)) return false;
 		if(!parentDevice->writeSDO_S8(0x60C2, 0x2, exponent)) return false;
 	}
+	
+	///6065.0 Following Error Window
+	bool setFollowingErrorWindow(uint32_t maxFollowingError) { return parentDevice->writeSDO_U32(0x6065, 0x0, maxFollowingError, "DS402 Following Error Window"); }
+	bool getFollowingErrorWindow(uint32_t& output){ return parentDevice->readSDO_U32(0x6065, 0x0, output, "DS402 Following Error Window"); }
 
+	///6066.0 Following Error Time Out
+	bool setFollowingErrorTimeOut(uint16_t followingErrorTimeout) { return parentDevice->writeSDO_U16(0x6066, 0x0, followingErrorTimeout, "DS402 Following Error Time Out"); }
+	bool getFollowingErrorTimeOut(uint16_t& output){ return parentDevice->readSDO_U16(0x6066, 0x0, output, "DS402 Following Error Time Out"); }
+	
 	///607E.0 Polarity
 	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity, "DS402 Polarity"); }
 	bool getPolarity(uint8_t& output){ return parentDevice->readSDO_U8(0x607E, 0x0, output, "DS402 Polarity"); }
@@ -281,6 +289,14 @@ public:
 	///60B1.0 Velocity Offset
 	bool setVelocityOffset(int32_t offset){ return parentDevice->writeSDO_S32(0x60B1, 0x0, offset); }
 	bool getVelocityOffset(int32_t& output){ return parentDevice->readSDO_S32(0x60B1, 0x0, output); }
+	
+	///6083.0 Profile Acceleration
+	bool setProfileAcceleration(uint32_t acceleration){ return parentDevice->writeSDO_U32(0x6083, 0x0, acceleration, "DS402 Profile Acceleration"); }
+	bool getProfileAcceleration(uint32_t& output){ return parentDevice->readSDO_U32(0x6083, 0x0, output, "DS402 Profile Acceleration"); }
+	
+	///6084.0 Profile Deceleration
+	bool setProfileDeceleration(uint32_t deceleration){ return parentDevice->writeSDO_U32(0x6084, 0x0, deceleration, "DS402 Profile Deceleration"); }
+	bool getProfileDeceleration(uint32_t& output){ return parentDevice->readSDO_U32(0x6084, 0x0, output, "DS402 Profile Deceleration"); }
 	
 	//==== Torque
 	

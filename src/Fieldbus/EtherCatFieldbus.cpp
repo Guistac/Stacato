@@ -510,6 +510,8 @@ namespace EtherCatFieldbus {
 			if (!slave->isEtherCatDeviceKnown()) {
 				Logger::warn("Found Unknown Slave: {}", identity.name);
 			}
+			
+			slave->onDetection();
 
 			//add the slave to the list of slaves regardless of environnement presence
 			discoveredDevices.push_back(slave);

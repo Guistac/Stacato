@@ -31,6 +31,7 @@ public:
 
 	virtual bool isDetected() = 0;
 	virtual bool isConnected() = 0;
+	virtual void onDetection(){}
 	virtual void onConnection() = 0;
 	virtual void onDisconnection() = 0;
 };

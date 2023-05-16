@@ -9,6 +9,7 @@ namespace Units{
 		FREQUENCY,
 		VOLTAGE,
 		CURRENT,
+		RESISTANCE,
 		POWER,
 		TEMPERATURE,
 		MASS,
@@ -95,6 +96,13 @@ namespace Units{
 		extern const UnitStructure* const Milliampere;
 		extern const UnitStructure* const Ampere;
 	}
+
+	namespace Resistance{
+	UNIT_TYPE_FUNCTIONS(Type::RESISTANCE);
+		extern const UnitStructure* const Ohm;
+		extern const UnitStructure* const KiloOhm;
+	}
+
 
 	namespace Power{
 	UNIT_TYPE_FUNCTIONS(Type::POWER);

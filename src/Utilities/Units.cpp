@@ -291,6 +291,28 @@ namespace Units{
 		};
 	}
 
+	namespace Resistance{
+	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::RESISTANCE);
+		const UnitStructure* const Ohm = new UnitStructure{
+			.unitType = Units::Type::RESISTANCE,
+			.singular = "Ohm",
+			.plural = "Ohms",
+			.abbreviated = "Ohm",
+			.saveString = "Ohm",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const KiloOhm = new UnitStructure{
+			.unitType = Units::Type::RESISTANCE,
+			.singular = "KiloOhm",
+			.plural = "KiloOhms",
+			.abbreviated = "A", //03A9 or 03C9
+			.saveString = "KiloOhms",
+			.baseMultiplier = 1000.0,
+			.baseOffset = 0.0
+		};
+	}
+
 	namespace Power{
 	UNIT_TYPE_FUNCTIONS(Type::POWER);
 		const UnitStructure* const Watt = new UnitStructure{
