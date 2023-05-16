@@ -12,17 +12,16 @@ public:
 
 	virtual void onDetection() override;
 	
+	class KincoServoMotor : public ActuatorInterface{
+	public:
+		virtual std::string getName() override { return "Kinco Servo Motor"; }
+		virtual std::string getStatusString() override { return "No Status String available"; }
+	};
+	
 	std::shared_ptr<DS402Axis> axis;
-	std::shared_ptr<ActuatorInterface> actuator;
+	std::shared_ptr<KincoServoMotor> actuator;
 	
-	bool b_enable = false;
-	bool b_disable = false;
-	bool b_modeSelection = true;
-	
-	float posTarget = 0.0;
-	float velTarget = 0.0;
-	float posActual = 0.0;
-	float velActual = 0.0;
+	std::shared_ptr<NodePin> actuatorPin;
 	
 	const float incrementsPerRevolutionPerSecond = 1073741.824;
 	const float incrementsPerRevolutionPerSecondSquared = 1073.741824;

@@ -88,7 +88,6 @@ public:
 		}
 		
 		void enableHomingMode(){
-			//no pdo data to configure
 			operatingModes.homing = true;
 		}
 		
@@ -167,6 +166,7 @@ public:
 	}processDataConfiguration;
 	
 	void configureProcessData();
+	bool startupConfiguration();
 	void updateInputs();
 	void updateOutput();
 
@@ -339,6 +339,15 @@ public:
 				return false;
 		}
 	}
+	bool isNotReady(){
+		switch(powerStateActual){
+			case PowerState::NOT_READY_TO_SWITCH_ON:
+			case PowerState::SWITCH_ON_DISABLED:
+				return true;
+			default:
+				return false;
+		}
+	}
 	bool isEnabled(){ return powerStateActual == PowerState::OPERATION_ENABLED; }
 	bool isQuickstopActive(){ return powerStateActual == PowerState::QUICKSTOP_ACTIVE; }
 	
@@ -414,11 +423,21 @@ public:
 		processData.targetTorque = torque;
 		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
 	}
-	
-	void startHoming();
-	bool isHoming();
-	bool didHomingSucceed();
-	
+		
+	bool doHoming(){
+		operatingModeTarget = OperatingMode::HOMING;
+		if(operatingModeActual == OperatingMode::HOMING){
+			if(processData.positionActualValue == 0x0){
+				//homing is finished, reset the start flag
+				setOperatingModeSpecificControlWorldBit_4(false);
+				return true;
+			}else{
+				//homing is not done, set the start flag
+				setOperatingModeSpecificControlWorldBit_4(true);
+			}
+		}
+		return false;
+	}
 	
 	void setOperatingModeSpecificControlWorldBit_4(bool bit){ controlWord_OpSpecBit_4 = bit; }
 	void setOperatingModeSpecificControlWorldBit_5(bool bit){ controlWord_OpSpecBit_5 = bit; }
@@ -470,6 +489,9 @@ private:
 		int16_t targetTorque = 0;
 		int16_t torqueActualValue = 0;
 		int16_t currentActualValue = 0;
+		
+		//———— Homing
+		int32_t homeOffset = 0;
 
 		//———— Inputs and Outputs
 		uint32_t digitalInputs = 0;

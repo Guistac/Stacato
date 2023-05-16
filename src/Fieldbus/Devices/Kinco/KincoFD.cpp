@@ -2,7 +2,9 @@
 
 #include "Fieldbus/EtherCatFieldbus.h"
 
-void KincoFD::onDisconnection() {}
+void KincoFD::onDisconnection() {
+	actuator->state = DeviceState::OFFLINE;
+}
 void KincoFD::onConnection() {}
 
 void KincoFD::onDetection(){	
@@ -15,7 +17,7 @@ void KincoFD::initialize() {
 	auto thisDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
 	axis = DS402Axis::make(thisDevice);
 	
-	actuator = std::make_shared<ActuatorInterface>();
+	actuator = std::make_shared<KincoServoMotor>();
 	actuator->positionUnit = Units::AngularDistance::Revolution;
 	actuator->actuatorConfig.b_supportsEffortFeedback = true;
 	actuator->actuatorConfig.b_supportsForceControl = false;
@@ -33,9 +35,11 @@ void KincoFD::initialize() {
 	maxVelocity_parameter = NumberParameter<double>::make(0.0, "Max Velocity", "MaxVelocity");
 	maxVelocity_parameter->setUnit(Units::AngularDistance::Revolution);
 	maxVelocity_parameter->setSuffix("/s");
+	maxVelocity_parameter->addEditCallback([this](){updateActuatorInterface();});
 	maxAcceleration_parameter = NumberParameter<double>::make(0.0, "Max Acceleration", "MaxAcceleration");
 	maxAcceleration_parameter->setUnit(Units::AngularDistance::Revolution);
 	maxAcceleration_parameter->setSuffix("/s\xc2\xb2");
+	maxAcceleration_parameter->addEditCallback([this](){updateActuatorInterface();});
 	
 	maxCurrent_parameter = NumberParameter<double>::make(0.0, "Max Current", "MaxCurrent");
 	maxCurrent_parameter->setUnit(Units::Current::Ampere);
@@ -45,6 +49,7 @@ void KincoFD::initialize() {
 	velocityFeedforward_parameter->setFormat("%.1f");
 	maxFollowingError_parameter = NumberParameter<double>::make(0.0, "Max Position Following Error", "MaxFollowingError");
 	maxFollowingError_parameter->setUnit(Units::AngularDistance::Revolution);
+	maxFollowingError_parameter->addEditCallback([this](){updateActuatorInterface();});
 	followingErrorTimeout_parameter = NumberParameter<int>::make(0.0, "Position Following Error Time Out", "FollowingErrorTimeout");
 	followingErrorTimeout_parameter->setUnit(Units::Time::Millisecond);
 	
@@ -59,10 +64,7 @@ void KincoFD::initialize() {
 	DIN4Function_parameter = OptionParameter::make2(inputFunction_none, inputFunctionOptions, "DIN4 Function", "Din4Function"),
 	DIN5Function_parameter = OptionParameter::make2(inputFunction_none, inputFunctionOptions, "DIN5 Function", "Din5Function"),
 	DIN6Function_parameter = OptionParameter::make2(inputFunction_none, inputFunctionOptions, "DIN6 Function", "Din6Function"),
-	DIN7Function_parameter = OptionParameter::make2(inputFunction_none, inputFunctionOptions, "DIN7 Function", "Din7Function"),
-	
-	
-	
+	DIN7Function_parameter = OptionParameter::make2(inputFunction_none, inputFunctionOptions, "DIN7 Function", "Din7Function");
 	
 	axis->processDataConfiguration.enableCyclicSynchronousPositionMode();
 	axis->processDataConfiguration.enableCyclicSynchronousVelocityMode();
@@ -74,6 +76,11 @@ void KincoFD::initialize() {
 	rxPdoAssignement.addNewModule(0x1600);
 	txPdoAssignement.addNewModule(0x1A00);
 	axis->configureProcessData();
+	
+	actuatorPin = std::make_shared<NodePin>(std::static_pointer_cast<ActuatorInterface>(actuator), NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator", "Actuator");
+	addNodePin(actuatorPin);
+	
+	updateActuatorInterface();
 }
 
 bool KincoFD::startupConfiguration() {
@@ -102,11 +109,13 @@ bool KincoFD::startupConfiguration() {
 	//set time multiplier to 1
 	if(!writeSDO_U8(0x100D, 0x0, 1, "Life_Time_Factor")) return false;
 	
+	if(!axis->startupConfiguration()) return false;
+	
 	//———— Synchronisation
 	
 	uint32_t cycleTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1'000'000;
-	uint32_t shiftTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 500'000;
-	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, shiftTime_nanoseconds);
+	//uint32_t shiftTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 500'000;
+	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, 0);
 	
 	return true;
 }
@@ -114,30 +123,54 @@ void KincoFD::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	axis->updateInputs();
 	
-	posActual = float(axis->getActualPosition()) / incrementsPerRevolution;
-	velActual = float(axis->getActualVelocity()) / incrementsPerRevolutionPerSecond;
+	if(axis->isEnabled()) actuator->state = DeviceState::ENABLED;
+	else if(axis->isNotReady()) actuator->state = DeviceState::NOT_READY;
+	else actuator->state = DeviceState::READY;
+	
+	actuator->feedbackProcessData.positionActual = double(axis->getActualPosition()) / incrementsPerRevolution;;
+	actuator->feedbackProcessData.velocityActual = double(axis->getActualVelocity()) / incrementsPerRevolutionPerSecond;
+	actuator->feedbackProcessData.forceActual = 0.0;
+	actuator->actuatorProcessData.b_isEmergencyStopActive = false;
+	actuator->actuatorProcessData.followingErrorActual = double(axis->getActualPositionFollowingError()) / incrementsPerRevolution;
+	actuator->actuatorProcessData.effortActual = std::abs(double(axis->getActualCurrent() / incrementsPerAmpere) / maxCurrent_parameter->value);
 	
 }
 void KincoFD::writeOutputs(){
 	
-	if(b_enable){
-		b_enable = false;
+	if(actuator->actuatorProcessData.b_enable){
+		actuator->actuatorProcessData.b_enable = false;
 		if(axis->hasFault()) axis->doFaultReset();
 		else axis->enable();
 	}
 	
-	if(b_disable){
-		b_disable = false;
+	if(actuator->actuatorProcessData.b_disable){
+		actuator->actuatorProcessData.b_disable = false;
 		axis->disable();
 	}
 	
-	if(b_modeSelection) {
-		int32_t vel = velTarget * incrementsPerRevolutionPerSecond;
-		axis->setVelocity(vel);
+	if(actuator->feedbackProcessData.b_overridePosition){
+		actuator->feedbackProcessData.b_overridePosition = false;
+		actuator->feedbackProcessData.b_positionOverrideBusy = true;
 	}
-	else {
-		int32_t pos = posTarget * incrementsPerRevolution;
-		axis->setPosition(pos);
+	
+	if(actuator->feedbackProcessData.b_positionOverrideBusy){
+		if(axis->doHoming()){
+			actuator->feedbackProcessData.b_positionOverrideBusy = false;
+			actuator->feedbackProcessData.b_positionOverrideSucceeded = true;
+		}
+	}
+	else{
+		switch(actuator->actuatorProcessData.controlMode){
+			case ActuatorInterface::ControlMode::VELOCITY:
+				axis->setVelocity(actuator->actuatorProcessData.velocityTarget * incrementsPerRevolutionPerSecond);
+				break;
+			case ActuatorInterface::ControlMode::POSITION:
+				axis->setPosition(actuator->actuatorProcessData.positionTarget * incrementsPerRevolution);
+				break;
+			default:
+				axis->setVelocity(0.0);
+				break;
+		}
 	}
 	
 	axis->updateOutput();
@@ -189,6 +222,8 @@ bool KincoFD::loadDeviceData(tinyxml2::XMLElement* xml) {
 	DIN6Function_parameter->load(xml);
 	DIN7Function_parameter->load(xml);
 	
+	updateActuatorInterface();
+	
 	return true;
 }
 
@@ -232,4 +267,6 @@ void KincoFD::updateActuatorInterface(){
 	actuatorConfig.decelerationLimit = maxAcceleration_parameter->value;
 	actuatorConfig.followingErrorLimit = maxFollowingError_parameter->value;
 	actuatorConfig.velocityLimit = maxVelocity_parameter->value;
+	
+	actuatorPin->updateConnectedPins();
 }

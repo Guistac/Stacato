@@ -133,6 +133,19 @@ void DS402Axis::configureProcessData(){
 	
 }
 
+bool DS402Axis::startupConfiguration(){
+	bool success = true;
+	
+	if(processDataConfiguration.operatingModes.homing){
+		//Homing Method (Homing on current position) == 0
+		success &= parentDevice->writeSDO_S8(0x6098, 0x0, 37);
+		//Home Offset (position after homing) == 0
+		success &= parentDevice->writeSDO_S32(0x607C, 0x0, 0);
+	}
+	
+	return success;
+}
+
 void DS402Axis::updateInputs(){
 	
 	bool b_readyToSwitchOn		= (processData.statusWord >> 0) & 0x1;
