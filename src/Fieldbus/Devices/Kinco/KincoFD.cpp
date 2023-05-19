@@ -89,15 +89,30 @@ bool KincoFD::startupConfiguration() {
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
 	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
 	
-	axis->setOperatingMode(DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY);
-	
-	//when writing these on startup, the txpdo fields are blank for some reason
-	//maybe they should only be affected on first drive configuration
-	//the drive only sends valid txpdos after a restart
-	//enable clock sync
-	//if(!writeSDO_U8(0x3011, 0x2, 1, "Enable Clock Sync")) return false;
-	//set clock cycle time (0=1ms, 1=2ms, 2=4ms??, 3=8ms??)
-	//if(!writeSDO_U8(0x3011, 0x1, 1, "Set Clock Time")) return false;
+	//Configure Synchronisation
+	switch(EtherCatFieldbus::processInterval_milliseconds){
+		case 1:
+			if(!writeSDO_U8(0x3011, 0x1, 0, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 2:
+			if(!writeSDO_U8(0x3011, 0x1, 1, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 4:
+			if(!writeSDO_U8(0x3011, 0x1, 2, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 8:
+			if(!writeSDO_U8(0x3011, 0x1, 3, "ECAN_Sync_Cycle")) return false;
+			break;
+		default:
+			Logger::warn("[{}] Could not set ECAN_Sync_Cycle cycle time", getName());
+			Logger::warn("	Supported cycle times are 1/2/4/8ms, current fieldbus cycle time is {}ms", EtherCatFieldbus::processInterval_milliseconds);
+			return false;
+	}
+	//ECAN_Sync_Clock (1==enabled)
+	if(!writeSDO_U8(0x3011, 0x2, 1, "ECAN_Sync_Clock")) return false;
+	//ECAN_Sync_Shift (1==62.5µs shift)
+	//8 == .5ms / 500µs / 500000ns seems to be a good value to avoid motor jitter at high velocity in cyclic position mode
+	if(!writeSDO_U8(0x3011, 0x3, 8, "ECAN_Sync_Shift")) return false;
 	
 	//set command type to communication control (EtherCAT)
 	if(!writeSDO_U8(0x3041, 0x2, 8, "Command Type")) return false;
@@ -114,8 +129,8 @@ bool KincoFD::startupConfiguration() {
 	//———— Synchronisation
 	
 	uint32_t cycleTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 1'000'000;
-	//uint32_t shiftTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 500'000;
-	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, 0);
+	//shift time is always half the cycle time
+	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, cycleTime_nanoseconds / 2);
 	
 	return true;
 }
@@ -153,7 +168,10 @@ void KincoFD::writeOutputs(){
 		actuator->feedbackProcessData.b_positionOverrideBusy = true;
 	}
 	
-	if(actuator->feedbackProcessData.b_positionOverrideBusy){
+	if(b_isAutotuning){
+		axis->setManufacturerSpecificOperatingMode(11);
+	}
+	else if(actuator->feedbackProcessData.b_positionOverrideBusy){
 		if(axis->doHoming()){
 			actuator->feedbackProcessData.b_positionOverrideBusy = false;
 			actuator->feedbackProcessData.b_positionOverrideSucceeded = true;
@@ -230,10 +248,29 @@ bool KincoFD::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 void KincoFD::uploadConfiguration(){
 	
-	//enable clock sync
-	if(!writeSDO_U8(0x3011, 0x2, 0, "Enable Clock Sync")) return false;
-	//set clock cycle time (0=1ms, 1=2ms, 2=4ms??, 3=8ms??)
-	if(!writeSDO_U8(0x3011, 0x1, 0, "Set Clock Time")) return false;
+	switch(EtherCatFieldbus::processInterval_milliseconds){
+		case 1:
+			if(!writeSDO_U8(0x3011, 0x1, 0, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 2:
+			if(!writeSDO_U8(0x3011, 0x1, 1, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 4:
+			if(!writeSDO_U8(0x3011, 0x1, 2, "ECAN_Sync_Cycle")) return false;
+			break;
+		case 8:
+			if(!writeSDO_U8(0x3011, 0x1, 3, "ECAN_Sync_Cycle")) return false;
+			break;
+		default:
+			Logger::warn("[{}] Could not set ECAN_Sync_Cycle cycle time", getName());
+			Logger::warn("	Supported cycle times are 1/2/4/8ms, current fieldbus cycle time is {}ms", EtherCatFieldbus::processInterval_milliseconds);
+			return;
+	}
+	
+	//ECAN_Sync_Clock (1==enabled)
+	if(!writeSDO_U8(0x3011, 0x2, 1, "ECAN_Sync_Clock")) return false;
+	//ECAN_Sync_Shift (1==62.5µs shift)
+	if(!writeSDO_U8(0x3011, 0x3, 10, "ECAN_Sync_Shift")) return false;
 	
 	axis->setProfileAcceleration(maxAcceleration_parameter->value * incrementsPerRevolutionPerSecondSquared);
 	axis->setProfileDeceleration(maxAcceleration_parameter->value * incrementsPerRevolutionPerSecondSquared);
@@ -258,15 +295,57 @@ void KincoFD::uploadConfiguration(){
 	if(!writeSDO_U8(0x2FF0, 0x1, 1, "Store Data")) return false;
 	//store motor data
 	if(!writeSDO_U8(0x2FF0, 0x3, 1, "Store Motor Data")) return false;
+	
+	Logger::info("[{}] Configuration uploaded, reboot drive to make parameters valid", getName());
 }
 
 void KincoFD::updateActuatorInterface(){
-	
 	auto& actuatorConfig = actuator->actuatorConfig;
 	actuatorConfig.accelerationLimit = maxAcceleration_parameter->value;
 	actuatorConfig.decelerationLimit = maxAcceleration_parameter->value;
 	actuatorConfig.followingErrorLimit = maxFollowingError_parameter->value;
 	actuatorConfig.velocityLimit = maxVelocity_parameter->value;
-	
 	actuatorPin->updateConnectedPins();
+}
+
+bool KincoFD::startAutoTuning(){
+	b_isAutotuning = true;
+	
+	//set safe movement distance for autotuning (in 0.01 motor rev)
+	uint16_t Safe_Dist = 40;
+	writeSDO_U16(0x3040, 0x6, Safe_Dist);
+	
+	//wait for operating mode to change to tuning
+	while(true){
+		if(axis->getOperatingModeActual() == 11) break;
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	
+	//start tuning command
+	writeSDO_S8(0x3040, 0x1, 1);
+	
+	//wait for tuning to end
+	while(true){
+		int8_t Inertia_GetResult;
+		if(readSDO_S8(0x3040, 0x9, Inertia_GetResult) && Inertia_GetResult == 1) break;
+		int8_t Tuning_Method;
+		if(readSDO_S8(0x3040, 0x1, Tuning_Method) && Tuning_Method < 0){
+			Logger::warn("Tuning failed for reason {}", Tuning_Method);
+			b_isAutotuning = false;
+			return;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	
+	//store drive data
+	writeSDO_U8(0x2FF0, 0x1, 1, "Store Data");
+	
+	b_isAutotuning = false;
+	
+	/**
+	 If changing stiffness via communication, WriteFUN_CTL(3041.05) must be set to 1 first, and be set back to 0 after stiffness has been changed.
+	 **/
+	
+	
+	
 }

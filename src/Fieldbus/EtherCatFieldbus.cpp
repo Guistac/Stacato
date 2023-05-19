@@ -53,7 +53,7 @@ namespace EtherCatFieldbus {
 	EtherCatMetrics& getMetrics(){ return metrics; }
 
 	//parameters
-    int processInterval_milliseconds = 3.0;
+    int processInterval_milliseconds = 4.0;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     double fieldbusTimeout_milliseconds = 100.0;

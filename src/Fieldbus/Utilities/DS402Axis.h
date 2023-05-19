@@ -20,18 +20,19 @@ public:
 	
 	void warnPowerStateChanged(bool warn){ b_warnPowerStateChanges = warn; }
 
-	enum class OperatingMode{
-		NONE,
-		PROFILE_POSITION,
-		VELOCITY,
-		PROFILE_VELOCITY,
-		PROFILE_TORQUE,
-		HOMING,
-		INTERPOLATED_POSITION,
-		CYCLIC_SYNCHRONOUS_POSITION,
-		CYCLIC_SYNCHRONOUS_VELOCITY,
-		CYCLIC_SYNCHRONOUS_TORQUE,
-		CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE
+	
+	enum OperatingMode{
+		NONE = 0,
+		PROFILE_POSITION = 1,
+		VELOCITY = 2,
+		PROFILE_VELOCITY = 3,
+		PROFILE_TORQUE = 4,
+		HOMING = 6,
+		INTERPOLATED_POSITION = 7,
+		CYCLIC_SYNCHRONOUS_POSITION = 8,
+		CYCLIC_SYNCHRONOUS_VELOCITY = 9,
+		CYCLIC_SYNCHRONOUS_TORQUE = 10,
+		CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE = 11
 	};
 
 	enum class PowerState{
@@ -177,14 +178,13 @@ public:
 	//=== Drive Operation
 	
 	bool setOperatingMode(OperatingMode mode){
-		int8_t opMode = getOperatingModeCode(mode);
-		return parentDevice->writeSDO_S8(0x6060, 0x0, opMode, "DS402 Operating Mode");
+		return parentDevice->writeSDO_S8(0x6060, 0x0, mode, "DS402 Operating Mode");
 	}
 	
 	bool getOperatingMode(OperatingMode& output){
 		int8_t opMode;
 		if(!parentDevice->readSDO_S8(0x6061, 0x0, opMode, "DS402 Operating Mode")) return false;
-		output = getOperatingMode(opMode);
+		output = OperatingMode(opMode);
 	}
 	
 	///60C2.? Interpolation Time Period
@@ -394,8 +394,8 @@ public:
 		}
 	}
 	
-	OperatingMode getOperatingModeActual(){ return operatingModeActual; }
-	OperatingMode getOperatingModeTarget(){ return operatingModeTarget; }
+	OperatingMode getOperatingModeActual(){ return OperatingMode(processData.operatingModeDisplay); }
+	OperatingMode getOperatingModeTarget(){ return OperatingMode(processData.operatingModeSelection); }
 	
 	int16_t getActualFrequency(){ return processData.frequencyActualValue; }
 	int32_t getActualPosition(){ return processData.positionActualValue; }
@@ -407,26 +407,29 @@ public:
 	uint32_t getDigitalInputs(){ return processData.digitalInputs; }
 	void setDigitalOutputs(uint32_t digitalOutputs){ processData.digitalOutputs = digitalOutputs; }
 	
+	void setManufacturerSpecificOperatingMode(int8_t opModeCode){
+		processData.operatingModeSelection = opModeCode;
+	}
 	void setFrequency(int16_t frequency){
 		processData.targetFrequency = frequency;
-		operatingModeTarget = OperatingMode::VELOCITY;
+		processData.operatingModeSelection = OperatingMode::VELOCITY;
 	}
 	void setPosition(int32_t position){
 		processData.targetPosition = position;
-		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
+		processData.operatingModeSelection = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
 	}
 	void setVelocity(int32_t velocity){
 		processData.targetVelocity = velocity;
-		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
+		processData.operatingModeSelection = OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
 	}
 	void setTorque(int16_t torque){
 		processData.targetTorque = torque;
-		operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
+		processData.operatingModeSelection = OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
 	}
 		
 	bool doHoming(){
-		operatingModeTarget = OperatingMode::HOMING;
-		if(operatingModeActual == OperatingMode::HOMING){
+		processData.operatingModeSelection = OperatingMode::HOMING;
+		if(processData.operatingModeDisplay == OperatingMode::HOMING){
 			if(processData.positionActualValue == 0x0){
 				//homing is finished, reset the start flag
 				setOperatingModeSpecificControlWorldBit_4(false);
@@ -507,13 +510,6 @@ private:
 	//HOMING
 	//bool b_isHoming = false;
 	//bool b_didHomingSucceed = false;
-	
-	
-	
-	//OPERATING MODE:
-	OperatingMode operatingModeActual = OperatingMode::NONE;
-	OperatingMode operatingModeTarget = OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
-	
 	
 	//CONTROL WORLD:
 	//b0: Switch On

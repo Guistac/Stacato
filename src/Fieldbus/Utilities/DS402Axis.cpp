@@ -2,43 +2,6 @@
 
 #include "EtherCatPDO.h"
 
-
-
-int8_t DS402Axis::getOperatingModeCode(DS402Axis::OperatingMode mode) {
-	switch(mode){
-		case DS402Axis::OperatingMode::NONE:												return 0;
-		case DS402Axis::OperatingMode::PROFILE_POSITION:									return 1;
-		case DS402Axis::OperatingMode::VELOCITY:											return 2;
-		case DS402Axis::OperatingMode::PROFILE_VELOCITY:									return 3;
-		case DS402Axis::OperatingMode::PROFILE_TORQUE:										return 4;
-		case DS402Axis::OperatingMode::HOMING:												return 6;
-		case DS402Axis::OperatingMode::INTERPOLATED_POSITION:								return 7;
-		case DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION:							return 8;
-		case DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY:							return 9;
-		case DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE:							return 10;
-		case DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE: 	return 11;
-	}
-}
-
-DS402Axis::OperatingMode DS402Axis::getOperatingMode(int8_t code) {
-	switch(code){
-		case 0: return DS402Axis::OperatingMode::NONE;
-		case 1: return DS402Axis::OperatingMode::PROFILE_POSITION;
-		case 2: return DS402Axis::OperatingMode::VELOCITY;
-		case 3: return DS402Axis::OperatingMode::PROFILE_VELOCITY;
-		case 4: return DS402Axis::OperatingMode::PROFILE_TORQUE;
-		case 6: return DS402Axis::OperatingMode::HOMING;
-		case 7: return DS402Axis::OperatingMode::INTERPOLATED_POSITION;
-		case 8: return DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_POSITION;
-		case 9: return DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_VELOCITY;
-		case 10: return DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE;
-		case 11: return DS402Axis::OperatingMode::CYCLIC_SYNCHRONOUS_TORQUE_WITH_COMMUTATION_ANGLE;
-		default: return DS402Axis::OperatingMode::NONE;
-	}
-}
-
-
-
 void DS402Axis::configureProcessData(){
 
 	int operatingModeCount = 0;
@@ -206,9 +169,6 @@ void DS402Axis::updateInputs(){
 	if(previousPowerState != powerStateActual && b_warnPowerStateChanges)
 		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
 	
-	//=== update actual operating mode
-	operatingModeActual = getOperatingMode(processData.operatingModeDisplay);
-	
 	//Logger::warn("status word: {:b}", processData.statusWord);
 }
 
@@ -298,9 +258,6 @@ void DS402Axis::updateOutput(){
 	if(controlWord_ManSpecBit_15) 	processData.controlWord |= (0x1 << 15);
 	
 	//Logger::error("control word: {:b}", processData.controlWord);
-	
-	//=== update operating mode target
-	processData.operatingModeSelection = getOperatingModeCode(operatingModeTarget);
 }
 
 

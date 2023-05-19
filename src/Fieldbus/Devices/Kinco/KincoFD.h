@@ -32,28 +32,29 @@ public:
 	//0x60FD:0 (U32) digital inputs
 	//0x2601:0 (U16) error status
 	
-	//this drive apparently only supports 1/2/4/8 ms synchronisation cycles
+	//TODO:
+	//read digital Inputs
+	//write digital Outputs
+	//auto fault clearing on enable
+	//fault reporting
 	
 	
 	//----- Option and Enumerators
 	
 	enum InputFunction{
 		NO_FUNCTION				= 0x0000,
-		DRIVER_ENABLE			= 0x0001,
 		DRIVER_FAULT_RESET		= 0x0002,
 		POSITION_POSITIVE_LIMIT = 0x0010,
 		POSITION_NEGATIVE_LIMIT = 0x0020,
 		QUICK_STOP 				= 0x1000
 	};
 	Option inputFunction_none = 					Option(InputFunction::NO_FUNCTION, 				"No Function", 				"None");
-	Option inputFunction_DriverEnable = 			Option(InputFunction::DRIVER_ENABLE, 			"Driver Enable",			"DriverEnable");
 	Option inputFunction_DriverFaultReset = 		Option(InputFunction::DRIVER_FAULT_RESET, 		"Driver Fault Reset",		"DriverFaultReset");
 	Option inputFunction_PositionPositiveLimit = 	Option(InputFunction::POSITION_POSITIVE_LIMIT, 	"Position Positive Limit",	"PositionPositiveLimit");
 	Option inputFunction_PositionNegativeLimit = 	Option(InputFunction::POSITION_NEGATIVE_LIMIT, 	"Position Negative Limit",	"PositionNegativeLimit");
 	Option inputFunction_Quickstop = 				Option(InputFunction::QUICK_STOP, 				"Quickstop",				"Quickstop");
 	std::vector<OptionParameter::Option*> inputFunctionOptions = {
 		&inputFunction_none,
-		&inputFunction_DriverEnable,
 		&inputFunction_DriverFaultReset,
 		&inputFunction_PositionPositiveLimit,
 		&inputFunction_PositionNegativeLimit,
@@ -83,5 +84,8 @@ public:
 	void uploadConfiguration();
 	
 	void updateActuatorInterface();
+	
+	bool startAutoTuning();
+	bool b_isAutotuning = false;
 	
 };

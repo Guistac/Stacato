@@ -8,9 +8,14 @@
 void KincoFD::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("Kinco FD")){
 		
-		
-		if(ImGui::Button("Enable")) actuator->enable();
-		if(ImGui::Button("Disable")) actuator->disable();
+		if(actuator->isEnabled()){
+			if(ImGui::Button("Disable")) actuator->disable();
+		}
+		else{
+			ImGui::BeginDisabled(!actuator->isReady());
+			if(ImGui::Button("Enable")) actuator->enable();
+			ImGui::EndDisabled();
+		}
 		
 		ImGui::Text("Actual Power State: %s", DS402Axis::getPowerStateString(axis->getActualPowerState()).c_str());
 		ImGui::Text("Requested Power State: %s", DS402Axis::getTargetPowerStateString(axis->getTargetPowerState()).c_str());
@@ -55,6 +60,8 @@ void KincoFD::deviceSpecificGui() {
 		if(ImGui::Button("Start Homing")){
 			actuator->overridePosition(0);
 		}
+		
+		if(ImGui::Button("Start Autotuning")) startAutoTuning();
 		
 		ImGui::EndTabItem();
 	}
