@@ -5,7 +5,7 @@
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="KincoFD" Split="false" CustomName="Kinco FD (ID:7)" UniqueID="20">
                 <NodeEditorPosition x="169" y="156"/>
-                <NodeSpecificData MaxVelocity="80" MaxAcceleration="100" MaxCurrent="1" VelocityFeedForward="100" MaxFollowingError="1" FollowingErrorTimeout="10" BrakingResistorResistance="100" BrakingResistorRatedPower="1" Din1Function="0" Din2Function="0" Din3Function="0" Din4Function="0" Din5Function="0" Din6Function="0" Din7Function="0">
+                <NodeSpecificData PositionOffset="0" MaxVelocity="80" MaxAcceleration="100" MaxCurrent="10" VelocityFeedForward="100" MaxFollowingError="1" FollowingErrorTimeout="10" BrakingResistorResistance="100" BrakingResistorRatedPower="1" Din1Function="0" Din2Function="0" Din3Function="0" Din4Function="0" Din5Function="0" Din6Function="0" Din7Function="0" DIN1Polarity="false" DIN2Polarity="false" DIN3Polarity="false" DIN4Polarity="false" DIN5Polarity="false" DIN6Polarity="false" DIN7Polarity="false" Dout1Function="0" Dout2Function="0" Dout3Function="0" Dout4Function="0" Dout5Function="0" Dout1Polarity="true" Dout2Polarity="true" Dout3Polarity="false" Dout4Polarity="false" Dout5Polarity="false">
                     <Identification Type="ExplicitDeviceID" ExplicitDeviceID="7"/>
                 </NodeSpecificData>
                 <InputPins/>
@@ -84,8 +84,36 @@
                 <InputPins/>
                 <OutputPins/>
             </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="55">
+                <NodeEditorPosition x="361" y="136"/>
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="50" AccelerationLimit="50" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="21" UnitConversion="1"/>
+                    <VelocityFeedbackMapping InterfacePinID="21" UnitConversion="1"/>
+                    <ActuatorMappings>
+                        <ActuatorMapping InterfacePinID="21" UnitConversion="1" ControlMode="1"/>
+                    </ActuatorMappings>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="56" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="57" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="58" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="59" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="60" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="61" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="62" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="63" Visible="false"/>
+                    <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="64" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="65" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="66" Visible="true"/>
+                    <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="67" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="68" StartPin="21" EndPin="56"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 

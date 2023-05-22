@@ -469,18 +469,7 @@ void AxisNode::outputProcess(){
 bool AxisNode::needsOutputProcess(){ return !axisPin->isConnected(); }
 
 double AxisNode::getFilteredVelocity(double requestedVelocity){
-	if(advancedVelocityLimit->value){
-		if(requestedVelocity < 0.0 && requestedVelocity < -std::abs(minNegativeVelocityLimit->value)){
-			return std::clamp(requestedVelocity, -std::abs(maxNegativeVelocityLimit->value), -std::abs(minNegativeVelocityLimit->value));
-		}
-		else if(requestedVelocity > 0.0 && requestedVelocity > std::abs(minPositiveVelocityLimit->value)){
-			return std::clamp(requestedVelocity, std::abs(minPositiveVelocityLimit->value), std::abs(maxPositiveVelocityLimit->value));
-		}
-		else return 0.0;
-	}
-	else{
-		return std::clamp(requestedVelocity, -std::abs(velocityLimit->value), std::abs(velocityLimit->value));
-	}
+	return std::clamp(requestedVelocity, -std::abs(velocityLimit->value), std::abs(velocityLimit->value));
 }
 	
 void AxisNode::setManualVelocityTarget(double velocity){

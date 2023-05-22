@@ -157,15 +157,8 @@ private:
 	NumberParam<double> upperPositionLimit;
 	NumberParam<double> lowerPositionLimitClearance;
 	NumberParam<double> upperPositionLimitClearance;
-	
 	NumberParam<double> accelerationLimit;
-	
 	NumberParam<double> velocityLimit;
-	BoolParam advancedVelocityLimit;
-	NumberParam<double> minNegativeVelocityLimit;
-	NumberParam<double> maxNegativeVelocityLimit;
-	NumberParam<double> minPositiveVelocityLimit;
-	NumberParam<double> maxPositiveVelocityLimit;
 	
 	double getFilteredVelocity(double requestedVelocity);
 	

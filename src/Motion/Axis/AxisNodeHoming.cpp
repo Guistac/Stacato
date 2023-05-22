@@ -55,7 +55,41 @@ void AxisNode::homingControl(){
 	
 }
 
-void AxisNode::homingRoutine_HomingOnCurrentPosition(){}
+void AxisNode::homingRoutine_HomingOnCurrentPosition(){
+	switch(homingStep){
+			
+		case HomingStep::NOT_STARTED:
+			homingStep = HomingStep::FOUND_LOW_LIMIT;
+			setHomingVelocityTarget(0.0);
+			break;
+			
+		case HomingStep::FOUND_LOW_LIMIT:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
+				if(positionFeedbackMapping){
+					auto feedback = positionFeedbackMapping->feedbackInterface;
+					feedback->overridePosition(0.0);
+					overrideCurrentPosition(0.0);
+					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+				}else{
+					Logger::error("[{}] Could not reset position feedback, there is no position feedback device", getName());
+					homingStep = HomingStep::FAILED;
+					break;
+				}
+			}
+			break;
+			
+		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			overrideCurrentPosition(0.0);
+			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+				homingStep = HomingStep::FINISHING;
+			}
+			break;
+			
+		default:
+			homingStep = HomingStep::FAILED;
+			break;
+	}
+}
 
 void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 	switch(homingStep){

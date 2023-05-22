@@ -124,16 +124,6 @@ void AxisNode::initialize(){
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	accelerationLimit->setSuffix("/s\xc2\xb2");
 	
-	advancedVelocityLimit = BooleanParameter::make(false, "Advanced Velocity Limit", "AdvancedVelocityLimit");
-	minNegativeVelocityLimit = NumberParameter<double>::make(0.0, "Min Negative Velocity Limit", "MinNegativeVelocityLimit");
-	minNegativeVelocityLimit->setSuffix("/s");
-	maxNegativeVelocityLimit = NumberParameter<double>::make(0.0, "Max Negative Velocity Limit", "MaxNegativeVelocityLimit");
-	maxNegativeVelocityLimit->setSuffix("/s");
-	minPositiveVelocityLimit = NumberParameter<double>::make(0.0, "Min Positive Velocity Limit", "MinPositiveVelocityLimit");
-	minPositiveVelocityLimit->setSuffix("/s");
-	maxPositiveVelocityLimit = NumberParameter<double>::make(0.0, "Max Positive Velocity Limit", "MaxPositiveVelocityLimit");
-	maxPositiveVelocityLimit->setSuffix("/s");
-	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
 	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
 	enableUpperPositionLimit->addEditCallback(updateInterfaceCallback);
@@ -144,13 +134,6 @@ void AxisNode::initialize(){
 	upperPositionLimitClearance->addEditCallback(updateInterfaceCallback);
 	velocityLimit->addEditCallback(updateInterfaceCallback);
 	accelerationLimit->addEditCallback(updateInterfaceCallback);
-	advancedVelocityLimit->addEditCallback(updateInterfaceCallback);
-	minNegativeVelocityLimit->addEditCallback(updateInterfaceCallback);
-	maxNegativeVelocityLimit->addEditCallback(updateInterfaceCallback);
-	minPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
-	maxPositiveVelocityLimit->addEditCallback(updateInterfaceCallback);
-	
-	
 	
 	limitSignalTypeParameter = OptionParameter::make2(option_LimitSignalType_NoLimitSignal, {
 															&option_LimitSignalType_NoLimitSignal,
@@ -233,12 +216,6 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
 	
-	advancedVelocityLimit->save(xml);
-	minNegativeVelocityLimit->save(xml);
-	maxNegativeVelocityLimit->save(xml);
-	minPositiveVelocityLimit->save(xml);
-	maxPositiveVelocityLimit->save(xml);
-	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
 	positionLoop_maxError->save(xml);
@@ -282,12 +259,6 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= positionLoop_minError->load(xml);
 	success &= velocityLoop_maxError->load(xml);
 	success &= limitSlowdownVelocity->load(xml);
-	
-	success &= advancedVelocityLimit->load(xml);
-	success &= minNegativeVelocityLimit->load(xml);
-	success &= maxNegativeVelocityLimit->load(xml);
-	success &= minPositiveVelocityLimit->load(xml);
-	success &= maxPositiveVelocityLimit->load(xml);
 	
 	success &= enableLowerPositionLimit->load(xml);
 	success &= enableUpperPositionLimit->load(xml);
@@ -493,11 +464,6 @@ void AxisNode::updateControlMode(){
 			break;
 	}
 	
-	if(controlMode != VELOCITY_CONTROL){
-		//advanced velocity limits are only available in velocity control mode
-		advancedVelocityLimit->overwrite(false);
-	}
-	
 	updateLimitSignalType();
 }
 
@@ -670,9 +636,7 @@ void AxisNode::updateAxisConfiguration(){
 	}
 	config.b_supportsEffortFeedback = b_force;
 	
-	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL &&
-							limitSignalTypeParameter->value != LimitSignalType::NONE &&
-							limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS;
+	config.b_supportsHoming = config.controlMode == AxisInterface::ControlMode::POSITION_CONTROL;
 	
 	
 	axisPin->updateConnectedPins();

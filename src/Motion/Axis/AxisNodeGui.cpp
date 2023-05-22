@@ -84,17 +84,13 @@ void AxisNode::controlTab(){
 			std::ostringstream manVelString;
 			manVelString << std::fixed << std::setprecision(2) << "Manual Velocity Target : " << internalVelocityTarget;
 			
-			double velLim;
-			if(advancedVelocityLimit->value) velLim = std::max(std::abs(maxPositiveVelocityLimit->value), std::abs(maxNegativeVelocityLimit->value));
-			else velLim = axisInterface->getVelocityLimit();
+			double velLim = axisInterface->getVelocityLimit();
 			
 			ImGui::SetNextItemWidth(progressBarSize.x);
 			ImGui::SliderFloat("##vel", &sliderVelocityTarget, -velLim, velLim, manVelString.str().c_str());
 			
 			if(ImGui::IsItemActive()) {
-				if(advancedVelocityLimit->value){
-					sliderVelocityTarget = getFilteredVelocity(sliderVelocityTarget);
-				}
+				sliderVelocityTarget = getFilteredVelocity(sliderVelocityTarget);
 				setManualVelocityTarget(sliderVelocityTarget);
 			}
 			if(ImGui::IsItemDeactivatedAfterEdit()) {
@@ -535,20 +531,11 @@ void AxisNode::actuatorControlSettingsGui(){
 
 void AxisNode::limitSettingsGui(){
 
-	advancedVelocityLimit->gui(Fonts::sansBold15);
-	
-	if(advancedVelocityLimit->value){
-		minNegativeVelocityLimit->gui(Fonts::sansBold15);
-		maxNegativeVelocityLimit->gui(Fonts::sansBold15);
-		minPositiveVelocityLimit->gui(Fonts::sansBold15);
-		maxPositiveVelocityLimit->gui(Fonts::sansBold15);
-	}else{
-		velocityLimit->gui(Fonts::sansBold15);
-		std::ostringstream actVelLimString;
-		actVelLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorVelocityLimit << " u/s";
-		ImGui::SameLine();
-		backgroundText(actVelLimString.str().c_str(), Colors::gray, Colors::black);
-	}
+	velocityLimit->gui(Fonts::sansBold15);
+	std::ostringstream actVelLimString;
+	actVelLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorVelocityLimit << " u/s";
+	ImGui::SameLine();
+	backgroundText(actVelLimString.str().c_str(), Colors::gray, Colors::black);
 	
 	ImGui::Separator();
 	

@@ -14,8 +14,9 @@ public:
 	
 	class KincoServoMotor : public ActuatorInterface{
 	public:
-		virtual std::string getName() override { return "Kinco Servo Motor"; }
-		virtual std::string getStatusString() override { return "No Status String available"; }
+		virtual std::string getName() override { return drive->getName() + std::string(" Servo Motor"); }
+		virtual std::string getStatusString() override;
+		std::shared_ptr<KincoFD> drive = nullptr;
 	};
 	
 	std::shared_ptr<DS402Axis> axis;
@@ -27,6 +28,13 @@ public:
 	const float incrementsPerRevolutionPerSecondSquared = 1073.741824;
 	const float incrementsPerRevolution = 65536.0;
 	const float incrementsPerAmpere = 136.5;
+	
+	uint64_t enableRequestTime_nanos = 0;
+	bool b_waitingForEnable = false;
+	int32_t positionOffset = 0;
+	uint16_t previousErrorCode = 0;
+	
+	std::string getErrorCodeString();
 	
 	//0x2010:A (U16) Din Real
 	//0x60FD:0 (U32) digital inputs
@@ -42,13 +50,13 @@ public:
 	//----- Option and Enumerators
 	
 	enum InputFunction{
-		NO_FUNCTION				= 0x0000,
+		NO_INPUT_FUNCTION		= 0x0000,
 		DRIVER_FAULT_RESET		= 0x0002,
 		POSITION_POSITIVE_LIMIT = 0x0010,
 		POSITION_NEGATIVE_LIMIT = 0x0020,
 		QUICK_STOP 				= 0x1000
 	};
-	Option inputFunction_none = 					Option(InputFunction::NO_FUNCTION, 				"No Function", 				"None");
+	Option inputFunction_none = 					Option(InputFunction::NO_INPUT_FUNCTION, 		"No Function", 				"None");
 	Option inputFunction_DriverFaultReset = 		Option(InputFunction::DRIVER_FAULT_RESET, 		"Driver Fault Reset",		"DriverFaultReset");
 	Option inputFunction_PositionPositiveLimit = 	Option(InputFunction::POSITION_POSITIVE_LIMIT, 	"Position Positive Limit",	"PositionPositiveLimit");
 	Option inputFunction_PositionNegativeLimit = 	Option(InputFunction::POSITION_NEGATIVE_LIMIT, 	"Position Negative Limit",	"PositionNegativeLimit");
@@ -59,6 +67,26 @@ public:
 		&inputFunction_PositionPositiveLimit,
 		&inputFunction_PositionNegativeLimit,
 		&inputFunction_Quickstop
+	};
+	
+	enum OutputFunction{
+		NO_OUTPUT_FUNCTION		= 0x0000,
+		DRIVER_READY			= 0x0001,
+		DRIVER_ERROR			= 0x0002,
+		MOTOR_BRAKE				= 0x0010,
+		DRIVER_ENABLED			= 0x0100
+	};
+	Option outputFunction_none = 			Option(OutputFunction::NO_OUTPUT_FUNCTION,	"No Function", 		"None");
+	Option outputFunction_driverReady = 	Option(OutputFunction::DRIVER_READY, 		"Drive Ready", 		"DriveReady");
+	Option outputFunction_driverError = 	Option(OutputFunction::DRIVER_ERROR, 		"Drive Error", 		"DriveError");
+	Option outputFunction_motorBrake = 		Option(OutputFunction::MOTOR_BRAKE, 		"Motor Brake", 		"MotorBrake");
+	Option outputFunction_DriverEnabled = 	Option(OutputFunction::DRIVER_ENABLED, 		"Drive Enabled", 	"DriveEnabled");
+	std::vector<OptionParameter::Option*> outputFunctionOptions = {
+		&outputFunction_none,
+		&outputFunction_driverReady,
+		&outputFunction_driverError,
+		&outputFunction_motorBrake,
+		&outputFunction_DriverEnabled
 	};
 	
 	//----- Parameters
@@ -80,6 +108,26 @@ public:
 	OptionParam DIN5Function_parameter;	//2010:7 (u16)
 	OptionParam DIN6Function_parameter;	//2010:8 (u16)
 	OptionParam DIN7Function_parameter;	//2010:9 (u16)
+	
+	BoolParam DIN1Polarity_parameter; //2010:1:b0 (u16)
+	BoolParam DIN2Polarity_parameter; //2010:1:b1 (u16)
+	BoolParam DIN3Polarity_parameter; //2010:1:b2 (u16)
+	BoolParam DIN4Polarity_parameter; //2010:1:b3 (u16)
+	BoolParam DIN5Polarity_parameter; //2010:1:b4 (u16)
+	BoolParam DIN6Polarity_parameter; //2010:1:b5 (u16)
+	BoolParam DIN7Polarity_parameter; //2010:1:b6 (u16)
+	
+	OptionParam DOUT1Function_parameter; //2010:F (u16)
+	OptionParam DOUT2Function_parameter; //2010:10 (u16)
+	OptionParam DOUT3Function_parameter; //2010:11 (u16)
+	OptionParam DOUT4Function_parameter; //2010:12 (u16)
+	OptionParam DOUT5Function_parameter; //2010:13 (u16)
+	
+	BoolParam DOUT1Polarity_parameter; //2010:D:b0 (u16)
+	BoolParam DOUT2Polarity_parameter; //2010:D:b1 (u16)
+	BoolParam DOUT3Polarity_parameter; //2010:D:b2 (u16)
+	BoolParam DOUT4Polarity_parameter; //2010:D:b3 (u16)
+	BoolParam DOUT5Polarity_parameter; //2010:D:b4 (u16)
 	
 	void uploadConfiguration();
 	
