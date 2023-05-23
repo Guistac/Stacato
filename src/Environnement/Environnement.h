@@ -10,6 +10,8 @@ class NetworkDevice;
 class Script;
 class Command;
 
+class ManualControlChannel;
+
 namespace Environnement{
 
 	//project interface
@@ -64,6 +66,8 @@ namespace Environnement{
 	//void lockEditor();
 	//void unlockEditor();
 	//bool checkEditorPassword(const char* password);
+
+	std::shared_ptr<ManualControlChannel> getManualControlChannel();
 
 	std::recursive_mutex* getMutex();
 };

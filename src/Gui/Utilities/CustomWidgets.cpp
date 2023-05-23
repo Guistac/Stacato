@@ -1094,6 +1094,13 @@ void textAlignedBackground(const char* txt,
 
 
 bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, ImDrawFlags drawFlags){
+	
+	if(size.x <= 0.0 || size.y <= 0.0){
+		ImVec2 txtSize = ImGui::CalcTextSize(txt);
+		if(size.x <= 0.0) size.x = txtSize.x + 2 * ImGui::GetStyle().FramePadding.x;
+		if(size.y <= 0.0) size.y = txtSize.y + 2 * ImGui::GetStyle().FramePadding.y;
+	}
+	
     bool pressed = ImGui::InvisibleButton(txt, size);
 
     ImColor buttonColor;

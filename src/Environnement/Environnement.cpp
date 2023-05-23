@@ -24,7 +24,13 @@
 
 #include "Gui/Fieldbus/EtherCatGui.h"
 
+#include "Animation/ManualControlChannel.h"
+
 namespace Environnement {
+
+	std::shared_ptr<ManualControlChannel> manualControlChannel = nullptr;
+
+	std::shared_ptr<ManualControlChannel> getManualControlChannel(){ return manualControlChannel; }
 
 	std::recursive_mutex mutex;
 	std::recursive_mutex* getMutex(){ return &mutex; }
@@ -52,6 +58,7 @@ namespace Environnement {
 		if(isRunning()) stop();
 		Network::init();
 		EtherCatFieldbus::initialize();
+		manualControlChannel = std::make_shared<ManualControlChannel>();
 	}
 
 	void terminate(){

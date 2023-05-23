@@ -4,6 +4,7 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "NodeGraph/NodeGraph.h"
 #include "Gui/Environnement/Dashboard/Managers.h"
+#include "Animation/ManualControlChannel.h"
 
 #include <tinyxml2.h>
 
@@ -34,6 +35,11 @@ namespace Environnement {
 		XMLElement* fieldbusSettingsXML = document.NewElement("FieldbusSettings");
 		document.InsertEndChild(fieldbusSettingsXML);
 		EtherCatFieldbus::save(fieldbusSettingsXML);
+		
+		//———— manual controls [experimental]
+		XMLElement* manualControlsXML = document.NewElement("ManualControlChannel");
+		document.InsertEndChild(manualControlsXML);
+		getManualControlChannel()->save(manualControlsXML);
 
 		return XML_SUCCESS == document.SaveFile(filePath);
 	}
@@ -84,6 +90,12 @@ namespace Environnement {
 		if (!fieldbusSettingsXML) return Logger::warn("Could not load Fieldbus Settings from SaveFile");
 		if (!EtherCatFieldbus::load(fieldbusSettingsXML)) return Logger::warn("Error reading Fieldbus settings data");
 
+		
+		//———— manual controls [experimental]
+		if(XMLElement* manualControlsXML = document.FirstChildElement("ManualControlChannel")){
+			getManualControlChannel()->load(manualControlsXML);
+		}
+		
 		return Logger::info("Successfully loaded Save File");
 	}
 

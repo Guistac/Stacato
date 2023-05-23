@@ -116,6 +116,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Manoeuvre.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/AnimationConstraint.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/ManualControlChannel.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/ManualControlChannel.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/ManualControlChannelGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/Playback.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Playback/TimeStringConversion.h

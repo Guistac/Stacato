@@ -336,6 +336,7 @@ void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animatio
 }
 
 void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
+	velocitySliderDisplayValue = x;
 	setVelocityTarget(velocityLimit * x);
 }
 

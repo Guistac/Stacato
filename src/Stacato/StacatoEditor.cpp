@@ -16,6 +16,8 @@
 #include "Project/StacatoProject.h"
 #include "Legato/Workspace.h"
 
+#include "Animation/ManualControlChannel.h"
+
 class Window;
 
 namespace Stacato::Editor{
@@ -62,6 +64,7 @@ void initialize(){
 	userWindows.push_back(EtherCatNetworkWindow::get());
 	userWindows.push_back(EtherCatDevicesWindow::get());
 	userWindows.push_back(Environnement::Gui::LogWindow::get());
+	userWindows.push_back(ManualControlsWindow::get());
 	
 	for(auto userWindow : userWindows){
 		Legato::Gui::WindowManager::registerWindow(userWindow);

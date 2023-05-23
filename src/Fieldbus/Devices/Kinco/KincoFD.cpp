@@ -4,6 +4,8 @@
 
 void KincoFD::onDisconnection() {
 	actuator->state = DeviceState::OFFLINE;
+	axis->disable();
+	b_waitingForEnable = false;
 }
 void KincoFD::onConnection() {}
 
