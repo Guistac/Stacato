@@ -365,6 +365,7 @@ void AxisNode::controlTab(){
 			canvas->AddLine(ImVec2(min.x + size.x * minErrorNormalized, min.y),
 							ImVec2(min.x + size.x * minErrorNormalized, max.y), ImColor(Colors::white));
 		}
+		/*
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
 		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL){
 			ImGui::PushFont(Fonts::sansBold15);
@@ -375,6 +376,7 @@ void AxisNode::controlTab(){
 			double errorNormalized = std::abs(velocityFollowingError / velocityLoop_maxError->value);
 			ImGui::ProgressBar(errorNormalized, progressBarSize, velocityErrorString.str().c_str());
 		}
+		*/
 		
 		ImGui::EndTabItem();
 	}
@@ -581,7 +583,7 @@ void AxisNode::positionControlSettingsGui(){
 	positionLoop_minError->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();
 	
-	velocityLoop_maxError->gui(Fonts::sansBold15);
+	//velocityLoop_maxError->gui(Fonts::sansBold15);
 	ImGui::BeginDisabled(limitSignalTypeParameter->value != LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS);
 	limitSlowdownVelocity->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();

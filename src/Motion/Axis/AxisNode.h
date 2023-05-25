@@ -142,7 +142,7 @@ private:
 	
 	//Velocity Control
 	NumberParam<double> limitSlowdownVelocity;
-	NumberParam<double> velocityLoop_maxError;
+	//NumberParam<double> velocityLoop_maxError;
 	
 	//Limits
 	double actuatorVelocityLimit;

@@ -142,6 +142,7 @@ private:
 			case 0x3100: return "3100 : Missing mains supply, undervoltage mains supply or overvoltage mains supply";
 			case 0x1A01: return "1A01 : Detected motor type is different from previously detected motor.";
 			case 0x7607: return "7607 : Encoder module cannot be identified";
+			case 0x734E: return "734E : Error in analog signals from encoder detected.";
 			default: {
 				static char hexString[16];
 				sprintf(hexString, "%X", errorCode);

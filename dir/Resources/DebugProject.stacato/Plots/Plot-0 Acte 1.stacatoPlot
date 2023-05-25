@@ -1,7 +1,141 @@
 <Plot Name="Acte 1">
     <ManoeuvreList>
-        <Manoeuvre Name="Livre 1 fevfe" Description="le livre va monter tres tres tres vite " Type="Target">
-            <Animation Machine="Levage" MachineUniqueID="110" Parameter="Position" IsComposite="false" Type="Target" Target="8" ConstraintType="Time" Time="0" Velocity="400" StartAcceleration="1.7" EndAcceleration="1.7"/>
+        <Manoeuvre Name="Mise" Description="remise à l&apos;origine des 3 axes : 0rigine déco" Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="-87.183996066377873" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="-92.288822904472482" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Mise 2" Description="remise à l&apos;origine des 3 axes : 0rigine CAPTEUR" Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Scène 1" Description="test 1" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="45" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="resynchro" Description="" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-106.02580340524969" Time="30.195633067882596" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-250.28578283025826" Time="47.637822182482388" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="183.19971862718432" Time="85.508719811818978" Velocity="5" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-173.18632872254202" Time="39.525482802706243" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="63.91637428623185" Time="63.437188112751436" Velocity="5" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="changement vitesse" Description="sans arret" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="125.71079482909744" Time="17.029731503141115" Velocity="3" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="38.888463924453326" Time="39.391890797463645" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="189.65608936992948" Time="67.098989197877302" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="145.48651338387629" Time="24.512158478819174" Velocity="3" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="66.393746811909381" Time="43.693379790940767" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="172.32554838829435" Time="64.390243902439025" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="126.44957132765521" Time="75.888501742160287" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="changement vitesse (copy)" Description="sans arret" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="36" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Scène 2" Description="test 2" Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="360" End="0" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-107.42553191489361" Time="50.421471172962228" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="166.40425531914894" Time="90.834990059642152" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-360" End="0" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-63.191488063081806" Time="48.584493041749504" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="-63" Time="78.167247386759584" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="360" End="0" Duration="120" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="16.851065128407583" Time="33.888667992047715" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Précipité" Description="Mise rapide Scène 3" Type="Target">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Target" Target="30" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Target" Target="46" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Target" Target="-220" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1.5" EndAcceleration="1.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Scène 3" Description="test..." Type="Sequence">
+            <Animation Machine="Central" MachineUniqueID="141" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="125" End="230" Duration="40" TimeOffset="20" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Inter" MachineUniqueID="146" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="46" End="125" Duration="60" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="46" Time="20" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Extérieur" MachineUniqueID="151" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-220" End="0" Duration="60" TimeOffset="0" StartAcceleration="1.5" EndAcceleration="1.5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-220" Time="20" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="1.5" OutAcceleration="1.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
