@@ -46,4 +46,6 @@ public:
 	std::shared_ptr<LED_RGB_Button> joystickButtonLeft;
 	std::shared_ptr<LED_RGB_Button> joystickButtonRight;
 	
+	virtual void onDisconnection() override;
+	
 };

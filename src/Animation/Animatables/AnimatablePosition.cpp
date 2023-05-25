@@ -336,8 +336,10 @@ void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animatio
 }
 
 void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
+	//if we are in the middle of an animation and the requested velocity is 0, skip the command
+	if(x == 0.0 && hasAnimation()) return;
 	velocitySliderDisplayValue = x;
-	setVelocityTarget(velocityLimit * x);
+	setManualVelocityTarget(velocityLimit * x);
 }
 
 void AnimatablePosition::onPlaybackStart(std::shared_ptr<Animation> animation){

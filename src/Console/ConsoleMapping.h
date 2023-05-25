@@ -15,4 +15,6 @@ public:
 	
 	virtual void gui(float height) = 0;
 	
+	virtual void onDisconnection() = 0;
+	
 };

@@ -50,7 +50,8 @@ namespace ConsoleHandler{
 	}
 
 	std::vector<std::shared_ptr<ConsoleMapping>> mappingDictionnary = {
-		std::make_shared<ConsoleStarmania>()
+		std::make_shared<ConsoleStarmania>(),
+		std::make_shared<StacatoCompact>()
 	};
 
 	void applyMapping(std::shared_ptr<Console> console){

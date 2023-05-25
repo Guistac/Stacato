@@ -61,6 +61,7 @@ bool ChannelPreset::hasAnimatable(std::shared_ptr<Animatable> animatable){
 void ChannelPreset::removeAnimatable(std::shared_ptr<Animatable> animatable){
 	for(int i = 0; i < animatableMappings.size(); i++){
 		if(animatableMappings[i]->animatable == animatable){
+			animatableMappings[i]->animatable->setManualControlTarget(0.0);
 			animatableMappings.erase(animatableMappings.begin() + i);
 			break;
 		}
@@ -107,6 +108,7 @@ void ManualControlChannel::createChannelPreset(){
 void ManualControlChannel::removeChannelPreset(std::shared_ptr<ChannelPreset> preset){
 	for(int i = 0; i < channelPresets.size(); i++){
 		if(channelPresets[i] == preset){
+			for(auto mapping : preset->getMappings()) mapping->animatable->setManualControlTarget(0.0);
 			channelPresets.erase(channelPresets.begin() + i);
 			if(preset == activeChannelPreset) setActiveChannelPreset(nullptr);
 			break;
@@ -115,6 +117,9 @@ void ManualControlChannel::removeChannelPreset(std::shared_ptr<ChannelPreset> pr
 }
 
 void ManualControlChannel::setActiveChannelPreset(std::shared_ptr<ChannelPreset> preset){
+	//set all previous mappings to control value 0
+	setControlValue(0.0);
+	//then set the new preset
 	activeChannelPreset = preset;
 }
 

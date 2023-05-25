@@ -39,6 +39,7 @@ void Console::terminate(std::shared_ptr<Console> console){
 
 
 void Console::onDisconnection(){
+	mapping->onDisconnection();
 	Logger::warn("Console {} Disconnected", consoleName);
 	b_inputHandlerRunning = false;
 	b_outputHandlerRunning = false;

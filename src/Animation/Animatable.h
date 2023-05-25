@@ -132,7 +132,6 @@ private:
 public:
 	virtual bool hasManualControls() = 0;
 	void setManualControlTarget(float x, float y = 0.0, float z = 0.0){
-		stopAnimation();
 		onSetManualControlTarget(x, y, z);
 	}
 	virtual void onSetManualControlTarget(float x, float y, float z) = 0;

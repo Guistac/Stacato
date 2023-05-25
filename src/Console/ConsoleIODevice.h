@@ -44,18 +44,18 @@ public:
 	std::shared_ptr<LED_PWM_Button>	toLED_PWM_Button();
 	std::shared_ptr<LED_RGB_Button>	toLED_RGB_Button();
 	
-	typedef std::function<void(std::shared_ptr<IODevice>)> IOUpdateCallback;
+	typedef std::function<void()> IOUpdateCallback;
 	void setInputUpdateCallback(IOUpdateCallback callback){ inputUpdateCallback = callback; }
 	void setOutputUpdateCallback(IOUpdateCallback callback){ outputUpdateCallback = callback; }
 	
 	void updateInput(uint8_t* data, size_t size){
 		if(readInput(data, size)){
-			inputUpdateCallback(shared_from_this());
+			inputUpdateCallback();
 		}
 	}
 	
 	bool updateOutput(uint8_t** data, size_t* size){
-		outputUpdateCallback(shared_from_this());
+		outputUpdateCallback();
 		if(outputChanged()) {
 			writeOutput(data, size);
 			return true;
@@ -70,8 +70,8 @@ public:
 	virtual void writeOutput(uint8_t** data, size_t* size) {}
 	
 protected:
-	IOUpdateCallback inputUpdateCallback = [](std::shared_ptr<IODevice> device){};
-	IOUpdateCallback outputUpdateCallback = [](std::shared_ptr<IODevice> device){};
+	IOUpdateCallback inputUpdateCallback = [](){};
+	IOUpdateCallback outputUpdateCallback = [](){};
 };
 
 
@@ -162,7 +162,7 @@ public:
 	
 	virtual void writeOutput(uint8_t** data, size_t* size) override {
 		f_previousBrightness = f_brightness;
-		outputData[0] = f_brightness / 255.f;
+		outputData[0] = f_brightness * 255.f;
 		*data = outputData;
 		*size = 1;
 	}
