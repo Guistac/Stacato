@@ -554,6 +554,7 @@ bool Manoeuvre::canSetPlaybackPosition(){
 void Manoeuvre::setSynchronizedPlaybackPosition(double seconds){
 	if(!canSetPlaybackPosition()) return;
 	for(auto& animation : animations) animation->setPlaybackPosition(seconds);
+	synchronizedPlaybackPosition = seconds;
 }
 
 
@@ -713,7 +714,7 @@ double Manoeuvre::getRemainingPlaybackTime(){
 	switch(getType()){
 		case ManoeuvreType::KEY: return 0.0;
 		case ManoeuvreType::TARGET:
-		case ManoeuvreType::SEQUENCE: return duration_seconds;
+		case ManoeuvreType::SEQUENCE: return duration_seconds - synchronizedPlaybackPosition;
 	}
 }
 

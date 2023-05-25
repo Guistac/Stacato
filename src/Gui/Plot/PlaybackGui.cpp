@@ -157,7 +157,9 @@ void PlaybackManagerWindow::onDraw(){
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 	float playbackSpeedMutliplier = PlaybackManager::getPlaybackSpeedMultiplier() * 100.0;
-	if(ImGui::SliderFloat("##PlaybackSpeed", &playbackSpeedMutliplier, 90.0, 110.0, "%.1f%%")){
+	float minMultiplier = PlaybackManager::getMinPlaybackSpeedMultiplier() * 100.0;
+	float maxMultiplier = PlaybackManager::getMaxPlaybackSpeedMutliplier() * 100.0;
+	if(ImGui::SliderFloat("##PlaybackSpeed", &playbackSpeedMutliplier, minMultiplier, maxMultiplier, "%.1f%%")){
 		PlaybackManager::setPlaybackSpeedMultiplier(playbackSpeedMutliplier / 100.0);
 	}
 	

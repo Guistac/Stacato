@@ -343,7 +343,8 @@ void Animation::updatePlaybackState(){
 	}
 }
 
-void Animation::incrementPlaybackPosition(long long playbackTime_microseconds){
-	playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
+void Animation::incrementPlaybackPosition(double timeIncrement_seconds){
+	playbackPosition_seconds += timeIncrement_seconds;
+	//playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
 	playbackPosition_seconds = std::min(playbackPosition_seconds, duration_seconds);
 }

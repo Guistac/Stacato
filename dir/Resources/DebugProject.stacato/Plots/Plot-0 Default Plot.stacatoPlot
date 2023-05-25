@@ -1,12 +1,30 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-2" Description="" Type="Sequence">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10" End="80" Duration="60" TimeOffset="0" StartAcceleration="50" EndAcceleration="50">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="55.222084367245657" Time="20.282208656240826" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
+                        <ControlPoint Position="39.936725616455078" Time="39.312885284423828" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10" End="80" Duration="60" TimeOffset="0" StartAcceleration="50" EndAcceleration="50">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="42.038461538461533" Time="21.69938658059009" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
+                        <ControlPoint Position="26.370966651007791" Time="39.515337629552263" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
         <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

@@ -126,7 +126,7 @@ public:
 	
 	void updateDuration();
 	void updatePlaybackState();
-	void incrementPlaybackPosition(long long playbackTime_microseconds);
+	void incrementPlaybackPosition(double timeIncrement_seconds);
 	
 	bool isInRapid(){ return b_isInRapid; }
 	bool isPlaying(){ return b_isPlaying; }

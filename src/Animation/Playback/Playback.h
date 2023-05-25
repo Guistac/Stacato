@@ -21,4 +21,6 @@ namespace PlaybackManager {
 	void setPlaybackSpeedMultiplier(double multiplier);
 	void resetPlaybackSpeedMultiplier();
 	double getPlaybackSpeedMultiplier();
+	double getMinPlaybackSpeedMultiplier();
+	double getMaxPlaybackSpeedMutliplier();
 }
