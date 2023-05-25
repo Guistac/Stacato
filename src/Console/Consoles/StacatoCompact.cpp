@@ -14,28 +14,28 @@
 
 void StacatoCompact::apply(std::shared_ptr<Console> console){
 	auto devices = console->getIODevices();
-		
-	pwmLed1 = devices[0]->toLED_PWM();
-	pwmLed2 = devices[1]->toLED_PWM();
-	pwmLed3 = devices[2]->toLED_PWM();
-	pwmLed4 = devices[3]->toLED_PWM();
-	rgbButton1 = devices[4]->toLED_RGB_Button();
-	rgbButton2 = devices[5]->toLED_RGB_Button();
-	rgbButton3 = devices[6]->toLED_RGB_Button();
-	rgbButton4 = devices[7]->toLED_RGB_Button();
-	rgbButton5 = devices[8]->toLED_RGB_Button();
-	rgbButton6 = devices[9]->toLED_RGB_Button();
-	rgbButton7 = devices[10]->toLED_RGB_Button();
-	rgbButton8 = devices[11]->toLED_RGB_Button();
-	pushButton1 = devices[12]->toPushButton();
-	pushButton2 = devices[13]->toPushButton();
-	pushButton3 = devices[14]->toPushButton();
-	joystick = devices[15]->toJoystick2X();
+	
+	pwmLed1 = devices[0]->toLED_PWM(); 				//V1 console connection
+	pwmLed2 = devices[1]->toLED_PWM(); 				//V2 environnement status
+	pwmLed3 = devices[2]->toLED_PWM(); 				//V3 machine status
+	rgbButton1 = devices[3]->toLED_RGB_Button();	//BP4 ??
+	rgbButton2 = devices[4]->toLED_RGB_Button();	//BP5 ??
+	rgbButton3 = devices[5]->toLED_RGB_Button();	//BP6 ??
+	rgbButton4 = devices[6]->toLED_RGB_Button();	//BP7 ??
+	rgbButton5 = devices[7]->toLED_RGB_Button();	//BP8 rapid to start
+	rgbButton6 = devices[8]->toLED_RGB_Button();	//BP9 Stop/Pause
+	rgbButton7 = devices[9]->toLED_RGB_Button();	//BP10 Play
+	rgbButton8 = devices[10]->toLED_RGB_Button();	//BP11 rapid to end
+	pushButton1 = devices[11]->toPushButton();		//BP1 start/stop environnement
+	pushButton2 = devices[12]->toPushButton();		//BP2 enable all machines
+	pushButton3 = devices[13]->toPushButton();		//BP3 disable all machines
+	pushButton4 = devices[14]->toPushButton();		//BP12 manoeuvre list selection up
+	pushButton5 = devices[15]->toPushButton();		//BP13 manoeuvre list selection down
+	joystick = devices[16]->toJoystick2X();
 	
 	pwmLed1->setOutputUpdateCallback([&](){ pwmLed1->setBrightness(fmod(Timing::getProgramTime_seconds() + 0.00, 1.0)); });
 	pwmLed2->setOutputUpdateCallback([&](){ pwmLed2->setBrightness(fmod(Timing::getProgramTime_seconds() + 0.25, 1.0)); });
 	pwmLed3->setOutputUpdateCallback([&](){ pwmLed3->setBrightness(fmod(Timing::getProgramTime_seconds() + 0.50, 1.0)); });
-	pwmLed4->setOutputUpdateCallback([&](){ pwmLed4->setBrightness(fmod(Timing::getProgramTime_seconds() + 0.75, 1.0)); });
 	
 	rgbButton1->setInputUpdateCallback([&](){ Logger::warn("RGB Button 1 : {}", rgbButton1->isPressed()); });
 	rgbButton2->setInputUpdateCallback([&](){ Logger::warn("RGB Button 2 : {}", rgbButton2->isPressed()); });

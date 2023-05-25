@@ -10,7 +10,6 @@ public:
 			IODevice::Type::LED_PWM,
 			IODevice::Type::LED_PWM,
 			IODevice::Type::LED_PWM,
-			IODevice::Type::LED_PWM,
 			IODevice::Type::LED_RGB_BUTTON,
 			IODevice::Type::LED_RGB_BUTTON,
 			IODevice::Type::LED_RGB_BUTTON,
@@ -41,7 +40,6 @@ public:
 	std::shared_ptr<LED_PWM> pwmLed1;
 	std::shared_ptr<LED_PWM> pwmLed2;
 	std::shared_ptr<LED_PWM> pwmLed3;
-	std::shared_ptr<LED_PWM> pwmLed4;
 	std::shared_ptr<LED_RGB_Button> rgbButton1;
 	std::shared_ptr<LED_RGB_Button> rgbButton2;
 	std::shared_ptr<LED_RGB_Button> rgbButton3;
