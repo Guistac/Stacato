@@ -4,416 +4,8 @@
         <Layout>
             <ComponentName Value="Maintenance"/>
             <OpenWindows>
-                <Window Name="Log"/>
-                <Window Name="Dashboard"/>
-                <Window Name="Manoeuvre List"/>
-                <Window Name="Track Sheet Editor"/>
-                <Window Name="Curve Editor"/>
-                <Window Name="Playback Manager"/>
-                <Window Name="Setup"/>
-            </OpenWindows>
-            <ImGuiIniString>
-
-[Window][Debug##Default]
-Pos=60,60
-Size=400,400
-Collapsed=0
-
-[Window][##Toolbar]
-Pos=0,996
-Size=2056,84
-Collapsed=0
-
-[Window][Main Window]
-Pos=0,29
-Size=2056,1160
-Collapsed=0
-
-[Window][Quitting Application]
-Pos=794,434
-Size=468,132
-Collapsed=0
-
-[Window][Environnement]
-Pos=0,29
-Size=2056,1144
-Collapsed=0
-
-[Window][Stage]
-Pos=419,32
-Size=1637,881
-Collapsed=0
-
-[Window][Machines]
-Pos=0,32
-Size=2056,961
-Collapsed=0
-
-[Window][Setup]
-Pos=1332,29
-Size=348,884
-Collapsed=0
-DockId=0x00000002,1
-
-[Window][Plot List]
-Pos=0,32
-Size=417,881
-Collapsed=0
-
-[Window][Track Sheet Editor]
-Pos=261,29
-Size=1069,286
-Collapsed=0
-DockId=0x00000005,0
-
-[Window][Curve Editor]
-Pos=456,317
-Size=874,596
-Collapsed=0
-DockId=0x0000000A,0
-
-[Window][Sequencer]
-Pos=1031,29
-Size=1025,508
-Collapsed=0
-
-[Window][cCurvesTest]
-Pos=0,32
-Size=2056,881
-Collapsed=0
-
-[Window][CommandZ]
-Pos=0,32
-Size=2056,881
-Collapsed=0
-
-[Window][MainWindow]
-Pos=0,0
-Size=1680,913
-Collapsed=0
-
-[Window][OffscreenNodeEditorFor1Frame]
-ViewportPos=10000,10000
-ViewportId=0x34E92D39
-Size=44,55
-Collapsed=0
-
-[Window][Edit Layout]
-Pos=781,456
-Size=358,140
-Collapsed=0
-
-[Window][Closing Current Project]
-Pos=794,434
-Size=468,132
-Collapsed=0
-
-[Window][ImPlot Demo]
-ViewportPos=50,50
-ViewportId=0x6C351E99
-Size=600,750
-Collapsed=0
-
-[Window][Dear ImGui Demo]
-ViewportPos=969,73
-ViewportId=0x3DD03744
-Size=528,1024
-Collapsed=0
-
-[Window][Dear ImGui Metrics/Debugger]
-ViewportPos=1307,231
-ViewportId=0x8FC55800
-Size=648,1045
-Collapsed=0
-
-[Window][Dear ImGui Stack Tool]
-Pos=60,60
-Size=393,168
-Collapsed=0
-
-[Window][Manoeuvre List]
-Pos=0,29
-Size=259,884
-Collapsed=0
-DockId=0x00000003,0
-
-[Window][Manoeuvre Sheet]
-Pos=0,32
-Size=2056,961
-Collapsed=0
-
-[Window][Manoeuvre Curves]
-Pos=0,32
-Size=2056,961
-Collapsed=0
-
-[Window][Starting Environnement]
-Pos=525,428
-Size=630,140
-Collapsed=0
-
-[Window][DragList]
-Pos=432,304
-Size=555,664
-Collapsed=0
-
-[Window][Dear ImGui Style Editor]
-ViewportPos=969,73
-ViewportId=0x3DD03744
-Size=528,1024
-Collapsed=0
-
-[Window][Dragged Item]
-Pos=95,250
-Size=583,50
-Collapsed=0
-
-[Window][TestWindow]
-Pos=208,93
-Size=364,256
-Collapsed=0
-
-[Window][ScaleTest]
-Pos=371,32
-Size=1465,582
-Collapsed=0
-
-[Window][DashboardControls]
-Pos=0,58
-Size=449,51
-Collapsed=0
-
-[Window][Dashboard]
-Pos=1332,29
-Size=348,884
-Collapsed=0
-DockId=0x00000002,0
-
-[Window][Spatial Editor]
-Pos=0,29
-Size=515,508
-Collapsed=0
-
-[Window][Toolbar]
-Pos=0,913
-Size=1680,84
-Collapsed=0
-
-[Window][Quit Application]
-Pos=794,474
-Size=468,132
-Collapsed=0
-
-[Window][About]
-Pos=608,426
-Size=511,198
-Collapsed=0
-
-[Window][Unlock Environnement Editor]
-Pos=640,418
-Size=399,161
-Collapsed=0
-
-[Window][Close Project]
-Pos=794,474
-Size=468,132
-Collapsed=0
-
-[Window][Visualizer]
-Pos=488,306
-Size=489,359
-Collapsed=0
-
-[Window][Node Editor]
-Pos=566,166
-Size=1067,765
-Collapsed=0
-
-[Window][Node Manager]
-Pos=437,29
-Size=1291,938
-Collapsed=0
-
-[Window][EtherCAT Fieldbus]
-Pos=1462,614
-Size=266,353
-Collapsed=0
-
-[Window][Visualizer Script]
-Pos=732,487
-Size=997,480
-Collapsed=0
-
-[Window][Log]
-Pos=1332,29
-Size=348,884
-Collapsed=0
-DockId=0x00000002,2
-
-[Window][Active Animations]
-Pos=378,713
-Size=676,254
-Collapsed=0
-
-[Window][Playback Manager]
-Pos=261,317
-Size=193,596
-Collapsed=0
-DockId=0x00000009,0
-
-[Window][ESI Reader]
-Pos=0,29
-Size=1555,938
-Collapsed=0
-
-[Window][EtherCAT Network]
-Pos=0,29
-Size=367,884
-Collapsed=0
-DockId=0x00000003,1
-
-[Window][Environnement Script]
-ViewportPos=423,257
-ViewportId=0x03A4500F
-Size=338,938
-Collapsed=0
-
-[Window][Window 1]
-ViewportPos=1000,583
-ViewportId=0xDD05DE5A
-Size=333,163
-Collapsed=0
-
-[Window][Window 2]
-ViewportPos=1010,203
-ViewportId=0x84B6E34D
-Pos=0,165
-Size=333,168
-Collapsed=0
-
-[Window][Window 4]
-ViewportPos=1010,203
-ViewportId=0x84B6E34D
-Size=333,163
-Collapsed=0
-
-[Window][Window 3]
-ViewportPos=1000,583
-ViewportId=0xDD05DE5A
-Pos=0,165
-Size=333,168
-Collapsed=0
-
-[Window][Horizontal contents size demo window]
-Pos=60,60
-Size=828,590
-Collapsed=0
-
-[Window][EtherCAT Devices]
-Pos=0,29
-Size=367,884
-Collapsed=0
-DockId=0x00000003,1
-
-[Window][Edit Plot]
-Pos=661,428
-Size=358,140
-Collapsed=0
-
-[Window][New Plot]
-Pos=685,455
-Size=358,140
-Collapsed=0
-
-[Window][Delete Plot]
-Pos=714,472
-Size=300,106
-Collapsed=0
-
-[Window][Snake Game]
-Pos=60,60
-Size=671,541
-Collapsed=0
-
-[Window][Snake]
-Pos=503,311
-Size=1225,656
-Collapsed=0
-
-[Window][Pong]
-ViewportPos=2120,48
-ViewportId=0x816AEE71
-Size=567,743
-Collapsed=0
-
-[Window][Hello]
-Pos=0,29
-Size=1728,938
-Collapsed=0
-
-[Table][0xDA36A7E0,6]
-RefScale=21
-Column 0  Width=49 Sort=0^
-Column 1  Width=113
-Column 2  Width=92
-Column 3  Width=81
-Column 4  Weight=1.0000
-Column 5  Width=-1
-
-[Table][0x9B8E7538,3]
-Column 0  Weight=1.0000
-Column 1  Weight=1.0000
-Column 2  Weight=1.0000
-
-[Table][0xA43C3885,3]
-RefScale=21
-Column 0  Width=52
-Column 1  Width=52
-Column 2  Width=52
-
-[Table][0xC9935533,3]
-Column 0  Weight=1.0000
-Column 1  Weight=1.0000
-Column 2  Weight=1.0000
-
-[Table][0x64418101,3]
-RefScale=21
-Column 0  Width=63
-Column 1  Width=63
-Column 2  Width=63
-
-[Table][0x47600645,3]
-RefScale=21
-Column 0  Width=64
-Column 1  Width=64
-Column 2  Weight=1.0000
-
-[Table][0xDE6957FF,6]
-RefScale=21
-Column 0  Width=64
-Column 1  Width=64
-Column 2  Width=-1
-Column 3  Weight=1.0000
-Column 4  Weight=1.0000
-Column 5  Weight=-1.0000
-
-[Docking][Data]
-DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1680,884 Split=X Selected=0xB00214C9
-  DockNode        ID=0x00000001 Parent=0xD5272B65 SizeRef=1330,884 Split=X Selected=0xB00214C9
-    DockNode      ID=0x00000003 Parent=0x00000001 SizeRef=259,884 HiddenTabBar=1 Selected=0xEBD2820B
-    DockNode      ID=0x00000004 Parent=0x00000001 SizeRef=1069,884 Split=Y Selected=0xB00214C9
-      DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=774,286 HiddenTabBar=1 Selected=0x47C7A3F3
-      DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=774,596 Split=X Selected=0xB00214C9
-        DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=193,444 CentralNode=1 HiddenTabBar=1 Selected=0x8E074A3E
-        DockNode  ID=0x0000000A Parent=0x00000006 SizeRef=874,444 HiddenTabBar=1 Selected=0x8506A884
-  DockNode        ID=0x00000002 Parent=0xD5272B65 SizeRef=348,884 Selected=0xB00214C9
-
-</ImGuiIniString>
-        </Layout>
-        <Layout>
-            <ComponentName Value="New Layout"/>
-            <OpenWindows>
                 <Window Name="Node Editor"/>
+                <Window Name="Dashboard"/>
                 <Window Name="Log"/>
                 <Window Name="Manual Controls"/>
             </OpenWindows>
@@ -455,17 +47,10 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-<<<<<<< HEAD
 Pos=0,29
 Size=1864,1274
 Collapsed=0
 DockId=0x0000000B,1
-=======
-Pos=1380,29
-Size=348,938
-Collapsed=0
-DockId=0x00000002,0
->>>>>>> Wozzeck
 
 [Window][Plot List]
 Pos=0,32
@@ -473,7 +58,6 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-<<<<<<< HEAD
 ViewportPos=636,229
 ViewportId=0xE114A1BD
 Size=861,938
@@ -485,18 +69,6 @@ ViewportId=0xEF717048
 Pos=438,643
 Size=695,324
 Collapsed=0
-=======
-Pos=295,29
-Size=1083,286
-Collapsed=0
-DockId=0x00000005,0
-
-[Window][Curve Editor]
-Pos=504,29
-Size=874,938
-Collapsed=0
-DockId=0x0000000A,0
->>>>>>> Wozzeck
 
 [Window][Sequencer]
 Pos=1031,29
@@ -558,18 +130,11 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
-<<<<<<< HEAD
 ViewportPos=0,66
 ViewportId=0x36A60932
 Pos=0,29
 Size=434,938
 Collapsed=0
-=======
-Pos=0,29
-Size=293,938
-Collapsed=0
-DockId=0x00000003,0
->>>>>>> Wozzeck
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -582,11 +147,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Starting Environnement]
-<<<<<<< HEAD
 Pos=549,455
-=======
-Pos=525,428
->>>>>>> Wozzeck
 Size=630,140
 Collapsed=0
 
@@ -622,17 +183,10 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-<<<<<<< HEAD
 Pos=1300,376
 Size=428,296
 Collapsed=0
 DockId=0x00000005,0
-=======
-Pos=1380,29
-Size=348,938
-Collapsed=0
-DockId=0x00000002,0
->>>>>>> Wozzeck
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -655,11 +209,7 @@ Size=511,198
 Collapsed=0
 
 [Window][Unlock Environnement Editor]
-<<<<<<< HEAD
 Pos=828,459
-=======
-Pos=640,418
->>>>>>> Wozzeck
 Size=399,161
 Collapsed=0
 
@@ -675,7 +225,6 @@ Collapsed=0
 
 [Window][Node Editor]
 Pos=0,29
-<<<<<<< HEAD
 Size=1298,938
 Collapsed=0
 DockId=0x0000000B,0
@@ -706,32 +255,6 @@ Pos=1300,29
 Size=428,345
 Collapsed=0
 DockId=0x00000003,0
-=======
-Size=1378,938
-Collapsed=0
-DockId=0x00000009,0
-
-[Window][Node Manager]
-Pos=437,29
-Size=1291,938
-Collapsed=0
-
-[Window][EtherCAT Fieldbus]
-Pos=1462,614
-Size=266,353
-Collapsed=0
-
-[Window][Visualizer Script]
-Pos=732,487
-Size=997,480
-Collapsed=0
-
-[Window][Log]
-Pos=1380,29
-Size=348,938
-Collapsed=0
-DockId=0x00000002,0
->>>>>>> Wozzeck
 
 [Window][Active Animations]
 Pos=378,713
@@ -739,18 +262,11 @@ Size=676,254
 Collapsed=0
 
 [Window][Playback Manager]
-<<<<<<< HEAD
 ViewportPos=0,66
 ViewportId=0xEFCCCD6D
 Pos=0,29
 Size=259,938
 Collapsed=0
-=======
-Pos=0,29
-Size=502,938
-Collapsed=0
-DockId=0x00000009,0
->>>>>>> Wozzeck
 
 [Window][ESI Reader]
 Pos=0,29
@@ -758,18 +274,11 @@ Size=1555,938
 Collapsed=0
 
 [Window][EtherCAT Network]
-<<<<<<< HEAD
 ViewportPos=-105,731
 ViewportId=0xA3B4A2E7
 Size=1650,1027
 Collapsed=0
 DockId=0x0000000A,0
-=======
-Pos=0,29
-Size=367,884
-Collapsed=0
-DockId=0x00000003,1
->>>>>>> Wozzeck
 
 [Window][Environnement Script]
 ViewportPos=423,257
@@ -809,7 +318,6 @@ Size=828,590
 Collapsed=0
 
 [Window][EtherCAT Devices]
-<<<<<<< HEAD
 ViewportPos=867,95
 ViewportId=0xFB59F16B
 Size=861,938
@@ -817,15 +325,6 @@ Collapsed=0
 
 [Window][Edit Plot]
 Pos=781,456
-=======
-Pos=0,29
-Size=367,884
-Collapsed=0
-DockId=0x00000003,1
-
-[Window][Edit Plot]
-Pos=661,428
->>>>>>> Wozzeck
 Size=358,140
 Collapsed=0
 
@@ -863,7 +362,6 @@ Collapsed=0
 [Window][New Layout]
 Pos=685,455
 Size=358,140
-<<<<<<< HEAD
 Collapsed=0
 
 [Window][Rename Layout]
@@ -874,8 +372,6 @@ Collapsed=0
 [Window][Manual Controls]
 Pos=1300,674
 Size=428,293
-=======
->>>>>>> Wozzeck
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -926,7 +422,6 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-<<<<<<< HEAD
 DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
   DockNode        ID=0x00000001 Parent=0xD5272B65 SizeRef=0,0 Split=X Selected=0xAE98FAB7
     DockNode      ID=0x00000006 Parent=0x00000001 SizeRef=976,1023 Split=X Selected=0xFCCC3921
@@ -940,17 +435,6 @@ DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X
     DockNode      ID=0x00000004 Parent=0x00000002 SizeRef=460,462 Split=Y Selected=0xB00214C9
       DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=428,296 HiddenTabBar=1 Selected=0xB00214C9
       DockNode    ID=0x0000000C Parent=0x00000004 SizeRef=428,293 HiddenTabBar=1 Selected=0xCD2247DB
-=======
-DockSpace         ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xB00214C9
-  DockNode        ID=0x00000001 Parent=0xD5272B65 SizeRef=1330,884 Split=X Selected=0xB00214C9
-    DockNode      ID=0x00000003 Parent=0x00000001 SizeRef=293,884 Selected=0xEBD2820B
-    DockNode      ID=0x00000004 Parent=0x00000001 SizeRef=1083,884 Split=Y Selected=0xB00214C9
-      DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=774,286 Selected=0x47C7A3F3
-      DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=774,596 Split=X Selected=0xB00214C9
-        DockNode  ID=0x00000009 Parent=0x00000006 SizeRef=207,444 CentralNode=1 HiddenTabBar=1 Selected=0x8E074A3E
-        DockNode  ID=0x0000000A Parent=0x00000006 SizeRef=874,444 Selected=0x8506A884
-  DockNode        ID=0x00000002 Parent=0xD5272B65 SizeRef=348,884 HiddenTabBar=1 Selected=0x64F50EE5
->>>>>>> Wozzeck
 
 </ImGuiIniString>
         </Layout>
