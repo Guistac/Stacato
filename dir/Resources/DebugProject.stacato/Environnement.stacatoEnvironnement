@@ -1,8 +1,8 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.73504645" OffsetX="948.58813" OffsetY="-57.986511" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-809" PositionY="61" SizeX="149.10001" SizeY="398.57172"/>
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-655" PositionY="60" SizeX="149.10001" SizeY="398.21124"/>
+    <Dashboard Scale="0.73563111" OffsetX="948.35651" OffsetY="-57.988098" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-809" PositionY="61" SizeX="149.09987" SizeY="398.2543"/>
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-655" PositionY="60" SizeX="149.09987" SizeY="397.89493"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -89,7 +89,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="55">
                 <NodeEditorPosition x="361" y="136"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="50" AccelerationLimit="50" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" VelocityLoopMaxError="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="50" AccelerationLimit="50" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="21" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="21" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -116,7 +116,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Machine 1" UniqueID="70">
                 <NodeEditorPosition x="633" y="266"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
+                    <Limits InvertAxis="false" AxisOffset="5" LowerPositionLimit="0" UpperPositionLimit="90"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="1"/>
                 </NodeSpecificData>
@@ -132,7 +132,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Machine 2" UniqueID="75">
                 <NodeEditorPosition x="600" y="519"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
+                    <Limits InvertAxis="false" AxisOffset="5" LowerPositionLimit="0" UpperPositionLimit="90"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="2"/>
                 </NodeSpecificData>
@@ -147,7 +147,9 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="82">
                 <NodeEditorPosition x="344" y="414"/>
-                <NodeSpecificData MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="2" VelocityLimit="0" AccelerationLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" VelocityLoopMaxError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="50" AccelerationLimit="50" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="97" UnitConversion="1"/>
+                    <VelocityFeedbackMapping InterfacePinID="97" UnitConversion="1"/>
                     <ActuatorMappings>
                         <ActuatorMapping InterfacePinID="97" UnitConversion="1" ControlMode="1"/>
                     </ActuatorMappings>
@@ -171,7 +173,7 @@
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="KincoFD" Split="false" CustomName="Kinco FD" UniqueID="96">
                 <NodeEditorPosition x="221" y="390"/>
-                <NodeSpecificData PositionOffset="0" MaxVelocity="0" MaxAcceleration="0" MaxCurrent="0" VelocityFeedForward="0" MaxFollowingError="0" FollowingErrorTimeout="0" BrakingResistorResistance="0" BrakingResistorRatedPower="0" Din1Function="0" Din2Function="0" Din3Function="0" Din4Function="0" Din5Function="0" Din6Function="0" Din7Function="0" DIN1Polarity="false" DIN2Polarity="false" DIN3Polarity="false" DIN4Polarity="false" DIN5Polarity="false" DIN6Polarity="false" DIN7Polarity="false" Dout1Function="0" Dout2Function="0" Dout3Function="0" Dout4Function="0" Dout5Function="0" Dout1Polarity="false" Dout2Polarity="false" Dout3Polarity="false" Dout4Polarity="false" Dout5Polarity="false">
+                <NodeSpecificData PositionOffset="0" MaxVelocity="80" MaxAcceleration="100" MaxCurrent="0" VelocityFeedForward="0" MaxFollowingError="0" FollowingErrorTimeout="0" BrakingResistorResistance="0" BrakingResistorRatedPower="0" Din1Function="0" Din2Function="0" Din3Function="0" Din4Function="0" Din5Function="0" Din6Function="0" Din7Function="0" DIN1Polarity="false" DIN2Polarity="false" DIN3Polarity="false" DIN4Polarity="false" DIN5Polarity="false" DIN6Polarity="false" DIN7Polarity="false" Dout1Function="0" Dout2Function="0" Dout3Function="0" Dout4Function="0" Dout5Function="0" Dout1Polarity="false" Dout2Polarity="false" Dout3Polarity="false" Dout4Polarity="false" Dout5Polarity="false">
                     <Identification Type="StationAlias" StationAlias="0"/>
                 </NodeSpecificData>
                 <InputPins/>

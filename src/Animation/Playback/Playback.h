@@ -17,4 +17,8 @@ namespace PlaybackManager {
 
 	//playback handling
 	void update();
+
+	void setPlaybackSpeedMultiplier(double multiplier);
+	void resetPlaybackSpeedMultiplier();
+	double getPlaybackSpeedMultiplier();
 }

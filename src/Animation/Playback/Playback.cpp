@@ -15,6 +15,11 @@ namespace PlaybackManager {
 	std::vector<std::shared_ptr<Animation>> activeAnimations;
 	std::vector<std::shared_ptr<Manoeuvre>> activeManoeuvres;
 
+	double playbackSpeedMultiplier = 1.0;
+	void setPlaybackSpeedMultiplier(double multiplier){ playbackSpeedMultiplier = std::clamp(multiplier, 0.9, 1.1); }
+	void resetPlaybackSpeedMultiplier(){ playbackSpeedMultiplier = 1.0; }
+	double getPlaybackSpeedMultiplier(){ return playbackSpeedMultiplier; }
+
 	void push(std::shared_ptr<Animation> animation){
 		const std::lock_guard<std::mutex> lock(mutex);
 		for(auto& activeAnimation : activeAnimations) if(activeAnimation == animation) return;
@@ -97,6 +102,10 @@ namespace PlaybackManager {
 		
 		//increment playback position of current manoeuvres
 		long long time_micros = Environnement::getTime_nanoseconds() / 1000;
+		
+		//we should increment the playaback position instead of setting a hard time
+		//Environnement::getDeltaTime_nanoseconds() / 1000;
+		
 		for (auto& animation : activeAnimations) {
 			if(animation->isPlaying()){
 				animation->incrementPlaybackPosition(time_micros);

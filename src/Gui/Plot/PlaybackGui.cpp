@@ -153,6 +153,14 @@ void sequencerPlaybackControls(float height){}
 
 void PlaybackManagerWindow::onDraw(){
 	
+	if(ImGui::Button("Reset")) PlaybackManager::resetPlaybackSpeedMultiplier();
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+	float playbackSpeedMutliplier = PlaybackManager::getPlaybackSpeedMultiplier() * 100.0;
+	if(ImGui::SliderFloat("##PlaybackSpeed", &playbackSpeedMutliplier, 90.0, 110.0, "%.1f%%")){
+		PlaybackManager::setPlaybackSpeedMultiplier(playbackSpeedMutliplier / 100.0);
+	}
+	
 	auto drawing = ImGui::GetWindowDrawList();
 	ImDrawListSplitter drawingLayers;
 	

@@ -1,3 +1,12 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList/>
+    <ManoeuvreList>
+        <Manoeuvre Name="M-0" Description="" Type="Target">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="50" EndAcceleration="50"/>
+        </Manoeuvre>
+    </ManoeuvreList>
 </Plot>
