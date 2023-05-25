@@ -49,6 +49,8 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	pushButton1->setInputUpdateCallback([&](){ Logger::warn("Button 1 : {}", pushButton1->isPressed()); });
 	pushButton2->setInputUpdateCallback([&](){ Logger::warn("Button 2 : {}", pushButton2->isPressed()); });
 	pushButton3->setInputUpdateCallback([&](){ Logger::warn("Button 3 : {}", pushButton3->isPressed()); });
+	pushButton4->setInputUpdateCallback([&](){ Logger::warn("Button 4 : {}", pushButton4->isPressed()); });
+	pushButton5->setInputUpdateCallback([&](){ Logger::warn("Button 5 : {}", pushButton5->isPressed()); });
 	
 	joystick->setInputUpdateCallback([&](){
 		Environnement::getManualControlChannel()->setControlValue(joystick->getPosition().y);
@@ -69,30 +71,6 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 		else if(Environnement::isStarting()) rgbLed->setColor(glm::vec3(1.f, 1.f, 0.f));
 		else rgbLed->setColor(glm::vec3(0.f, 0.f, 1.f));
 	});
-    
-    
-	
-    
-    
-    
-    
-    
-    //TODO: assign these to machines
-	joystickLeft->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
-		auto joystick = device->toJoystick2X();
-		auto position = joystick->getPosition();
-		//Logger::warn("Joystick Left: {} {}", position.x, position.y);
-	});
-	joystickRight->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
-        auto joystick = device->toJoystick2X();
-        auto position = joystick->getPosition();
-        //Logger::warn("Joystick Right: {} {}", position.x, position.y);
-    });
-	
-    
-    
-    
-    
     
     left_selection_button->setInputUpdateCallback([](std::shared_ptr<IODevice> device){
         auto button = device->toPushButton();

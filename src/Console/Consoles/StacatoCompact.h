@@ -22,6 +22,8 @@ public:
 			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::PUSHBUTTON,
+			IODevice::Type::PUSHBUTTON,
+			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::JOYSTICK_2AXIS
 		};
 		return deviceTypes;
@@ -51,6 +53,8 @@ public:
 	std::shared_ptr<PushButton> pushButton1;
 	std::shared_ptr<PushButton> pushButton2;
 	std::shared_ptr<PushButton> pushButton3;
+	std::shared_ptr<PushButton> pushButton4;
+	std::shared_ptr<PushButton> pushButton5;
 	std::shared_ptr<Joystick2X> joystick;
 	
 	virtual void onDisconnection() override;
