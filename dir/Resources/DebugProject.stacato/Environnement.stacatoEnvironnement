@@ -1,9 +1,9 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.73769736" OffsetX="870.54181" OffsetY="-57.993774" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 3" UniqueID="3" PositionX="-504" PositionY="60" SizeX="149.10036" SizeY="398.13675"/>
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-655" PositionY="61" SizeX="149.10036" SizeY="398.49231"/>
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-806" PositionY="61" SizeX="149.10036" SizeY="398.49231"/>
+    <Dashboard Scale="0.7363705" OffsetX="871.06464" OffsetY="-57.990143" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 3" UniqueID="3" PositionX="-504" PositionY="60" SizeX="149.10011" SizeY="397.49573"/>
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-655" PositionY="61" SizeX="149.10011" SizeY="397.85376"/>
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-806" PositionY="61" SizeX="149.10011" SizeY="397.85376"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -268,6 +268,42 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="159" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="KincoFD" Split="false" CustomName="Kinco FD (ID:255)" UniqueID="166">
+                <NodeEditorPosition x="-398" y="14"/>
+                <NodeSpecificData PositionOffset="0" MaxVelocity="50" MaxAcceleration="50" MaxCurrent="10" VelocityFeedForward="100" MaxFollowingError="1" FollowingErrorTimeout="10" InvertDirection="true" BrakingResistorResistance="75" BrakingResistorRatedPower="1" Din1Function="0" Din2Function="0" Din3Function="0" Din4Function="0" Din5Function="0" Din6Function="0" Din7Function="0" DIN1Polarity="false" DIN2Polarity="false" DIN3Polarity="false" DIN4Polarity="false" DIN5Polarity="false" DIN6Polarity="false" DIN7Polarity="false" Dout1Function="0" Dout2Function="0" Dout3Function="0" Dout4Function="0" Dout5Function="0" Dout1Polarity="false" Dout2Polarity="false" Dout3Polarity="false" Dout4Polarity="false" Dout5Polarity="false">
+                    <Identification Type="ExplicitDeviceID" ExplicitDeviceID="255"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="167" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="182">
+                <NodeEditorPosition x="-179" y="-92"/>
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="50" AccelerationLimit="50" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="167" UnitConversion="1"/>
+                    <VelocityFeedbackMapping InterfacePinID="167" UnitConversion="1"/>
+                    <ActuatorMappings>
+                        <ActuatorMapping InterfacePinID="167" UnitConversion="1" ControlMode="1"/>
+                    </ActuatorMappings>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="183" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="184" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="185" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="186" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="187" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="188" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="189" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="190" Visible="false"/>
+                    <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="191" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="192" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="193" Visible="true"/>
+                    <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="194" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="81" StartPin="65" EndPin="72"/>
@@ -276,6 +312,7 @@
             <Link UniqueID="162" StartPin="103" EndPin="56"/>
             <Link UniqueID="163" StartPin="131" EndPin="143"/>
             <Link UniqueID="164" StartPin="92" EndPin="77"/>
+            <Link UniqueID="195" StartPin="167" EndPin="183"/>
         </Links>
     </NodeGraph>
 </Environnement>

@@ -53,6 +53,7 @@ void KincoFD::initialize() {
 	maxFollowingError_parameter = NumberParameter<double>::make(0.0, "Max Position Following Error", "MaxFollowingError");
 	maxFollowingError_parameter->setUnit(Units::AngularDistance::Revolution);
 	maxFollowingError_parameter->addEditCallback([this](){updateActuatorInterface();});
+	invertDirectionOfMotion_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 	followingErrorTimeout_parameter = NumberParameter<int>::make(0.0, "Position Following Error Time Out", "FollowingErrorTimeout");
 	followingErrorTimeout_parameter->setUnit(Units::Time::Millisecond);
 	
@@ -270,6 +271,8 @@ bool KincoFD::saveDeviceData(tinyxml2::XMLElement* xml) {
 	velocityFeedforward_parameter->save(xml);
 	maxFollowingError_parameter->save(xml);
 	followingErrorTimeout_parameter->save(xml);
+	
+	invertDirectionOfMotion_parameter->save(xml);
 
 	brakingResistorResistance_parameter->save(xml);
 	brakingResistorPower_parameter->save(xml);
@@ -316,6 +319,8 @@ bool KincoFD::loadDeviceData(tinyxml2::XMLElement* xml) {
 	velocityFeedforward_parameter->load(xml);
 	maxFollowingError_parameter->load(xml);
 	followingErrorTimeout_parameter->load(xml);
+	
+	invertDirectionOfMotion_parameter->load(xml);
 	
 	brakingResistorResistance_parameter->load(xml);
 	brakingResistorPower_parameter->load(xml);
@@ -387,6 +392,8 @@ void KincoFD::uploadConfiguration(){
 	writeSDO_S16(0x60FB, 0x2, float(velocityFeedforward_parameter->value) * 2.56);
 	axis->setFollowingErrorWindow(maxFollowingError_parameter->value * incrementsPerRevolution);
 	writeSDO_U16(0x2508, 0x9, followingErrorTimeout_parameter->value);
+	
+	axis->setPolarity(invertDirectionOfMotion_parameter->value);
 	
 	writeSDO_U16(0x60F7, 0x1, brakingResistorResistance_parameter->value);
 	writeSDO_U16(0x60F7, 0x2, brakingResistorPower_parameter->value);

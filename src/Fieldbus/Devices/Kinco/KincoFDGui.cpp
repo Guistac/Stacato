@@ -81,6 +81,7 @@ void KincoFD::deviceSpecificGui() {
 		velocityFeedforward_parameter->gui(Fonts::sansBold15);
 		maxFollowingError_parameter->gui(Fonts::sansBold15);
 		followingErrorTimeout_parameter->gui(Fonts::sansBold15);
+		invertDirectionOfMotion_parameter->gui(Fonts::sansBold15);
 		
 		ImGui::Separator();
 		

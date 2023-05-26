@@ -98,6 +98,7 @@ public:
 	NumberParam<double> velocityFeedforward_parameter;		//0x60FB:02 K_Velocity_FF (in %, 256 == 100%)
 	NumberParam<double> maxFollowingError_parameter;		//0x6065:00 Max_Following_Error (in position increments)
 	NumberParam<int> followingErrorTimeout_parameter;		//0x6066:00 Position_Window_Time (in ms)
+	BoolParam invertDirectionOfMotion_parameter;			//0x607E:00 Invert_Dir (0: CCW is positive, 1: CW is positive)
 	NumberParam<int> brakingResistorResistance_parameter;	//0x60F7:1 Chop_Resistor (in Ohm)
 	NumberParam<int> brakingResistorPower_parameter;		//0x60F7:2 Chop_Resistor_Rated (in Watt)
 	

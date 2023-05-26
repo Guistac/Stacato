@@ -16,8 +16,8 @@ namespace PlaybackManager {
 	std::vector<std::shared_ptr<Manoeuvre>> activeManoeuvres;
 
 	double playbackSpeedMultiplier = 1.0;
-	double minPlaybackSpeedMultiplier = 0.5;
-	double maxPlaybackSpeedMultiplier = 1.5;
+	double minPlaybackSpeedMultiplier = 0.95;
+	double maxPlaybackSpeedMultiplier = 1.05;
 	void setPlaybackSpeedMultiplier(double multiplier){ playbackSpeedMultiplier = std::clamp(multiplier, minPlaybackSpeedMultiplier, maxPlaybackSpeedMultiplier); }
 	void resetPlaybackSpeedMultiplier(){ playbackSpeedMultiplier = 1.0; }
 	double getPlaybackSpeedMultiplier(){ return playbackSpeedMultiplier; }

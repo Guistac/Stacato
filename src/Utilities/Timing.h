@@ -16,6 +16,17 @@ namespace Timing {
 
 	inline bool getBlink(double period_seconds){ return fmod(getProgramTime_seconds(), period_seconds) < (period_seconds * .5); }
 
+	inline double getSinusWave(double period_seconds, double min, double max){
+		return (std::sin(getProgramTime_seconds() / period_seconds) * 0.5 * (max - min)) - min;
+	}
+	inline double getTriangleWave(double period_seconds, double min, double max){
+		double periodNorm = fmod(getProgramTime_seconds(), period_seconds) / period_seconds;
+		double outputNorm;
+		if(periodNorm > 0.5) outputNorm = 1.0 - periodNorm;
+		else outputNorm = periodNorm;
+		return (outputNorm * (max - min)) - min;
+	}
+
 	inline std::string getDateAndTimeString(){
 		auto t = std::time(nullptr);
 		auto tm = *std::localtime(&t);

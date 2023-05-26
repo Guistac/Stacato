@@ -209,8 +209,16 @@ public:
 	bool getFollowingErrorTimeOut(uint16_t& output){ return parentDevice->readSDO_U16(0x6066, 0x0, output, "DS402 Following Error Time Out"); }
 	
 	///607E.0 Polarity
-	bool setPolarity(uint8_t polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity, "DS402 Polarity"); }
-	bool getPolarity(uint8_t& output){ return parentDevice->readSDO_U8(0x607E, 0x0, output, "DS402 Polarity"); }
+	bool setPolarity(bool polarity){ return parentDevice->writeSDO_U8(0x607E, 0x0, polarity ? 1 : 0, "DS402 Polarity"); }
+	bool getPolarity(bool& output){
+		uint8_t polarity;
+		if(parentDevice->readSDO_U8(0x607E, 0x0, polarity, "DS402 Polarity")){
+			if(polarity == 0x0) output = false;
+			else output = true;
+			return true;
+		}
+		return false;
+	}
 
 	///6073.0 Max Current
 	bool setMaxCurrent(uint16_t current){ return parentDevice->writeSDO_U16(0x6073, 0x0, current, "DS402 Max Current"); }
