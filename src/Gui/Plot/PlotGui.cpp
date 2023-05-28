@@ -176,7 +176,7 @@ namespace PlotGui{
             
             float popupWidth = ImGui::GetTextLineHeight() * 5.0;
             float selectorHeight = ImGui::GetFrameHeight();
-            glm::vec2 popupSize(popupWidth, selectorHeight * 3.0 + ImGui::GetStyle().WindowBorderSize * 2.0);
+            glm::vec2 popupSize(popupWidth, selectorHeight * 2.0 + ImGui::GetStyle().WindowBorderSize * 1.0);
             
             ImGui::SetNextWindowPos(createPopupPosition + glm::vec2(0.0, -popupSize.y));
             ImGui::SetNextWindowSize(popupSize);
@@ -206,11 +206,12 @@ namespace PlotGui{
                 };
                 
                 
-                
+                /*
                 if(manoeuvreTypeSelector(Images::KeyIcon, "Key", popupWidth)) {
                     manoeuvreList->addManoeuvre(ManoeuvreType::KEY);
                     ImGui::CloseCurrentPopup();
                 }
+				*/
                 if(manoeuvreTypeSelector(Images::TargetIcon, "Target", popupWidth)) {
                     manoeuvreList->addManoeuvre(ManoeuvreType::TARGET);
                     ImGui::CloseCurrentPopup();

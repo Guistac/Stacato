@@ -259,15 +259,52 @@ public:
 	virtual void onGui() override {
 		ImGui::BeginDisabled(isDisabled());
 		
-		//Hacky way of getting floating point input with comma without disrupting other stuff like xml saving and loading
-		//Gui::setFloatingPointComma();
-		ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
-		//Gui::setFloatingPointPeriod();
-		
-		ImGui::EndDisabled();
-		if(ImGui::IsItemDeactivatedAfterEdit()){
-			overwriteWithHistory(displayValue);
+		//TURN DISPLAY HACK
+		if(unit == Units::AngularDistance::Degree){
+			bool b_edited = false;
+			bool b_hovered = false;
+			
+			if(b_useTurnAndDegrees){
+				ImGui::PushID(1);
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.5);
+				ImGui::InputScalar(getImGuiID(), ImGuiDataType_S32, &fullTurns, nullptr, nullptr, "%iRev");
+				b_edited |= ImGui::IsItemDeactivatedAfterEdit();
+				b_hovered |= ImGui::IsItemHovered();
+				ImGui::PopID();
+				ImGui::SameLine();
+				ImGui::PushID(2);
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+				ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &singleTurnPosition, nullptr, nullptr, "%.1f°");
+				b_edited |= ImGui::IsItemDeactivatedAfterEdit();
+				b_hovered |= ImGui::IsItemHovered();
+				ImGui::PopID();
+				if(b_edited){
+					singleTurnPosition = std::clamp(singleTurnPosition, 0.0, 359.99);
+					double absoluteDegrees = fullTurns * 360.0 + singleTurnPosition;
+					overwriteWithHistory(absoluteDegrees);
+				}
+			}
+			else{
+				ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
+				b_hovered |= ImGui::IsItemHovered();
+				if(ImGui::IsItemDeactivatedAfterEdit()){
+					overwriteWithHistory(displayValue);
+				}
+			}
+			
+			if(b_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+				b_useTurnAndDegrees = !b_useTurnAndDegrees;
+			}
+			
 		}
+		else{
+			ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
+			if(ImGui::IsItemDeactivatedAfterEdit()){
+				overwriteWithHistory(displayValue);
+			}
+		}
+			
+		ImGui::EndDisabled();
 	}
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override {
@@ -290,6 +327,9 @@ public:
 	void overwrite(T newValue){
 		displayValue = newValue;
 		value = newValue;
+		//TURN DISPLAY HACK
+		fullTurns = std::floor(newValue / 360.0);
+		singleTurnPosition = newValue - fullTurns * 360.0;
 	}
 	
 	void overwriteWithHistory(T newValue){
@@ -311,6 +351,11 @@ public:
 	
 private:
 	
+	//hacky way to get rev+degree working as part of the parameter object
+	int fullTurns;
+	double singleTurnPosition;
+	bool b_useTurnAndDegrees = true;
+	
 	ImGuiDataType getImGuiDataType();
 	std::string getDefaultFormatString(){ return "%i"; } //template specialisation for real float and double types
 	
@@ -327,6 +372,11 @@ private:
 		void setNewValue(){
 			parameter->lockMutex();
 			parameter->value = newValue;
+			
+			//TURN DISPLAY HACK
+			parameter->fullTurns = std::floor(newValue / 360.0);
+			parameter->singleTurnPosition = newValue - parameter->fullTurns * 360.0;
+			
 			parameter->displayValue = newValue;
 			parameter->unlockMutex();
 		}
@@ -334,6 +384,11 @@ private:
 			parameter->lockMutex();
 			parameter->value = previousValue;
 			parameter->displayValue = previousValue;
+			
+			//TURN DISPLAY HACK
+			parameter->fullTurns = std::floor(previousValue / 360.0);
+			parameter->singleTurnPosition = previousValue - parameter->fullTurns * 360.0;
+			
 			parameter->unlockMutex();
 		}
 		virtual void onExecute(){ setNewValue(); parameter->onEdit(); }
