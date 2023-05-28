@@ -89,6 +89,9 @@ class PositionControlledMachine : public Machine{
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
+	void linearWidgetGui();
+	void angularWidgetGui();
+	
 	void widgetGui();
 	virtual bool hasSetupGui() override { return true; }
 	virtual void setupGui() override;

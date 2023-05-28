@@ -1,9 +1,9 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.7363705" OffsetX="871.06464" OffsetY="-57.990143" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 3" UniqueID="3" PositionX="-504" PositionY="60" SizeX="149.10011" SizeY="397.49573"/>
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-655" PositionY="61" SizeX="149.10011" SizeY="397.85376"/>
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-806" PositionY="61" SizeX="149.10011" SizeY="397.85376"/>
+    <Dashboard Scale="0.80112451" OffsetX="883.73987" OffsetY="-56.737045" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49994" SizeY="386.68787"/>
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.49994" SizeY="386.68787"/>
+        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.49994" SizeY="385.68787"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -57,7 +57,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="55">
                 <NodeEditorPosition x="329" y="229"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="30" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="100" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="30" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="5" UpperPositionLimitClearance="5" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="103" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="103" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -84,7 +84,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Machine 1" UniqueID="70">
                 <NodeEditorPosition x="633" y="266"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="5" LowerPositionLimit="0" UpperPositionLimit="90"/>
+                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-715" UpperPositionLimit="715"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false"/>
                     <ControWidget UniqueID="1"/>
                 </NodeSpecificData>
