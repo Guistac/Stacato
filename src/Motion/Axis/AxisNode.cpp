@@ -277,6 +277,8 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= maxHomingDistanceFine->load(xml);
 	
 	manualAccelerationEntry = accelerationLimit->value;
+	
+	updateAxisConfiguration();
 		
 	return true;
 }

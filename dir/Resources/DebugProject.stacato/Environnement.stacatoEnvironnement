@@ -1,9 +1,9 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.75915241" OffsetX="891.64337" OffsetY="-59.050461" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49998" SizeY="384.2572"/>
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.49998" SizeY="384.2572"/>
-        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.49998" SizeY="384.57446"/>
+    <Dashboard Scale="0.75893313" OffsetX="891.72479" OffsetY="-59.049896" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49995" SizeY="384.36819"/>
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.49995" SizeY="384.36819"/>
+        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.49995" SizeY="384.68582"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -57,7 +57,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="55">
                 <NodeEditorPosition x="329" y="229"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="30" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="35" AccelerationLimit="35" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="103" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="103" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -115,7 +115,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="82">
                 <NodeEditorPosition x="313" y="622"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="30" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="35" AccelerationLimit="35" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="117" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="117" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -143,8 +143,8 @@
                 <NodeEditorPosition x="50" y="174"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1238"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="30"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="35" AccelerationLimit_revolutionsPerSecondSquared="35" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="3"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
@@ -172,8 +172,8 @@
                 <NodeEditorPosition x="40" y="553"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3333"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="30"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="35" AccelerationLimit_revolutionsPerSecondSquared="35" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="3"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
@@ -201,8 +201,8 @@
                 <NodeEditorPosition x="40" y="932"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="456"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="30" AccelerationLimit_revolutionsPerSecondSquared="30" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="30"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="35" AccelerationLimit_revolutionsPerSecondSquared="35" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="3"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
@@ -228,7 +228,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="142">
                 <NodeEditorPosition x="313" y="983"/>
-                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="30" AccelerationLimit="30" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="35" AccelerationLimit="35" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="131" UnitConversion="1"/>
                     <VelocityFeedbackMapping InterfacePinID="131" UnitConversion="1"/>
                     <ActuatorMappings>
@@ -306,13 +306,13 @@
             </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="81" StartPin="65" EndPin="72"/>
             <Link UniqueID="160" StartPin="152" EndPin="157"/>
             <Link UniqueID="161" StartPin="117" EndPin="83"/>
             <Link UniqueID="162" StartPin="103" EndPin="56"/>
             <Link UniqueID="163" StartPin="131" EndPin="143"/>
             <Link UniqueID="164" StartPin="92" EndPin="77"/>
             <Link UniqueID="195" StartPin="167" EndPin="183"/>
+            <Link UniqueID="197" StartPin="65" EndPin="72"/>
         </Links>
     </NodeGraph>
 </Environnement>

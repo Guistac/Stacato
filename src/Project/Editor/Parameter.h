@@ -260,40 +260,34 @@ public:
 		ImGui::BeginDisabled(isDisabled());
 		
 		//TURN DISPLAY HACK
-		if(unit == Units::AngularDistance::Degree){
+		if(unit == Units::AngularDistance::Degree && b_useTurnAndDegrees){
+			
 			bool b_edited = false;
-			bool b_hovered = false;
-			
-			if(b_useTurnAndDegrees){
-				ImGui::PushID(1);
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.5);
-				ImGui::InputScalar(getImGuiID(), ImGuiDataType_S32, &fullTurns, nullptr, nullptr, "%iRev");
-				b_edited |= ImGui::IsItemDeactivatedAfterEdit();
-				b_hovered |= ImGui::IsItemHovered();
-				ImGui::PopID();
-				ImGui::SameLine();
-				ImGui::PushID(2);
-				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
-				ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &singleTurnPosition, nullptr, nullptr, "%.1f°");
-				b_edited |= ImGui::IsItemDeactivatedAfterEdit();
-				b_hovered |= ImGui::IsItemHovered();
-				ImGui::PopID();
-				if(b_edited){
-					singleTurnPosition = std::clamp(singleTurnPosition, 0.0, 359.99);
-					double absoluteDegrees = fullTurns * 360.0 + singleTurnPosition;
-					overwriteWithHistory(absoluteDegrees);
-				}
-			}
-			else{
-				ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
-				b_hovered |= ImGui::IsItemHovered();
-				if(ImGui::IsItemDeactivatedAfterEdit()){
-					overwriteWithHistory(displayValue);
-				}
+			ImGui::PushID(1);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
+			ImGui::InputScalar(getImGuiID(), ImGuiDataType_S32, &fullTurns, nullptr, nullptr, "%iRev");
+			b_edited |= ImGui::IsItemDeactivatedAfterEdit();
+			ImGui::PopID();
+			ImGui::SameLine(0.0f, 2.0f);
+			ImGui::PushID(2);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
+			ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &singleTurnPosition, nullptr, nullptr, "+%.1f°");
+			b_edited |= ImGui::IsItemDeactivatedAfterEdit();
+			ImGui::PopID();
+			if(b_edited){
+				singleTurnPosition = std::clamp(singleTurnPosition, 0.0, 359.99);
+				double absoluteDegrees = fullTurns * 360.0 + singleTurnPosition;
+				overwriteWithHistory(absoluteDegrees);
 			}
 			
-			if(b_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-				b_useTurnAndDegrees = !b_useTurnAndDegrees;
+			ImGui::SameLine();
+			ImGui::Text("/");
+			ImGui::SameLine();
+			
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+			ImGui::InputScalar(getImGuiID(), getImGuiDataType(), &displayValue, stepSmallPtr, stepLargePtr, getFormatString(), ImGuiInputTextFlags_CharsScientific);
+			if(ImGui::IsItemDeactivatedAfterEdit()){
+				overwriteWithHistory(displayValue);
 			}
 			
 		}
@@ -319,6 +313,7 @@ public:
 		 if(result != XML_SUCCESS) return Logger::warn("Could not load parameter {}", getName());
 		 value = number;
 		 displayValue = number;
+		 overwrite(number);
 		 return true;
 	 }
 	
@@ -349,12 +344,12 @@ public:
 		value = otherNumberParameter->getValue();
 	}
 	
-private:
-	
 	//hacky way to get rev+degree working as part of the parameter object
 	int fullTurns;
 	double singleTurnPosition;
-	bool b_useTurnAndDegrees = true;
+	bool b_useTurnAndDegrees = false;
+	
+private:
 	
 	ImGuiDataType getImGuiDataType();
 	std::string getDefaultFormatString(){ return "%i"; } //template specialisation for real float and double types

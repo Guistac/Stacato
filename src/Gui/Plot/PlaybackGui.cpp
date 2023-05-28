@@ -152,7 +152,10 @@ void sequencerPlaybackControls(float height){}
 
 
 void PlaybackManagerWindow::onDraw(){
-	
+
+	ImGui::PushFont(Fonts::sansBold15);
+	backgroundText("Playback Speed Adustement:", ImVec2(ImGui::GetContentRegionAvail().x, 0), Colors::darkGray, Colors::white);
+	ImGui::PopFont();
 	if(ImGui::Button("Reset")) PlaybackManager::resetPlaybackSpeedMultiplier();
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -162,6 +165,8 @@ void PlaybackManagerWindow::onDraw(){
 	if(ImGui::SliderFloat("##PlaybackSpeed", &playbackSpeedMutliplier, minMultiplier, maxMultiplier, "%.1f%%")){
 		PlaybackManager::setPlaybackSpeedMultiplier(playbackSpeedMutliplier / 100.0);
 	}
+	
+	ImGui::Separator();
 	
 	auto drawing = ImGui::GetWindowDrawList();
 	ImDrawListSplitter drawingLayers;
@@ -262,6 +267,12 @@ void PlaybackManagerWindow::onDraw(){
 			ImGui::PopID();
 			
 		}
+		
+		
+		double realRemainingTime = manoeuvre->getRemainingPlaybackTime() * PlaybackManager::getPlaybackSpeedMultiplier();
+		std::string realReamingTimeString = TimeStringConversion::secondsToTimecodeString(realRemainingTime);
+		ImGui::Text("Remaining Time: %s", realReamingTimeString.c_str());
+		
 		ImGui::EndGroup();
 		glm::vec2 contentSize = ImGui::GetItemRectSize();
 		glm::vec2 widgetSize(ImGui::GetContentRegionAvail().x, contentSize.y + padding.y * 2.0);

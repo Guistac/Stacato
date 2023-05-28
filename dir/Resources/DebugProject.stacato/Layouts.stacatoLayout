@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Conduite"/>
+    <DefaultLayout Name="Maintenance"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>

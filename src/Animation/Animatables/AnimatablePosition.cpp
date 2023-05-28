@@ -16,7 +16,12 @@ int AnimatablePosition::getCurveCount(){
 }
 
 std::shared_ptr<Parameter> AnimatablePosition::makeParameter(){
-	return NumberParameter<double>::make(0.0, "DefaultName");
+	auto parameter = NumberParameter<double>::make(0.0, "DefaultName");
+	if(getUnit() == Units::AngularDistance::Degree) {
+		parameter->b_useTurnAndDegrees = true;
+		parameter->setFormat("%.1f");
+	}
+	return parameter;
 }
 
 void AnimatablePosition::setParameterValueFromAnimationValue(std::shared_ptr<Parameter> parameter, std::shared_ptr<AnimationValue> value){

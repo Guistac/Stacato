@@ -707,12 +707,11 @@ void backgroundText(const char* text, ImVec4 backgroundColor, ImVec4 textColor){
 }
 void backgroundText(const char* text, ImVec2 size, ImVec4 backgroundColor, ImVec4 textColor, ImDrawFlags drawFlags){
 	ImVec2 textSize = ImGui::CalcTextSize(text);
-	if(size.x <= 0.0 && size.y <= 0.0) {
+	if(size.y <= 0.0) {
 		ImVec2 padding = ImGui::GetStyle().FramePadding;
-		size = textSize;
-		size.x += padding.x * 2.0;
-		size.y += padding.y * 2.0;
-	}else if(size.x <= 0.0){
+		size.y = textSize.y + padding.y * 2.0;
+	}
+	if(size.x <= 0.0){
 		ImVec2 padding = ImGui::GetStyle().FramePadding;
 		size.x = textSize.x + padding.x * 2.0;
 	}

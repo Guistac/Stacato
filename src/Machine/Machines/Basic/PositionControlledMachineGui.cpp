@@ -38,11 +38,12 @@ void PositionControlledMachine::controlsGui() {
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	
-	Units::Type axisUnitType = getAxisInterface()->getPositionUnit()->unitType;
-	if(axisUnitType == Units::Type::ANGULAR_DISTANCE) angularWidgetGui();
-	else if(axisUnitType == Units::Type::LINEAR_DISTANCE) linearWidgetGui();
-	
-	ImGui::Separator();
+	if(isAxisConnected()){
+		Units::Type axisUnitType = getAxisInterface()->getPositionUnit()->unitType;
+		if(axisUnitType == Units::Type::ANGULAR_DISTANCE) angularWidgetGui();
+		else if(axisUnitType == Units::Type::LINEAR_DISTANCE) linearWidgetGui();
+		ImGui::Separator();
+	}
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Setup Controls");
@@ -91,7 +92,28 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::SameLine();
 	if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
 	
-	
+	/*
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Velocity Limit");
+	ImGui::PopFont();
+	velocityLimit->gui();
+	if(isAxisConnected()){
+		auto axis = getAxisInterface();
+		ImGui::Text("Axis Velocity Limit is %.3f%s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
+		ImGui::Text("Playback speed adjustement is limited to %.2f%%", 100.0 * axis->getVelocityLimit() / velocityLimit->value);
+	}
+		
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Acceleration Limit");
+	ImGui::PopFont();
+	accelerationLimit->gui();
+	if(isAxisConnected()){
+		auto axis = getAxisInterface();
+		ImGui::Text("Axis Acceleration Limit is %.3f%s/s\xc2\xb2", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
+		ImGui::Text("Playback speed adjustement is limited to %.2f%%", 100.0 * axis->getAccelerationLimit() / accelerationLimit->value);
+	}
+	 */
+		
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);

@@ -2,7 +2,13 @@
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
             <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
+            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="192" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Target">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="700" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="35" EndAcceleration="35"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3 (copy)" Description="" Type="Target">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="-700" ConstraintType="Time" Time="300" Velocity="0" StartAcceleration="35" EndAcceleration="35"/>
         </Manoeuvre>
         <Manoeuvre Name="M-2" Description="" Type="Sequence">
             <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10" End="80" Duration="60" TimeOffset="0" StartAcceleration="30" EndAcceleration="30">

@@ -34,7 +34,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	joystick = devices[16]->toJoystick2X();
 	
 	pwmLed1->setOutputUpdateCallback([&](){
-		pwmLed1->setBrightness(fmod(Timing::getProgramTime_seconds() + 0.00, 1.0));
+		pwmLed1->setBrightness(Timing::getSinusWave(1.0, 0.0, 1.0));
 	});
 	pwmLed2->setOutputUpdateCallback([&](){
 		if(Environnement::isRunning()) pwmLed2->setBrightness(1.0);
@@ -42,9 +42,9 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 		else pwmLed2->setBrightness(0.0);
 	});
 	pwmLed3->setOutputUpdateCallback([&](){
-		if(Environnement::areAllMachinesEnabled()) pwmLed2->setBrightness(1.0);
-		else if(Environnement::areNoMachinesEnabled()) pwmLed2->setBrightness(0.0);
-		else pwmLed2->setBrightness(Timing::getBlink(.5) ? 1.0 : 0.0);
+		if(Environnement::areAllMachinesEnabled()) pwmLed3->setBrightness(1.0);
+		else if(Environnement::areNoMachinesEnabled()) pwmLed3->setBrightness(0.0);
+		else pwmLed3->setBrightness(Timing::getBlink(.5) ? 1.0 : 0.0);
 	});
 	
 	

@@ -61,6 +61,30 @@ void PositionControlledMachine::initialize() {
 		updateAnimatableParameters();
 	});
 	
+	/*
+	velocityLimit->setSuffix("/s");
+	velocityLimit->addEditCallback([this](){
+		if(isAxisConnected()) {
+			double axisVelocityLimit = getAxisInterface()->getVelocityLimit();
+			double clamped = std::clamp(velocityLimit->value, 0.0, axisVelocityLimit);
+			velocityLimit->overwrite(clamped);
+		}
+		animatablePosition->velocityLimit = velocityLimit->value;
+	});
+	accelerationLimit->setSuffix("/s\xc2\xb2");
+	accelerationLimit->addEditCallback([this](){
+		if(isAxisConnected()) {
+			double axisAccelerationLimit = getAxisInterface()->getAccelerationLimit();
+			double clamped = std::clamp(accelerationLimit->value, 0.0, axisAccelerationLimit);
+			accelerationLimit->overwrite(clamped);
+		}
+		animatablePosition->accelerationLimit = accelerationLimit->value;
+	});
+	
+	
+	animatablePosition->velocityLimit = std::abs(velocityLimit->value);
+	animatablePosition->accelerationLimit = std::abs(accelerationLimit->value);
+	*/
 }
 
 bool PositionControlledMachine::isAxisConnected() {
@@ -397,6 +421,12 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	axisOffset->setUnit(positionUnit);
 	lowerPositionLimit->setUnit(positionUnit);
 	upperPositionLimit->setUnit(positionUnit);
+	/*
+	velocityLimit->setUnit(positionUnit);
+	accelerationLimit->setUnit(positionUnit);
+	velocityLimit->onEdit();
+	accelerationLimit->onEdit();
+	 */
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = getLowerPositionLimit();
 	animatablePosition->upperPositionLimit = getUpperPositionLimit();
@@ -455,6 +485,8 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	axisOffset->save(limitsXML);
 	lowerPositionLimit->save(limitsXML);
 	upperPositionLimit->save(limitsXML);
+	//velocityLimit->save(limitsXML);
+	//accelerationLimit->save(limitsXML);
 	
 	XMLElement* userSetupXML = xml->InsertNewChildElement("UserSetup");
 	allowUserZeroEdit->save(userSetupXML);
@@ -480,6 +512,8 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!axisOffset->load(limitsXML)) return false;
 	if(!lowerPositionLimit->load(limitsXML)) return false;
 	if(!upperPositionLimit->load(limitsXML)) return false;
+	//velocityLimit->load(limitsXML);
+	//accelerationLimit->load(limitsXML);
 	
 	XMLElement* userSetupXML;
 	if(!loadXMLElement("UserSetup", xml, userSetupXML)) return false;
@@ -494,7 +528,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
 	if(widgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS) return Logger::warn("Could not find machine control widget uid attribute");
-	 
+	
 	return true;
 }
 
