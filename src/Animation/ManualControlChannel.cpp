@@ -46,12 +46,14 @@ bool AnimatableMapping::load(tinyxml2::XMLElement* xml){
 
 void ChannelPreset::addAnimatable(std::shared_ptr<Animatable> animatable){
 	if(hasAnimatable(animatable)) return;
+	std::lock_guard<std::mutex> lock(mutex);
 	auto animatableMapping = std::make_shared<AnimatableMapping>();
 	animatableMapping->animatable = animatable;
 	animatableMappings.push_back(animatableMapping);
 }
 
 bool ChannelPreset::hasAnimatable(std::shared_ptr<Animatable> animatable){
+	std::lock_guard<std::mutex> lock(mutex);
 	for(auto mapping : animatableMappings){
 		if(mapping->animatable == animatable) return true;
 	}
@@ -59,6 +61,7 @@ bool ChannelPreset::hasAnimatable(std::shared_ptr<Animatable> animatable){
 }
 
 void ChannelPreset::removeAnimatable(std::shared_ptr<Animatable> animatable){
+	std::lock_guard<std::mutex> lock(mutex);
 	for(int i = 0; i < animatableMappings.size(); i++){
 		if(animatableMappings[i]->animatable == animatable){
 			animatableMappings[i]->animatable->setManualControlTarget(0.0);
@@ -66,6 +69,11 @@ void ChannelPreset::removeAnimatable(std::shared_ptr<Animatable> animatable){
 			break;
 		}
 	}
+}
+
+std::vector<std::shared_ptr<AnimatableMapping>> ChannelPreset::getMappings(){
+	std::lock_guard<std::mutex> lock(mutex);
+	return animatableMappings;
 }
 
 bool ChannelPreset::save(tinyxml2::XMLElement* xml){

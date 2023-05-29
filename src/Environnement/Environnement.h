@@ -68,6 +68,10 @@ namespace Environnement{
 	//bool checkEditorPassword(const char* password);
 
 	std::shared_ptr<ManualControlChannel> getManualControlChannel();
+	void enableManualControlOfMachineIndex(int index);
+	void disableManualControlOfMachineIndex(int index);
+	void toggleManualControlOfMachineIndex(int index);
+	bool isManualControlEnabledForMachineIndex(int index);
 
 	std::recursive_mutex* getMutex();
 };

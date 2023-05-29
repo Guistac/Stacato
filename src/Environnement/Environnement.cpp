@@ -32,6 +32,49 @@ namespace Environnement {
 
 	std::shared_ptr<ManualControlChannel> getManualControlChannel(){ return manualControlChannel; }
 
+	void enableManualControlOfMachineIndex(int index){
+		if(index < 0 || index >= getMachines().size()) return;
+		auto machine = getMachines()[index];
+		if(machine->getAnimatables().empty()) return;
+		if(auto activePreset = manualControlChannel->getActiveChannelPreset()){
+			auto animatable = machine->getAnimatables().front();
+			activePreset->addAnimatable(animatable);
+		}
+	}
+	void disableManualControlOfMachineIndex(int index){
+		if(index < 0 || index >= getMachines().size()) return;
+		auto machine = getMachines()[index];
+		if(machine->getAnimatables().empty()) return;
+		if(auto activePreset = manualControlChannel->getActiveChannelPreset()){
+			auto animatable = machine->getAnimatables().front();
+			activePreset->removeAnimatable(animatable);
+		}
+	}
+	void toggleManualControlOfMachineIndex(int index){
+		if(index < 0 || index >= getMachines().size()) return;
+		auto machine = getMachines()[index];
+		if(machine->getAnimatables().empty()) return;
+		if(auto activePreset = manualControlChannel->getActiveChannelPreset()){
+			auto animatable = machine->getAnimatables().front();
+			if(activePreset->hasAnimatable(animatable)) activePreset->removeAnimatable(animatable);
+			else activePreset->addAnimatable(animatable);
+		}
+	}
+	bool isManualControlEnabledForMachineIndex(int index){
+		if(index < 0 || index >= getMachines().size()) return;
+		auto machine = getMachines()[index];
+		if(machine->getAnimatables().empty()) return;
+		if(auto activePreset = manualControlChannel->getActiveChannelPreset()){
+			auto animatable = machine->getAnimatables().front();
+			return activePreset->hasAnimatable(animatable);
+		}
+	}
+
+
+
+
+
+
 	std::recursive_mutex mutex;
 	std::recursive_mutex* getMutex(){ return &mutex; }
 

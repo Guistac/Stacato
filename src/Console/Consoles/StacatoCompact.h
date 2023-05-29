@@ -54,6 +54,7 @@ public:
 	std::shared_ptr<PushButton> pushButton4;
 	std::shared_ptr<PushButton> pushButton5;
 	std::shared_ptr<Joystick2X> joystick;
+	bool b_playbackSpeedAdjustButtonPressed = false;
 	
 	virtual void onDisconnection() override;
 	

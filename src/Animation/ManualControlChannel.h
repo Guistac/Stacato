@@ -19,12 +19,14 @@ public:
 	void addAnimatable(std::shared_ptr<Animatable> animatable);
 	bool hasAnimatable(std::shared_ptr<Animatable> animatable);
 	void removeAnimatable(std::shared_ptr<Animatable> animatable);
-	std::vector<std::shared_ptr<AnimatableMapping>>& getMappings(){ return animatableMappings; }
+	std::vector<std::shared_ptr<AnimatableMapping>> getMappings();
 	bool save(tinyxml2::XMLElement* xml);
 	bool load(tinyxml2::XMLElement* xml);
 	
 	std::vector<std::shared_ptr<AnimatableMapping>> animatableMappings = {};
 	std::shared_ptr<StringParameter> nameParameter = StringParameter::make("Channel Mapping", "Name", "Name", 128);
+	
+	std::mutex mutex;
 };
 
 class ManualControlChannel{

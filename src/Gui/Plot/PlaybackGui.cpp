@@ -154,16 +154,16 @@ void sequencerPlaybackControls(float height){}
 void PlaybackManagerWindow::onDraw(){
 
 	ImGui::PushFont(Fonts::sansBold15);
-	backgroundText("Playback Speed Adustement:", ImVec2(ImGui::GetContentRegionAvail().x, 0), Colors::darkGray, Colors::white);
+	backgroundText("Playback Speed Adjustement:", ImVec2(ImGui::GetContentRegionAvail().x, 0), Colors::darkGray, Colors::white);
 	ImGui::PopFont();
 	if(ImGui::Button("Reset")) PlaybackManager::resetPlaybackSpeedMultiplier();
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-	float playbackSpeedMutliplier = PlaybackManager::getPlaybackSpeedMultiplier() * 100.0;
-	float minMultiplier = PlaybackManager::getMinPlaybackSpeedMultiplier() * 100.0;
-	float maxMultiplier = PlaybackManager::getMaxPlaybackSpeedMutliplier() * 100.0;
+	float playbackSpeedMutliplier = (PlaybackManager::getPlaybackSpeedMultiplier() - 1.0) * 100.0;
+	float minMultiplier = (PlaybackManager::getMinPlaybackSpeedMultiplier() - 1.0) * 100.0;
+	float maxMultiplier = (PlaybackManager::getMaxPlaybackSpeedMutliplier() - 1.0) * 100.0;
 	if(ImGui::SliderFloat("##PlaybackSpeed", &playbackSpeedMutliplier, minMultiplier, maxMultiplier, "%.1f%%")){
-		PlaybackManager::setPlaybackSpeedMultiplier(playbackSpeedMutliplier / 100.0);
+		PlaybackManager::setPlaybackSpeedMultiplier((playbackSpeedMutliplier / 100.0) + 1.0);
 	}
 	
 	ImGui::Separator();
@@ -269,9 +269,11 @@ void PlaybackManagerWindow::onDraw(){
 		}
 		
 		
-		double realRemainingTime = manoeuvre->getRemainingPlaybackTime() * PlaybackManager::getPlaybackSpeedMultiplier();
-		std::string realReamingTimeString = TimeStringConversion::secondsToTimecodeString(realRemainingTime);
-		ImGui::Text("Remaining Time: %s", realReamingTimeString.c_str());
+		if(!manoeuvre->isInRapid()){
+			double realRemainingTime = manoeuvre->getRemainingPlaybackTime() / PlaybackManager::getPlaybackSpeedMultiplier();
+			std::string realReamingTimeString = TimeStringConversion::secondsToTimecodeString(realRemainingTime);
+			ImGui::Text("Remaining Time: %s", realReamingTimeString.c_str());
+		}
 		
 		ImGui::EndGroup();
 		glm::vec2 contentSize = ImGui::GetItemRectSize();
