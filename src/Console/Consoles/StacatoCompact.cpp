@@ -123,6 +123,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Rapid To Start
 	rgbButton5->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 5 : {}", rgbButton5->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
 		if(!manoeuvre || !manoeuvre->canRapidToStart()) return;
 		if(!rgbButton5->isPressed()) manoeuvre->rapidToStart();
@@ -142,6 +143,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Rapid To End
 	rgbButton8->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 8 : {}", rgbButton8->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
 		if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
 		if(!rgbButton8->isPressed()) manoeuvre->rapidToTarget();
@@ -161,6 +163,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Stop
 	rgbButton6->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 6 : {}", rgbButton6->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
 		if(rgbButton6->isPressed()){
 			if(manoeuvre && manoeuvre->canStop()) {
@@ -187,6 +190,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Play Pause
 	rgbButton7->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 7 : {}", rgbButton7->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
 		if(!manoeuvre) return;
 		if(!rgbButton7->isPressed()) {
@@ -241,11 +245,13 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Select Previous Manoeuvre
 	pushButton4->setInputUpdateCallback([&](){
 		Logger::trace("Button 4 : {}", pushButton4->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		if(pushButton4->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
 	});
 	//——— Select Next Manoeuvre
 	pushButton5->setInputUpdateCallback([&](){
 		Logger::trace("Button 5 : {}", pushButton5->isPressed());
+		if(!Stacato::Editor::hasCurrentProject()) return;
 		if(pushButton5->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
 	});
 	
