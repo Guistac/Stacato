@@ -416,6 +416,23 @@ void SequenceAnimation::trackSheetRowGui(){
 		ImGui::TableSetColumnIndex(7);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		duration->gui();
+		ImGui::SameLine();
+		if(ImGui::Button("Min")){
+			if(!isComplex()){
+				duration->overwrite(theoreticalShortestDuration);
+				duration->onEdit();
+			}
+		}
+		if(ImGui::IsItemHovered()){
+			ImGui::BeginTooltip();
+			std::string minTimeString = TimeStringConversion::secondsToTimecodeString(theoreticalShortestDuration);
+			ImGui::Text("Theoretical minimum time: %s", minTimeString.c_str());
+			if(isComplex()){
+				ImGui::TextColored(Colors::red, "Cannot set minimum duration :");
+				ImGui::TextColored(Colors::red, "The sequence has additional control points.");
+			}
+			ImGui::EndTooltip();
+		}
 		
 		//[8] "Time Offset"
 		ImGui::TableSetColumnIndex(8);

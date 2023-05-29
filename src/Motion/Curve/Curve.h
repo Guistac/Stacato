@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Motion/MotionTypes.h"
+#include "Utilities/Units.h"
 
 namespace Motion {
 
@@ -38,9 +39,14 @@ namespace Motion {
 		ValidationError validationError;
 		bool b_selected = false;
 		int id;
+		Unit unit = Units::None::None;
 		Point toPoint(){
 			return Point{.time = time, .position = position, .acceleration = outAcceleration, .velocity = velocity};
 		}
+		
+		//TURN DISPLAY HACK
+		double singleturndegrees = 0.f;
+		int turnCount = 0;
 		
 		std::shared_ptr<Interpolation> inInterpolation;
 		std::shared_ptr<Interpolation> outInterpolation;
@@ -222,6 +228,8 @@ namespace Motion {
 		int idCounter = 0;
 		
 		InterpolationType interpolationType;
+		
+		Unit unit = Units::None::None;
 		
 	private:
 		std::vector<std::shared_ptr<ControlPoint>> controlPoints;

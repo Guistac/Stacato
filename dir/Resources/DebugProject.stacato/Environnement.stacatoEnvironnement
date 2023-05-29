@@ -1,9 +1,9 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.75329643" OffsetX="893.83472" OffsetY="-59.035309" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.50003" SizeY="385.91489"/>
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.50003" SizeY="385.91489"/>
-        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.50003" SizeY="386.2424"/>
+    <Dashboard Scale="0.75497103" OffsetX="893.20459" OffsetY="-59.039673" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49994" SizeY="385.05948"/>
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.49994" SizeY="385.05948"/>
+        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.49994" SizeY="385.38406"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

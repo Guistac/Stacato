@@ -20,7 +20,7 @@ void Manoeuvre::curveEditor(){
 	
 	//——————————— Curve List and point editor ——————————————
 	
-	float sequenceEditorWidth = ImGui::GetTextLineHeight() * 10.0;
+	float sequenceEditorWidth = ImGui::GetTextLineHeight() * 12.0;
 	float sequenceEditorHeight = ImGui::GetContentRegionAvail().y;
 	ImGui::BeginChild("SequenceEditor", glm::vec2(sequenceEditorWidth, sequenceEditorHeight));
 	
@@ -34,7 +34,7 @@ void Manoeuvre::curveEditor(){
 		ImColor backgroundColor = ImColor(Colors::veryDarkGray);
 		float rounding = ImGui::GetStyle().FrameRounding;
 
-		auto pointFieldEditor = [&](const char* name, double* data, const char* txt = "") -> bool {
+		auto pointFieldEditor = [&](const char* name, double* data, const char* txt = "", const char* format = "%.3f") -> bool {
 			glm::vec2 cursor = ImGui::GetCursorPos();
 			ImGui::Dummy(fieldsize);
 			drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), backgroundColor, rounding, ImDrawFlags_RoundCornersAll);
@@ -52,7 +52,7 @@ void Manoeuvre::curveEditor(){
 			}
 			else {
 				ImGui::SetItemAllowOverlap();
-				return ImGui::InputDouble(name, data);
+				return ImGui::InputDouble(name, data, 0.0, 0.0, format);
 			}
 		};
 		
@@ -66,24 +66,56 @@ void Manoeuvre::curveEditor(){
 			pointFieldEditor("Time", nullptr, noSelectionString);
 			pointFieldEditor("Position", nullptr, noSelectionString);
 			pointFieldEditor("Velocity", nullptr, noSelectionString);
-			pointFieldEditor("In-Acceleration", nullptr, noSelectionString);
-			pointFieldEditor("Out-Acceleration", nullptr, noSelectionString);
+			pointFieldEditor("Ramp-In", nullptr, noSelectionString);
+			pointFieldEditor("Ramp-Out", nullptr, noSelectionString);
 		}else if(selectedControlPoints.size() > 1){
 			static const char* multipleSelectionString = "Multiple";
 			pointFieldEditor("Time", nullptr, multipleSelectionString);
 			pointFieldEditor("Position", nullptr, multipleSelectionString);
 			pointFieldEditor("Velocity", nullptr, multipleSelectionString);
-			pointFieldEditor("In-Acceleration", nullptr, multipleSelectionString);
-			pointFieldEditor("Out-Acceleration", nullptr, multipleSelectionString);
+			pointFieldEditor("Ramp-In", nullptr, multipleSelectionString);
+			pointFieldEditor("Ramp-Out", nullptr, multipleSelectionString);
 		}else{
 			//single selection
 			auto controlPoint = selectedControlPoints.front();
 			bool b_pointEdited = false;
-			if(pointFieldEditor("Time", &controlPoint->time)) b_pointEdited = true;
-			if(pointFieldEditor("Position", &controlPoint->position)) b_pointEdited = true;
-			if(pointFieldEditor("Velocity", &controlPoint->velocity)) b_pointEdited = true;
-			if(pointFieldEditor("In-Acceleration", &controlPoint->inAcceleration)) b_pointEdited = true;
-			if(pointFieldEditor("Out-Acceleration", &controlPoint->outAcceleration)) b_pointEdited = true;
+			if(pointFieldEditor("Time", &controlPoint->time, nullptr, "%.1fs")) b_pointEdited = true;
+			
+			char positionFormat[16];
+			char velocityFormat[16];
+			char accelerationFormat[16];
+			snprintf(positionFormat, 16, "%s%s", "%.3f", controlPoint->unit->abbreviated);
+			snprintf(velocityFormat, 16, "%s%s/s", "%.2f", controlPoint->unit->abbreviated);
+			snprintf(accelerationFormat, 16, "%s%s/s\xc2\xb2", "%.2f", controlPoint->unit->abbreviated);
+			if(pointFieldEditor("Position", &controlPoint->position, nullptr, positionFormat)) b_pointEdited = true;
+			
+			//TURN DISPLAY HACK
+			if(controlPoint->unit == Units::AngularDistance::Degree){
+				glm::vec2 cursor = ImGui::GetCursorPos();
+				ImGui::Dummy(fieldsize);
+				drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), backgroundColor, rounding, ImDrawFlags_RoundCornersAll);
+				ImGui::SetCursorPosX(cursor.x + ImGui::GetStyle().FramePadding.x);
+				ImGui::SetCursorPosY(cursor.y + (ImGui::GetFrameHeight() - ImGui::GetTextLineHeight()) * .5f);
+				ImGui::Text("Turns");
+				ImGui::SameLine();
+				ImGui::SetCursorPosY(cursor.y);
+				ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.5);
+				bool moduloEdited = false;
+				moduloEdited |= ImGui::InputScalar("##turnCount", ImGuiDataType_S32, &controlPoint->turnCount, nullptr, nullptr, "%iR");
+				ImGui::SameLine(0.0, 1.0);
+				ImGui::SetCursorPosY(cursor.y);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				moduloEdited |=  ImGui::InputDouble("##degrees", &controlPoint->singleturndegrees, 0, 0, "+%.3f°");
+				if(moduloEdited){
+					controlPoint->singleturndegrees = std::clamp(controlPoint->singleturndegrees, 0.0, 359.999);
+					controlPoint->position = controlPoint->turnCount * 360.0 + controlPoint->singleturndegrees;
+					b_pointEdited = true;
+				}
+			}
+			
+			if(pointFieldEditor("Velocity", &controlPoint->velocity, nullptr, velocityFormat)) b_pointEdited = true;
+			if(pointFieldEditor("Ramp-In", &controlPoint->inAcceleration, nullptr, accelerationFormat)) b_pointEdited = true;
+			if(pointFieldEditor("Ramp-Out", &controlPoint->outAcceleration, nullptr, accelerationFormat)) b_pointEdited = true;
 			if(b_pointEdited) {
 				//check for nullptr
 				if(getSelectedEditorAnimation()->getType() == ManoeuvreType::SEQUENCE){
@@ -91,6 +123,7 @@ void Manoeuvre::curveEditor(){
 				}
 			}
 		}
+		
 		
 		ImGui::PopStyleVar();
 		

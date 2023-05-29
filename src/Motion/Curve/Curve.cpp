@@ -22,6 +22,7 @@ namespace Motion {
 		idCounter++;
 		point->id = idCounter;
 		controlPoints.push_back(point);
+		point->unit = unit;
 		refresh();
 	}
 
@@ -79,6 +80,12 @@ namespace Motion {
 		std::sort(controlPoints.begin(),
 				  controlPoints.end(),
 				  [](std::shared_ptr<Motion::ControlPoint>& a, std::shared_ptr<Motion::ControlPoint>& b) -> bool { return a->time < b->time; });
+		
+		for(auto controlPoint : controlPoints){
+			//TURN DISPLAY HACK
+			controlPoint->turnCount = std::floor(controlPoint->position / 360.0);
+			controlPoint->singleturndegrees = controlPoint->position - controlPoint->turnCount * 360.0;
+		}
 
 		//build and append interpolations between all control points
 		for (int i = 0; i < controlPoints.size() - 1; i++) {

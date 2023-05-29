@@ -392,6 +392,9 @@ public:
 	std::shared_ptr<NumberParameter<double>> inAcceleration = NumberParameter<double>::make(0.0, "Start Acceleration", "StartAcceleration");
 	std::shared_ptr<NumberParameter<double>> outAcceleration = NumberParameter<double>::make(0.0, "End Acceleration", "EndAcceleration");
 	
+	void updateTheoreticalShortestDuration();
+	double theoreticalShortestDuration = 0.0;
+	
 public:
 	virtual void addCurvePoint(std::shared_ptr<Motion::Curve> curve, float time, float position) override;
 	

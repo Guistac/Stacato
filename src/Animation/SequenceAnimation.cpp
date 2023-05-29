@@ -1,6 +1,7 @@
 #include "Animation.h"
 #include "Machine/Machine.h"
 #include "Animation/Manoeuvre.h"
+#include "Animation/Animatables/AnimatablePosition.h"
 
 SequenceAnimation::SequenceAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
 	target = animatable->makeParameter();
@@ -208,6 +209,8 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	
 	sequenceAnimation->setDuration(sequenceAnimation->timeOffset->value + sequenceAnimation->duration->value);
 
+	sequenceAnimation->updateTheoreticalShortestDuration();
+	
 	return sequenceAnimation;
 }
 
@@ -369,6 +372,9 @@ void SequenceAnimation::updateAfterParameterEdit(){
 	validate();
 	
 	requestCurveRefocus();
+	
+	updateTheoreticalShortestDuration();
+	
 }
 
 void SequenceAnimation::updateAfterCurveEdit(){
@@ -389,11 +395,14 @@ void SequenceAnimation::initializeCurves(){
 	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
 	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	
+	Unit animatableUnit = Units::None::None;
+	if(animatable->isNumber()) animatableUnit = animatable->toNumber()->getUnit();
+	
 	for(int i = 0; i < curveCount; i++){
 		auto& curve = curves[i];
 		
 		curve = std::make_shared<Motion::Curve>(curveNames[i]);
-		
+		curve->unit = animatableUnit;
 		
 		auto& points = curve->getPoints();
 		curve->interpolationType = interpolationType->value;
@@ -408,12 +417,14 @@ void SequenceAnimation::initializeCurves(){
 		startPoint->inAcceleration = inAcceleration->value;
 		startPoint->outAcceleration = inAcceleration->value;
 		startPoint->time = timeOffset->value;
+		startPoint->unit = animatableUnit;
 		
 		targetPoint->position = curveEndPositions[i];
 		targetPoint->velocity = 0.0;
 		targetPoint->inAcceleration = outAcceleration->value;
 		targetPoint->outAcceleration = outAcceleration->value;
 		targetPoint->time = timeOffset->value + duration->value;
+		targetPoint->unit = animatableUnit;
 		
 		points.push_back(startPoint);
 		points.push_back(targetPoint);
@@ -448,4 +459,38 @@ void SequenceAnimation::addCurvePoint(std::shared_ptr<Motion::Curve> targetCurve
 	
 	targetCurve->addPoint(newControlPoint);
 	getManoeuvre()->selectControlPoint(newControlPoint);
+}
+
+void SequenceAnimation::updateTheoreticalShortestDuration(){
+
+	auto animatable = getAnimatable();
+	
+	if(animatable->getType() == AnimatableType::POSITION){
+		
+		auto startValue = animatable->parameterValueToAnimationValue(start);
+		auto targetValue = animatable->parameterValueToAnimationValue(target);
+		std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
+		std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
+		
+		auto startPoint = std::make_shared<Motion::ControlPoint>();
+		startPoint->time = 0.0;
+		startPoint->position = curveStartPositions[0];
+		startPoint->velocity = 0.0;
+		startPoint->inAcceleration = inAcceleration->value;
+		startPoint->outAcceleration = inAcceleration->value;
+		auto endPoint = std::make_shared<Motion::ControlPoint>();
+		endPoint->time = 0.0;
+		endPoint->position = curveEndPositions[0];
+		endPoint->velocity = 0.0;
+		endPoint->inAcceleration = outAcceleration->value;
+		endPoint->outAcceleration = outAcceleration->value;
+		
+		auto animatablePosition = animatable->toPosition();
+		if(auto fastestInterpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, animatablePosition->velocityLimit)){
+			theoreticalShortestDuration = fastestInterpolation->endTime;
+		}else{
+			theoreticalShortestDuration = 0.0;
+		}
+	}
+	
 }
