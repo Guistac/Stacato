@@ -547,6 +547,8 @@ void Animation::drawCurves(){
 			ImPlot::PlotLine(curveName, &headerPoints.front().x, &headerPoints.front().y, headerPoints.size(), 0, sizeof(glm::vec2));
 		}
 		
+		float inflectionPointSize = ImGui::GetTextLineHeight() * 0.15;
+		float controlPointSize = ImGui::GetTextLineHeight() * 0.15;
 		
 		for (auto& interpolation : curve->getInterpolations()) {
 			if (interpolation->b_valid) {
@@ -554,9 +556,15 @@ void Animation::drawCurves(){
 				if(b_selected) ImPlot::SetNextLineStyle(ImColor(Colors::white), ImGui::GetTextLineHeight() * .15f);
 				ImPlot::PlotLine(curveName, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::Point));
 				std::vector<Motion::Point>& inflectionPoints = interpolation->displayInflectionPoints;
-				ImPlot::SetNextMarkerStyle(ImPlotMarker_Cross);
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, inflectionPointSize, Colors::red, 0.0);
 				if(!inflectionPoints.empty())
 					ImPlot::PlotScatter("##inflectionPoints", &inflectionPoints.front().time, &inflectionPoints.front().position, inflectionPoints.size(), 0, sizeof(Motion::Point));
+				if(b_selected && interpolation->getType() == InterpolationType::TRAPEZOIDAL){
+					glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
+					averagePosition /= 2.0;
+					float vel = interpolation->castToTrapezoidal()->coastVelocity;
+					ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0,0), Colors::darkYellow, "%.2f%s/s", vel, curve->unit->abbreviated);
+				}
 			}
 			else {
 				std::vector<Motion::Point> errorPoints;
@@ -580,6 +588,14 @@ void Animation::drawCurves(){
 			trailerPoints.push_back(glm::vec2(endTime, endPoint->position));
 			ImPlot::PlotLine(curveName, &trailerPoints.front().x, &trailerPoints.front().y, trailerPoints.size(), 0, sizeof(glm::vec2));
 		}
+		
+		if(!b_selected){
+			for(auto controlPoint : curve->getPoints()){
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, controlPointSize, Colors::white, 0.0);
+				ImPlot::PlotScatter("##controlPoint", &controlPoint->time, &controlPoint->position, 1);
+			}
+		}
+		
 	}
 }
 
