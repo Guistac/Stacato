@@ -651,7 +651,7 @@ void PositionControlledMachine::setupGui(){
 	if(allowUserHoming->value){
 
 		glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
-		glm::vec2 homingProgressSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetFrameHeight());
+		glm::vec2 homingProgressSize(ImGui::GetTextLineHeight() * 12.0, ImGui::GetFrameHeight());
 		ImGui::BeginDisabled(!canStartHoming());
 		if(isHoming()){
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);

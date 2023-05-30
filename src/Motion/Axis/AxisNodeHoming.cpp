@@ -85,6 +85,11 @@ void AxisNode::homingRoutine_HomingOnCurrentPosition(){
 			}
 			break;
 			
+			
+		case HomingStep::FINISHING:
+			homingStep = HomingStep::FINISHED;
+			break;
+			
 		default:
 			homingStep = HomingStep::FAILED;
 			break;
@@ -142,7 +147,7 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			}
 			break;
 		
-		case HomingStep::FINISHED:
+		case HomingStep::FINISHING:
 			homingStep = HomingStep::FINISHED;
 			break;
 			

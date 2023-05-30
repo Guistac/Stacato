@@ -116,6 +116,7 @@ void SetupWindow::onDraw(){
 		
 		ImGui::BeginGroup();
 		glm::vec2 cursor = ImGui::GetCursorPos();
+		ImGui::Dummy(ImVec2(boxWidth, 1.0));
 		ImGui::SetCursorPos(cursor + boxPadding);
 		ImGui::BeginGroup();
 		

@@ -450,6 +450,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
                 <Window Name="Manoeuvre List"/>
                 <Window Name="Track Sheet Editor"/>
                 <Window Name="Curve Editor"/>
+                <Window Name="Setup"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -489,10 +490,10 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-Pos=0,29
-Size=1864,1274
+Pos=0,717
+Size=433,250
 Collapsed=0
-DockId=0x00000014,1
+DockId=0x0000000E,0
 
 [Window][Plot List]
 Pos=0,32
@@ -572,9 +573,9 @@ Collapsed=0
 
 [Window][Manoeuvre List]
 Pos=0,29
-Size=433,938
+Size=433,686
 Collapsed=0
-DockId=0x0000000F,0
+DockId=0x0000000D,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -861,14 +862,16 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=-1,95 Size=1728,938 Split=X Selected=0xAE98FAB7
+DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split=X Selected=0xAE98FAB7
   DockNode              ID=0x00000001 Parent=0xD5272B65 SizeRef=0,0 Split=X Selected=0xAE98FAB7
     DockNode            ID=0x00000006 Parent=0x00000001 SizeRef=976,1023 Split=X Selected=0xFCCC3921
       DockNode          ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
       DockNode          ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=X Selected=0xEDDB08E7
         DockNode        ID=0x0000000A Parent=0x00000009 SizeRef=519,1023 Selected=0xBC7A743B
         DockNode        ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 Split=X Selected=0xAE98FAB7
-          DockNode      ID=0x0000000F Parent=0x0000000B SizeRef=433,938 HiddenTabBar=1 Selected=0xEBD2820B
+          DockNode      ID=0x0000000F Parent=0x0000000B SizeRef=433,938 Split=Y Selected=0xEBD2820B
+            DockNode    ID=0x0000000D Parent=0x0000000F SizeRef=433,686 HiddenTabBar=1 Selected=0xEBD2820B
+            DockNode    ID=0x0000000E Parent=0x0000000F SizeRef=433,250 HiddenTabBar=1 Selected=0x27459703
           DockNode      ID=0x00000010 Parent=0x0000000B SizeRef=863,938 Split=Y Selected=0xAE98FAB7
             DockNode    ID=0x00000011 Parent=0x00000010 SizeRef=863,465 HiddenTabBar=1 Selected=0x47C7A3F3
             DockNode    ID=0x00000012 Parent=0x00000010 SizeRef=863,471 Split=X

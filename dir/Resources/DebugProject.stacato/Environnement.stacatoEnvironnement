@@ -1,9 +1,9 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.75497103" OffsetX="893.20459" OffsetY="-59.039673" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49994" SizeY="385.05948"/>
-        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.49994" SizeY="385.05948"/>
-        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.49994" SizeY="385.38406"/>
+    <Dashboard Scale="0.75855589" OffsetX="891.86499" OffsetY="-59.04892" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.5" SizeY="384.55917"/>
+        <Widget Name="Machine 2" UniqueID="2" PositionX="-698" PositionY="61" SizeX="178.5" SizeY="384.55917"/>
+        <Widget Name="Machine 3" UniqueID="3" PositionX="-517" PositionY="62" SizeX="178.5" SizeY="384.87747"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -321,7 +321,7 @@
     <Timing ProcessIntervalMilliseconds="4" ProcessDataTimeoutMilliseconds="3.5" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
 
-<ManualControlChannel ActivePresetName="Manual Mapping">
+<ManualControlChannel ActivePresetName="hehe">
     <ChannelPresets>
         <ChannelPreset Name="hehe">
             <AnimatableMappings>

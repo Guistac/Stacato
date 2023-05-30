@@ -487,7 +487,7 @@ void SequenceAnimation::updateTheoreticalShortestDuration(){
 		
 		auto animatablePosition = animatable->toPosition();
 		if(auto fastestInterpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, animatablePosition->velocityLimit)){
-			theoreticalShortestDuration = fastestInterpolation->endTime;
+			theoreticalShortestDuration = fastestInterpolation->endTime + 0.01;
 		}else{
 			theoreticalShortestDuration = 0.0;
 		}
