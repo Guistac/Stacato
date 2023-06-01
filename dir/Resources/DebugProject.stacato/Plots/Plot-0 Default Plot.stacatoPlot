@@ -1,35 +1,14 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="192" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-3" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="700" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="35" EndAcceleration="35"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-3 (copy)" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="-700" ConstraintType="Time" Time="300" Velocity="0" StartAcceleration="35" EndAcceleration="35"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Sequence">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10" End="80" Duration="60" TimeOffset="0" StartAcceleration="30" EndAcceleration="30">
+        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="30" TimeOffset="0" StartAcceleration="35" EndAcceleration="35">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="55.222084367245657" Time="20.282208656240826" Velocity="0" InAcceleration="30" OutAcceleration="30"/>
-                        <ControlPoint Position="39.936725616455078" Time="39.312885284423828" Velocity="0" InAcceleration="30" OutAcceleration="30"/>
+                        <ControlPoint Position="180" Time="10" Velocity="0" InAcceleration="35" OutAcceleration="35"/>
+                        <ControlPoint Position="180" Time="15" Velocity="0" InAcceleration="35" OutAcceleration="35"/>
                     </Curve>
                 </Curves>
             </Animation>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="10" End="80" Duration="60" TimeOffset="0" StartAcceleration="30" EndAcceleration="30">
-                <Curves>
-                    <Curve Name="Position">
-                        <ControlPoint Position="33.509920786409566" Time="32.869565217391305" Velocity="0" InAcceleration="30" OutAcceleration="30"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
-            <Animation Machine="Machine 2" MachineUniqueID="75" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="30" EndAcceleration="30"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

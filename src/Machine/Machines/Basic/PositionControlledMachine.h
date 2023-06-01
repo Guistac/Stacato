@@ -55,6 +55,7 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<BooleanParameter> allowUserEncoderValueOverride = BooleanParameter::make(false, "Allow User Encoder Value Override", "AllowUserEncoderValueOverride");
 	std::shared_ptr<BooleanParameter> allowUserEncoderRangeReset = BooleanParameter::make(false, "Allow User Encoder Range Reset", "AllowUserEncoderRangeReset");
 	std::shared_ptr<BooleanParameter> invertControlGui = BooleanParameter::make(false, "Invert Control Gui", "InvertControlGui");
+	std::shared_ptr<BooleanParameter> allowModuloPositionShifting = BooleanParameter::make(false, "Allow Modulo Position Shifting", "AllowModulePositionShifting");
 	
 	//————————— Unit Conversion & Limits ——————————
 	
@@ -111,4 +112,11 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<ControlWidget> controlWidget;
 	double velocitySliderValue = .0f;
 	double positionTargetValue = .0f;
+	
+	//MODULA HACK
+	int turnOffset = 0;
+	int requestedTurnOffset = 0;
+	bool b_applyTurnOffset = false;
+	void setTurnOffset(int offset);
+	bool canSetTurnOffset(int offset);
 };

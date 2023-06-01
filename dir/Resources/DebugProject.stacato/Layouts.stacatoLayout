@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Conduite"/>
+    <DefaultLayout Name="Maintenance"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>
@@ -9,6 +9,7 @@
                 <Window Name="Manual Controls"/>
                 <Window Name="Playback Manager"/>
                 <Window Name="Log"/>
+                <Window Name="Setup"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -48,10 +49,10 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-Pos=0,29
-Size=1864,1274
+Pos=1289,29
+Size=439,433
 Collapsed=0
-DockId=0x0000000E,1
+DockId=0x00000003,1
 
 [Window][Plot List]
 Pos=0,32
@@ -184,8 +185,8 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=1289,355
-Size=439,317
+Pos=1289,464
+Size=439,298
 Collapsed=0
 DockId=0x00000005,0
 
@@ -264,7 +265,7 @@ Collapsed=0
 
 [Window][Playback Manager]
 Pos=1289,29
-Size=439,324
+Size=439,433
 Collapsed=0
 DockId=0x00000003,0
 
@@ -370,8 +371,8 @@ Size=358,140
 Collapsed=0
 
 [Window][Manual Controls]
-Pos=1289,674
-Size=439,293
+Pos=1289,764
+Size=439,203
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -433,10 +434,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,95 Size=1728,938 Split
           DockNode  ID=0x0000000F Parent=0x0000000B SizeRef=1298,264 HiddenTabBar=1 Selected=0x64F50EE5
     DockNode        ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
   DockNode          ID=0x00000002 Parent=0xD5272B65 SizeRef=439,938 Split=Y Selected=0x64F50EE5
-    DockNode        ID=0x00000003 Parent=0x00000002 SizeRef=460,324 HiddenTabBar=1 Selected=0x8E074A3E
-    DockNode        ID=0x00000004 Parent=0x00000002 SizeRef=460,612 Split=Y Selected=0xB00214C9
-      DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=428,317 HiddenTabBar=1 Selected=0xB00214C9
-      DockNode      ID=0x0000000C Parent=0x00000004 SizeRef=428,293 HiddenTabBar=1 Selected=0xCD2247DB
+    DockNode        ID=0x00000003 Parent=0x00000002 SizeRef=460,433 Selected=0x27459703
+    DockNode        ID=0x00000004 Parent=0x00000002 SizeRef=460,503 Split=Y Selected=0xB00214C9
+      DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=428,298 HiddenTabBar=1 Selected=0xB00214C9
+      DockNode      ID=0x0000000C Parent=0x00000004 SizeRef=428,203 HiddenTabBar=1 Selected=0xCD2247DB
 
 </ImGuiIniString>
         </Layout>

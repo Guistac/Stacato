@@ -161,6 +161,13 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Invert Control Gui");
 	ImGui::PopFont();
+	
+	allowModuloPositionShifting->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("%s", allowModuloPositionShifting->getName());
+	ImGui::PopFont();
+	
 }
 
 void PositionControlledMachine::axisGui() {}
@@ -682,6 +689,57 @@ void PositionControlledMachine::setupGui(){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 		ImGui::Text("User Encoder Range Reset");
 		ImGui::PopStyleColor();
+	}
+	
+	if(allowModuloPositionShifting->value){
+		if(isAxisConnected() && getAxisInterface()->getPositionUnit() == Units::AngularDistance::Degree){
+			bool b_disabled = animatablePosition->isMoving() || animatablePosition->hasAnimation();
+			ImGui::BeginDisabled(b_disabled);
+			auto axis = getAxisInterface();
+			ImGui::BeginDisabled(!canSetTurnOffset(turnOffset - 1));
+			if(ImGui::Button("-1 Turn")) setTurnOffset(turnOffset - 1);
+			ImGui::EndDisabled();
+			ImGui::SameLine();
+			ImGui::BeginDisabled(!canSetTurnOffset(turnOffset + 1));
+			if(ImGui::Button("+1 Turn")) setTurnOffset(turnOffset + 1);
+			ImGui::EndDisabled();
+			ImGui::EndDisabled();
+			
+			
+			
+			ImDrawList* drawing = ImGui::GetWindowDrawList();
+			ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0));
+			glm::vec2 min = ImGui::GetItemRectMin();
+			glm::vec2 max = ImGui::GetItemRectMax();
+			drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
+			
+			double axisMin = axis->getLowerPositionLimit();
+			double axisMax = axis->getUpperPositionLimit();
+			auto toAxisXCoords = [&](double input) -> double {
+				double norm = (input - axisMin) / (axisMax - axisMin);
+				return (max.x - min.x) * norm + min.x;
+			};
+			
+			double machineMin = lowerPositionLimit->value - turnOffset * 360.0;
+			double machineMax = upperPositionLimit->value - turnOffset * 360.0;
+
+			drawing->AddRectFilled(ImVec2(toAxisXCoords(machineMin), min.y),
+								   ImVec2(toAxisXCoords(machineMax), max.y),
+								   ImColor(Colors::green));
+			double machinePos = animatablePosition->getActualPosition() - turnOffset * 360.0;
+			drawing->AddLine(ImVec2(toAxisXCoords(machinePos), min.y),
+							 ImVec2(toAxisXCoords(machinePos), max.y),
+							 ImColor(Colors::white), 3.0);
+			
+			for(double i = std::ceil(axisMin / 360.0) * 360.0; i < axisMax; i += 360.0){
+				double xPos = toAxisXCoords(i);
+				drawing->AddLine(ImVec2(xPos, min.y), ImVec2(xPos, max.y), ImColor(Colors::black));
+			}
+			
+			
+			
+			
+		}
 	}
 	
 	ImGui::PopStyleVar();

@@ -110,6 +110,8 @@ public:
 	void forceVelocityTarget(double velocity, double acceleration);
 	double getBrakingPosition();
 	
+	void overridePositionTarget(double positionTarget);
+	
 private:
 	void setVelocityTarget(double velocityTarget);
 	void moveToPositionWithVelocity(double targetPosition, double targetVelocity);

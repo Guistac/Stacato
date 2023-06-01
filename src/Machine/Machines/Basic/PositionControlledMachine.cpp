@@ -232,6 +232,12 @@ void PositionControlledMachine::inputProcess() {
     }
 	else animatablePosition->state = Animatable::State::NOT_READY;
 	
+	if(b_applyTurnOffset){
+		b_applyTurnOffset = false;
+		turnOffset = requestedTurnOffset;
+		animatablePosition->overridePositionTarget(axisPositionToMachinePosition(axis->getPositionActual()));
+	}
+	
 	auto actualPosition = AnimationValue::makePosition();
 	actualPosition->position = axisPositionToMachinePosition(axis->getPositionActual());
 	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getVelocityActual());
@@ -384,6 +390,9 @@ bool PositionControlledMachine::isHoming(){
 void PositionControlledMachine::startHoming(){
 	animatablePosition->stopAnimation();
 	getAxisInterface()->startHoming();
+	
+	//MODULO HACK
+	turnOffset = 0;
 }
 void PositionControlledMachine::stopHoming(){
 	getAxisInterface()->stopHoming();
@@ -432,6 +441,15 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	animatablePosition->upperPositionLimit = getUpperPositionLimit();
 	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
 	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
+	
+	if(axis->getPositionUnit()->unitType == Units::Type::ANGULAR_DISTANCE){
+		allowModuloPositionShifting->setDisabled(false);
+		turnOffset = 0;
+	}else{
+		allowModuloPositionShifting->setDisabled(true);
+		allowModuloPositionShifting->overwrite(false);
+		turnOffset = 0;
+	}
 }
 
 
@@ -496,6 +514,7 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	allowUserEncoderRangeReset->save(userSetupXML);
 	allowUserEncoderValueOverride->save(userSetupXML);
 	invertControlGui->save(userSetupXML);
+	allowModuloPositionShifting->save(userSetupXML);
 	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
@@ -524,6 +543,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!allowUserEncoderRangeReset->load(userSetupXML)) return false;
 	if(!allowUserEncoderValueOverride->load(userSetupXML)) return false;
 	if(!invertControlGui->load(userSetupXML)) return false;
+	allowModuloPositionShifting->load(userSetupXML);
 	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
@@ -535,8 +555,13 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 
 
 double PositionControlledMachine::axisPositionToMachinePosition(double axisPosition){
-	if(invertAxis->value) return -1.0f * (axisPosition - axisOffset->value);
-	return axisPosition - axisOffset->value;
+	double output;
+	if(invertAxis->value) output = -1.0f * (axisPosition - axisOffset->value);
+	output = axisPosition - axisOffset->value;
+	
+	//MODULO HACK
+	output += turnOffset * 360.0;
+	return output;
 }
 
 double PositionControlledMachine::axisVelocityToMachineVelocity(double axisVelocity){
@@ -550,8 +575,13 @@ double PositionControlledMachine::axisAccelerationToMachineAcceleration(double a
 }
 
 double PositionControlledMachine::machinePositionToAxisPosition(double machinePosition){
-	if(invertAxis->value) return (-1.0f * machinePosition) + axisOffset->value;
-	return machinePosition + axisOffset->value;
+	double output;
+	if(invertAxis->value) output = (-1.0f * machinePosition) + axisOffset->value;
+	output = machinePosition + axisOffset->value;
+	
+	//MODULO HACK
+	output -= turnOffset * 360.0;
+	return output;
 }
 
 double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVelocity){
@@ -562,4 +592,24 @@ double PositionControlledMachine::machineVelocityToAxisVelocity(double machineVe
 double PositionControlledMachine::machineAccelerationToAxisAcceleration(double machineAcceleration){
 	if(invertAxis->value) return machineAcceleration * -1.0;
 	return machineAcceleration;
+}
+
+void PositionControlledMachine::setTurnOffset(int offset){
+	if(!canSetTurnOffset(offset)) return;
+	//apply demand
+	requestedTurnOffset = offset;
+	b_applyTurnOffset = true;
+}
+
+bool PositionControlledMachine::canSetTurnOffset(int offset){
+	if(!isAxisConnected()) return false;
+	if(animatablePosition->isMoving()) return false;
+	if(animatablePosition->hasAnimation()) return false;
+	if(!isEnabled()) return false;
+	auto axis = getAxisInterface();
+	if(offset > turnOffset && upperPositionLimit->value + offset * 360.0 > axis->getUpperPositionLimit()) return false;
+	else if(offset < turnOffset && lowerPositionLimit->value + offset * 360.0 < axis->getLowerPositionLimit()) return false;
+	else if(offset > turnOffset && axis->getPositionActual() + offset * 360.0 > upperPositionLimit->value) return false;
+	else if(offset < turnOffset && axis->getPositionActual() + offset * 360.0 < lowerPositionLimit->value) return false;
+	return true;
 }

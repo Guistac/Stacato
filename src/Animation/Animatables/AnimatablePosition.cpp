@@ -435,7 +435,11 @@ void AnimatablePosition::forceVelocityTarget(double velocity, double acceleratio
 	controlMode = FORCED_VELOCITY_SETPOINT;
 }
 
-
+void AnimatablePosition::overridePositionTarget(double positionTarget){
+	positionSetpoint = positionTarget;
+	controlMode = POSITION_SETPOINT;
+	motionProfile.setPosition(positionTarget);
+}
 
 
 
