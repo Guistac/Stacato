@@ -442,6 +442,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
 	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
 	
+	/*
 	if(axis->getPositionUnit()->unitType == Units::Type::ANGULAR_DISTANCE){
 		allowModuloPositionShifting->setDisabled(false);
 		turnOffset = 0;
@@ -450,6 +451,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 		allowModuloPositionShifting->overwrite(false);
 		turnOffset = 0;
 	}
+	*/
 }
 
 
@@ -607,9 +609,9 @@ bool PositionControlledMachine::canSetTurnOffset(int offset){
 	if(animatablePosition->hasAnimation()) return false;
 	if(!isEnabled()) return false;
 	auto axis = getAxisInterface();
-	if(offset > turnOffset && upperPositionLimit->value + offset * 360.0 > axis->getUpperPositionLimit()) return false;
-	else if(offset < turnOffset && lowerPositionLimit->value + offset * 360.0 < axis->getLowerPositionLimit()) return false;
-	else if(offset > turnOffset && axis->getPositionActual() + offset * 360.0 > upperPositionLimit->value) return false;
-	else if(offset < turnOffset && axis->getPositionActual() + offset * 360.0 < lowerPositionLimit->value) return false;
+	if(		upperPositionLimit->value + offset * 360.0 > axis->getUpperPositionLimit())	return false;
+	else if(lowerPositionLimit->value + offset * 360.0 < axis->getLowerPositionLimit())	return false;
+	else if(axis->getPositionActual() + offset * 360.0 > upperPositionLimit->value)		return false;
+	else if(axis->getPositionActual() + offset * 360.0 < lowerPositionLimit->value)		return false;
 	return true;
 }

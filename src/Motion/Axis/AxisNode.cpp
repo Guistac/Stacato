@@ -597,8 +597,8 @@ void AxisNode::updateAxisConfiguration(){
 	actuatorVelocityLimit = lowestActuatorVelocityLimit;
 	actuatorAccelerationLimit = lowestActuatorAccelerationLimit;
 	
-	if(actuatorVelocityLimit < velocityLimit->value) velocityLimit->overwriteWithHistory(actuatorVelocityLimit);
-	if(actuatorAccelerationLimit < accelerationLimit->value) accelerationLimit->overwriteWithHistory(actuatorAccelerationLimit);
+	//if(actuatorVelocityLimit < velocityLimit->value) velocityLimit->overwriteWithHistory(actuatorVelocityLimit);
+	//if(actuatorAccelerationLimit < accelerationLimit->value) accelerationLimit->overwriteWithHistory(actuatorAccelerationLimit);
 	
 	config.accelerationLimit = accelerationLimit->value;
 	config.decelerationLimit = accelerationLimit->value;

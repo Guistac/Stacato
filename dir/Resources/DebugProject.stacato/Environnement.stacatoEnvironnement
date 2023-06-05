@@ -1,7 +1,7 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.76385367" OffsetX="1079.1086" OffsetY="-59.049362" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49997" SizeY="383.18982"/>
+    <Dashboard Scale="0.76409793" OffsetX="1079.0168" OffsetY="-59.049988" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49994" SizeY="383.06741"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

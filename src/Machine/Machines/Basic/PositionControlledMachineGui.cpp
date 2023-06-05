@@ -658,7 +658,6 @@ void PositionControlledMachine::setupGui(){
 	if(allowUserHoming->value){
 
 		glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
-		glm::vec2 homingProgressSize(ImGui::GetTextLineHeight() * 12.0, ImGui::GetFrameHeight());
 		ImGui::BeginDisabled(!canStartHoming());
 		if(isHoming()){
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
@@ -677,9 +676,9 @@ void PositionControlledMachine::setupGui(){
 		else if(didHomingSucceed()) progressIndicatorColor = Colors::green;
 		else if(didHomingFail()) progressIndicatorColor = Colors::red;
 
+		glm::vec2 homingProgressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 		std::string homingString = getHomingString();
 		backgroundText(homingString.c_str(), homingProgressSize, Colors::darkGray);
-
 	}
 		
 		
@@ -693,22 +692,28 @@ void PositionControlledMachine::setupGui(){
 	
 	if(allowModuloPositionShifting->value){
 		if(isAxisConnected() && getAxisInterface()->getPositionUnit() == Units::AngularDistance::Degree){
+			
+			ImVec2 buttonSize(ImGui::GetTextLineHeight() * 3.0, ImGui::GetFrameHeight());
+			ImGui::BeginGroup();
 			bool b_disabled = animatablePosition->isMoving() || animatablePosition->hasAnimation();
 			ImGui::BeginDisabled(b_disabled);
 			auto axis = getAxisInterface();
-			ImGui::BeginDisabled(!canSetTurnOffset(turnOffset - 1));
-			if(ImGui::Button("-1 Turn")) setTurnOffset(turnOffset - 1);
-			ImGui::EndDisabled();
-			ImGui::SameLine();
+			
 			ImGui::BeginDisabled(!canSetTurnOffset(turnOffset + 1));
-			if(ImGui::Button("+1 Turn")) setTurnOffset(turnOffset + 1);
-			ImGui::EndDisabled();
+			if(ImGui::Button("+1R", buttonSize)) setTurnOffset(turnOffset + 1);
 			ImGui::EndDisabled();
 			
+			ImGui::BeginDisabled(!canSetTurnOffset(turnOffset - 1));
+			if(ImGui::Button("-1R", buttonSize)) setTurnOffset(turnOffset - 1);
+			ImGui::EndDisabled();
 			
+			ImGui::EndDisabled();
+			ImGui::EndGroup();
+			
+			ImGui::SameLine();
 			
 			ImDrawList* drawing = ImGui::GetWindowDrawList();
-			ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0));
+			ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, buttonSize.y * 2.0 + ImGui::GetStyle().ItemSpacing.y));
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
@@ -729,16 +734,14 @@ void PositionControlledMachine::setupGui(){
 			double machinePos = animatablePosition->getActualPosition() - turnOffset * 360.0;
 			drawing->AddLine(ImVec2(toAxisXCoords(machinePos), min.y),
 							 ImVec2(toAxisXCoords(machinePos), max.y),
-							 ImColor(Colors::white), 3.0);
+							 ImColor(Colors::white), 2.0);
 			
 			for(double i = std::ceil(axisMin / 360.0) * 360.0; i < axisMax; i += 360.0){
 				double xPos = toAxisXCoords(i);
-				drawing->AddLine(ImVec2(xPos, min.y), ImVec2(xPos, max.y), ImColor(Colors::black));
+				drawing->AddLine(ImVec2(xPos, min.y), ImVec2(xPos, max.y), ImColor(ImVec4(0.0, 0.0, 0.0, 0.2)), 1.0);
 			}
 			
-			
-			
-			
+			drawing->AddRect(min, max, ImColor(Colors::black), 0.0, ImDrawFlags_None, 1.0);
 		}
 	}
 	
