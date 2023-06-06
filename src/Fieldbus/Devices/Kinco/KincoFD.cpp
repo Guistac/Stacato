@@ -227,6 +227,7 @@ void KincoFD::writeOutputs(){
 	if(actuator->feedbackProcessData.b_overridePosition){
 		actuator->feedbackProcessData.b_overridePosition = false;
 		actuator->feedbackProcessData.b_positionOverrideBusy = true;
+		actuator->feedbackProcessData.b_positionOverrideSucceeded = false;
 	}
 	
 	//——— Handle Axis Operating mode and commands
@@ -239,6 +240,7 @@ void KincoFD::writeOutputs(){
 			actuator->feedbackProcessData.b_positionOverrideBusy = false;
 			actuator->feedbackProcessData.b_positionOverrideSucceeded = true;
 			positionOffset = actuator->feedbackProcessData.positionOverride * incrementsPerRevolution;
+			Logger::info("[{}] homing finished", getName());
 		}
 	}
 	else{

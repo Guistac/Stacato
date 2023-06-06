@@ -50,6 +50,7 @@ void AxisNode::homingControl(){
 		axisInterface->processData.b_isHoming = false;
 		axisInterface->processData.b_didHomingSucceed = true;
 		setManualVelocityTarget(0.0);
+		motionProfile.setPosition(0.0);
 		Logger::info("[{}] Homing finished successfully", getName());
 	}
 	

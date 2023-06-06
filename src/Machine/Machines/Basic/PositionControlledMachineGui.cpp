@@ -736,9 +736,11 @@ void PositionControlledMachine::setupGui(){
 							 ImVec2(toAxisXCoords(machinePos), max.y),
 							 ImColor(Colors::white), 2.0);
 			
-			for(double i = std::ceil(axisMin / 360.0) * 360.0; i < axisMax; i += 360.0){
-				double xPos = toAxisXCoords(i);
-				drawing->AddLine(ImVec2(xPos, min.y), ImVec2(xPos, max.y), ImColor(ImVec4(0.0, 0.0, 0.0, 0.2)), 1.0);
+			if(!isinf(axisMin) && !isinf(axisMax)){
+				for(double i = std::ceil(axisMin / 360.0) * 360.0; i < axisMax; i += 360.0){
+					double xPos = toAxisXCoords(i);
+					drawing->AddLine(ImVec2(xPos, min.y), ImVec2(xPos, max.y), ImColor(ImVec4(0.0, 0.0, 0.0, 0.2)), 1.0);
+				}
 			}
 			
 			drawing->AddRect(min, max, ImColor(Colors::black), 0.0, ImDrawFlags_None, 1.0);

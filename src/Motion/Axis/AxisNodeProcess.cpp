@@ -117,6 +117,11 @@ void AxisNode::inputProcess(){
 		processData.b_enable = false;
 		if(axisInterface->getState() == DeviceState::READY){
 			b_isEnabling = true;
+			
+			homingStep = HomingStep::NOT_STARTED;
+			axisInterface->processData.b_isHoming = false;
+			axisInterface->processData.b_didHomingSucceed = false;
+			
 			enableRequestTime_seconds = Timing::getProgramTime_seconds();
 			for(auto actuator : connectedActuatorInterfaces) actuator->enable();
 			Logger::info("[{}] Enabling Axis", getName());
@@ -134,10 +139,16 @@ void AxisNode::inputProcess(){
 		}
 		if(b_allEnabled){
 			b_isEnabling = false;
+			homingStep = HomingStep::NOT_STARTED;
 			Logger::info("[{}] Axis Enabled", getName());
 		}
 		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
 			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+			
+			homingStep = HomingStep::NOT_STARTED;
+			axisInterface->processData.b_isHoming = false;
+			axisInterface->processData.b_didHomingSucceed = false;
+			
 			b_isEnabling = false;
 			Logger::warn("[{}] Could not enable axis :", getName());
 			for(auto actuator : connectedActuatorInterfaces){
@@ -146,6 +157,11 @@ void AxisNode::inputProcess(){
 		}
 		else if(axisInterface->getState() < DeviceState::READY){
 			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+			
+			homingStep = HomingStep::NOT_STARTED;
+			axisInterface->processData.b_isHoming = false;
+			axisInterface->processData.b_didHomingSucceed = false;
+			
 			b_isEnabling = false;
 			Logger::warn("[{}] Could not enable axis :", getName());
 			for(auto actuator : connectedActuatorInterfaces){
@@ -250,28 +266,7 @@ void AxisNode::inputProcess(){
 	
 	//update homing capability flag
 	axisInterface->processData.b_canStartHoming = axisInterface->supportsHoming() && axisInterface->isEnabled() && motionProfile.getVelocity() == 0.0;
-	
-	//check if the following errors exceed thresholds
-	if(axisInterface->isEnabled()){
-		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL){
-			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
-				Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
-				axisInterface->disable();
-			}
-		}
-		/*
-		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
-		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
-		   velocityFeedbackMapping){
-			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->value)){
-				Logger::warn("[{}] Velocity following error exceeded threshold, Disabling axis.", getName());
-				axisInterface->disable();
-			}
-		}
-		*/
-	}
-	
-	
+
 	//react to axis homing commands
 	if(axisInterface->processData.b_startHoming){
 		axisInterface->processData.b_startHoming = false;
@@ -287,6 +282,29 @@ void AxisNode::inputProcess(){
 		axisInterface->processData.b_didHomingSucceed = false;
 		homingStep = HomingStep::NOT_STARTED;
 		setManualVelocityTarget(0.0);
+	}
+	
+	//check if the following errors exceed thresholds
+	if(axisInterface->isEnabled()){
+		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL && !axisInterface->isHoming()){
+			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
+				Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
+				
+				Logger::warn("[{}] following error : {}", getName(), positionFollowingError);
+				
+				axisInterface->disable();
+			}
+		}
+		/*
+		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
+		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
+		   velocityFeedbackMapping){
+			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->value)){
+				Logger::warn("[{}] Velocity following error exceeded threshold, Disabling axis.", getName());
+				axisInterface->disable();
+			}
+		}
+		*/
 	}
 	
 	//decide on the internal control mode
@@ -314,6 +332,9 @@ void AxisNode::inputProcess(){
 		b_isEnabling = false;
 		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 		axisInterface->state = DeviceState::DISABLING;
+		homingStep = HomingStep::NOT_STARTED;
+		axisInterface->processData.b_isHoming = false;
+		axisInterface->processData.b_didHomingSucceed = false;
 	}
 	
 	
