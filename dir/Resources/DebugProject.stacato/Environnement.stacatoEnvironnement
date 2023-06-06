@@ -1,7 +1,7 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.76409793" OffsetX="1079.0168" OffsetY="-59.049988" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49994" SizeY="383.06741"/>
+    <Dashboard Scale="0.76482904" OffsetX="1078.7422" OffsetY="-59.051865" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49991" SizeY="384.00891"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -23,23 +23,23 @@
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3002)" UniqueID="50">
                 <NodeEditorPosition x="327" y="-109"/>
-                <NodeSpecificData>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
                     <Identification Type="StationAlias" StationAlias="3002"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3003)" UniqueID="51">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Codeur Posiral (Alias:3003)" UniqueID="51">
                 <NodeEditorPosition x="331" y="-46"/>
-                <NodeSpecificData>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
                     <Identification Type="StationAlias" StationAlias="3003"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3004)" UniqueID="52">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Codeur Kübler (Alias:3004)" UniqueID="52">
                 <NodeEditorPosition x="337" y="17"/>
-                <NodeSpecificData>
+                <NodeSpecificData SSIFrameSize="26" MultiturnResolution="12" SingleturnResolution="12" SSICoding="0" SSIBaudrate="3">
                     <Identification Type="StationAlias" StationAlias="3004"/>
                 </NodeSpecificData>
                 <InputPins/>
@@ -47,7 +47,7 @@
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3005)" UniqueID="53">
                 <NodeEditorPosition x="340" y="75"/>
-                <NodeSpecificData>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
                     <Identification Type="StationAlias" StationAlias="3005"/>
                 </NodeSpecificData>
                 <InputPins/>
@@ -133,7 +133,7 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="4" ProcessDataTimeoutMilliseconds="3.5" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="10" ProcessDataTimeoutMilliseconds="1" ClockStableThresholdMilliseconds="2" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
 
 <ManualControlChannel ActivePresetName="hehe">

@@ -45,8 +45,26 @@ void EL2008::deviceSpecificGui() {
 }
 
 void EL5001::deviceSpecificGui() {
-	if(ImGui::BeginTabItem("CU1128")){
-		ImGui::Text("This device has no settings or controls");
+	if(ImGui::BeginTabItem("EL5001")){
+	
+		ssiFrameSize->gui(Fonts::sansBold15);
+		multiturnResolution->gui(Fonts::sansBold15);
+		singleturnResolution->gui(Fonts::sansBold15);
+		ssiCoding_parameter->gui(Fonts::sansBold15);
+		ssiBaudrate_parameter->gui(Fonts::sansBold15);
+		ImGui::Text("Frame Format: %s", frameFormatString.c_str());
+		
+		ImGui::Separator();
+		
+		ImGui::Text("Counter: %i", ssiValue);
+		ImGui::Text("Data Error : %i", b_dataError);
+		ImGui::Text("Frame Error : %i", b_frameError);
+		ImGui::Text("Power Failure : %i", b_powerFailure);
+		ImGui::Text("Data Mismatch : %i", b_dataMismatch);
+		ImGui::Text("Sync Error : %i", b_syncError);
+		ImGui::Text("TxPDO State : %i", b_txPdoState);
+		ImGui::Text("TxPDO Toggle : %i", b_txPdoToggle);
+		
 		ImGui::EndTabItem();
 	}
 }
