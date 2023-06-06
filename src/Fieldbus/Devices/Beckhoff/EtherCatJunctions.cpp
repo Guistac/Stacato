@@ -69,9 +69,14 @@ void EL5001::initialize() {
 		else if(singleturnResolution->value > 32) singleturnResolution->overwrite(32);
 		updateSSIFrameFormat();
 	});
+	inhibitTime = NumberParameter<int>::make(0, "Inhibit Time", "InhibitTime");
+	inhibitTime->addEditCallback([this](){
+		if(inhibitTime->value < 0) inhibitTime->overwrite(0);
+		else if(inhibitTime->value > 65535) inhibitTime->overwrite(65535);
+	});
+	inhibitTime->setUnit(Units::Time::Microsecond);
 	ssiCoding_parameter = OptionParameter::make2(ssiCoding_gray, ssiCodingOptions, "SSI Coding", "SSICoding");
 	ssiBaudrate_parameter = OptionParameter::make2(ssiBaudrate_500Khz, ssiBaudrateOptions, "SSI Baudrate", "SSIBaudrate");
-	
 	updateSSIFrameFormat();
 	
 	txPdoAssignement.addNewModule(0x1A00);
@@ -83,16 +88,18 @@ bool EL5001::startupConfiguration() {
 	
 	bool success = true;
 	
-	success &= writeSDO_U8(0x4061, 0x1, 0x1, "Disable Frame Error");
-	success &= writeSDO_U8(0x4061, 0x2, 0x0, "Enable Power Failure Bit");
-	success &= writeSDO_U8(0x4061, 0x3, 0x1, "Enable Inhibit Time");
-	success &= writeSDO_U16(0x4066, 0x0, ssiCoding_parameter->value, "SSI Coding");
-	success &= writeSDO_U16(0x4067, 0x0, ssiBaudrate_parameter->value, "SSI baud rate");
-	success &= writeSDO_U16(0x4068, 0x0, 2, "SSI frame type");
-	success &= writeSDO_U16(0x4069, 0x0, ssiFrameSize->value, "SSI Frame size");
-	success &= writeSDO_U16(0x406A, 0x0, multiturnResolution->value + singleturnResolution->value, "SSI Data length");
+	success &= writeSDO_U8(0x8010, 0x1, 0x0, "Disable Frame Error");
+	success &= writeSDO_U8(0x8010, 0x2, 0x0, "Enable Power Failure Bit");
+	success &= writeSDO_U8(0x8010, 0x3, inhibitTime->value != 0 ? 0x1 : 0x0, "Enable Inhibit Time");
 	
-	return true;
+	success &= writeSDO_U8(0x8010, 0x6, ssiCoding_parameter->value, "SSI Coding");
+	success &= writeSDO_U8(0x8010, 0x9, ssiBaudrate_parameter->value, "SSI baud rate");
+	success &= writeSDO_U8(0x8010, 0xF, 2, "SSI frame type"); //variable frame size (frame length and data length are parametrized manually)
+	success &= writeSDO_U16(0x8010, 0x11, ssiFrameSize->value, "SSI Frame size"); //size of frame including power failure bits
+	success &= writeSDO_U16(0x8010, 0x12, multiturnResolution->value + singleturnResolution->value, "SSI Data length"); //actual data length (mt+st)
+	success &= writeSDO_U16(0x8010, 0x13, inhibitTime->value); //minimum time between two ssi readings
+	
+	return success;
 }
 
 void EL5001::readInputs() {
@@ -106,8 +113,6 @@ void EL5001::readInputs() {
 	b_txPdoState = status & 0x40;	//b6
 	b_txPdoToggle = status & 0x80;	//b7
 	
-	Logger::warn("{} {:b}", getName(), ssiValue);
-
 }
 void EL5001::writeOutputs(){}
 bool EL5001::saveDeviceData(tinyxml2::XMLElement* xml) {
@@ -116,6 +121,7 @@ bool EL5001::saveDeviceData(tinyxml2::XMLElement* xml) {
 	singleturnResolution->save(xml);
 	ssiCoding_parameter->save(xml);
 	ssiBaudrate_parameter->save(xml);
+	inhibitTime->save(xml);
 	return true;
 }
 bool EL5001::loadDeviceData(tinyxml2::XMLElement* xml) {
@@ -124,6 +130,7 @@ bool EL5001::loadDeviceData(tinyxml2::XMLElement* xml) {
 	singleturnResolution->load(xml);
 	ssiCoding_parameter->load(xml);
 	ssiBaudrate_parameter->load(xml);
+	inhibitTime->load(xml);
 	updateSSIFrameFormat();
 	return true;
 }

@@ -1,7 +1,7 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.76389402" OffsetX="1079.0935" OffsetY="-59.049469" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="146.20877" SizeY="62.44453"/>
+    <Dashboard Scale="0.76516157" OffsetX="1078.6174" OffsetY="-59.052689" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Machine 1" UniqueID="1" PositionX="-881" PositionY="61" SizeX="178.49997" SizeY="383.84222"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -21,33 +21,33 @@
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3002)" UniqueID="50">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 OK (Alias:3002)" UniqueID="50">
                 <NodeEditorPosition x="327" y="-109"/>
-                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0">
                     <Identification Type="StationAlias" StationAlias="3002"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Codeur Posiral (Alias:3003)" UniqueID="51">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Nope (Alias:3003)" UniqueID="51">
                 <NodeEditorPosition x="331" y="-46"/>
-                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="0" SSIBaudrate="3" InhibitTime="100">
                     <Identification Type="StationAlias" StationAlias="3003"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Codeur Kübler (Alias:3004)" UniqueID="52">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Nope (Alias:3004)" UniqueID="52">
                 <NodeEditorPosition x="337" y="17"/>
-                <NodeSpecificData SSIFrameSize="26" MultiturnResolution="12" SingleturnResolution="12" SSICoding="0" SSIBaudrate="3">
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="0" SSIBaudrate="3" InhibitTime="100">
                     <Identification Type="StationAlias" StationAlias="3004"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3005)" UniqueID="53">
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="Nope (Posital) (Alias:3005)" UniqueID="53">
                 <NodeEditorPosition x="340" y="75"/>
-                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3">
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="0" SSIBaudrate="3" InhibitTime="100">
                     <Identification Type="StationAlias" StationAlias="3005"/>
                 </NodeSpecificData>
                 <InputPins/>
@@ -137,6 +137,7 @@
         </Nodes>
         <Links>
             <Link UniqueID="202" StartPin="200" EndPin="56"/>
+            <Link UniqueID="204" StartPin="65" EndPin="72"/>
         </Links>
     </NodeGraph>
 </Environnement>

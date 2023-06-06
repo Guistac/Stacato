@@ -239,9 +239,15 @@ void PositionControlledMachine::inputProcess() {
 	}
 	
 	auto actualPosition = AnimationValue::makePosition();
-	actualPosition->position = axisPositionToMachinePosition(axis->getPositionActual());
-	actualPosition->velocity = axisVelocityToMachineVelocity(axis->getVelocityActual());
-	actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
+	if(isHoming()){
+		actualPosition->position = 0.0;
+		actualPosition->velocity = 0.0;
+		actualPosition->acceleration = 0.0;
+	}else{
+		actualPosition->position = axisPositionToMachinePosition(axis->getPositionActual());
+		actualPosition->velocity = axisVelocityToMachineVelocity(axis->getVelocityActual());
+		actualPosition->acceleration = axisAccelerationToMachineAcceleration(0.0);
+	}
 	animatablePosition->updateActualValue(actualPosition);
 	
 	//animatablePosition->upperPositionLimit = axisPositionToMachinePosition(axis->getHighPositionLimit());

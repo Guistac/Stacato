@@ -108,31 +108,12 @@ void SetupWindow::onDraw(){
 	
 	//——————————————————————————————————————————————————————————
 	//——— Hack to quickly home all position controlled machines
-	bool b_hasHomeableMachines = false;
-	bool b_canHomeMultiple = false;
-	for(auto machine : Environnement::getMachines()){
-		if(auto homeableMachine = std::dynamic_pointer_cast<PositionControlledMachine>(machine)){
-			b_hasHomeableMachines = true;
-			if(homeableMachine->canStartHoming()) {
-				b_canHomeMultiple = true;
-				break;
-			}
-		}
-	}
-	if(b_hasHomeableMachines){
-		ImGui::BeginDisabled(!b_canHomeMultiple);
-		ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() * 2.0);
-		ImGui::PushFont(Fonts::sansBold20);
-		if(ImGui::Button("Home All", buttonSize)){
-			for(auto machine : Environnement::getMachines()){
-				if(auto homeableMachine = std::dynamic_pointer_cast<PositionControlledMachine>(machine)){
-					if(homeableMachine->canStartHoming()) homeableMachine->startHoming();
-				}
-			}
-		}
-		ImGui::PopFont();
-		ImGui::EndDisabled();
-	}
+	ImGui::BeginDisabled(!Environnement::canHomeAllMachines());
+	ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() * 2.0);
+	ImGui::PushFont(Fonts::sansBold20);
+	if(ImGui::Button("Home All", buttonSize)) Environnement::homeAllMachines();
+	ImGui::PopFont();
+	ImGui::EndDisabled();
 	//——————————————————————————————————————————————————————————
 	
 	int id = 0;

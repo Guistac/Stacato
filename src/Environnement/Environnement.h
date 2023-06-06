@@ -74,4 +74,8 @@ namespace Environnement{
 	bool isManualControlEnabledForMachineIndex(int index);
 
 	std::recursive_mutex* getMutex();
+
+	bool canHomeAllMachines();
+	void homeAllMachines();
+
 };

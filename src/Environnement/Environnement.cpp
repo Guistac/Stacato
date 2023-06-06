@@ -26,6 +26,8 @@
 
 #include "Animation/ManualControlChannel.h"
 
+#include "Machine/Machines/Basic/PositionControlledMachine.h"
+
 namespace Environnement {
 
 	std::shared_ptr<ManualControlChannel> manualControlChannel = nullptr;
@@ -522,5 +524,28 @@ namespace Environnement {
 		StageVisualizer::reset();
 		Environnement::Script::reset();
 	}
+
+
+
+	bool canHomeAllMachines(){
+		bool b_hasHomeableMachines = false;
+		for(auto machine : Environnement::getMachines()){
+			if(auto homeableMachine = std::dynamic_pointer_cast<PositionControlledMachine>(machine)){
+				b_hasHomeableMachines = true;
+				if(!homeableMachine->canStartHoming()) return false;
+			}
+		}
+		return b_hasHomeableMachines;
+	}
+
+	void homeAllMachines(){
+		if(!canHomeAllMachines()) return false;
+		for(auto machine : Environnement::getMachines()){
+			if(auto homeableMachine = std::dynamic_pointer_cast<PositionControlledMachine>(machine)){
+				if(homeableMachine->canStartHoming()) homeableMachine->startHoming();
+			}
+		}
+	}
+
 
 }

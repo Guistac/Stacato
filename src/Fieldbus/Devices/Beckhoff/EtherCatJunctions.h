@@ -36,6 +36,7 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 
 	NumberParam<int> ssiFrameSize;
 	NumberParam<int> multiturnResolution;
 	NumberParam<int> singleturnResolution;
+	NumberParam<int> inhibitTime;
 	OptionParam ssiCoding_parameter;
 	OptionParam ssiBaudrate_parameter;
 	

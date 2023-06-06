@@ -142,13 +142,17 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	
 	//——— Rapid To End
 	rgbButton8->setInputUpdateCallback([&](){
+		/*
 		Logger::trace("RGB Button 8 : {}", rgbButton8->isPressed());
 		if(!Stacato::Editor::hasCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
 		if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
 		if(!rgbButton8->isPressed()) manoeuvre->rapidToTarget();
+		*/
+		if(!rgbButton8->isPressed()) Environnement::homeAllMachines();
 	});
 	rgbButton8->setOutputUpdateCallback([&](){
+		/*
 		if(!Stacato::Editor::hasCurrentProject()) return;
 		if(auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre()){
 			if(manoeuvre->isAtTarget()) rgbButton8->setColor(glm::vec3(.0f, 1.f, .0f));
@@ -156,6 +160,9 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 			else rgbButton8->setColor(glm::vec3(0));
 		}
 		else rgbButton8->setColor(glm::vec3(0));
+		 */
+		if(Environnement::canHomeAllMachines()) rgbButton8->setColor(glm::vec3(0.0, 0.0, 0.0));
+		else rgbButton8->setColor(glm::vec3(.1f, .1f, .1f));
 	});
 	
 	

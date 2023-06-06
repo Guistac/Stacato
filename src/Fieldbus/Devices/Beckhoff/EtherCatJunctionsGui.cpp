@@ -52,6 +52,7 @@ void EL5001::deviceSpecificGui() {
 		singleturnResolution->gui(Fonts::sansBold15);
 		ssiCoding_parameter->gui(Fonts::sansBold15);
 		ssiBaudrate_parameter->gui(Fonts::sansBold15);
+		inhibitTime->gui(Fonts::sansBold15);
 		ImGui::Text("Frame Format: %s", frameFormatString.c_str());
 		
 		ImGui::Separator();
