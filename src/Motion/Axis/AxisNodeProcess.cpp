@@ -287,12 +287,23 @@ void AxisNode::inputProcess(){
 	//check if the following errors exceed thresholds
 	if(axisInterface->isEnabled()){
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL && !axisInterface->isHoming()){
+			
 			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
-				Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
 				
-				Logger::warn("[{}] following error : {}", getName(), positionFollowingError);
-				
-				axisInterface->disable();
+				uint64_t now = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+				if(!b_isOverPositionErrorTreshold){
+					positionErrorStartTime_nanos = now;
+					b_isOverPositionErrorTreshold = true;
+				}
+				Logger::trace("[{}] over position error treshold, error = {}", getName(), positionFollowingError);
+				if(now - positionErrorStartTime_nanos >= positionLoop_errorTimeout_milliseconds->value * 1'000'000){
+					Logger::warn("[{}] Position following error exceeded threshold, Disabling axis.", getName());
+					Logger::warn("[{}] following error : {}", getName(), positionFollowingError);
+					axisInterface->disable();
+				}
+
+			}else{
+				b_isOverPositionErrorTreshold = false;
 			}
 		}
 		/*
@@ -426,7 +437,10 @@ void AxisNode::outputProcess(){
 	//control loop update (depends on axis control mode)
 	double velocityCommand;
 	auto updatePositionControlLoop = [&](){
-		if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
+		
+		if(b_isOverPositionErrorTreshold)
+			velocityCommand = motionProfile.getVelocity();
+		else if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
 			velocityCommand = 0.0;
 		else
 			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01 + positionFollowingError * positionLoop_proportionalGain->value;

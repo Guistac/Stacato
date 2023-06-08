@@ -57,7 +57,17 @@ void EL5001::deviceSpecificGui() {
 		
 		ImGui::Separator();
 		
-		ImGui::Text("Counter: %i", ssiValue);
+		std::stringstream hexStream;
+		hexStream << "0x" << std::hex << ssiValue;
+		std::string hex = hexStream.str();
+		std::string bin = std::bitset<32>(ssiValue).to_string();
+		
+		ImGui::Text("Counter:");
+		ImGui::Text("Int: %i", ssiValue);
+		ImGui::Text("Hex: %s", hex.c_str());
+		ImGui::Text("Bin: %s", bin.c_str());
+		
+		
 		ImGui::Text("Data Error : %i", b_dataError);
 		ImGui::Text("Frame Error : %i", b_frameError);
 		ImGui::Text("Power Failure : %i", b_powerFailure);

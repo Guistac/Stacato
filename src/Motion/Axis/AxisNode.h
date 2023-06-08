@@ -139,6 +139,7 @@ private:
 	NumberParam<double> positionLoop_proportionalGain;
 	NumberParam<double> positionLoop_maxError;
 	NumberParam<double> positionLoop_minError;
+	NumberParam<double> positionLoop_errorTimeout_milliseconds;
 	
 	//Velocity Control
 	NumberParam<double> limitSlowdownVelocity;
@@ -219,7 +220,8 @@ private:
 	double velocityFollowingError = 0.0;
 	double lowerPositionLimitWithoutClearance;
 	double upperPositionLimitWithoutClearance;
-		
+	bool b_isOverPositionErrorTreshold = false;
+	uint64_t positionErrorStartTime_nanos = 0;
 	
 	//——— Homing
 	

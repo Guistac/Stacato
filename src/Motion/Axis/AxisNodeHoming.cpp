@@ -81,8 +81,12 @@ void AxisNode::homingRoutine_HomingOnCurrentPosition(){
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
-			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
-				homingStep = HomingStep::FINISHING;
+			if(!positionFeedbackMapping->feedbackInterface->isBusyOverridingPosition()){
+				if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+					homingStep = HomingStep::FINISHING;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
 			}
 			break;
 			

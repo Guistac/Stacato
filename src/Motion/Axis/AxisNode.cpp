@@ -106,6 +106,11 @@ void AxisNode::initialize(){
 	positionLoop_proportionalGain = NumberParameter<double>::make(0.0, "Position loop proportional gain (PKp)", "PositionLoopProportionalGain");
 	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
 	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
+	positionLoop_errorTimeout_milliseconds = NumberParameter<double>::make(0.0, "Position loop error timeout", "PositionLoopErrorTimeout");
+	positionLoop_errorTimeout_milliseconds->setUnit(Units::Time::Millisecond);
+	positionLoop_errorTimeout_milliseconds->addEditCallback([this](){
+		if(positionLoop_errorTimeout_milliseconds->value < 0.0) positionLoop_errorTimeout_milliseconds->overwrite(0.0);
+	});
 	
 	//velocityLoop_maxError = NumberParameter<double>::make(0.0, "Velocity loop max error", "VelocityLoopMaxError");
 	//velocityLoop_maxError->setSuffix("/s");
@@ -220,6 +225,7 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	positionLoop_proportionalGain->save(xml);
 	positionLoop_maxError->save(xml);
 	positionLoop_minError->save(xml);
+	positionLoop_errorTimeout_milliseconds->save(xml);
 	//velocityLoop_maxError->save(xml);
 	limitSlowdownVelocity->save(xml);
 	
@@ -257,6 +263,7 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= positionLoop_proportionalGain->load(xml);
 	success &= positionLoop_maxError->load(xml);
 	success &= positionLoop_minError->load(xml);
+	positionLoop_errorTimeout_milliseconds->load(xml);
 	//success &= velocityLoop_maxError->load(xml);
 	success &= limitSlowdownVelocity->load(xml);
 	

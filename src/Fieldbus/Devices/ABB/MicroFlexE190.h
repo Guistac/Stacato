@@ -39,8 +39,6 @@ public:
 		 */
 		
 		//power stage control
-		bool b_enableRequest = false;
-		bool b_disableRequest = false;
 		bool b_waitingForEnable = false;
 		long long enableRequestTime_nanoseconds;
 		//encoder reset request
@@ -221,12 +219,6 @@ public:
 		return status;
 	}
 	
-	
-	
-	
-	
-	
-	
 	void controlTab();
 	void settingsTab();
 	
@@ -235,11 +227,6 @@ public:
 	float manualVelocityTarget = 0.0;
 	
 	void updateServoConfiguration();
-	
-	
-	
-	
-	
 };
 
 //0x5062 : input pin function assignement (int16)
@@ -283,3 +270,10 @@ public:
 
 ///When comissionning the drive through Mint Workbench, make sure the mint program is completely disabled or commented out
 ///It generated weird "incrorrect reference source" and "motion aborted" errors that were very unpredictable
+///Run the drive comissionning wizard:
+///For exmachina armaz heavy motors the model number is BSM 90N 175 A F
+///Max RPM is 4300rpm
+///set drive rating zone to 300%
+///Feedback Options: Resolution = 2500 | Encoder Pre-Scale = 1
+///perform auto tuning
+///store drive parameters

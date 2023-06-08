@@ -216,16 +216,16 @@ void MicroFlex_e190::writeOutputs() {
 	long long now_nanoseconds = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	
 	//handle enabling & disabling
-	if(servo->b_disableRequest){
-		servo->b_disableRequest = false;
-		servo->b_enableRequest = false;
+	if(servo->actuatorProcessData.b_disable){
+		servo->actuatorProcessData.b_disable = false;
+		servo->actuatorProcessData.b_enable = false;
 		servo->b_waitingForEnable = false;
 		axis->disable();
 	}
-	else if(servo->b_enableRequest){
+	else if(servo->actuatorProcessData.b_enable){
 		if(axis->hasFault()) axis->doFaultReset();
 		else {
-			servo->b_enableRequest = false;
+			servo->actuatorProcessData.b_enable = false;
 			servo->b_waitingForEnable = true;
 			enableRequestTime_nanoseconds = now_nanoseconds;
 			axis->enable();

@@ -39,7 +39,9 @@ void MicroFlex_e190::controlTab(){
 		if(ImGui::Button("Disable", statusBoxSize)) servo->disable();
 	}else{
 		ImGui::BeginDisabled(!servo->isReady());
-		if(ImGui::Button("Enable", statusBoxSize)) servo->enable();
+		if(ImGui::Button("Enable", statusBoxSize)) {
+			servo->enable();
+		}
 		ImGui::EndDisabled();
 	}
 	

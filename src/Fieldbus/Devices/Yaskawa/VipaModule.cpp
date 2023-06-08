@@ -485,7 +485,7 @@ void VIPA_050_1BS00::writeOutputs(){
 			updateEncoderWorkingRange();
 			Logger::info("[{}] Successfully reset encoder position", encoder->getName());
 		}
-		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetTime_milliseconds * 1000000){
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetTime_milliseconds * 1'000'000){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
 			*resetPinValue = false;

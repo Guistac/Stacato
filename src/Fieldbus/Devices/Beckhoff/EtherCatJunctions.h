@@ -47,13 +47,11 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 
 		&ssiCoding_gray
 	};
 	
-	OptionParameter::Option ssiBaudrate_1250Khz = OptionParameter::Option(1, "1250 Khz", "1250Khz");
 	OptionParameter::Option ssiBaudrate_1000Khz = OptionParameter::Option(2, "1000 Khz", "1000Khz");
 	OptionParameter::Option ssiBaudrate_500Khz = OptionParameter::Option(3, "500 Khz", "500Khz");
 	OptionParameter::Option ssiBaudrate_250Khz = OptionParameter::Option(4, "250 Khz", "250Khz");
 	OptionParameter::Option ssiBaudrate_125Khz = OptionParameter::Option(5, "125 Khz", "125Khz");
 	std::vector<OptionParameter::Option*> ssiBaudrateOptions = {
-		&ssiBaudrate_1250Khz,
 		&ssiBaudrate_1000Khz,
 		&ssiBaudrate_500Khz,
 		&ssiBaudrate_250Khz,

@@ -581,6 +581,7 @@ void AxisNode::positionControlSettingsGui(){
 	positionLoop_proportionalGain->gui(Fonts::sansBold15);
 	positionLoop_maxError->gui(Fonts::sansBold15);
 	positionLoop_minError->gui(Fonts::sansBold15);
+	positionLoop_errorTimeout_milliseconds->gui(Fonts::sansBold15);
 	ImGui::EndDisabled();
 	
 	//velocityLoop_maxError->gui(Fonts::sansBold15);
