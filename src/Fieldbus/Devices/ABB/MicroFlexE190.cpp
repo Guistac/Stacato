@@ -91,17 +91,6 @@ bool MicroFlex_e190::startupConfiguration() {
 	//TODO: how do we set this? it seem the drive works best at 10ms cycle time and stutters at smaller cycle times
 	//if(!axis->setInterpolationTimePeriod(EtherCatFieldbus::processInterval_milliseconds)) return false;
 	
-	//———— Current Limitation
-	
-	//as .1% increments of drive rated current
-	uint16_t maxCurrent = currentLimit_parameter->value * 10.0;
-	if(!axis->setMaxCurrent(maxCurrent)) return false;
-	
-	//———— Max Following Error
-	
-	uint32_t maxFollowingError = maxFollowingError_parameter->value * incrementsPerPositionUnit;
-	if(!axis->setPositionFollowingErrorWindow(maxFollowingError)) return false;
-	
 	//———— Error Reactions
 	
 	//ERRORDECEL
@@ -124,7 +113,6 @@ bool MicroFlex_e190::startupConfiguration() {
 	
 	//500D.0 LIMITMODE (when a limit signal is triggered)
 	//500E.0 FOLERRORMODE (when following error happens)
-	
 	
 	//———— PDO Assignement
 
@@ -219,14 +207,14 @@ void MicroFlex_e190::writeOutputs() {
 	if(servo->actuatorProcessData.b_disable){
 		servo->actuatorProcessData.b_disable = false;
 		servo->actuatorProcessData.b_enable = false;
-		servo->b_waitingForEnable = false;
+		b_waitingForEnable = false;
 		axis->disable();
 	}
 	else if(servo->actuatorProcessData.b_enable){
 		if(axis->hasFault()) axis->doFaultReset();
 		else {
 			servo->actuatorProcessData.b_enable = false;
-			servo->b_waitingForEnable = true;
+			b_waitingForEnable = true;
 			enableRequestTime_nanoseconds = now_nanoseconds;
 			axis->enable();
 		}
@@ -267,7 +255,17 @@ void MicroFlex_e190::writeOutputs() {
 	}
 	//copy the values from the servo pin
 	else if(servoPin->isConnected()){
-		axis->setPosition(servo->actuatorProcessData.positionTarget * incrementsPerPositionUnit);
+		switch(servo->actuatorProcessData.controlMode){
+			case ActuatorInterface::ControlMode::VELOCITY:
+				axis->setVelocity(servo->actuatorProcessData.velocityTarget * incrementsPerVelocityUnit);
+				break;
+			case ActuatorInterface::ControlMode::POSITION:
+				axis->setPosition(servo->actuatorProcessData.positionTarget * incrementsPerPositionUnit);
+				break;
+			case ActuatorInterface::ControlMode::FORCE:
+				axis->setVelocity(0);
+				break;
+		}
 	}
 	//if the servo pin is not connected, we allow manual velocity control of the axis
 	else{
@@ -286,8 +284,7 @@ void MicroFlex_e190::writeOutputs() {
 		profiler_velocity = std::clamp(profiler_velocity, -velocityLimit, velocityLimit);
 		double deltaP = profiler_velocity * deltaT_s;
 		profiler_position += deltaP;
-		//axis->setVelocity(profiler_velocity * incrementsPerVelocityUnit);
-		axis->setPosition(profiler_position * incrementsPerPositionUnit);
+		axis->setVelocity(profiler_velocity * incrementsPerVelocityUnit);
 	}
 	
 	axis->updateOutput();
@@ -312,4 +309,50 @@ bool MicroFlex_e190::loadDeviceData(tinyxml2::XMLElement* xml) {
 	accelerationLimit_parameter->onEdit();
 	maxFollowingError_parameter->onEdit();
     return true;
+}
+
+
+//—————— Config Upload
+
+
+void MicroFlex_e190::uploadDriveConfiguration(){
+	
+	bool success = true;
+	
+	//Current Limitation as .1% increments of drive rated current
+	success &= axis->setMaxCurrent(currentLimit_parameter->value * 10.0);
+
+	//Max Following Error
+	success &= axis->setPositionFollowingErrorWindow(maxFollowingError_parameter->value * incrementsPerPositionUnit);
+
+	//Drive Polarity
+	success &= axis->setPolarity(invertDirection_parameter->value);
+
+	Logger::trace("[{}] Storing Drive Parameters...", getName());
+	
+	//CoE Standart Store Parameters Object 0x1010:1
+	//uint32_t write 0x65766173 to save, read 0x1 to confirm parameters were saved
+	
+	if(writeSDO_U32(0x1010, 0x1, 0x65766173)){
+		uint32_t storeParametersStatus = 0;
+		double storeStartTime = Timing::getProgramTime_seconds();
+		while(true){
+			readSDO_U32(0x1010, 0x1, storeParametersStatus);
+			if(Timing::getProgramTime_seconds() - storeStartTime > 3.0){
+				success = false;
+				Logger::trace("[{}] Paramater storage timed out", getName());
+				break;
+			}
+			else if(storeParametersStatus == 0x1){
+				success &= true;
+				Logger::info("[{}] Configuration saved on drive", getName());
+				break;
+			}
+			else{
+				Logger::trace("[{}] Waiting for storage confirmation", getName());
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+	}
+	
 }

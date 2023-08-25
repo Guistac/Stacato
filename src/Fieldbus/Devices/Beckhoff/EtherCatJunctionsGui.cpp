@@ -21,7 +21,14 @@ void CU1128::deviceSpecificGui() {
 }
 
 void EK1100::deviceSpecificGui() {
-	if(ImGui::BeginTabItem("CU1128")){
+	if(ImGui::BeginTabItem("EK1100")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
+
+void EK1122::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EK1122")){
 		ImGui::Text("This device has no settings or controls");
 		ImGui::EndTabItem();
 	}
@@ -29,40 +36,103 @@ void EK1100::deviceSpecificGui() {
 
 void EL2008::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL2008")){
-		
 		for(int i = 0; i < 8; i++){
 			ImGui::PushID(i);
-			
-			char name[32];
-			snprintf(name, 32, "Channel %i", i + 1);
-			ImGui::Checkbox(name, &outputs[i]);
-			
+			signalInversionParams[i]->gui(Fonts::sansBold15);
 			ImGui::PopID();
 		}
-		
+		ImGui::EndTabItem();
+	}
+}
+
+void EL1008::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL1008")){
+		for(int i = 0; i < 8; i++){
+			ImGui::PushID(i);
+			signalInversionParams[i]->gui(Fonts::sansBold15);
+			ImGui::PopID();
+		}
 		ImGui::EndTabItem();
 	}
 }
 
 void EL5001::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL5001")){
-	
+		
 		ssiFrameSize->gui(Fonts::sansBold15);
 		multiturnResolution->gui(Fonts::sansBold15);
 		singleturnResolution->gui(Fonts::sansBold15);
 		ssiCoding_parameter->gui(Fonts::sansBold15);
 		ssiBaudrate_parameter->gui(Fonts::sansBold15);
 		inhibitTime->gui(Fonts::sansBold15);
-		ImGui::Text("Frame Format: %s", frameFormatString.c_str());
 		
 		ImGui::Separator();
 		
+		hasResetSignal_Param->gui(Fonts::sansBold15);
+		resetSignalTime_Param->gui(Fonts::sansBold15);
+		
+		ImGui::Separator();
+		
+		invertDirection_Param->gui(Fonts::sansBold15);
+		centerOnZero_Param->gui(Fonts::sansBold15);
+		
+		float minRange = encoder->feedbackConfig.positionLowerWorkingRangeBound;
+		float maxRange = encoder->feedbackConfig.positionUpperWorkingRangeBound;
+		float pos = encoder->feedbackProcessData.positionActual;
+		float vel = encoder->feedbackProcessData.velocityActual;
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("Working Range: %.f to %.f revolutions", minRange, maxRange);
+		ImGui::PopStyleColor();
+		
+		ImGui::Separator();
+		
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Realtime encoder data");
+		ImGui::PopFont();
+
+		//ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		//ImGui::TextWrapped("%s", encoder->getStatusString().c_str());
+		//ImGui::PopStyleColor();
+		
+		float positionInWorkingRange = (pos - minRange) / (maxRange - minRange);
+		float velocityNormalized = vel / 10.0;
+		
+		ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+		
+		static char statusString[64];
+		snprintf(statusString, 64, "%.3f rev", pos);
+		ImGui::ProgressBar(positionInWorkingRange, progressSize, statusString);
+		
+		snprintf(statusString, 64, "%.2f rev/s", vel);
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized > 0.0 ? Colors::green : Colors::red);
+		ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, statusString);
+		ImGui::PopStyleColor();
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("Raw SSI Value: %i", ssiValue);
+		ImGui::PopStyleColor();
+		
+		if(ImGui::Button("Reset Position")) encoder->overridePosition(0.0);
+		ImGui::SameLine();
+		if(ImGui::Button("Clear Offset")) {
+			positionOffset_rev = 0.0;
+			updateEncoderWorkingRange();
+		}
+		
+		ImGui::EndTabItem();
+	}
+	if(ImGui::BeginTabItem("Debug Data")){
+		
+		ImGui::Text("Frame Format: %s", frameFormatString.c_str());
 		std::stringstream hexStream;
 		hexStream << "0x" << std::hex << ssiValue;
 		std::string hex = hexStream.str();
 		std::string bin = std::bitset<32>(ssiValue).to_string();
 		
 		ImGui::Text("Counter:");
+		ImGui::Text("Rev: %.3fr", encoder->feedbackProcessData.positionActual);
+		ImGui::Text("Deg: %.3fd", encoder->feedbackProcessData.positionActual * 360.0);
 		ImGui::Text("Int: %i", ssiValue);
 		ImGui::Text("Hex: %s", hex.c_str());
 		ImGui::Text("Bin: %s", bin.c_str());
@@ -76,6 +146,13 @@ void EL5001::deviceSpecificGui() {
 		ImGui::Text("TxPDO State : %i", b_txPdoState);
 		ImGui::Text("TxPDO Toggle : %i", b_txPdoToggle);
 		
+		ImGui::EndTabItem();
+	}
+}
+
+void EL2912::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL2912")){
+		ImGui::Text("This device has no settings or controls");
 		ImGui::EndTabItem();
 	}
 }

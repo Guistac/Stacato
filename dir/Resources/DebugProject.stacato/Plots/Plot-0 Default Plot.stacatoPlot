@@ -1,14 +1,3 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Machine 1" MachineUniqueID="70" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="360" Duration="30" TimeOffset="0" StartAcceleration="35" EndAcceleration="35">
-                <Curves>
-                    <Curve Name="Position">
-                        <ControlPoint Position="180" Time="10" Velocity="0" InAcceleration="35" OutAcceleration="35"/>
-                        <ControlPoint Position="180" Time="15" Velocity="0" InAcceleration="35" OutAcceleration="35"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-    </ManoeuvreList>
+    <ManoeuvreList/>
 </Plot>

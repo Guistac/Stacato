@@ -18,6 +18,8 @@ void ATV340::initialize() {
 	axis = DS402Axis::make(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 	motor = std::make_shared<ATV340_Motor>(std::static_pointer_cast<ATV340>(shared_from_this()));
 	motor_pin->assignData(std::static_pointer_cast<ActuatorInterface>(motor));
+	motor->actuatorConfig.b_supportsVelocityControl = true;
+	
 	gpio = std::make_shared<ATV340_GPIO>(std::static_pointer_cast<ATV340>(shared_from_this()));
 	gpio_pin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
@@ -31,6 +33,12 @@ void ATV340::initialize() {
 	addNodePin(digitalInput3_Pin);
 	addNodePin(digitalInput4_Pin);
 	addNodePin(digitalInput5_Pin);
+	addNodePin(digitalInput11_Pin);
+	addNodePin(digitalInput12_Pin);
+	addNodePin(digitalInput13_Pin);
+	addNodePin(digitalInput14_Pin);
+	addNodePin(digitalInput15_Pin);
+	addNodePin(digitalInput16_Pin);
 	addNodePin(analogInput1_pin);
 	addNodePin(analogInput2_pin);
 	addNodePin(digitalOutput1_Pin);
@@ -45,12 +53,24 @@ void ATV340::initialize() {
 		digitalInput3_Pin->setVisible(pdo_digitalIn->value);
 		digitalInput4_Pin->setVisible(pdo_digitalIn->value);
 		digitalInput5_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput11_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput12_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput13_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput14_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput15_Pin->setVisible(pdo_digitalIn->value);
+		digitalInput16_Pin->setVisible(pdo_digitalIn->value);
 		if(!pdo_digitalIn->value){
 			digitalInput1_Pin->disconnectAllLinks();
 			digitalInput2_Pin->disconnectAllLinks();
 			digitalInput3_Pin->disconnectAllLinks();
 			digitalInput4_Pin->disconnectAllLinks();
 			digitalInput5_Pin->disconnectAllLinks();
+			digitalInput11_Pin->disconnectAllLinks();
+			digitalInput12_Pin->disconnectAllLinks();
+			digitalInput13_Pin->disconnectAllLinks();
+			digitalInput14_Pin->disconnectAllLinks();
+			digitalInput15_Pin->disconnectAllLinks();
+			digitalInput16_Pin->disconnectAllLinks();
 		}
 	});
 	pdo_digitalOut->addEditCallback([this](){
@@ -118,6 +138,16 @@ void ATV340::initialize() {
 		brakeEngageFrequency_Param->setDisabled(brakeOutputUnassigned);
 	});
 	brakeOutputAssignement_Param->onEdit();
+	
+	nominalMotorSpeed_Param->addEditCallback([this](){ updateActuatorInterface(); });
+	nominalMotorSpeed_Param->onEdit();
+	
+	accelerationRampTime_Param->addEditCallback([this](){ updateActuatorInterface(); });
+	accelerationRampTime_Param->onEdit();
+	
+	decelerationRampTime_Param->addEditCallback([this](){ updateActuatorInterface(); });
+	decelerationRampTime_Param->onEdit();
+	
 }
 
 void ATV340::configureProcessData(){
@@ -161,7 +191,7 @@ bool ATV340::startupConfiguration() {
 	//[fr1] configuration for reference frequency channel 1
 	uint16_t ref1configuration = 169; //169 = Communication Module
 	if(!writeSDO_U16(0x2036, 0xE, ref1configuration, "Ref 1 Configuration")) {
-		return Logger::error("failed to set velocity reference");
+		return Logger::error("failed to set velocity reference 1");
 	}
 
 	//[rfc] Frequency Switching assignement
@@ -219,12 +249,24 @@ void ATV340::readInputs() {
 	bool DI3 = logicInputs & (0x1 << 2);
 	bool DI4 = logicInputs & (0x1 << 3);
 	bool DI5 = logicInputs & (0x1 << 4);
+	bool DI11 = logicInputs & (0x1 << 10);
+	bool DI12 = logicInputs & (0x1 << 11);
+	bool DI13 = logicInputs & (0x1 << 12);
+	bool DI14 = logicInputs & (0x1 << 13);
+	bool DI15 = logicInputs & (0x1 << 14);
+	bool DI16 = logicInputs & (0x1 << 15);
 	
 	*digitalInput1_Signal = invertDigitalInput1_Param->value ? !DI1 : DI1;
 	*digitalInput2_Signal = invertDigitalInput2_Param->value ? !DI2 : DI2;
 	*digitalInput3_Signal = invertDigitalInput3_Param->value ? !DI3 : DI3;
 	*digitalInput4_Signal = invertDigitalInput4_Param->value ? !DI4 : DI4;
 	*digitalInput5_Signal = invertDigitalInput5_Param->value ? !DI5 : DI5;
+	*digitalInput11_Signal = invertDigitalInput11_Param->value ? !DI11 : DI11;
+	*digitalInput12_Signal = invertDigitalInput12_Param->value ? !DI12 : DI12;
+	*digitalInput13_Signal = invertDigitalInput13_Param->value ? !DI13 : DI13;
+	*digitalInput14_Signal = invertDigitalInput14_Param->value ? !DI14 : DI14;
+	*digitalInput15_Signal = invertDigitalInput15_Param->value ? !DI15 : DI15;
+	*digitalInput16_Signal = invertDigitalInput16_Param->value ? !DI16 : DI16;
 	
 	//for standardized values, the value seems to be in 0.01% increments
 	//to normalize the value to a 0-1 range we divide by 10000
@@ -275,7 +317,10 @@ void ATV340::writeOutputs() {
 		else axis->disable();
 	}
 	
-	axis->setFrequency(manualVelocityTarget_rpm);
+	//if(b_reverseDirection) axis->setFrequency(-motor->actuatorProcessData.velocityTarget * 60.0);
+	/*else*/ axis->setFrequency(motor->actuatorProcessData.velocityTarget * 60.0);
+	
+	//axis->setFrequency(manualVelocityTarget_rpm);
 	
 	if(relaisOutput1_Pin->isConnected()) relaisOutput1_Pin->copyConnectedPinValue();
 	if(relaisOutput2_Pin->isConnected()) relaisOutput2_Pin->copyConnectedPinValue();
@@ -304,6 +349,7 @@ bool ATV340::saveDeviceData(tinyxml2::XMLElement* xml) {
 	if(!motorControlParameters.save(xml)) return false;
 	if(!analogIoConfigParameters.save(xml)) return false;
 	if(!digitalIoConfigParameters.save(xml)) return false;
+	if(!digitalSignalInversionParameters.save(xml)) return false;
 	
 	return true;
 }
@@ -316,8 +362,9 @@ bool ATV340::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(!brakeLogicParameters.load(xml)) return false;
 	if(!embeddedEncoderParameters.load(xml)) return false;
 	if(!motorControlParameters.load(xml)) return false;
-	//if(!analogIoConfigParameters.load(xml)) return false;
-	//if(!digitalIoConfigParameters.load(xml)) return false;
+	if(!analogIoConfigParameters.load(xml)) return false;
+	if(!digitalIoConfigParameters.load(xml)) return false;
+	if(!digitalSignalInversionParameters.load(xml)) return false;
 	
 	for(auto parameter : pdoConfigParameters.get()) parameter->onEdit();
 	for(auto parameter : motorNameplateParameters.get()) parameter->onEdit();
@@ -569,7 +616,13 @@ void ATV340::configureDrive(){
 		//[LAR] Stop Reverse limit assignement
 		uint16_t reverseLimitSignal = reverseLimitSignal_Param->value;
 		if(!writeSDO_U16(0x2056, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
-
+		
+		
+		
+		
+		
+		
+		
 		if(!saveToEEPROM()) Logger::error("Failed to save configuration to EEPROM");
 		else Logger::info("Configuration uploaded and saved to EEPROM");
 			
@@ -712,4 +765,11 @@ void ATV340::resetFactorySettings(){
 		bool success = writeSDO_U16(0x2037, 0x5, extendedCommandWord);
 	});
 	factoryResetHandler.detach();
+}
+
+
+void ATV340::updateActuatorInterface(){
+	motor->actuatorConfig.velocityLimit = nominalMotorSpeed_Param->value / 60.0;
+	motor->actuatorConfig.accelerationLimit = motor->getVelocityLimit() / accelerationRampTime_Param->value;
+	motor->actuatorConfig.decelerationLimit = motor->getVelocityLimit() / decelerationRampTime_Param->value;
 }

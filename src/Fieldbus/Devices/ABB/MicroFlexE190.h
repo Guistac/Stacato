@@ -23,30 +23,8 @@ public:
 		MicroFlexServoMotor(std::shared_ptr<MicroFlex_e190> microflex) : drive(microflex){}
 		std::shared_ptr<MicroFlex_e190> drive;
 		friend class MicroFlex_e190;
-		
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
-		
-		/*
-		virtual void overridePosition(double newPosition) override {
-			encoderResetPosition = newPosition;
-			b_encoderResetRequest = true;
-		}
-		virtual bool isBusyOverridingPosition() override { return b_encoderResetBusy; }
-		virtual bool didPositionOverrideSucceed() override { return b_encoderResetSucceeded; }
-		virtual void enable() override{ b_enableRequest = true; }
-		virtual void disable() override{ b_disableRequest = true; }
-		 */
-		
-		//power stage control
-		bool b_waitingForEnable = false;
-		long long enableRequestTime_nanoseconds;
-		//encoder reset request
-		bool b_encoderResetRequest = false;
-		double encoderResetPosition = false;
-		bool b_encoderResetBusy = false;
-		bool b_encoderResetSucceeded = false;
-		
 	};
 	
 	class MicroFlexGpio : public GpioInterface{
@@ -99,18 +77,19 @@ public:
 																				Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
 	NumberParam<double> accelerationLimit_parameter = NumberParameter<double>::make(10.0, "Acceleration Limit", "AccelerationLimit", "%.1f",
 																					Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
-	BoolParam  invertMotor_parameter = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 	NumberParam<double> currentLimit_parameter = NumberParameter<double>::make(100.0, "Max Current", "MaxCurrent", "%.1f",
 																			   Units::Fraction::Percent, false);
 	NumberParam<double> maxFollowingError_parameter = NumberParameter<double>::make(1.0, "Max Following Error", "MaxFollowingError", "%.1f",
 																					Units::AngularDistance::Revolution, false);
 	
+	BoolParam invertDirection_parameter = BooleanParameter::make(false, "Invert Motor Direction", "InvertDirection");
+	
 	ParameterGroup axisParameters = ParameterGroup("Axis",{
 		velocityLimit_parameter,
 		accelerationLimit_parameter,
-		invertMotor_parameter,
 		currentLimit_parameter,
-		maxFollowingError_parameter
+		maxFollowingError_parameter,
+		invertDirection_parameter
 	});
 	
 	void configureSubmodules(){
@@ -130,8 +109,8 @@ public:
 		fc.b_supportsVelocityFeedback = true;
 		fc.b_supportsForceFeedback = true;
 		fc.positionFeedbackType = PositionFeedbackType::INCREMENTAL;
-		fc.positionLowerWorkingRangeBound = 0.0;
-		fc.positionUpperWorkingRangeBound = 1.0;
+		fc.positionLowerWorkingRangeBound = -std::numeric_limits<double>::infinity();
+		fc.positionUpperWorkingRangeBound = std::numeric_limits<double>::infinity();
 		
 	}
 	
@@ -216,6 +195,8 @@ public:
 		}
 		if(servo->isEmergencyStopActive()) status += "STO is Active.\n";
 		if(axis->hasFault()) status += "Fault : " + std::string(getErrorCodeString()) + " (Fault will be cleared when enabling)\n";
+		if(axis->isEnabled()) status += "Drive is enabled";
+		else if(axis->isReady()) status += "Drive is Ready";
 		return status;
 	}
 	
@@ -227,6 +208,8 @@ public:
 	float manualVelocityTarget = 0.0;
 	
 	void updateServoConfiguration();
+	
+	void uploadDriveConfiguration();
 };
 
 //0x5062 : input pin function assignement (int16)
@@ -277,3 +260,6 @@ public:
 ///Feedback Options: Resolution = 2500 | Encoder Pre-Scale = 1
 ///perform auto tuning
 ///store drive parameters
+
+
+//store parameters: 0x1010:1 uint32_t write 0x65766173 read 1

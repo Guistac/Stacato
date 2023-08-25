@@ -38,6 +38,8 @@ public:
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
 	};
 	
+	void updateActuatorInterface();
+	
 	std::string getStatusString(){
 		return "not impleted...";
 	}
@@ -63,11 +65,23 @@ public:
 	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput4_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput5_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput11_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput12_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput13_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput14_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput15_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalInput16_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput4_Pin = std::make_shared<NodePin>(digitalInput4_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 4", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput5_Pin = std::make_shared<NodePin>(digitalInput5_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 5", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput11_Pin = std::make_shared<NodePin>(digitalInput11_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 11", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput12_Pin = std::make_shared<NodePin>(digitalInput12_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 12", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput13_Pin = std::make_shared<NodePin>(digitalInput13_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 13", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput14_Pin = std::make_shared<NodePin>(digitalInput14_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 14", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput15_Pin = std::make_shared<NodePin>(digitalInput15_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 15", NodePin::Flags::DisableDataField);
+	std::shared_ptr<NodePin> digitalInput16_Pin = std::make_shared<NodePin>(digitalInput16_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 16", NodePin::Flags::DisableDataField);
 	
 	std::shared_ptr<double> analogInput1_value = std::make_shared<double>(0.0);
 	std::shared_ptr<double> analogInput2_value = std::make_shared<double>(0.0);
@@ -106,16 +120,28 @@ public:
 	BoolParam invertDigitalInput3_Param = BooleanParameter::make(false, "Invert Digital Input 3", "InvertDigitalInput3");
 	BoolParam invertDigitalInput4_Param = BooleanParameter::make(false, "Invert Digital Input 4", "InvertDigitalInput4");
 	BoolParam invertDigitalInput5_Param = BooleanParameter::make(false, "Invert Digital Input 5", "InvertDigitalInput5");
+	BoolParam invertDigitalInput11_Param = BooleanParameter::make(false, "Invert Digital Input 11", "InvertDigitalInput11");
+	BoolParam invertDigitalInput12_Param = BooleanParameter::make(false, "Invert Digital Input 12", "InvertDigitalInput12");
+	BoolParam invertDigitalInput13_Param = BooleanParameter::make(false, "Invert Digital Input 13", "InvertDigitalInput13");
+	BoolParam invertDigitalInput14_Param = BooleanParameter::make(false, "Invert Digital Input 14", "InvertDigitalInput14");
+	BoolParam invertDigitalInput15_Param = BooleanParameter::make(false, "Invert Digital Input 15", "InvertDigitalInput15");
+	BoolParam invertDigitalInput16_Param = BooleanParameter::make(false, "Invert Digital Input 16", "InvertDigitalInput16");
 	BoolParam invertDigitalOutput1_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
 	BoolParam invertDigitalOutput2_Param = BooleanParameter::make(false, "Invert Digital Output 1", "InvertDigitalOutput1");
 	BoolParam invertRelay1_Param = BooleanParameter::make(false, "Invert Relay 1", "InvertRelay1");
 	BoolParam invertRelay2_Param = BooleanParameter::make(false, "Invert Relay 2", "InvertRelay1");
-	ParameterGroup digitalSignalInversion = ParameterGroup("Digital Signal Inversion", {
+	ParameterGroup digitalSignalInversionParameters = ParameterGroup("DigitalSignalInversion", {
 		invertDigitalInput1_Param,
 		invertDigitalInput2_Param,
 		invertDigitalInput3_Param,
 		invertDigitalInput4_Param,
 		invertDigitalInput5_Param,
+		invertDigitalInput11_Param,
+		invertDigitalInput12_Param,
+		invertDigitalInput13_Param,
+		invertDigitalInput14_Param,
+		invertDigitalInput15_Param,
+		invertDigitalInput16_Param,
 		invertDigitalOutput1_Param,
 		invertDigitalOutput2_Param,
 		invertRelay1_Param,
@@ -219,11 +245,23 @@ public:
 		Option DI3_High = Option(131, "DI3 (High Level)", "DI3High");
 		Option DI4_High = Option(132, "DI4 (High Level)", "DI4High");
 		Option DI5_High = Option(133, "DI5 (High Level)", "DI5High");
+		Option DI11_High = Option(139, "DI11 (High Level)", "DI11High");
+		Option DI12_High = Option(140, "DI12 (High Level)", "DI12High");
+		Option DI13_High = Option(141, "DI13 (High Level)", "DI13High");
+		Option DI14_High = Option(142, "DI14 (High Level)", "DI14High");
+		Option DI15_High = Option(143, "DI15 (High Level)", "DI15High");
+		Option DI16_High = Option(144, "DI16 (High Level)", "DI16High");
 		Option DI1_Low = Option(272, "DI1 (Low Level)", "DI1Low");
 		Option DI2_Low = Option(273, "DI2 (Low Level)", "DI2Low");
 		Option DI3_Low = Option(274, "DI3 (Low Level)", "DI3Low");
 		Option DI4_Low = Option(275, "DI4 (Low Level)", "DI4Low");
 		Option DI5_Low = Option(276, "DI5 (Low Level)", "DI5Low");
+		Option DI11_Low = Option(282, "DI11 (Low Level)", "DI11Low");
+		Option DI12_Low = Option(283, "DI12 (Low Level)", "DI12Low");
+		Option DI13_Low = Option(284, "DI13 (Low Level)", "DI13Low");
+		Option DI14_Low = Option(285, "DI14 (Low Level)", "DI14Low");
+		Option DI15_Low = Option(286, "DI15 (Low Level)", "DI15Low");
+		Option DI16_Low = Option(287, "DI16 (Low Level)", "DI16Low");
 		std::vector<Option*> digitalInput_Options = {
 			&NoDigitalInput,
 			&DI1_High,
@@ -235,7 +273,19 @@ public:
 			&DI4_High,
 			&DI4_Low,
 			&DI5_High,
-			&DI5_Low
+			&DI5_Low,
+			&DI11_High,
+			&DI11_Low,
+			&DI12_High,
+			&DI12_Low,
+			&DI13_High,
+			&DI13_Low,
+			&DI14_High,
+			&DI14_Low,
+			&DI15_High,
+			&DI15_Low,
+			&DI16_High,
+			&DI16_Low
 		};
 		
 		

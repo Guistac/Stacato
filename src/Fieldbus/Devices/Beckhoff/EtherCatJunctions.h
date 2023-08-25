@@ -15,23 +15,50 @@ public:
 };
 
 
+
 class EK1100 : public EtherCatDevice{
 public:
-DEFINE_ETHERCAT_DEVICE(EK1100, "EK1100 Bus Coupler", "EK1100", "Beckhoff", "I/O", 0x2, 0x44c2c52)
+	DEFINE_ETHERCAT_DEVICE(EK1100, "EK1100 Bus Coupler", "EK1100", "Beckhoff", "I/O", 0x2, 0x44c2c52)
 };
- 
+
+class EK1122 : public EtherCatDevice {
+public:
+	DEFINE_ETHERCAT_DEVICE(EK1122, "EK1122 2-Port EtherCAT Junction", "EK1122", "Beckhoff", "Utilities", 0x2, 0x4622c52)
+};
+
 class EL2008 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL2008, "EL2008 8x Digital Output", "EL2008", "Beckhoff", "I/O", 0x2, 0x7d83052)
+	//rxPdo
 	bool outputs[8] = {0,0,0,0,0,0,0,0};
+	
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+	
+};
+
+class EL1008 : public EtherCatDevice{
+public:
+DEFINE_ETHERCAT_DEVICE(EL1008, "EL1008 8x Digital Input", "EL1008", "Beckhoff", "I/O", 0x2, 0x3f03052)
+	//txPdo
+	bool inputs[8] = {0,0,0,0,0,0,0,0};
+	
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+	
 };
 
 class EL5001 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 0x2, 0x13893052)
-	//txPdo
-	uint8_t status;
-	uint32_t ssiValue;
+	
+	
+	std::shared_ptr<bool> resetPinValue = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> encoderPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "SSI Encoder");
+	std::shared_ptr<NodePin> resetPin = std::make_shared<NodePin>(resetPinValue, NodePin::Direction::NODE_OUTPUT, "Encoder Reset");
 	
 	NumberParam<int> ssiFrameSize;
 	NumberParam<int> multiturnResolution;
@@ -58,6 +85,11 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 
 		&ssiBaudrate_125Khz
 	};
 	
+	BoolParam centerOnZero_Param;
+	BoolParam invertDirection_Param;
+	BoolParam hasResetSignal_Param;
+	NumberParam<double> resetSignalTime_Param;
+	
 	bool b_dataError = false;		//b0
 	bool b_frameError = false;		//b1
 	bool b_powerFailure = false;	//b2
@@ -66,7 +98,57 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 
 	bool b_txPdoState = false;		//b6
 	bool b_txPdoToggle = false;		//b7
 	
+	uint64_t resetStartTime_nanoseconds = 0;
+	
+	int32_t rawPosition_inc = 0;
+	double positionBeforeOffset_rev = 0.0;
+	double positionOffset_rev = 0.0;
+	
+	double previousPosition_rev = 0.0;
+	uint64_t previousReadingTime_nanoseconds = 0;
+	
+	//txPdo
+	uint8_t status;
+	uint32_t ssiValue;
+	
 	std::string frameFormatString;
 	void updateSSIFrameFormat();
+	void updateEncoderWorkingRange();
+	
+	
+	//————— SubDevice ——————
+	
+	class SsiEncoder : public MotionFeedbackInterface{
+	public:
+		SsiEncoder(std::shared_ptr<EL5001> parentDevice) : encoderModule(parentDevice){}
+		
+		virtual std::string getName() override {
+			return std::string(encoderModule->getName());
+		};
+		
+		virtual std::string getStatusString() override {
+			if(state == DeviceState::OFFLINE) {
+				std::string message = std::string(encoderModule->getName()) + " is Offline";
+				return message;
+			}
+			else if(state == DeviceState::NOT_READY){
+				std::string message = "Encoder has connection or configuration issue";
+				return message;
+			}
+			else return "Encoder is Operating Nominally";
+		}
+						
+		std::shared_ptr<EL5001> encoderModule;
+	};
+	std::shared_ptr<SsiEncoder> encoder;
+
+	
+	
 };
 
+
+
+class EL2912 : public EtherCatDevice {
+public:
+	DEFINE_ETHERCAT_DEVICE(EL2912, "EL2912 2x FsoE Digital Output", "EL2912", "Beckhoff", "Utilities", 0x2, 0xb603052)
+};

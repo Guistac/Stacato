@@ -476,18 +476,23 @@ void IB_IL_SSI_IN::writeOutputs(){
 		}
 	}
 	
+	
+	//ENCODER RESET PROCEDURE
+	//some encoders (for example posital encoders) only reset their position on the falling edge of the reset signal
+	//so we have to wait for a little longer for the ssi signal to return to 0 before considering the procedure to have failed
+	//we pulse for the length set by the parameter and and then wait for the same time period for the ssi value to get to zero
 	if(encoder->feedbackProcessData.b_positionOverrideBusy){
 		encoder->feedbackProcessData.velocityActual = 0.0;
+		*resetPinValue = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds < resetSignalTimeParameter->value * 1000000;
 		if(rawPositionData == 0x0){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
 			positionOffset = encoder->feedbackProcessData.positionOverride;
 			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
-			*resetPinValue = false;
 			updateEncoderWorkingRange();
 			Logger::info("[IB_IL_SSI_IN] Successfully reset SSI encoder position");
 		}
-		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000){
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTimeParameter->value * 1000000 * 2){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = false;
 			*resetPinValue = false;

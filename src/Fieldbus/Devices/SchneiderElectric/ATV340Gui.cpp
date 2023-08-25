@@ -118,7 +118,7 @@ static void drawParameterGroup(const char* groupName, ParameterGroup& group){
 
 void ATV340::processDataConfigTab(){
 	drawParameterGroup("Process Data Selection", pdoConfigParameters);
-	drawParameterGroup("Digital Signal Inversion", digitalSignalInversion);
+	drawParameterGroup("Digital Signal Inversion", digitalSignalInversionParameters);
 }
 
 void ATV340::driveConfigTab(){

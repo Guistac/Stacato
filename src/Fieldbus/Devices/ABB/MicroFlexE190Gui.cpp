@@ -145,14 +145,14 @@ void MicroFlex_e190::settingsTab(){
 	ImGui::PopFont();
 	accelerationLimit_parameter->gui();
 	
-	/*
+	ImGui::Separator();
+	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Invert Direction");
 	ImGui::PopFont();
-	invertMotor_parameter->gui();
+	invertDirection_parameter->gui();
 	ImGui::SameLine();
-	ImGui::Text("Motor direction is%s inverted", invertMotor_parameter->value ? "" : " not");
-	*/
+	ImGui::Text("Motor direction is%s inverted", invertDirection_parameter->value ? "" : " not");
 	 
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Current Limit");
@@ -164,4 +164,8 @@ void MicroFlex_e190::settingsTab(){
 	ImGui::PopFont();
 	maxFollowingError_parameter->gui();
 	
+	if(ImGui::Button("Upload Drive Configuration")) uploadDriveConfiguration();
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+	ImGui::TextWrapped("Parameters should only be uploaded while the fieldbus is not running.");
+	ImGui::PopStyleColor();
 }
