@@ -13,6 +13,7 @@ namespace Units{
 		POWER,
 		TEMPERATURE,
 		MASS,
+		FORCE,
 		DATA,
 		FRACTION,
 		NONE
@@ -122,6 +123,12 @@ namespace Units{
 		extern const UnitStructure* const Gram;
 		extern const UnitStructure* const Kilogram;
 		extern const UnitStructure* const Ton;
+	}
+
+	namespace Force{
+	UNIT_TYPE_FUNCTIONS(Type::FORCE);
+		extern const UnitStructure* const Newton;
+		extern const UnitStructure* const KiloNewton;
 	}
 
 	namespace Data{

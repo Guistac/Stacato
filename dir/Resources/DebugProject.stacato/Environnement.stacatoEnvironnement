@@ -4,8 +4,8 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="true" CustomName="Phoenix Contact Bus Coupler (Alias:1100)" UniqueID="1099">
-                <InputNodeEditorPosition x="-8" y="756"/>
-                <OutputNodeEditorPosition x="-434" y="729"/>
+                <InputNodeEditorPosition x="296" y="829"/>
+                <OutputNodeEditorPosition x="-66" y="777"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1100"/>
                     <ModularDeviceProfile>
@@ -37,21 +37,21 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="true" CustomName="ATV340 (Alias:1101)" UniqueID="1101">
-                <InputNodeEditorPosition x="56" y="1236"/>
-                <OutputNodeEditorPosition x="-381" y="983"/>
+                <InputNodeEditorPosition x="616" y="1334"/>
+                <OutputNodeEditorPosition x="-125" y="1190"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1101"/>
                     <PDOconfig ConfigDigitalInputs="true" ConfigDigitalOutputs="true" ConfigAnalogInput1="true" ConfigAnalogInput2="false" ConfigMotorOutputVelocity="false" ConfigMotorEffort="false"/>
-                    <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="2.2000000000000002" NominalMotorVoltage="400" NominalMotorCurrent="4.5499999999999998" NominalMotorFrequency="50" NominalMotorSpeed="2850" MotorThermalCurrent="4.5499999999999998" MotorMaximumFrequency="60"/>
+                    <MotorNameplate MotorStandardFrequency="0" MotorParameterChoice="0" CosinusPhi="0" NominalMotorPower="2.2000000000000002" NominalMotorVoltage="400" NominalMotorCurrent="4.5499999999999998" NominalMotorFrequency="50" NominalMotorSpeed="2850" MotorThermalCurrent="4.5499999999999998"/>
                     <BrakeLogic BrakeOutputAssignement="2" BrakeMovementType="1" BrakeReleaseTime="0.10000000000000001" BrakeEngageTime="0.5" BrakeReleaseCurrent="1" BrakeReleaseFrequency="0" BrakeEngageFrequency="0"/>
                     <EmbeddedEncoder EmbeddedEncoderType="0" EmbeddedEncoderVoltage="5" EmbeddedEncoderPulsesPerRevolution="1024" InvertEmbeddedEncoderDirection="false" EmbeddedEncoderUsage="2"/>
-                    <MotorControl MotorControlType="0" VelocityLimit="1000" AccelerationRampTime="1" DecelerationRampTime="1" SwitchingFrequeny="16"/>
-                    <AnalogIOConfig AnalogInput1Type="1" AnalogInput2Type="1" AnalogInputMinimumCurrentValue="4" AnalogInputMaximumCurrentValue="20" AnalogInputMinimumVoltageValue="0" AnalogInputMaximumVoltageValue="10"/>
+                    <MotorControl MotorControlType="0" MotorMaximumFrequency="80" AccelerationRampTime="1" DecelerationRampTime="1" SwitchingFrequeny="16" InvertDirection="true"/>
+                    <AnalogIOConfig AnalogInput1Type="2" AnalogInput2Type="1" AnalogInputMinimumCurrentValue="4" AnalogInputMaximumCurrentValue="20" AnalogInputMinimumVoltageValue="0" AnalogInputMaximumVoltageValue="10"/>
                     <DigitalIOConfig ForwardLimitSignal="0" ReverseLimitSignal="0"/>
                     <DigitalSignalInversion InvertDigitalInput1="false" InvertDigitalInput2="false" InvertDigitalInput3="false" InvertDigitalInput4="false" InvertDigitalInput5="false" InvertDigitalInput11="false" InvertDigitalInput12="false" InvertDigitalInput13="false" InvertDigitalInput14="false" InvertDigitalInput15="false" InvertDigitalInput16="false" InvertDigitalOutput1="false" InvertRelay1="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="1102" Visible="true"/>
+                    <InputPin SaveString="Digital Output 1" DisplayString="R1 Brake Control" DataType="Boolean" UniqueID="1102" Visible="true"/>
                     <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="1103" Visible="true"/>
                     <InputPin SaveString="Relais Output 1" DisplayString="Relais Output 1" DataType="Boolean" UniqueID="1104" Visible="true"/>
                     <InputPin SaveString="Relais Output 2" DisplayString="Relais Output 2" DataType="Boolean" UniqueID="1105" Visible="true"/>
@@ -77,7 +77,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="ArtNetNode" Split="false" CustomName="LED Strip" UniqueID="1128">
-                <NodeEditorPosition x="-160" y="1584"/>
+                <NodeEditorPosition x="-224" y="2000"/>
                 <NodeSpecificData>
                     <Settings IpOctet0="10" IpOctet1="77" IpOctet2="126" IpOctet3="163" Broadcast="true" Port="6454" SendingFrequency="60" NetworkIpOctet0="10" NetworkIpOctet1="0" NetworkIpOctet2="0" NetworkIpOctet3="0" NetworkMaskOctet0="255" NetworkMaskOctet1="0" NetworkMaskOctet2="0" NetworkMaskOctet3="0"/>
                     <Script>
@@ -159,7 +159,7 @@ end
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:30001)" UniqueID="1130">
-                <NodeEditorPosition x="96" y="1808"/>
+                <NodeEditorPosition x="-144" y="1792"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="30001"/>
                 </NodeSpecificData>
@@ -167,12 +167,12 @@ end
                 <OutputPins/>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="1134">
-                <NodeEditorPosition x="24" y="975"/>
-                <NodeSpecificData MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="1" VelocityLimit="47" AccelerationLimit="15" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="1155" UnitConversion="1"/>
-                    <VelocityFeedbackMapping InterfacePinID="1155" UnitConversion="1"/>
+                <NodeEditorPosition x="345" y="1285"/>
+                <NodeSpecificData UseExternalLoadSensor="true" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.10000000000000001" ForceLimit="3000" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.20000000000000001" PositionLoopMinError="0.01" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="24" LowerPositionLimitClearance="0.10000000000000001" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <PositionFeedbackMapping InterfacePinID="1155" UnitConversion="4.5723774535856005"/>
+                    <VelocityFeedbackMapping InterfacePinID="1155" UnitConversion="4.5723774535856005"/>
                     <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="1106" UnitConversion="1" ControlMode="2"/>
+                        <ActuatorMapping InterfacePinID="1106" UnitConversion="141.74370106115362" ControlMode="2"/>
                     </ActuatorMappings>
                 </NodeSpecificData>
                 <InputPins>
@@ -184,6 +184,7 @@ end
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="1140" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="1141" Visible="false"/>
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1142" Visible="false"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="42" Visible="true"/>
                     <InputPin SaveString="SurveillanceFaultReset" DisplayString="Surveillance Fault Reset" DataType="Boolean" UniqueID="1143" Visible="true"/>
                 </InputPins>
                 <OutputPins>
@@ -192,17 +193,9 @@ end
                     <OutputPin SaveString="SurveillanceValidSignal" DisplayString="Surveillance Valid Signal" DataType="Boolean" UniqueID="1146" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Processor" ClassName="Constant" CustomName="Constant" UniqueID="1150">
-                <NodeEditorPosition x="-143" y="1308"/>
-                <NodeSpecificData ConstantValue="1"/>
-                <InputPins/>
-                <OutputPins>
-                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="1151" Visible="true" ForceDataField="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:30005)" UniqueID="1154">
-                <NodeEditorPosition x="-26" y="1699"/>
-                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="10">
+                <NodeEditorPosition x="-138" y="1683"/>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="true" InvertDirection="false" HasResetSignal="true" ResetTime="10">
                     <Identification Type="StationAlias" StationAlias="30005"/>
                 </NodeSpecificData>
                 <InputPins/>
@@ -212,7 +205,7 @@ end
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:3002)" UniqueID="1175">
-                <NodeEditorPosition x="264" y="1546"/>
+                <NodeEditorPosition x="312" y="1726"/>
                 <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
                     <Identification Type="StationAlias" StationAlias="3002"/>
                 </NodeSpecificData>
@@ -228,12 +221,48 @@ end
                 </InputPins>
                 <OutputPins/>
             </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Load Cell Scaling" UniqueID="1188">
+                <NodeEditorPosition x="125" y="1568"/>
+                <NodeSpecificData Multiplier="48500"/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="1189" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="mult" DisplayString="mult" DataType="Real" UniqueID="1190" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="1191" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Plotter" CustomName="Plotter" UniqueID="1194">
+                <NodeEditorPosition x="376" y="1568"/>
+                <NodeSpecificData>
+                    <Plotter BufferSize="512" DisplayLengthSeconds="5"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="1195" Visible="true" ForceDataField="true" DisableDataField="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="Processor" ClassName="Addition" CustomName="Load Cell Tare" UniqueID="1205">
+                <NodeEditorPosition x="125" y="1402"/>
+                <NodeSpecificData Offset="-200"/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="1206" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="offset" DisplayString="offset" DataType="Real" UniqueID="1207" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="1208" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="1147" StartPin="1106" EndPin="1135"/>
-            <Link UniqueID="1152" StartPin="1151" EndPin="1102"/>
             <Link UniqueID="1157" StartPin="1155" EndPin="1136"/>
             <Link UniqueID="1184" StartPin="1156" EndPin="1176"/>
+            <Link UniqueID="1186" StartPin="1106" EndPin="1135"/>
+            <Link UniqueID="1192" StartPin="1115" EndPin="1189"/>
+            <Link UniqueID="1209" StartPin="1191" EndPin="1206"/>
+            <Link UniqueID="1210" StartPin="1208" EndPin="42"/>
+            <Link UniqueID="1211" StartPin="1208" EndPin="1195"/>
+            <Link UniqueID="1213" StartPin="1145" EndPin="1102"/>
         </Links>
     </NodeGraph>
 </Environnement>

@@ -73,7 +73,7 @@ void AxisNode::controlTab(){
 			backgroundText(stateString.c_str(), buttonSize, stateColor, Colors::black, ImDrawFlags_RoundCornersRight);
 			ImGui::PopFont();
 		}
-
+		
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
 		ImGui::BeginDisabled(!axisInterface->isEnabled() || axisPin->isConnected());
@@ -316,7 +316,18 @@ void AxisNode::controlTab(){
 			}
 			
 		}
-		
+		if(loadSensorPin->isConnected()){
+			
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Force Feedback");
+			ImGui::PopFont();
+			
+			float forceProgress = *loadSensorSignal / forceLimit->value;
+			std::ostringstream msg;
+			msg << std::fixed << std::setprecision(1) << "Force : " << *loadSensorSignal << "N";
+			std::string forceProgressString = msg.str();
+			ImGui::ProgressBar(forceProgress, progressBarSize, forceProgressString.c_str());
+		}
 		
 		if(positionFeedbackMapping){
 			ImGui::PushFont(Fonts::sansBold15);
@@ -509,6 +520,8 @@ void AxisNode::motionFeedbackSettingsGui(){
 		ImGui::InputDouble("##vfbratio", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value);
 		ImGui::TreePop();
 	}
+	
+	useExternalLoadSensor_Param->gui(Fonts::sansBold15);
 }
 
 void AxisNode::actuatorControlSettingsGui(){
@@ -539,13 +552,13 @@ void AxisNode::limitSettingsGui(){
 	ImGui::SameLine();
 	backgroundText(actVelLimString.str().c_str(), Colors::gray, Colors::black);
 	
-	ImGui::Separator();
-	
 	accelerationLimit->gui(Fonts::sansBold15);
 	std::ostringstream actAccLimString;
 	actAccLimString << "Max: " << std::fixed << std::setprecision(3) << actuatorAccelerationLimit << " u/s\xc2\xb2";
 	ImGui::SameLine();
 	backgroundText(actAccLimString.str().c_str(), Colors::gray, Colors::black);
+	
+	forceLimit->gui(Fonts::sansBold15);
 	
 	ImGui::Separator();
 	

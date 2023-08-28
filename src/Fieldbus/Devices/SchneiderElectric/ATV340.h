@@ -44,7 +44,7 @@ public:
 		return "not impleted...";
 	}
 	
-	int manualVelocityTarget_rpm = 0;
+	float manualVelocityTarget_rps = 0;
 	bool b_waitingForEnable = false;
 	long long enableRequestTime_nanoseconds = 0;
 	
@@ -325,9 +325,6 @@ public:
 	//[ith] Motor Thermal Current (0.01 Ampere increments)
 	NumberParam<double> motorThermalCurrent_Param = NumberParameter<double>::make(0.0, "Motor Thermal Current", "MotorThermalCurrent", "%.2f", Units::Current::Ampere, false);
 	
-	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
-	NumberParam<double> motorMaximumFrequency_Param = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
-	
 	ParameterGroup motorNameplateParameters = ParameterGroup("MotorNameplate", {
 		motorStandartFrequency_Param,
 		motorParameterChoice_Param,
@@ -337,8 +334,7 @@ public:
 		nominalMotorCurrent_Param,
 		nominalMotorFrequency_Param,
 		nominalMotorSpeed_Param,
-		motorThermalCurrent_Param,
-		motorMaximumFrequency_Param
+		motorThermalCurrent_Param
 	});
 	
 	//———— Brake Logic
@@ -404,7 +400,8 @@ public:
 	//[ctt] Motor Control Type
 	OptionParam motorControlType_Param = OptionParameter::make(options.SensorlessFullFlux, options.motorControlType_Options, "Motor Control Type", "MotorControlType");
 	
-	NumberParam<int> velocityLimitRPM_Param = NumberParameter<int>::make(1000, "Velocity Limit", "VelocityLimit", "%i rpm", Units::None::None, false);
+	//[tfr] Motor Maximum Frequency (0.1 Hz increments)
+	NumberParam<double> motorMaximumFrequency_Param = NumberParameter<double>::make(0.0, "Motor Maximum Frequency", "MotorMaximumFrequency", "%.2f", Units::Frequency::Hertz, false);
 	
 	NumberParam<double> accelerationRampTime_Param = NumberParameter<double>::make(3.0, "Acceleration Ramp Time", "AccelerationRampTime", "%.1f", Units::Time::Second, false);
 	
@@ -412,12 +409,15 @@ public:
 	
 	NumberParam<double> switchingFrequency_Param = NumberParameter<double>::make(16, "Switching Frequency", "SwitchingFrequeny", "%.1f", Units::Frequency::Kilohertz, false);
 	
+	BoolParam invertDirection_Param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	
 	ParameterGroup motorControlParameters = ParameterGroup("MotorControl", {
 		motorControlType_Param,
-		velocityLimitRPM_Param,
+		motorMaximumFrequency_Param,
 		accelerationRampTime_Param,
 		decelerationRampTime_Param,
-		switchingFrequency_Param
+		switchingFrequency_Param,
+		invertDirection_Param
 	});
 	
 	//———— Analog IO Configuration

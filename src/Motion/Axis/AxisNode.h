@@ -24,6 +24,7 @@ public:
 	std::shared_ptr<NodePin> upperSlowdownSignalPin;
 	std::shared_ptr<NodePin> referenceSignalPin;
 	std::shared_ptr<NodePin> surveillanceResetSignalPin;
+	std::shared_ptr<NodePin> loadSensorPin;
 	
 	std::shared_ptr<NodePin> axisPin;
 	std::shared_ptr<NodePin> brakeControlSignalPin;
@@ -35,6 +36,7 @@ public:
 	std::shared_ptr<bool> upperSlowdownSignal;
 	std::shared_ptr<bool> referenceSignal;
 	std::shared_ptr<bool> surveillanceResetSignal;
+	std::shared_ptr<double> loadSensorSignal;
 	
 	std::shared_ptr<bool> brakeControlSignal;
 	std::shared_ptr<bool> surveillanceValidSignal;
@@ -131,6 +133,9 @@ private:
 	OptionParameter::Option option_SignalApproachMethod_FindSignalCenter = 	OptionParameter::Option(SignalApproachMethod::FIND_SIGNAL_CENTER,
 																									"Find signal center", "FindSignalCenter");
 	
+	//Feedback
+	BoolParam useExternalLoadSensor_Param;
+	
 	//General
 	NumberParam<double> maxEnableTimeSeconds;
 	
@@ -160,6 +165,7 @@ private:
 	NumberParam<double> upperPositionLimitClearance;
 	NumberParam<double> accelerationLimit;
 	NumberParam<double> velocityLimit;
+	NumberParam<double> forceLimit;
 	
 	double getFilteredVelocity(double requestedVelocity);
 	

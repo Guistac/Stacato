@@ -137,6 +137,7 @@ void EL5001::deviceSpecificGui() {
 		ImGui::Text("Hex: %s", hex.c_str());
 		ImGui::Text("Bin: %s", bin.c_str());
 		
+		ImGui::Separator();
 		
 		ImGui::Text("Data Error : %i", b_dataError);
 		ImGui::Text("Frame Error : %i", b_frameError);
@@ -145,6 +146,11 @@ void EL5001::deviceSpecificGui() {
 		ImGui::Text("Sync Error : %i", b_syncError);
 		ImGui::Text("TxPDO State : %i", b_txPdoState);
 		ImGui::Text("TxPDO Toggle : %i", b_txPdoToggle);
+		
+		ImGui::Separator();
+		
+		ImGui::Text("Lower Working Range Bound : %.3f rev", encoder->feedbackConfig.positionLowerWorkingRangeBound);
+		ImGui::Text("Upper Working Range Bound : %.3f rev", encoder->feedbackConfig.positionUpperWorkingRangeBound);
 		
 		ImGui::EndTabItem();
 	}

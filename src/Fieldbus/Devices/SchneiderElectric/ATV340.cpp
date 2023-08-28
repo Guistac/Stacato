@@ -139,8 +139,14 @@ void ATV340::initialize() {
 	});
 	brakeOutputAssignement_Param->onEdit();
 	
+	nominalMotorFrequency_Param->addEditCallback([this](){ updateActuatorInterface(); });
+	nominalMotorFrequency_Param->onEdit();
+	
 	nominalMotorSpeed_Param->addEditCallback([this](){ updateActuatorInterface(); });
 	nominalMotorSpeed_Param->onEdit();
+	
+	motorMaximumFrequency_Param->addEditCallback([this](){ updateActuatorInterface(); });
+	motorMaximumFrequency_Param->onEdit();
 	
 	accelerationRampTime_Param->addEditCallback([this](){ updateActuatorInterface(); });
 	accelerationRampTime_Param->onEdit();
@@ -317,10 +323,7 @@ void ATV340::writeOutputs() {
 		else axis->disable();
 	}
 	
-	//if(b_reverseDirection) axis->setFrequency(-motor->actuatorProcessData.velocityTarget * 60.0);
-	/*else*/ axis->setFrequency(motor->actuatorProcessData.velocityTarget * 60.0);
-	
-	//axis->setFrequency(manualVelocityTarget_rpm);
+	axis->setFrequency(motor->actuatorProcessData.velocityTarget * 60.0);
 	
 	if(relaisOutput1_Pin->isConnected()) relaisOutput1_Pin->copyConnectedPinValue();
 	if(relaisOutput2_Pin->isConnected()) relaisOutput2_Pin->copyConnectedPinValue();
@@ -561,7 +564,7 @@ void ATV340::configureDrive(){
 		if(!writeSDO_U16(0x2001, 0x6, lowSpeed, "Low Speed")) return;
 		
 		//[hsp] high speed (0.1Hz Increments)
-		uint16_t highSpeed = 500;
+		uint16_t highSpeed = motorMaximumFrequency_Param->value * 10.0;
 		if(!writeSDO_U16(0x2001, 0x5, highSpeed, "High Speed")) return;
 		
 		//[inr] Ramp Time Increment: 0.01 second increments
@@ -580,6 +583,9 @@ void ATV340::configureDrive(){
 		uint16_t switchingFrequency = switchingFrequency_Param->value * 10.0;
 		if(!writeSDO_U16(0x2001, 0x3, switchingFrequency, "Switching Frequency")) return;
 		
+		//[phr] Output phase rotation
+		uint16_t outputPhaseRotation = invertDirection_Param->value ? 1 : 0;
+		if(!writeSDO_U16(0x2068, 0x2, outputPhaseRotation, "Output Phase Direction")) return;
 		
 		//———— IO Config
 		
@@ -769,7 +775,13 @@ void ATV340::resetFactorySettings(){
 
 
 void ATV340::updateActuatorInterface(){
-	motor->actuatorConfig.velocityLimit = nominalMotorSpeed_Param->value / 60.0;
-	motor->actuatorConfig.accelerationLimit = motor->getVelocityLimit() / accelerationRampTime_Param->value;
-	motor->actuatorConfig.decelerationLimit = motor->getVelocityLimit() / decelerationRampTime_Param->value;
+	//float nominalFrequency = nominalMotorFrequency_Param->value;
+	//float nominalSpeed = nominalMotorSpeed_Param->value;
+	//float rpsPerHertz = (nominalSpeed / nominalFrequency) / 60.0;
+	//float velocityLimit_rps = motorMaximumFrequency_Param->value * rpsPerHertz;
+	float velocityLimit_rps = motorMaximumFrequency_Param->value;
+	motor->actuatorConfig.velocityLimit = velocityLimit_rps;
+	motor->actuatorConfig.accelerationLimit = velocityLimit_rps / accelerationRampTime_Param->value;
+	motor->actuatorConfig.decelerationLimit = velocityLimit_rps / decelerationRampTime_Param->value;
+ 	motor_pin->updateConnectedPins();
 }

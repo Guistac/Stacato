@@ -50,6 +50,21 @@ public:
 
 	virtual void inputProcess() override;
 	
+	//saving & loading
+	virtual bool load(tinyxml2::XMLElement* xml) override {
+		double val;
+		if(xml->QueryDoubleAttribute("Offset", &val) != tinyxml2::XML_SUCCESS){
+			Logger::warn("could not load constant value");
+			return false;
+		}
+		*offsetPinValue = val;
+		return true;
+	}
+	virtual bool save(tinyxml2::XMLElement* xml) override {
+		xml->SetAttribute("Offset", *offsetPinValue);
+		return true;
+	}
+	
 };
 
 void AdditionNode::initialize(){
@@ -141,6 +156,21 @@ public:
 	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
 	
 	virtual void inputProcess() override;
+	
+	//saving & loading
+	virtual bool load(tinyxml2::XMLElement* xml) override {
+		double val;
+		if(xml->QueryDoubleAttribute("Multiplier", &val) != tinyxml2::XML_SUCCESS){
+			Logger::warn("could not load constant value");
+			return false;
+		}
+		*multiplierPinValue = val;
+		return true;
+	}
+	virtual bool save(tinyxml2::XMLElement* xml) override {
+		xml->SetAttribute("Multiplier", *multiplierPinValue);
+		return true;
+	}
 	
 };
 

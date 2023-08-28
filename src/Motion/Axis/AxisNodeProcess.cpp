@@ -191,7 +191,6 @@ void AxisNode::inputProcess(){
 		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
 		velocityFollowingError = motionProfile.getVelocity() - axisInterface->getVelocityActual();
 	}
-	processData.forceActual = 0.0;
 	
 	//update axis effort
 	double effort = 0.0;
@@ -214,7 +213,22 @@ void AxisNode::inputProcess(){
 	}
 	processData.b_isEmergencyStopActive = b_estopActive;
 	
+	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
+		loadSensorPin->copyConnectedPinValue();
+		processData.forceActual = *loadSensorSignal;
+	}else{
+		processData.forceActual = 0.0; //implement load monitoring from actuators, maybe a force feedback mapping object ?
+	}
 	
+	//react to force signal limit
+	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
+		if(*loadSensorSignal > forceLimit->value){
+			if(axisInterface->isEnabled()){
+				Logger::warn("[{}] Axis Disabled : Force Limit Exceeded", getName());
+				axisInterface->disable();
+			}
+		}
+	}
 	
 	
 	//read and react to limit signals
@@ -479,6 +493,8 @@ void AxisNode::outputProcess(){
 			velocityCommand = 0.0;
 			break;
 	}
+	
+	*brakeControlSignal = velocityCommand != 0.0;
 	
 	//send commands to actuators
 	for(auto mapping : actuatorMappings){

@@ -345,6 +345,9 @@ void EL5001::updateEncoderWorkingRange(){
 	
 	encoder->feedbackConfig.positionLowerWorkingRangeBound = workingRangeMin + positionOffset_rev;
 	encoder->feedbackConfig.positionUpperWorkingRangeBound = workingRangeMax + positionOffset_rev;
+	
+	encoderPin->updateConnectedPins();
+	
 }
 
 

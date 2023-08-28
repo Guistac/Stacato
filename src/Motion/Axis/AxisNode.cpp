@@ -21,6 +21,7 @@ void AxisNode::initialize(){
 	surveillanceResetSignal = std::make_shared<bool>(false);
 	lowerSlowdownSignal = std::make_shared<bool>(false);
 	upperSlowdownSignal = std::make_shared<bool>(false);
+	loadSensorSignal = std::make_shared<double>(0.0);
 	
 	brakeControlSignal = std::make_shared<bool>(false);
 	surveillanceValidSignal = std::make_shared<bool>(false);
@@ -49,6 +50,9 @@ void AxisNode::initialize(){
 												   "Reference Signal", "ReferenceSignal");
 	surveillanceResetSignalPin = std::make_shared<NodePin>(surveillanceResetSignal, NodePin::Direction::NODE_INPUT,
 														   "Surveillance Fault Reset", "SurveillanceFaultReset");
+	loadSensorPin = std::make_shared<NodePin>(loadSensorSignal, NodePin::Direction::NODE_INPUT,
+											  "Load Sensor", "LoadSensor");
+	
 	
 	axisPin = std::make_shared<NodePin>(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 										"Axis", "Axis");
@@ -65,6 +69,7 @@ void AxisNode::initialize(){
 	addNodePin(upperSlowdownSignalPin);
 	addNodePin(upperLimitSignalPin);
 	addNodePin(referenceSignalPin);
+	addNodePin(loadSensorPin);
 	addNodePin(surveillanceResetSignalPin);
 	
 	addNodePin(axisPin);
@@ -98,6 +103,16 @@ void AxisNode::initialize(){
 	}, "Axis Control Mode", "AxisControlMode");
 	controlModeParameter->addEditCallback([this](){ updateControlMode(); });
 	
+	useExternalLoadSensor_Param = BooleanParameter::make(false, "Use external load sensor", "UseExternalLoadSensor");
+	useExternalLoadSensor_Param->addEditCallback([this](){
+		if(useExternalLoadSensor_Param->value){
+			loadSensorPin->setVisible(true);
+		}else{
+			loadSensorPin->disconnectAllLinks();
+			loadSensorPin->setVisible(false);
+		}
+	});
+	
 	maxEnableTimeSeconds = NumberParameter<double>::make(0.2, "Max enable time (seconds)", "MaxEnableTime");
 	maxEnableTimeSeconds->setUnit(Units::Time::Second);
 	
@@ -128,6 +143,7 @@ void AxisNode::initialize(){
 	velocityLimit->setSuffix("/s");
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	accelerationLimit->setSuffix("/s\xc2\xb2");
+	forceLimit = NumberParameter<double>::make(0.0, "Force Limit", "ForceLimit", "%.1f", Units::Force::Newton);
 	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
 	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
@@ -205,6 +221,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->save(vfbXML);
 	}
 	
+	useExternalLoadSensor_Param->save(xml);
+	
 	XMLElement* actuatorMappingsXML = xml->InsertNewChildElement("ActuatorMappings");
 	for(auto actuatorMapping : actuatorMappings){
 		XMLElement* actXML = actuatorMappingsXML->InsertNewChildElement("ActuatorMapping");
@@ -220,6 +238,7 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
+	forceLimit->save(xml);
 	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
@@ -257,8 +276,11 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= movementTypeParameter->load(xml);
 	success &= positionUnitParameter->load(xml);
 	
+	success &= useExternalLoadSensor_Param->load(xml);
+	
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
+	success &= forceLimit->load(xml);
 	success &= positionLoop_velocityFeedForward->load(xml);
 	success &= positionLoop_proportionalGain->load(xml);
 	success &= positionLoop_maxError->load(xml);
@@ -346,6 +368,7 @@ bool AxisNode::loadAfterLinksConnected(tinyxml2::XMLElement* xml){
 	updateControlMode();
 	updateMovementType();
 	
+	useExternalLoadSensor_Param->onEdit();
 
 	return true;
 }

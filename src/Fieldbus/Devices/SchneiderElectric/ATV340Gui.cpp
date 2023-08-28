@@ -61,8 +61,13 @@ void ATV340::controlTab(){
 	
 	if(ImGui::Button("Fault Reset")) axis->doFaultReset();
 	
-	ImGui::SliderInt("##manualvel", &manualVelocityTarget_rpm, -velocityLimitRPM_Param->value, velocityLimitRPM_Param->value);
-	if(ImGui::IsItemDeactivatedAfterEdit()) manualVelocityTarget_rpm = 0.0;
+	if(ImGui::SliderFloat("##manualvel", &manualVelocityTarget_rps, -motor->getVelocityLimit(), motor->getVelocityLimit())){
+		motor->setVelocityTarget(manualVelocityTarget_rps);
+	}
+	else if(ImGui::IsItemDeactivatedAfterEdit()) {
+		motor->setVelocityTarget(0.0);
+		manualVelocityTarget_rps = 0.0;
+	}
 	
 	ImGui::Separator();
 	

@@ -397,6 +397,28 @@ namespace Units{
 		};
 	}
 
+	namespace Force{
+	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::MASS);
+		const UnitStructure* const Newton = new UnitStructure{
+			.unitType = Units::Type::FORCE,
+			.singular = "Newton",
+			.plural = "Newtons",
+			.abbreviated = "N",
+			.saveString = "Newton",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+		const UnitStructure* const KiloNewton = new UnitStructure{
+			.unitType = Units::Type::FORCE,
+			.singular = "KiloNewton",
+			.plural = "KiloNewtons",
+			.abbreviated = "KN",
+			.saveString = "KiloNewton",
+			.baseMultiplier = 1.0,
+			.baseOffset = 0.0
+		};
+	}
+
 	namespace Data{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::DATA);
 		const UnitStructure* const Bit = new UnitStructure{
