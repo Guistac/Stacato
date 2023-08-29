@@ -79,6 +79,10 @@ void ATV340::controlTab(){
 	ImGui::Text("Target Reached: %i", axis->getOperatingModeSpecificStatusWordBit_10());
 	ImGui::Text("Power State Target: %s", Enumerator::getDisplayString(axis->getTargetPowerState()));
 	ImGui::Text("Power State Actual: %s", Enumerator::getDisplayString(axis->getActualPowerState()));
+	
+	ImGui::BeginDisabled(!b_canDisableLimitSwitches);
+	ImGui::Checkbox("Disable Limit Switches", &b_disableLimitSwitches);
+	ImGui::EndDisabled();
 }
 
 

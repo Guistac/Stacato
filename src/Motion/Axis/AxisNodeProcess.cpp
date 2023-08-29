@@ -90,6 +90,14 @@ void AxisNode::inputProcess(){
 			lowestInterfaceState = interface->getState();
 		}
 	}
+	bool b_readyStatePinInvalid = false;
+	if(readyStateInputPin->isConnected()){
+		readyStateInputPin->copyConnectedPinValue();
+		if(!*readyStateInputSignal && lowestInterfaceState > DeviceState::NOT_READY) {
+			lowestInterfaceState = DeviceState::NOT_READY;
+			b_readyStatePinInvalid = true;
+		}
+	}
 	DeviceState previousAxisState = axisInterface->getState();
 	axisInterface->state = lowestInterfaceState;
 	
@@ -97,7 +105,7 @@ void AxisNode::inputProcess(){
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
 		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
 		axisInterface->state = DeviceState::DISABLING;
-		Logger::warn("[{}] Disabling axis, all devices were not enabled anymore", getName());
+		Logger::warn("[{}] Disabling axis", getName());
 		for(auto actuator : connectedActuatorInterfaces){
 			if(!actuator->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), actuator->getName());
 		}
@@ -106,6 +114,9 @@ void AxisNode::inputProcess(){
 		}
 		for(auto feedback : connectedFeedbackInteraces){
 			if(!feedback->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), feedback->getName());
+		}
+		if(b_readyStatePinInvalid){
+			Logger::warn("[{}] Ready Signal was not valid", getName());
 		}
 	}
 	
@@ -215,16 +226,28 @@ void AxisNode::inputProcess(){
 	
 	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
 		loadSensorPin->copyConnectedPinValue();
-		processData.forceActual = *loadSensorSignal;
+		processData.forceActual = *loadSensorSignal * forceSensorMultiplier_Param->value + forceSensorOffset_Param->value;
 	}else{
 		processData.forceActual = 0.0; //implement load monitoring from actuators, maybe a force feedback mapping object ?
 	}
 	
+	if(b_shouldTareForceSensor){
+		b_shouldTareForceSensor = false;
+		double newOffset = *loadSensorSignal * forceSensorMultiplier_Param->value;
+		forceSensorOffset_Param->overwrite(-newOffset);
+	}
+	
 	//react to force signal limit
 	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
-		if(*loadSensorSignal > forceLimit->value){
+		if(axisInterface->processData.forceActual > upperForceLimit->value){
 			if(axisInterface->isEnabled()){
-				Logger::warn("[{}] Axis Disabled : Force Limit Exceeded", getName());
+				Logger::warn("[{}] Axis Disabled : Upper Force Limit Exceeded", getName());
+				axisInterface->disable();
+			}
+		}
+		if(axisInterface->processData.forceActual < lowerForceLimit->value){
+			if(axisInterface->isEnabled()){
+				Logger::warn("[()] Axis Disabled : Lower Force Limit Exceeded", getName());
 				axisInterface->disable();
 			}
 		}

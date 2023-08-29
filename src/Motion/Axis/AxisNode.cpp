@@ -18,13 +18,16 @@ void AxisNode::initialize(){
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);
 	referenceSignal = std::make_shared<bool>(false);
-	surveillanceResetSignal = std::make_shared<bool>(false);
 	lowerSlowdownSignal = std::make_shared<bool>(false);
 	upperSlowdownSignal = std::make_shared<bool>(false);
 	loadSensorSignal = std::make_shared<double>(0.0);
+	readyStateInputSignal = std::make_shared<bool>(false);
+	safetyStateInputSignal = std::make_shared<bool>(false);
+	safetyResetInputSignal = std::make_shared<bool>(false);
 	
 	brakeControlSignal = std::make_shared<bool>(false);
-	surveillanceValidSignal = std::make_shared<bool>(false);
+	safetyStateOutputSignal = std::make_shared<bool>(false);
+	safetyResetOutputSignal = std::make_shared<bool>(false);
 	
 	actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE,
 											NodePin::Direction::NODE_INPUT_BIDIRECTIONAL,
@@ -48,18 +51,20 @@ void AxisNode::initialize(){
 													   "Upper Slowdown Signal", "UpperSlowdownSignal");
 	referenceSignalPin = std::make_shared<NodePin>(referenceSignal, NodePin::Direction::NODE_INPUT,
 												   "Reference Signal", "ReferenceSignal");
-	surveillanceResetSignalPin = std::make_shared<NodePin>(surveillanceResetSignal, NodePin::Direction::NODE_INPUT,
-														   "Surveillance Fault Reset", "SurveillanceFaultReset");
 	loadSensorPin = std::make_shared<NodePin>(loadSensorSignal, NodePin::Direction::NODE_INPUT,
 											  "Load Sensor", "LoadSensor");
+	readyStateInputPin = std::make_shared<NodePin>(readyStateInputSignal, NodePin::Direction::NODE_INPUT, "Ready State", "ReadyStateInput");
+	safetyStateInputPin = std::make_shared<NodePin>(safetyStateInputSignal, NodePin::Direction::NODE_INPUT, "Safety State", "SafetyStateInput");
+	safetyResetInputPin = std::make_shared<NodePin>(safetyResetInputSignal, NodePin::Direction::NODE_INPUT, "Safety Reset", "SafetyResetInput");
+	
 	
 	
 	axisPin = std::make_shared<NodePin>(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 										"Axis", "Axis");
 	brakeControlSignalPin = std::make_shared<NodePin>(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
-													  "Brake Control Signal", "BrakeControlSignal");
-	surveillanceValidSignalPin = std::make_shared<NodePin>(surveillanceValidSignal, NodePin::Direction::NODE_OUTPUT,
-														   "Surveillance Valid Signal", "SurveillanceValidSignal");
+													  "Brake Control", "BrakeControlSignal");
+	safetyStateOutputPin = std::make_shared<NodePin>(safetyStateOutputSignal, NodePin::Direction::NODE_OUTPUT, "Safety State", "SafetyStateOutput");
+	safetyResetOutputPin = std::make_shared<NodePin>(safetyResetOutputSignal, NodePin::Direction::NODE_OUTPUT, "Safety Reset", "SafetyResetOutput");
 	
 	addNodePin(actuatorPin);
 	addNodePin(feedbackPin);
@@ -70,12 +75,14 @@ void AxisNode::initialize(){
 	addNodePin(upperLimitSignalPin);
 	addNodePin(referenceSignalPin);
 	addNodePin(loadSensorPin);
-	addNodePin(surveillanceResetSignalPin);
+	addNodePin(readyStateInputPin);
+	addNodePin(safetyStateInputPin);
+	addNodePin(safetyResetInputPin);
 	
 	addNodePin(axisPin);
 	addNodePin(brakeControlSignalPin);
-	addNodePin(surveillanceValidSignalPin);
-	
+	addNodePin(safetyStateOutputPin);
+	addNodePin(safetyResetOutputPin);
 	
 	
 	
@@ -112,6 +119,8 @@ void AxisNode::initialize(){
 			loadSensorPin->setVisible(false);
 		}
 	});
+	forceSensorMultiplier_Param = NumberParameter<double>::make(0.0, "Force Sensor Multiplier", "ForceSensorMultiplier");
+	forceSensorOffset_Param = NumberParameter<double>::make(0.0, "Force Sensor Offset", "ForceSensorOffset");
 	
 	maxEnableTimeSeconds = NumberParameter<double>::make(0.2, "Max enable time (seconds)", "MaxEnableTime");
 	maxEnableTimeSeconds->setUnit(Units::Time::Second);
@@ -143,7 +152,8 @@ void AxisNode::initialize(){
 	velocityLimit->setSuffix("/s");
 	accelerationLimit = 			NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit");
 	accelerationLimit->setSuffix("/s\xc2\xb2");
-	forceLimit = NumberParameter<double>::make(0.0, "Force Limit", "ForceLimit", "%.1f", Units::Force::Newton);
+	upperForceLimit = NumberParameter<double>::make(0.0, "Upper Force Limit", "UpperForceLimit", "%.1f", Units::Force::Newton);
+	lowerForceLimit = NumberParameter<double>::make(0.0, "Lower Force Limit", "LowerForceLimit", "%.1f", Units::Force::Newton);
 	
 	auto updateInterfaceCallback = [this](){updateAxisConfiguration();};
 	enableLowerPositionLimit->addEditCallback(updateInterfaceCallback);
@@ -222,6 +232,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	}
 	
 	useExternalLoadSensor_Param->save(xml);
+	forceSensorMultiplier_Param->save(xml);
+	forceSensorOffset_Param->save(xml);
 	
 	XMLElement* actuatorMappingsXML = xml->InsertNewChildElement("ActuatorMappings");
 	for(auto actuatorMapping : actuatorMappings){
@@ -238,7 +250,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	
 	velocityLimit->save(xml);
 	accelerationLimit->save(xml);
-	forceLimit->save(xml);
+	upperForceLimit->save(xml);
+	lowerForceLimit->save(xml);
 	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
@@ -277,10 +290,13 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= positionUnitParameter->load(xml);
 	
 	success &= useExternalLoadSensor_Param->load(xml);
+	success &= forceSensorMultiplier_Param->load(xml);
+	success &= forceSensorOffset_Param->load(xml);
 	
 	success &= velocityLimit->load(xml);
 	success &= accelerationLimit->load(xml);
-	success &= forceLimit->load(xml);
+	success &= upperForceLimit->load(xml);
+	success &= lowerForceLimit->load(xml);
 	success &= positionLoop_velocityFeedForward->load(xml);
 	success &= positionLoop_proportionalGain->load(xml);
 	success &= positionLoop_maxError->load(xml);

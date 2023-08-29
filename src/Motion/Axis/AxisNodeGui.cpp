@@ -322,9 +322,9 @@ void AxisNode::controlTab(){
 			ImGui::Text("Force Feedback");
 			ImGui::PopFont();
 			
-			float forceProgress = *loadSensorSignal / forceLimit->value;
+			float forceProgress = axisInterface->processData.forceActual / upperForceLimit->value;
 			std::ostringstream msg;
-			msg << std::fixed << std::setprecision(1) << "Force : " << *loadSensorSignal << "N";
+			msg << std::fixed << std::setprecision(1) << "Force : " << axisInterface->processData.forceActual << "N";
 			std::string forceProgressString = msg.str();
 			ImGui::ProgressBar(forceProgress, progressBarSize, forceProgressString.c_str());
 		}
@@ -521,7 +521,14 @@ void AxisNode::motionFeedbackSettingsGui(){
 		ImGui::TreePop();
 	}
 	
+	ImGui::Separator();
+	
 	useExternalLoadSensor_Param->gui(Fonts::sansBold15);
+	forceSensorMultiplier_Param->gui(Fonts::sansBold15);
+	forceSensorOffset_Param->gui(Fonts::sansBold15);
+	ImGui::SameLine();
+	if(ImGui::Button("Tare Sensor")) b_shouldTareForceSensor = true;
+	
 }
 
 void AxisNode::actuatorControlSettingsGui(){
@@ -558,7 +565,8 @@ void AxisNode::limitSettingsGui(){
 	ImGui::SameLine();
 	backgroundText(actAccLimString.str().c_str(), Colors::gray, Colors::black);
 	
-	forceLimit->gui(Fonts::sansBold15);
+	upperForceLimit->gui(Fonts::sansBold15);
+	lowerForceLimit->gui(Fonts::sansBold15);
 	
 	ImGui::Separator();
 	

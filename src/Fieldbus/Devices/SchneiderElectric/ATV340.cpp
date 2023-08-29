@@ -212,6 +212,11 @@ bool ATV340::startupConfiguration() {
 		return Logger::error("failed to set control mode");
 	}
 	
+	//temporary
+	//[cls] set disable limit switch input to bit 11 of control word
+	b_canDisableLimitSwitches = writeSDO_U16(0x205F, 0x8, 219);
+	b_disableLimitSwitches = false;
+	
 	if(!rxPdoAssignement.mapToRxPdoSyncManager(getSlaveIndex())) return false;
 	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
 	
@@ -241,6 +246,10 @@ void ATV340::readInputs() {
 	else if(b_isEnabled) motor->state = DeviceState::ENABLED;
 	else if(b_isReady) motor->state = DeviceState::READY;
 	else motor->state = DeviceState::NOT_READY;
+	
+	if(isStateOperational()) gpio->state = DeviceState::ENABLED;
+	else if(isStateSafeOperational()) gpio->state = DeviceState::READY;
+	else gpio->state = DeviceState::NOT_READY;
 	
 	//effort is reported in 1% increments
 	double effort = double(motorEffort) / 100.0;
@@ -335,6 +344,8 @@ void ATV340::writeOutputs() {
 	if(*relaisOutput2_Signal != invertRelay2_Param->value)			logicOutputs |= 0x1 << 1;
 	if(*digitalOutput1_Signal != invertDigitalOutput1_Param->value)	logicOutputs |= 0x1 << 8;
 	if(*digitalOutput2_Signal != invertDigitalOutput2_Param->value)	logicOutputs |= 0x1 << 9;
+	
+	axis->setManufacturerSpecificControlWordBit_11(b_disableLimitSwitches);
 	
 	axis->updateOutput();
 	rxPdoAssignement.pushDataTo(identity->outputs);
@@ -616,18 +627,36 @@ void ATV340::configureDrive(){
 		}
 		
 		//[LAF] Stop forward limit assignement
-		uint16_t forwardLimitSignal = forwardLimitSignal_Param->value;
-		if(!writeSDO_U16(0x2056, 0x2, forwardLimitSignal, "Forward Limit Signal")) return;
-		
+		//uint16_t forwardLimitSignal = forwardLimitSignal_Param->value;
+		//if(!writeSDO_U16(0x2056, 0x2, forwardLimitSignal, "Forward Limit Signal")) return;
 		//[LAR] Stop Reverse limit assignement
+		//uint16_t reverseLimitSignal = reverseLimitSignal_Param->value;
+		//if(!writeSDO_U16(0x2056, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
+		
+		//[saf] & [sar] are soft limits that only stop the motion without disabling the drive
+		//[laf] & [lar] are hard limits that trigger a drive disable
+		
+		//[SAF] Forward stop limit input assign
+		uint16_t forwardLimitSignal = forwardLimitSignal_Param->value;
+		if(!writeSDO_U16(0x205F, 0x2, forwardLimitSignal, "Forward Limit Signal")) return;
+		
+		//[SAR] Reverse stop limit input assign
 		uint16_t reverseLimitSignal = reverseLimitSignal_Param->value;
-		if(!writeSDO_U16(0x2056, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
+		if(!writeSDO_U16(0x205F, 0x3, reverseLimitSignal, "Reverse Limit Signal")) return;
 		
+		//[PAS] Stop Type
+		uint16_t stopType = 2; //freewheel stop
+		if(!writeSDO_U16(0x205F, 0x7, stopType, "Stop Type [pas]")) return;
 		
+		//[mstp] disable the memostop function
+		//else the drive will remember limit switches
+		//this caused many weird issues where the motor just did not want to move after limit switch configuration changed
+		//or even after the signals were disconnected and reconnected
+		uint16_t memostopDisable = 0;
+		if(!writeSDO_U16(0x205F, 0x18, memostopDisable, "Disable Memo Stop [mstp]")) return;
 		
-		
-		
-		
+		uint16_t priorityRestart = 1;
+		if(!writeSDO_U16(0x205F, 0x19, priorityRestart, "Priority Restart [prst]")) return;
 		
 		if(!saveToEEPROM()) Logger::error("Failed to save configuration to EEPROM");
 		else Logger::info("Configuration uploaded and saved to EEPROM");

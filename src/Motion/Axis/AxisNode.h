@@ -23,23 +23,29 @@ public:
 	std::shared_ptr<NodePin> lowerSlowdownSignalPin;
 	std::shared_ptr<NodePin> upperSlowdownSignalPin;
 	std::shared_ptr<NodePin> referenceSignalPin;
-	std::shared_ptr<NodePin> surveillanceResetSignalPin;
 	std::shared_ptr<NodePin> loadSensorPin;
-	
-	std::shared_ptr<NodePin> axisPin;
-	std::shared_ptr<NodePin> brakeControlSignalPin;
-	std::shared_ptr<NodePin> surveillanceValidSignalPin;
+	std::shared_ptr<NodePin> readyStateInputPin;
+	std::shared_ptr<NodePin> safetyStateInputPin;
+	std::shared_ptr<NodePin> safetyResetInputPin;
 	
 	std::shared_ptr<bool> lowerLimitSignal;
 	std::shared_ptr<bool> upperLimitSignal;
 	std::shared_ptr<bool> lowerSlowdownSignal;
 	std::shared_ptr<bool> upperSlowdownSignal;
 	std::shared_ptr<bool> referenceSignal;
-	std::shared_ptr<bool> surveillanceResetSignal;
 	std::shared_ptr<double> loadSensorSignal;
+	std::shared_ptr<bool> readyStateInputSignal;
+	std::shared_ptr<bool> safetyStateInputSignal;
+	std::shared_ptr<bool> safetyResetInputSignal;
+	
+	std::shared_ptr<NodePin> axisPin;
+	std::shared_ptr<NodePin> brakeControlSignalPin;
+	std::shared_ptr<NodePin> safetyStateOutputPin;
+	std::shared_ptr<NodePin> safetyResetOutputPin;
 	
 	std::shared_ptr<bool> brakeControlSignal;
-	std::shared_ptr<bool> surveillanceValidSignal;
+	std::shared_ptr<bool> safetyStateOutputSignal;
+	std::shared_ptr<bool> safetyResetOutputSignal;
 	
 	virtual bool prepareProcess() override;
 	virtual void inputProcess() override;
@@ -135,6 +141,8 @@ private:
 	
 	//Feedback
 	BoolParam useExternalLoadSensor_Param;
+	NumberParam<double> forceSensorMultiplier_Param;
+	NumberParam<double> forceSensorOffset_Param;
 	
 	//General
 	NumberParam<double> maxEnableTimeSeconds;
@@ -165,7 +173,8 @@ private:
 	NumberParam<double> upperPositionLimitClearance;
 	NumberParam<double> accelerationLimit;
 	NumberParam<double> velocityLimit;
-	NumberParam<double> forceLimit;
+	NumberParam<double> upperForceLimit;
+	NumberParam<double> lowerForceLimit;
 	
 	double getFilteredVelocity(double requestedVelocity);
 	
@@ -286,6 +295,9 @@ private:
 	void onFeedbackRatioUpdate();
 	double newPositionForFeedbackRatio = 0.0;
 	bool b_shouldUpdateFeedbackRatio = false;
+	
+	//——— Tare Utility
+	bool b_shouldTareForceSensor = false;
 	
 	
 	//——— Manual Controls

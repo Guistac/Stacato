@@ -48,6 +48,14 @@ public:
 	bool b_waitingForEnable = false;
 	long long enableRequestTime_nanoseconds = 0;
 	
+	
+	
+	//temporary
+	bool b_disableLimitSwitches = false; //[cls] clear limit switches if they cause problems
+	bool b_canDisableLimitSwitches = false; //only available if [cls] can actually be assigned
+	
+	
+	
 	//———— Node Pins
 	
 	std::shared_ptr<ATV340_Motor> motor;
@@ -287,6 +295,20 @@ public:
 			&DI16_High,
 			&DI16_Low
 		};
+		std::vector<Option*> digitalInputsLow_Options = {
+			&NoDigitalInput,
+			&DI1_Low,
+			&DI2_Low,
+			&DI3_Low,
+			&DI4_Low,
+			&DI5_Low,
+			&DI11_Low,
+			&DI12_Low,
+			&DI13_Low,
+			&DI14_Low,
+			&DI15_Low,
+			&DI16_Low
+		};
 		
 		
 		
@@ -452,10 +474,10 @@ public:
 	//———— Digital IO Configuration
 	
 	//[LAF] Stop forward limit assignement
-	OptionParam forwardLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Forward Limit Signal", "ForwardLimitSignal");
+	OptionParam forwardLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInputsLow_Options, "Forward Limit Signal", "ForwardLimitSignal");
 	
 	//[LAR] Stop Reverse limit assignement
-	OptionParam reverseLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInput_Options, "Reverse Limit Signal", "ReverseLimitSignal");
+	OptionParam reverseLimitSignal_Param = OptionParameter::make(options.NoDigitalInput, options.digitalInputsLow_Options, "Reverse Limit Signal", "ReverseLimitSignal");
 	
 	ParameterGroup digitalIoConfigParameters = ParameterGroup("DigitalIOConfig", {
 		forwardLimitSignal_Param,
