@@ -8,6 +8,8 @@
 
 class MicroFlex_e190 : public EtherCatDevice {
 public:
+	
+	bool b_homingTest = false;
 
     DEFINE_ETHERCAT_DEVICE(MicroFlex_e190, "MicroFlex e190", "MicroFlex_e190", "ABB", "Servo Drives", 0xB7, 0x2C1)
 	
@@ -25,6 +27,7 @@ public:
 		friend class MicroFlex_e190;
 		virtual std::string getName() override { return std::string(drive->getName()) + " Servo Motor"; };
 		virtual std::string getStatusString() override { return drive->getStatusString(); }
+		double positionOffset = 0.0;
 	};
 	
 	class MicroFlexGpio : public GpioInterface{

@@ -160,7 +160,7 @@ void MicroFlex_e190::readInputs() {
 	bool b_homingErrorOrFollowingError = axis->getOperatingModeSpecificStatusWordBit_13();
 	
 	//convert DS402 increments to our units
-	double actualPosition = double(axis->getActualPosition()) / incrementsPerPositionUnit;
+	double actualPosition = (double(axis->getActualPosition()) / incrementsPerPositionUnit) + servo->positionOffset;
 	double actualVelocity = double(axis->getActualVelocity()) / incrementsPerVelocityUnit;
 	double actualLoad = double(axis->getActualCurrent()) / 1000.0;
 	actualPositionFollowingError = axis->getActualPositionFollowingError() / incrementsPerPositionUnit;
@@ -239,13 +239,39 @@ void MicroFlex_e190::writeOutputs() {
 		else axis->disable();
 	}
 	
+	
+
+	
+	
 	//control word:
 	//b4 : 	Homing = Start homing
 	//b11 : reset warnings
-	bool b_startHoming = false;
-	bool b_resetWarning = false;
-	axis->setOperatingModeSpecificControlWorldBit_4(b_startHoming);
-	axis->setManufacturerSpecificControlWordBit_11(b_resetWarning);
+	//axis->setOperatingModeSpecificControlWorldBit_4(b_startHoming);
+	//axis->setManufacturerSpecificControlWordBit_11(b_resetWarning);
+	
+	if(servo->feedbackProcessData.b_overridePosition){
+		servo->feedbackProcessData.b_overridePosition = false;
+		double overrideTarget = servo->feedbackProcessData.positionOverride;
+		double positionRaw = axis->getActualPosition() / double(incrementsPerPositionUnit);
+		servo->positionOffset = overrideTarget - positionRaw;
+		servo->feedbackProcessData.b_positionOverrideBusy = false;
+		servo->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	
+	/*
+	if(servoMotor->feedbackProcessData.b_overridePosition){
+		servoMotor->feedbackProcessData.b_overridePosition = false;
+		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+		double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
+		servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
+		updateEncoderWorkingRange();
+		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	*/
+	
+	
+	
 	
 	//if the drive is disabled, we copy the actual values to the profiler to be able to restart motion smoothly
 	if(!axis->isEnabled()){
@@ -260,7 +286,7 @@ void MicroFlex_e190::writeOutputs() {
 				axis->setVelocity(servo->actuatorProcessData.velocityTarget * incrementsPerVelocityUnit);
 				break;
 			case ActuatorInterface::ControlMode::POSITION:
-				axis->setPosition(servo->actuatorProcessData.positionTarget * incrementsPerPositionUnit);
+				axis->setPosition((servo->actuatorProcessData.positionTarget - servo->positionOffset) * incrementsPerPositionUnit);
 				break;
 			case ActuatorInterface::ControlMode::FORCE:
 				axis->setVelocity(0);

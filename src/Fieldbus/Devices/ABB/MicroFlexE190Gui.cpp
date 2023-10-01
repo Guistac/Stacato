@@ -131,6 +131,10 @@ void MicroFlex_e190::controlTab(){
 	ImGui::Text("Operating Mode Target: %s", Enumerator::getDisplayString(axis->getOperatingModeTarget()));
 	ImGui::Text("Operating Mode Actual: %s", Enumerator::getDisplayString(axis->getOperatingModeActual()));
 	
+	if(ImGui::Button("Reset Position")){
+		servo->overridePosition(0.0);
+	}
+	
 }
 
 void MicroFlex_e190::settingsTab(){
