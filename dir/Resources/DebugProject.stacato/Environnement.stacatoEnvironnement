@@ -1,10 +1,10 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.69838762" OffsetX="1239.9043" OffsetY="-376.04797" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="T-B" UniqueID="3" PositionX="-828" PositionY="773" SizeX="178.49997" SizeY="382.23499"/>
-        <Widget Name="T-C" UniqueID="4" PositionX="-644" PositionY="774" SizeX="178.49997" SizeY="382.6669"/>
-        <Widget Name="T-A" UniqueID="2" PositionX="-1012" PositionY="771" SizeX="178.49997" SizeY="382.80313"/>
-        <Widget Name="T-0" UniqueID="1" PositionX="-830" PositionY="380" SizeX="178.49997" SizeY="382.90277"/>
+    <Dashboard Scale="0.64110017" OffsetX="1081.1301" OffsetY="-376.07703" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="T-B" UniqueID="3" PositionX="-828" PositionY="773" SizeX="178.50002" SizeY="383.23648"/>
+        <Widget Name="T-C" UniqueID="4" PositionX="-644" PositionY="774" SizeX="178.50002" SizeY="383.7963"/>
+        <Widget Name="T-A" UniqueID="2" PositionX="-1012" PositionY="771" SizeX="145.13565" SizeY="62.353878"/>
+        <Widget Name="T-0" UniqueID="1" PositionX="-830" PositionY="380" SizeX="178.50002" SizeY="384.72186"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -119,7 +119,7 @@
                 <NodeEditorPosition x="581" y="-514"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3005"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
+                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="526" Visible="true"/>
@@ -144,7 +144,7 @@
                 <NodeEditorPosition x="577" y="-103"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3006"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
+                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="541" Visible="true"/>
@@ -467,7 +467,6 @@
             <Link UniqueID="657" StartPin="575" EndPin="629"/>
             <Link UniqueID="658" StartPin="590" EndPin="642"/>
             <Link UniqueID="659" StartPin="605" EndPin="642"/>
-            <Link UniqueID="682" StartPin="625" EndPin="668"/>
             <Link UniqueID="684" StartPin="651" EndPin="678"/>
             <Link UniqueID="716" StartPin="700" EndPin="707"/>
             <Link UniqueID="718" StartPin="702" EndPin="708"/>

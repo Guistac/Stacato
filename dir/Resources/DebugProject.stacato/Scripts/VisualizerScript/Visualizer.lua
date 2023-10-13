@@ -10,12 +10,13 @@ local tournetteC
 local tournetteAImage = of.Image()
 local tournetteBImage = of.Image()
 local tournetteCImage = of.Image()
+local largeFont = of.TrueTypeFont()
 
 local drawingMinX = -6500
 local drawingMinY = -6500
 local drawingMaxX = 6500
 local drawingMaxY = 6500
-local drawingMargin = 200.0
+local drawingMargin = 500.0
 drawingMinX = drawingMinX - drawingMargin
 drawingMinY = drawingMinY - drawingMargin
 drawingMaxX = drawingMaxX + drawingMargin
@@ -41,18 +42,19 @@ function Visualizer.setup()
     tournetteA = Environnement.getMachine("T-A"):getAnimatable("Position");
     tournetteB = Environnement.getMachine("T-B"):getAnimatable("Position");
     tournetteC = Environnement.getMachine("T-C"):getAnimatable("Position");
+    largeFont:load("HelveticaBold.otf", 32)
 end
 
 
 
-function drawTurntable(animatable, image, name)
+function drawTurntable(animatable, image)
 
-    local position = animatable:getActualValue()
+    local position = animatable:getActualValue().Position
     local brakingPosition = animatable:getBrakingPosition()
 
     time = of.getElapsedTimef()
     of.pushMatrix()
-    of.rotateZDeg(math.sin(time*2)*30)
+    of.rotateZDeg(position)
 
     of.fill()
     of.setColor(127)
@@ -61,9 +63,16 @@ function drawTurntable(animatable, image, name)
     of.drawCircle(0,0,smallPlatformRadius-edgeLineThickness)
     of.setColor(255)
     image:draw(0, 0, smallPlatformDiameter, smallPlatformDiameter)
-
     of.popMatrix()
+end
 
+function drawCenteredString(drawingFont, string, x, y)
+    of.pushMatrix()
+    of.scale(30)
+    local textWidth = drawingFont:stringWidth(string)
+    local textHeight = drawingFont:stringHeight(string)
+    drawingFont:drawString(string, x-textWidth*.5, y+textHeight*.5)
+    of.popMatrix()
 end
 
 
@@ -93,10 +102,6 @@ function Visualizer.draw()
 
     --begin drawing in mm coordinates here
 
-    of.setColor(16)
-    of.setRectMode(of.RECTMODE_CORNER)
-    of.drawRectangle(-6500, -6500, 13000, 13000)
-
     of.setCircleResolution(128)
     of.setRectMode(of.RECTMODE_CENTER)
 
@@ -105,26 +110,34 @@ function Visualizer.draw()
     of.setColor(32)
     of.drawCircle(0,0,largePlatformRadius-edgeLineThickness)
 
+    local position = tournette0:getActualValue().Position
+    local brakingPosition = tournette0:getBrakingPosition()
     of.pushMatrix()
-    of.rotateZDeg(math.sin(time*10)*10)
+    of.rotateZDeg(position)
 
     local TaPosition = of.Vec2f(0, smallPlatformDistance):getRotated(0)
-    local TbPosition = of.Vec2f(0, smallPlatformDistance):getRotated(120)
-    local TcPosition = of.Vec2f(0, smallPlatformDistance):getRotated(240)
+    local TbPosition = of.Vec2f(0, smallPlatformDistance):getRotated(240)
+    local TcPosition = of.Vec2f(0, smallPlatformDistance):getRotated(120)
 
     of.pushMatrix()
     of.translate(TaPosition.x, TaPosition.y)
-    drawTurntable(tournetteA, tournetteAImage, "A")
+    drawTurntable(tournetteA, tournetteAImage)
+    of.rotateZDeg(-position)
+    drawCenteredString(largeFont, "A", 0, 0)
     of.popMatrix()
 
     of.pushMatrix()
     of.translate(TbPosition.x, TbPosition.y)
-    drawTurntable(tournetteB, tournetteBImage, "B")
+    drawTurntable(tournetteB, tournetteBImage)
+    of.rotateZDeg(-position)
+    drawCenteredString(largeFont, "B", 0, 0)
     of.popMatrix()
 
     of.pushMatrix()
     of.translate(TcPosition.x, TcPosition.y)
-    drawTurntable(tournetteC, tournetteCImage, "C")
+    drawTurntable(tournetteC, tournetteCImage)
+    of.rotateZDeg(-position)
+    drawCenteredString(largeFont, "C", 0, 0)
     of.popMatrix()
 
     of.popMatrix() --T0 rotation matrix
