@@ -1,49 +1,11 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Brin Lent" MachineUniqueID="1272" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-4.4500000000000002" End="-4.4500000000000002" Duration="180" TimeOffset="0" StartAcceleration="10" EndAcceleration="10">
+        <Manoeuvre Name="M-1" Description="" Type="Sequence">
+            <Animation Machine="Douche" MachineUniqueID="1358" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="30" TimeOffset="0" StartAcceleration="50" EndAcceleration="50">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="3.8688610567177815" Time="10.903846153846153" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="-1.7858721786404246" Time="15.923076923076923" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="0.88054323255645706" Time="19.107692307692307" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="-2.3356485520830805" Time="22.430769230769229" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="3.9592909238353293" Time="27" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="-3.9770497065464827" Time="35.764615384615382" Velocity="0" InAcceleration="1" OutAcceleration="0.20000000000000001"/>
-                        <ControlPoint Position="1.4528411854815682" Time="45.351256705400388" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.5"/>
-                        <ControlPoint Position="-1.6897598515706065" Time="50.011739970065832" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="1.4528411854815682" Time="54.634939368613942" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="-1.9782939093453535" Time="58.984615384615381" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="2.4474058968680268" Time="66.323076923076925" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.20000000000000001"/>
-                        <ControlPoint Position="-3.4382747185111686" Time="83.305384615384611" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.5"/>
-                        <ControlPoint Position="3.5658001259479146" Time="97.843846153846158" Velocity="0" InAcceleration="0.40000000000000002" OutAcceleration="0.10000000000000001"/>
-                        <ControlPoint Position="-0.031187349137955955" Time="107.85350057318598" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
-                        <ControlPoint Position="1.4944703539091746" Time="112.81372806036183" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
-                        <ControlPoint Position="-3.1688872244935116" Time="124.01307692307692" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.5"/>
-                        <ControlPoint Position="2.0504954720985946" Time="133.02692307692308" Velocity="0" InAcceleration="0.40000000000000002" OutAcceleration="1"/>
-                        <ControlPoint Position="-4.2109125049753517" Time="141.54805899101126" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="2.2229496162385409" Time="147.58053237260438" Velocity="0" InAcceleration="1" OutAcceleration="2"/>
-                        <ControlPoint Position="-3.3283915945433584" Time="154.00536174649622" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="2.8249845173993595" Time="160.35923076923078" Velocity="0" InAcceleration="1" OutAcceleration="0.20000000000000001"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-            <Animation Machine="Brin Rapide" MachineUniqueID="1277" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-13.15" End="-13.15" Duration="180" TimeOffset="0" StartAcceleration="10" EndAcceleration="10">
-                <Curves>
-                    <Curve Name="Position">
-                        <ControlPoint Position="4.5148646453548" Time="9.0153408743732566" Velocity="0" InAcceleration="2" OutAcceleration="1"/>
-                        <ControlPoint Position="-5.4031776500182165" Time="16.367136706451447" Velocity="0" InAcceleration="2" OutAcceleration="1"/>
-                        <ControlPoint Position="6.0895955947594285" Time="23.879920768429159" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="-6.314863989147212" Time="31.446367573706716" Velocity="0" InAcceleration="3" OutAcceleration="1"/>
-                        <ControlPoint Position="5.2607898319148862" Time="42.822869153272968" Velocity="0" InAcceleration="0.5" OutAcceleration="2"/>
-                        <ControlPoint Position="-4.5743718871736743" Time="52.643151177143828" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
-                        <ControlPoint Position="4.4319840690703458" Time="59.994947009222024" Velocity="0" InAcceleration="1" OutAcceleration="0.5"/>
-                        <ControlPoint Position="-6.334190279200989" Time="79.505839050434332" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="1"/>
-                        <ControlPoint Position="5.4541778432452794" Time="93.10485962522381" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
-                        <ControlPoint Position="-9.6300870405253782" Time="115.1602471214584" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="1"/>
-                        <ControlPoint Position="6.9668172379208322" Time="127.45026926569626" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
-                        <ControlPoint Position="-5.02092624586491" Time="138.33212905492238" Velocity="0" InAcceleration="0.5" OutAcceleration="0.20000000000000001"/>
-                        <ControlPoint Position="5.2831454003104774" Time="154.99623168418012" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.29999999999999999"/>
+                        <ControlPoint Position="720" Time="10" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
+                        <ControlPoint Position="360" Time="20" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
                     </Curve>
                 </Curves>
             </Animation>

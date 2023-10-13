@@ -125,6 +125,8 @@ bool MicroFlex_e190::startupConfiguration() {
 	uint32_t shiftTime_nanoseconds = EtherCatFieldbus::processInterval_milliseconds * 500'000;
 	ec_dcsync0(getSlaveIndex(), true, cycleTime_nanoseconds, shiftTime_nanoseconds);
 	
+	servo->positionOffset = 0.0;
+	
 	return true;
 }
 

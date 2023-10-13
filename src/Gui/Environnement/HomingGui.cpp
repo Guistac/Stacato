@@ -106,6 +106,7 @@ void SetupWindow::onDraw(){
 	glm::vec2 boxPadding(ImGui::GetTextLineHeight() * .4f, ImGui::GetTextLineHeight() * .2f);
 	
 	
+	/*
 	//——————————————————————————————————————————————————————————
 	//——— Hack to quickly home all position controlled machines
 	ImGui::BeginDisabled(!Environnement::canHomeAllMachines());
@@ -115,7 +116,8 @@ void SetupWindow::onDraw(){
 	ImGui::PopFont();
 	ImGui::EndDisabled();
 	//——————————————————————————————————————————————————————————
-	
+	*/
+	 
 	int id = 0;
 	for(auto machine : Environnement::getMachines()){
 				
