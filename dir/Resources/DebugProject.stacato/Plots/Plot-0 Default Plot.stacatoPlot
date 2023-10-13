@@ -1,14 +1,32 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-1" Description="" Type="Sequence">
-            <Animation Machine="Douche" MachineUniqueID="1358" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="30" TimeOffset="0" StartAcceleration="50" EndAcceleration="50">
+        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="720" Duration="180" TimeOffset="0" StartAcceleration="1" EndAcceleration="1">
                 <Curves>
-                    <Curve Name="Position">
-                        <ControlPoint Position="720" Time="10" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
-                        <ControlPoint Position="360" Time="20" Velocity="0" InAcceleration="50" OutAcceleration="50"/>
-                    </Curve>
+                    <Curve Name="Position"/>
                 </Curves>
             </Animation>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-720" Duration="180" TimeOffset="0" StartAcceleration="1" EndAcceleration="1">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-720" Duration="180" TimeOffset="0" StartAcceleration="1" EndAcceleration="1">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-720" Duration="180" TimeOffset="0" StartAcceleration="1" EndAcceleration="1">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="M-0 (copy)" Description="" Type="Target">
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="4" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="5" EndAcceleration="5"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

@@ -210,13 +210,17 @@ namespace Environnement::NodeGraph{
 						break;
 					}
 				}
-				if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
-				if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-				Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}",
-							  matchingPin->getSaveString(),
-							  matchingPin->getDisplayString(),
-							  Enumerator::getDisplayString(matchingPin->dataType),
-							  matchingPin->isVisible());
+				if (matchingPin == nullptr) {
+					Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
+				}
+				else {
+					if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
+					Logger::trace("Loaded Input Pin {} (DisplayName: '{}') with dataType: {} visibility: {}",
+								  matchingPin->getSaveString(),
+								  matchingPin->getDisplayString(),
+								  Enumerator::getDisplayString(matchingPin->dataType),
+								  matchingPin->isVisible());
+				}
 				inputPinXML = inputPinXML->NextSiblingElement();
 			}
 			XMLElement* outputPinsXML = nodeXML->FirstChildElement("OutputPins");
@@ -237,13 +241,17 @@ namespace Environnement::NodeGraph{
 						break;
 					}
 				}
-				if (matchingPin == nullptr) return Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
-				if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
-				Logger::trace("Loaded Output Pin {} (DisplayName: '{}') with dataType: {} visibility: {}",
-							  matchingPin->getSaveString(),
-							  matchingPin->getDisplayString(),
-							  Enumerator::getDisplayString(matchingPin->dataType),
-							  matchingPin->isVisible());
+				if (matchingPin == nullptr) {
+					Logger::warn("Could not find pin Matching name: {}  datatype: {}", saveNameString, dataTypeString);
+				}
+				else {
+					if (matchingPin->getUniqueID() > largestUniqueID) largestUniqueID = matchingPin->getUniqueID();
+					Logger::trace("Loaded Output Pin {} (DisplayName: '{}') with dataType: {} visibility: {}",
+								  matchingPin->getSaveString(),
+								  matchingPin->getDisplayString(),
+								  Enumerator::getDisplayString(matchingPin->dataType),
+								  matchingPin->isVisible());
+				}
 				outputPinXML = outputPinXML->NextSiblingElement();
 			}
 
