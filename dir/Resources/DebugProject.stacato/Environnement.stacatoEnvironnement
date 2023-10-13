@@ -1,10 +1,10 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.38404846" OffsetX="1208.7427" OffsetY="-376.1203" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="T-B" UniqueID="3" PositionX="-828" PositionY="773" SizeX="178.5" SizeY="381.918"/>
-        <Widget Name="T-C" UniqueID="4" PositionX="-644" PositionY="774" SizeX="178.5" SizeY="380.91788"/>
-        <Widget Name="T-A" UniqueID="2" PositionX="-1012" PositionY="771" SizeX="178.5" SizeY="381.31409"/>
-        <Widget Name="T-0" UniqueID="1" PositionX="-830" PositionY="380" SizeX="178.5" SizeY="381.7384"/>
+    <Dashboard Scale="0.69838762" OffsetX="1239.9043" OffsetY="-376.04797" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="T-B" UniqueID="3" PositionX="-828" PositionY="773" SizeX="178.49997" SizeY="382.23499"/>
+        <Widget Name="T-C" UniqueID="4" PositionX="-644" PositionY="774" SizeX="178.49997" SizeY="382.6669"/>
+        <Widget Name="T-A" UniqueID="2" PositionX="-1012" PositionY="771" SizeX="178.49997" SizeY="382.80313"/>
+        <Widget Name="T-0" UniqueID="1" PositionX="-830" PositionY="380" SizeX="178.49997" SizeY="382.90277"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
