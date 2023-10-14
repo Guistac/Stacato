@@ -1,4 +1,4 @@
-<Plot Name="Default Plot">
+<Plot Name="Macbeth Underworld">
     <ManoeuvreList>
         <Manoeuvre Name="Move Synchro Avant" Description="" Type="Sequence">
             <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-720" Duration="240" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
