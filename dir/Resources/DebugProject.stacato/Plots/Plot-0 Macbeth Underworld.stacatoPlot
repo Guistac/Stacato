@@ -1,49 +1,5 @@
 <Plot Name="Macbeth Underworld">
     <ManoeuvreList>
-        <Manoeuvre Name="Move Synchro Avant" Description="" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="-720" Duration="240" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="720" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="720" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.013733510997356134" End="720" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="Move Synchro Arrière" Description="" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-720" End="0" Duration="240" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="720" End="0" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="720" End="0" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="720" End="0" Duration="240" TimeOffset="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998">
-                <Curves>
-                    <Curve Name="Position"/>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
         <Manoeuvre Name="Z-0" Description="Zero Global" Type="Target">
             <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
             <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
@@ -106,133 +62,133 @@
             <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-371" ConstraintType="Time" Time="115" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.22" Description="Chambre 2 (enchainer, pas de top)" Type="Target">
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="30.100000000000001" ConstraintType="Time" Time="115" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-11" ConstraintType="Time" Time="115" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="30.100000000000001" ConstraintType="Time" Time="115" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-11" ConstraintType="Time" Time="115" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.23" Description="Chambre 2 (enchainer, pas de top)" Type="Target">
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="390.10000000000002" ConstraintType="Time" Time="105" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-371" ConstraintType="Time" Time="105" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="390.10000000000002" ConstraintType="Time" Time="105" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-371" ConstraintType="Time" Time="105" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.24" Description="Chambre 2 (enchainer, pas de top)" Type="Target">
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="30.100000000000001" ConstraintType="Time" Time="52" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-11" ConstraintType="Time" Time="52" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="30.100000000000001" ConstraintType="Time" Time="52" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-11" ConstraintType="Time" Time="52" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.3" Description="Porte intérieure" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-20" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="260" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-20" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="260" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.3a" Description="Porte intérieure (accélération)" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-20" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="260" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-20" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="260" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.3c" Description="Mise B et B - Hors Vue" Type="Target">
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-227.80000000000001" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-100" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-227.80000000000001" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-100" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="3.5" Description="Vestibule (lignes rouges + montée voiles)" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="393.89999999999998" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-360" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="393.89999999999998" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-360" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="4.1" Description="Requiem (table et voiles descendent)" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-341" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-141.69999999999999" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-341" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-141.69999999999999" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="5.1" Description="Banquet" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="420" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-16.300000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-336.89999999999998" ConstraintType="Time" Time="5" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-202" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="420" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-16.300000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-336.89999999999998" ConstraintType="Time" Time="5" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-202" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="5.2" Description="Banquet 2" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="480" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="480" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
         </Manoeuvre>
         <Manoeuvre Name="6.1" Description="Chambre (la table monte)" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="602" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-178.40000000000001" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="602" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="-178.40000000000001" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.1a" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="158.30000000000001" ConstraintType="Time" Time="70" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="158.30000000000001" ConstraintType="Time" Time="70" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.2a" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="337" ConstraintType="Time" Time="35" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="337" ConstraintType="Time" Time="35" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.2b" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="518.29999999999995" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="518.29999999999995" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.2c" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="697.10000000000002" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="697.10000000000002" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.2d" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="330" ConstraintType="Time" Time="160" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="330" ConstraintType="Time" Time="160" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="6.2da" Description="" Type="Target">
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="330" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="330" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.1" Description="Errance" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="548.29999999999995" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-359.89999999999998" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="548.29999999999995" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-359.89999999999998" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.2" Description="Mort de Lady Mac &amp; Cheese" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="478.80000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-287.60000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-265.80000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="478.80000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-287.60000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-265.80000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.2a" Description="Mort de Lady Mac" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="410" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-377.60000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-496.69999999999999" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="410" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-377.60000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-496.69999999999999" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.2b" Description="Mort de Lady Mac" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="359.5" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-270.10000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-381.69999999999999" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="397" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="359.5" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-270.10000000000002" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-381.69999999999999" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="397" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.2c" Description="" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="300.10000000000002" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-210.19999999999999" ConstraintType="Time" Time="29" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-411.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="421.5" ConstraintType="Time" Time="35" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="300.10000000000002" ConstraintType="Time" Time="45" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-210.19999999999999" ConstraintType="Time" Time="29" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-411.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="421.5" ConstraintType="Time" Time="35" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="7.2d" Description="Chambre" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="29" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-451.5" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="518.5" ConstraintType="Time" Time="22" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="29" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-451.5" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="518.5" ConstraintType="Time" Time="22" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="8.1" Description="Lande Porte Balcon" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-90" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="8.2" Description="Lande Porte Intérieur" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="310" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-8.1999999999999993" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="310" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="-8.1999999999999993" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="8.3" Description="Lande Arbre" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="26.300000000000001" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-384.69999999999999" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="669.89999999999998" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="240" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="26.300000000000001" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-384.69999999999999" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="669.89999999999998" ConstraintType="Time" Time="100" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="8.4" Description="Fin de spectacle" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="120" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-260.60000000000002" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="719.89999999999998" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="120" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-260.60000000000002" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="719.89999999999998" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
         <Manoeuvre Name="9" Description="Saluts !" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="63" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="26.300000000000001" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-392.39999999999998" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
-            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="673.29999999999995" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="5" EndAcceleration="5"/>
+            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="63" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="26.300000000000001" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="-392.39999999999998" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
+            <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="673.29999999999995" ConstraintType="Time" Time="28" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

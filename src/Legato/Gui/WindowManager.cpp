@@ -89,6 +89,7 @@ void update(){
 	closingWindows.clear();
 	
 	for(auto openingWindow : openingWindows){
+		if(openingWindow->isOpen()) continue;
 		openingWindow->b_isOpen = true;
 		openingWindow->onOpen();
 		openWindows.push_back(openingWindow);

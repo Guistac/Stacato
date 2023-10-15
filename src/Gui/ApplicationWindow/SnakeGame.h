@@ -56,6 +56,8 @@ public:
 		
 		drawPixel(applePosition, ImVec4(0.f, 1.f, 0.f, 1.f));
 		
+		if(ImGui::IsKeyPressed(ImGuiKey_Escape)) close();
+		
 	}
 	
 	enum class GameState{
