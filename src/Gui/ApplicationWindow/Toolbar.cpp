@@ -73,6 +73,8 @@ namespace Stacato::Gui {
 		if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scan();
 		ImGui::EndDisabled();
 		
+		
+		/*
 		ImGui::SameLine();
 			
 		static ToggleSwitch simulationToggle;
@@ -85,7 +87,8 @@ namespace Stacato::Gui {
 			Environnement::setSimulation(b_simulation);
 		}
 		ImGui::EndDisabled();
-		
+		*/
+		 
 		ImGui::EndGroup();
 		
 		ImGui::PushFont(Fonts::sansRegular12);

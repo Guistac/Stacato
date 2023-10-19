@@ -1,7 +1,7 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.70679337" OffsetX="1215.4258" OffsetY="-699.44623" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.69989" SizeY="507.03885"/>
+    <Dashboard Scale="1.1822289" OffsetX="1108.4667" OffsetY="-699.59357" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.70004" SizeY="476.60028"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -55,7 +55,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Moteur A" UniqueID="1134">
                 <NodeEditorPosition x="376" y="1277"/>
-                <NodeSpecificData UseExternalLoadSensor="true" ForceSensorMultiplier="48500" ForceSensorOffset="-494.70000000000005" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.25" UpperForceLimit="2800" LowerForceLimit="-500" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0.01" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.10000000000000001" UpperPositionLimit="21" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData UseExternalLoadSensor="true" ForceSensorMultiplier="48500" ForceSensorOffset="-494.70000000000005" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.25" UpperForceLimit="2800" LowerForceLimit="-500" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0.0050000000000000001" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.10000000000000001" UpperPositionLimit="21" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="1155" UnitConversion="4.5211943069306928"/>
                     <VelocityFeedbackMapping InterfacePinID="1155" UnitConversion="4.5211943069306928"/>
                     <ActuatorMappings>
@@ -223,7 +223,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Moteur B" UniqueID="1386">
                 <NodeEditorPosition x="1138" y="1280"/>
-                <NodeSpecificData UseExternalLoadSensor="true" ForceSensorMultiplier="48500" ForceSensorOffset="-494.69999999999999" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.25" UpperForceLimit="2800" LowerForceLimit="-500" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0.01" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.10000000000000001" UpperPositionLimit="21" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeSpecificData UseExternalLoadSensor="true" ForceSensorMultiplier="48500" ForceSensorOffset="-494.69999999999999" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.25" UpperForceLimit="2800" LowerForceLimit="-500" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0.0050000000000000001" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.10000000000000001" UpperPositionLimit="21" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="1325" UnitConversion="4.5211940000000004"/>
                     <VelocityFeedbackMapping InterfacePinID="1325" UnitConversion="4.5211940000000004"/>
                     <ActuatorMappings>
@@ -255,8 +255,8 @@
                 <NodeEditorPosition x="1352" y="1943"/>
                 <NodeSpecificData ShortName="M" MaxDistanceBetweenAxes="0" EnableTwoAxisDistanceConstraint="false" MaxDistanceBetweenTwoAxes="0">
                     <AxisMappings>
-                        <AxisMapping AxisPinSaveName="Axis0" InvertDirection="true" PositionOffset="2.3500000000000001"/>
-                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="true" PositionOffset="2.3799999999999999"/>
+                        <AxisMapping AxisPinSaveName="Axis0" InvertDirection="true" PositionOffset="2.5799171300256631" UserLowerPositionLimit="0" UserUpperPositionLimit="2"/>
+                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="true" PositionOffset="2.3799999999999999" UserLowerPositionLimit="-6" UserUpperPositionLimit="1"/>
                     </AxisMappings>
                     <ControWidget UniqueID="3"/>
                 </NodeSpecificData>

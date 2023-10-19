@@ -343,6 +343,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoist.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoist.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoistGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMapping.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMapping.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMappingGui.cpp
 
     #========================= AXIS TYPES =========================
     

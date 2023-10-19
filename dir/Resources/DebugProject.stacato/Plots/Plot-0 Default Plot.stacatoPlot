@@ -5,17 +5,35 @@
             <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur B" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.25" EndAcceleration="0.25"/>
         </Manoeuvre>
         <Manoeuvre Name="M-1" Description="" Type="Sequence">
-            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur A" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.5" End="0.5" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur A" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="2.2000000000000002" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="1.4831690788269043" Time="29.149253845214844" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1" Time="4.4409836065573778" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1" Time="16" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="2" Time="22" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.2" Time="30" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.69999999999999996" Time="33" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.31444218734327811" Time="35.810794682757844" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.336801534490494" Time="40.337499648357124" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.41150160319847662" Time="45.073696836620691" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.8415105879225031" Time="49.969541121117864" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.85797499661910037" Time="55.025032501848635" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
                     </Curve>
                 </Curves>
             </Animation>
-            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur B" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.5" End="0.5" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur B" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="2.2000000000000002" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="1.4741378858171661" Time="32.910447761194028" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.002071330589849" Time="4.4409836065573778" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.9879972069883216" Time="9" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.20000000000000001" Time="16" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.2" Time="22" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.20000000000000001" Time="30" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.69999999999999996" Time="33" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="1.6862154945588086" Time="38.24365793738356" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.65091492348083579" Time="42.439561479503851" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="2.2362190015685575" Time="48.326514576099541" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                        <ControlPoint Position="0.68326806793160588" Time="53.459788298074166" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
                     </Curve>
                 </Curves>
             </Animation>
