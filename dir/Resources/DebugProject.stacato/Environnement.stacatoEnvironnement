@@ -1,8 +1,7 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0.9051885" OffsetX="1168.3977" OffsetY="-698.85699" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.69971" SizeY="476.56509"/>
-        <Widget Name="Dead Man&apos;s Switch" UniqueID="4" PositionX="-1000" PositionY="1183" SizeX="178.5" SizeY="141.39105"/>
+    <Dashboard Scale="1.1822289" OffsetX="1108.4667" OffsetY="-699.59357" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.70004" SizeY="476.60028"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -113,7 +112,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:3011)" UniqueID="1314">
-                <NodeEditorPosition x="783" y="1797"/>
+                <NodeEditorPosition x="784" y="1776"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3011"/>
                 </NodeSpecificData>
@@ -121,7 +120,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:3012)" UniqueID="1315">
-                <NodeEditorPosition x="759" y="1857"/>
+                <NodeEditorPosition x="760" y="1831"/>
                 <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
                     <Identification Type="StationAlias" StationAlias="3012"/>
                 </NodeSpecificData>
@@ -138,7 +137,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:3015)" UniqueID="1324">
-                <NodeEditorPosition x="797" y="1681"/>
+                <NodeEditorPosition x="797" y="1667"/>
                 <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="true" InvertDirection="false" HasResetSignal="true" ResetTime="10">
                     <Identification Type="StationAlias" StationAlias="3015"/>
                 </NodeSpecificData>
@@ -149,7 +148,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="true" CustomName="ATV340 (Alias:1102)" UniqueID="1327">
-                <InputNodeEditorPosition x="1352" y="1517"/>
+                <InputNodeEditorPosition x="1320" y="1510"/>
                 <OutputNodeEditorPosition x="802" y="1201"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1102"/>
@@ -189,7 +188,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 8x Digital Input (Alias:3013)" UniqueID="1350">
-                <NodeEditorPosition x="765" y="2114"/>
+                <NodeEditorPosition x="766" y="2088"/>
                 <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
                     <Identification Type="StationAlias" StationAlias="3013"/>
                 </NodeSpecificData>
@@ -223,7 +222,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Moteur B" UniqueID="1386">
-                <NodeEditorPosition x="1138" y="1280"/>
+                <NodeEditorPosition x="1106" y="1278"/>
                 <NodeSpecificData UseExternalLoadSensor="true" ForceSensorMultiplier="48500" ForceSensorOffset="-494.69999999999999" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.25" UpperForceLimit="2800" LowerForceLimit="-500" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.074999999999999997" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0.0050000000000000001" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0.10000000000000001" UpperPositionLimit="21" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0.10000000000000001" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="1325" UnitConversion="4.5211940000000004"/>
                     <VelocityFeedbackMapping InterfacePinID="1325" UnitConversion="4.5211940000000004"/>
@@ -253,11 +252,11 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="MultipointHoist" CustomName="Multipoint Hoist" UniqueID="1416">
-                <NodeEditorPosition x="1352" y="1943"/>
+                <NodeEditorPosition x="1320" y="1927"/>
                 <NodeSpecificData ShortName="M" MaxDistanceBetweenAxes="0" EnableTwoAxisDistanceConstraint="false" MaxDistanceBetweenTwoAxes="0">
                     <AxisMappings>
                         <AxisMapping AxisPinSaveName="Axis0" InvertDirection="true" PositionOffset="2.5799171300256631" UserLowerPositionLimit="0" UserUpperPositionLimit="2"/>
-                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="true" PositionOffset="2.3799999999999999" UserLowerPositionLimit="-6" UserUpperPositionLimit="1"/>
+                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="true" PositionOffset="2.3799999999999999" UserLowerPositionLimit="0" UserUpperPositionLimit="2"/>
                     </AxisMappings>
                     <ControWidget UniqueID="3"/>
                 </NodeSpecificData>
@@ -268,19 +267,64 @@
                 </InputPins>
                 <OutputPins/>
             </Node>
-            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="1430">
-                <NodeEditorPosition x="1114" y="969"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:60000)" UniqueID="1430">
+                <NodeEditorPosition x="438" y="991"/>
                 <NodeSpecificData>
-                    <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
-                    <ControlWidget UniqueID="4"/>
+                    <Identification Type="StationAlias" StationAlias="60000"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2624" Split="false" CustomName="EL2624 4x Relay Output (Alias:60001)" UniqueID="1431">
+                <NodeEditorPosition x="600" y="1045"/>
+                <NodeSpecificData InvertR1="false" InvertR2="false" InvertR3="false" InvertR4="false">
+                    <Identification Type="StationAlias" StationAlias="60001"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="1431" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="1432" Visible="true"/>
+                    <InputPin SaveString="R1" DisplayString="R1" DataType="Boolean" UniqueID="1432" Visible="true"/>
+                    <InputPin SaveString="R2" DisplayString="R2" DataType="Boolean" UniqueID="1433" Visible="true"/>
+                    <InputPin SaveString="R3" DisplayString="R3" DataType="Boolean" UniqueID="1434" Visible="true"/>
+                    <InputPin SaveString="R4" DisplayString="R4" DataType="Boolean" UniqueID="1435" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="Clock" ClassName="Clock" CustomName="Clock" UniqueID="1437">
+                <NodeEditorPosition x="-9" y="860"/>
+                <NodeSpecificData/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="output" DisplayString="output" DataType="Real" UniqueID="1438" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Sinus" CustomName="Sinus" UniqueID="1439">
+                <NodeEditorPosition x="280" y="992"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Real" UniqueID="1440" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="1433" Visible="true"/>
-                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="1434" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Real" UniqueID="1441" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Bool" CustomName="Bool" UniqueID="1444">
+                <NodeEditorPosition x="477" y="1043"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="1445" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="1446" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Mutliplication" CustomName="Multiplication" UniqueID="1449">
+                <NodeEditorPosition x="72" y="1002"/>
+                <NodeSpecificData Multiplier="200"/>
+                <InputPins>
+                    <InputPin SaveString="input" DisplayString="input" DataType="Real" UniqueID="1450" Visible="true" AcceptsMultipleInputs="true"/>
+                    <InputPin SaveString="mult" DisplayString="mult" DataType="Real" UniqueID="1451" Visible="true" DisablePin="true" ForceDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="result" DisplayString="result" DataType="Real" UniqueID="1452" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -301,6 +345,13 @@
             <Link UniqueID="1425" StartPin="1399" EndPin="1419"/>
             <Link UniqueID="1427" StartPin="1378" EndPin="43"/>
             <Link UniqueID="1428" StartPin="1351" EndPin="1396"/>
+            <Link UniqueID="1447" StartPin="1441" EndPin="1445"/>
+            <Link UniqueID="1448" StartPin="1446" EndPin="1432"/>
+            <Link UniqueID="1453" StartPin="1452" EndPin="1440"/>
+            <Link UniqueID="1454" StartPin="1438" EndPin="1450"/>
+            <Link UniqueID="1455" StartPin="1446" EndPin="1433"/>
+            <Link UniqueID="1456" StartPin="1446" EndPin="1434"/>
+            <Link UniqueID="1457" StartPin="1446" EndPin="1435"/>
         </Links>
     </NodeGraph>
 </Environnement>

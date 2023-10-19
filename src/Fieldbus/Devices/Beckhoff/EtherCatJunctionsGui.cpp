@@ -56,6 +56,18 @@ void EL1008::deviceSpecificGui() {
 	}
 }
 
+void EL2624::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL2624")){
+		for(int i = 0; i < 4; i++){
+			ImGui::PushID(i);
+			signalInversionParams[i]->gui(Fonts::sansBold15);
+			ImGui::PopID();
+		}
+		ImGui::EndTabItem();
+	}
+}
+
+
 void EL5001::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL5001")){
 		

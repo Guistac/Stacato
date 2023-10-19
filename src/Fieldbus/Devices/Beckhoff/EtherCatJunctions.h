@@ -50,6 +50,16 @@ DEFINE_ETHERCAT_DEVICE(EL1008, "EL1008 8x Digital Input", "EL1008", "Beckhoff", 
 	
 };
 
+class EL2624 : public EtherCatDevice{
+public:
+DEFINE_ETHERCAT_DEVICE(EL2624, "EL2624 4x Relay Output", "EL2624", "Beckhoff", "I/O", 0x2, 0xa403052)
+	//rxPdo
+	bool outputs[4] = {0,0,0,0};
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+};
+
 class EL5001 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 0x2, 0x13893052)

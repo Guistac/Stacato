@@ -127,6 +127,65 @@ bool EL1008::loadDeviceData(tinyxml2::XMLElement* xml) {
 }
 
 
+
+void EL2624::onDisconnection() {}
+void EL2624::onConnection() {}
+void EL2624::initialize() {
+	rxPdoAssignement.addNewModule(0x1600);
+	for(int i = 0; i < 4; i++){
+		char name[32];
+		snprintf(name, 32, "Channel %i", i + 1);
+		rxPdoAssignement.addEntry(0x1600 + i, 0x1, 1, name, &outputs[i]);
+	}
+	for(int i = 0; i < 4; i++){
+		char pinName[16];
+		int inputNumber = i + 1;
+		snprintf(pinName, 16, "R%i", inputNumber);
+		auto pinValue = std::make_shared<bool>(false);
+		auto pin = std::make_shared<NodePin>(pinValue, NodePin::Direction::NODE_INPUT, pinName);
+		pinValues.push_back(pinValue);
+		addNodePin(pin);
+		char parameterName[64];
+		snprintf(parameterName, 64, "Invert R%i", inputNumber);
+		char parameterSaveName[64];
+		snprintf(parameterSaveName, 64, "InvertR%i", inputNumber);
+		auto inversionParam = BooleanParameter::make(false, parameterName, parameterSaveName);
+		signalInversionParams.push_back(inversionParam);
+	}
+}
+bool EL2624::startupConfiguration() { return true; }
+void EL2624::readInputs() {}
+void EL2624::writeOutputs(){
+	for(int i = 0; i < 4; i++){
+		if(getInputPins()[i]->isConnected()) getInputPins()[i]->copyConnectedPinValue();
+		outputs[i] = *pinValues[i];
+		if(signalInversionParams[i]->value) outputs[i] = !outputs[i];
+	}
+	rxPdoAssignement.pushDataTo(identity->outputs);
+}
+bool EL2624::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++) signalInversionParams[i]->save(xml);
+	return true;
+}
+bool EL2624::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++) signalInversionParams[i]->load(xml);
+	return true;
+}
+
+
+
+/*
+class EL2624 : public EtherCatDevice{
+public:
+DEFINE_ETHERCAT_DEVICE(EL2624, "EL2624 4x Relay Output", "EL1008", "Beckhoff", "I/O", 0x2, 0xa403052)
+	//rxPdo
+	bool outputs[4] = {0,0,0,0};
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+};
+*/
+
 void EL5001::onDisconnection() {
 	encoder->state = DeviceState::OFFLINE;
 }
