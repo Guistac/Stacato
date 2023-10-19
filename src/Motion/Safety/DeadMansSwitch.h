@@ -31,6 +31,8 @@ private:
 	bool b_shouldRequestPress = false;
     bool b_shouldKeepPressing = false;
 	
+	bool b_bypassHardware = false;
+	
 	std::shared_ptr<NumberParameter<double>> requestTimeoutDelay = NumberParameter<double>::make(5.0,
 																								 "Press Request Timeout Delay",
 																								 "PressReuqestTimeoutDelay",

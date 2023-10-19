@@ -1,7 +1,8 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="1.1822289" OffsetX="1108.4667" OffsetY="-699.59357" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.70004" SizeY="476.60028"/>
+    <Dashboard Scale="0.9051885" OffsetX="1168.3977" OffsetY="-698.85699" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Multipoint Hoist" UniqueID="3" PositionX="-1099" PositionY="702" SizeX="372.69971" SizeY="476.56509"/>
+        <Widget Name="Dead Man&apos;s Switch" UniqueID="4" PositionX="-1000" PositionY="1183" SizeX="178.5" SizeY="141.39105"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -266,6 +267,21 @@
                     <InputPin SaveString="Axis1" DisplayString="Axis 1" DataType="AxisInterface" UniqueID="1419" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins/>
+            </Node>
+            <Node NodeType="Processor" ClassName="DeadMansSwitch" CustomName="Dead Man&apos;s Switch" UniqueID="1430">
+                <NodeEditorPosition x="1114" y="969"/>
+                <NodeSpecificData>
+                    <Settings PressReuqestTimeoutDelay="5" RequestBlinkFrequency="4" IdleBlinkFrequency="0.5" IdleBlinkLength="0.10000000000000001"/>
+                    <ControlWidget UniqueID="4"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevicePin" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="1431" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="SwitchPressedPin" DisplayString="Switch Pressed" DataType="Boolean" UniqueID="1432" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="SwitchLEDSignalPin" DisplayString="Switch LED Signal" DataType="Boolean" UniqueID="1433" Visible="true"/>
+                    <OutputPin SaveString="Dead Man&apos;s Switch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="1434" Visible="true" NoDataField="true"/>
+                </OutputPins>
             </Node>
         </Nodes>
         <Links>

@@ -50,29 +50,40 @@ void DeadMansSwitch::widgetGui(){
     glm::vec2 statusSize(width, ImGui::GetTextLineHeight() * 3.0);
     ImGui::PushFont(Fonts::sansBold15);
 		
-	switch(state){
-		case State::NOT_CONNECTED:
-			backgroundText("Not Connected", statusSize, Colors::blue);
-			break;
-		case State::NOT_PRESSED:
-			backgroundText("Not Pressed", statusSize, Colors::red);
-			break;
-		case State::PRESS_REQUESTED:
-			backgroundText("Press Requested", statusSize, Colors::yellow);
-		{
-			ImDrawList* drawing = ImGui::GetWindowDrawList();
-			glm::vec2 min = ImGui::GetItemRectMin();
-			glm::vec2 max = ImGui::GetItemRectMax();
-			glm::vec2 size = ImGui::GetItemRectSize();
-			float timeoutProgress = timeSincePressRequest_seconds / requestTimeoutDelay->value;
-			max.x -= size.x * timeoutProgress;
-			drawing->AddRectFilled(min, max, ImColor(1.f, 1.f, 1.f, .3f));
+	if(ImGui::IsKeyDown(ImGuiKey_LeftAlt) || ImGui::IsKeyDown(ImGuiKey_RightAlt)){
+		ImVec2 cursor = ImGui::GetCursorPos();
+		ImGui::Checkbox("Bypass", &b_bypassHardware);
+		ImGui::SetCursorPos(cursor);
+		ImGui::Dummy(statusSize);
+	}else{
+		if(b_bypassHardware){
+			backgroundText("BYPASSED", statusSize, Timing::getBlink(0.2) ? Colors::red : Colors::yellow);
+		}else{
+			switch(state){
+				case State::NOT_CONNECTED:
+					backgroundText("Not Connected", statusSize, Colors::blue);
+					break;
+				case State::NOT_PRESSED:
+					backgroundText("Not Pressed", statusSize, Colors::red);
+					break;
+				case State::PRESS_REQUESTED:
+					backgroundText("Press Requested", statusSize, Colors::yellow);
+				{
+					ImDrawList* drawing = ImGui::GetWindowDrawList();
+					glm::vec2 min = ImGui::GetItemRectMin();
+					glm::vec2 max = ImGui::GetItemRectMax();
+					glm::vec2 size = ImGui::GetItemRectSize();
+					float timeoutProgress = timeSincePressRequest_seconds / requestTimeoutDelay->value;
+					max.x -= size.x * timeoutProgress;
+					drawing->AddRectFilled(min, max, ImColor(1.f, 1.f, 1.f, .3f));
+				}
+					break;
+				case State::PRESSED:
+					if(b_shouldKeepPressing) backgroundText("Keep Pressing !", statusSize, Timing::getBlink(1.0 / requestBlinkFrequency->value) ? Colors::green : Colors::yellow);
+					else backgroundText("Pressed", statusSize, Colors::green);
+					break;
+			}
 		}
-			break;
-		case State::PRESSED:
-            if(b_shouldKeepPressing) backgroundText("Keep Pressing !", statusSize, Timing::getBlink(1.0 / requestBlinkFrequency->value) ? Colors::green : Colors::yellow);
-            else backgroundText("Pressed", statusSize, Colors::green);
-			break;
 	}
     
     ImGui::PopFont();

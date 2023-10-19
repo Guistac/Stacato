@@ -53,7 +53,8 @@ void DeadMansSwitch::inputProcess(){
     
 	
 	//update switch state
-	if(*b_switchPressed) state = State::PRESSED;
+	if(b_bypassHardware) state = State::PRESSED;
+	else if(*b_switchPressed) state = State::PRESSED;
 	else if(b_pressRequested) state = State::PRESS_REQUESTED;
 	else state = State::NOT_PRESSED;
 	

@@ -116,6 +116,7 @@ void update(){
 	closingPopups.clear();
 	
 	for(auto openingPopup : openingPopups){
+		if(openingPopup->b_isOpen) continue;
 		openingPopup->b_isOpen = true;
 		openingPopup->onOpen();
 		openPopups.push_back(openingPopup);

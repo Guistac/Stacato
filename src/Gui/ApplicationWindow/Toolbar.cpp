@@ -66,12 +66,6 @@ namespace Stacato::Gui {
 			if(ImGui::Button("Start", buttonSize)) Environnement::start();
 			ImGui::EndDisabled();
 		}
-
-		ImGui::SameLine();
-		
-		ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
-		if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scan();
-		ImGui::EndDisabled();
 		
 		
 		/*
@@ -92,7 +86,7 @@ namespace Stacato::Gui {
 		ImGui::EndGroup();
 		
 		ImGui::PushFont(Fonts::sansRegular12);
-		backgroundText("Environnement", ImVec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
+		backgroundText("System", ImVec2(ImGui::GetItemRectSize().x, labelHeight), ImColor(0.3f, 0.3f, 0.3f, 1.0f));
 		ImGui::PopFont();
 		ImGui::EndGroup();
 		
@@ -112,16 +106,21 @@ namespace Stacato::Gui {
 		else if(EtherCatFieldbus::isInitialized()) etherCatStatusColor = Colors::orange;
 		else etherCatStatusColor = Colors::blue;
 		
-		backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
-		
-		if(ImGui::IsItemHovered()){
-			ImGui::BeginTooltip();
-			if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\nAll devices are operational");
-			else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting.");
-			else if(EtherCatFieldbus::isScanning()) ImGui::Text("EtherCAT Fieldbus is scanning for devices.");
-			else if(EtherCatFieldbus::isInitialized()) ImGui::Text("EtherCAT Fieldbus is initialized and has discovered devices.");
-			else ImGui::Text("EtherCAT Fieldbus is not initialized, no devices are detected.");
-			ImGui::EndTooltip();
+		if(ImGui::IsKeyDown(ImGuiKey_LeftAlt) || ImGui::IsKeyDown(ImGuiKey_RightAlt)){
+			ImGui::BeginDisabled(!EtherCatFieldbus::canScan());
+			if (ImGui::Button("Scan", buttonSize)) EtherCatFieldbus::scan();
+			ImGui::EndDisabled();
+		}else{
+			backgroundText("EtherCAT", buttonSize, etherCatStatusColor);
+			if(ImGui::IsItemHovered()){
+				ImGui::BeginTooltip();
+				if(EtherCatFieldbus::isRunning()) ImGui::Text("EtherCAT Fieldbus is running.\nAll devices are operational");
+				else if(EtherCatFieldbus::isStarting()) ImGui::Text("EtherCAT Fieldbus is starting.");
+				else if(EtherCatFieldbus::isScanning()) ImGui::Text("EtherCAT Fieldbus is scanning for devices.");
+				else if(EtherCatFieldbus::isInitialized()) ImGui::Text("EtherCAT Fieldbus is initialized and has discovered devices.");
+				else ImGui::Text("EtherCAT Fieldbus is not initialized, no devices are detected.");
+				ImGui::EndTooltip();
+			}
 		}
 		
 		for(auto& networkDevice : Environnement::getNetworkDevices()){
