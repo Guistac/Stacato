@@ -55,7 +55,11 @@ void Machine::stateControlGui() {
 	bool readyToEnable = isReady();
 
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if (isEnabled()) {
+	if(b_emergencyStopActive){
+		ImGui::PushStyleColor(ImGuiCol_Button, Timing::getBlink(0.5) ? Colors::red : Colors::yellow);
+		ImGui::Button("E-Stop", buttonSize);
+	}
+	else if (isEnabled()) {
 		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 		ImGui::Button("Machine Enabled", buttonSize);
 	}

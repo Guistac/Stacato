@@ -1,0 +1,24 @@
+<Plot Name="Default Plot">
+    <ManoeuvreList>
+        <Manoeuvre Name="M-0" Description="" Type="Target">
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur A" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.25" EndAcceleration="0.25"/>
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur B" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0.25" EndAcceleration="0.25"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Sequence">
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur A" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.5" End="0.5" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="1.4831690788269043" Time="29.149253845214844" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Multipoint Hoist" MachineUniqueID="1416" Parameter="Moteur B" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0.5" End="0.5" Duration="60" TimeOffset="0" StartAcceleration="0.25" EndAcceleration="0.25">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="1.4741378858171661" Time="32.910447761194028" Velocity="0" InAcceleration="0.25" OutAcceleration="0.25"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+    </ManoeuvreList>
+</Plot>

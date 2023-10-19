@@ -10,6 +10,7 @@ void ATV340::onConnection() {}
 void ATV340::onDisconnection() {
 	motor->state = DeviceState::OFFLINE;
 	gpio->state = DeviceState::OFFLINE;
+	motor->actuatorProcessData.b_isEmergencyStopActive = false;
 }
 
 void ATV340::initialize() {

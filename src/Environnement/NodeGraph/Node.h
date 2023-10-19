@@ -45,7 +45,7 @@ public:
 
 	//pin handling
 	void addNodePin(std::shared_ptr<NodePin> d);
-	void removeIoData(std::shared_ptr<NodePin> d);
+	void removeNodePin(std::shared_ptr<NodePin> d);
 	std::vector<std::shared_ptr<NodePin>>& getInputPins() { return nodeInputPins; }
 	std::vector<std::shared_ptr<NodePin>>& getOutputPins() { return nodeOutputPins; }
 	bool hasInputs() { return !nodeInputPins.empty(); }

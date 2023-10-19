@@ -154,8 +154,8 @@ void VipaBusCoupler_053_1EC01::removeModule(std::shared_ptr<VipaModule> module){
 		}
 	}
 	if(selectedModule == module) selectedModule = nullptr;
-	for(auto& inputPin : module->inputPins) removeIoData(inputPin);
-	for(auto& outputPin : module->outputPins) removeIoData(outputPin);
+	for(auto& inputPin : module->inputPins) removeNodePin(inputPin);
+	for(auto& outputPin : module->outputPins) removeNodePin(outputPin);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	for(int i = 0; i < modules.size(); i++) {

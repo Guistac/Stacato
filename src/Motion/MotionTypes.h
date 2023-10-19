@@ -258,3 +258,14 @@ enum class DeviceState{
 	ENABLED = 5
 };
 
+inline std::string deviceStateToString(DeviceState state){
+	switch(state){
+		case DeviceState::OFFLINE: return "Offline";
+		case DeviceState::NOT_READY: return "Not Ready";
+		case DeviceState::DISABLING: return "Disabling";
+		case DeviceState::READY: return "Ready";
+		case DeviceState::ENABLING: return "Enabling";
+		case DeviceState::ENABLED: return "Enabled";
+	}
+}
+

@@ -141,6 +141,7 @@ void AxisNode::inputProcess(){
 	
 	//handle enable process
 	if(b_isEnabling){
+		axisInterface->state = DeviceState::ENABLING;
 		bool b_allEnabled = true;
 		for(auto actuator : connectedActuatorInterfaces){
 			if(!actuator->isEnabled()){

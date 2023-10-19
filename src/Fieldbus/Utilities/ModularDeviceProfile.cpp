@@ -147,8 +147,8 @@ void ModularDevice::removeModule(std::shared_ptr<DeviceModule> deviceModule){
 		}
 	}
 	if(selectedModule == deviceModule) selectedModule = nullptr;
-	for(auto& inputPin : deviceModule->inputPins) removeIoData(inputPin);
-	for(auto& outputPin : deviceModule->outputPins) removeIoData(outputPin);
+	for(auto& inputPin : deviceModule->inputPins) removeNodePin(inputPin);
+	for(auto& outputPin : deviceModule->outputPins) removeNodePin(outputPin);
 	txPdoAssignement.clear();
 	rxPdoAssignement.clear();
 	for(int i = 0; i < modules.size(); i++) {

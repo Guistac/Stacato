@@ -22,7 +22,7 @@ void Node::addNodePin(std::shared_ptr<NodePin> NodePin) {
 	}
 }
 
-void Node::removeIoData(std::shared_ptr<NodePin> removedIoData) {
+void Node::removeNodePin(std::shared_ptr<NodePin> removedIoData) {
 	if (removedIoData->isInput()) {
 		for (int i = (int)nodeInputPins.size() - 1; i >= 0; i--) {
 			if (nodeInputPins[i] == removedIoData) {

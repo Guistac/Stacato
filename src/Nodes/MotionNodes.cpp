@@ -6,6 +6,7 @@
 
 #include "Machine/Machines/StateMachines/FlipStateMachine.h"
 #include "Machine/Machines/StateMachines/AxisStateMachine.h"
+#include "Machine/Machines/Special/MultipointHoist.h"
 
 #include "Motion/Axis/AxisNode.h"
 
@@ -31,7 +32,8 @@ namespace NodeFactory{
 		allMachineNodes = {
 			new PositionControlledMachine(),
 			new FlipStateMachine(),
-			new AxisStateMachine()
+			new AxisStateMachine(),
+			new MultipointHoist()
 		};
 		
 		allSafetyNodes = {

@@ -39,7 +39,7 @@ bool buttonCross(const char* id, float size) {
 	bool ret;
 	if (size == 0) size = ImGui::GetFrameHeight();
 	
-	ret = ImGui::InvisibleButton(id, ImVec2(size, size));
+	ret = ImGui::Button(id, ImVec2(size, size));
 	ImVec2 min = ImGui::GetItemRectMin();
 	ImVec2 max = ImGui::GetItemRectMax();
 	

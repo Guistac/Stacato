@@ -13,7 +13,15 @@ public:
 	
 	DEFINE_NODE(AxisNode, "Axis", "Axis", Node::Type::AXIS, "")
 	
-	std::shared_ptr<AxisInterface> axisInterface;
+	class AxisInterfaceImplementation : public AxisInterface{
+	public:
+		AxisInterfaceImplementation(std::shared_ptr<AxisNode> node) : parentNode(node){}
+		std::shared_ptr<AxisNode> parentNode;
+		virtual std::string getName() override { return parentNode->getName(); }
+		virtual std::string getStatusString() override { return "..."; }
+	};
+	
+	std::shared_ptr<AxisInterfaceImplementation> axisInterface;
 	
 	std::shared_ptr<NodePin> actuatorPin;
 	std::shared_ptr<NodePin> feedbackPin;

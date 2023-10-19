@@ -12,7 +12,8 @@
 
 
 void AxisNode::initialize(){
-	axisInterface = std::make_shared<AxisInterface>();
+	auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+	axisInterface = std::make_shared<AxisInterfaceImplementation>(thisAxisNode);
 	axisInterface->configuration.homingStateStringCallback = [this]() -> std::string { return getHomingStepString(); };
 	
 	lowerLimitSignal = std::make_shared<bool>(false);
@@ -58,8 +59,8 @@ void AxisNode::initialize(){
 	safetyResetInputPin = std::make_shared<NodePin>(safetyResetInputSignal, NodePin::Direction::NODE_INPUT, "Safety Reset", "SafetyResetInput");
 	
 	
-	
-	axisPin = std::make_shared<NodePin>(axisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
+	std::shared_ptr<AxisInterface> abstractAxisInterface = axisInterface;
+	axisPin = std::make_shared<NodePin>(abstractAxisInterface, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL,
 										"Axis", "Axis");
 	brakeControlSignalPin = std::make_shared<NodePin>(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
 													  "Brake Control", "BrakeControlSignal");

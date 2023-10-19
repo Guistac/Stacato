@@ -2,21 +2,129 @@
 --visualizer script
 local Visualizer = {}
 
-local tournette0
-local tournetteA
-local tournetteB
-local tournetteC
 
-local tournetteAImage = of.Image()
-local tournetteBImage = of.Image()
-local tournetteCImage = of.Image()
-local largeFont = of.TrueTypeFont()
+local lameVideoFace
+local lameVideoLointain
+local periacteLointainJardin
+local periacteLointainCour
+local periacteMilieuJardin
+local periacteMilieuCour
+local periacteFaceJardin
+local periacteFaceCour
 
-local drawingMinX = -6500
-local drawingMinY = -6500
-local drawingMaxX = 6500
-local drawingMaxY = 6500
-local drawingMargin = 500.0
+local Flip_GJ2
+local Flip_GJ1
+local Flip_Gaxe
+local Flip_GC1
+local Flip_GC2
+
+local Flip_EJ3
+local Flip_EJ2
+local Flip_EC2
+local Flip_EC3
+
+local Flip_CJ3
+local Flip_CJ2
+local Flip_CC2
+local Flip_CC3
+
+local Flip_AJ3
+local Flip_AJ2
+local Flip_AJ1
+local Flip_Aaxe
+local Flip_AC1
+local Flip_AC2
+local Flip_AC3
+
+local tournetteAnneau
+local tournetteCentre
+
+local volJardin
+local volCour
+
+local romaine
+
+local flipStates
+local romaineStates
+
+local flipOfflineImage = of.Image()
+local flipClosedImage = of.Image()
+local flipOpeningImage = of.Image()
+local flipOpenImage = of.Image()
+local flipRaisingImage = of.Image()
+local flipRaisedImage = of.Image()
+local tournetteCentreImage = of.Image()
+local tournetteAnneauImage = of.Image()
+local catImage = of.Image()
+
+
+function Visualizer.setup()
+	Logger:warn("Setup")
+
+    flipOfflineImage:load("Images/FlipOffline.png")
+    flipClosedImage:load("Images/FlipClosed.png")
+    flipOpeningImage:load("Images/FlipOpening.png")
+    flipOpenImage:load("Images/FlipOpen.png")
+    flipRaisingImage:load("Images/FlipRaising.png")
+    flipRaisedImage:load("Images/FlipRaised.png")
+    tournetteCentreImage:load("Images/TournetteCentre.png")
+    tournetteAnneauImage:load("Images/TournetteAnneau.png")
+    catImage:load("Images/Cat.png")
+    
+    lameVideoFace =             Environnement.getMachine("Lames Vidéo"):getAnimatable("Face");
+    lameVideoLointain =         Environnement.getMachine("Lames Vidéo"):getAnimatable("Lointain");
+    periacteLointainJardin =    Environnement.getMachine("Périactes Lointain"):getAnimatable("Jardin");
+    periacteLointainCour =      Environnement.getMachine("Périactes Lointain"):getAnimatable("Cour");
+    periacteMilieuJardin =      Environnement.getMachine("Périactes Milieu"):getAnimatable("Jardin");
+    periacteMilieuCour =        Environnement.getMachine("Périactes Milieu"):getAnimatable("Cour");
+    periacteFaceJardin =        Environnement.getMachine("Périactes Face"):getAnimatable("Jardin");
+    periacteFaceCour =          Environnement.getMachine("Périactes Face"):getAnimatable("Cour");
+
+    Flip_GJ2 =  Environnement.getMachine("Flip G-J2"):getAnimatable("State")
+    Flip_GJ1 =  Environnement.getMachine("Flip G-J1"):getAnimatable("State")
+    Flip_Gaxe = Environnement.getMachine("Flip G-Axe"):getAnimatable("State")
+    Flip_GC1 =  Environnement.getMachine("Flip G-C1"):getAnimatable("State")
+    Flip_GC2 =  Environnement.getMachine("Flip G-C2"):getAnimatable("State")
+    Flip_EJ3 =  Environnement.getMachine("Flip E-J3"):getAnimatable("State")
+    Flip_EJ2 =  Environnement.getMachine("Flip E-J2"):getAnimatable("State")
+    Flip_EC2 =  Environnement.getMachine("Flip E-C2"):getAnimatable("State")
+    Flip_EC3 =  Environnement.getMachine("Flip E-C3"):getAnimatable("State")
+    Flip_CJ3 =  Environnement.getMachine("Flip C-J3"):getAnimatable("State")
+    Flip_CJ2 =  Environnement.getMachine("Flip C-J2"):getAnimatable("State")
+    Flip_CC2 =  Environnement.getMachine("Flip C-C2"):getAnimatable("State")
+    Flip_CC3 =  Environnement.getMachine("Flip C-C3"):getAnimatable("State")
+    Flip_AJ3 =  Environnement.getMachine("Flip A-J3"):getAnimatable("State")
+    Flip_AJ2 =  Environnement.getMachine("Flip A-J2"):getAnimatable("State")
+    Flip_AJ1 =  Environnement.getMachine("Flip A-J1"):getAnimatable("State")
+    Flip_Aaxe = Environnement.getMachine("Flip A-Axe"):getAnimatable("State")
+    Flip_AC1 =  Environnement.getMachine("Flip A-C1"):getAnimatable("State")
+    Flip_AC2 =  Environnement.getMachine("Flip A-C2"):getAnimatable("State")
+    Flip_AC3 =  Environnement.getMachine("Flip A-C3"):getAnimatable("State")
+    flipStates = Flip_AC3:getStates()
+
+    tournetteAnneau =   Environnement.getMachine("Tournettes"):getAnimatable("Anneau")
+    tournetteCentre =   Environnement.getMachine("Tournettes"):getAnimatable("Centre")
+
+    volJardin = Environnement.getMachine("Vol Jardin"):getAnimatable("Position")
+    volCour =   Environnement.getMachine("Vol Cour"):getAnimatable("Position")
+
+    romaine =   Environnement.getMachine("Romaine"):getAnimatable("State")
+end
+
+
+--local drawingMinX = -11520
+--local drawingMinY = -8562.5
+--local drawingMaxX = 11520
+--local drawingMaxY = 8562.5
+--local drawingMargin = 500.0
+
+local drawingMinX = -14520
+--local drawingMinY = -10438
+local drawingMinY = -2638
+local drawingMaxX = 14520
+local drawingMaxY = 10712
+local drawingMargin = 200.0
+
 drawingMinX = drawingMinX - drawingMargin
 drawingMinY = drawingMinY - drawingMargin
 drawingMaxX = drawingMaxX + drawingMargin
@@ -24,130 +132,6 @@ drawingMaxY = drawingMaxY + drawingMargin
 local drawingSizeX = drawingMaxX - drawingMinX
 local drawingSizeY = drawingMaxY - drawingMinY
 local aspectRatio = drawingSizeX / drawingSizeY
-
-local largePlatformRadius = 6500
-local largePlatformDiatemer = largePlatformRadius * 2
-local smallPlatformRadius = 2850
-local smallPlatformDiameter = smallPlatformRadius * 2
-local smallPlatformDistance = 3400
-local edgeLineThickness = 50
-
-
-function Visualizer.setup()
-	Logger:warn("Setup")
-    tournetteAImage:load("tA.png")
-    tournetteBImage:load("tB.png")
-    tournetteCImage:load("tC.png")
-    tournette0 = Environnement.getMachine("T-0"):getAnimatable("Position");
-    tournetteA = Environnement.getMachine("T-A"):getAnimatable("Position");
-    tournetteB = Environnement.getMachine("T-B"):getAnimatable("Position");
-    tournetteC = Environnement.getMachine("T-C"):getAnimatable("Position");
-    largeFont:load("HelveticaBold.otf", 32)
-end
-
-
-
-function drawTurntable(animatable, image)
-
-    local position = animatable:getActualValue().Position
-    local brakingPosition = animatable:getBrakingPosition()
-
-    time = of.getElapsedTimef()
-    of.pushMatrix()
-    of.rotateZDeg(position)
-
-    of.fill()
-    of.setColor(127)
-    of.drawCircle(0,0,smallPlatformRadius)
-    of.setColor(0)
-    of.drawCircle(0,0,smallPlatformRadius-edgeLineThickness)
-    of.setColor(255)
-    image:draw(0, 0, smallPlatformDiameter, smallPlatformDiameter)
-    of.popMatrix()
-end
-
-function drawCenteredString(drawingFont, string, x, y)
-    of.pushMatrix()
-    of.scale(30)
-    local textWidth = drawingFont:stringWidth(string)
-    local textHeight = drawingFont:stringHeight(string)
-    drawingFont:drawString(string, x-textWidth*.5, y+textHeight*.5)
-    of.popMatrix()
-end
-
-
-function Visualizer.draw()
-
-    local canvasWidth, canvasHeight = Canvas.getSize()
-    local canvasAspectRatio = canvasWidth / canvasHeight
-    local scaling, translationX, translationY
-    if aspectRatio < canvasAspectRatio then
-        scaling = canvasHeight / drawingSizeY
-        local offsetX = (canvasWidth - drawingSizeX * scaling) / 2.0
-        translationX = -drawingMinX + offsetX / scaling
-        translationY = -drawingMinY
-    else
-        scaling = canvasWidth / drawingSizeX
-        local offsetY = (canvasHeight - drawingSizeY * scaling) / 2.0
-        translationX = -drawingMinX
-        translationY = -drawingMinY + offsetY / scaling
-    end
-
-    of.pushMatrix()
-    of.scale(scaling)
-    of.translate(translationX, translationY)
-
-    time = of.getElapsedTimef()
-    of.background(0)
-
-    --begin drawing in mm coordinates here
-
-    of.setCircleResolution(128)
-    of.setRectMode(of.RECTMODE_CENTER)
-
-    of.setColor(127)
-    of.drawCircle(0,0,largePlatformRadius)
-    of.setColor(32)
-    of.drawCircle(0,0,largePlatformRadius-edgeLineThickness)
-
-    local position = tournette0:getActualValue().Position
-    local brakingPosition = tournette0:getBrakingPosition()
-    of.pushMatrix()
-    of.rotateZDeg(position)
-
-    local TaPosition = of.Vec2f(0, smallPlatformDistance):getRotated(0)
-    local TbPosition = of.Vec2f(0, smallPlatformDistance):getRotated(240)
-    local TcPosition = of.Vec2f(0, smallPlatformDistance):getRotated(120)
-
-    of.pushMatrix()
-    of.translate(TaPosition.x, TaPosition.y)
-    drawTurntable(tournetteA, tournetteAImage)
-    of.rotateZDeg(-position)
-    drawCenteredString(largeFont, "A", 0, 0)
-    of.popMatrix()
-
-    of.pushMatrix()
-    of.translate(TbPosition.x, TbPosition.y)
-    drawTurntable(tournetteB, tournetteBImage)
-    of.rotateZDeg(-position)
-    drawCenteredString(largeFont, "B", 0, 0)
-    of.popMatrix()
-
-    of.pushMatrix()
-    of.translate(TcPosition.x, TcPosition.y)
-    drawTurntable(tournetteC, tournetteCImage)
-    of.rotateZDeg(-position)
-    drawCenteredString(largeFont, "C", 0, 0)
-    of.popMatrix()
-
-    of.popMatrix() --T0 rotation matrix
-
-    of.popMatrix() --Crop Zoom Matrix
-
-end
-
-
---[[
 
 
 
@@ -296,6 +280,35 @@ function drawTournettes()
 end
 
 
+
+function Visualizer.draw()
+    local canvasWidth, canvasHeight = Canvas.getSize()
+    local canvasAspectRatio = canvasWidth / canvasHeight
+    local scaling, translationX, translationY
+    if aspectRatio < canvasAspectRatio then
+        scaling = canvasHeight / drawingSizeY
+        local offsetX = (canvasWidth - drawingSizeX * scaling) / 2.0
+        translationX = -drawingMinX + offsetX / scaling
+        translationY = -drawingMinY
+    else
+        scaling = canvasWidth / drawingSizeX
+        local offsetY = (canvasHeight - drawingSizeY * scaling) / 2.0
+        translationX = -drawingMinX
+        translationY = -drawingMinY + offsetY / scaling
+    end
+
+    of.background(0)
+    of.pushMatrix()
+    of.scale(scaling)
+    of.translate(translationX, translationY)
+
+    drawStage()
+
+    of.popMatrix()
+
+end
+
+
 function drawStage()
 
     of.setColor(64)
@@ -377,8 +390,6 @@ function drawStage()
     drawLames(4462, 11200, lameVideoFace)
 end
 
-
---]]
 
 function Visualizer.exit()
     Logger:warn("Exit")
