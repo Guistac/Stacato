@@ -7,7 +7,11 @@
 
 void MicroFlex_e190::onConnection() {}
 
-void MicroFlex_e190::onDisconnection() {}
+void MicroFlex_e190::onDisconnection() {
+	gpio->state = DeviceState::OFFLINE;
+	servo->state = DeviceState::OFFLINE;
+	servo->actuatorProcessData.b_isEmergencyStopActive = false;
+}
 
 void MicroFlex_e190::initialize() {
 	

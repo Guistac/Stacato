@@ -12,6 +12,7 @@ void Lexium32::onDisconnection() {
 	requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
 	servoMotor->state = DeviceState::OFFLINE;
 	gpioDevice->state = DeviceState::OFFLINE;
+	servoMotor->actuatorProcessData.b_isEmergencyStopActive = false;
 }
 
 void Lexium32::initialize() {
