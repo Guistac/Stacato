@@ -8,6 +8,11 @@
 class FeedbackMapping;
 class ActuatorMapping;
 
+
+
+
+
+
 class AxisNode : public Node {
 public:
 	
@@ -390,4 +395,66 @@ public:
 	std::shared_ptr<ActuatorInterface> actuatorInterface;
 	int interfacePinID = 0;
 	std::shared_ptr<AxisNode> axisNode;
+};
+
+
+
+class FeedbackMappingNew{
+public:
+	
+	FeedbackMappingNew(){
+		feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
+		//feedbackUnitsPerAxisUnit->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
+	}
+	
+	std::shared_ptr<NodePin> feedbackPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Feedback");
+	
+	bool isFeedbackConnected(){ return feedbackPin->isConnected(); }
+	std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface(){ return feedbackPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
+	
+	NumberParam<double> feedbackUnitsPerAxisUnit;
+	
+};
+
+
+
+class ActuatorMappingNew : public FeedbackMappingNew{
+public:
+	
+	ActuatorMappingNew(){
+		controlModeParameter = OptionParameter::make2(actuatorMode_Position, {
+															&actuatorMode_None,
+															&actuatorMode_Position,
+															&actuatorMode_Velocity,
+															&actuatorMode_Force
+														}, "Control Mode", "ControlMode");
+		
+		//controlModeParameter->addEditCallback([this](){ controlMode = (ActuatorControlMode)controlModeParameter->value; });
+		//controlModeParameter->onEdit();
+		//controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
+		
+		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
+		//actuatorUnitsPerAxisUnits->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
+	}
+	
+	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
+	
+	bool isActuatorConnected(){ return actuatorPin->isConnected(); }
+	std::shared_ptr<ActuatorInterface> getActuatorInterface(){ return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorInterface>(); }
+	
+	enum ActuatorControlMode{
+		NO_CONTROL = 0,
+		POSITION_CONTROL = 1,
+		VELOCITY_CONTROL = 2,
+		FORCE_CONTROL = 3
+	}controlMode = ActuatorControlMode::NO_CONTROL;
+	OptionParameter::Option actuatorMode_None = 	OptionParameter::Option(0, "Disabled", "Disabled");
+	OptionParameter::Option actuatorMode_Position = OptionParameter::Option(1, "Position Control", "PositionControl");
+	OptionParameter::Option actuatorMode_Velocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
+	OptionParameter::Option actuatorMode_Force = 	OptionParameter::Option(3, "Force Control", "ForceControl");
+	
+	OptionParam controlModeParameter;
+	NumberParam<double> actuatorUnitsPerAxisUnits;
+	double actuatorPositionOffset = 0.0;
+	
 };
