@@ -253,6 +253,26 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 		actuatorMapping->save(actuatorMappingXML);
 	}
 	
+	XMLElement* selectedPositionFeedbackMappingXML = xml->InsertNewChildElement("SelectedPositionFeedbackMapping");
+	if(selectedPositionFeedbackMapping) {
+		if(auto actuatorMapping = std::dynamic_pointer_cast<ActuatorMapping>(selectedPositionFeedbackMapping)){
+			selectedPositionFeedbackMappingXML->SetAttribute("PinSaveString", actuatorMapping->actuatorPin->saveString);
+		}
+		else {
+			selectedPositionFeedbackMappingXML->SetAttribute("PinSaveString", selectedPositionFeedbackMapping->feedbackPin->saveString);
+		}
+	}
+	
+	XMLElement* selectedVelocityFeedbackMappingXML = xml->InsertNewChildElement("SelectedVelocityFeedbackMapping");
+	if(selectedVelocityFeedbackMapping) {
+		if(auto actuatorMapping = std::dynamic_pointer_cast<ActuatorMapping>(selectedVelocityFeedbackMapping)){
+			selectedVelocityFeedbackMappingXML->SetAttribute("PinSaveString", actuatorMapping->actuatorPin->saveString);
+		}
+		else{
+			selectedVelocityFeedbackMappingXML->SetAttribute("PinSaveString", selectedVelocityFeedbackMapping->feedbackPin->saveString);
+		}
+	}
+	
 	useExternalLoadSensor_Param->save(xml);
 	forceSensorMultiplier_Param->save(xml);
 	forceSensorOffset_Param->save(xml);
@@ -315,6 +335,38 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 				actuatorMapping->load(actuatorMappingXML);
 				addActuatorMapping(actuatorMapping);
 				actuatorMappingXML = actuatorMappingXML->NextSiblingElement("ActuatorMapping");
+			}
+		}
+	}
+	
+	if(XMLElement* selectedPositionFeedbackMappingXML = xml->FirstChildElement("SelectedPositionFeedbackMapping")){
+		const char* pinSaveString;
+		if(selectedPositionFeedbackMappingXML->QueryAttribute("PinSaveString", &pinSaveString) == XML_SUCCESS){
+			for(auto feedbackMapping : feedbackMappings){
+				if(strcmp(feedbackMapping->feedbackPin->saveString, pinSaveString) == 0){
+					selectedPositionFeedbackMapping = feedbackMapping;
+				}
+			}
+			for(auto actuatorMapping : actuatorMappings){
+				if(strcmp(actuatorMapping->actuatorPin->saveString, pinSaveString) == 0){
+					selectedPositionFeedbackMapping = actuatorMapping;
+				}
+			}
+		}
+	}
+	
+	if(XMLElement* selectedVelocityFeedbackMappingXML = xml->FirstChildElement("SelectedVelocityFeedbackMapping")){
+		const char* pinSaveString;
+		if(selectedVelocityFeedbackMappingXML->QueryAttribute("PinSaveString", &pinSaveString) == XML_SUCCESS){
+			for(auto feedbackMapping : feedbackMappings){
+				if(strcmp(feedbackMapping->feedbackPin->saveString, pinSaveString) == 0){
+					selectedVelocityFeedbackMapping = feedbackMapping;
+				}
+			}
+			for(auto actuatorMapping : actuatorMappings){
+				if(strcmp(actuatorMapping->actuatorPin->saveString, pinSaveString) == 0){
+					selectedVelocityFeedbackMapping = actuatorMapping;
+				}
 			}
 		}
 	}

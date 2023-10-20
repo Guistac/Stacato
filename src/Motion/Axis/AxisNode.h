@@ -238,6 +238,9 @@ private:
 			}
 		}
 		for(int i = 0; i < actuatorMappings.size(); i++) snprintf(actuatorMappings[i]->actuatorPin->saveString, 32, "ActuatorDevice%i", i);
+		if(selectedPositionFeedbackMapping == actuatorMapping) selectedPositionFeedbackMapping = nullptr;
+		if(selectedVelocityFeedbackMapping == actuatorMapping) selectedVelocityFeedbackMapping = nullptr;
+		updateConnectedModules();
 	}
 	void addNewFeedbackMapping(){
 		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
@@ -262,7 +265,7 @@ private:
 		for(int i = 0; i < feedbackMappings.size(); i++) snprintf(feedbackMappings[i]->feedbackPin->saveString, 32, "FeedbackDevice%i", i);
 		if(selectedPositionFeedbackMapping == feedbackMapping) selectedPositionFeedbackMapping = nullptr;
 		if(selectedVelocityFeedbackMapping == feedbackMapping) selectedVelocityFeedbackMapping = nullptr;
-		updateAxisConfiguration();
+		updateConnectedModules();
 	}
 	
 	

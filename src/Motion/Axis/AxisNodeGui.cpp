@@ -509,10 +509,10 @@ void AxisNode::motionFeedbackSettingsGui(){
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Position Feedback");
 	ImGui::PopFont();
-	const char* selectedPositionFeedbackMappingName;
+	std::string selectedPositionFeedbackMappingName;
 	if(selectedPositionFeedbackMapping == nullptr) selectedPositionFeedbackMappingName = "None";
-	else selectedPositionFeedbackMappingName = selectedPositionFeedbackMapping->getName().c_str();
-	if(ImGui::BeginCombo("##PositionFeedbackMapping", selectedPositionFeedbackMappingName)){
+	else selectedPositionFeedbackMappingName = selectedPositionFeedbackMapping->getName();
+	if(ImGui::BeginCombo("##PositionFeedbackMapping", selectedPositionFeedbackMappingName.c_str())){
 		for(auto feedbackMapping : feedbackMappings){
 			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsPosition());
 			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedPositionFeedbackMapping)){
@@ -544,10 +544,10 @@ void AxisNode::motionFeedbackSettingsGui(){
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Velocity Feedback");
 	ImGui::PopFont();
-	const char* selectedVelocityFeedbackMappingName;
+	std::string selectedVelocityFeedbackMappingName;
 	if(selectedVelocityFeedbackMapping == nullptr) selectedVelocityFeedbackMappingName = "None";
-	else selectedVelocityFeedbackMappingName = selectedVelocityFeedbackMapping->getName().c_str();
-	if(ImGui::BeginCombo("##VelocityFeedbackMapping", selectedVelocityFeedbackMappingName)){
+	else selectedVelocityFeedbackMappingName = selectedVelocityFeedbackMapping->getName();
+	if(ImGui::BeginCombo("##VelocityFeedbackMapping", selectedVelocityFeedbackMappingName.c_str())){
 		for(auto feedbackMapping : feedbackMappings){
 			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsVelocity());
 			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedVelocityFeedbackMapping)){
@@ -742,9 +742,8 @@ void AxisNode::homingSettingsGui(){
 	maxHomingDistanceFine->gui(Fonts::sansBold15);
 }
 
-
 void AxisNode::devicesTab(){
-	/*
+	
 	if(ImGui::BeginTabItem("Devices")){
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -793,7 +792,7 @@ void AxisNode::devicesTab(){
 		
 		ImGui::EndTabItem();
 	}
-	*/
+
 }
 
 void AxisNode::axisInterfaceTab(){

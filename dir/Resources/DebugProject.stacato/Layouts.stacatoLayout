@@ -5,6 +5,7 @@
             <ComponentName Value="New Layout"/>
             <OpenWindows>
                 <Window Name="Node Editor"/>
+                <Window Name="Log"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -144,7 +145,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Starting Environnement]
-Pos=549,455
+Pos=713,558
 Size=630,140
 Collapsed=0
 
@@ -222,7 +223,7 @@ Collapsed=0
 
 [Window][Node Editor]
 Pos=0,29
-Size=2056,1144
+Size=1432,1144
 Collapsed=0
 DockId=0x0000000B,0
 
@@ -248,8 +249,8 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=1310,29
-Size=746,1144
+Pos=1434,29
+Size=622,1144
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -419,7 +420,7 @@ Column 5  Weight=-1.0000
 
 [Docking][Data]
 DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Split=X Selected=0xAE98FAB7
-  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1308,1144 Split=X
+  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1432,1144 Split=X
     DockNode        ID=0x00000001 Parent=0x0000000D SizeRef=1287,0 Split=X Selected=0xAE98FAB7
       DockNode      ID=0x00000006 Parent=0x00000001 SizeRef=976,1023 Split=X Selected=0xFCCC3921
         DockNode    ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
@@ -428,7 +429,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Spl
           DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
       DockNode      ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
     DockNode        ID=0x00000002 Parent=0x0000000D SizeRef=439,938 HiddenTabBar=1 Selected=0x64F50EE5
-  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=746,1144 Split=Y Selected=0x64F50EE5
+  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=622,1144 Split=Y Selected=0x64F50EE5
     DockNode        ID=0x0000000C Parent=0x0000000E SizeRef=1025,573 HiddenTabBar=1 Selected=0x64F50EE5
     DockNode        ID=0x0000000F Parent=0x0000000E SizeRef=1025,569 HiddenTabBar=1 Selected=0xB00214C9
 

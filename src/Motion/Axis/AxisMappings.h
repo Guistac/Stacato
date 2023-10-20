@@ -45,7 +45,7 @@ public:
 	std::shared_ptr<ActuatorInterface> getActuatorInterface(){ return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorInterface>(); }
 	
 	virtual bool isFeedbackConnected() override { return actuatorPin->isConnected(); }
-	virtual std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface() override { return feedbackPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
+	virtual std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface() override { return actuatorPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
 	
 	enum ActuatorControlMode{
 		NO_CONTROL = 0,
