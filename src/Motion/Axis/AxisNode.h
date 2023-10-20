@@ -1,16 +1,11 @@
 #pragma once
 
+#include "AxisMappings.h"
+
 #include "Environnement/NodeGraph/Node.h"
 #include "Motion/Interfaces.h"
 #include "Project/Editor/Parameter.h"
 #include "Motion/Curve/Profile.h"
-
-class FeedbackMapping;
-class ActuatorMapping;
-
-
-
-
 
 
 class AxisNode : public Node {
@@ -25,11 +20,8 @@ public:
 		virtual std::string getName() override { return parentNode->getName(); }
 		virtual std::string getStatusString() override { return "..."; }
 	};
-	
 	std::shared_ptr<AxisInterfaceImplementation> axisInterface;
 	
-	std::shared_ptr<NodePin> actuatorPin;
-	std::shared_ptr<NodePin> feedbackPin;
 	std::shared_ptr<NodePin> gpioPin;
 	std::shared_ptr<NodePin> lowerLimitSignalPin;
 	std::shared_ptr<NodePin> upperLimitSignalPin;
@@ -218,13 +210,60 @@ private:
 	
 	//——— Connected Device Interfaces
 	std::vector<std::shared_ptr<DeviceInterface>> connectedDeviceInterfaces;
-	std::vector<std::shared_ptr<ActuatorInterface>> connectedActuatorInterfaces;
-	std::vector<std::shared_ptr<MotionFeedbackInterface>> connectedFeedbackInteraces;
 	std::vector<std::shared_ptr<GpioInterface>> connectedGpioInterfaces;
-	std::shared_ptr<FeedbackMapping> positionFeedbackMapping = nullptr;
-	std::shared_ptr<FeedbackMapping> velocityFeedbackMapping = nullptr;
-	std::vector<std::shared_ptr<ActuatorMapping>> actuatorMappings;
+	std::vector<std::shared_ptr<ActuatorMapping>> actuatorMappings = {};
+	std::vector<std::shared_ptr<FeedbackMapping>> feedbackMappings = {};
+	std::shared_ptr<FeedbackMapping> selectedPositionFeedbackMapping = nullptr;
+	std::shared_ptr<FeedbackMapping> selectedVelocityFeedbackMapping = nullptr;
 	
+	
+	void addNewActuatorMapping(){
+		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+		auto newMapping = std::make_shared<ActuatorMapping>(thisAxisNode);
+		snprintf(newMapping->actuatorPin->displayString, 32, "Actuator Device %i", (int)actuatorMappings.size());
+		snprintf(newMapping->actuatorPin->saveString, 32, "ActuatorDevice%i", (int)actuatorMappings.size());
+		addActuatorMapping(newMapping);
+	}
+	void addActuatorMapping(std::shared_ptr<ActuatorMapping> actuatorMapping){
+		actuatorMappings.push_back(actuatorMapping);
+		addNodePin(actuatorMapping->actuatorPin);
+		updateAxisConfiguration();
+	}
+	void removeActuatorMapping(std::shared_ptr<ActuatorMapping> actuatorMapping){
+		for(int i = 0; i < actuatorMappings.size(); i++){
+			if(actuatorMappings[i] == actuatorMapping){
+				actuatorMappings.erase(actuatorMappings.begin() + i);
+				removeNodePin(actuatorMapping->actuatorPin);
+				break;
+			}
+		}
+		for(int i = 0; i < actuatorMappings.size(); i++) snprintf(actuatorMappings[i]->actuatorPin->saveString, 32, "ActuatorDevice%i", i);
+	}
+	void addNewFeedbackMapping(){
+		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
+		auto newMapping = std::make_shared<FeedbackMapping>(thisAxisNode);
+		snprintf(newMapping->feedbackPin->displayString, 32, "Feedback Device %i", (int)feedbackMappings.size());
+		snprintf(newMapping->feedbackPin->saveString, 32, "FeedbackDevice%i", (int)feedbackMappings.size());
+		addFeedbackMapping(newMapping);
+	}
+	void addFeedbackMapping(std::shared_ptr<FeedbackMapping> feedbackMapping){
+		feedbackMappings.push_back(feedbackMapping);
+		addNodePin(feedbackMapping->feedbackPin);
+		updateAxisConfiguration();
+	}
+	void removeFeedbackMapping(std::shared_ptr<FeedbackMapping> feedbackMapping){
+		for(int i = 0; i < feedbackMappings.size(); i++){
+			if(feedbackMappings[i] == feedbackMapping){
+				feedbackMappings.erase(feedbackMappings.begin() + i);
+				removeNodePin(feedbackMapping->feedbackPin);
+				break;
+			}
+		}
+		for(int i = 0; i < feedbackMappings.size(); i++) snprintf(feedbackMappings[i]->feedbackPin->saveString, 32, "FeedbackDevice%i", i);
+		if(selectedPositionFeedbackMapping == feedbackMapping) selectedPositionFeedbackMapping = nullptr;
+		if(selectedVelocityFeedbackMapping == feedbackMapping) selectedVelocityFeedbackMapping = nullptr;
+		updateAxisConfiguration();
+	}
 	
 	
 	
@@ -322,139 +361,5 @@ private:
 	float manualVelocityEntry = 0.0;
 	float manualAccelerationEntry = 0.0;
 	float manualTimeEntry = 0.0;
-	
-};
-
-
-
-
-
-//Feedback
-class FeedbackMapping{
-public:
-	FeedbackMapping(std::shared_ptr<NodePin> interfacePin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
-		feedbackInterface = interfacePin->getSharedPointer<MotionFeedbackInterface>();
-		interfacePinID = interfacePin->getUniqueID();
-		feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
-		
-		feedbackUnitsPerAxisUnit->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
-	}
-	std::shared_ptr<MotionFeedbackInterface> feedbackInterface;
-	NumberParam<double> feedbackUnitsPerAxisUnit;
-	int interfacePinID = 0;
-	std::shared_ptr<AxisNode> axisNode;
-};
-
-//Actuators
-class ActuatorMapping{
-public:
-	ActuatorMapping(std::shared_ptr<NodePin> actuatorPin, std::shared_ptr<AxisNode> axisNode_) : axisNode(axisNode_) {
-		actuatorInterface = actuatorPin->getSharedPointer<ActuatorInterface>();
-		interfacePinID = actuatorPin->getUniqueID();
-
-		auto* defaultControlMode = &actuatorMode_None;
-		if(actuatorInterface->supportsPositionControl()) defaultControlMode = &actuatorMode_Position;
-		else if(actuatorInterface->supportsVelocityControl()) defaultControlMode = &actuatorMode_Velocity;
-		else if(actuatorInterface->supportsForceControl()) defaultControlMode = &actuatorMode_Force;
-		if(!actuatorInterface->supportsPositionControl()) actuatorMode_Position.disable();
-		if(!actuatorInterface->supportsVelocityControl()) actuatorMode_Velocity.disable();
-		if(!actuatorInterface->supportsForceControl()) actuatorMode_Force.disable();
-		
-		controlModeParameter = OptionParameter::make2(*defaultControlMode, {
-															&actuatorMode_None,
-															&actuatorMode_Position,
-															&actuatorMode_Velocity,
-															&actuatorMode_Force
-														}, "Control Mode", "ControlMode");
-		
-		controlModeParameter->addEditCallback([this](){
-			controlMode = (ActuatorControlMode)controlModeParameter->value;
-		});
-		controlModeParameter->onEdit();
-		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
-		
-		actuatorUnitsPerAxisUnits->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
-		controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
-	}
-	
-	enum ActuatorControlMode{
-		NO_CONTROL = 0,
-		POSITION_CONTROL = 1,
-		VELOCITY_CONTROL = 2,
-		FORCE_CONTROL = 3
-	}controlMode = ActuatorControlMode::NO_CONTROL;
-	OptionParameter::Option actuatorMode_None = 	OptionParameter::Option(0, "Disabled", "Disabled");
-	OptionParameter::Option actuatorMode_Position = OptionParameter::Option(1, "Position Control", "PositionControl");
-	OptionParameter::Option actuatorMode_Velocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
-	OptionParameter::Option actuatorMode_Force = 	OptionParameter::Option(3, "Force Control", "ForceControl");
-	OptionParam controlModeParameter;
-	
-	NumberParam<double> actuatorUnitsPerAxisUnits;
-	
-	double actuatorPositionOffset = 0.0;
-	std::shared_ptr<ActuatorInterface> actuatorInterface;
-	int interfacePinID = 0;
-	std::shared_ptr<AxisNode> axisNode;
-};
-
-
-
-class FeedbackMappingNew{
-public:
-	
-	FeedbackMappingNew(){
-		feedbackUnitsPerAxisUnit = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
-		//feedbackUnitsPerAxisUnit->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
-	}
-	
-	std::shared_ptr<NodePin> feedbackPin = std::make_shared<NodePin>(NodePin::DataType::MOTIONFEEDBACK_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Feedback");
-	
-	bool isFeedbackConnected(){ return feedbackPin->isConnected(); }
-	std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface(){ return feedbackPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
-	
-	NumberParam<double> feedbackUnitsPerAxisUnit;
-	
-};
-
-
-
-class ActuatorMappingNew : public FeedbackMappingNew{
-public:
-	
-	ActuatorMappingNew(){
-		controlModeParameter = OptionParameter::make2(actuatorMode_Position, {
-															&actuatorMode_None,
-															&actuatorMode_Position,
-															&actuatorMode_Velocity,
-															&actuatorMode_Force
-														}, "Control Mode", "ControlMode");
-		
-		//controlModeParameter->addEditCallback([this](){ controlMode = (ActuatorControlMode)controlModeParameter->value; });
-		//controlModeParameter->onEdit();
-		//controlModeParameter->addEditCallback([this](){ axisNode->updateControlMode(); });
-		
-		actuatorUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Actuator units per axis units", "UnitConversion");
-		//actuatorUnitsPerAxisUnits->addEditCallback([this](){ axisNode->updateAxisConfiguration(); });
-	}
-	
-	std::shared_ptr<NodePin> actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Actuator");
-	
-	bool isActuatorConnected(){ return actuatorPin->isConnected(); }
-	std::shared_ptr<ActuatorInterface> getActuatorInterface(){ return actuatorPin->getConnectedPin()->getSharedPointer<ActuatorInterface>(); }
-	
-	enum ActuatorControlMode{
-		NO_CONTROL = 0,
-		POSITION_CONTROL = 1,
-		VELOCITY_CONTROL = 2,
-		FORCE_CONTROL = 3
-	}controlMode = ActuatorControlMode::NO_CONTROL;
-	OptionParameter::Option actuatorMode_None = 	OptionParameter::Option(0, "Disabled", "Disabled");
-	OptionParameter::Option actuatorMode_Position = OptionParameter::Option(1, "Position Control", "PositionControl");
-	OptionParameter::Option actuatorMode_Velocity = OptionParameter::Option(2, "Velocity Control", "VelocityControl");
-	OptionParameter::Option actuatorMode_Force = 	OptionParameter::Option(3, "Force Control", "ForceControl");
-	
-	OptionParam controlModeParameter;
-	NumberParam<double> actuatorUnitsPerAxisUnits;
-	double actuatorPositionOffset = 0.0;
 	
 };

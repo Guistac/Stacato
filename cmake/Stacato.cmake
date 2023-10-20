@@ -354,6 +354,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisNodeProcess.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisNodeHoming.cpp
     ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisNodeGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisMappings.h
+    ${STACATO_SOURCE_DIRECTORY}/Motion/Axis/AxisMappings.cpp
 
     #========================== SAFETY NODES ======================
 

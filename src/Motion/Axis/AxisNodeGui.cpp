@@ -18,6 +18,7 @@ void AxisNode::nodeSpecificGui(){
 }
 
 void AxisNode::controlTab(){
+	
 	if(ImGui::BeginTabItem("Control")){
 		
 		
@@ -259,7 +260,7 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 			std::ostringstream positionString;
 			positionString << std::fixed << std::setprecision(3)
-			<< positionFeedbackMapping->feedbackInterface->getPosition() / positionFeedbackMapping->feedbackUnitsPerAxisUnit->value
+			<< selectedPositionFeedbackMapping->getFeedbackInterface()->getPosition() / selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->value
 			<< " u";
 			
 			
@@ -292,7 +293,7 @@ void AxisNode::controlTab(){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Velocity Feedback");
 			ImGui::PopFont();
-			double vel = velocityFeedbackMapping->feedbackInterface->getVelocity() / velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+			double vel = selectedVelocityFeedbackMapping->getFeedbackInterface()->getVelocity() / selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->value;
 			std::ostringstream velocityString;
 			velocityString << std::fixed << std::setprecision(3) << vel << " u/s";
 			ImGui::ProgressBar(std::abs(axisInterface->getVelocityNormalizedToLimits()), progressBarSize, velocityString.str().c_str());
@@ -308,7 +309,8 @@ void AxisNode::controlTab(){
 			ImGui::ProgressBar(axisEffort, progressBarSize, axisEffortString.str().c_str());
 			
 			for(int i = 0; i < actuatorMappings.size(); i++){
-				auto actuator = actuatorMappings[i]->actuatorInterface;
+				if(!actuatorMappings[i]->isActuatorConnected()) continue;
+				auto actuator = actuatorMappings[i]->getActuatorInterface();
 				double actuatorEffort = actuator->getEffort();
 				std::ostringstream actuatorEffortString;
 				actuatorEffortString << actuator->getName() << " : " << std::fixed << std::setprecision(1) << actuatorEffort * 100.0 << "%";
@@ -329,13 +331,13 @@ void AxisNode::controlTab(){
 			ImGui::ProgressBar(forceProgress, progressBarSize, forceProgressString.c_str());
 		}
 		
-		if(positionFeedbackMapping){
+		if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
 			ImGui::PushFont(Fonts::sansBold15);
 			ImGui::Text("Position feedback working range");
 			ImGui::PopFont();
 			
-			auto feedback = positionFeedbackMapping->feedbackInterface;
-			double fbRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
+			auto feedback = selectedPositionFeedbackMapping->getFeedbackInterface();
+			double fbRatio = selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->value;
 			double wrMin = feedback->getPositionLowerWorkingRangeBound() / fbRatio;
 			double wrMax = feedback->getPositionUpperWorkingRangeBound() / fbRatio;
 			double pos = axisInterface->getPositionActual();
@@ -376,21 +378,10 @@ void AxisNode::controlTab(){
 			canvas->AddLine(ImVec2(min.x + size.x * minErrorNormalized, min.y),
 							ImVec2(min.x + size.x * minErrorNormalized, max.y), ImColor(Colors::white));
 		}
-		/*
-		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
-		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL){
-			ImGui::PushFont(Fonts::sansBold15);
-			ImGui::Text("Velocity Following Error");
-			ImGui::PopFont();
-			std::ostringstream velocityErrorString;
-			velocityErrorString << std::fixed << std::setprecision(4) << velocityFollowingError << " u/s";
-			double errorNormalized = std::abs(velocityFollowingError / velocityLoop_maxError->value);
-			ImGui::ProgressBar(errorNormalized, progressBarSize, velocityErrorString.str().c_str());
-		}
-		*/
 		
 		ImGui::EndTabItem();
 	}
+
 }
 
 void AxisNode::configurationTab(){
@@ -404,6 +395,13 @@ void AxisNode::configurationTab(){
 			controlModeParameter->gui(Fonts::sansBold15);
 			limitSignalTypeParameter->gui(Fonts::sansBold15);
 		}else ImGui::PopFont();
+	
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		if(ImGui::CollapsingHeader("Actuators")){
+			ImGui::PopFont();
+			actuatorControlSettingsGui();
+		}else ImGui::PopFont();
 		
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -413,11 +411,6 @@ void AxisNode::configurationTab(){
 		}else ImGui::PopFont();
 		
 		
-		ImGui::PushFont(Fonts::sansBold20);
-		if(ImGui::CollapsingHeader("Actuator Control Modes")){
-			ImGui::PopFont();
-			actuatorControlSettingsGui();
-		}else ImGui::PopFont();
 		
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Limits")){
@@ -450,75 +443,135 @@ void AxisNode::configurationTab(){
 }
 
 void AxisNode::motionFeedbackSettingsGui(){
+	
+	if(ImGui::Button("Add Feedback Mapping")) addNewFeedbackMapping();
+	
+	
+	std::shared_ptr<FeedbackMapping> removedMapping = nullptr;
+	for(int i = 0; i < feedbackMappings.size(); i++){
+		
+		ImGui::Separator();
+		
+		ImGui::PushID(i);
+		auto feedbackMapping = feedbackMappings[i];
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		if(buttonCross("##remove")) removedMapping = feedbackMapping;
+		ImGui::SameLine();
+		ImGui::Text("%s :", feedbackMapping->feedbackPin->displayString);
+		ImGui::SameLine();
+		if(!feedbackMapping->isFeedbackConnected()) ImGui::TextColored(Colors::red, "Not Connected");
+		else ImGui::Text("%s", feedbackMapping->getName().c_str());
+		ImGui::PopFont();
+		
+		if(feedbackMapping->isFeedbackConnected()){
+			auto feedbackDevice = feedbackMapping->getFeedbackInterface();
+			if(ImGui::BeginTable("##feedbackProperties", 2, ImGuiTableFlags_Borders)){
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Position Feedback");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", feedbackDevice->supportsPosition() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Velocity Feedback");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", feedbackDevice->supportsVelocity() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Position Working Range Min");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", feedbackDevice->getPositionLowerWorkingRangeBound(), feedbackDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Position Working Range Max");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", feedbackDevice->getPositionUpperWorkingRangeBound(), feedbackDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::EndTable();
+			}
+		}
+		
+		ImGui::PopID();
+	}
+	if(removedMapping) removeFeedbackMapping(removedMapping);
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Feedback Selection");
+	ImGui::PopFont();
+	
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Position Feedback");
-	std::string pfbMappingString = positionFeedbackMapping ? positionFeedbackMapping->feedbackInterface->getName() : "None";
-	if(ImGui::BeginCombo("##pfb", pfbMappingString.c_str())){
-		for(auto connectedFeedbackPin : feedbackPin->getConnectedPins()){
-			auto feedbackInterface = connectedFeedbackPin->getSharedPointer<MotionFeedbackInterface>();
-			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
-			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
-			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
-				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
-				updateAxisConfiguration();
+	ImGui::PopFont();
+	const char* selectedPositionFeedbackMappingName;
+	if(selectedPositionFeedbackMapping == nullptr) selectedPositionFeedbackMappingName = "None";
+	else selectedPositionFeedbackMappingName = selectedPositionFeedbackMapping->getName().c_str();
+	if(ImGui::BeginCombo("##PositionFeedbackMapping", selectedPositionFeedbackMappingName)){
+		for(auto feedbackMapping : feedbackMappings){
+			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsPosition());
+			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedPositionFeedbackMapping)){
+				selectedPositionFeedbackMapping = feedbackMapping;
+				//updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
-		for(auto connectedActuatorPin : actuatorPin->getConnectedPins()){
-			auto feedbackInterface = connectedActuatorPin->getSharedPointer<MotionFeedbackInterface>();
-			bool b_selected = positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == feedbackInterface;
-			ImGui::BeginDisabled(!feedbackInterface->supportsPosition());
-			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
-				positionFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
-				updateAxisConfiguration();
+		for(auto actuatorMapping : actuatorMappings){
+			ImGui::BeginDisabled(!actuatorMapping->isActuatorConnected() || !actuatorMapping->getActuatorInterface()->supportsPosition());
+			if(ImGui::Selectable(actuatorMapping->getName().c_str(), actuatorMapping == selectedPositionFeedbackMapping)){
+				selectedPositionFeedbackMapping = actuatorMapping;
+				//updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
 	}
-	
-	if(positionFeedbackMapping){
-		ImGui::TreePush();
-		ImGui::Text("Position Feedback Units per Axis Units");
-		ImGui::InputDouble("##pfbratio", &positionFeedbackMapping->feedbackUnitsPerAxisUnit->value);
-		ImGui::TreePop();
+	if(selectedPositionFeedbackMapping) {
+		ImGui::PushID("PosFeedback");
+		ImGui::Text("Device Units per Axis Units");
+		selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->gui();
+		//updateAxisConfiguration();
+		ImGui::PopID();
 	}
 	
+	ImGui::Separator();
 	
+	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Velocity Feedback");
-	std::string vfbMappingString = velocityFeedbackMapping ? velocityFeedbackMapping->feedbackInterface->getName() : "None";
-	if(ImGui::BeginCombo("##vfb", vfbMappingString.c_str())){
-		for(auto connectedFeedbackPin : feedbackPin->getConnectedPins()){
-			auto feedbackInterface = connectedFeedbackPin->getSharedPointer<MotionFeedbackInterface>();
-			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
-			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
-			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
-				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedFeedbackPin, thisAxisNode);
-				updateAxisConfiguration();
+	ImGui::PopFont();
+	const char* selectedVelocityFeedbackMappingName;
+	if(selectedVelocityFeedbackMapping == nullptr) selectedVelocityFeedbackMappingName = "None";
+	else selectedVelocityFeedbackMappingName = selectedVelocityFeedbackMapping->getName().c_str();
+	if(ImGui::BeginCombo("##VelocityFeedbackMapping", selectedVelocityFeedbackMappingName)){
+		for(auto feedbackMapping : feedbackMappings){
+			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsVelocity());
+			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedVelocityFeedbackMapping)){
+				selectedVelocityFeedbackMapping = feedbackMapping;
+				//updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
-		for(auto connectedActuatorPin : actuatorPin->getConnectedPins()){
-			auto feedbackInterface = connectedActuatorPin->getSharedPointer<MotionFeedbackInterface>();
-			bool b_selected = velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == feedbackInterface;
-			ImGui::BeginDisabled(!feedbackInterface->supportsVelocity());
-			if(ImGui::Selectable(feedbackInterface->getName().c_str(), b_selected)){
-				auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
-				velocityFeedbackMapping = std::make_shared<FeedbackMapping>(connectedActuatorPin, thisAxisNode);
-				updateAxisConfiguration();
+		for(auto actuatorMapping : actuatorMappings){
+			ImGui::BeginDisabled(!actuatorMapping->isActuatorConnected() || !actuatorMapping->getActuatorInterface()->supportsVelocity());
+			if(ImGui::Selectable(actuatorMapping->getName().c_str(), actuatorMapping == selectedVelocityFeedbackMapping)){
+				selectedVelocityFeedbackMapping = actuatorMapping;
+				//updateAxisConfiguration();
 			}
 			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
 	}
-	
-	if(velocityFeedbackMapping){
-		ImGui::TreePush();
-		ImGui::Text("Velocity Feedback Units per Axis Units");
-		ImGui::InputDouble("##vfbratio", &velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value);
-		ImGui::TreePop();
+	if(selectedVelocityFeedbackMapping) {
+		ImGui::PushID("VelFeedback");
+		ImGui::Text("Device Units per Axis Units");
+		selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->gui();
+		//updateAxisConfiguration();
+		ImGui::PopID();
 	}
 	
 	ImGui::Separator();
@@ -532,23 +585,92 @@ void AxisNode::motionFeedbackSettingsGui(){
 }
 
 void AxisNode::actuatorControlSettingsGui(){
-	for(int i = 0; i < actuatorMappings.size(); i++){
-		auto mapping = actuatorMappings[i];
-		auto actuator = mapping->actuatorInterface;
-		ImGui::PushID(i);
-		
-		ImGui::PushFont(Fonts::sansBold15);
-		backgroundText(actuator->getName().c_str(), Colors::darkGray, Colors::white);
-		ImGui::PopFont();
 	
-		ImGui::TreePush();
+	if(ImGui::Button("Add Actuator Mapping")) addNewActuatorMapping();
+	
+	std::shared_ptr<ActuatorMapping> removedMapping = nullptr;
+	for(int i = 0; i < actuatorMappings.size(); i++){
 		
-		mapping->controlModeParameter->gui(Fonts::sansBold15);
-		mapping->actuatorUnitsPerAxisUnits->gui(Fonts::sansBold15);
-
-		ImGui::TreePop();
+		ImGui::Separator();
+		
+		ImGui::PushID(i);
+		auto actuatorMapping = actuatorMappings[i];
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		if(buttonCross("##remove")) removedMapping = actuatorMapping;
+		ImGui::SameLine();
+		ImGui::Text("%s :", actuatorMapping->actuatorPin->displayString);
+		ImGui::SameLine();
+		if(!actuatorMapping->isFeedbackConnected()) ImGui::TextColored(Colors::red, "Not Connected");
+		else ImGui::Text("%s", actuatorMapping->getName().c_str());
+		ImGui::PopFont();
+		
+		ImGui::Text("Device Units per Axis Units");
+		actuatorMapping->deviceUnitsPerAxisUnits->gui();
+		
+		ImGui::Text("Actuator Control Mode");
+		actuatorMapping->controlModeParameter->gui();
+		
+		if(actuatorMapping->isActuatorConnected()){
+			auto actuatorDevice = actuatorMapping->getActuatorInterface();
+			if(ImGui::BeginTable("##feedbackProperties", 2, ImGuiTableFlags_Borders)){
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Position Control");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", actuatorDevice->supportsPositionControl() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Velocity Control");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", actuatorDevice->supportsVelocityControl() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Max Velocity");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", actuatorDevice->getVelocityLimit(), actuatorDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Max Acceleration");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", actuatorDevice->getAccelerationLimit(), actuatorDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Position Feedback");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", actuatorDevice->supportsPosition() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Supports Velocity Feedback");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", actuatorDevice->supportsVelocity() ? "Yes" : "No");
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Position Working Range Min");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", actuatorDevice->getPositionLowerWorkingRangeBound(), actuatorDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("Position Working Range Max");
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%.3f%s", actuatorDevice->getPositionUpperWorkingRangeBound(), actuatorDevice->getPositionUnit()->abbreviated);
+				
+				ImGui::EndTable();
+			}
+		}
+		
 		ImGui::PopID();
 	}
+	if(removedMapping) removeActuatorMapping(removedMapping);
+	
 }
 
 void AxisNode::limitSettingsGui(){
@@ -622,6 +744,7 @@ void AxisNode::homingSettingsGui(){
 
 
 void AxisNode::devicesTab(){
+	/*
 	if(ImGui::BeginTabItem("Devices")){
 		
 		ImGui::PushFont(Fonts::sansBold20);
@@ -670,6 +793,7 @@ void AxisNode::devicesTab(){
 		
 		ImGui::EndTabItem();
 	}
+	*/
 }
 
 void AxisNode::axisInterfaceTab(){

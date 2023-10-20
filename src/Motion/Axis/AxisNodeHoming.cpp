@@ -66,8 +66,8 @@ void AxisNode::homingRoutine_HomingOnCurrentPosition(){
 			
 		case HomingStep::FOUND_LOW_LIMIT:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
-				if(positionFeedbackMapping){
-					auto feedback = positionFeedbackMapping->feedbackInterface;
+				if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
+					auto feedback = selectedPositionFeedbackMapping->getFeedbackInterface();
 					feedback->overridePosition(0.0);
 					overrideCurrentPosition(0.0);
 					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
@@ -81,8 +81,9 @@ void AxisNode::homingRoutine_HomingOnCurrentPosition(){
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
-			if(!positionFeedbackMapping->feedbackInterface->isBusyOverridingPosition()){
-				if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+			if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()
+			   && !selectedPositionFeedbackMapping->getFeedbackInterface()->isBusyOverridingPosition()){
+				if(selectedPositionFeedbackMapping->getFeedbackInterface()->didPositionOverrideSucceed()){
 					homingStep = HomingStep::FINISHING;
 				}else{
 					homingStep = HomingStep::FAILED;
@@ -132,9 +133,9 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			
 		case HomingStep::FOUND_LOW_LIMIT:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
-				if(positionFeedbackMapping){
-					auto feedback = positionFeedbackMapping->feedbackInterface;
-					feedback->overridePosition(0.0);
+				if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
+					auto feedbackInterface = selectedPositionFeedbackMapping->getFeedbackInterface();
+					feedbackInterface->overridePosition(0.0);
 					overrideCurrentPosition(0.0);
 					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 				}else{
@@ -147,7 +148,8 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
-			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+			if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()
+			   && selectedPositionFeedbackMapping->getFeedbackInterface()->didPositionOverrideSucceed()){
 				homingStep = HomingStep::FINISHING;
 			}
 			break;
@@ -318,7 +320,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 		case HomingStep::MOVING_TO_ORIGIN_CENTER:
 			if(motionProfile.getInterpolationTarget() == motionProfile.getPosition() && motionProfile.getVelocity() == 0.0){
 				setHomingVelocityTarget(0.0);
-				auto feedback = positionFeedbackMapping->feedbackInterface;
+				auto feedback = selectedPositionFeedbackMapping->getFeedbackInterface();
 				feedback->overridePosition(0.0);
 				overrideCurrentPosition(0.0);
 				homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
@@ -327,7 +329,7 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
-			if(positionFeedbackMapping->feedbackInterface->didPositionOverrideSucceed()){
+			if(selectedPositionFeedbackMapping->getFeedbackInterface()->didPositionOverrideSucceed()){
 				homingStep = HomingStep::FINISHING;
 			}
 			break;

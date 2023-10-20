@@ -10,11 +10,11 @@ bool AxisNode::prepareProcess(){
 	
 	switch(controlMode){
 		case ControlMode::POSITION_CONTROL:
-			if(positionFeedbackMapping == nullptr){
+			if(selectedPositionFeedbackMapping == nullptr || !selectedPositionFeedbackMapping->isFeedbackConnected()){
 				Logger::error("[{}] axis has control mode Position but has no position feedback device selected", getName());
 				return false;
 			}
-			if(velocityFeedbackMapping == nullptr) {
+			if(selectedVelocityFeedbackMapping == nullptr || !selectedVelocityFeedbackMapping->isFeedbackConnected()) {
 				Logger::error("[{}] axis has control mode Position but has no velocity feedback device selected", getName());
 				return false;
 			}
@@ -24,7 +24,7 @@ bool AxisNode::prepareProcess(){
 			}
 			break;
 		case ControlMode::VELOCITY_CONTROL:
-			if(velocityFeedbackMapping == nullptr) {
+			if(selectedVelocityFeedbackMapping == nullptr || !selectedVelocityFeedbackMapping->isFeedbackConnected()) {
 				Logger::error("[{}] axis has control mode Velocity but has no velocity feedback device selected", getName());
 				return false;
 			}
@@ -69,11 +69,6 @@ bool AxisNode::prepareProcess(){
 			break;
 	}
 	
-	
-	
-	
-	
-	
 	return true;
 }
 
@@ -101,20 +96,22 @@ void AxisNode::inputProcess(){
 	DeviceState previousAxisState = axisInterface->getState();
 	axisInterface->state = lowestInterfaceState;
 	
+	
 	//disable the axis if any connected interface is not enabled anymore
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
-		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+		for(auto actuatorMapping : actuatorMappings) actuatorMapping->disable();
 		axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis", getName());
-		for(auto actuator : connectedActuatorInterfaces){
-			if(!actuator->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), actuator->getName());
+		for(auto actuatorMapping : actuatorMappings){
+			if(!actuatorMapping->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), actuatorMapping->getName());
 		}
 		for(auto gpio : connectedGpioInterfaces){
 			if(!gpio->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), gpio->getName());
 		}
-		for(auto feedback : connectedFeedbackInteraces){
-			if(!feedback->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), feedback->getName());
-		}
+		
+		if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected() && !selectedPositionFeedbackMapping->isEnabled())
+			Logger::warn("[{}]    {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
+		
 		if(b_readyStatePinInvalid){
 			Logger::warn("[{}] Ready Signal was not valid", getName());
 		}
@@ -134,17 +131,23 @@ void AxisNode::inputProcess(){
 			axisInterface->processData.b_didHomingSucceed = false;
 			
 			enableRequestTime_seconds = Timing::getProgramTime_seconds();
-			for(auto actuator : connectedActuatorInterfaces) actuator->enable();
+			for(auto actuatorMapping : actuatorMappings) {
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				actuatorMapping->enable();
+			}
 			Logger::info("[{}] Enabling Axis", getName());
 		}
 	}
+	
+	
 	
 	//handle enable process
 	if(b_isEnabling){
 		axisInterface->state = DeviceState::ENABLING;
 		bool b_allEnabled = true;
-		for(auto actuator : connectedActuatorInterfaces){
-			if(!actuator->isEnabled()){
+		for(auto actuatorMapping : actuatorMappings){
+			if(!actuatorMapping->isActuatorConnected()) continue;
+			if(!actuatorMapping->isEnabled()){
 				b_allEnabled = false;
 				break;
 			}
@@ -155,7 +158,10 @@ void AxisNode::inputProcess(){
 			Logger::info("[{}] Axis Enabled", getName());
 		}
 		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
-			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+			for(auto actuatorMapping : actuatorMappings) {
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				actuatorMapping->disable();
+			}
 			
 			homingStep = HomingStep::NOT_STARTED;
 			axisInterface->processData.b_isHoming = false;
@@ -163,12 +169,16 @@ void AxisNode::inputProcess(){
 			
 			b_isEnabling = false;
 			Logger::warn("[{}] Could not enable axis :", getName());
-			for(auto actuator : connectedActuatorInterfaces){
-				if(!actuator->isEnabled()) Logger::warn("[{}]    {} did not enable on time", getName(), actuator->getName());
+			for(auto actuatorMapping : actuatorMappings){
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				if(!actuatorMapping->isEnabled()) Logger::warn("[{}]    {} did not enable on time", getName(), actuatorMapping->getName());
 			}
 		}
 		else if(axisInterface->getState() < DeviceState::READY){
-			for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+			for(auto actuatorMapping : actuatorMappings) {
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				actuatorMapping->disable();
+			}
 			
 			homingStep = HomingStep::NOT_STARTED;
 			axisInterface->processData.b_isHoming = false;
@@ -176,11 +186,14 @@ void AxisNode::inputProcess(){
 			
 			b_isEnabling = false;
 			Logger::warn("[{}] Could not enable axis :", getName());
-			for(auto actuator : connectedActuatorInterfaces){
-				if(!actuator->isReady()) Logger::warn("[{}]    {} was not read", getName(), actuator->getName());
+			for(auto actuatorMapping : actuatorMappings){
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				if(!actuatorMapping->isReady()) Logger::warn("[{}]    {} was not read", getName(), actuatorMapping->getName());
 			}
 		}
 	}
+	
+	
 	
 	
 	//if it was requested, update the feedback ratio
@@ -191,39 +204,46 @@ void AxisNode::inputProcess(){
 	
 	
 	//update axis position and position following error
-	if(auto mapping = positionFeedbackMapping){
-		auto feedback = mapping->feedbackInterface;
-		processData.positionActual = feedback->getPosition() / mapping->feedbackUnitsPerAxisUnit->value;
+	if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
+		auto feedbackDevice = selectedPositionFeedbackMapping->getFeedbackInterface();
+		processData.positionActual = feedbackDevice->getPosition() / selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->value;
 		positionFollowingError = motionProfile.getPosition() - axisInterface->getPositionActual();
 	}
 	
 	//update axis velocity and velocity following error
-	if(auto mapping = velocityFeedbackMapping){
-		auto feedback = mapping->feedbackInterface;
-		processData.velocityActual = feedback->getVelocity() / mapping->feedbackUnitsPerAxisUnit->value;
+	if(selectedVelocityFeedbackMapping && selectedVelocityFeedbackMapping->isFeedbackConnected()){
+		auto feedbackDevice = selectedVelocityFeedbackMapping->getFeedbackInterface();
+		processData.velocityActual = feedbackDevice->getVelocity() / selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->value;
 		velocityFollowingError = motionProfile.getVelocity() - axisInterface->getVelocityActual();
 	}
+	
 	
 	//update axis effort
 	double effort = 0.0;
 	int effortSampleCount = 0;
-	for(auto actuator : connectedActuatorInterfaces){
-		if(actuator->supportsEffortFeedback()){
+	for(auto actuatorMapping : actuatorMappings){
+		if(!actuatorMapping->isActuatorConnected()) continue;
+		auto actuatorInterface = actuatorMapping->getActuatorInterface();
+		if(actuatorInterface->supportsEffortFeedback()){
 			effortSampleCount++;
-			effort += actuator->getEffort();
+			effort += actuatorInterface->getEffort();
 		}
 	}
 	processData.effortActual = effort / effortSampleCount;
 	
+	
 	//update estop state
 	bool b_estopActive = false;
-	for(auto actuator : connectedActuatorInterfaces){
-		if(actuator->isEmergencyStopActive()){
+	for(auto actuatorMapping : actuatorMappings){
+		if(!actuatorMapping->isActuatorConnected()) continue;
+		auto actuatorInterface = actuatorMapping->getActuatorInterface();
+		if(actuatorInterface->isEmergencyStopActive()){
 			b_estopActive = true;
 			break;
 		}
 	}
 	processData.b_isEmergencyStopActive = b_estopActive;
+	
 	
 	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
 		loadSensorPin->copyConnectedPinValue();
@@ -237,6 +257,7 @@ void AxisNode::inputProcess(){
 		double newOffset = *loadSensorSignal * forceSensorMultiplier_Param->value;
 		forceSensorOffset_Param->overwrite(-newOffset);
 	}
+	
 	
 	//react to force signal limit
 	if(useExternalLoadSensor_Param->value && loadSensorPin->isConnected()){
@@ -302,6 +323,8 @@ void AxisNode::inputProcess(){
 			break;
 	}
 	
+	
+	
 	//update homing capability flag
 	axisInterface->processData.b_canStartHoming = axisInterface->supportsHoming() && axisInterface->isEnabled() && motionProfile.getVelocity() == 0.0;
 
@@ -321,6 +344,7 @@ void AxisNode::inputProcess(){
 		homingStep = HomingStep::NOT_STARTED;
 		setManualVelocityTarget(0.0);
 	}
+	
 	
 	//check if the following errors exceed thresholds
 	if(axisInterface->isEnabled()){
@@ -344,17 +368,9 @@ void AxisNode::inputProcess(){
 				b_isOverPositionErrorTreshold = false;
 			}
 		}
-		/*
-		if((axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL ||
-		   axisInterface->configuration.controlMode == AxisInterface::ControlMode::VELOCITY_CONTROL) &&
-		   velocityFeedbackMapping){
-			if(std::abs(velocityFollowingError) > std::abs(velocityLoop_maxError->value)){
-				Logger::warn("[{}] Velocity following error exceeded threshold, Disabling axis.", getName());
-				axisInterface->disable();
-			}
-		}
-		*/
 	}
+	
+	
 	
 	//decide on the internal control mode
 	//if no condition matches, we are using manual controls
@@ -375,17 +391,20 @@ void AxisNode::inputProcess(){
 		}
 	}
 	
+	
 	//handle axis disable request
 	if(processData.b_disable){
 		processData.b_disable = false;
 		b_isEnabling = false;
-		for(auto actuator : connectedActuatorInterfaces) actuator->disable();
+		for(auto actuatorMapping : actuatorMappings) {
+			if(!actuatorMapping->isActuatorConnected()) continue;
+			actuatorMapping->getActuatorInterface()->disable();
+		}
 		axisInterface->state = DeviceState::DISABLING;
 		homingStep = HomingStep::NOT_STARTED;
 		axisInterface->processData.b_isHoming = false;
 		axisInterface->processData.b_didHomingSucceed = false;
 	}
-	
 	
 }
 
@@ -462,12 +481,13 @@ void AxisNode::outputProcess(){
 			motionProfile.setPosition(axisInterface->getPositionActual());
 			motionProfile.setVelocity(axisInterface->getVelocityActual());
 			motionProfile.setAcceleration(0.0);
-			for(auto mapping : actuatorMappings){
-				auto actuator = mapping->actuatorInterface;
-				if(positionFeedbackMapping && positionFeedbackMapping->feedbackInterface == actuator){
-					mapping->actuatorPositionOffset = 0.0;
+			for(auto actuatorMapping : actuatorMappings){
+				if(!actuatorMapping->isActuatorConnected()) continue;
+				auto actuatorInterface = actuatorMapping->getActuatorInterface();
+				if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping == actuatorMapping){
+					actuatorMapping->actuatorPositionOffset = 0.0;
 				}
-				mapping->actuatorPositionOffset = actuator->getPosition() - axisInterface->getPositionActual() * mapping->actuatorUnitsPerAxisUnits->value;
+				actuatorMapping->actuatorPositionOffset = actuatorInterface->getPosition() - axisInterface->getPositionActual() * actuatorMapping->deviceUnitsPerAxisUnits->value;
 			}
 			break;
 	}
@@ -521,16 +541,17 @@ void AxisNode::outputProcess(){
 	*brakeControlSignal = velocityCommand != 0.0;
 	
 	//send commands to actuators
-	for(auto mapping : actuatorMappings){
-		auto actuator = mapping->actuatorInterface;
-		switch(mapping->controlMode){
+	for(auto actuatorMapping : actuatorMappings){
+		if(!actuatorMapping->isActuatorConnected()) continue;
+		auto actuatorInterface = actuatorMapping->getActuatorInterface();
+		switch(actuatorMapping->controlMode){
 			case ActuatorMapping::POSITION_CONTROL:{
-				double actuatorPosition = (motionProfile.getPosition() * mapping->actuatorUnitsPerAxisUnits->value) + mapping->actuatorPositionOffset;
-				actuator->setPositionTarget(actuatorPosition);
+				double actuatorPosition = (motionProfile.getPosition() * actuatorMapping->deviceUnitsPerAxisUnits->value) + actuatorMapping->actuatorPositionOffset;
+				actuatorInterface->setPositionTarget(actuatorPosition);
 				}break;
 			case ActuatorMapping::VELOCITY_CONTROL:{
-				double actuatorVelocity = velocityCommand * mapping->actuatorUnitsPerAxisUnits->value;
-				actuator->setVelocityTarget(actuatorVelocity);
+				double actuatorVelocity = velocityCommand * actuatorMapping->deviceUnitsPerAxisUnits->value;
+				actuatorInterface->setVelocityTarget(actuatorVelocity);
 				}break;
 			case ActuatorMapping::FORCE_CONTROL:
 				//not implemented
@@ -590,9 +611,10 @@ void AxisNode::moveToHomingPositionTarget(double position){
 void AxisNode::overrideCurrentPosition(double newPosition){
 	motionProfile.setPosition(newPosition);
 	for(auto actuatorMapping : actuatorMappings){
-		auto actuator = actuatorMapping->actuatorInterface;
-		if(actuator == positionFeedbackMapping->feedbackInterface) continue;
-		actuatorMapping->actuatorPositionOffset = actuator->getPosition() - newPosition * actuatorMapping->actuatorUnitsPerAxisUnits->value;
+		if(!actuatorMapping->isActuatorConnected()) continue;
+		auto actuator = actuatorMapping->getActuatorInterface();
+		if(actuatorMapping == selectedPositionFeedbackMapping) continue;
+		actuatorMapping->actuatorPositionOffset = actuator->getPosition() - newPosition * actuatorMapping->deviceUnitsPerAxisUnits->value;
 	}
 }
 
@@ -606,32 +628,33 @@ void AxisNode::updateFeedbackRatioToMatchPosition(){
 void AxisNode::onFeedbackRatioUpdate(){
 	if(motionProfile.getVelocity() != 0.0)
 		return Logger::error("[{}] Could not update feedback ratio while axis is moving", getName());
-	if(!positionFeedbackMapping)
+	if(selectedPositionFeedbackMapping == nullptr || !selectedPositionFeedbackMapping->isFeedbackConnected())
 		return Logger::error("[{}] Could not update feedback ratio, there is no position feedback device", getName());
 	if(newPositionForFeedbackRatio == 0.0)
 		return Logger::error("[{}] Could not update feedback ratio, the target position is zero", getName());
 	
-	auto positionFeedbackInterface = positionFeedbackMapping->feedbackInterface;
+	auto positionFeedbackInterface = selectedPositionFeedbackMapping->getFeedbackInterface();
 	double newPositionFeedbackRatio = positionFeedbackInterface->getPosition() / newPositionForFeedbackRatio;
-	double oldPositionFeedbackRatio = positionFeedbackMapping->feedbackUnitsPerAxisUnit->value;
-	positionFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
+	double oldPositionFeedbackRatio = selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->value;
+	selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->overwriteWithHistory(newPositionFeedbackRatio);
 	
-	if(velocityFeedbackMapping && velocityFeedbackMapping->feedbackInterface == positionFeedbackInterface)
-		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newPositionFeedbackRatio);
+	if(selectedVelocityFeedbackMapping == selectedPositionFeedbackMapping)
+		selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->overwriteWithHistory(newPositionFeedbackRatio);
 	else{
-		double newVelocityFeedbackRatio = velocityFeedbackMapping->feedbackUnitsPerAxisUnit->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
-		velocityFeedbackMapping->feedbackUnitsPerAxisUnit->overwriteWithHistory(newVelocityFeedbackRatio);
+		double newVelocityFeedbackRatio = selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+		selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->overwriteWithHistory(newVelocityFeedbackRatio);
 	}
 	
 	for(auto actuatorMapping : actuatorMappings){
+		if(!actuatorMapping->isActuatorConnected()) continue;
 		//if the actuator is the same as the position feedback interface, update its ratio like the feedback interface
-		if(actuatorMapping->actuatorInterface == positionFeedbackInterface){
-			actuatorMapping->actuatorUnitsPerAxisUnits->overwriteWithHistory(newPositionFeedbackRatio);
+		if(actuatorMapping == selectedPositionFeedbackMapping){
+			actuatorMapping->deviceUnitsPerAxisUnits->overwriteWithHistory(newPositionFeedbackRatio);
 		}
 		//else adjust the ratio of other actuators by the same amount the feedback ratio was adjusted
 		else{
-			double newActuatorRatio = actuatorMapping->actuatorUnitsPerAxisUnits->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
-			actuatorMapping->actuatorUnitsPerAxisUnits->overwriteWithHistory(newActuatorRatio);
+			double newActuatorRatio = actuatorMapping->deviceUnitsPerAxisUnits->value * newPositionFeedbackRatio / oldPositionFeedbackRatio;
+			actuatorMapping->deviceUnitsPerAxisUnits->overwriteWithHistory(newActuatorRatio);
 		}
 	}
 	
