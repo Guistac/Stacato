@@ -82,6 +82,10 @@ void ArtNetNode::initialize(){
 }
 
 void ArtNetNode::connect(){
+	if(b_running) {
+		Logger::warn("{} Server is already running", getName());
+		return;
+	}
 	//we are sending artnet packets over udp (broadcast or not)
 	if(broadcast->value) udpSocket = Network::getUdpBroadcastSocket();
 	else udpSocket = Network::getUdpSocket(0, {ipAddress0->value, ipAddress1->value, ipAddress2->value, ipAddress3->value}, portNumber->value);

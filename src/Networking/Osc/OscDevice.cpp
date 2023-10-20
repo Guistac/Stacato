@@ -14,6 +14,12 @@
 void OscDevice::initialize(){}
 
 void OscDevice::connect(){
+	
+	if(b_enabled){
+		Logger::warn("{} Server is already running", getName());
+		return;
+	}
+	
 	oscSocket = std::make_shared<OscSocket>(4096);
 	oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
 	

@@ -110,9 +110,9 @@ class OscDevice : public NetworkDevice{
 	std::shared_ptr<OSC::Message> selectedOutgoingMessage = nullptr;
 	std::shared_ptr<OSC::Message> selectedIncomingMessage = nullptr;
 	
-	virtual void nodeSpecificGui();\
-	virtual bool load(tinyxml2::XMLElement* xml);\
-	virtual bool save(tinyxml2::XMLElement* xml);\
+	virtual void nodeSpecificGui() override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
 };
 
 

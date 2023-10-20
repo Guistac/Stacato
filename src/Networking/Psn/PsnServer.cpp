@@ -95,6 +95,10 @@ void PsnServer::initialize(){
 }
 
 void PsnServer::connect(){
+	if(b_online) {
+		Logger::warn("{} Server is already running", getName());
+		return;
+	}
     udpSocket = Network::getUdpMulticastSocket({localIp0->value, localIp1->value, localIp2->value, localIp3->value},
                                                {destinationIp0->value, destinationIp1->value, destinationIp2->value, destinationIp3->value},
                                                destinationPortNumber->value);

@@ -123,13 +123,41 @@ namespace Stacato::Gui {
 			}
 		}
 		
-		for(auto& networkDevice : Environnement::getNetworkDevices()){
+		
+		for(int i = 0; i < Environnement::getNetworkDevices().size(); i++){
+			auto networkDevice = Environnement::getNetworkDevices()[i];
+			ImGui::PushID(i);
+			
 			ImGui::SameLine();
 			glm::vec4 networkDeviceStatusColor;
 			if(networkDevice->isConnected()) networkDeviceStatusColor = Colors::green;
 			else if(networkDevice->isDetected()) networkDeviceStatusColor = Colors::blue;
 			else networkDeviceStatusColor = Colors::red;
-			backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
+			
+			ImVec2 cursor = ImGui::GetCursorPos();
+			ImGui::BeginDisabled();
+			ImGui::Dummy(buttonSize);
+			ImGui::EndDisabled();
+			ImGui::SetCursorPos(cursor);
+			ImRect hoverRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+			if(hoverRect.Contains(ImGui::GetMousePos())){
+				ImGui::SetCursorPos(cursor);
+				if(networkDevice->isConnected()){
+					if(customButton("Stop", buttonSize, Colors::green, ImGui::GetStyle().FrameRounding, ImDrawFlags_None)) {
+						networkDevice->disconnect();
+					}
+				}
+				else{
+					if(customButton("Start", buttonSize, Colors::blue, ImGui::GetStyle().FrameRounding, ImDrawFlags_None)) {
+						networkDevice->connect();
+					}
+				}
+			}
+			else{
+				backgroundText(networkDevice->getName(), buttonSize, networkDeviceStatusColor);
+			}
+			
+			ImGui::PopID();
 		}
 		
 		ImGui::EndGroup();

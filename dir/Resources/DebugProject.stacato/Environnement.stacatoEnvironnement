@@ -142,7 +142,7 @@
                     </FeedbackMappings>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="164.93805694580078"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="164.25674438476562"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -168,6 +168,30 @@
                     <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="1554" Visible="true"/>
                     <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="1555" Visible="true"/>
                 </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="ArtNetNode" Split="false" CustomName="ArtNet" UniqueID="1578">
+                <NodeEditorPosition x="32" y="576"/>
+                <NodeSpecificData>
+                    <Settings IpOctet0="192" IpOctet1="168" IpOctet2="1" IpOctet3="33" Broadcast="true" Port="6454" SendingFrequency="10" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="0" NetworkIpOctet3="0" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
+                    <Script>
+--Default ArtNet DMX Node Script
+
+local universe = ArtNetNode:createNewUniverse(1)
+
+function setup()
+end
+
+local value = 0
+
+function update()
+	value = value + 1
+	if value &gt; 511 then value = 0 end
+	universe:setChannel(1, 127)
+end
+</Script>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links>
