@@ -464,6 +464,9 @@ void AxisNode::motionFeedbackSettingsGui(){
 		else ImGui::Text("%s", feedbackMapping->getName().c_str());
 		ImGui::PopFont();
 		
+		ImGui::Text("Device Units per Axis Units");
+		feedbackMapping->deviceUnitsPerAxisUnits->gui();
+
 		if(feedbackMapping->isFeedbackConnected()){
 			auto feedbackDevice = feedbackMapping->getFeedbackInterface();
 			if(ImGui::BeginTable("##feedbackProperties", 2, ImGuiTableFlags_Borders)){
@@ -516,27 +519,18 @@ void AxisNode::motionFeedbackSettingsGui(){
 		for(auto feedbackMapping : feedbackMappings){
 			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsPosition());
 			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedPositionFeedbackMapping)){
-				selectedPositionFeedbackMapping = feedbackMapping;
-				//updateAxisConfiguration();
+				selectPositionFeedbackMapping(feedbackMapping);
 			}
 			ImGui::EndDisabled();
 		}
 		for(auto actuatorMapping : actuatorMappings){
 			ImGui::BeginDisabled(!actuatorMapping->isActuatorConnected() || !actuatorMapping->getActuatorInterface()->supportsPosition());
 			if(ImGui::Selectable(actuatorMapping->getName().c_str(), actuatorMapping == selectedPositionFeedbackMapping)){
-				selectedPositionFeedbackMapping = actuatorMapping;
-				//updateAxisConfiguration();
+				selectPositionFeedbackMapping(actuatorMapping);
 			}
 			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
-	}
-	if(selectedPositionFeedbackMapping) {
-		ImGui::PushID("PosFeedback");
-		ImGui::Text("Device Units per Axis Units");
-		selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->gui();
-		//updateAxisConfiguration();
-		ImGui::PopID();
 	}
 	
 	ImGui::Separator();
@@ -551,27 +545,18 @@ void AxisNode::motionFeedbackSettingsGui(){
 		for(auto feedbackMapping : feedbackMappings){
 			ImGui::BeginDisabled(!feedbackMapping->isFeedbackConnected() || !feedbackMapping->getFeedbackInterface()->supportsVelocity());
 			if(ImGui::Selectable(feedbackMapping->getName().c_str(), feedbackMapping == selectedVelocityFeedbackMapping)){
-				selectedVelocityFeedbackMapping = feedbackMapping;
-				//updateAxisConfiguration();
+				selectVelocityFeedbackMapping(feedbackMapping);
 			}
 			ImGui::EndDisabled();
 		}
 		for(auto actuatorMapping : actuatorMappings){
 			ImGui::BeginDisabled(!actuatorMapping->isActuatorConnected() || !actuatorMapping->getActuatorInterface()->supportsVelocity());
 			if(ImGui::Selectable(actuatorMapping->getName().c_str(), actuatorMapping == selectedVelocityFeedbackMapping)){
-				selectedVelocityFeedbackMapping = actuatorMapping;
-				//updateAxisConfiguration();
+				selectVelocityFeedbackMapping(actuatorMapping);
 			}
 			ImGui::EndDisabled();
 		}
 		ImGui::EndCombo();
-	}
-	if(selectedVelocityFeedbackMapping) {
-		ImGui::PushID("VelFeedback");
-		ImGui::Text("Device Units per Axis Units");
-		selectedVelocityFeedbackMapping->deviceUnitsPerAxisUnits->gui();
-		//updateAxisConfiguration();
-		ImGui::PopID();
 	}
 	
 	ImGui::Separator();

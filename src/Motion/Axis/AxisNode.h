@@ -268,6 +268,15 @@ private:
 		updateConnectedModules();
 	}
 	
+	void selectPositionFeedbackMapping(std::shared_ptr<FeedbackMapping> positionFeedbackMapping){
+		selectedPositionFeedbackMapping = positionFeedbackMapping;
+		updateAxisConfiguration();
+	}
+	void selectVelocityFeedbackMapping(std::shared_ptr<FeedbackMapping> velocityFeedbackMapping){
+		selectedVelocityFeedbackMapping = velocityFeedbackMapping;
+		updateAxisConfiguration();
+	}
+	
 	
 	
 	//——— Process Data

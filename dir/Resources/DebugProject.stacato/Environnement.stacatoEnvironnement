@@ -4,7 +4,7 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="ECAT-2515 6-Port EtherCAT Junction (Alias:105)" UniqueID="1496">
-                <NodeEditorPosition x="-272" y="848"/>
+                <NodeEditorPosition x="-384" y="768"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="105"/>
                 </NodeSpecificData>
@@ -12,7 +12,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="ECAT-2515 6-Port EtherCAT Junction (Alias:104)" UniqueID="1497">
-                <NodeEditorPosition x="-272" y="896"/>
+                <NodeEditorPosition x="-384" y="816"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="104"/>
                 </NodeSpecificData>
@@ -20,7 +20,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="ECAT-2515 6-Port EtherCAT Junction (Alias:103)" UniqueID="1498">
-                <NodeEditorPosition x="-272" y="944"/>
+                <NodeEditorPosition x="-384" y="864"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="103"/>
                 </NodeSpecificData>
@@ -28,7 +28,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ECAT-2515" Split="false" CustomName="ECAT-2515 6-Port EtherCAT Junction (Alias:102)" UniqueID="1499">
-                <NodeEditorPosition x="-272" y="992"/>
+                <NodeEditorPosition x="-384" y="912"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="102"/>
                 </NodeSpecificData>
@@ -36,7 +36,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:100)" UniqueID="1500">
-                <NodeEditorPosition x="-248" y="463"/>
+                <NodeEditorPosition x="-392" y="379"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
                     <ModularDeviceProfile>
@@ -137,10 +137,12 @@
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="1541">
                 <NodeEditorPosition x="-14" y="112"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="20" AccelerationLimit="20" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="1" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="200" LowerPositionLimitClearance="1" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="1" HomingVelocityFine="0.10000000000000001" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <FeedbackMappings/>
+                    <FeedbackMappings>
+                        <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1"/>
+                    </FeedbackMappings>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="164.93743133544922"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="164.93805694580078"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -156,6 +158,7 @@
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="1549" Visible="true"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="1550" Visible="true"/>
                     <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="1551" Visible="true"/>
+                    <InputPin SaveString="FeedbackDevice0" DisplayString="Feedback Device 0" DataType="MotionFeedbackInterface" UniqueID="1573" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="ActuatorDevice0" DisplayString="Actuator Device 0" DataType="ActuatorInterface" UniqueID="1559" Visible="true" NoDataField="true"/>
                     <InputPin SaveString="ActuatorDevice1" DisplayString="Actuator Device 1" DataType="ActuatorInterface" UniqueID="1570" Visible="true" NoDataField="true"/>
                 </InputPins>
@@ -172,6 +175,8 @@
             <Link UniqueID="1569" StartPin="1534" EndPin="1543"/>
             <Link UniqueID="1571" StartPin="1517" EndPin="1570"/>
             <Link UniqueID="1572" StartPin="1533" EndPin="1542"/>
+            <Link UniqueID="1574" StartPin="1502" EndPin="1573"/>
+            <Link UniqueID="1575" StartPin="1503" EndPin="1510"/>
         </Links>
     </NodeGraph>
 </Environnement>
