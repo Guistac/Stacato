@@ -76,6 +76,7 @@ public:
 	void motionFeedbackSettingsGui();
 	void homingSettingsGui();
 	void axisInterfaceTab();
+	void safetyTab();
 	
 private:
 	
@@ -216,6 +217,7 @@ private:
 	std::shared_ptr<FeedbackMapping> selectedPositionFeedbackMapping = nullptr;
 	std::shared_ptr<FeedbackMapping> selectedVelocityFeedbackMapping = nullptr;
 	
+	std::shared_ptr<FeedbackToFeedbackVelocityComparison> velocitySafetyRule;
 	
 	void addNewActuatorMapping(){
 		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());
@@ -276,6 +278,31 @@ private:
 		selectedVelocityFeedbackMapping = velocityFeedbackMapping;
 		updateAxisConfiguration();
 	}
+	
+public:
+	
+	std::vector<std::shared_ptr<FeedbackMapping>> getFeedbackMappings(){
+		std::vector<std::shared_ptr<FeedbackMapping>> output = {};
+		for(auto feedbackMapping : feedbackMappings) output.push_back(feedbackMapping);
+		for(auto actuatorMapping : actuatorMappings) output.push_back(actuatorMapping);
+		return output;
+	}
+	
+	std::shared_ptr<FeedbackMapping> findFeedbackMapping(std::string pinSaveName){
+		for(auto feedbackMapping : feedbackMappings){
+			if(strcmp(feedbackMapping->getPin()->saveString, pinSaveName.c_str()) == 0) return feedbackMapping;
+		}
+		return findActuatorMapping(pinSaveName);
+		return nullptr;
+	}
+	std::shared_ptr<ActuatorMapping> findActuatorMapping(std::string pinSaveName){
+		for(auto actuatorMapping : actuatorMappings){
+			if(strcmp(actuatorMapping->getPin()->saveString, pinSaveName.c_str()) == 0) return actuatorMapping;
+		}
+		return nullptr;
+	}
+	
+private:
 	
 	
 	

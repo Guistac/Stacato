@@ -16,6 +16,8 @@ void AxisNode::initialize(){
 	axisInterface = std::make_shared<AxisInterfaceImplementation>(thisAxisNode);
 	axisInterface->configuration.homingStateStringCallback = [this]() -> std::string { return getHomingStepString(); };
 	
+	velocitySafetyRule = std::make_shared<FeedbackToFeedbackVelocityComparison>(thisAxisNode);
+	
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);
 	referenceSignal = std::make_shared<bool>(false);
@@ -255,23 +257,17 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	
 	XMLElement* selectedPositionFeedbackMappingXML = xml->InsertNewChildElement("SelectedPositionFeedbackMapping");
 	if(selectedPositionFeedbackMapping) {
-		if(auto actuatorMapping = std::dynamic_pointer_cast<ActuatorMapping>(selectedPositionFeedbackMapping)){
-			selectedPositionFeedbackMappingXML->SetAttribute("PinSaveString", actuatorMapping->actuatorPin->saveString);
-		}
-		else {
-			selectedPositionFeedbackMappingXML->SetAttribute("PinSaveString", selectedPositionFeedbackMapping->feedbackPin->saveString);
-		}
+		selectedPositionFeedbackMappingXML->SetAttribute("PinSaveString", selectedPositionFeedbackMapping->getPin()->saveString);
 	}
 	
 	XMLElement* selectedVelocityFeedbackMappingXML = xml->InsertNewChildElement("SelectedVelocityFeedbackMapping");
 	if(selectedVelocityFeedbackMapping) {
-		if(auto actuatorMapping = std::dynamic_pointer_cast<ActuatorMapping>(selectedVelocityFeedbackMapping)){
-			selectedVelocityFeedbackMappingXML->SetAttribute("PinSaveString", actuatorMapping->actuatorPin->saveString);
-		}
-		else{
-			selectedVelocityFeedbackMappingXML->SetAttribute("PinSaveString", selectedVelocityFeedbackMapping->feedbackPin->saveString);
-		}
+		selectedVelocityFeedbackMappingXML->SetAttribute("PinSaveString", selectedVelocityFeedbackMapping->getPin()->saveString);
 	}
+	
+	XMLElement* safetyRulesXML = xml->InsertNewChildElement("SafetyRules");
+	XMLElement* velocityRuleXML = safetyRulesXML->InsertNewChildElement("SafetyRule");
+	velocitySafetyRule->save(velocityRuleXML);
 	
 	useExternalLoadSensor_Param->save(xml);
 	forceSensorMultiplier_Param->save(xml);
@@ -342,32 +338,20 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	if(XMLElement* selectedPositionFeedbackMappingXML = xml->FirstChildElement("SelectedPositionFeedbackMapping")){
 		const char* pinSaveString;
 		if(selectedPositionFeedbackMappingXML->QueryAttribute("PinSaveString", &pinSaveString) == XML_SUCCESS){
-			for(auto feedbackMapping : feedbackMappings){
-				if(strcmp(feedbackMapping->feedbackPin->saveString, pinSaveString) == 0){
-					selectedPositionFeedbackMapping = feedbackMapping;
-				}
-			}
-			for(auto actuatorMapping : actuatorMappings){
-				if(strcmp(actuatorMapping->actuatorPin->saveString, pinSaveString) == 0){
-					selectedPositionFeedbackMapping = actuatorMapping;
-				}
-			}
+			selectedPositionFeedbackMapping = findFeedbackMapping(pinSaveString);
 		}
 	}
 	
 	if(XMLElement* selectedVelocityFeedbackMappingXML = xml->FirstChildElement("SelectedVelocityFeedbackMapping")){
 		const char* pinSaveString;
 		if(selectedVelocityFeedbackMappingXML->QueryAttribute("PinSaveString", &pinSaveString) == XML_SUCCESS){
-			for(auto feedbackMapping : feedbackMappings){
-				if(strcmp(feedbackMapping->feedbackPin->saveString, pinSaveString) == 0){
-					selectedVelocityFeedbackMapping = feedbackMapping;
-				}
-			}
-			for(auto actuatorMapping : actuatorMappings){
-				if(strcmp(actuatorMapping->actuatorPin->saveString, pinSaveString) == 0){
-					selectedVelocityFeedbackMapping = actuatorMapping;
-				}
-			}
+			selectedVelocityFeedbackMapping = findFeedbackMapping(pinSaveString);
+		}
+	}
+	
+	if(XMLElement* safetyRulesXML = xml->FirstChildElement("SafetyRules")){
+		if(XMLElement* velocityRuleXML = safetyRulesXML->FirstChildElement("SafetyRule")){
+			velocitySafetyRule->load(velocityRuleXML);
 		}
 	}
 	
@@ -445,6 +429,8 @@ void AxisNode::updateConnectedModules(){
 		connectedDeviceInterfaces.push_back(gpio);
 		connectedGpioInterfaces.push_back(gpio);
 	}
+	
+	velocitySafetyRule->onAxisInterfaceChange();
 	
 	updateAxisConfiguration();
 }

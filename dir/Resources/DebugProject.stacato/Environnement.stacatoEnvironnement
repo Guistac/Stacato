@@ -142,10 +142,13 @@
                     </FeedbackMappings>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="164.25674438476562"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SafetyRules>
+                        <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="true" FeedbackMapping1PinSaveName="ActuatorDevice0" FeedbackMapping2PinSaveName="ActuatorDevice1" MaxVelocityDeviation="3"/>
+                    </SafetyRules>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1542" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -189,6 +192,166 @@ function update()
 	universe:setChannel(1, 127)
 end
 </Script>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:1000)" UniqueID="1599">
+                <NodeEditorPosition x="55" y="1077"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="1000"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 8x Digital Input (Alias:1001)" UniqueID="1600">
+                <NodeEditorPosition x="55" y="1128"/>
+                <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
+                    <Identification Type="StationAlias" StationAlias="1001"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1601" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1602" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1603" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1604" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1605" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="1606" Visible="true"/>
+                    <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="1607" Visible="true"/>
+                    <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="1608" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:1002)" UniqueID="1609">
+                <NodeEditorPosition x="56" y="1379"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
+                    <Identification Type="StationAlias" StationAlias="1002"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="1610" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="1611" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="1612" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="1613" Visible="true"/>
+                    <InputPin SaveString="DO5" DisplayString="DO5" DataType="Boolean" UniqueID="1614" Visible="true"/>
+                    <InputPin SaveString="DO6" DisplayString="DO6" DataType="Boolean" UniqueID="1615" Visible="true"/>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1616" Visible="true"/>
+                    <InputPin SaveString="DO8" DisplayString="DO8" DataType="Boolean" UniqueID="1617" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:2000)" UniqueID="1619">
+                <NodeEditorPosition x="529" y="910"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="2000"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EK1100 SSI Input (Alias:2001)" UniqueID="1620">
+                <NodeEditorPosition x="542" y="963"/>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
+                    <Identification Type="StationAlias" StationAlias="2001"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1621" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1622" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2624" Split="false" CustomName="EL2624 4x Relay Output (Alias:2002)" UniqueID="1663">
+                <NodeEditorPosition x="515" y="1066"/>
+                <NodeSpecificData InvertR1="false" InvertR2="false" InvertR3="false" InvertR4="false">
+                    <Identification Type="StationAlias" StationAlias="2002"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="R1" DisplayString="R1" DataType="Boolean" UniqueID="1664" Visible="true"/>
+                    <InputPin SaveString="R2" DisplayString="R2" DataType="Boolean" UniqueID="1665" Visible="true"/>
+                    <InputPin SaveString="R3" DisplayString="R3" DataType="Boolean" UniqueID="1666" Visible="true"/>
+                    <InputPin SaveString="R4" DisplayString="R4" DataType="Boolean" UniqueID="1667" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:2003)" UniqueID="1668">
+                <NodeEditorPosition x="472" y="1218"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="2003"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="false"/>
+                    <KinematicLimits velocityLimit_rps="1" accelerationLimit_rpsps="1" manualAcceleration_rpsps="1"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="0.125"/>
+                    <CurrentLimit amps="30"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="1669" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="1670" Visible="true"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="1671" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1672" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1673" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1674" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1675" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1676" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="1677" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1678" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1679" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1680" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1681" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1682" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:2004)" UniqueID="1683">
+                <NodeEditorPosition x="672" y="1218"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="2004"/>
+                    <MotorProperties MaxVelocity="440" MaxCurrent="0" EncoderIsMultiturn="false"/>
+                    <KinematicLimits velocityLimit_rps="0" accelerationLimit_rpsps="0" manualAcceleration_rpsps="0"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="0"/>
+                    <CurrentLimit amps="0"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="0"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="false"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="1684" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="1685" Visible="true"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="1686" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1687" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1688" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1689" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1690" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1691" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="1692" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1693" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1694" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1695" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1696" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1697" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:60000)" UniqueID="1700">
+                <NodeEditorPosition x="382" y="454"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="60000"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL7221-9014" Split="false" CustomName="EL7221-9014 (Alias:60001)" UniqueID="1702">
+                <NodeEditorPosition x="384" y="512"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="60001"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>

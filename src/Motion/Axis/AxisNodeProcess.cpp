@@ -96,6 +96,12 @@ void AxisNode::inputProcess(){
 	DeviceState previousAxisState = axisInterface->getState();
 	axisInterface->state = lowestInterfaceState;
 	
+	if(velocitySafetyRule->b_enabled){
+		if(!velocitySafetyRule->isRespected()){
+			//TODO: trigger safety pins
+		}
+	}
+	
 	
 	//disable the axis if any connected interface is not enabled anymore
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){

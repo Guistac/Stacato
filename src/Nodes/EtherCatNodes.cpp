@@ -41,6 +41,7 @@ namespace NodeFactory{
 			new EL2008(),
 			new EL2912(),
 			new EL2624(),
+			new EL7221_9014(),
             new ECAT_2511_A_FiberConverter(),
             new ECAT_2511_B_FiberConverter(),
 			new ECAT_2515_6PortJunction(),

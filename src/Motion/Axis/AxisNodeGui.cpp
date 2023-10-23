@@ -433,6 +433,12 @@ void AxisNode::configurationTab(){
 		}
 		
 		ImGui::PushFont(Fonts::sansBold20);
+		if(ImGui::CollapsingHeader("Safety")){
+			ImGui::PopFont();
+			safetyTab();
+		}else ImGui::PopFont();
+		
+		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Miscellaneous")){
 			ImGui::PopFont();
 			maxEnableTimeSeconds->gui(Fonts::sansBold15);
@@ -532,8 +538,6 @@ void AxisNode::motionFeedbackSettingsGui(){
 		}
 		ImGui::EndCombo();
 	}
-	
-	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Velocity Feedback");
@@ -945,4 +949,46 @@ void AxisNode::axisInterfaceTab(){
 		
 		ImGui::EndTabItem();
 	}
+}
+
+void AxisNode::safetyTab(){
+	
+	velocitySafetyRule->gui();
+	
+	
+}
+
+
+void FeedbackToFeedbackVelocityComparison::gui(){
+	ImGui::Checkbox("Enable Velocity Surveillance", &b_enabled);
+	
+	auto feedbackMappings = axisNode->getFeedbackMappings();
+	auto mappingSelector = [&,this](const char* ID, std::shared_ptr<FeedbackMapping>& targetMapping){
+		std::string selectedDeviceName = "None";
+		if(targetMapping) selectedDeviceName = targetMapping->getName();
+		if(ImGui::BeginCombo(ID, selectedDeviceName.c_str())){
+			for(auto mapping : feedbackMappings){
+				if(ImGui::Selectable(mapping->getName().c_str(), mapping == targetMapping)){
+					targetMapping = mapping;
+				}
+			}
+			ImGui::EndCombo();
+		}
+	};
+	
+	ImGui::Text("Feedback Device 1");
+	mappingSelector("##mapping1", mapping1);
+	ImGui::Text("Feedback Device 2");
+	mappingSelector("##mapping2", mapping2);
+	ImGui::Text("Max Velocity Deviation");
+	ImGui::InputDouble("##MaxVelocityDeviation", &maxVelocityDeviation);
+	
+	double velocity1 = 0.0;
+	double velocity2 = 0.0;
+	if(mapping1 && mapping1->isFeedbackConnected()) velocity1 = mapping1->getFeedbackInterface()->getVelocity();
+	if(mapping2 && mapping2->isFeedbackConnected()) velocity2 = mapping2->getFeedbackInterface()->getVelocity();
+	double velocityDifference = std::abs(velocity1 - velocity2);
+	double progress = velocityDifference / maxVelocityDeviation;
+	ImGui::ProgressBar(progress);
+	
 }

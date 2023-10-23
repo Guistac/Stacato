@@ -16,6 +16,7 @@ public:
 	
 	virtual bool isFeedbackConnected(){ return feedbackPin->isConnected(); }
 	virtual std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface(){ return feedbackPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
+	virtual std::shared_ptr<NodePin> getPin() { return feedbackPin; }
 	
 	NumberParam<double> deviceUnitsPerAxisUnits = NumberParameter<double>::make(1.0, "Feedback units per axis unit", "UnitConversion");
 	
@@ -46,6 +47,7 @@ public:
 	
 	virtual bool isFeedbackConnected() override { return actuatorPin->isConnected(); }
 	virtual std::shared_ptr<MotionFeedbackInterface> getFeedbackInterface() override { return actuatorPin->getConnectedPin()->getSharedPointer<MotionFeedbackInterface>(); }
+	virtual std::shared_ptr<NodePin> getPin() override { return actuatorPin; }
 	
 	enum ActuatorControlMode{
 		NO_CONTROL = 0,
@@ -81,3 +83,54 @@ public:
 	
 };
 
+
+class SafetyRule{
+public:
+	SafetyRule(std::shared_ptr<AxisNode> axis) : axisNode(axis){}
+	std::shared_ptr<AxisNode> axisNode;
+	virtual bool isRespected() = 0;
+	virtual void gui() = 0;
+	virtual bool save(tinyxml2::XMLElement* parent) = 0;
+	virtual bool load(tinyxml2::XMLElement* parent) = 0;
+	virtual std::string getSaveString() = 0;
+	virtual std::string getDisplayString() = 0;
+	
+	bool b_enabled = false;
+	
+	static std::shared_ptr<SafetyRule> loadFromSaveString(std::string saveString, std::shared_ptr<AxisNode> axis);
+	virtual std::shared_ptr<SafetyRule> createInstance(std::shared_ptr<AxisNode> axis) = 0;
+	virtual void onAxisInterfaceChange() = 0;
+};
+
+
+class FeedbackToFeedbackVelocityComparison : public SafetyRule{
+public:
+	FeedbackToFeedbackVelocityComparison(std::shared_ptr<AxisNode> axis) : SafetyRule(axis){}
+	virtual std::string getSaveString() override { return "FeedbackToFeedbackVelocityComparison"; }
+	virtual std::string getDisplayString() override { return "Feedback to Feedback Velocity Comparison"; }
+	virtual std::shared_ptr<SafetyRule> createInstance(std::shared_ptr<AxisNode> axis) override { return std::make_shared<FeedbackToFeedbackVelocityComparison>(axis); }
+	
+	std::shared_ptr<FeedbackMapping> mapping1 = nullptr;
+	std::shared_ptr<FeedbackMapping> mapping2 = nullptr;
+	double maxVelocityDeviation = 0.0;
+	
+	virtual bool isRespected() override {
+		if(mapping1 == nullptr || !mapping1->isFeedbackConnected()) return false;
+		if(mapping2 == nullptr || !mapping2->isFeedbackConnected()) return false;
+		auto feedbackDevice1 = mapping1->getFeedbackInterface();
+		auto feedbackDevice2 = mapping2->getFeedbackInterface();
+		if(!feedbackDevice1->isEnabled()) return false;
+		if(!feedbackDevice2->isEnabled()) return false;
+		double feedback1velocity = feedbackDevice1->getVelocity() / mapping1->deviceUnitsPerAxisUnits->value;
+		double feedback2velocity = feedbackDevice2->getVelocity() / mapping2->deviceUnitsPerAxisUnits->value;
+		double velocityDeviation = std::abs(feedback1velocity - feedback2velocity);
+		if(velocityDeviation > maxVelocityDeviation) return false;
+		return true;
+	}
+	
+	virtual bool save(tinyxml2::XMLElement* parent) override;
+	virtual bool load(tinyxml2::XMLElement* parent) override;
+	
+	virtual void gui() override;
+	virtual void onAxisInterfaceChange() override;
+};
