@@ -41,7 +41,9 @@ void MultipointHoist::settingsGui() {
 		if(!axisMapping->axisPin->isConnected()){
 			
 			ImGui::PushFont(Fonts::sansBold20);
-			ImGui::Text("Axis %i : No Axis Connected", i);
+			ImGui::Text("Axis %i :", i);
+			ImGui::SameLine();
+			ImGui::TextColored(Colors::red, "No Axis Connected");
 			ImGui::PopFont();
 			
 		}
@@ -113,21 +115,23 @@ void MultipointHoist::settingsGui() {
 			if(ImGui::Checkbox("Invert Direction", &axisMapping->b_invertDirection)){
 				axisMapping->updateAnimatableParameters();
 			}
-			if(ImGui::InputDouble("Position Offset", &axisMapping->userPositionOffset)){
+			ImGui::Text("Position Offset");
+			if(ImGui::InputDouble("##PositionOffset", &axisMapping->userPositionOffset)){
 				axisMapping->updateAnimatableParameters();
 			}
+			ImGui::Text("Minimum Load");
+			ImGui::InputDouble("##MinimumLoad", &axisMapping->minimumLoad_Kilograms, 0, 0, "%.0fKg");
 			
 		}
 		
 		ImGui::PopID();
 		
+		ImGui::Separator();
+		
 	}
 	if(deletedMapping) removeAxisMapping(deletedMapping);
 	
-	
-	
-	
-	ImGui::Separator();
+
 	
 	if(axisMappings.size() == 2){
 		ImGui::Checkbox("Enable Two Axis Distance Constraint", &b_enableTwoAxisDistanceConstraint);
@@ -173,7 +177,15 @@ void MultipointHoist::widgetGui(){
 		ImGui::BeginDisabled(!b_axisConnected);
 		mapping->controlGui();
 		ImGui::EndDisabled();
+		
 		float controlsWidth = ImGui::GetItemRectSize().x;
+		
+		ImVec2 loadStatusSize(controlsWidth, ImGui::GetTextLineHeightWithSpacing());
+		static char loadString[64];
+		if(b_axisConnected) snprintf(loadString, 64, "%.0fKg", mapping->getAxis()->getForceActual() / 10.0);
+		else snprintf(loadString, 64, "---");
+		backgroundText(loadString, loadStatusSize, Colors::darkGray, Colors::white);
+		
 		
 		bool b_disableAxisStateControl;
 		bool b_axisEnabled;

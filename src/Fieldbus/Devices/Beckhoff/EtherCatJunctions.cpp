@@ -422,29 +422,7 @@ bool EL2912::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
 void EL7221_9014::onDisconnection() {}
 void EL7221_9014::onConnection() {}
-void EL7221_9014::initialize() {
-	rxPdoAssignement.addNewModule(0x1600);
-	rxPdoAssignement.addEntry(0x7010, 0x1, 16, "Controlword", );	//DS402 control word
-	
-	rxPdoAssignement.addEntry(0x6060, 0x0, 8, "DCOMopmode", &ds402Control.operatingMode);	//DS402 operating mode control
-	rxPdoAssignement.addEntry(0x607A, 0x0, 32, "PPp_target", &PPp_target);					//Position Target
-	rxPdoAssignement.addEntry(0x60FF, 0x0, 32, "PVv_target", &PVv_target);					//Velocity Target
-	rxPdoAssignement.addEntry(0x6071, 0x0, 16, "PTtq_target", &PTtq_target);				//Torque Target
-	rxPdoAssignement.addEntry(0x3008, 0x11, 16, "IO_DQ_set", &IO_DQ_set);					//Digital Outputs
-	rxPdoAssignement.addEntry(0x3008, 0xA, 16, "BRK_release", &BRK_release);				//Manual Holding Brake Control
-	
-	txPdoAssignement.addNewModule(0x1A00);
-	txPdoAssignement.addEntry(0x6041, 0x0, 16, "_DCOMstatus", &ds402Status.statusWord);		//DS402 status word
-	txPdoAssignement.addEntry(0x6061, 0x0, 8, "_DCOMopmd_act", &ds402Status.operatingMode);	//DS402 operating mode display
-	txPdoAssignement.addEntry(0x6064, 0x0, 32, "_p_act", &_p_act);							//Actual Position
-	txPdoAssignement.addEntry(0x301E, 0x14, 32, "_p_dif_usr", &_p_dif_usr);					//Following Error
-	txPdoAssignement.addEntry(0x606C, 0x0, 32, "_v_act", &_v_act);							//Actual Velocity
-	txPdoAssignement.addEntry(0x301E, 0x3, 16, "_I_act", &_I_act);							//Actual Current
-	txPdoAssignement.addEntry(0x603F, 0x0, 16, "_LastError", &_LastError);					//Current Error
-	txPdoAssignement.addEntry(0x301C, 0x4, 16, "_actionStatus", &_actionStatus);			//error class / additional drive info
-	txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);						//Digital Inputs
-	txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);				//STO Status
-}
+void EL7221_9014::initialize() {}
 bool EL7221_9014::startupConfiguration() {
 	double cycleTime_millis = EtherCatFieldbus::processInterval_milliseconds;
 	uint32_t cycleTime_nanos = cycleTime_millis * 1000000;

@@ -96,9 +96,48 @@ void AxisNode::inputProcess(){
 	DeviceState previousAxisState = axisInterface->getState();
 	axisInterface->state = lowestInterfaceState;
 	
-	if(velocitySafetyRule->b_enabled){
-		if(!velocitySafetyRule->isRespected()){
-			//TODO: trigger safety pins
+	
+	
+	bool previousSafetyResetSignal = *safetyResetInputSignal;
+	if(safetyFaultInputPin->isConnected()) safetyFaultInputPin->copyConnectedPinValue();
+	if(safetyResetInputPin->isConnected()) safetyResetInputPin->copyConnectedPinValue();
+	
+	if(!b_hasSafetyFault){
+		if(*safetyFaultInputSignal){
+			Logger::warn("{} Safety fault triggered by fault signal", getName());
+			*safetyFaultOutputSignal = true;
+			axisInterface->disable();
+			b_hasSafetyFault = true;
+		}
+		else if(velocitySafetyRule->b_enabled && !velocitySafetyRule->isRespected()){
+			Logger::warn("{} Safety fault triggered by velocity deviation", getName());
+			*safetyFaultOutputSignal = true;
+			axisInterface->disable();
+			b_hasSafetyFault = true;
+		}
+	}
+	else{
+		if(!previousSafetyResetSignal && *safetyResetInputSignal) b_safetyFaultClearRequest = true;
+		if(b_safetyFaultClearRequest){
+			b_isClearingSafetyFault = true;
+			safetyFaultResetRequestTimeNanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			*safetyResetOutputSignal = true;
+		}
+	}
+	
+	if(b_isClearingSafetyFault){
+		if(EtherCatFieldbus::getCycleTimeDelta_nanoseconds() - safetyFaultResetRequestTimeNanos >= safetyClearSignalLengthSeconds * 1000000000){
+			*safetyResetOutputSignal = false;
+			if(!*safetyFaultInputSignal){
+				*safetyFaultOutputSignal = false;
+				b_hasSafetyFault = false;
+				Logger::info("{} Cleared safety fault", getName());
+			}
+			else{
+				Logger::warn("{} Could not clear safety fault", getName());
+				*safetyFaultOutputSignal = true;
+				b_hasSafetyFault = true;
+			}
 		}
 	}
 	

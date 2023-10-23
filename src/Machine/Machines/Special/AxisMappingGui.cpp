@@ -320,5 +320,7 @@ void AxisMapping::setupGui(){
 					 framethickness,
 					 ImDrawFlags_RoundCornersAll,
 					 framethickness);
+	
+	ImGui::Checkbox("Minimum Load Surveillance", &b_enableMinimumLoadSurveillance);
 	 
 }

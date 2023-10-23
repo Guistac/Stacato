@@ -81,5 +81,8 @@ public:
 	double userLowerPositionLimit = 0.0;
 	double userUpperPositionLimit = 0.0;
 	
+	double minimumLoad_Kilograms = 0.0;
+	bool b_enableMinimumLoadSurveillance = true;
+	
 	
 };

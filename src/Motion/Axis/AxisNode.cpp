@@ -25,11 +25,11 @@ void AxisNode::initialize(){
 	upperSlowdownSignal = std::make_shared<bool>(false);
 	loadSensorSignal = std::make_shared<double>(0.0);
 	readyStateInputSignal = std::make_shared<bool>(false);
-	safetyStateInputSignal = std::make_shared<bool>(false);
+	safetyFaultInputSignal = std::make_shared<bool>(false);
 	safetyResetInputSignal = std::make_shared<bool>(false);
 	
 	brakeControlSignal = std::make_shared<bool>(false);
-	safetyStateOutputSignal = std::make_shared<bool>(false);
+	safetyFaultOutputSignal = std::make_shared<bool>(false);
 	safetyResetOutputSignal = std::make_shared<bool>(false);
 	
 	gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE,
@@ -49,7 +49,7 @@ void AxisNode::initialize(){
 	loadSensorPin = std::make_shared<NodePin>(loadSensorSignal, NodePin::Direction::NODE_INPUT,
 											  "Load Sensor", "LoadSensor");
 	readyStateInputPin = std::make_shared<NodePin>(readyStateInputSignal, NodePin::Direction::NODE_INPUT, "Ready State", "ReadyStateInput");
-	safetyStateInputPin = std::make_shared<NodePin>(safetyStateInputSignal, NodePin::Direction::NODE_INPUT, "Safety State", "SafetyStateInput");
+	safetyFaultInputPin = std::make_shared<NodePin>(safetyFaultInputSignal, NodePin::Direction::NODE_INPUT, "Safety State", "SafetyStateInput");
 	safetyResetInputPin = std::make_shared<NodePin>(safetyResetInputSignal, NodePin::Direction::NODE_INPUT, "Safety Reset", "SafetyResetInput");
 	
 	
@@ -58,7 +58,7 @@ void AxisNode::initialize(){
 										"Axis", "Axis");
 	brakeControlSignalPin = std::make_shared<NodePin>(brakeControlSignal, NodePin::Direction::NODE_OUTPUT,
 													  "Brake Control", "BrakeControlSignal");
-	safetyStateOutputPin = std::make_shared<NodePin>(safetyStateOutputSignal, NodePin::Direction::NODE_OUTPUT, "Safety State", "SafetyStateOutput");
+	safetyFaultOutputPin = std::make_shared<NodePin>(safetyFaultOutputSignal, NodePin::Direction::NODE_OUTPUT, "Safety State", "SafetyStateOutput");
 	safetyResetOutputPin = std::make_shared<NodePin>(safetyResetOutputSignal, NodePin::Direction::NODE_OUTPUT, "Safety Reset", "SafetyResetOutput");
 	
 	addNodePin(gpioPin);
@@ -69,12 +69,12 @@ void AxisNode::initialize(){
 	addNodePin(referenceSignalPin);
 	addNodePin(loadSensorPin);
 	addNodePin(readyStateInputPin);
-	addNodePin(safetyStateInputPin);
+	addNodePin(safetyFaultInputPin);
 	addNodePin(safetyResetInputPin);
 	
 	addNodePin(axisPin);
 	addNodePin(brakeControlSignalPin);
-	addNodePin(safetyStateOutputPin);
+	addNodePin(safetyFaultOutputPin);
 	addNodePin(safetyResetOutputPin);
 	
 	
@@ -266,6 +266,7 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	}
 	
 	XMLElement* safetyRulesXML = xml->InsertNewChildElement("SafetyRules");
+	safetyRulesXML->SetAttribute("SafetyClearSignalTime", safetyClearSignalLengthSeconds);
 	XMLElement* velocityRuleXML = safetyRulesXML->InsertNewChildElement("SafetyRule");
 	velocitySafetyRule->save(velocityRuleXML);
 	
@@ -350,6 +351,7 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	}
 	
 	if(XMLElement* safetyRulesXML = xml->FirstChildElement("SafetyRules")){
+		safetyRulesXML->QueryAttribute("SafetyClearSignalTime", &safetyClearSignalLengthSeconds);
 		if(XMLElement* velocityRuleXML = safetyRulesXML->FirstChildElement("SafetyRule")){
 			velocitySafetyRule->load(velocityRuleXML);
 		}

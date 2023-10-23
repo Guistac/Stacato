@@ -30,7 +30,7 @@ public:
 	std::shared_ptr<NodePin> referenceSignalPin;
 	std::shared_ptr<NodePin> loadSensorPin;
 	std::shared_ptr<NodePin> readyStateInputPin;
-	std::shared_ptr<NodePin> safetyStateInputPin;
+	std::shared_ptr<NodePin> safetyFaultInputPin;
 	std::shared_ptr<NodePin> safetyResetInputPin;
 	
 	std::shared_ptr<bool> lowerLimitSignal;
@@ -40,16 +40,16 @@ public:
 	std::shared_ptr<bool> referenceSignal;
 	std::shared_ptr<double> loadSensorSignal;
 	std::shared_ptr<bool> readyStateInputSignal;
-	std::shared_ptr<bool> safetyStateInputSignal;
+	std::shared_ptr<bool> safetyFaultInputSignal;
 	std::shared_ptr<bool> safetyResetInputSignal;
 	
 	std::shared_ptr<NodePin> axisPin;
 	std::shared_ptr<NodePin> brakeControlSignalPin;
-	std::shared_ptr<NodePin> safetyStateOutputPin;
+	std::shared_ptr<NodePin> safetyFaultOutputPin;
 	std::shared_ptr<NodePin> safetyResetOutputPin;
 	
 	std::shared_ptr<bool> brakeControlSignal;
-	std::shared_ptr<bool> safetyStateOutputSignal;
+	std::shared_ptr<bool> safetyFaultOutputSignal;
 	std::shared_ptr<bool> safetyResetOutputSignal;
 	
 	virtual bool prepareProcess() override;
@@ -218,6 +218,11 @@ private:
 	std::shared_ptr<FeedbackMapping> selectedVelocityFeedbackMapping = nullptr;
 	
 	std::shared_ptr<FeedbackToFeedbackVelocityComparison> velocitySafetyRule;
+	bool b_hasSafetyFault = false;
+	bool b_safetyFaultClearRequest = false;
+	bool b_isClearingSafetyFault = false;
+	uint64_t safetyFaultResetRequestTimeNanos;
+	double safetyClearSignalLengthSeconds = 0.5;
 	
 	void addNewActuatorMapping(){
 		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());

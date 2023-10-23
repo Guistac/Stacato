@@ -75,6 +75,18 @@ void AxisNode::controlTab(){
 			ImGui::PopFont();
 		}
 		
+		if(safetyFaultInputPin->isConnected() || velocitySafetyRule->b_enabled){
+			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x / 2.0, ImGui::GetTextLineHeight() * 2.0);
+			ImGui::BeginDisabled(!b_hasSafetyFault);
+			if(customButton("Reset Fault", buttonSize, ImGui::GetStyle().Colors[ImGuiCol_Button], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
+				b_safetyFaultClearRequest = true;
+			}
+			ImGui::EndDisabled();
+			ImGui::SameLine(0.0, 0.0);
+			if(b_hasSafetyFault) backgroundText("Safety Fault !", buttonSize, Timing::getBlink(.2) ? Colors::red : Colors::yellow, Colors::black, ImDrawFlags_RoundCornersRight);
+			else backgroundText("Safety Clear", buttonSize, Colors::green, Colors::black, ImDrawFlags_RoundCornersRight);
+		}
+		
 		ImVec2 progressBarSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 1.5);
 		
 		ImGui::BeginDisabled(!axisInterface->isEnabled() || axisPin->isConnected());
@@ -952,6 +964,11 @@ void AxisNode::axisInterfaceTab(){
 }
 
 void AxisNode::safetyTab(){
+	
+	ImGui::Text("Safety Clear Signal Time");
+	ImGui::InputDouble("##safetyResetTime", &safetyClearSignalLengthSeconds, 0, 0, "%.1fs");
+	
+	ImGui::Separator();
 	
 	velocitySafetyRule->gui();
 	

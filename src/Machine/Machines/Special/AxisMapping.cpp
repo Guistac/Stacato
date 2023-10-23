@@ -6,6 +6,7 @@ bool AxisMapping::save(tinyxml2::XMLElement* parent){
 	parent->SetAttribute("PositionOffset", userPositionOffset);
 	parent->SetAttribute("UserLowerPositionLimit", userLowerPositionLimit);
 	parent->SetAttribute("UserUpperPositionLimit", userUpperPositionLimit);
+	parent->SetAttribute("MinimumLoad", minimumLoad_Kilograms);
 	return true;
 }
 
@@ -17,6 +18,7 @@ bool AxisMapping::load(tinyxml2::XMLElement* parent){
 	parent->QueryAttribute("PositionOffset", &userPositionOffset);
 	parent->QueryAttribute("UserLowerPositionLimit", &userLowerPositionLimit);
 	parent->QueryAttribute("UserUpperPositionLimit", &userUpperPositionLimit);
+	parent->QueryAttribute("MinimumLoad", &minimumLoad_Kilograms);
 	return true;
 }
 
@@ -88,6 +90,13 @@ void AxisMapping::updateAxisCommand(double profileTime_seconds, double profileDe
 	if(!isAxisConnected()) animatablePosition->followActualValue(profileTime_seconds, profileDeltaTime_seconds);
 	
 	auto axis = getAxis();
+	
+	if(b_enableMinimumLoadSurveillance){
+		if(axis->getForceActual() / 10 < minimumLoad_Kilograms){
+			Logger::warn("{} Minimum load surveillance was triggered", axis->getName()); 
+			axis->disable();
+		}
+	}
 	
 	if(!axis->isEnabled() || axis->isHoming()){
 		//if the axis is not enabled or is homing, the animatable doesn't do anything
