@@ -93,7 +93,7 @@ void AxisMapping::updateAxisCommand(double profileTime_seconds, double profileDe
 	
 	if(b_enableMinimumLoadSurveillance){
 		if(axis->getForceActual() / 10 < minimumLoad_Kilograms){
-			Logger::warn("{} Minimum load surveillance was triggered", axis->getName()); 
+			Logger::warn("{} Minimum load surveillance was triggered", axis->getName());
 			axis->disable();
 		}
 	}

@@ -103,41 +103,48 @@ void AxisNode::inputProcess(){
 	if(safetyResetInputPin->isConnected()) safetyResetInputPin->copyConnectedPinValue();
 	
 	if(!b_hasSafetyFault){
-		if(*safetyFaultInputSignal){
+		*safetyFaultOutputSignal = true;
+		if(!*safetyFaultInputSignal){
 			Logger::warn("{} Safety fault triggered by fault signal", getName());
-			*safetyFaultOutputSignal = true;
 			axisInterface->disable();
 			b_hasSafetyFault = true;
 		}
 		else if(velocitySafetyRule->b_enabled && !velocitySafetyRule->isRespected()){
 			Logger::warn("{} Safety fault triggered by velocity deviation", getName());
-			*safetyFaultOutputSignal = true;
 			axisInterface->disable();
 			b_hasSafetyFault = true;
 		}
 	}
 	else{
+		*safetyFaultOutputSignal = false;
 		if(!previousSafetyResetSignal && *safetyResetInputSignal) b_safetyFaultClearRequest = true;
 		if(b_safetyFaultClearRequest){
+			b_safetyFaultClearRequest = false;
 			b_isClearingSafetyFault = true;
 			safetyFaultResetRequestTimeNanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-			*safetyResetOutputSignal = true;
 		}
 	}
 	
 	if(b_isClearingSafetyFault){
-		if(EtherCatFieldbus::getCycleTimeDelta_nanoseconds() - safetyFaultResetRequestTimeNanos >= safetyClearSignalLengthSeconds * 1000000000){
+
+		*safetyFaultOutputSignal = true;
+		*safetyResetOutputSignal = true;
+		
+		if(*safetyFaultInputSignal){
+			b_hasSafetyFault = false;
+			b_isClearingSafetyFault = false;
 			*safetyResetOutputSignal = false;
-			if(!*safetyFaultInputSignal){
-				*safetyFaultOutputSignal = false;
-				b_hasSafetyFault = false;
-				Logger::info("{} Cleared safety fault", getName());
-			}
-			else{
-				Logger::warn("{} Could not clear safety fault", getName());
-				*safetyFaultOutputSignal = true;
-				b_hasSafetyFault = true;
-			}
+			Logger::info("{} Cleared safety fault", getName());
+		}
+
+		uint64_t timeSinceClearRequest = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - safetyFaultResetRequestTimeNanos;
+		uint64_t maxClearTime = safetyClearSignalLengthSeconds * 1000000000;
+		if(timeSinceClearRequest >= maxClearTime){
+			b_hasSafetyFault = true;
+			b_isClearingSafetyFault = false;
+			*safetyResetOutputSignal = false;
+			*safetyFaultOutputSignal = false;
+			Logger::warn("{} Could not clear safety fault", getName());
 		}
 	}
 	
