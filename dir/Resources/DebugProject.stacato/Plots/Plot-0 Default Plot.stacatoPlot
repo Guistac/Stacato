@@ -19,12 +19,10 @@
                         <ControlPoint Position="9.5118287022715275" Time="217.03622342139175" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
                         <ControlPoint Position="3.3983029067335155" Time="236.17472073045147" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
                         <ControlPoint Position="11.203622004181417" Time="255.70278616049853" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
-                        <ControlPoint Position="2.1294579303010979" Time="278.21749689161163" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="1.8721590759452904" Time="275.02295647282364" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
                     </Curve>
                 </Curves>
             </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Target"/>
-        <Manoeuvre Name="M-1" Description="" Type="Target"/>
     </ManoeuvreList>
 </Plot>

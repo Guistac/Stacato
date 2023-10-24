@@ -17,6 +17,7 @@ void AxisNode::initialize(){
 	axisInterface->configuration.homingStateStringCallback = [this]() -> std::string { return getHomingStepString(); };
 	
 	velocitySafetyRule = std::make_shared<FeedbackToFeedbackVelocityComparison>(thisAxisNode);
+	positionSafetyRule = std::make_shared<FeedbackToFeedbackPositionComparison>(thisAxisNode);
 	
 	lowerLimitSignal = std::make_shared<bool>(false);
 	upperLimitSignal = std::make_shared<bool>(false);
@@ -269,6 +270,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	safetyRulesXML->SetAttribute("SafetyClearSignalTime", safetyClearSignalLengthSeconds);
 	XMLElement* velocityRuleXML = safetyRulesXML->InsertNewChildElement("SafetyRule");
 	velocitySafetyRule->save(velocityRuleXML);
+	XMLElement* positionRuleXML = safetyRulesXML->InsertNewChildElement("SafetyRule");
+	positionSafetyRule->save(positionRuleXML);
 	
 	useExternalLoadSensor_Param->save(xml);
 	forceSensorMultiplier_Param->save(xml);
@@ -352,9 +355,24 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	
 	if(XMLElement* safetyRulesXML = xml->FirstChildElement("SafetyRules")){
 		safetyRulesXML->QueryAttribute("SafetyClearSignalTime", &safetyClearSignalLengthSeconds);
-		if(XMLElement* velocityRuleXML = safetyRulesXML->FirstChildElement("SafetyRule")){
-			velocitySafetyRule->load(velocityRuleXML);
+		
+		XMLElement* safetyRuleXML = safetyRulesXML->FirstChildElement("SafetyRule");
+		while(safetyRuleXML){
+			
+			const char* ts;
+			if(safetyRuleXML->QueryAttribute("Type", &ts) == XML_SUCCESS){
+				std::string typeString = ts;
+				if(typeString == velocitySafetyRule->getSaveString()){
+					velocitySafetyRule->load(safetyRuleXML);
+				}
+				else if(typeString == positionSafetyRule->getSaveString()){
+					positionSafetyRule->load(safetyRuleXML);
+				}
+			}
+			
+			safetyRuleXML = safetyRuleXML->NextSiblingElement("SafetyRule");
 		}
+	
 	}
 	
 	bool success = true;

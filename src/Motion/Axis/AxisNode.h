@@ -218,11 +218,13 @@ private:
 	std::shared_ptr<FeedbackMapping> selectedVelocityFeedbackMapping = nullptr;
 	
 	std::shared_ptr<FeedbackToFeedbackVelocityComparison> velocitySafetyRule;
+	std::shared_ptr<FeedbackToFeedbackPositionComparison> positionSafetyRule;
 	bool b_hasSafetyFault = false;
 	bool b_safetyFaultClearRequest = false;
 	bool b_isClearingSafetyFault = false;
 	uint64_t safetyFaultResetRequestTimeNanos;
 	double safetyClearSignalLengthSeconds = 0.5;
+	double safetyResetSignalOffsetSeconds = 0.15;
 	
 	void addNewActuatorMapping(){
 		auto thisAxisNode = std::static_pointer_cast<AxisNode>(shared_from_this());

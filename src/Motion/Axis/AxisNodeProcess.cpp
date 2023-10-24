@@ -109,8 +109,13 @@ void AxisNode::inputProcess(){
 			axisInterface->disable();
 			b_hasSafetyFault = true;
 		}
-		else if(velocitySafetyRule->b_enabled && !velocitySafetyRule->isRespected()){
+		if(velocitySafetyRule->b_enabled && !velocitySafetyRule->isRespected()){
 			Logger::warn("{} Safety fault triggered by velocity deviation", getName());
+			axisInterface->disable();
+			b_hasSafetyFault = true;
+		}
+		if(positionSafetyRule->b_enabled && !positionSafetyRule->isRespected()){
+			Logger::warn("{} Safety fault triggered by position deviation", getName());
 			axisInterface->disable();
 			b_hasSafetyFault = true;
 		}
@@ -126,25 +131,28 @@ void AxisNode::inputProcess(){
 	}
 	
 	if(b_isClearingSafetyFault){
-
-		*safetyFaultOutputSignal = true;
-		*safetyResetOutputSignal = true;
 		
-		if(*safetyFaultInputSignal){
-			b_hasSafetyFault = false;
-			b_isClearingSafetyFault = false;
-			*safetyResetOutputSignal = false;
-			Logger::info("{} Cleared safety fault", getName());
-		}
-
 		uint64_t timeSinceClearRequest = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - safetyFaultResetRequestTimeNanos;
 		uint64_t maxClearTime = safetyClearSignalLengthSeconds * 1000000000;
+		uint64_t resetSignalOffsetTime = safetyResetSignalOffsetSeconds * 1000000000;
+		
+		*safetyFaultOutputSignal = true;
+		if(timeSinceClearRequest >= resetSignalOffsetTime) *safetyResetOutputSignal = true;
+		else *safetyResetOutputSignal = false;
+		
 		if(timeSinceClearRequest >= maxClearTime){
 			b_hasSafetyFault = true;
 			b_isClearingSafetyFault = false;
 			*safetyResetOutputSignal = false;
 			*safetyFaultOutputSignal = false;
 			Logger::warn("{} Could not clear safety fault", getName());
+		}
+		
+		if(*safetyFaultInputSignal){
+			b_hasSafetyFault = false;
+			b_isClearingSafetyFault = false;
+			*safetyResetOutputSignal = false;
+			Logger::info("{} Cleared safety fault", getName());
 		}
 	}
 	

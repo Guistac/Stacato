@@ -341,6 +341,7 @@ void EL5001::writeOutputs(){
 			positionOffset_rev = encoder->feedbackProcessData.positionOverride;
 			encoder->feedbackProcessData.positionActual = encoder->feedbackProcessData.positionOverride;
 			updateEncoderWorkingRange();
+			*resetPinValue = false;
 			Logger::info("[EL5001] Successfully reset SSI encoder position");
 		}
 		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds > resetSignalTime_Param->value * 1000000 * 2){

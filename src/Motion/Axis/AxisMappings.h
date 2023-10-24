@@ -29,7 +29,7 @@ public:
 	}
 	
 	virtual bool isReady(){ return getFeedbackInterface()->isReady(); }
-	virtual bool isEnabled(){ return getFeedbackInterface()->isEnabled(); }
+	virtual bool isEnabled(){ return getFeedbackInterface()->isReady(); }
 	
 };
 
@@ -114,19 +114,28 @@ public:
 	std::shared_ptr<FeedbackMapping> mapping2 = nullptr;
 	double maxVelocityDeviation = 0.0;
 	
-	virtual bool isRespected() override {
-		if(mapping1 == nullptr || !mapping1->isFeedbackConnected()) return false;
-		if(mapping2 == nullptr || !mapping2->isFeedbackConnected()) return false;
-		auto feedbackDevice1 = mapping1->getFeedbackInterface();
-		auto feedbackDevice2 = mapping2->getFeedbackInterface();
-		if(!feedbackDevice1->isEnabled()) return false;
-		if(!feedbackDevice2->isEnabled()) return false;
-		double feedback1velocity = feedbackDevice1->getVelocity() / mapping1->deviceUnitsPerAxisUnits->value;
-		double feedback2velocity = feedbackDevice2->getVelocity() / mapping2->deviceUnitsPerAxisUnits->value;
-		double velocityDeviation = std::abs(feedback1velocity - feedback2velocity);
-		if(velocityDeviation > maxVelocityDeviation) return false;
-		return true;
-	}
+	virtual bool isRespected() override;
+	
+	virtual bool save(tinyxml2::XMLElement* parent) override;
+	virtual bool load(tinyxml2::XMLElement* parent) override;
+	
+	virtual void gui() override;
+	virtual void onAxisInterfaceChange() override;
+};
+
+
+class FeedbackToFeedbackPositionComparison : public SafetyRule{
+public:
+	FeedbackToFeedbackPositionComparison(std::shared_ptr<AxisNode> axis) : SafetyRule(axis){}
+	virtual std::string getSaveString() override { return "FeedbackToFeedbackPositionComparison"; }
+	virtual std::string getDisplayString() override { return "Position to Position Velocity Comparison"; }
+	virtual std::shared_ptr<SafetyRule> createInstance(std::shared_ptr<AxisNode> axis) override { return std::make_shared<FeedbackToFeedbackPositionComparison>(axis); }
+	
+	std::shared_ptr<FeedbackMapping> mapping1 = nullptr;
+	std::shared_ptr<FeedbackMapping> mapping2 = nullptr;
+	double maxPositionDeviation = 0.0;
+	
+	virtual bool isRespected() override;
 	
 	virtual bool save(tinyxml2::XMLElement* parent) override;
 	virtual bool load(tinyxml2::XMLElement* parent) override;

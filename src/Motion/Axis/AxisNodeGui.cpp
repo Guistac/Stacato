@@ -391,6 +391,30 @@ void AxisNode::controlTab(){
 							ImVec2(min.x + size.x * minErrorNormalized, max.y), ImColor(Colors::white));
 		}
 		
+		
+		
+		
+		if(velocitySafetyRule->b_enabled){
+			double velocity1 = 0.0;
+			double velocity2 = 0.0;
+			if(velocitySafetyRule->mapping1 && velocitySafetyRule->mapping1->isFeedbackConnected()) {
+				velocity1 = velocitySafetyRule->mapping1->getFeedbackInterface()->getVelocity() / velocitySafetyRule->mapping1->deviceUnitsPerAxisUnits->value;
+			}
+			if(velocitySafetyRule->mapping2 && velocitySafetyRule->mapping2->isFeedbackConnected()) {
+				velocity2 = velocitySafetyRule->mapping2->getFeedbackInterface()->getVelocity() / velocitySafetyRule->mapping2->deviceUnitsPerAxisUnits->value;
+			}
+			double velocityDifference = std::abs(velocity1 - velocity2);
+			double progress = velocityDifference / velocitySafetyRule->maxVelocityDeviation;
+			char txt[32];
+			snprintf(txt, 32, "%.3f", velocityDifference);
+			ImGui::ProgressBar(progress, ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), txt);
+		}
+		
+		if(positionSafetyRule->b_enabled){
+			positionSafetyRule->gui();
+		}
+		
+		
 		ImGui::EndTabItem();
 	}
 
@@ -970,8 +994,15 @@ void AxisNode::safetyTab(){
 	
 	ImGui::Separator();
 	
+	ImGui::PushID("Velocity");
 	velocitySafetyRule->gui();
+	ImGui::PopID();
 	
+	ImGui::Separator();
+	
+	ImGui::PushID("Position");
+	positionSafetyRule->gui();
+	ImGui::PopID();
 	
 }
 
@@ -1002,10 +1033,65 @@ void FeedbackToFeedbackVelocityComparison::gui(){
 	
 	double velocity1 = 0.0;
 	double velocity2 = 0.0;
-	if(mapping1 && mapping1->isFeedbackConnected()) velocity1 = mapping1->getFeedbackInterface()->getVelocity();
-	if(mapping2 && mapping2->isFeedbackConnected()) velocity2 = mapping2->getFeedbackInterface()->getVelocity();
+	if(mapping1 && mapping1->isFeedbackConnected()) {
+		velocity1 = mapping1->getFeedbackInterface()->getVelocity() / mapping1->deviceUnitsPerAxisUnits->value;
+	}
+	if(mapping2 && mapping2->isFeedbackConnected()) {
+		velocity2 = mapping2->getFeedbackInterface()->getVelocity() / mapping2->deviceUnitsPerAxisUnits->value;
+	}
 	double velocityDifference = std::abs(velocity1 - velocity2);
 	double progress = velocityDifference / maxVelocityDeviation;
-	ImGui::ProgressBar(progress);
+	char txt[32];
+	snprintf(txt, 32, "%.3f", velocityDifference);
+	ImGui::ProgressBar(progress, ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), txt);
+	
+}
+
+void FeedbackToFeedbackPositionComparison::gui(){
+	ImGui::Checkbox("Enable Position Surveillance", &b_enabled);
+	
+	auto feedbackMappings = axisNode->getFeedbackMappings();
+	auto mappingSelector = [&,this](const char* ID, std::shared_ptr<FeedbackMapping>& targetMapping){
+		std::string selectedDeviceName = "None";
+		if(targetMapping) selectedDeviceName = targetMapping->getName();
+		if(ImGui::BeginCombo(ID, selectedDeviceName.c_str())){
+			for(auto mapping : feedbackMappings){
+				if(ImGui::Selectable(mapping->getName().c_str(), mapping == targetMapping)){
+					targetMapping = mapping;
+				}
+			}
+			ImGui::EndCombo();
+		}
+	};
+	
+	ImGui::Text("Feedback Device 1");
+	mappingSelector("##mapping1", mapping1);
+	ImGui::Text("Feedback Device 2");
+	mappingSelector("##mapping2", mapping2);
+	ImGui::Text("Max Position Deviation");
+	ImGui::InputDouble("##MaxPositionDeviation", &maxPositionDeviation);
+	
+	double position1 = 0.0;
+	double position2 = 0.0;
+	
+	if(mapping1->isFeedbackConnected() && mapping2->isFeedbackConnected()){
+		auto feedbackDevice1 = mapping1->getFeedbackInterface();
+		auto feedbackDevice2 = mapping2->getFeedbackInterface();
+		if(feedbackDevice1->getType() == DeviceInterface::Type::ACTUATOR){
+			auto actuatorMapping = std::static_pointer_cast<ActuatorMapping>(mapping1);
+			position1 = (feedbackDevice1->getPosition() - actuatorMapping->actuatorPositionOffset) / mapping1->deviceUnitsPerAxisUnits->value;
+		}else position1 = feedbackDevice1->getPosition() / mapping1->deviceUnitsPerAxisUnits->value;
+		
+		if(feedbackDevice2->getType() == DeviceInterface::Type::ACTUATOR){
+			auto actuatorMapping = std::static_pointer_cast<ActuatorMapping>(mapping2);
+			position2 = (feedbackDevice2->getPosition() - actuatorMapping->actuatorPositionOffset) / mapping2->deviceUnitsPerAxisUnits->value;
+		}else position2 = feedbackDevice2->getPosition() / mapping2->deviceUnitsPerAxisUnits->value;
+	}
+		
+	double positionDifference = std::abs(position1 - position2);
+	double progress = positionDifference / maxPositionDeviation;
+	char txt[32];
+	snprintf(txt, 32, "%.3f", positionDifference);
+	ImGui::ProgressBar(progress, ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), txt);
 	
 }
