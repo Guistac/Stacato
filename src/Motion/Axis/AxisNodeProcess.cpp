@@ -409,9 +409,7 @@ void AxisNode::inputProcess(){
 	//check if the following errors exceed thresholds
 	if(axisInterface->isEnabled()){
 		if(axisInterface->configuration.controlMode == AxisInterface::ControlMode::POSITION_CONTROL && !axisInterface->isHoming()){
-			
 			if(std::abs(positionFollowingError) > std::abs(positionLoop_maxError->value)){
-				
 				uint64_t now = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 				if(!b_isOverPositionErrorTreshold){
 					positionErrorStartTime_nanos = now;
@@ -555,13 +553,15 @@ void AxisNode::outputProcess(){
 	//control loop update (depends on axis control mode)
 	double velocityCommand;
 	auto updatePositionControlLoop = [&](){
-		
-		if(b_isOverPositionErrorTreshold)
+		if(b_isOverPositionErrorTreshold){
 			velocityCommand = motionProfile.getVelocity();
-		else if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value))
+		}
+		else if(motionProfile.getVelocity() == 0.0 && std::abs(positionFollowingError) < std::abs(positionLoop_minError->value)){
 			velocityCommand = 0.0;
-		else
+		}
+		else{
 			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01 + positionFollowingError * positionLoop_proportionalGain->value;
+		}
 	};
 	
 	switch(internalControlMode){
@@ -617,6 +617,7 @@ void AxisNode::outputProcess(){
 				//not implemented
 				break;
 			case ActuatorMapping::NO_CONTROL:
+				break;
 			default:
 				break;
 		}

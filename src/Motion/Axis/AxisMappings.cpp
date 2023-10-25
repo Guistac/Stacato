@@ -25,6 +25,8 @@ bool FeedbackMapping::load(tinyxml2::XMLElement* parent){
 	parent->QueryAttribute("PinSaveName", &pinSaveString);
 	strcpy(feedbackPin->saveString, pinSaveString);
 	deviceUnitsPerAxisUnits->load(parent);
+	
+	deviceUnitsPerAxisUnits->onEdit();
 }
 
 
@@ -42,6 +44,9 @@ bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
 	controlModeParameter->load(parent);
 	deviceUnitsPerAxisUnits->load(parent);
 	parent->QueryAttribute("PositionOffset", &actuatorPositionOffset);
+	
+	controlModeParameter->onEdit();
+	deviceUnitsPerAxisUnits->onEdit();
 }
 
 
@@ -49,10 +54,8 @@ bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
 std::shared_ptr<SafetyRule> SafetyRule::loadFromSaveString(std::string saveString, std::shared_ptr<AxisNode> axis){
 	static std::vector<SafetyRule*> ruleLibrary = {
 		new FeedbackToFeedbackVelocityComparison(nullptr),
-		//new OtherRule(nullptr),
-		//new CoolRule(nullptr),
-		//new WeirdRule(nullptr),
-		//new ImportantRule(nullptr)
+		new FeedbackToFeedbackPositionComparison(nullptr)
+		//new OtherRule(nullptr)
 	};
 	for(auto rule : ruleLibrary){
 		if(saveString == rule->getSaveString()) return rule->createInstance(axis);

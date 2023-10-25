@@ -436,14 +436,18 @@ void AxisNode::configurationTab(){
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Actuators")){
 			ImGui::PopFont();
+			ImGui::PushID("ActuatorSettings");
 			actuatorControlSettingsGui();
+			ImGui::PopID();
 		}else ImGui::PopFont();
 		
 		
 		ImGui::PushFont(Fonts::sansBold20);
 		if(ImGui::CollapsingHeader("Motion Feedback")){
 			ImGui::PopFont();
+			ImGui::PushID("FeedbackSettings");
 			motionFeedbackSettingsGui();
+			ImGui::PopID();
 		}else ImGui::PopFont();
 		
 		
