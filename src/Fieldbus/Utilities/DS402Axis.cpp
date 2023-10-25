@@ -167,7 +167,7 @@ void DS402Axis::updateInputs(){
 		powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
 	
 	if(previousPowerState != powerStateActual && b_warnPowerStateChanges)
-		Logger::warn("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
+		Logger::info("{} : Power state changed to {}", parentDevice->getName(), Enumerator::getDisplayString(powerStateActual));
 	
 	//Logger::warn("status word: {:b}", processData.statusWord);
 }

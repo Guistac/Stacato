@@ -357,6 +357,11 @@ private:
 	void homingRoutine_HomingOnReferenceSignalCenter();
 	void homingRoutine_HomingOnReferenceSignalEdge();
 	
+	
+	bool overridePositionFeedback(double newValue);
+	bool isBusyOverridingPositionFeedback();
+	bool didPositionFeedbackOverrideSucceed();
+	
 	enum class HomingStep{
 		//general
 		NOT_STARTED,

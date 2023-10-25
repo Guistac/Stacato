@@ -104,7 +104,7 @@ void AxisNode::inputProcess(){
 	
 	if(!b_hasSafetyFault){
 		*safetyFaultOutputSignal = true;
-		if(!*safetyFaultInputSignal){
+		if(safetyFaultInputPin->isConnected() && !*safetyFaultInputSignal){
 			Logger::warn("{} Safety fault triggered by fault signal", getName());
 			axisInterface->disable();
 			b_hasSafetyFault = true;
@@ -163,14 +163,14 @@ void AxisNode::inputProcess(){
 		axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis", getName());
 		for(auto actuatorMapping : actuatorMappings){
-			if(!actuatorMapping->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), actuatorMapping->getName());
+			if(!actuatorMapping->isEnabled()) Logger::warn("[{}] {} was not enabled", getName(), actuatorMapping->getName());
 		}
 		for(auto gpio : connectedGpioInterfaces){
-			if(!gpio->isEnabled()) Logger::warn("[{}]    {} was not enabled", getName(), gpio->getName());
+			if(!gpio->isEnabled()) Logger::warn("[{}] {} was not enabled", getName(), gpio->getName());
 		}
 		
 		if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected() && !selectedPositionFeedbackMapping->isEnabled())
-			Logger::warn("[{}]    {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
+			Logger::warn("[{}] {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
 		
 		if(b_readyStatePinInvalid){
 			Logger::warn("[{}] Ready Signal was not valid", getName());
@@ -329,7 +329,7 @@ void AxisNode::inputProcess(){
 		}
 		if(axisInterface->processData.forceActual < lowerForceLimit->value){
 			if(axisInterface->isEnabled()){
-				Logger::warn("[()] Axis Disabled : Lower Force Limit Exceeded", getName());
+				Logger::warn("[{}] Axis Disabled : Lower Force Limit Exceeded", getName());
 				axisInterface->disable();
 			}
 		}

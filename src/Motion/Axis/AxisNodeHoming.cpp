@@ -3,6 +3,32 @@
 #include "AxisNode.h"
 
 
+bool AxisNode::overridePositionFeedback(double newValue){
+	if(selectedPositionFeedbackMapping != nullptr && selectedPositionFeedbackMapping->isFeedbackConnected()){
+		auto feedbackInterface = selectedPositionFeedbackMapping->getFeedbackInterface();
+		feedbackInterface->overridePosition(0.0);
+		overrideCurrentPosition(0.0);
+		return true;
+	}else{
+		Logger::error("[{}] Could not reset position feedback, there is no position feedback device", getName());
+		return false;
+	}
+}
+
+bool AxisNode::isBusyOverridingPositionFeedback(){
+	return selectedPositionFeedbackMapping != nullptr
+	&& selectedPositionFeedbackMapping->isFeedbackConnected()
+	&& selectedPositionFeedbackMapping->getFeedbackInterface()->isBusyOverridingPosition();
+}
+
+bool AxisNode::didPositionFeedbackOverrideSucceed(){
+	return selectedPositionFeedbackMapping != nullptr
+	&& selectedPositionFeedbackMapping->isFeedbackConnected()
+	&& selectedPositionFeedbackMapping->getFeedbackInterface()->didPositionOverrideSucceed();
+}
+
+
+
 void AxisNode::homingControl(){
 	switch(limitSignalType){
 			
@@ -133,24 +159,22 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 			
 		case HomingStep::FOUND_LOW_LIMIT:
 			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
-				if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
-					auto feedbackInterface = selectedPositionFeedbackMapping->getFeedbackInterface();
-					feedbackInterface->overridePosition(0.0);
-					overrideCurrentPosition(0.0);
+				if(overridePositionFeedback(0.0)){
 					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
 				}else{
-					Logger::error("[{}] Could not reset position feedback, there is no position feedback device", getName());
 					homingStep = HomingStep::FAILED;
-					break;
 				}
 			}
 			break;
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
 			overrideCurrentPosition(0.0);
-			if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()
-			   && selectedPositionFeedbackMapping->getFeedbackInterface()->didPositionOverrideSucceed()){
-				homingStep = HomingStep::FINISHING;
+			if(!isBusyOverridingPositionFeedback()){
+				if(didPositionFeedbackOverrideSucceed()){
+					homingStep = HomingStep::FINISHING;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
 			}
 			break;
 		
@@ -165,24 +189,85 @@ void AxisNode::homingRoutine_HomeToLowerLimitSignal(){
 }
 
 void AxisNode::homingRoutine_HomeToLowerThenUpperLimitSignal(){
-	homingStep = HomingStep::FAILED;
+	
 	switch(homingStep){
 			
 		case HomingStep::NOT_STARTED:
+			setHomingVelocityTarget(-std::abs(homingVelocityCoarse->value));
+			homingStep = HomingStep::SEARCHING_LOW_LIMIT_COARSE;
+			break;
 			
 		case HomingStep::SEARCHING_LOW_LIMIT_COARSE:
+			if(*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_LOW_LIMIT_COARSE;
+			}
+			break;
+			
+		case HomingStep::FOUND_LOW_LIMIT_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
+				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_LOW_LIMIT_FINE;
+			}
+			break;
 			
 		case HomingStep::SEARCHING_LOW_LIMIT_FINE:
+			if(previousLowerLimitSignal && !*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_LOW_LIMIT;
+			}
+			break;
 			
 		case HomingStep::FOUND_LOW_LIMIT:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
+				if(overridePositionFeedback(0.0)){
+					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			overrideCurrentPosition(0.0);
+			if(!isBusyOverridingPositionFeedback()){
+				if(didPositionFeedbackOverrideSucceed()){
+					setHomingVelocityTarget(std::abs(homingVelocityCoarse->value));
+					homingStep = HomingStep::SEARCHING_HIGH_LIMIT_COARSE;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
 			
 		case HomingStep::SEARCHING_HIGH_LIMIT_COARSE:
+			if(*upperLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_HIGH_LIMIT_COARSE;
+			}
+			break;
+			
+		case HomingStep::FOUND_HIGH_LIMIT_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0.0){
+				setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_HIGH_LIMIT_FINE;
+			}
+			break;
 			
 		case HomingStep::SEARCHING_HIGH_LIMIT_FINE:
+			if(previousUpperLimitSignal && !*upperLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_HIGH_LIMIT;
+			}
+			break;
 			
 		case HomingStep::FOUND_HIGH_LIMIT:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0){
+				upperPositionLimit->overwrite(axisInterface->getPositionActual());
+				enableUpperPositionLimit->overwrite(true);
+				homingStep = HomingStep::FINISHED;
+			}
+			break;
 			
 		default: break;
 	}
