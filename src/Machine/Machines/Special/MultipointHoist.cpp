@@ -150,7 +150,9 @@ void MultipointHoist::outputProcess(){
 	
 	double profileTime_seconds = Environnement::getTime_seconds();
 	double profileDeltaTime_seconds = Environnement::getDeltaTime_seconds();
-	for(auto mapping : axisMappings) mapping->updateAxisCommand(profileTime_seconds, profileDeltaTime_seconds);
+	for(auto mapping : axisMappings) {
+		if(mapping->isAxisConnected()) mapping->updateAxisCommand(profileTime_seconds, profileDeltaTime_seconds);
+	}
 }
 
 
@@ -255,10 +257,6 @@ bool MultipointHoist::saveMachine(tinyxml2::XMLElement* xml) {
 		axisMapping->save(mappingXML);
 	}
 	
-	xml->SetAttribute("MaxDistanceBetweenAxes", maxDistanceBetweenAxes);
-	xml->SetAttribute("EnableTwoAxisDistanceConstraint", b_enableTwoAxisDistanceConstraint);
-	xml->SetAttribute("MaxDistanceBetweenTwoAxes", maxDistanceBetweenAxes);
-	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	
@@ -277,10 +275,6 @@ bool MultipointHoist::loadMachine(tinyxml2::XMLElement* xml) {
 		addAxisMapping(newMapping);
 		mappingXML = mappingXML->NextSiblingElement("AxisMapping");
 	}
-	
-	xml->QueryAttribute("MaxDistanceBetweenAxes", &maxDistanceBetweenAxes);
-	xml->QueryAttribute("EnableTwoAxisDistanceConstraint", &b_enableTwoAxisDistanceConstraint);
-	xml->QueryAttribute("MaxDistanceBetweenTwoAxes", &maxDistanceBetweenAxes);
 	
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");

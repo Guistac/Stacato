@@ -110,7 +110,6 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EK1100 SSI Input", "EL5001", "Beckhoff", "I/O", 
 	
 	uint64_t resetStartTime_nanoseconds = 0;
 	
-	int32_t rawPosition_inc = 0;
 	double positionBeforeOffset_rev = 0.0;
 	double positionOffset_rev = 0.0;
 	

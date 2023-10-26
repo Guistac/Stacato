@@ -536,6 +536,20 @@ void ATV340::configureDrive(){
 		if(!writeSDO_U16(0x2046, 0x4, brakeEngageFrequency, "Brake Release Engage Frequency")) return;
 		
 		
+		//[bro] braking resistor monitoring
+		uint16_t brakingResistorMonitoring = brakingResistorMonitoring_Param->value;
+		if(!writeSDO_U16(0x206F, 0xC, brakingResistorMonitoring)) return;
+		
+		//[brp] braking resistor power (in 0.1KW increments)
+		uint16_t brakingResistorPower = brakingResistorPower_Param->value * 10.0;
+		if(!writeSDO_U16(0x206F, 0xD, brakingResistorPower)) return;
+		
+		//[brv] braking resistor value (int 0.1Ohm increments)
+		uint16_t brakingResistorValue = brakingResistorValue_Param->value * 10.0;
+		if(!writeSDO_U16(0x206F, 0xE, brakingResistorValue)) return;
+		
+		
+		
 		//TODO: encoder verification
 		
 		
@@ -667,11 +681,13 @@ void ATV340::configureDrive(){
 }
 
 void ATV340::startStandardTuning(){
-	
+	/*
 	if(isOffline()) Logger::warn("Can't start motor Tuning while drive is offline");
 	else if(!isStateOperational()) return Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
 	else if(!motor->isEnabled()) return Logger::warn("Can't start motor Tuning while the drive is not enabled");
-	else Logger::info("Starting Motor Tuning");
+	else
+	 */
+	Logger::info("Starting Motor Tuning");
 	
 	std::thread motorTuningHandler = std::thread([this](){
 		
@@ -682,8 +698,11 @@ void ATV340::startStandardTuning(){
 		if(!writeSDO_U16(0x2042, 0x1B, tuningType, "Tuning Type")) return;
 		
 		//[tun] autotuning (0=NoAction; 1=ApplyAutotuning; 2=EraseAutotuning)
-		uint16_t autotuning = 1;
-		if(!writeSDO_U16(0x2042, 0x9, autotuning, "Autotuning Control")) return;
+		uint16_t eraseAutotuning = 2;
+		if(!writeSDO_U16(0x2042, 0x9, eraseAutotuning, "Autotuning Control")) return;
+		
+		uint16_t applyAutotuning = 1;
+		if(!writeSDO_U16(0x2042, 0x9, applyAutotuning, "Autotuning Control")) return;
 		
 		Logger::info("Started Autotuning");
 		
@@ -695,7 +714,7 @@ void ATV340::startStandardTuning(){
 			uint16_t autotuningStatus;
 			if(readSDO_U16(0x2042, 0xA, autotuningStatus)){
 				switch(autotuningStatus){
-					case 0: Logger::info("Autotuning Not Done"); return;
+					case 0: Logger::info("Autotuning Not Done"); break;
 					case 1: Logger::info("Autotuning Pending"); break;
 					case 2: break;
 					case 3: Logger::error("Autotuning Failed"); return;
@@ -715,10 +734,13 @@ void ATV340::startStandardTuning(){
 
 void ATV340::startRotationTuning(){
 	
+	/*
 	if(isOffline()) return Logger::warn("Can't start motor Tuning while drive is offline");
 	else if(!isStateOperational()) return Logger::warn("Can't start motor Tuning while the drive is not operational and the network running");
 	else if(!motor->isEnabled()) return Logger::warn("Can't start motor Tuning while the drive is not enabled");
-	else Logger::info("Starting Motor Tuning");
+	else
+	 */
+	Logger::info("Starting Motor Tuning");
 	
 	std::thread motorTuningHandler = std::thread([this](){
 		

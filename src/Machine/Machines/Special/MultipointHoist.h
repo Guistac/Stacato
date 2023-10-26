@@ -35,8 +35,6 @@ class MultipointHoist : public Machine{
 	double masterVelocityCommand = 0.0;
 	
 	bool b_enableGroupSurveillance = true;
-	bool b_enableTwoAxisDistanceConstraint = false;
-	double maxDistanceBetweenAxes = 0.0;
 	
 	
 	void setMasterVelocityTarget(double velocityTarget);

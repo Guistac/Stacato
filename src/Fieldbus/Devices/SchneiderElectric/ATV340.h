@@ -310,6 +310,14 @@ public:
 			&DI16_Low
 		};
 		
+		Option brakingSensorMonitoring_Ignore = Option(0, "Ignore", "Ignore");
+		Option brakingSensorMonitoring_Warning = Option(1, "Trigger Warning", "TriggerWarning");
+		Option brakingSensorMonitoring_Fault = Option(2, "Trigger Error", "TriggerError");
+		std::vector<Option*> brakingSensorMonitoring_Options = {
+			&brakingSensorMonitoring_Ignore,
+			&brakingSensorMonitoring_Warning,
+			&brakingSensorMonitoring_Fault
+		};
 		
 		
 	};
@@ -382,6 +390,15 @@ public:
 	//[ben] brake engage frequency (default is 0Hz)
 	NumberParam<double> brakeEngageFrequency_Param = NumberParameter<double>::make(0.0, "Brake Engage Frequency", "BrakeEngageFrequency", "%.1f", Units::Frequency::Hertz, false);
 	
+	//[bro] braking resistor monitoring
+	OptionParam brakingResistorMonitoring_Param = OptionParameter::make(options.brakingSensorMonitoring_Ignore, options.brakingSensorMonitoring_Options, "Braking Resistor Monitoring", "BrakingResistorMonitoring");
+	
+	//[brp] braking resistor power
+	NumberParam<double> brakingResistorPower_Param = NumberParameter<double>::make(0.1, "Braking Resistor Power", "BrakingResistorPower", "%.1f", Units::Power::KiloWatt, false);
+	
+	//[brv] braking resistor value
+	NumberParam<double> brakingResistorValue_Param = NumberParameter<double>::make(0.1, "Braking Resistor Value", "BrakingResistorValue", "%.1f", Units::Resistance::Ohm, false);
+	
 	ParameterGroup brakeLogicParameters = ParameterGroup("BrakeLogic", {
 		brakeOutputAssignement_Param,
 		brakeMovementType_Param,
@@ -389,7 +406,10 @@ public:
 		brakeEngageTime_Param,
 		brakeReleaseCurrent_Param,
 		brakeReleaseFrequency_Param,
-		brakeEngageFrequency_Param
+		brakeEngageFrequency_Param,
+		brakingResistorMonitoring_Param,
+		brakingResistorPower_Param,
+		brakingResistorValue_Param
 	});
 	
 	//———— Embedded Encoder

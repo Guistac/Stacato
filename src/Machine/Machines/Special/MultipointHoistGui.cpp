@@ -131,15 +131,6 @@ void MultipointHoist::settingsGui() {
 	}
 	if(deletedMapping) removeAxisMapping(deletedMapping);
 	
-
-	
-	if(axisMappings.size() == 2){
-		ImGui::Checkbox("Enable Two Axis Distance Constraint", &b_enableTwoAxisDistanceConstraint);
-		ImGui::BeginDisabled(!b_enableTwoAxisDistanceConstraint);
-		ImGui::InputDouble("Max Distance Between Axes", &maxDistanceBetweenAxes);
-		ImGui::EndDisabled();
-	}
-	
 }
 
 
@@ -164,6 +155,13 @@ void MultipointHoist::ControlWidget::gui(){
 }
 
 void MultipointHoist::widgetGui(){
+	
+	if(axisMappings.size() == 0){
+		ImGui::TextColored(Colors::red, "No Axis Configured");
+		return;
+	}
+	
+	
 	float controlsHeight = ImGui::GetTextLineHeight() * 10.0;
 	
 	for(int i = 0; i < axisMappings.size(); i++){
@@ -270,10 +268,6 @@ void MultipointHoist::widgetGui(){
 		if(i < axisMappings.size() - 1) ImGui::SameLine();
 	}
 	
-	
-	
-	
-	
 	ImGui::SameLine();
 	
 	float masterControlHeight = ImGui::GetItemRectSize().y - ImGui::GetTextLineHeightWithSpacing() - ImGui::GetStyle().ItemSpacing.y;
@@ -298,13 +292,17 @@ void MultipointHoist::setupGui(){
 	ImGui::Checkbox("Enable Group Surveillance", &b_enableGroupSurveillance);
 	
 	for(int i = 0; i < axisMappings.size(); i++){
+		auto axisMapping = axisMappings[i];
 		ImGui::Separator();
-		ImGui::PushFont(Fonts::sansBold15);
-		backgroundText(axisMappings[i]->getAxis()->getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), Colors::darkGray);
-		ImGui::PopFont();
-		ImGui::PushID(i);
-		axisMappings[i]->setupGui();
-		ImGui::PopID();
+		if(!axisMapping->isAxisConnected()) ImGui::TextColored(Colors::red, "No Axis Connected");
+		else {
+			ImGui::PushFont(Fonts::sansBold15);
+			backgroundText(axisMappings[i]->getAxis()->getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), Colors::darkGray);
+			ImGui::PopFont();
+			ImGui::PushID(i);
+			axisMappings[i]->setupGui();
+			ImGui::PopID();
+		}
 	}
 	
 }

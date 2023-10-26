@@ -275,7 +275,6 @@ void EL5001::readInputs() {
 	b_txPdoState = status & 0x40;	//b6	//true when disconnecting both clock signals, data- signal or encoder power
 	b_txPdoToggle = status & 0x80;	//b7
 	
-	rawPosition_inc = ssiValue;
 	uint32_t incrementsPerRevolution = 0x1 << singleturnResolution->value;
 	uint32_t incrementsTotal = 0x1 << (singleturnResolution->value + multiturnResolution->value);
 	
@@ -335,7 +334,7 @@ void EL5001::writeOutputs(){
 	if(encoder->feedbackProcessData.b_positionOverrideBusy){
 		encoder->feedbackProcessData.velocityActual = 0.0;
 		*resetPinValue = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds < resetSignalTime_Param->value * 1000000;
-		if(rawPosition_inc == 0x0){
+		if(ssiValue == 0x0){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
 			positionOffset_rev = encoder->feedbackProcessData.positionOverride;
