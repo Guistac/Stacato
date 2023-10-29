@@ -312,6 +312,23 @@ public:
 		endPoint->inAcceleration = targetAcceleration;
 		
 		targetInterpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, targetVelocity);
+		
+		/*
+		targetInterpolation->updateDisplayCurvePoints();
+		for(auto& point : targetInterpolation->displayPoints) Logger::critical("Pos: {}", point.position);
+		Logger::warn("-------------");
+		
+		if(targetInterpolation->coastVelocity > 0.0){
+			if(targetInterpolation->coastEndPosition > targetInterpolation->endPosition){
+				Logger::critical("OVERSHOOT end:{} coastEnd:{}", targetInterpolation->endPosition, targetInterpolation->coastEndPosition);
+			}
+		}else{
+			if(targetInterpolation->coastEndPosition < targetInterpolation->endPosition){
+				Logger::critical("OVERSHOOT end:{} coastEnd:{}", targetInterpolation->endPosition, targetInterpolation->coastEndPosition);
+			}
+		}
+		*/
+		
 		return targetInterpolation != nullptr;
 	}
 	

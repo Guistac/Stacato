@@ -153,6 +153,10 @@ void AxisMapping::controlGui(){
 							   glm::vec2(max.x - triangleSize, axisPositionY + triangleSize * .4f),
 							   glm::vec2(max.x - triangleSize, axisPositionY - triangleSize * .4f),
 							   ImColor(Colors::white));
+		
+	//draw profiler position
+	float profilerPositionY = getDrawingPosition(animatablePosition->motionProfile.getPosition());
+	drawing->AddLine(glm::vec2(min.x, axisPositionY), glm::vec2(max.x, axisPositionY), ImColor(Colors::black), 1.0);
 
 	//draw current constraint limits
 	double minPositionLimit, maxPositionLimit;

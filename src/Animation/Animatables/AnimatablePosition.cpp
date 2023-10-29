@@ -389,6 +389,7 @@ void AnimatablePosition::setVelocityTarget(double velocityTarget){
 
 void AnimatablePosition::moveToPositionWithVelocity(double targetPosition, double targetVelocity){
 	targetPosition = std::clamp(targetPosition, lowerPositionLimit, upperPositionLimit);
+	targetVelocity = std::clamp(targetVelocity, 0.0, velocityLimit);
 	if(motionProfile.moveToPositionWithVelocity(profileTime_seconds, targetPosition, targetVelocity, accelerationLimit)) controlMode = POSITION_SETPOINT;
 }
 
@@ -616,6 +617,7 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 		auto interpolationPoint = motionProfile.getInterpolationPoint(profileTime_seconds);
 		positionSetpoint = interpolationPoint.position;
 		velocitySetpoint = interpolationPoint.velocity;
+		accelerationSetpoint = interpolationPoint.acceleration; //EXPERIMENTAL
 		controlMode = POSITION_SETPOINT;
 		if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
 			velocitySetpoint = 0.0;
@@ -657,11 +659,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 																velocityLimit,
 																minPosition,
 																maxPosition);
-			/*
-			if(strcmp(getName(), "Anneau") == 0){
-				Logger::warn("anneau diff: {}", positionSetpoint - motionProfile.getPosition());
-			}
-			 */
 			break;
 	}
 	
