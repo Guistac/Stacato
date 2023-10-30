@@ -1078,7 +1078,7 @@ void FeedbackToFeedbackPositionComparison::gui(){
 	double position1 = 0.0;
 	double position2 = 0.0;
 	
-	if(mapping1 && mapping1 && mapping1->isFeedbackConnected() && mapping2->isFeedbackConnected()){
+	if(mapping1 && mapping2 && mapping1->isFeedbackConnected() && mapping2->isFeedbackConnected()){
 		auto feedbackDevice1 = mapping1->getFeedbackInterface();
 		auto feedbackDevice2 = mapping2->getFeedbackInterface();
 		if(feedbackDevice1->getType() == DeviceInterface::Type::ACTUATOR){
