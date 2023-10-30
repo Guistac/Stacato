@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "MultipointHoist.h"
+#include "MultiAxisMachine.h"
 
 #include "Motion/Axis/AxisNode.h"
 
@@ -17,11 +17,11 @@
 #include "Environnement/Environnement.h"
 
 
-void MultipointHoist::controlsGui() {
+void MultiAxisMachine::controlsGui() {
 	widgetGui();
 }
 
-void MultipointHoist::settingsGui() {
+void MultiAxisMachine::settingsGui() {
 	if(ImGui::Button("Add Axis")) addAxisMapping();
 	
 	std::shared_ptr<AxisMapping> deletedMapping = nullptr;
@@ -135,12 +135,12 @@ void MultipointHoist::settingsGui() {
 
 
 
-void MultipointHoist::axisGui() {}
-void MultipointHoist::deviceGui() {}
-void MultipointHoist::metricsGui() {}
+void MultiAxisMachine::axisGui() {}
+void MultiAxisMachine::deviceGui() {}
+void MultiAxisMachine::metricsGui() {}
 
 
-void MultipointHoist::ControlWidget::gui(){
+void MultiAxisMachine::ControlWidget::gui(){
 	
 	glm::vec2 headerCursorPos = machine->reserveSpaceForMachineHeaderGui();
 	
@@ -154,7 +154,7 @@ void MultipointHoist::ControlWidget::gui(){
 	
 }
 
-void MultipointHoist::widgetGui(){
+void MultiAxisMachine::widgetGui(){
 	
 	if(axisMappings.size() == 0){
 		ImGui::TextColored(Colors::red, "No Axis Configured");
@@ -288,7 +288,7 @@ void MultipointHoist::widgetGui(){
 	
 }
 
-void MultipointHoist::setupGui(){
+void MultiAxisMachine::setupGui(){
 	ImGui::Checkbox("Enable Group Surveillance", &b_enableGroupSurveillance);
 	
 	for(int i = 0; i < axisMappings.size(); i++){

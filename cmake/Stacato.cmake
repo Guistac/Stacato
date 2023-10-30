@@ -334,18 +334,18 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMapping.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMapping.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMappingGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/MultiAxisMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/MultiAxisMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/MultiAxisMachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/FlipStateMachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachineGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoist.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoist.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MultipointHoistGui.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMapping.cpp
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMapping.h
-    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/AxisMappingGui.cpp
 
     #========================= AXIS TYPES =========================
     

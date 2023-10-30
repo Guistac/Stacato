@@ -3,10 +3,10 @@
 #include "NodeFactory.h"
 
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
+#include "Machine/Machines/Basic/MultiAxisMachine.h"
 
 #include "Machine/Machines/StateMachines/FlipStateMachine.h"
 #include "Machine/Machines/StateMachines/AxisStateMachine.h"
-#include "Machine/Machines/Special/MultipointHoist.h"
 
 #include "Motion/Axis/AxisNode.h"
 
@@ -31,9 +31,9 @@ namespace NodeFactory{
 		
 		allMachineNodes = {
 			new PositionControlledMachine(),
+			new MultiAxisMachine(),
 			new FlipStateMachine(),
-			new AxisStateMachine(),
-			new MultipointHoist()
+			new AxisStateMachine()
 		};
 		
 		allSafetyNodes = {

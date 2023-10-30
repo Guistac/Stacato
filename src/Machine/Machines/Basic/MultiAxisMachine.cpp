@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "MultipointHoist.h"
+#include "MultiAxisMachine.h"
 
 #include "Motion/Axis/AxisNode.h"
 #include "Animation/Animatable.h"
@@ -18,12 +18,12 @@
 
 #include "Motion/Safety/DeadMansSwitch.h"
 
-void MultipointHoist::initialize() {
-	auto thisMachine = std::static_pointer_cast<MultipointHoist>(shared_from_this());
+void MultiAxisMachine::initialize() {
+	auto thisMachine = std::static_pointer_cast<MultiAxisMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
 }
 
-void MultipointHoist::onPinUpdate(std::shared_ptr<NodePin> pin){
+void MultiAxisMachine::onPinUpdate(std::shared_ptr<NodePin> pin){
 	for(auto axisMapping : axisMappings){
 		if(pin == axisMapping->axisPin){
 			auto axisInterface = pin->getConnectedPin()->getSharedPointer<AxisInterface>();
@@ -34,7 +34,7 @@ void MultipointHoist::onPinUpdate(std::shared_ptr<NodePin> pin){
 	}
 }
 
-void MultipointHoist::onPinConnection(std::shared_ptr<NodePin> pin){
+void MultiAxisMachine::onPinConnection(std::shared_ptr<NodePin> pin){
 	for(auto axisMapping : axisMappings){
 		if(pin == axisMapping->axisPin){
 			auto axisInterface = pin->getConnectedPin()->getSharedPointer<AxisInterface>();
@@ -45,7 +45,7 @@ void MultipointHoist::onPinConnection(std::shared_ptr<NodePin> pin){
 	}
 }
 
-void MultipointHoist::onPinDisconnection(std::shared_ptr<NodePin> pin){
+void MultiAxisMachine::onPinDisconnection(std::shared_ptr<NodePin> pin){
 	for(auto axisMapping : axisMappings){
 		if(pin == axisMapping->axisPin){
 			axisMapping->animatablePosition->setName(pin->displayString);
@@ -55,7 +55,7 @@ void MultipointHoist::onPinDisconnection(std::shared_ptr<NodePin> pin){
 	}
 }
 
-bool MultipointHoist::isHardwareReady() {
+bool MultiAxisMachine::isHardwareReady() {
 	for(auto mapping : axisMappings){
 		if(!mapping->isAxisConnected()) return false;
 		auto axisInterface = mapping->getAxis();
@@ -64,23 +64,23 @@ bool MultipointHoist::isHardwareReady() {
 	return true;
 }
 
-bool MultipointHoist::isMoving() { return false; }
+bool MultiAxisMachine::isMoving() { return false; }
 
-void MultipointHoist::enableHardware() {
+void MultiAxisMachine::enableHardware() {
 	for(auto mapping : axisMappings){
 		if(!mapping->isAxisConnected()) continue;
 		mapping->getAxis()->enable();
 	}
 }
 
-void MultipointHoist::disableHardware() {
+void MultiAxisMachine::disableHardware() {
 	for(auto mapping : axisMappings){
 		if(!mapping->isAxisConnected()) continue;
 		mapping->getAxis()->disable();
 	}
 }
 
-void MultipointHoist::inputProcess() {
+void MultiAxisMachine::inputProcess() {
 	
 	DeviceState lowestState = DeviceState::ENABLED;
 	b_emergencyStopActive = false;
@@ -124,7 +124,7 @@ void MultipointHoist::inputProcess() {
 	//update distance constraints
 }
 
-void MultipointHoist::outputProcess(){
+void MultiAxisMachine::outputProcess(){
 
 	//handle group surveillance
 	if(b_enableGroupSurveillance){
@@ -157,21 +157,21 @@ void MultipointHoist::outputProcess(){
 
 
 
-void MultipointHoist::onEnableHardware() {}
-void MultipointHoist::onDisableHardware() {}
-bool MultipointHoist::isSimulationReady(){}
-void MultipointHoist::onEnableSimulation() {}
-void MultipointHoist::onDisableSimulation() {}
-std::string MultipointHoist::getStatusString(){ return "No Status..."; }
-void MultipointHoist::simulateInputProcess() {}
-void MultipointHoist::simulateOutputProcess(){}
+void MultiAxisMachine::onEnableHardware() {}
+void MultiAxisMachine::onDisableHardware() {}
+bool MultiAxisMachine::isSimulationReady(){}
+void MultiAxisMachine::onEnableSimulation() {}
+void MultiAxisMachine::onDisableSimulation() {}
+std::string MultiAxisMachine::getStatusString(){ return "No Status..."; }
+void MultiAxisMachine::simulateInputProcess() {}
+void MultiAxisMachine::simulateOutputProcess(){}
 
 
 
 
 //========= ANIMATABLE OWNER ==========
 
-void MultipointHoist::fillAnimationDefaults(std::shared_ptr<Animation> animation){
+void MultiAxisMachine::fillAnimationDefaults(std::shared_ptr<Animation> animation){
 	for(auto mapping : axisMappings){
 		auto animatable = mapping->animatablePosition;
 		if(animation->getAnimatable() == animatable){
@@ -202,14 +202,14 @@ void MultipointHoist::fillAnimationDefaults(std::shared_ptr<Animation> animation
 
 
 
-void MultipointHoist::getDevices(std::vector<std::shared_ptr<Device>>& output) {}
+void MultiAxisMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) {}
 
 
 
 
 
 
-void MultipointHoist::setMasterVelocityTarget(double velocityTarget){
+void MultiAxisMachine::setMasterVelocityTarget(double velocityTarget){
 	for(auto mapping : axisMappings){
 		auto animatable = mapping->animatablePosition;
 		animatable->setManualControlTarget(velocityTarget);
@@ -221,20 +221,20 @@ void MultipointHoist::setMasterVelocityTarget(double velocityTarget){
 
 
 
-void MultipointHoist::addAxisMapping(){
+void MultiAxisMachine::addAxisMapping(){
 	auto newMapping = std::make_shared<AxisMapping>();
 	snprintf(newMapping->axisPin->displayString, 64, "Axis %i", (int)axisMappings.size());
 	snprintf(newMapping->axisPin->saveString, 64, "Axis%i", (int)axisMappings.size());
 	addAxisMapping(newMapping);
 }
 
-void MultipointHoist::addAxisMapping(std::shared_ptr<AxisMapping> mapping){
+void MultiAxisMachine::addAxisMapping(std::shared_ptr<AxisMapping> mapping){
 	axisMappings.push_back(mapping);
 	addNodePin(mapping->axisPin);
 	addAnimatable(mapping->animatablePosition);
 }
 
-void MultipointHoist::removeAxisMapping(std::shared_ptr<AxisMapping> mapping){
+void MultiAxisMachine::removeAxisMapping(std::shared_ptr<AxisMapping> mapping){
 	for(int i = 0; i < axisMappings.size(); i++){
 		if(axisMappings[i] == mapping){
 			axisMappings.erase(axisMappings.begin() + i);
@@ -248,7 +248,7 @@ void MultipointHoist::removeAxisMapping(std::shared_ptr<AxisMapping> mapping){
 
 
 
-bool MultipointHoist::saveMachine(tinyxml2::XMLElement* xml) {
+bool MultiAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
 	XMLElement* axisMappingsXML = xml->InsertNewChildElement("AxisMappings");
@@ -263,7 +263,7 @@ bool MultipointHoist::saveMachine(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
-bool MultipointHoist::loadMachine(tinyxml2::XMLElement* xml) {
+bool MultiAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
 	XMLElement* axisMappingsXML = xml->FirstChildElement("AxisMappings");

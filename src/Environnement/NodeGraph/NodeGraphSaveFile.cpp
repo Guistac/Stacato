@@ -271,6 +271,8 @@ namespace Environnement::NodeGraph{
 			
 			if (linkUniqueID > largestUniqueID) largestUniqueID = linkUniqueID;
 
+			bool b_foundPins = true;
+			
 			std::shared_ptr<NodePin> startPin;
 			for (auto pin : getPins()) {
 				if (pin->getUniqueID() == startPinID) {
@@ -278,7 +280,10 @@ namespace Environnement::NodeGraph{
 					break;
 				}
 			}
-			if (!startPin) return Logger::warn("Could not find matching node pin ID for start pin");
+			if (!startPin) {
+				Logger::warn("Could not find matching node pin ID for start pin");
+				b_foundPins = false;
+			}
 			
 			std::shared_ptr<NodePin> endPin;
 			for (auto pin : getPins()) {
@@ -287,21 +292,27 @@ namespace Environnement::NodeGraph{
 					break;
 				}
 			}
-			if (!endPin) return Logger::warn("Could not find matching node pin ID for end pin");
-
-			if (!isConnectionValid(startPin, endPin)) return Logger::warn("Saved link could not be evaluated as a valid connection");
-			std::shared_ptr<NodeLink> newIoLink = std::make_shared<NodeLink>();
-			newIoLink->uniqueID = linkUniqueID;
-			newIoLink->inputData = startPin->isOutput() ? startPin : endPin;
-			newIoLink->outputData = endPin->isInput() ? endPin : startPin;
-			startPin->nodeLinks.push_back(newIoLink);
-			endPin->nodeLinks.push_back(newIoLink);
+			if (!endPin) {
+				Logger::warn("Could not find matching node pin ID for end pin");
+				b_foundPins = false;
+			}
 			
-			getLinks().push_back(newIoLink);
-			startPin->parentNode->onPinConnection(startPin);
-			endPin->parentNode->onPinConnection(endPin);
- 
-			Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);
+			if(b_foundPins){	
+				if (!isConnectionValid(startPin, endPin)) return Logger::warn("Saved link could not be evaluated as a valid connection");
+				std::shared_ptr<NodeLink> newIoLink = std::make_shared<NodeLink>();
+				newIoLink->uniqueID = linkUniqueID;
+				newIoLink->inputData = startPin->isOutput() ? startPin : endPin;
+				newIoLink->outputData = endPin->isInput() ? endPin : startPin;
+				startPin->nodeLinks.push_back(newIoLink);
+				endPin->nodeLinks.push_back(newIoLink);
+				
+				getLinks().push_back(newIoLink);
+				startPin->parentNode->onPinConnection(startPin);
+				endPin->parentNode->onPinConnection(endPin);
+				
+				Logger::trace("Loaded Node Link with ID: {}  StartPin: {}  EndPin: {}", linkUniqueID, startPinID, endPinID);
+			}
+			
 			linkXML = linkXML->NextSiblingElement("Link");
 		}
 		

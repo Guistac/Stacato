@@ -12,9 +12,9 @@
 
 #include "AxisMapping.h"
 
-class MultipointHoist : public Machine{
+class MultiAxisMachine : public Machine{
 	
-	DEFINE_MACHINE_NODE(MultipointHoist, "Multipoint Hoist", "MultipointHoist", "Special")
+	DEFINE_MACHINE_NODE(MultiAxisMachine, "Multi Axis Machine", "MultiAxisMachine", "Basic")
 
 	
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
@@ -42,8 +42,8 @@ class MultipointHoist : public Machine{
 	
 	class ControlWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<MultipointHoist> machine_) : Widget("Machines"), machine(machine_){}
-		std::shared_ptr<MultipointHoist> machine;
+		ControlWidget(std::shared_ptr<MultiAxisMachine> machine_) : Widget("Machines"), machine(machine_){}
+		std::shared_ptr<MultiAxisMachine> machine;
 		virtual void gui() override;
 		virtual std::string getName() override {
 			return machine->getName();
