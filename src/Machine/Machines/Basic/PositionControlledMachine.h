@@ -44,9 +44,6 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<NumberParameter<double>> axisOffset = NumberParameter<double>::make(0.0, "Axis Offset", "AxisOffset", "%.3f");
 	std::shared_ptr<NumberParameter<double>> lowerPositionLimit = NumberParameter<double>::make(0.0, "Lower Position Limit", "LowerPositionLimit", "%.3f");
 	std::shared_ptr<NumberParameter<double>> upperPositionLimit = NumberParameter<double>::make(0.0, "Upper Position Limit", "UpperPositionLimit", "%.3f");
-	//std::shared_ptr<NumberParameter<double>> velocityLimit = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit", "%.3f");
-	//std::shared_ptr<NumberParameter<double>> accelerationLimit = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit", "%.3f");
-	
 	
 	std::shared_ptr<BooleanParameter> allowUserZeroEdit = BooleanParameter::make(false, "Allow User Zero Edit", "AllowUserZeroEdit");
 	std::shared_ptr<BooleanParameter> allowUserLowerLimitEdit = BooleanParameter::make(false, "Allow User Lower Limit Edit", "AllowUserLowerLimitEdit");
@@ -56,6 +53,14 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<BooleanParameter> allowUserEncoderRangeReset = BooleanParameter::make(false, "Allow User Encoder Range Reset", "AllowUserEncoderRangeReset");
 	std::shared_ptr<BooleanParameter> invertControlGui = BooleanParameter::make(false, "Invert Control Gui", "InvertControlGui");
 	std::shared_ptr<BooleanParameter> allowModuloPositionShifting = BooleanParameter::make(false, "Allow Modulo Position Shifting", "AllowModulePositionShifting");
+	
+	OptionParameter::Option linearWidgetOrientation_vertical = OptionParameter::Option(0, "Vertical", "Vertical");
+	OptionParameter::Option linearWidgetOrientation_horizontal = OptionParameter::Option(1, "Horizontal", "Horizontal");
+	std::vector<OptionParameter::Option*> linearWidgetOrientation_options = {
+		&linearWidgetOrientation_vertical,
+		&linearWidgetOrientation_horizontal
+	};
+	std::shared_ptr<OptionParameter> linearWidgetOrientation_parameter = OptionParameter::make2(linearWidgetOrientation_vertical, linearWidgetOrientation_options, "Widget Orientation", "WidgetOrientation");
 	
 	//————————— Unit Conversion & Limits ——————————
 	
@@ -93,7 +98,8 @@ class PositionControlledMachine : public Machine{
 	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
 	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
 	
-	void linearWidgetGui();
+	void verticalWidgetGui();
+	void horizontalWidgetGui();
 	void angularWidgetGui();
 	
 	void widgetGui();

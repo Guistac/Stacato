@@ -1,6 +1,45 @@
 <Environnement name="Starmania" notes="
 ">
-    <Dashboard Scale="1.1822289" OffsetX="1108.4667" OffsetY="-699.59357" AutoFit="true" DrawGrid="false" LockEdit="true"/>
+    <Dashboard Scale="0.26867801" OffsetX="1825.8308" OffsetY="-96.286865" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1114" PositionY="1776" SizeX="136.49986" SizeY="218.71983"/>
+        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-971" PositionY="1779" SizeX="136.49986" SizeY="219.44177"/>
+        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-825" PositionY="1777" SizeX="136.49986" SizeY="217.71983"/>
+        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-679" PositionY="1778" SizeX="136.49986" SizeY="220.44177"/>
+        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-533" PositionY="1780" SizeX="136.49986" SizeY="218.44177"/>
+        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1111" PositionY="2011" SizeX="136.49986" SizeY="218.2012"/>
+        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.49986" SizeY="218.2012"/>
+        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.49986" SizeY="218.92293"/>
+        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-383" PositionY="2015" SizeX="136.49986" SizeY="217.92293"/>
+        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.49986" SizeY="218.68257"/>
+        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.49986" SizeY="217.68259"/>
+        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.49986" SizeY="219.12646"/>
+        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-380" PositionY="2253" SizeX="136.49986" SizeY="218.12646"/>
+        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.49986" SizeY="219.88589"/>
+        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1110" PositionY="2484" SizeX="136.49986" SizeY="217.88589"/>
+        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-962" PositionY="2484" SizeX="136.49986" SizeY="217.88589"/>
+        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-815" PositionY="2484" SizeX="136.49986" SizeY="217.88589"/>
+        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-668" PositionY="2487" SizeX="136.49986" SizeY="218.60783"/>
+        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.49986" SizeY="218.60783"/>
+        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-381" PositionY="2490" SizeX="136.49986" SizeY="219.32977"/>
+        <Widget Name="Tournette Centre" UniqueID="41" PositionX="-939" PositionY="2064" SizeX="178.50012" SizeY="377.35086"/>
+        <Widget Name="Tournette Anneau" UniqueID="42" PositionX="-749" PositionY="2067" SizeX="178.50012" SizeY="378.07281"/>
+        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1534" PositionY="2480" SizeX="262.50018" SizeY="221.88588"/>
+        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1807" PositionY="2481" SizeX="262.50018" SizeY="220.88588"/>
+        <Widget Name="Lames Vidéo Face" UniqueID="27" PositionX="-1536" PositionY="2235" SizeX="262.50018" SizeY="221.23868"/>
+        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1811" PositionY="1743" SizeX="262.50018" SizeY="221.94426"/>
+        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1543" PositionY="1750" SizeX="262.50018" SizeY="222.38815"/>
+        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1815" PositionY="1986" SizeX="262.50018" SizeY="224.59167"/>
+        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1544" PositionY="1987" SizeX="262.50018" SizeY="223.59169"/>
+        <Widget Name="Lames Vidéo Lointain" UniqueID="26" PositionX="-1810" PositionY="2232" SizeX="262.50018" SizeY="224.23866"/>
+        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-232" PositionY="2210" SizeX="372.70004" SizeY="491.88577"/>
+        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.09999" SizeY="386.53824"/>
+        <Widget Name="Romaine" UniqueID="31" PositionX="-219" PositionY="1895" SizeX="180.59961" SizeY="185.32426"/>
+        <Widget Name="H.M. Vol" UniqueID="38" PositionX="144" PositionY="1858" SizeX="178.50012" SizeY="136.71976"/>
+        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2009" SizeX="157.49976" SizeY="104.82146"/>
+        <Widget Name="H.M. Cour" UniqueID="37" PositionX="151" PositionY="2538" SizeX="178.50012" SizeY="137.83243"/>
+        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="149" PositionY="2387" SizeX="178.50012" SizeY="136.2334"/>
+        <Widget Name="A.U." UniqueID="34" PositionX="159" PositionY="2268" SizeX="157.49976" SizeY="102.63428"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV340" Split="true" CustomName="ATV340 Palan A (Alias:1101)" UniqueID="1101">
@@ -2422,7 +2461,7 @@
                 <NodeEditorPosition x="3090" y="2"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="1.3799999999999999" LowerPositionLimit="0" UpperPositionLimit="24.620000000000001"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="22"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2437,8 +2476,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Périacte Lointain Cour" UniqueID="12440">
                 <NodeEditorPosition x="3115" y="160"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="-25.050000000000001"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="25.050000000000001"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="23"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2454,7 +2493,7 @@
                 <NodeEditorPosition x="3028" y="385"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="1.3999999999999999" LowerPositionLimit="0" UpperPositionLimit="24.600000000000001"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="24"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2469,8 +2508,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Périacte Milieu Cour" UniqueID="12450">
                 <NodeEditorPosition x="3056" y="542"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="-25"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="25"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="25"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2485,8 +2524,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lames Vidéo Lointain" UniqueID="12455">
                 <NodeEditorPosition x="2838" y="765"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="11.913" LowerPositionLimit="0" UpperPositionLimit="-10.913"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <Limits InvertAxis="true" AxisOffset="11.913" LowerPositionLimit="0" UpperPositionLimit="10.913"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="26"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2501,8 +2540,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lames Vidéo Face" UniqueID="12460">
                 <NodeEditorPosition x="2838" y="941"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="11.93" LowerPositionLimit="0" UpperPositionLimit="-10.93"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <Limits InvertAxis="true" AxisOffset="11.93" LowerPositionLimit="0" UpperPositionLimit="10.93"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="27"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2518,7 +2557,7 @@
                 <NodeEditorPosition x="3073" y="1156"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="1" LowerPositionLimit="0" UpperPositionLimit="0"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="28"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2533,8 +2572,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Périacte Face Cour" UniqueID="12470">
                 <NodeEditorPosition x="3103" y="1314"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="-25"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <Limits InvertAxis="true" AxisOffset="26" LowerPositionLimit="0" UpperPositionLimit="25"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
                     <ControWidget UniqueID="29"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2550,7 +2589,7 @@
                 <NodeEditorPosition x="3817" y="2428"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="9" LowerPositionLimit="3.968" UpperPositionLimit="0"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <ControWidget UniqueID="30"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2712,7 +2751,7 @@
                 <NodeEditorPosition x="4829" y="2474"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <ControWidget UniqueID="41"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2728,7 +2767,7 @@
                 <NodeEditorPosition x="4825" y="2631"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <ControWidget UniqueID="42"/>
                 </NodeSpecificData>
                 <InputPins>

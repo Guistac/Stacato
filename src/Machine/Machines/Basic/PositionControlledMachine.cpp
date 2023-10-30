@@ -53,38 +53,11 @@ void PositionControlledMachine::initialize() {
 	
 	axisOffset->setEditCallback([this](std::shared_ptr<Parameter>){
 		auto axis = getAxisInterface();
-		//TODO: what is this for ??
-		//if(axisOffset->value < axis->getLowerPositionLimit()) axisOffset->overwrite(axis->getLowerPositionLimit());
-		//if(axisOffset->value > axis->getUpperPositionLimit()) axisOffset->overwrite(axis->getUpperPositionLimit());
 		upperPositionLimit->onEdit();
 		lowerPositionLimit->onEdit();
 		updateAnimatableParameters();
 	});
 	
-	/*
-	velocityLimit->setSuffix("/s");
-	velocityLimit->addEditCallback([this](){
-		if(isAxisConnected()) {
-			double axisVelocityLimit = getAxisInterface()->getVelocityLimit();
-			double clamped = std::clamp(velocityLimit->value, 0.0, axisVelocityLimit);
-			velocityLimit->overwrite(clamped);
-		}
-		animatablePosition->velocityLimit = velocityLimit->value;
-	});
-	accelerationLimit->setSuffix("/s\xc2\xb2");
-	accelerationLimit->addEditCallback([this](){
-		if(isAxisConnected()) {
-			double axisAccelerationLimit = getAxisInterface()->getAccelerationLimit();
-			double clamped = std::clamp(accelerationLimit->value, 0.0, axisAccelerationLimit);
-			accelerationLimit->overwrite(clamped);
-		}
-		animatablePosition->accelerationLimit = accelerationLimit->value;
-	});
-	
-	
-	animatablePosition->velocityLimit = std::abs(velocityLimit->value);
-	animatablePosition->accelerationLimit = std::abs(accelerationLimit->value);
-	*/
 }
 
 bool PositionControlledMachine::isAxisConnected() {
@@ -436,28 +409,13 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	axisOffset->setUnit(positionUnit);
 	lowerPositionLimit->setUnit(positionUnit);
 	upperPositionLimit->setUnit(positionUnit);
-	/*
-	velocityLimit->setUnit(positionUnit);
-	accelerationLimit->setUnit(positionUnit);
-	velocityLimit->onEdit();
-	accelerationLimit->onEdit();
-	 */
+	
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = getLowerPositionLimit();
 	animatablePosition->upperPositionLimit = getUpperPositionLimit();
 	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
 	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
 	
-	/*
-	if(axis->getPositionUnit()->unitType == Units::Type::ANGULAR_DISTANCE){
-		allowModuloPositionShifting->setDisabled(false);
-		turnOffset = 0;
-	}else{
-		allowModuloPositionShifting->setDisabled(true);
-		allowModuloPositionShifting->overwrite(false);
-		turnOffset = 0;
-	}
-	*/
 }
 
 
@@ -523,6 +481,7 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	allowUserEncoderValueOverride->save(userSetupXML);
 	invertControlGui->save(userSetupXML);
 	allowModuloPositionShifting->save(userSetupXML);
+	linearWidgetOrientation_parameter->save(userSetupXML);
 	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
@@ -539,8 +498,6 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!axisOffset->load(limitsXML)) return false;
 	if(!lowerPositionLimit->load(limitsXML)) return false;
 	if(!upperPositionLimit->load(limitsXML)) return false;
-	//velocityLimit->load(limitsXML);
-	//accelerationLimit->load(limitsXML);
 	
 	XMLElement* userSetupXML;
 	if(!loadXMLElement("UserSetup", xml, userSetupXML)) return false;
@@ -552,6 +509,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!allowUserEncoderValueOverride->load(userSetupXML)) return false;
 	if(!invertControlGui->load(userSetupXML)) return false;
 	allowModuloPositionShifting->load(userSetupXML);
+	linearWidgetOrientation_parameter->load(userSetupXML);
 	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
@@ -565,7 +523,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 double PositionControlledMachine::axisPositionToMachinePosition(double axisPosition){
 	double output;
 	if(invertAxis->value) output = -1.0f * (axisPosition - axisOffset->value);
-	output = axisPosition - axisOffset->value;
+	else output = axisPosition - axisOffset->value;
 	
 	//MODULO HACK
 	output += turnOffset * 360.0;
@@ -585,7 +543,7 @@ double PositionControlledMachine::axisAccelerationToMachineAcceleration(double a
 double PositionControlledMachine::machinePositionToAxisPosition(double machinePosition){
 	double output;
 	if(invertAxis->value) output = (-1.0f * machinePosition) + axisOffset->value;
-	output = machinePosition + axisOffset->value;
+	else output = machinePosition + axisOffset->value;
 	
 	//MODULO HACK
 	output -= turnOffset * 360.0;

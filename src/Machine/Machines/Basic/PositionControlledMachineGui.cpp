@@ -41,7 +41,14 @@ void PositionControlledMachine::controlsGui() {
 	if(isAxisConnected()){
 		Units::Type axisUnitType = getAxisInterface()->getPositionUnit()->unitType;
 		if(axisUnitType == Units::Type::ANGULAR_DISTANCE) angularWidgetGui();
-		else if(axisUnitType == Units::Type::LINEAR_DISTANCE) linearWidgetGui();
+		else if(axisUnitType == Units::Type::LINEAR_DISTANCE) {
+			if(linearWidgetOrientation_parameter->value == linearWidgetOrientation_vertical.getInt()){
+				verticalWidgetGui();
+			}
+			else if(linearWidgetOrientation_parameter->value == linearWidgetOrientation_horizontal.getInt()){
+				horizontalWidgetGui();
+			}
+		}
 		ImGui::Separator();
 	}
 	
@@ -91,29 +98,7 @@ void PositionControlledMachine::settingsGui() {
 	upperPositionLimit->gui();
 	ImGui::SameLine();
 	if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
-	
-	/*
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Velocity Limit");
-	ImGui::PopFont();
-	velocityLimit->gui();
-	if(isAxisConnected()){
-		auto axis = getAxisInterface();
-		ImGui::Text("Axis Velocity Limit is %.3f%s/s", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-		ImGui::Text("Playback speed adjustement is limited to %.2f%%", 100.0 * axis->getVelocityLimit() / velocityLimit->value);
-	}
-		
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Acceleration Limit");
-	ImGui::PopFont();
-	accelerationLimit->gui();
-	if(isAxisConnected()){
-		auto axis = getAxisInterface();
-		ImGui::Text("Axis Acceleration Limit is %.3f%s/s\xc2\xb2", axis->getVelocityLimit(), axis->getPositionUnit()->abbreviated);
-		ImGui::Text("Playback speed adjustement is limited to %.2f%%", 100.0 * axis->getAccelerationLimit() / accelerationLimit->value);
-	}
-	 */
-		
+
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);
@@ -156,16 +141,26 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::Text("Allow user to override encoder position");
 	ImGui::PopFont();
 	
-	invertControlGui->gui();
-	ImGui::SameLine();
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Invert Control Gui");
-	ImGui::PopFont();
-	
 	allowModuloPositionShifting->gui();
 	ImGui::SameLine();
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("%s", allowModuloPositionShifting->getName());
+	ImGui::PopFont();
+	
+	ImGui::Separator();
+	
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Control Widget");
+	ImGui::PopFont();
+	
+	if(positionUnit->unitType == Units::Type::LINEAR_DISTANCE){
+		linearWidgetOrientation_parameter->gui(Fonts::sansBold15);
+	}
+	
+	invertControlGui->gui();
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::Text("Invert Control Widget");
 	ImGui::PopFont();
 	
 }
@@ -196,7 +191,14 @@ void PositionControlledMachine::ControlWidget::gui(){
 	
 	Units::Type axisUnitType = machine->getAxisInterface()->getPositionUnit()->unitType;
 	if(axisUnitType == Units::Type::ANGULAR_DISTANCE) machine->angularWidgetGui();
-	else if(axisUnitType == Units::Type::LINEAR_DISTANCE) machine->linearWidgetGui();
+	else if(axisUnitType == Units::Type::LINEAR_DISTANCE){
+		if(machine->linearWidgetOrientation_parameter->value == machine->linearWidgetOrientation_vertical.getInt()){
+			machine->verticalWidgetGui();
+		}
+		else if(machine->linearWidgetOrientation_parameter->value == machine->linearWidgetOrientation_horizontal.getInt()){
+			machine->horizontalWidgetGui();
+		}
+	}
 
 	ImGui::EndGroup();
 	
@@ -208,7 +210,7 @@ void PositionControlledMachine::ControlWidget::gui(){
 
 //————————————————————————————————————————————— WIDGET GUI —————————————————————————————————————————————
 
-void PositionControlledMachine::linearWidgetGui(){
+void PositionControlledMachine::verticalWidgetGui(){
 		
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::BeginDisabled(!isEnabled());
@@ -374,6 +376,132 @@ void PositionControlledMachine::linearWidgetGui(){
 	ImGui::EndDisabled();
 	ImGui::PopStyleVar();
 	
+}
+
+void PositionControlledMachine::horizontalWidgetGui(){
+	
+	float sliderHeight = ImGui::GetTextLineHeight() * 12.0;
+	double separatorWidth = ImGui::GetTextLineHeight() * .25f;
+	float feedbackWidth = ImGui::GetTextLineHeight() * 2.f;
+	
+	
+	auto getNormalizedPosition = [this](double pos) -> double {
+		float minPos = animatablePosition->lowerPositionLimit;
+		float maxPos = animatablePosition->upperPositionLimit;
+		double norm = (pos - minPos) / (maxPos - minPos);
+		return std::clamp(norm, 0.0, 1.0);
+	};
+	
+	auto getNormalizedDistance = [this](double distance) -> double{
+		float minPos = animatablePosition->lowerPositionLimit;
+		float maxPos = animatablePosition->upperPositionLimit;
+		if(maxPos == minPos) return 0.0;
+		return std::abs(distance / (maxPos - minPos));
+	};
+	
+	//draw control sliders and widgets
+	animatablePosition->manualControlsHorizontalGui(sliderHeight);
+	
+	
+	
+	ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetStyle().ItemSpacing.y + separatorWidth);
+	float controlsWidth = ImGui::GetItemRectSize().x;
+	
+	ImGui::BeginGroup();
+	ImGui::InvisibleButton("LinearAxisDisplay", glm::vec2(controlsWidth, feedbackWidth));
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	glm::vec2 size = max - min;
+				
+	//position indicator background
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	ImGui::PushClipRect(min, max, true);
+	
+	if(getState() == DeviceState::OFFLINE){
+		drawing->AddRectFilled(min, max, ImColor(Colors::blue));
+	}else{
+		
+		drawing->AddRectFilled(min, max, ImColor(Colors::darkGray));
+		
+		//draw keepout constraints
+		for(auto& constraint : animatablePosition->getConstraints()){
+			if(constraint->getType() != AnimationConstraint::Type::KEEPOUT) continue;
+			auto keepout = std::static_pointer_cast<AnimatablePosition_KeepoutConstraint>(constraint);
+			double constraintMinX = min.x + size.x * getNormalizedPosition(keepout->keepOutMinPosition);
+			double constraintMaxX = min.x + size.x * getNormalizedPosition(keepout->keepOutMaxPosition);
+			drawing->AddRectFilled(glm::vec2(constraintMinX, min.y),
+								   glm::vec2(constraintMaxX, max.y),
+								   constraint->isEnabled() ? ImColor(1.f, 0.f, 0.f, .4f) : ImColor(1.f, 1.f, 1.f, .2f));
+		}
+		
+		//draw constraint limit lines
+		ImColor limitLineColor = ImColor(.0f, .0f, .0f, 1.f);
+		float limitLineThickness = ImGui::GetTextLineHeight() * .05f;
+		
+		double axis1ConstraintMin, axis1ConstraintMax;
+		animatablePosition->getConstraintPositionLimits(axis1ConstraintMin, axis1ConstraintMax);
+		double axis1ConstraintMinX = min.x + size.x * getNormalizedPosition(axis1ConstraintMin);
+		double axis1ConstraintMaxX = min.x + size.x * getNormalizedPosition(axis1ConstraintMax);
+		drawing->AddLine(glm::vec2(axis1ConstraintMinX, min.y),
+						 glm::vec2(axis1ConstraintMinX, max.y),
+						 limitLineColor, limitLineThickness);
+		drawing->AddLine(glm::vec2(axis1ConstraintMaxX, min.y),
+						 glm::vec2(axis1ConstraintMaxX, max.y),
+						 limitLineColor, limitLineThickness);
+		
+		
+		//draw rapid target
+		ImColor targetColor = ImColor(Colors::yellow);
+		float targetLineThickness = ImGui::GetTextLineHeight() * .05f;
+		float targetTriangleSize = ImGui::GetTextLineHeight() * .4f;
+		
+		if(animatablePosition->isInRapid()){
+			float targetX = min.x + size.x * getNormalizedPosition(animatablePosition->getRapidTarget()->toPosition()->position);
+			float triangleY = min.y + size.y * .25f;
+			drawing->AddLine(glm::vec2(targetX, min.y), glm::vec2(targetX, max.y), targetColor, targetLineThickness);
+			drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+									   glm::vec2(targetX - targetTriangleSize, triangleY + targetTriangleSize * .4f),
+									   glm::vec2(targetX - targetTriangleSize, triangleY - targetTriangleSize * .4f),
+									   targetColor);
+			drawing->AddTriangleFilled(glm::vec2(targetX, triangleY),
+									   glm::vec2(targetX + targetTriangleSize, triangleY - targetTriangleSize * .4f),
+									   glm::vec2(targetX + targetTriangleSize, triangleY + targetTriangleSize * .4f),
+									   targetColor);
+		}
+		
+		
+		//draw position arrow indicators
+		float lineThickness = ImGui::GetTextLineHeight() * .05f;
+		float triangleSize = ImGui::GetTextLineHeight() * .5f;
+		ImColor positionIndicatorColor = ImColor(Colors::white);
+		ImColor brakingPositionIndicatorColor = ImColor(1.f, 1.f, 1.f, .3f);
+		
+		double axis1_X = min.x + size.x * getNormalizedPosition(animatablePosition->getActualPosition());
+		double axis1BrakingPositionX = min.x + size.x * getNormalizedPosition(animatablePosition->getBrakingPosition());
+		
+		drawing->AddLine(glm::vec2(axis1BrakingPositionX, min.y),
+						 glm::vec2(axis1BrakingPositionX, max.y - triangleSize + 1.f),
+						 brakingPositionIndicatorColor, lineThickness);
+		drawing->AddTriangleFilled(glm::vec2(axis1BrakingPositionX, max.y),
+								   glm::vec2(axis1BrakingPositionX - triangleSize * .4f, max.y - triangleSize),
+								   glm::vec2(axis1BrakingPositionX + triangleSize * .4f, max.y - triangleSize),
+								   brakingPositionIndicatorColor);
+		
+		drawing->AddLine(glm::vec2(axis1_X, min.y), glm::vec2(axis1_X, max.y - triangleSize + 1.f), positionIndicatorColor, lineThickness);
+		drawing->AddTriangleFilled(glm::vec2(axis1_X, max.y),
+								   glm::vec2(axis1_X - triangleSize * .4f, max.y - triangleSize),
+								   glm::vec2(axis1_X + triangleSize * .4f, max.y - triangleSize),
+								   positionIndicatorColor);
+	}
+	
+	//draw frame outline
+	float frameWidth = ImGui::GetTextLineHeight() * 0.05;
+	drawing->AddRect(min - glm::vec2(frameWidth * .5f), max + glm::vec2(frameWidth * .5f), ImColor(Colors::black), frameWidth, ImDrawFlags_RoundCornersAll, frameWidth);
+	
+	ImGui::PopClipRect();
+	 
+	ImGui::EndGroup();
+				
 }
 
 void PositionControlledMachine::angularWidgetGui(){
