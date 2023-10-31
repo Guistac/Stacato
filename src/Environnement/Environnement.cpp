@@ -28,11 +28,15 @@
 
 #include "Machine/Machines/Basic/PositionControlledMachine.h"
 
+#include "Console/ConsoleMapping.h"
+
 namespace Environnement {
 
 	std::shared_ptr<ManualControlChannel> manualControlChannel = nullptr;
-
 	std::shared_ptr<ManualControlChannel> getManualControlChannel(){ return manualControlChannel; }
+
+	std::shared_ptr<ConsoleMapping> consoleMapping = nullptr;
+	std::shared_ptr<ConsoleMapping> getConsoleMapping(){ return consoleMapping; }
 
 	void enableManualControlOfMachineIndex(int index){
 		if(index < 0 || index >= getMachines().size()) return;

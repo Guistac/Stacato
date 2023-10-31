@@ -1121,3 +1121,58 @@ bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, Im
     
     return pressed;
 }
+
+bool Slider2D(const char* ID, double& x, double& y, double widgetSize){
+	ImGui::InvisibleButton(ID, ImVec2(widgetSize, widgetSize));
+	ImVec2 min, max, size;
+	min = ImGui::GetItemRectMin();
+	max = ImGui::GetItemRectMax();
+	size = ImGui::GetItemRectSize();
+	float grabSize = ImGui::GetTextLineHeight();
+	float grabPadding = ImGui::GetTextLineHeight() * 0.1;
+	ImVec2 minGrabBounds(min.x + (grabSize / 2.0) + grabPadding, min.y + (grabSize / 2.0) + grabPadding);
+	ImVec2 maxGrabBounds(max.x - (grabSize / 2.0) - grabPadding, max.y - (grabSize / 2.0) - grabPadding);
+	
+	auto widgetToNormalized = [&](ImVec2 widgetPos) -> ImVec2 {
+		float x = (widgetPos.x - minGrabBounds.x) / (maxGrabBounds.x - minGrabBounds.x);
+		float y = (widgetPos.y - minGrabBounds.y) / (maxGrabBounds.y - minGrabBounds.y);
+		x = std::clamp((x * 2.0) - 1.0, -1.0, 1.0);
+		y = std::clamp((y * 2.0) - 1.0, -1.0, 1.0);
+		return ImVec2(x,y);
+	};
+	
+	auto normalizedToWidget = [&](ImVec2 normalizedPos) -> ImVec2 {
+		normalizedPos.x = std::clamp((normalizedPos.x + 1.0) / 2.0, 0.0, 1.0);
+		normalizedPos.y = std::clamp((normalizedPos.y + 1.0) / 2.0, 0.0, 1.0);
+		float x = minGrabBounds.x + normalizedPos.x * (maxGrabBounds.x - minGrabBounds.x);
+		float y = minGrabBounds.y + normalizedPos.y * (maxGrabBounds.y - minGrabBounds.y);
+		return ImVec2(x,y);
+	};
+	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	
+	ImColor backgroundColor;
+	if(ImGui::IsItemActive()) backgroundColor = ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive];
+	else if(ImGui::IsItemHovered()) backgroundColor = ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered];
+	else backgroundColor = ImGui::GetStyle().Colors[ImGuiCol_FrameBg];
+	drawing->AddRectFilled(min, max, backgroundColor, ImGui::GetStyle().FrameRounding);
+	
+	
+	ImColor grabColor = ImGui::GetStyle().Colors[ImGuiCol_SliderGrab];
+	if(ImGui::IsItemActive()){
+		ImVec2 mouse = ImGui::GetMousePos();
+		ImVec2 newValue = widgetToNormalized(mouse);
+		x = newValue.x;
+		y = newValue.y;
+	}
+	
+	ImVec2 grabPos = normalizedToWidget(ImVec2(x,y));
+
+	drawing->AddLine(ImVec2(min.x, grabPos.y), ImVec2(max.x, grabPos.y), ImColor(1.0f, 1.0f, 1.0f, 0.5f));
+	drawing->AddLine(ImVec2(grabPos.x, min.y), ImVec2(grabPos.x, max.y), ImColor(1.0f, 1.0f, 1.0f, 0.5f));
+	
+	ImVec2 grabMin(grabPos.x - grabSize/2.0, grabPos.y - grabSize/2.0);
+	ImVec2 grabMax(grabMin.x + grabSize, grabMin.y + grabSize);
+	drawing->AddRectFilled(grabMin, grabMax, grabColor, ImGui::GetStyle().GrabRounding);
+	
+}

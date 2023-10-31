@@ -139,4 +139,11 @@ void ManualControlChannel::gui(){
 
 void ManualControlsWindow::onDraw(){
 	Environnement::getManualControlChannel()->gui();
+	
+	static double x = 0.0;
+	static double y = 0.0;
+	
+	Slider2D("Testing", x, y, ImGui::GetTextLineHeight() * 10.0);
+	ImGui::Text("X: %.3f  Y: %.3f", x, y);
+	
 }

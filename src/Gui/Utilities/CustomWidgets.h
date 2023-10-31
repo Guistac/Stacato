@@ -121,3 +121,6 @@ void textAlignedBackground(const char* txt,
 						   ImVec2 maxBounding = ImVec2(FLT_MAX, FLT_MAX));
 
 bool customButton(const char* txt, ImVec2 size, ImVec4 color, float rounding, ImDrawFlags drawFlags);
+
+
+bool Slider2D(const char* ID, double& x, double& y, double widgetSize);

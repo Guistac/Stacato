@@ -5,6 +5,11 @@
 class ConsoleStarmania : public ConsoleMapping, public std::enable_shared_from_this<ConsoleStarmania>{
 public:
 	
+	ConsoleStarmania() : ConsoleMapping(){
+		manualControlDevices.push_back(leftJoystick);
+		manualControlDevices.push_back(rightJoystick);
+	}
+	
 	virtual std::vector<IODevice::Type>& getDeviceTypes() override{
 		static std::vector<IODevice::Type> deviceTypes = {
 			IODevice::Type::LED_RGB_BUTTON,
@@ -47,5 +52,10 @@ public:
 	std::shared_ptr<LED_RGB_Button> joystickButtonRight;
 	
 	virtual void onDisconnection() override;
+	
+private:
+	
+	std::shared_ptr<Joystick2Axis> leftJoystick = std::make_shared<Joystick2Axis>("Left Joystick", "LeftJoystick");
+	std::shared_ptr<Joystick2Axis> rightJoystick = std::make_shared<Joystick2Axis>("right Joystick", "RightJoystick");
 	
 };

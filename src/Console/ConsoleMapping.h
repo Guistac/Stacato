@@ -4,6 +4,10 @@ class Console;
 
 #include "ConsoleIODevice.h"
 
+
+#include "Animation/ManualControlChannel.h"
+
+
 class ConsoleMapping{
 public:
 	
@@ -16,5 +20,12 @@ public:
 	virtual void gui(float height) = 0;
 	
 	virtual void onDisconnection() = 0;
+	
+	
+	std::vector<std::shared_ptr<ManualControlDevice>>& getManualControlDevices(){ return manualControlDevices; }
+	
+protected:
+	std::vector<std::shared_ptr<ManualControlDevice>> manualControlDevices = {};
+	
 	
 };
