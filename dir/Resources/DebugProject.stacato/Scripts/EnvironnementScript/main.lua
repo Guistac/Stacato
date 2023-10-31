@@ -35,6 +35,13 @@ function setup()
 	p3J_Lim = p3Jardin:createKeepoutConstraint("Anticollision Périacte Face Cour", 0.0, 0.0)
 	p3C_Lim = p3Cour:createKeepoutConstraint("Anticollision Périacte Face Jardin", 0.0, 0.0)
 
+	p1J_Lim:enable()
+	p1C_Lim:enable()
+	p2J_Lim:enable()
+	p2C_Lim:enable()
+	p3J_Lim:enable()
+	p3C_Lim:enable()
+
 end
 
 
@@ -67,6 +74,15 @@ end
 
 function exit()
 end
+
+
+
+
+
+
+
+
+
 
 
 
