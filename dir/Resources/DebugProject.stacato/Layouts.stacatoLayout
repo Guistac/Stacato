@@ -5,7 +5,9 @@
             <ComponentName Value="Maintenance"/>
             <OpenWindows>
                 <Window Name="Node Editor"/>
-                <Window Name="Dashboard"/>
+                <Window Name="Log"/>
+                <Window Name="Environnement Script"/>
+                <Window Name="EtherCAT Devices"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -181,7 +183,7 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=1474,29
+Pos=446,29
 Size=582,1144
 Collapsed=0
 DockId=0x0000000F,0
@@ -223,7 +225,7 @@ Collapsed=0
 
 [Window][Node Editor]
 Pos=0,29
-Size=1472,1144
+Size=1479,1144
 Collapsed=0
 DockId=0x0000000B,0
 
@@ -249,8 +251,8 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=1474,29
-Size=582,1144
+Pos=1481,29
+Size=575,1144
 Collapsed=0
 DockId=0x0000000F,0
 
@@ -278,10 +280,10 @@ Collapsed=0
 DockId=0x0000000A,0
 
 [Window][Environnement Script]
-ViewportPos=423,257
-ViewportId=0x03A4500F
-Size=338,938
+Pos=1481,29
+Size=575,1144
 Collapsed=0
+DockId=0x0000000F,1
 
 [Window][Window 1]
 ViewportPos=1000,583
@@ -315,10 +317,10 @@ Size=828,590
 Collapsed=0
 
 [Window][EtherCAT Devices]
-ViewportPos=867,95
-ViewportId=0xFB59F16B
-Size=861,938
+Pos=1481,29
+Size=575,1144
 Collapsed=0
+DockId=0x0000000F,2
 
 [Window][Edit Plot]
 Pos=781,456
@@ -420,7 +422,7 @@ Column 5  Weight=-1.0000
 
 [Docking][Data]
 DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Split=X Selected=0xAE98FAB7
-  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1472,1144 Split=X
+  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1479,1144 Split=X
     DockNode        ID=0x00000001 Parent=0x0000000D SizeRef=1287,0 Split=X Selected=0xAE98FAB7
       DockNode      ID=0x00000006 Parent=0x00000001 SizeRef=976,1023 Split=X Selected=0xFCCC3921
         DockNode    ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
@@ -429,9 +431,9 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Spl
           DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
       DockNode      ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
     DockNode        ID=0x00000002 Parent=0x0000000D SizeRef=439,938 HiddenTabBar=1 Selected=0x64F50EE5
-  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=582,1144 Split=Y Selected=0x64F50EE5
+  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=575,1144 Split=Y Selected=0x64F50EE5
     DockNode        ID=0x0000000C Parent=0x0000000E SizeRef=1025,1090 Selected=0x27459703
-    DockNode        ID=0x0000000F Parent=0x0000000E SizeRef=1025,52 HiddenTabBar=1 Selected=0xB00214C9
+    DockNode        ID=0x0000000F Parent=0x0000000E SizeRef=1025,52 Selected=0x90F1A334
 
 </ImGuiIniString>
         </Layout>

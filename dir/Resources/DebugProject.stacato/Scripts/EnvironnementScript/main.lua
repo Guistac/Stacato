@@ -46,18 +46,18 @@ function update()
 
 	local p1j_MaxPosition = math.min(p1Cour:getBrakingPosition(), p1Cour:getActualValue().Position) - MinDistance
 	local p1c_MinPosition = math.max(p1Jardin:getBrakingPosition(), p1Jardin:getActualValue().Position) + MinDistance
-	P1J_Lim:adjust(p1j_MaxPosition, 999)
-	P1C_Lim:adjust(-999, p1c_MinPosition)
+	p1J_Lim:adjust(p1j_MaxPosition, 999)
+	p1C_Lim:adjust(-999, p1c_MinPosition)
 
 	local p2j_MaxPosition = math.min(p2Cour:getBrakingPosition(), p2Cour:getActualValue().Position) - MinDistance
 	local p2c_MinPosition = math.max(p2Jardin:getBrakingPosition(), p2Jardin:getActualValue().Position) + MinDistance
-	P2J_Lim:adjust(p2j_MaxPosition, 999)
-	P2C_Lim:adjust(-999, p2c_MinPosition)
+	p2J_Lim:adjust(p2j_MaxPosition, 999)
+	p2C_Lim:adjust(-999, p2c_MinPosition)
 
 	local p3j_MaxPosition = math.min(p3Cour:getBrakingPosition(), p3Cour:getActualValue().Position) - MinDistance
 	local p3c_MinPosition = math.max(p3Jardin:getBrakingPosition(), p3Jardin:getActualValue().Position) + MinDistance
-	P3J_Lim:adjust(p3j_MaxPosition, 999)
-	P3C_Lim:adjust(-999, p3c_MinPosition)
+	p3J_Lim:adjust(p3j_MaxPosition, 999)
+	p3C_Lim:adjust(-999, p3c_MinPosition)
 
 
 end
@@ -67,6 +67,8 @@ end
 
 function exit()
 end
+
+
 
 
 

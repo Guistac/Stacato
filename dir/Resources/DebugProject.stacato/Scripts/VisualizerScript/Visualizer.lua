@@ -39,13 +39,15 @@ local Flip_AC3
 local tournetteAnneau
 local tournetteCentre
 
-local volJardin
 local volCour
 
 local romaine
 
 local flipStates
 local romaineStates
+
+local palanJardin
+local palanCour
 
 local flipOfflineImage = of.Image()
 local flipClosedImage = of.Image()
@@ -71,14 +73,14 @@ function Visualizer.setup()
     tournetteAnneauImage:load("Images/TournetteAnneau.png")
     catImage:load("Images/Cat.png")
     
-    lameVideoFace =             Environnement.getMachine("Lames Vidéo"):getAnimatable("Face");
-    lameVideoLointain =         Environnement.getMachine("Lames Vidéo"):getAnimatable("Lointain");
-    periacteLointainJardin =    Environnement.getMachine("Périactes Lointain"):getAnimatable("Jardin");
-    periacteLointainCour =      Environnement.getMachine("Périactes Lointain"):getAnimatable("Cour");
-    periacteMilieuJardin =      Environnement.getMachine("Périactes Milieu"):getAnimatable("Jardin");
-    periacteMilieuCour =        Environnement.getMachine("Périactes Milieu"):getAnimatable("Cour");
-    periacteFaceJardin =        Environnement.getMachine("Périactes Face"):getAnimatable("Jardin");
-    periacteFaceCour =          Environnement.getMachine("Périactes Face"):getAnimatable("Cour");
+    lameVideoFace =             Environnement.getMachine("Lames Vidéo Face"):getAnimatable("Position");
+    lameVideoLointain =         Environnement.getMachine("Lames Vidéo Lointain"):getAnimatable("Position");
+    periacteLointainJardin =    Environnement.getMachine("Périacte Lointain Jardin"):getAnimatable("Position");
+    periacteLointainCour =      Environnement.getMachine("Périacte Lointain Cour"):getAnimatable("Position");
+    periacteMilieuJardin =      Environnement.getMachine("Périacte Milieu Jardin"):getAnimatable("Position");
+    periacteMilieuCour =        Environnement.getMachine("Périacte Milieu Cour"):getAnimatable("Position");
+    periacteFaceJardin =        Environnement.getMachine("Périacte Face Jardin"):getAnimatable("Position");
+    periacteFaceCour =          Environnement.getMachine("Périacte Face Cour"):getAnimatable("Position");
 
     Flip_GJ2 =  Environnement.getMachine("Flip G-J2"):getAnimatable("State")
     Flip_GJ1 =  Environnement.getMachine("Flip G-J1"):getAnimatable("State")
@@ -102,13 +104,16 @@ function Visualizer.setup()
     Flip_AC3 =  Environnement.getMachine("Flip A-C3"):getAnimatable("State")
     flipStates = Flip_AC3:getStates()
 
-    tournetteAnneau =   Environnement.getMachine("Tournettes"):getAnimatable("Anneau")
-    tournetteCentre =   Environnement.getMachine("Tournettes"):getAnimatable("Centre")
+    tournetteAnneau =   Environnement.getMachine("Tournette Anneau"):getAnimatable("Position")
+    tournetteCentre =   Environnement.getMachine("Tournette Centre"):getAnimatable("Position")
 
-    volJardin = Environnement.getMachine("Vol Jardin"):getAnimatable("Position")
-    volCour =   Environnement.getMachine("Vol Cour"):getAnimatable("Position")
+    volCour =   Environnement.getMachine("Vol"):getAnimatable("Position")
 
     romaine =   Environnement.getMachine("Romaine"):getAnimatable("State")
+
+    palanJardin = Environnement.getMachine("Pont Lumière"):getAnimatable("Chaine Jardin");
+    palanJardin = Environnement.getMachine("Pont Lumière"):getAnimatable("Chaine Cour");
+
 end
 
 
