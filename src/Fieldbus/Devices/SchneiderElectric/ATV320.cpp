@@ -165,12 +165,6 @@ bool ATV320::startupConfiguration() {
 		return Logger::error("failed to set operating mode");
 	}
 	
-	//[fr1] set frequency reference 1 to Communication card = 169
-	if(!writeSDO_U16(0x2036, 0xE, 169)) return false;
-	
-	//[rfc] set reference switching to reference 1 fixed = 96
-	if(!writeSDO_U16(0x2036, 0xC, 96)) return false;
-	
 	//[chcf] set control profile to "Not separate" (= 1) for pure CiA.402 Velocity Mode
 	if(!writeSDO_U16(0x2036, 0x2, 1)) return false;
 	
@@ -297,15 +291,6 @@ void ATV320::writeOutputs() {
 bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
-	//————— General Settings —————
-	XMLElement* generalSettingsXML = xml->InsertNewChildElement("GeneralSettings");
-	accelerationRampTime->save(generalSettingsXML);
-	decelerationRampTime->save(generalSettingsXML);
-	invertDirection->save(generalSettingsXML);
-	lowControlFrequencyParameter->save(generalSettingsXML);
-	highControlFrequencyParameter->save(generalSettingsXML);
-	switchingFrequencyParameter->save(generalSettingsXML);
-	
 	//————— Motor Parameters —————
 	XMLElement* motorParametersXML = xml->InsertNewChildElement("MotorParameters");
 	standartMotorFrequencyParameter->save(motorParametersXML);
@@ -315,11 +300,31 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	nominalMotorCurrentParameter->save(motorParametersXML);
 	nominalMotorSpeedParameter->save(motorParametersXML);
 	
-	//————— Limit signal configuration —————
-	XMLElement* limitSignalsXML = xml->InsertNewChildElement("LimitSignals");
-	forwardStopLimitAssignementParameter->save(limitSignalsXML);
-	reverseStopLimitAssignementParameter->save(limitSignalsXML);
-	stopLimitConfigurationParameter->save(limitSignalsXML);
+	//————— Motion Control Settings —————
+	XMLElement* motionControlSettingsXML = xml->InsertNewChildElement("MotionControlSettings");
+	accelerationRampTime->save(motionControlSettingsXML);
+	decelerationRampTime->save(motionControlSettingsXML);
+	invertDirection->save(motionControlSettingsXML);
+	lowControlFrequencyParameter->save(motionControlSettingsXML);
+	highControlFrequencyParameter->save(motionControlSettingsXML);
+	switchingFrequencyParameter->save(motionControlSettingsXML);
+	
+	//————— Frequency References —————
+	XMLElement* frequencyReferenceXML = xml->InsertNewChildElement("FrequencyReference");
+	frequencyReference1_Parameter->save(frequencyReferenceXML);
+	frequencyReference2_Parameter->save(frequencyReferenceXML);
+	referenceSwitchingPin_Parameter->save(frequencyReferenceXML);
+	
+	//————— IO configuration —————
+	XMLElement* ioConfigurationXML = xml->InsertNewChildElement("IOConfiguration");
+	twoOrThreeWireControl_Parameter->save(ioConfigurationXML);
+	forwardStopLimitAssignementParameter->save(ioConfigurationXML);
+	reverseStopLimitAssignementParameter->save(ioConfigurationXML);
+	stopLimitConfigurationParameter->save(ioConfigurationXML);
+	faultResetPin_Parameter->save(ioConfigurationXML);
+	externalFaultPin_Parameter->save(ioConfigurationXML);
+	presetSlowdownSpeedPin_Parameter->save(ioConfigurationXML);
+
 	
 	//————— Logic input configuration —————
 	XMLElement* logicInputXML = xml->InsertNewChildElement("LogicInputSettings");
@@ -343,16 +348,6 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
-	//————— General Settings —————
-	if(XMLElement* generalSettingsXML = xml->FirstChildElement("GeneralSettings")){
-		accelerationRampTime->load(generalSettingsXML);
-		decelerationRampTime->load(generalSettingsXML);
-		invertDirection->load(generalSettingsXML);
-		lowControlFrequencyParameter->load(generalSettingsXML);
-		highControlFrequencyParameter->load(generalSettingsXML);
-		switchingFrequencyParameter->load(generalSettingsXML);
-	}
-	
 	//————— Motor Parameters —————
 	if(XMLElement* motorParametersXML = xml->FirstChildElement("MotorParameters")){
 		standartMotorFrequencyParameter->load(motorParametersXML);
@@ -363,11 +358,32 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 		nominalMotorSpeedParameter->load(motorParametersXML);
 	}
 	
-	//————— Limit signal configuration —————
-	if(XMLElement* limitSignalsXML = xml->FirstChildElement("LimitSignals")){
-		forwardStopLimitAssignementParameter->load(limitSignalsXML);
-		reverseStopLimitAssignementParameter->load(limitSignalsXML);
-		stopLimitConfigurationParameter->load(limitSignalsXML);
+	//————— Motion Control Settings —————
+	if(XMLElement* motionControlSettingsXML = xml->FirstChildElement("MotionControlSettings")){
+		accelerationRampTime->load(motionControlSettingsXML);
+		decelerationRampTime->load(motionControlSettingsXML);
+		invertDirection->load(motionControlSettingsXML);
+		lowControlFrequencyParameter->load(motionControlSettingsXML);
+		highControlFrequencyParameter->load(motionControlSettingsXML);
+		switchingFrequencyParameter->load(motionControlSettingsXML);
+	}
+	
+	//————— Frequency Reference —————
+	if(XMLElement* frequencyReferenceXML = xml->FirstChildElement("FrequencyReference")){
+		frequencyReference1_Parameter->load(frequencyReferenceXML);
+		frequencyReference2_Parameter->load(frequencyReferenceXML);
+		referenceSwitchingPin_Parameter->load(frequencyReferenceXML);
+	}
+	
+	//————— IO configuration —————
+	if(XMLElement* ioConfigurationXML = xml->FirstChildElement("IOConfiguration")){
+		twoOrThreeWireControl_Parameter->load(ioConfigurationXML);
+		forwardStopLimitAssignementParameter->load(ioConfigurationXML);
+		reverseStopLimitAssignementParameter->load(ioConfigurationXML);
+		stopLimitConfigurationParameter->load(ioConfigurationXML);
+		faultResetPin_Parameter->load(ioConfigurationXML);
+		externalFaultPin_Parameter->load(ioConfigurationXML);
+		presetSlowdownSpeedPin_Parameter->load(ioConfigurationXML);
 	}
 	
 	//————— Logic input configuration —————
@@ -550,7 +566,7 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//[frs] nominal motor frequency (in .1Hz increments) (should be identical to [bfr])
 		SDOTask::prepareUpload(0x2042, 0x3, uint16_t(nominalMotorFrequency * 10), "Nominal motor frequency [frs]"),
 		
-		//————————— Control Settings —————————————
+		//————————— Motion Control Settings —————————————
 		//[lsp] set minimum control speed in hertz to 0Hz (in .1Hz increments)
 		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
 		//[hsp] set maximum control speed to in 0.1Hz increments
@@ -560,6 +576,14 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//[sfr] switching frequency (in 0.1KHz increments)
 		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(atv320->switchingFrequencyParameter->value * 10), "Switching Frequency [sfr]"),
 		
+		//———————— Frequency Reference —————————
+		//[fr1] Frequency Reference 1
+		SDOTask::prepareUpload(0x2036, 0xE, uint16_t(atv320->frequencyReference1_Parameter->value), "Frequency Reference 1 [fr1]"),
+		//[fr2] Frequency Reference 2
+		SDOTask::prepareUpload(0x2036, 0xF, uint16_t(atv320->frequencyReference2_Parameter->value), "Frequency Reference 2 [fr2]"),
+		//[rfc] Frequency Reference Switch
+		SDOTask::prepareUpload(0x2036, 0xC, uint16_t(atv320->referenceSwitchingPin_Parameter->value), "Frequency Reference Selector [rfc]"),
+		
 		//———————— Ramp Settings ———————————
 		//[inr] set ramp unit increment to hundreds of seconds (.01s = 0  / .1s = 1  /  1.s = 2)
 		SDOTask::prepareUpload(0x203C, 0x15, uint16_t(0), "Ramp unit increment"),
@@ -568,14 +592,29 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//[dec] set deceleration time
 		SDOTask::prepareUpload(0x203C, 0x3, uint16_t(atv320->decelerationRampTime->value * 100.0), "Deceleration ramp time [dec]"),
 		
-		//—————————————— Limit signal Configuration ———————————————
+		//—————————————— IO Configuration ———————————————
+		
+		//[tcc] two or three wire control (0 = 2-Wire / 1 = 3-Wire)
+		SDOTask::prepareUpload(0x2051, 0x2, uint16_t(atv320->twoOrThreeWireControl_Parameter->value), "Two or Three Wire Control [tcc]"),
+		//[tct] Type of 2-Wire Control
+		SDOTask::prepareUpload(0x2051, 0x3, uint16_t(1), "Type of Two Wire Control [tct]"),
 		//[saf] forward limit stop
 		SDOTask::prepareUpload(0x205F, 0x2, uint16_t(atv320->forwardStopLimitAssignementParameter->value), "Forward stop limit assignement [saf]"),
 		//[sar] reverse limit stop
 		SDOTask::prepareUpload(0x205F, 0x3, uint16_t(atv320->reverseStopLimitAssignementParameter->value), "Reverse stop limit assignement [sar]"),
 		//[sal] //stop signal active high or low
 		SDOTask::prepareUpload(0x205F, 0x9, uint16_t(atv320->stopLimitConfigurationParameter->value), "Stop limit configuration [sal]"),
-		
+		//[rsf] fault reset input assignement
+		SDOTask::prepareUpload(0x2029, 0x19, uint16_t(atv320->faultResetPin_Parameter->value), "Fault Reset Input Assignement [rsf]"),
+		//[etf] external fault input assignemnt
+		SDOTask::prepareUpload(0x2029, 0x20, uint16_t(atv320->externalFaultPin_Parameter->value), "External Fault Input Assignement [etf]"),
+		//[ps2] Preset 2 frequency input assignement
+		SDOTask::prepareUpload(0x2054, 0x2, uint16_t(atv320->presetSlowdownSpeedPin_Parameter->value), "Preset 2 Frequency Input Assignement [ps2]"),
+		//[sp2] Preset Speed 2
+		SDOTask::prepareUpload(0x2054, 0xB, uint16_t(atv320->presetSlowdownSpeed_Parameter->value), "Preset Speed 2 [sp2]"),
+	
+		//—————————— MemoStop ———————————
+
 		//[mstp] disable the memostop function
 		//else the drive will remember limit switches
 		//this caused many weird issues where the motor just did not want to move after limit switch configuration changed

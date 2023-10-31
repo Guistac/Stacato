@@ -856,9 +856,10 @@
                 <NodeEditorPosition x="5086" y="424"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
-                    <GeneralSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
-                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0" RatedMotorVoltage="0" RatedMotorCurrent="0" MotorRatedSpeed="1400"/>
-                    <LimitSignals ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1"/>
+                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="7.5" RatedMotorVoltage="400" RatedMotorCurrent="3.5" MotorRatedSpeed="1680"/>
+                    <MotionControlSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
+                    <FrequencyReference FrequencyReference1="1" FrequencyReference2="169" ReferenceSwitchingMethod="131"/>
+                    <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="129" ReverseStopSignal="130" StopLimitConfiguration="0" FaultResetPin="133" ExternalFaultPin="134" PresetSlowdownSpeedPin="132"/>
                     <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
                 </NodeSpecificData>
                 <InputPins/>

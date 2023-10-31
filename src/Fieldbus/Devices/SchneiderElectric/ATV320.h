@@ -163,18 +163,43 @@ public:
 		&option_activeHigh
 	};
 	
+	
+	OptionParameter::Option option_frequencyReference_None = OptionParameter::Option(0, "Not Assigned", "NotAssigned");
+	OptionParameter::Option option_frequencyReference_AI1 = OptionParameter::Option(1, "AI1", "AI2");
+	OptionParameter::Option option_frequencyReference_AI2 = OptionParameter::Option(2, "AI2", "AI2");
+	OptionParameter::Option option_frequencyReference_AI3 = OptionParameter::Option(3, "AI3", "AI3");
+	OptionParameter::Option option_frequencyReference_CommunicationCard = OptionParameter::Option(169, "Communication Card", "CommunicationCard");
+	std::vector<OptionParameter::Option*> options_frequencyReferences = {
+		&option_frequencyReference_None,
+		&option_frequencyReference_AI1,
+		&option_frequencyReference_AI2,
+		&option_frequencyReference_AI3,
+		&option_frequencyReference_CommunicationCard
+	};
+	
+	OptionParameter::Option option_twoWireControl = OptionParameter::Option(0, "Two Wire Control", "TwoWireControl");
+	OptionParameter::Option option_threeWireControl = OptionParameter::Option(1, "Three Wire Control", "Three Wire Control");
+	std::vector<OptionParameter::Option*> option_twoOrThreeWireControlOptions = {
+		&option_twoWireControl,
+		&option_threeWireControl
+	};
+	
+	OptionParameter::Option option_frequencyReference1 = OptionParameter::Option(96, "Fixed to Frequency Reference 1", "FrequencyReference1");
+	OptionParameter::Option option_frequencyReference2 = OptionParameter::Option(97, "Fixed to Frequency Reference 2", "FrequencyReference2");
+	std::vector<OptionParameter::Option*> options_frequencyReferenceSwitch = {
+		&option_frequencyReference1,
+		&option_frequencyReference2,
+		&option_logicInput_LI1,
+		&option_logicInput_LI2,
+		&option_logicInput_LI3,
+		&option_logicInput_LI4,
+		&option_logicInput_LI5,
+		&option_logicInput_LI6
+	};
+	
 	//———————————— DRIVE PARAMETERS —————————————
 	
-	//————— General Settings —————
-	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
-	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
-	std::shared_ptr<BooleanParameter> invertDirection;
-	std::shared_ptr<NumberParameter<double>> lowControlFrequencyParameter;
-	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter;
-	NumberParam<double> switchingFrequencyParameter;	//[sfr]
-	
 	//————— Motor Parameters —————
-	
 	OptionParam standartMotorFrequencyParameter;		//[bfr]
 	OptionParam motorControlTypeParameter;				//[ctt]
 	NumberParam<double> ratedMotorPowerParameter;		//[npr]
@@ -182,14 +207,30 @@ public:
 	NumberParam<double> nominalMotorCurrentParameter;	//[ncr]
 	NumberParam<double> nominalMotorSpeedParameter;		//[nsp]
 	
-	//————— Limit signal configuration —————
+	//————— Motion Control Settings —————
+	std::shared_ptr<NumberParameter<double>> accelerationRampTime;
+	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
+	std::shared_ptr<BooleanParameter> invertDirection;
+	std::shared_ptr<NumberParameter<double>> lowControlFrequencyParameter;
+	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter;
+	NumberParam<double> switchingFrequencyParameter;	//[sfr]
+	
+	//—————— Frequency Reference ————————
+	OptionParam frequencyReference1_Parameter = OptionParameter::make2(option_frequencyReference_CommunicationCard, options_frequencyReferences, "Frequency Reference 1 [fr1]", "FrequencyReference1");
+	OptionParam frequencyReference2_Parameter = OptionParameter::make2(option_frequencyReference_None, options_frequencyReferences, "Frequency Reference 2 [fr2]", "FrequencyReference2");
+	OptionParam referenceSwitchingPin_Parameter = OptionParameter::make2(option_frequencyReference1, options_frequencyReferenceSwitch, "Reference Switching Method [rfc]", "ReferenceSwitchingMethod");
 
+	//————— IO configuration —————
+	OptionParam twoOrThreeWireControl_Parameter = OptionParameter::make2(option_twoWireControl, option_twoOrThreeWireControlOptions, "Two or Three Wire Control [tcc]", "TwoOrThreeWireControl");
 	OptionParam forwardStopLimitAssignementParameter;
 	OptionParam reverseStopLimitAssignementParameter;
 	OptionParam stopLimitConfigurationParameter;
+	OptionParam faultResetPin_Parameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Fault Reset Pin [rsf]", "FaultResetPin");
+	OptionParam externalFaultPin_Parameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "External Fault Pin [etf]", "ExternalFaultPin");
+	OptionParam presetSlowdownSpeedPin_Parameter = OptionParameter::make2(option_logicInput_none, options_logicInput, "Preset Slowdown Speed Pin [ps2]", "PresetSlowdownSpeedPin");
+	NumberParam<double> presetSlowdownSpeed_Parameter = NumberParameter<double>::make(10.0, "Preset Slowdown Speed [sp2]", "Preset Slowdown Speed", "%.1f", Units::Frequency::Hertz, false);
 	
 	//————— Logic input configuration —————
-	
 	NumberParam<int> logicInput1OnDelayParameter;
 	NumberParam<int> logicInput2OnDelayParameter;
 	NumberParam<int> logicInput3OnDelayParameter;
@@ -202,7 +243,6 @@ public:
 	BoolParam invertLogicInput4Parameter;
 	BoolParam invertLogicInput5Parameter;
 	BoolParam invertLogicInput6Parameter;
-	
 	
 	//————————————— TASKS ———————————
 	

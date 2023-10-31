@@ -156,30 +156,37 @@ void ATV320::settingsGui(){
 		decelerationRampTime,
 		invertDirection
 	});
+	
+	drawParameterGroup("Frequency Reference", {
+		frequencyReference1_Parameter,
+		frequencyReference2_Parameter,
+		referenceSwitchingPin_Parameter
+	});
 
 	drawParameterGroup("IO Configuration", {
+		twoOrThreeWireControl_Parameter,
 		forwardStopLimitAssignementParameter,
 		reverseStopLimitAssignementParameter,
-		stopLimitConfigurationParameter
+		stopLimitConfigurationParameter,
+		faultResetPin_Parameter,
+		externalFaultPin_Parameter,
+		presetSlowdownSpeedPin_Parameter,
+		presetSlowdownSpeed_Parameter
 	});
 	
-	drawParameterGroup("Digital Input Delay", {
+	drawParameterGroup("Logic Input Settings", {
 		logicInput1OnDelayParameter,
 		logicInput2OnDelayParameter,
 		logicInput3OnDelayParameter,
 		logicInput4OnDelayParameter,
 		logicInput5OnDelayParameter,
-		logicInput6OnDelayParameter
-	});
-	
-	drawParameterGroup("Logic Input Inversion", {
+		logicInput6OnDelayParameter,
 		invertLogicInput1Parameter,
 		invertLogicInput2Parameter,
 		invertLogicInput3Parameter,
 		invertLogicInput4Parameter,
 		invertLogicInput5Parameter,
-		invertLogicInput6Parameter,
-		
+		invertLogicInput6Parameter
 	});
 	
 	ImGui::TextWrapped("Max Velocity is %.1f rev/s", actuator->getVelocityLimit());
