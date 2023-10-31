@@ -25,12 +25,12 @@
         <Widget Name="Tournette Anneau" UniqueID="42" PositionX="-749" PositionY="2067" SizeX="178.49995" SizeY="386.88062"/>
         <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1534" PositionY="2480" SizeX="262.49997" SizeY="229.95795"/>
         <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1807" PositionY="2481" SizeX="262.5" SizeY="228.9579"/>
-        <Widget Name="Lames Vidéo Face" UniqueID="27" PositionX="-1536" PositionY="2235" SizeX="262.5" SizeY="230.0753"/>
+        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1536" PositionY="2235" SizeX="262.5" SizeY="230.0753"/>
         <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1811" PositionY="1743" SizeX="262.5" SizeY="229.51131"/>
         <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1543" PositionY="1750" SizeX="262.49997" SizeY="229.50798"/>
         <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1815" PositionY="1986" SizeX="262.5" SizeY="229.99467"/>
         <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1544" PositionY="1987" SizeX="262.50003" SizeY="228.99472"/>
-        <Widget Name="Lames Vidéo Lointain" UniqueID="26" PositionX="-1810" PositionY="2232" SizeX="262.5" SizeY="228.87727"/>
+        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1810" PositionY="2232" SizeX="262.5" SizeY="228.87727"/>
         <Widget Name="Pont Lumière" UniqueID="32" PositionX="-232" PositionY="2210" SizeX="372.70029" SizeY="508.35391"/>
         <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10004" SizeY="399.80338"/>
         <Widget Name="Romaine" UniqueID="31" PositionX="-219" PositionY="1895" SizeX="180.59999" SizeY="192.25635"/>
@@ -2482,7 +2482,7 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="12454" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lames Vidéo Lointain" UniqueID="12455">
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lame Vidéo Lointain" UniqueID="12455">
                 <NodeEditorPosition x="2838" y="765"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="11.913" LowerPositionLimit="0" UpperPositionLimit="10.913"/>
@@ -2498,7 +2498,7 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="12459" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lames Vidéo Face" UniqueID="12460">
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Lame Vidéo Face" UniqueID="12460">
                 <NodeEditorPosition x="2838" y="941"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="true" AxisOffset="11.93" LowerPositionLimit="0" UpperPositionLimit="10.93"/>
@@ -2798,8 +2798,8 @@ function setup()
 	volJardin = PsnServer:createNewTracker("VolJardin")
 
 	--initialize animatables
-	lameVideoFace_p = Environnement.getMachine("Lames Vidéo Face"):getAnimatable("Position")
-	lameVideoLointain_p = Environnement.getMachine("Lames Vidéo Lointain"):getAnimatable("Position")
+	lameVideoFace_p = Environnement.getMachine("Lame Vidéo Face"):getAnimatable("Position")
+	lameVideoLointain_p = Environnement.getMachine("Lame Vidéo Lointain"):getAnimatable("Position")
 	periacteFaceCour_p = Environnement.getMachine("Périacte Face Cour"):getAnimatable("Position")
 	periacteFaceJardin_p = Environnement.getMachine("Périacte Face Jardin"):getAnimatable("Position")
 	periacteMilieuCour_p = Environnement.getMachine("Périacte Milieu Cour"):getAnimatable("Position")
