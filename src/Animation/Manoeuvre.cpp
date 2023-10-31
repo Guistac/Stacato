@@ -44,9 +44,10 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 	XMLElement* animationXML = xml->FirstChildElement("Animation");
 	while (animationXML != nullptr) {
 		auto newAnimation = Animation::load(animationXML);
-		if(newAnimation == nullptr) return nullptr;
-		newAnimation->setManoeuvre(manoeuvre);
-		manoeuvre->animations.push_back(newAnimation);
+		if(newAnimation != nullptr) {
+			newAnimation->setManoeuvre(manoeuvre);
+			manoeuvre->animations.push_back(newAnimation);
+		}
 		animationXML = animationXML->NextSiblingElement("Animation");
 	}
 	

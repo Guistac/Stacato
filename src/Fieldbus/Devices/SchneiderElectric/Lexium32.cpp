@@ -728,16 +728,21 @@ void Lexium32::uploadManualAbsoluteEncoderPosition() {
 
 
 void Lexium32::updateEncoderWorkingRange() {
-	if (b_encoderRangeShifted) {
-		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
-		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+	if(b_encoderIsMultiturn){
+		if (b_encoderRangeShifted) {
+			servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -(float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+			servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits) / 2.0;
+		}
+		else {
+			servoMotor->feedbackConfig.positionLowerWorkingRangeBound = 0.0;
+			servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits);
+		}
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
+	}else{
+		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -std::numeric_limits<double>::infinity();
+		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = std::numeric_limits<double>::infinity();
 	}
-	else {
-		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = 0.0;
-		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = (float)(0x1 << encoder1_multiTurnResolutionBits);
-	}
-	servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
-	servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
 }
 
 
