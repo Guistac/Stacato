@@ -16,7 +16,7 @@
         </Manoeuvre>
         <Manoeuvre Name="" Description="-------------------- ACTE N°2 --------------------" Type="Key"/>
         <Manoeuvre Name="30 - Montée Romaine" Description="Début Les Adieux d&apos;un Sex Symbol" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.45000000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="30.1 - Tournette Synchro Escalier Stella N°1" Description="Les Adieux d&apos;un Sex Symbol / Escalier de coter ( C: 0° / A: 0°)" Type="Target">
@@ -96,7 +96,7 @@
             <Animation Machine="Flip C-C3" MachineUniqueID="1781" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
         </Manoeuvre>
         <Manoeuvre Name="35.3 - Descente de la Romaine" Description="Fin meeting de Zéro / Mise Procession du Grand Gourou" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.90000000000000002" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="** 36 - Sortie Lames Ecrans Garage **" Description=" Mise Procession du Grand Gourou / Derrière la Romaine" Type="Target">
@@ -117,7 +117,7 @@
         <Manoeuvre Name="36.2 -  Montée Romaine &amp; Tournette + Anneau Horaire N°1" Description="La Procession du Gourou ( C: 325° / A: 325°)" Type="Target">
             <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="470" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="460" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.69999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="36.3 - Ouverture Flip-Flap Ligne de Face" Description="Procession du Grand Gourou Stella au centre" Type="Key">
@@ -396,7 +396,7 @@
             <Animation Machine="Flip G-C1" MachineUniqueID="1534" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
         </Manoeuvre>
         <Manoeuvre Name="54 - Descente Romaine" Description="Fin Le monde est Stone" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.94999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="55 - Ouverture Flip-Flap ligne lointain" Description="Romaine au sol" Type="Key">
@@ -407,7 +407,7 @@
             <Animation Machine="Flip G-C2" MachineUniqueID="1550" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
         </Manoeuvre>
         <Manoeuvre Name="55.1 - Montée Romaine" Description="Medley" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtPositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.69999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="** 55.2 - Entrée Lames Michel / Luc **" Description="Fin Medley" Type="Target">
@@ -419,7 +419,7 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="10.900017496850969" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.035999999999999997" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="55.4 - Descente Romaine FIN !!!!" Description="Fin du Show" Type="Target">
-            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="AtNegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.94999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="Fermeture Flip-Flap ligne lointain" Description="Demise ACTE N°2" Type="Key">
