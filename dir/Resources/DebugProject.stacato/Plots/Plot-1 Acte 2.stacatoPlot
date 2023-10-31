@@ -20,10 +20,10 @@
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.45000000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="30.1 - Tournette Synchro Escalier Stella N°1" Description="Les Adieux d&apos;un Sex Symbol / Escalier de coter ( C: 0° / A: 0°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="70" ConstraintType="Velocity" Time="0" Velocity="2.5" StartAcceleration="0.5" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="70" ConstraintType="Velocity" Time="0" Velocity="2.5" StartAcceleration="0.5" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="30.2- Tournette Synchro Escalier Stella N°2" Description="Les Adieux d&apos;un... / Escalier face tour entier ( C: 70° / A: 70°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="60" Velocity="2.5" StartAcceleration="1" EndAcceleration="0.5"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="60" Velocity="2.5" StartAcceleration="1" EndAcceleration="0.5"/>
         </Manoeuvre>
         <Manoeuvre Name="30.3 - Ouverture Flip-Flap Ligne de Face" Description="Les Adieux d&apos;un Sex Symbol" Type="Target">
             <Animation Machine="Flip A-J3" MachineUniqueID="1797" Parameter="State" IsComposite="false" Type="Target" Target="Raised" ConstraintType="Time" Time="1.5" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
@@ -44,7 +44,7 @@
             <Animation Machine="Flip A-C3" MachineUniqueID="1893" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="31 - Tournette Synchro Escalier Stella N°3" Description="Télégramme / Escalier de coter ( C:360° / A: 360°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="2.5" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="2.5" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="** 31.1 - Prémise Périactes J-3 / C-1 / C-2 **" Description="Apres depart ville Jardin" Type="Target">
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-9.5" ConstraintType="Velocity" Time="0" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -244,7 +244,7 @@
             <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="400" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="40 - Tournette Escalier Stella" Description="Ego Trip / Tournette Synchro ( C: 350° / A: 400°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="774" ConstraintType="Velocity" Time="0" Velocity="3" StartAcceleration="1" EndAcceleration="2"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="774" ConstraintType="Velocity" Time="0" Velocity="3" StartAcceleration="1" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="41 - Entrée Lames Ecrans JT N°6" Description="Télé Capital JT N°6 / Ecrans vers coulisses" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="4.9947301536008739" ConstraintType="Time" Time="25" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -279,7 +279,7 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="9.0000003251047822" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="49 - Tournette Synchro Ville DJ" Description="Naziland / Disc Jockey&apos;s Song - 1 Tour ( C: 1736° / A: 96°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="456" ConstraintType="Time" Time="70" Velocity="3" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="456" ConstraintType="Time" Time="70" Velocity="3" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="49.1 - Ouverture Flip-Flap Centre lointain" Description=" Mise Disc Jockey&apos;s Song / Une fois la ville en place /  G-Axe" Type="Key">
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
@@ -301,10 +301,10 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="9.0000003251047822" ConstraintType="Time" Time="6" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="50 - Tournette synchro ville " Description="Ce soir on danse - Naziland / 1 tour apres ouverture Villes ( C: 2096° / A: 456°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="816" ConstraintType="Time" Time="64" Velocity="10" StartAcceleration="1.5" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="816" ConstraintType="Time" Time="64" Velocity="10" StartAcceleration="1.5" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 50 / Tournette Synchro Ville Naziland -----" Description="Naziland SANS Tournette DJ ( C: 1736° / A: 96°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="456" ConstraintType="Time" Time="64" Velocity="3.5" StartAcceleration="1.5" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="456" ConstraintType="Time" Time="64" Velocity="3.5" StartAcceleration="1.5" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="50.1 - Ouverture Périactes 2M" Description="Naziland / Avec Ouverture Ville" Type="Target">
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-8" ConstraintType="Time" Time="16" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -323,16 +323,16 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="9.0000003251047822" ConstraintType="Time" Time="18" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="50.3 - Tournette synchro ville Fin Naziland" Description="Naziland / Quart de tour A-H ( C: 2456° / A: 816°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="755" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="1.5" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="755" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="1.5" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 50.3 / Tournette Synchro Ville Fin Naziland -----" Description="Naziland SANS Tournette DJ ( C: 2096° / A: 456°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="395" ConstraintType="Time" Time="15" Velocity="3.5" StartAcceleration="1.5" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="395" ConstraintType="Time" Time="15" Velocity="3.5" StartAcceleration="1.5" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="52 - Tournette synchro ville avec Stella N°1" Description="Le Reve de Stella / mouvement lent ( C: 2395° / A: 755°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="870" ConstraintType="Time" Time="140" Velocity="2" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="870" ConstraintType="Time" Time="140" Velocity="2" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 52 / Tournette synchro ville avec Stella N°1 -----" Description="Le Reve de Stella / mouvement lent ( C: 2035° / A: 395°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="510" ConstraintType="Time" Time="140" Velocity="2" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="510" ConstraintType="Time" Time="140" Velocity="2" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="52.1 - Fermeture Flip-Flap Centre lointain" Description="Le reve de Stella / G-Axe" Type="Key">
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
@@ -346,10 +346,10 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="12.4" ConstraintType="Velocity" Time="0" Velocity="0.25" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="52.3 - Acceleration Tournette ville avec Stella N°2" Description="Le Reve de Stella / Go vers 866° ( C: 2510° / A: 870°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="1354" ConstraintType="Velocity" Time="38" Velocity="8.5" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="1354" ConstraintType="Velocity" Time="38" Velocity="8.5" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 52.3 / Tournette synchro ville avec Stella N°2 -----" Description="Le Reve de Stella / Go vers 621°  ( C: 2150° / A: 510°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="994" ConstraintType="Velocity" Time="38" Velocity="8.5" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="994" ConstraintType="Velocity" Time="38" Velocity="8.5" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="53 - Ouverture Flip-Flap aleatoire" Description="SOS d&apos;un terrien / OK passage villes " Type="Target">
             <Animation Machine="Flip A-J2" MachineUniqueID="1813" Parameter="State" IsComposite="false" Type="Target" Target="Raised" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>

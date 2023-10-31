@@ -2740,6 +2740,24 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="12615" Visible="true"/>
                 </OutputPins>
             </Node>
+
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="VIEILLE TOURNETTE SYNCHRO" UniqueID="33333">
+                <NodeEditorPosition x="4000" y="4000"/>
+                <NodeSpecificData ShortName="M">
+                    <Limits InvertAxis="false" AxisOffset="1.3799999999999999" LowerPositionLimit="0" UpperPositionLimit="24.620000000000001"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="1"/>
+                    <ControWidget UniqueID="22"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="30001" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="30002" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="30003" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="30004" Visible="true"/>
+                </OutputPins>
+            </Node>
+
             <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="12618">
                 <NodeEditorPosition x="-192" y="1952"/>
                 <NodeSpecificData>

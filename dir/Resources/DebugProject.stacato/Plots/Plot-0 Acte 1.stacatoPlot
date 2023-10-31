@@ -223,7 +223,7 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="12.4" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="2 - Tournette Synchro Ville Monopolis" Description="Monopolis /  Tour complet Ville ( C: 360° / A: 0°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="98" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="98" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="3 - Entrée Lames JT N°1" Description="Télé Capitale JT N°1" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="0.0050000000000000001" ConstraintType="Time" Time="35" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -273,19 +273,19 @@
             <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="324" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.1 / Tournette Voiture tour complet -----" Description="Travesti / voiture arrivée face ( C: 720° / A: 360°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="-36" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-36" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="9.2 - Tournette voiture quart tour vers Cour" Description="Travesti ( C: 324° / A: 360°)" Type="Target">
             <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="234" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.2 / Tournette voiture quart tour vers Cour ----- " Description="Travesti ( C: 324° / A: -36°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="-126" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-126" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="9.3 - Tournette voiture quart de tour sortie" Description="Fin Travesti ( C: 234° / A: 360°)" Type="Target">
             <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="144" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.3 / Tournette voiture quart de tour sortie -----" Description="Fin Travesti ( C: 234° / A: -126°)" Type="Target">
-            <Animation Machine="Tournettes" MachineUniqueID="2253" Parameter="Synchronized Position" IsComposite="false" Type="Target" Target="-216" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-216" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="** 9.4 - Prémise Périactes J-1 / C-1 **" Description="Apres tournette sortie" Type="Target">
             <Animation Machine="Périacte Face Jardin" MachineUniqueID="12465" Parameter="Position" IsComposite="false" Type="Target" Target="-11.199999999999999" ConstraintType="Velocity" Time="0" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
