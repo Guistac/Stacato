@@ -2990,5 +2990,35 @@
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
+        <Manoeuvre Name="M-25" Description="" Type="Sequence">
+            <Animation Machine="Pont Lumière" MachineUniqueID="12486" Parameter="Chaine Jardin" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="7" End="7" Duration="120" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="8.5080058453326028" Time="7.4774908752989244" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.4963517189025879" Time="21.818181991577148" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.5293655395507812" Time="32.419975280761719" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.5177111625671387" Time="46.094749450683594" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.5080060958862305" Time="59.00128173828125" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.4963517189025879" Time="71.139564514160156" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.4937667846679688" Time="84.507041931152344" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.5248308181762695" Time="97.259925842285156" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Pont Lumière" MachineUniqueID="12486" Parameter="Chaine Cour" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="7" End="7" Duration="120" TimeOffset="0" StartAcceleration="0.14999999999999999" EndAcceleration="0.14999999999999999">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="5.5034714773076399" Time="7.2577421686961552" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.5080059207215601" Time="19.974391805377721" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.524830805201109" Time="32.419974391805376" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.5222454200796527" Time="45.326504481434057" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.5319505548801553" Time="58.540332906530082" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.5151256704006073" Time="70.678617157490393" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="5.5533098039172941" Time="83.124199743918055" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                        <ControlPoint Position="8.500886171042513" Time="95.569782330345703" Velocity="0" InAcceleration="0.14999999999999999" OutAcceleration="0.14999999999999999"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>
