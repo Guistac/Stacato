@@ -45,6 +45,27 @@ public:
 	std::shared_ptr<Joystick2X> joystickRight;
 	std::shared_ptr<LED_RGB_Button> joystickButtonLeft;
 	std::shared_ptr<LED_RGB_Button> joystickButtonRight;
+    
+    std::shared_ptr<LED_RGB_Button> left_rgb_button;
+    std::shared_ptr<LED_RGB_Button> right_rgb_button;
+    
+    std::shared_ptr<LED_RGB_Button> goleft_rgb_Button;
+    std::shared_ptr<LED_RGB_Button> stop_rgb_Button;
+    std::shared_ptr<LED_RGB_Button> play_rgb_Button;
+    std::shared_ptr<LED_RGB_Button> goright_rgb_Button;
+    
+    std::shared_ptr<PushButton> left_selection_button;
+    std::shared_ptr<PushButton> right_selection_button;
+    std::shared_ptr<PushButton> rearm_button;
+    
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_1;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_2;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_3;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_4;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_5;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_6;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_7;
+    std::shared_ptr<LED_RGB_Button> square_rgb_button_8;
 	
 	virtual void onDisconnection() override;
 	

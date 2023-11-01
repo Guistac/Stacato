@@ -23,45 +23,43 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
 	std::vector<std::shared_ptr<IODevice>> rgbButtons;
 	rgbButtons.insert(rgbButtons.end(), devices.begin(), devices.begin() + 8);
 	
-    auto left_rgb_button = devices[0];
-    auto right_rgb_button = devices[7];
+    left_rgb_button = devices[0]->toLED_RGB_Button();
+    right_rgb_button = devices[7]->toLED_RGB_Button();
     
-	auto goleft_rgb_Button = devices[2];
-    auto stop_rgb_Button = devices[3];
-    auto play_rgb_Button = devices[4];
-	auto goright_rgb_Button = devices[5];
+    goleft_rgb_Button = devices[2]->toLED_RGB_Button();
+    stop_rgb_Button = devices[3]->toLED_RGB_Button();
+    play_rgb_Button = devices[4]->toLED_RGB_Button();
+    goright_rgb_Button = devices[5]->toLED_RGB_Button();
 	
-	auto left_selection_button = devices[16];
-	auto right_selection_button = devices[17];
-	auto rearm_button = devices[18];
+    left_selection_button = devices[16]->toPushButton();
+    right_selection_button = devices[17]->toPushButton();
+    rearm_button = devices[18]->toPushButton();
     
 	joystickLeft = devices[19]->toJoystick2X();
 	joystickRight = devices[20]->toJoystick2X();
 	joystickButtonLeft = devices[1]->toLED_RGB_Button();
 	joystickButtonRight = devices[6]->toLED_RGB_Button();
 	
-    auto square_rgb_button_1 = devices[11];
-    auto square_rgb_button_2 = devices[15];
-    auto square_rgb_button_3 = devices[10];
-    auto square_rgb_button_4 = devices[14];
-    auto square_rgb_button_5 = devices[9];
-    auto square_rgb_button_6 = devices[13];
-    auto square_rgb_button_7 = devices[8];
-    auto square_rgb_button_8 = devices[12];
+    square_rgb_button_1 = devices[11]->toLED_RGB_Button();
+    square_rgb_button_2 = devices[15]->toLED_RGB_Button();
+    square_rgb_button_3 = devices[10]->toLED_RGB_Button();
+    square_rgb_button_4 = devices[14]->toLED_RGB_Button();
+    square_rgb_button_5 = devices[9]->toLED_RGB_Button();
+    square_rgb_button_6 = devices[13]->toLED_RGB_Button();
+    square_rgb_button_7 = devices[8]->toLED_RGB_Button();
+    square_rgb_button_8 = devices[12]->toLED_RGB_Button();
 	
     left_rgb_button->setInputUpdateCallback([&](){
-		auto button = left_rgb_button->toPushButton();
-		if(!button->isPressed()){
+		if(!left_rgb_button->isPressed()){
 			if(Environnement::isRunning()) Environnement::stop();
 			else Environnement::start();
 		}
 	});
 	
     left_rgb_button->setOutputUpdateCallback([&](){
-		auto rgbLed = left_rgb_button->toLED_RGB();
-		if(Environnement::isRunning()) rgbLed->setColor(glm::vec3(0.f, 1.f, 0.f));
-		else if(Environnement::isStarting()) rgbLed->setColor(glm::vec3(1.f, 1.f, 0.f));
-		else rgbLed->setColor(glm::vec3(0.f, 0.f, 1.f));
+		if(Environnement::isRunning()) left_rgb_button->setColor(glm::vec3(0.f, 1.f, 0.f));
+		else if(Environnement::isStarting()) left_rgb_button->setColor(glm::vec3(1.f, 1.f, 0.f));
+		else left_rgb_button->setColor(glm::vec3(0.f, 0.f, 1.f));
 	});
     
     
@@ -89,78 +87,68 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
     
     
     left_selection_button->setInputUpdateCallback([&](){
-        auto button = left_selection_button->toPushButton();
-        if(button->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
+        if(left_selection_button->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
     });
     
     right_selection_button->setInputUpdateCallback([&](){
-        auto button = right_selection_button->toPushButton();
-        if(button->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
+        if(right_selection_button->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
     });
 	
     rearm_button->setInputUpdateCallback([&](){
-        auto button = rearm_button->toPushButton();
-        if(!button->isPressed()) Environnement::enableAllMachines();
+        if(!rearm_button->isPressed()) Environnement::enableAllMachines();
     });
     
     
     
     right_rgb_button->setInputUpdateCallback([&](){
-        auto button = right_rgb_button->toPushButton();
-        if(!button->isPressed()) Environnement::disableAllMachines();
+        if(!right_rgb_button->isPressed()) Environnement::disableAllMachines();
     });
     
     right_rgb_button->setOutputUpdateCallback([&](){
-        auto rgbLed = right_rgb_button->toLED_RGB();
-        if(Environnement::areAllMachinesEnabled()) rgbLed->setColor(glm::vec3(.0f, 1.f, .0f));
-        else if(Environnement::areNoMachinesEnabled()) rgbLed->setColor(glm::vec3(.0f, .0f, 1.f));
-        else rgbLed->setColor(glm::vec3(1.f, 1.f, .0f));
+        if(Environnement::areAllMachinesEnabled()) right_rgb_button->setColor(glm::vec3(.0f, 1.f, .0f));
+        else if(Environnement::areNoMachinesEnabled()) right_rgb_button->setColor(glm::vec3(.0f, .0f, 1.f));
+        else right_rgb_button->setColor(glm::vec3(1.f, 1.f, .0f));
     });
     
     
     
     
     goleft_rgb_Button->setInputUpdateCallback([&](){
-        auto button = goleft_rgb_Button->toPushButton();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToStart()) return;
-        if(!button->isPressed()) manoeuvre->rapidToStart();
+        if(!goleft_rgb_Button->isPressed()) manoeuvre->rapidToStart();
     });
     
     goleft_rgb_Button->setOutputUpdateCallback([&](){
-        auto rgbLed = goleft_rgb_Button->toLED_RGB();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
-        if(manoeuvre == nullptr) rgbLed->setColor(glm::vec3(0.f, 0.f, 0.f));
-        else if(manoeuvre->isAtStart()) rgbLed->setColor(glm::vec3(.0f, 1.f, .0f));
-        else if(manoeuvre->canRapidToStart()) rgbLed->setColor(glm::vec3(.1f, .1f, .1f));
-        else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
+        if(manoeuvre == nullptr) goleft_rgb_Button->setColor(glm::vec3(0.f, 0.f, 0.f));
+        else if(manoeuvre->isAtStart()) goleft_rgb_Button->setColor(glm::vec3(.0f, 1.f, .0f));
+        else if(manoeuvre->canRapidToStart()) goleft_rgb_Button->setColor(glm::vec3(.1f, .1f, .1f));
+        else goleft_rgb_Button->setColor(glm::vec3(.0f, .0f, .1f));
     });
     
     
 	
     
     goright_rgb_Button->setInputUpdateCallback([&](){
-        auto button = goright_rgb_Button->toPushButton();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
-        if(!button->isPressed()) manoeuvre->rapidToTarget();
+        if(!goright_rgb_Button->isPressed()) manoeuvre->rapidToTarget();
     });
     
     goright_rgb_Button->setOutputUpdateCallback([&](){
-        auto rgbLed = goright_rgb_Button->toLED_RGB();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
-        if(manoeuvre == nullptr) rgbLed->setColor(glm::vec3(0.f, 0.f, 0.f));
-        else if(manoeuvre->isAtTarget()) rgbLed->setColor(glm::vec3(.0f, 1.f, .0f));
-        else if(manoeuvre->canRapidToTarget()) rgbLed->setColor(glm::vec3(.1f, .1f, .1f));
-        else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
+        if(manoeuvre == nullptr) goright_rgb_Button->setColor(glm::vec3(0.f, 0.f, 0.f));
+        else if(manoeuvre->isAtTarget()) goright_rgb_Button->setColor(glm::vec3(.0f, 1.f, .0f));
+        else if(manoeuvre->canRapidToTarget()) goright_rgb_Button->setColor(glm::vec3(.1f, .1f, .1f));
+        else goright_rgb_Button->setColor(glm::vec3(.0f, .0f, .1f));
     });
     
     
     
     stop_rgb_Button->setInputUpdateCallback([&](){
-        auto button = stop_rgb_Button->toPushButton();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
-        if(button->isPressed()){
+        if(stop_rgb_Button->isPressed()){
             if(manoeuvre && manoeuvre->canStop()) {
                 manoeuvre->stop();
             }
@@ -170,25 +158,23 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
     
 	
     stop_rgb_Button->setOutputUpdateCallback([&](){
-        auto rgbLed = stop_rgb_Button->toLED_RGB();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(manoeuvre != nullptr && manoeuvre->canStop()){
             glm::vec3 black = glm::vec3(0.f, 0.f, 0.f);
             glm::vec3 red = glm::vec3(1.f, 0.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-			rgbLed->setColor(lerpColor(black, red, lerp));
-        }else if(PlaybackManager::isAnyAnimationActive()) rgbLed->setColor(glm::vec3(1.f, .0f, .0f));
-        else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
+            stop_rgb_Button->setColor(lerpColor(black, red, lerp));
+        }else if(PlaybackManager::isAnyAnimationActive()) stop_rgb_Button->setColor(glm::vec3(1.f, .0f, .0f));
+        else stop_rgb_Button->setColor(glm::vec3(.0f, .0f, .1f));
     });
 	 
     
     
     
     play_rgb_Button->setInputUpdateCallback([&](){
-        auto button = play_rgb_Button->toPushButton();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre) return;
-        if(!button->isPressed()) {
+        if(!play_rgb_Button->isPressed()) {
             if(manoeuvre->canPausePlayback()) manoeuvre->pausePlayback();
             else if(manoeuvre->canStartPlayback()) manoeuvre->startPlayback();
             else if(manoeuvre->canRapidToPlaybackPosition()) manoeuvre->rapidToPlaybackPosition();
@@ -197,23 +183,22 @@ void ConsoleStarmania::apply(std::shared_ptr<Console> console){
     
 	
     play_rgb_Button->setOutputUpdateCallback([&](){
-        auto rgbLed = play_rgb_Button->toLED_RGB();
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
-        if(manoeuvre == nullptr) rgbLed->setColor(glm::vec3(0.f, 0.f, 0.1f));
+        if(manoeuvre == nullptr) play_rgb_Button->setColor(glm::vec3(0.f, 0.f, 0.1f));
         else if(manoeuvre->isPlaying()){
             glm::vec3 black = glm::vec3(0.f);
             glm::vec3 green = glm::vec3(0.f, 1.f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-			rgbLed->setColor(lerpColor(black, green, lerp));
+            play_rgb_Button->setColor(lerpColor(black, green, lerp));
         }else if(manoeuvre->isInRapid()){
             glm::vec3 white = glm::vec3(1.f);
             glm::vec3 yellow = glm::vec3(1.f, .7f, 0.f);
             float lerp = (1.f + std::sin(Timing::getProgramTime_seconds() * 20.0)) * .5f;
-            rgbLed->setColor(lerpColor(white, yellow, lerp));
+            play_rgb_Button->setColor(lerpColor(white, yellow, lerp));
         }
-        else if(manoeuvre->canStartPlayback()) rgbLed->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
-        else if(manoeuvre->canRapidToPlaybackPosition()) rgbLed->setColor(glm::vec3(1.f, .7f, 0.f));
-        else rgbLed->setColor(glm::vec3(.0f, .0f, .1f));
+        else if(manoeuvre->canStartPlayback()) play_rgb_Button->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
+        else if(manoeuvre->canRapidToPlaybackPosition()) play_rgb_Button->setColor(glm::vec3(1.f, .7f, 0.f));
+        else play_rgb_Button->setColor(glm::vec3(.0f, .0f, .1f));
     });
     
 	
