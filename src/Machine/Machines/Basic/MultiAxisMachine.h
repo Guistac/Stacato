@@ -35,7 +35,12 @@ class MultiAxisMachine : public Machine{
 	double masterVelocityCommand = 0.0;
 	
 	bool b_enableGroupSurveillance = true;
+	bool b_enableUnderloadSurveillance = true;
 	
+	bool b_showLoad = true;
+	bool b_allowUserHoming = false;
+	bool b_allowUserLimitSettings = true;
+	bool b_allowUserUnderloadSurveillanceToggle = true;
 	
 	void setMasterVelocityTarget(double velocityTarget);
 	

@@ -2828,8 +2828,8 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="1.3 - Tournette + Anneau (copy)" Description="avec Sequence périactes" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="12" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="12" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="12" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="12" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="M-150" Description="Ondulation Periactes" Type="Sequence">
             <Animation Machine="Périacte Face Jardin" MachineUniqueID="12465" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-12" End="-12" Duration="75" TimeOffset="0" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003">

@@ -83,21 +83,21 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::PopFont();
 	axisOffset->gui();
 	ImGui::SameLine();
-	if(ImGui::Button("Reset##Offset")) resetZero();
+	if(ImGui::Button("Reset##Offset")) resetUserZero();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Lower Limit");
 	ImGui::PopFont();
 	lowerPositionLimit->gui();
 	ImGui::SameLine();
-	if(ImGui::Button("Reset##LowerLimit")) resetLowerLimit();
+	if(ImGui::Button("Reset##LowerLimit")) resetLowerUserLimit();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Upper Limit");
 	ImGui::PopFont();
 	upperPositionLimit->gui();
 	ImGui::SameLine();
-	if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
+	if(ImGui::Button("Reset##UpperLimit")) resetUpperUserLimit();
 
 	ImGui::Separator();
 	
@@ -640,27 +640,27 @@ void PositionControlledMachine::setupGui(){
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
 	
 	if(allowUserZeroEdit->value){
-		if(ImGui::Button("Capture Zero")) captureZero();
+		if(ImGui::Button("Capture Zero")) captureUserZero();
 		ImGui::SameLine();
-		if(ImGui::Button("Reset##Zero")) resetZero();
+		if(ImGui::Button("Reset##Zero")) resetUserZero();
 	}
 	
 	if(allowUserLowerLimitEdit->value){
-		if(ImGui::Button("Capture Lower Limit")) captureLowerLimit();
+		if(ImGui::Button("Capture Lower Limit")) captureLowerUserLimit();
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 		lowerPositionLimit->gui();
 		ImGui::SameLine();
-		if(ImGui::Button("Reset##LowerLimit")) resetLowerLimit();
+		if(ImGui::Button("Reset##LowerLimit")) resetLowerUserLimit();
 	}
 	
 	if(allowUserUpperLimitEdit->value){
-		if(ImGui::Button("Capture Upper Limit")) captureUpperLimit();
+		if(ImGui::Button("Capture Upper Limit")) captureUpperUserLimit();
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 		upperPositionLimit->gui();
 		ImGui::SameLine();
-		if(ImGui::Button("Reset##UpperLimit")) resetUpperLimit();
+		if(ImGui::Button("Reset##UpperLimit")) resetUpperUserLimit();
 	}
 	
 	if(allowUserZeroEdit->value || allowUserLowerLimitEdit->value || allowUserUpperLimitEdit->value){

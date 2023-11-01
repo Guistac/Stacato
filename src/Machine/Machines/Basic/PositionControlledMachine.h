@@ -33,8 +33,6 @@ class PositionControlledMachine : public Machine{
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
-	
-	void updateAnimatableParameters();
 
 	//————————— Settings ——————————
 	
@@ -69,19 +67,31 @@ class PositionControlledMachine : public Machine{
 	double getLowerPositionLimit();
 	double getUpperPositionLimit();
 	
-	void captureZero();
-	void resetZero();
-	void captureLowerLimit();
-	void resetLowerLimit();
-	void captureUpperLimit();
-	void resetUpperLimit();
-	
 	double axisPositionToMachinePosition(double axisPosition);
 	double axisVelocityToMachineVelocity(double axisVelocity);
 	double axisAccelerationToMachineAcceleration(double axisAcceleration);
 	double machinePositionToAxisPosition(double machinePosition);
 	double machineVelocityToAxisVelocity(double machineVelocity);
 	double machineAccelerationToAxisAcceleration(double machineAcceleration);
+	
+	
+	
+	void updateAnimatableParameters();
+	double axisLowerPositionLimit = 0.0;
+	double axisUpperPositionLimit = 0.0;
+	void captureUserZero();
+	void resetUserZero();
+	bool b_userZeroUpdateRequest = false;
+	double requestedUserZeroOffset = 0.0;
+	void setUserLowerLimit(double lowerLimit);
+	void setUserUpperLimit(double upperLimit);
+	void captureLowerUserLimit();
+	void captureUpperUserLimit();
+	void resetLowerUserLimit();
+	void resetUpperUserLimit();
+	
+	
+	
 	
 	//——————————————— Homing ————————————————
 	

@@ -220,32 +220,32 @@
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="720" ConstraintType="Velocity" Time="0" Velocity="8.5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="Test Centre 50%" Description="" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="-360" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="-360" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="Test Anneau 50%" Description="" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="360" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="Maintenance tournette synchro lent" Description="" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="720" ConstraintType="Velocity" Time="0" Velocity="1" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="" Description="                    ---------- Mise Tournette ----------" Type="Key"/>
         <Manoeuvre Name="tournette Ouverture Piano / 1.1" Description="" Type="Key">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Key" Target="-60"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Key" Target="-60"/>
         </Manoeuvre>
         <Manoeuvre Name="tournette ville Monopolis / 2" Description="" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="Travesti / 9.1" Description="prémise tournettes" Type="Key">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Key" Target="720"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Key" Target="360"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Key" Target="720"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Key" Target="360"/>
         </Manoeuvre>
         <Manoeuvre Name="Il se passe quelque chose a Monopolis / 11.1" Description="" Type="Key">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Key" Target="143.9999282330555"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Key" Target="360"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Key" Target="143.9999282330555"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Key" Target="360"/>
         </Manoeuvre>
         <Manoeuvre Name="----- tournette Gourou / 36.1" Description="" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="325" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="tournette debut stella / 40" Description="debut Ego Trip" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="315" ConstraintType="Velocity" Time="0" Velocity="7" StartAcceleration="2" EndAcceleration="2"/>
@@ -264,7 +264,7 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="8.5" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="tournette victoire" Description="" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="1500" ConstraintType="Velocity" Time="103" Velocity="3.5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="1500" ConstraintType="Velocity" Time="103" Velocity="3.5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

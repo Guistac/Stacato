@@ -55,7 +55,7 @@ public:
 	bool save(tinyxml2::XMLElement* parent);
 	bool load(tinyxml2::XMLElement* parent);
 	
-	
+	void angularControlGui();
 	void controlGui();
 	void setupGui();
 	
@@ -82,7 +82,7 @@ public:
 	double userUpperPositionLimit = 0.0;
 	
 	double minimumLoad_Kilograms = 0.0;
-	bool b_enableMinimumLoadSurveillance = true;
+	//bool b_enableMinimumLoadSurveillance = true;
 	
 	
 };

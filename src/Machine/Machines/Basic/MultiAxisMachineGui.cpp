@@ -22,6 +22,13 @@ void MultiAxisMachine::controlsGui() {
 }
 
 void MultiAxisMachine::settingsGui() {
+	
+	
+	ImGui::Checkbox("Allow User Homing", &b_allowUserHoming);
+	ImGui::Checkbox("Show Load", &b_showLoad);
+	ImGui::Checkbox("Allow User Limit Setting", &b_allowUserLimitSettings);
+	ImGui::Checkbox("Allow User Underload Surveillance Toggle", &b_allowUserUnderloadSurveillanceToggle);
+	
 	if(ImGui::Button("Add Axis")) addAxisMapping();
 	
 	std::shared_ptr<AxisMapping> deletedMapping = nullptr;
@@ -168,22 +175,25 @@ void MultiAxisMachine::widgetGui(){
 		auto mapping = axisMappings[i];
 		auto animatable = mapping->animatablePosition;
 		bool b_axisConnected = mapping->axisPin->isConnected();
+		Units::Type unitType = b_axisConnected ? mapping->getAxis()->getPositionUnit()->unitType : Units::Type::LINEAR_DISTANCE;
 		
 		ImGui::PushID(i);
 		ImGui::BeginGroup();
 		
 		ImGui::BeginDisabled(!b_axisConnected);
-		mapping->controlGui();
+		if(unitType == Units::Type::LINEAR_DISTANCE) mapping->controlGui();
+		else if(unitType == Units::Type::ANGULAR_DISTANCE) mapping->angularControlGui();
 		ImGui::EndDisabled();
 		
 		float controlsWidth = ImGui::GetItemRectSize().x;
 		
-		ImVec2 loadStatusSize(controlsWidth, ImGui::GetTextLineHeightWithSpacing());
-		static char loadString[64];
-		if(b_axisConnected) snprintf(loadString, 64, "%.0fKg", mapping->getAxis()->getForceActual() / 10.0);
-		else snprintf(loadString, 64, "---");
-		backgroundText(loadString, loadStatusSize, Colors::darkGray, Colors::white);
-		
+		if(b_showLoad){
+			ImVec2 loadStatusSize(controlsWidth, ImGui::GetTextLineHeightWithSpacing());
+			static char loadString[64];
+			if(b_axisConnected) snprintf(loadString, 64, "%.0fKg", mapping->getAxis()->getForceActual() / 10.0);
+			else snprintf(loadString, 64, "---");
+			backgroundText(loadString, loadStatusSize, Colors::darkGray, Colors::white);
+		}
 		
 		bool b_disableAxisStateControl;
 		bool b_axisEnabled;
@@ -256,7 +266,13 @@ void MultiAxisMachine::widgetGui(){
 		glm::vec2 nameBoxSize(controlsWidth, ImGui::GetTextLineHeightWithSpacing());
 		if(b_axisConnected){
 			std::string axisName = mapping->axisPin->getConnectedPin()->getSharedPointer<AxisInterface>()->getName();
-			backgroundText(axisName.c_str(), nameBoxSize, Colors::darkGray);
+			ImVec4 backgroundColor;
+			if(!b_enableGroupSurveillance || !b_enableUnderloadSurveillance) backgroundColor = Timing::getBlink(0.1) ? Colors::red : Colors::yellow;
+			else backgroundColor = Colors::darkGray;
+			
+			if(!b_enableGroupSurveillance && Timing::getBlink(1.0)) backgroundText("No Group Safety", nameBoxSize, backgroundColor);
+			else if(!b_enableUnderloadSurveillance && Timing::getBlink(1.0)) backgroundText("No Underload", nameBoxSize, backgroundColor);
+			else backgroundText(axisName.c_str(), nameBoxSize, backgroundColor);
 		}
 		else{
 			backgroundText("No Axis", nameBoxSize, Colors::darkRed, Colors::red);
@@ -289,7 +305,12 @@ void MultiAxisMachine::widgetGui(){
 }
 
 void MultiAxisMachine::setupGui(){
+	
 	ImGui::Checkbox("Enable Group Surveillance", &b_enableGroupSurveillance);
+	
+	if(b_allowUserUnderloadSurveillanceToggle){
+		ImGui::Checkbox("Enable Underload Surveilllance", &b_enableUnderloadSurveillance);
+	}
 	
 	for(int i = 0; i < axisMappings.size(); i++){
 		auto axisMapping = axisMappings[i];
@@ -299,9 +320,42 @@ void MultiAxisMachine::setupGui(){
 			ImGui::PushFont(Fonts::sansBold15);
 			backgroundText(axisMappings[i]->getAxis()->getName().c_str(), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing()), Colors::darkGray);
 			ImGui::PopFont();
-			ImGui::PushID(i);
-			axisMappings[i]->setupGui();
-			ImGui::PopID();
+			
+			if(b_allowUserLimitSettings){
+				ImGui::PushID(i);
+				axisMappings[i]->setupGui();
+				ImGui::PopID();
+			}
+		}
+		if(b_allowUserHoming && axisMapping->isAxisConnected()){
+			
+			auto axis = axisMapping->getAxis();
+			
+			glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
+			ImGui::BeginDisabled(!axis->canStartHoming());
+			if(axis->isHoming()){
+				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
+				if(ImGui::Button("Stop Homing", homingButtonSize)) axis->stopHoming();
+				ImGui::PopStyleColor();
+			}else{
+				if(ImGui::Button("Start Homing", homingButtonSize)) axis->startHoming();
+			}
+			ImGui::EndDisabled();
+
+
+			ImGui::SameLine();
+
+			ImVec4 progressIndicatorColor = Colors::darkGray;
+			if(axis->isHoming()) progressIndicatorColor = Colors::orange;
+			else if(axis->didHomingSucceed()) progressIndicatorColor = Colors::green;
+			else if(!axis->isHoming() && !axis->didHomingSucceed()) progressIndicatorColor = Colors::red;
+
+			glm::vec2 homingProgressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+			std::string homingString = axis->getHomingStepString();
+			backgroundText(homingString.c_str(), homingProgressSize, Colors::darkGray);
+			
+			
+			
 		}
 	}
 	

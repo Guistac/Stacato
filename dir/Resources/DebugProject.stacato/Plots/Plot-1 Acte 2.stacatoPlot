@@ -115,8 +115,8 @@
             <Animation Machine="Flip E-C3" MachineUniqueID="1717" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
         </Manoeuvre>
         <Manoeuvre Name="36.2 -  Montée Romaine &amp; Tournette + Anneau Horaire N°1" Description="La Procession du Gourou ( C: 325° / A: 325°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="470" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="460" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="470" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="460" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.69999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
@@ -127,10 +127,10 @@
             <Animation Machine="Flip A-C3" MachineUniqueID="1893" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
         </Manoeuvre>
         <Manoeuvre Name="36.4 - Anneau Anti-horaire N°2" Description="La Procession du Gourou / Top vers 440°" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="315" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="315" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="36.5 - Tournette anti horaire N°3" Description="La Procession du Gourou / Top vers 455°" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="350" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="350" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="** 37 - Prémise Périactes J-1 / J-3 / C-3 / C-2 **" Description="Avant fin Paranoia / danseurs en ligne centre" Type="Target">
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-10" ConstraintType="Velocity" Time="0" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -241,7 +241,7 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="10.9" ConstraintType="Time" Time="40" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="38.5 - Anneau Fuite de Stella " Description="Sex-Shop Transition ( C: 350° / A: 315°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="400" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="400" ConstraintType="Velocity" Time="0" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="40 - Tournette Escalier Stella" Description="Ego Trip / Tournette Synchro ( C: 350° / A: 400°)" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="774" ConstraintType="Velocity" Time="0" Velocity="3" StartAcceleration="1" EndAcceleration="2"/>
@@ -255,12 +255,12 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="10.899993453121155" ConstraintType="Time" Time="20" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.040000000000000001"/>
         </Manoeuvre>
         <Manoeuvre Name="46 - Tournette + Anneau Ziggy &amp; Marie-Jeanne" Description="Nos planetes se separent ( C: 724° / A: 774°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="1230" ConstraintType="Time" Time="103" Velocity="6" StartAcceleration="0.29999999999999999" EndAcceleration="0.80000000000000004"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="435" ConstraintType="Time" Time="103" Velocity="4" StartAcceleration="0.20000000000000001" EndAcceleration="0.80000000000000004"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="1230" ConstraintType="Time" Time="103" Velocity="6" StartAcceleration="0.29999999999999999" EndAcceleration="0.80000000000000004"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="435" ConstraintType="Time" Time="103" Velocity="4" StartAcceleration="0.20000000000000001" EndAcceleration="0.80000000000000004"/>
         </Manoeuvre>
         <Manoeuvre Name="47 - Tournette H + Anneau A-H" Description="Les Uns contre les autres ( C: 1230° / A: 435°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="1736" ConstraintType="Time" Time="103" Velocity="6" StartAcceleration="0.29999999999999999" EndAcceleration="1"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="96" ConstraintType="Time" Time="103" Velocity="4" StartAcceleration="0.20000000000000001" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="1736" ConstraintType="Time" Time="103" Velocity="6" StartAcceleration="0.29999999999999999" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="96" ConstraintType="Time" Time="103" Velocity="4" StartAcceleration="0.20000000000000001" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="** 47.1 - Prémise  Périactes **" Description="Mise Naziland" Type="Target">
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-10" ConstraintType="Time" Time="0" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>

@@ -177,6 +177,8 @@ std::string PositionControlledMachine::getStatusString(){
 				}
 			}
 			return status;
+		default:
+			return "";
 	}
 }
 
@@ -208,6 +210,17 @@ void PositionControlledMachine::inputProcess() {
 	if(b_applyTurnOffset){
 		b_applyTurnOffset = false;
 		turnOffset = requestedTurnOffset;
+		animatablePosition->overridePositionTarget(axisPositionToMachinePosition(axis->getPositionActual()));
+	}
+	
+	if(b_userZeroUpdateRequest){
+		b_userZeroUpdateRequest = false;
+		axisOffset->overwrite(requestedUserZeroOffset);
+		axisLowerPositionLimit = axisPositionToMachinePosition(axis->getLowerPositionLimit());
+		axisUpperPositionLimit = axisPositionToMachinePosition(axis->getUpperPositionLimit());
+		if(invertAxis->value) std::swap(axisLowerPositionLimit, axisUpperPositionLimit);
+		setUserLowerLimit(lowerPositionLimit->value);
+		setUserUpperLimit(upperPositionLimit->value);
 		animatablePosition->overridePositionTarget(axisPositionToMachinePosition(axis->getPositionActual()));
 	}
 	
@@ -315,34 +328,72 @@ double PositionControlledMachine::getUpperPositionLimit(){
 }
 
 
-void PositionControlledMachine::captureZero(){
-	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit() - animatablePosition->motionProfile.getPosition());
-	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit() + animatablePosition->motionProfile.getPosition());
-	animatablePosition->motionProfile.setPosition(0.0);
-	animatablePosition->setManualVelocityTarget(0.0);
+
+
+
+void PositionControlledMachine::updateAnimatableParameters(){
+	if(!isAxisConnected()) {
+		animatablePosition->setUnit(Units::None::None);
+		animatablePosition->lowerPositionLimit = 0.0;
+		animatablePosition->upperPositionLimit = 0.0;
+		animatablePosition->velocityLimit = 0.0;
+		animatablePosition->accelerationLimit = 0.0;
+		return;
+	}
+	auto axis = getAxisInterface();
+	
+	axisLowerPositionLimit = axisPositionToMachinePosition(axis->getLowerPositionLimit());
+	axisUpperPositionLimit = axisPositionToMachinePosition(axis->getUpperPositionLimit());
+	if(invertAxis->value) std::swap(axisLowerPositionLimit, axisUpperPositionLimit);
+	
+	setUserLowerLimit(lowerPositionLimit->value);
+	setUserUpperLimit(upperPositionLimit->value);
+	
+	animatablePosition->setUnit(axis->getPositionUnit());
+	animatablePosition->lowerPositionLimit = lowerPositionLimit->value;
+	animatablePosition->upperPositionLimit = upperPositionLimit->value;
+	animatablePosition->velocityLimit = std::abs(axis->getVelocityLimit());
+	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
 }
 
-void PositionControlledMachine::resetZero(){
-	if(invertAxis->value) axisOffset->overwriteWithHistory(getAxisInterface()->getUpperPositionLimit());
-	else axisOffset->overwriteWithHistory(getAxisInterface()->getLowerPositionLimit());
-	animatablePosition->setManualVelocityTarget(0.0);
+void PositionControlledMachine::setUserLowerLimit(double lowerLimit){
+	lowerPositionLimit->overwrite(std::clamp(lowerLimit, axisLowerPositionLimit, upperPositionLimit->value));
+	animatablePosition->lowerPositionLimit = lowerPositionLimit->value;
 }
 
-void PositionControlledMachine::captureLowerLimit(){
-	lowerPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+void PositionControlledMachine::setUserUpperLimit(double upperLimit){
+	upperPositionLimit->overwrite(std::clamp(upperLimit, lowerPositionLimit->value, axisUpperPositionLimit));
+	animatablePosition->upperPositionLimit = upperPositionLimit->value;
 }
 
-void PositionControlledMachine::resetLowerLimit(){
-	lowerPositionLimit->overwriteWithHistory(getMinPosition());
+void PositionControlledMachine::captureLowerUserLimit(){
+	lowerPositionLimit->overwrite(animatablePosition->getActualPosition());
+	setUserLowerLimit(lowerPositionLimit->value);
 }
 
-void PositionControlledMachine::captureUpperLimit(){
-	upperPositionLimit->overwriteWithHistory(animatablePosition->motionProfile.getPosition());
+void PositionControlledMachine::captureUpperUserLimit(){
+	upperPositionLimit->overwrite(animatablePosition->getActualPosition());
+	setUserUpperLimit(upperPositionLimit->value);
 }
 
-void PositionControlledMachine::resetUpperLimit(){
-	upperPositionLimit->overwriteWithHistory(getMaxPosition());
+void PositionControlledMachine::resetLowerUserLimit(){
+	setUserLowerLimit(axisLowerPositionLimit);
 }
+
+void PositionControlledMachine::resetUpperUserLimit(){
+	setUserUpperLimit(axisUpperPositionLimit);
+}
+
+void PositionControlledMachine::captureUserZero(){
+	requestedUserZeroOffset = getAxisInterface()->getPositionActual();
+	b_userZeroUpdateRequest = true;
+}
+
+void PositionControlledMachine::resetUserZero(){
+	requestedUserZeroOffset = 0.0;
+	b_userZeroUpdateRequest = true;
+}
+
 
 
 
@@ -384,7 +435,7 @@ std::string PositionControlledMachine::getHomingString(){
 
 
 
-
+/*
 void PositionControlledMachine::updateAnimatableParameters(){
 	if(!isAxisConnected()) {
 		animatablePosition->setUnit(Units::None::None);
@@ -407,7 +458,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	animatablePosition->accelerationLimit = std::abs(axis->getAccelerationLimit());
 	
 }
-
+*/
 
 
 

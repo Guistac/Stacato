@@ -187,6 +187,122 @@ void AxisMapping::controlGui(){
 }
 
 
+void AxisMapping::angularControlGui(){
+	float displayDiameter = ImGui::GetTextLineHeight() * 8.0;
+	
+	
+	ImGui::InvisibleButton("rotatingAxisDisplay", glm::vec2(displayDiameter));
+	glm::vec2 min = ImGui::GetItemRectMin();
+	glm::vec2 max = ImGui::GetItemRectMax();
+	glm::vec2 size = max - min;
+	glm::vec2 middle = (max + min) / 2.0;
+	float radius = displayDiameter / 2.0;
+				
+	float triangleSize = ImGui::GetTextLineHeight() * .5f;
+	float lineWidth = ImGui::GetTextLineHeight() * .1f;
+	
+	ImDrawList* drawing = ImGui::GetWindowDrawList();
+	
+	auto drawArrowRotated = [&](glm::vec2 center, float startRadius, float endRadius, float angleRadians, ImVec4 color){
+		float lineEndRadius = endRadius - triangleSize * .5f;
+		glm::vec2 start(startRadius * std::cos(angleRadians), startRadius * std::sin(angleRadians));
+		glm::vec2 end(lineEndRadius * std::cos(angleRadians), lineEndRadius * std::sin(angleRadians));
+		start += center;
+		end += center;
+		
+		glm::vec2 trianglePoints[3] = {
+			center + glm::rotate(glm::vec2(endRadius, 0), angleRadians),
+			center + glm::rotate(glm::vec2(endRadius - triangleSize, triangleSize * .4f), angleRadians),
+			center + glm::rotate(glm::vec2(endRadius - triangleSize, -triangleSize * .4f), angleRadians)
+		};
+		
+		drawing->AddLine(start, end, ImColor(color), lineWidth);
+		drawing->AddTriangleFilled(trianglePoints[0],
+							 trianglePoints[1],
+							 trianglePoints[2],
+							 ImColor(color));
+		
+	};
+	
+	
+	if(!isAxisConnected() || getAxis()->getState() == DeviceState::OFFLINE){
+		drawing->AddCircleFilled(middle, size.x * .5f, ImColor(Colors::blue));
+	}else{
+		
+		drawing->AddCircleFilled(middle, size.x / 2.0, ImColor(Colors::darkGray));
+		
+		ImColor borderColor = ImColor(Colors::black);
+		float borderWidth = ImGui::GetTextLineHeight() * .05f;
+
+		//get visualizer angles
+		double positionAngle = animatablePosition->getActualPosition();
+		double breakingPositionAngle = animatablePosition->getBrakingPosition();
+		double displayPositionAngle = Units::convert(positionAngle, animatablePosition->getUnit(), Units::AngularDistance::Radian) - M_PI_2;
+		double displayBreakingPositionAngle = Units::convert(breakingPositionAngle, animatablePosition->getUnit(), Units::AngularDistance::Radian) - M_PI_2;
+		
+		//background & zero tick mark
+		drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
+		float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
+		drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
+
+		//draw visualizer arrows
+		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle, Colors::gray);
+		drawArrowRotated(middle, 0.0, radius, displayPositionAngle, Colors::white);
+		
+		//display position string on turntables
+		double positionDegrees = Units::convert(animatablePosition->getActualPosition(), animatablePosition->getUnit(), Units::AngularDistance::Degree);
+		
+		int fullTurns = std::floor(positionDegrees / 360.0);
+		double singleTurnPosition = positionDegrees - fullTurns * 360.0;
+		char positiveAngleString[64];
+		snprintf(positiveAngleString, 64, "%iR+%.1f°", fullTurns, singleTurnPosition);
+		
+		drawing->AddCircleFilled(middle, radius * .5, ImColor(Colors::veryDarkGray), 64);
+		drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);
+		ImGui::PushFont(Fonts::sansBold15);
+		textAligned(positiveAngleString, middle, TextAlignement::MIDDLE_MIDDLE);
+		ImGui::PopFont();
+	}
+	
+	glm::vec2 rangeDisplaySize(radius * 2.0, ImGui::GetTextLineHeight() * .5);
+	float rangeProgress = animatablePosition->getActualPositionNormalized();
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::gray);
+	ImGui::ProgressBar(rangeProgress, rangeDisplaySize, "");
+	ImGui::PopStyleColor();
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		ImGui::Text("Position in working range");
+		ImGui::EndTooltip();
+	}
+	
+	float actualEffort = 0.0;
+	if(isAxisConnected()) actualEffort = getAxis()->getEffortActual();
+	float effortProgress = actualEffort;
+	while(effortProgress > 1.0) effortProgress -= 1.0;
+	if(actualEffort > 2.0) {
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::red);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::yellow);
+	}else if(actualEffort > 1.0){
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::yellow);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::green);
+	}else{
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::green);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetColorU32(ImGuiCol_FrameBg));
+	}
+
+	ImGui::ProgressBar(effortProgress, ImVec2(displayDiameter, ImGui::GetTextLineHeight() * 0.5), "");
+	ImGui::PopStyleColor(2);
+	if(ImGui::IsItemHovered()){
+		ImGui::BeginTooltip();
+		ImGui::Text("Control Effort");
+		ImGui::EndTooltip();
+	}
+	
+	animatablePosition->manualControlsHorizontalGui(displayDiameter, nullptr);
+	
+}
+
+
 
 void AxisMapping::setupGui(){
 	
@@ -324,7 +440,5 @@ void AxisMapping::setupGui(){
 					 framethickness,
 					 ImDrawFlags_RoundCornersAll,
 					 framethickness);
-	
-	ImGui::Checkbox("Minimum Load Surveillance", &b_enableMinimumLoadSurveillance);
 	 
 }

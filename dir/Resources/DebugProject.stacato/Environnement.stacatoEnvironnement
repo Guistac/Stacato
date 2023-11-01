@@ -1,44 +1,43 @@
 <Environnement name="Starmania" notes="
 ">
-    <Dashboard Scale="0.34900439" OffsetX="1825.8308" OffsetY="-1711.3198" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1114" PositionY="1776" SizeX="136.50017" SizeY="222.09923"/>
-        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-971" PositionY="1779" SizeX="136.50017" SizeY="221.96457"/>
-        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-825" PositionY="1777" SizeX="136.50017" SizeY="223.96454"/>
-        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-679" PositionY="1778" SizeX="136.50017" SizeY="222.96455"/>
-        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-533" PositionY="1780" SizeX="136.50017" SizeY="223.82986"/>
-        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1111" PositionY="2011" SizeX="136.50017" SizeY="222.05322"/>
-        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.50017" SizeY="222.05322"/>
-        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.50017" SizeY="221.91856"/>
-        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-383" PositionY="2015" SizeX="136.50017" SizeY="223.78387"/>
-        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.50017" SizeY="223.0074"/>
-        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.50017" SizeY="222.00742"/>
-        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.50017" SizeY="224.60321"/>
-        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-380" PositionY="2253" SizeX="136.50017" SizeY="223.60323"/>
-        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.50017" SizeY="223.82672"/>
-        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1110" PositionY="2484" SizeX="136.50017" SizeY="224.69205"/>
-        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-962" PositionY="2484" SizeX="136.50017" SizeY="224.69205"/>
-        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-815" PositionY="2484" SizeX="136.50017" SizeY="224.69205"/>
-        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-668" PositionY="2487" SizeX="136.50017" SizeY="224.55721"/>
-        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.50017" SizeY="224.55721"/>
-        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-381" PositionY="2490" SizeX="136.50017" SizeY="224.42255"/>
-        <Widget Name="Tournette Centre" UniqueID="41" PositionX="-939" PositionY="2064" SizeX="178.49986" SizeY="381.08508"/>
-        <Widget Name="Tournette Anneau" UniqueID="42" PositionX="-749" PositionY="2067" SizeX="178.49986" SizeY="380.95041"/>
-        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1534" PositionY="2480" SizeX="262.49997" SizeY="225.82669"/>
-        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1807" PositionY="2481" SizeX="262.49997" SizeY="224.82671"/>
-        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1536" PositionY="2235" SizeX="262.49997" SizeY="227.27682"/>
-        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1811" PositionY="1743" SizeX="262.49997" SizeY="226.4463"/>
-        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1543" PositionY="1750" SizeX="262.49997" SizeY="225.17682"/>
-        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1815" PositionY="1986" SizeX="262.49997" SizeY="226.99631"/>
-        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1544" PositionY="1987" SizeX="262.49997" SizeY="225.99615"/>
-        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1810" PositionY="2232" SizeX="262.49997" SizeY="227.41148"/>
-        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-232" PositionY="2210" SizeX="372.7001" SizeY="495.82675"/>
-        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10017" SizeY="392.07388"/>
-        <Widget Name="Romaine" UniqueID="31" PositionX="-219" PositionY="1895" SizeX="180.60022" SizeY="189.05811"/>
-        <Widget Name="H.M. Vol" UniqueID="38" PositionX="144" PositionY="1858" SizeX="178.49986" SizeY="137.23398"/>
-        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2009" SizeX="157.49985" SizeY="106.57635"/>
-        <Widget Name="H.M. Cour" UniqueID="37" PositionX="151" PositionY="2538" SizeX="178.50021" SizeY="136.30849"/>
-        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="149" PositionY="2387" SizeX="178.50021" SizeY="138.31319"/>
-        <Widget Name="A.U." UniqueID="34" PositionX="159" PositionY="2268" SizeX="157.49985" SizeY="105.45272"/>
+    <Dashboard Scale="0.1" OffsetX="1762.7498" OffsetY="-410.88562" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1114" PositionY="1776" SizeX="136.49976" SizeY="195.1356"/>
+        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-971" PositionY="1779" SizeX="136.49976" SizeY="192.13573"/>
+        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-825" PositionY="1777" SizeX="136.49976" SizeY="194.13585"/>
+        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-679" PositionY="1778" SizeX="136.49976" SizeY="193.13548"/>
+        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-533" PositionY="1780" SizeX="136.49976" SizeY="191.13597"/>
+        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1111" PositionY="2011" SizeX="136.49976" SizeY="190.1356"/>
+        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.49976" SizeY="190.1356"/>
+        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.49976" SizeY="197.13573"/>
+        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-383" PositionY="2015" SizeX="136.49976" SizeY="196.13597"/>
+        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.49976" SizeY="196.13597"/>
+        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.49976" SizeY="195.1356"/>
+        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.49976" SizeY="189.13585"/>
+        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-380" PositionY="2253" SizeX="136.49976" SizeY="198.13548"/>
+        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.49976" SizeY="189.13585"/>
+        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1110" PositionY="2484" SizeX="136.49976" SizeY="197.13573"/>
+        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-962" PositionY="2484" SizeX="136.49976" SizeY="197.13573"/>
+        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-815" PositionY="2484" SizeX="136.49976" SizeY="197.13573"/>
+        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-668" PositionY="2487" SizeX="136.50098" SizeY="194.13585"/>
+        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.49976" SizeY="194.13585"/>
+        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-381" PositionY="2490" SizeX="136.49976" SizeY="191.13597"/>
+        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1534" PositionY="2480" SizeX="262.49951" SizeY="201.13597"/>
+        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1807" PositionY="2481" SizeX="262.49951" SizeY="200.1356"/>
+        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1536" PositionY="2235" SizeX="262.49951" SizeY="206.13597"/>
+        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1811" PositionY="1743" SizeX="262.49951" SizeY="208.13548"/>
+        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1543" PositionY="1750" SizeX="262.49951" SizeY="201.13597"/>
+        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1815" PositionY="1986" SizeX="262.49951" SizeY="205.1356"/>
+        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1544" PositionY="1987" SizeX="262.49951" SizeY="204.13585"/>
+        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1810" PositionY="2232" SizeX="262.49951" SizeY="199.13585"/>
+        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-232" PositionY="2210" SizeX="372.70581" SizeY="461.13599"/>
+        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10229" SizeY="363.1355"/>
+        <Widget Name="Romaine" UniqueID="31" PositionX="-219" PositionY="1895" SizeX="180.59886" SizeY="166.13597"/>
+        <Widget Name="H.M. Vol" UniqueID="38" PositionX="144" PositionY="1858" SizeX="178.50047" SizeY="123.1355"/>
+        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2009" SizeX="157.50073" SizeY="92.135742"/>
+        <Widget Name="H.M. Cour" UniqueID="37" PositionX="151" PositionY="2538" SizeX="178.49925" SizeY="123.1355"/>
+        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="149" PositionY="2387" SizeX="178.50047" SizeY="124.13586"/>
+        <Widget Name="A.U." UniqueID="34" PositionX="159" PositionY="2268" SizeX="157.49951" SizeY="93.135498"/>
+        <Widget Name="Tournettes" UniqueID="43" PositionX="-965" PositionY="2013" SizeX="431.50098" SizeY="428.1355"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -167,7 +166,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="9.111287028208837"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-2115.9692710619729"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-1317.4620266045006"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="FeedbackDevice0"/>
@@ -204,7 +203,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="9.1110000000000007"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44999999999999" PositionOffset="-2118.5269774988678"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44999999999999" PositionOffset="-1322.0907111445811"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="FeedbackDevice0"/>
@@ -739,7 +738,7 @@
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="false" PositionOffset="140.63040161132812"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="-1.3573379516601562"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -774,7 +773,7 @@
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <EncoderSettings RangeShifted="false" PositionOffset="-196.82173919677734"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="-2.82330322265625"/>
                     <HoldingBrake HasHoldingBrake="false"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2007,7 +2006,7 @@
                     <OutputPin SaveString="State Number" DisplayString="State Number" DataType="Integer" UniqueID="2489" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tournette Centre" UniqueID="12186">
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Centre" UniqueID="12186">
                 <NodeEditorPosition x="4083" y="2478"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="10" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="5" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
@@ -2041,8 +2040,8 @@
                     <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="12200" Visible="false"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tournette Anneau" UniqueID="12201">
-                <NodeEditorPosition x="4076" y="2632"/>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Anneau" UniqueID="12201">
+                <NodeEditorPosition x="4086" y="2631"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="10" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-7200" UpperPositionLimit="7200" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="1" HomingVelocityCoarse="5" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -2284,7 +2283,7 @@
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.059999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="26" LowerPositionLimitClearance="1" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.050000000000000003" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="7.1054273576010019e-15"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -2354,7 +2353,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4390000000000001"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.55395" PositionOffset="-0.18831762932835971"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.55395" PositionOffset="-0.12420125594144338"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -2549,8 +2548,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol" UniqueID="2425">
                 <NodeEditorPosition x="4393" y="1155"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="true" AxisOffset="9" LowerPositionLimit="0" UpperPositionLimit="8"/>
-                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <Limits InvertAxis="true" AxisOffset="9.4729616378561499" LowerPositionLimit="0" UpperPositionLimit="8.5"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="true" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <ControWidget UniqueID="30"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -2577,7 +2576,7 @@
             </Node>
             <Node NodeType="Machine" ClassName="MultiAxisMachine" CustomName="Pont Lumière" UniqueID="12486">
                 <NodeEditorPosition x="4570" y="429"/>
-                <NodeSpecificData ShortName="M">
+                <NodeSpecificData ShortName="M" AllowUserHoming="false" ShowLoad="true" AllowUserLimitSetting="true" AllowUserUnderloadSurveillanceToggle="true">
                     <AxisMappings>
                         <AxisMapping AxisPinSaveName="Axis0" InvertDirection="true" PositionOffset="10.648" UserLowerPositionLimit="2.9500000000000002" UserUpperPositionLimit="10.51" MinimumLoad="170"/>
                         <AxisMapping AxisPinSaveName="Axis1" InvertDirection="true" PositionOffset="10.657" UserLowerPositionLimit="2.9500000000000002" UserUpperPositionLimit="10.51" MinimumLoad="170"/>
@@ -2706,38 +2705,6 @@
                 <OutputPins>
                     <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="12595" Visible="true"/>
                     <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="12596" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Tournette Centre" UniqueID="12606">
-                <NodeEditorPosition x="4296" y="2474"/>
-                <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-7200" UpperPositionLimit="7200"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
-                    <ControWidget UniqueID="41"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="12607" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="12608" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="12609" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="12610" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Tournette Anneau" UniqueID="12611">
-                <NodeEditorPosition x="4292" y="2631"/>
-                <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-7200" UpperPositionLimit="7200"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
-                    <ControWidget UniqueID="42"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="12612" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="12613" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="12614" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="12615" Visible="true"/>
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="VIEILLE TOURNETTE SYNCHRO" UniqueID="33333">
@@ -3007,6 +2974,22 @@ end</Script>
                     <Identification Type="StationAlias" StationAlias="704"/>
                 </NodeSpecificData>
                 <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="Machine" ClassName="MultiAxisMachine" CustomName="Tournettes" UniqueID="33351">
+                <NodeEditorPosition x="4296" y="2544"/>
+                <NodeSpecificData ShortName="M" AllowUserHoming="true" ShowLoad="false" AllowUserLimitSetting="false" AllowUserUnderloadSurveillanceToggle="false">
+                    <AxisMappings>
+                        <AxisMapping AxisPinSaveName="Axis0" InvertDirection="false" PositionOffset="0" UserLowerPositionLimit="-7200" UserUpperPositionLimit="7200" MinimumLoad="0"/>
+                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="false" PositionOffset="0" UserLowerPositionLimit="-7200" UserUpperPositionLimit="7200" MinimumLoad="0"/>
+                    </AxisMappings>
+                    <ControWidget UniqueID="43"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="33352" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis0" DisplayString="Axis 0" DataType="AxisInterface" UniqueID="33353" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis1" DisplayString="Axis 1" DataType="AxisInterface" UniqueID="33354" Visible="true" NoDataField="true"/>
+                </InputPins>
                 <OutputPins/>
             </Node>
         </Nodes>
@@ -3394,8 +3377,6 @@ end</Script>
             <Link UniqueID="12602" StartPin="1838" EndPin="12207"/>
             <Link UniqueID="12604" StartPin="1827" EndPin="12385"/>
             <Link UniqueID="12605" StartPin="1828" EndPin="12384"/>
-            <Link UniqueID="12616" StartPin="12197" EndPin="12608"/>
-            <Link UniqueID="12617" StartPin="12212" EndPin="12613"/>
             <Link UniqueID="12625" StartPin="12389" EndPin="1878"/>
             <Link UniqueID="12626" StartPin="12389" EndPin="1879"/>
             <Link UniqueID="12627" StartPin="12389" EndPin="1880"/>
@@ -3408,6 +3389,8 @@ end</Script>
             <Link UniqueID="33347" StartPin="12387" EndPin="12478"/>
             <Link UniqueID="33348" StartPin="1416" EndPin="12493"/>
             <Link UniqueID="33349" StartPin="1398" EndPin="12492"/>
+            <Link UniqueID="33355" StartPin="12197" EndPin="33353"/>
+            <Link UniqueID="33356" StartPin="12212" EndPin="33354"/>
         </Links>
     </NodeGraph>
 </Environnement>
@@ -3416,13 +3399,6 @@ end</Script>
     <Timing ProcessIntervalMilliseconds="8" ProcessDataTimeoutMilliseconds="7" ClockStableThresholdMilliseconds="2" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
 
-<ManualControlChannel ActivePresetName="Channel Mapping 1">
-    <ChannelPresets>
-        <ChannelPreset Name="Channel Mapping 1">
-            <AnimatableMappings>
-                <AnimatableMapping Multiplier="1" Machine="Tournette Centre" MachineUniqueID="12606" Animatable="Position"/>
-                <AnimatableMapping Multiplier="1" Machine="Tournette Anneau" MachineUniqueID="12611" Animatable="Position"/>
-            </AnimatableMappings>
-        </ChannelPreset>
-    </ChannelPresets>
+<ManualControlChannel>
+    <ChannelPresets/>
 </ManualControlChannel>

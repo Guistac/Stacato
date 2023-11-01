@@ -26,8 +26,8 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Key" Target="10.899993819080308"/>
         </Manoeuvre>
         <Manoeuvre Name="Tournette + Anneau" Description="Mise Acte N°1" Type="Key">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Key" Target="-60"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Key" Target="0"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Key" Target="-60"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Key" Target="0"/>
         </Manoeuvre>
         <Manoeuvre Name="Ouverture Flip-Flap Lointain Centre " Description="Mise Acte N°1" Type="Key">
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
@@ -42,7 +42,7 @@
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.69999999999999996" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="1.1 - Tournette Piano" Description="Ouverture ( C: -60° / A: 0°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="60" Velocity="0" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="1.2 - Fermeture Flip-Flap centre" Description="Ouverture / Lumiere off, passage Matys " Type="Key">
             <Animation Machine="Flip G-Axe" MachineUniqueID="1514" Parameter="State" IsComposite="false" Type="Key" Target="Closed"/>
@@ -270,19 +270,19 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="10.899993819080308" ConstraintType="Time" Time="40" Velocity="0.5" StartAcceleration="0.025000000000000001" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="9.1 - Tournette Voiture tour complet" Description="Travesti / voiture arrivée face ( C: 720° / A: 360°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="324" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="324" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.1 / Tournette Voiture tour complet -----" Description="Travesti / voiture arrivée face ( C: 720° / A: 360°)" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-36" ConstraintType="Time" Time="45" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="9.2 - Tournette voiture quart tour vers Cour" Description="Travesti ( C: 324° / A: 360°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="234" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="234" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.2 / Tournette voiture quart tour vers Cour ----- " Description="Travesti ( C: 324° / A: -36°)" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-126" ConstraintType="Time" Time="15" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="9.3 - Tournette voiture quart de tour sortie" Description="Fin Travesti ( C: 234° / A: 360°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="144" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="144" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="----- PLAN B - 9.3 / Tournette voiture quart de tour sortie -----" Description="Fin Travesti ( C: 234° / A: -126°)" Type="Target">
             <Animation Machine="VIEILLE TOURNETTE SYNCHRO" MachineUniqueID="33333" Parameter="Position" IsComposite="false" Type="Target" Target="-216" ConstraintType="Time" Time="17" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
@@ -319,11 +319,11 @@
             <Animation Machine="Périacte Face Cour" MachineUniqueID="12470" Parameter="Position" IsComposite="false" Type="Target" Target="12.4" ConstraintType="Time" Time="30" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="11.1 - Tournette Escalier " Description="Il se passe quelque chose ... / 1 tour et demi ( C: 144° / A: 360°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="684" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="684" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="----- Plan B - 11.1 / Tournette Escalier + Remise Anneau -----" Description="Il se passe quelque chose ... / 1 tour et demi ( C: 144° / A: -216°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="684" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="684" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="91" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="** 11.2 - Prémise Périactes J3 - C3 **" Description="Pendant Il se passe... / pendant Tournette" Type="Target">
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-10.4" ConstraintType="Velocity" Time="0" Velocity="0.29999999999999999" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -367,7 +367,7 @@
             <Animation Machine="Vol" MachineUniqueID="2425" Parameter="Position" IsComposite="false" Type="Target" Target="9.4000000000000004" ConstraintType="Velocity" Time="40" Velocity="0.75" StartAcceleration="0.5" EndAcceleration="0.5"/>
         </Manoeuvre>
         <Manoeuvre Name="13.3 - Rotation Anneau Danseurs" Description="Starmania, Starmania / Rotation horaire ( C: 684° / A: 360°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="570" ConstraintType="Velocity" Time="0" Velocity="8" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="570" ConstraintType="Velocity" Time="0" Velocity="8" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="13.4 - Fermeture Flip-Flap + Sortie Périactes" Description="Fin Starmania, Starmania" Type="Target">
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
@@ -383,7 +383,7 @@
             <Animation Machine="Flip C-C2" MachineUniqueID="1765" Parameter="State" IsComposite="false" Type="Target" Target="Closed" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="14 -  Anneau Pour  Zéro Janvier" Description="Debut Interview Zéro ( C: 684° / A: 570°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="730" ConstraintType="Velocity" Time="25" Velocity="8" StartAcceleration="2" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="730" ConstraintType="Velocity" Time="25" Velocity="8" StartAcceleration="2" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="15 - Ouverture Flip-Flap" Description="Le Blues du Businessman" Type="Key">
             <Animation Machine="Flip A-J3" MachineUniqueID="1797" Parameter="State" IsComposite="false" Type="Key" Target="Raised"/>
@@ -483,7 +483,7 @@
         <Manoeuvre Name="24 - Ouverture Lames Ecrans + Tournette" Description="Petite Fille en Rose / ( C: 684° / A: 730°)" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="2.1000000000000001" ConstraintType="Time" Time="15" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="3.1180556945205633" ConstraintType="Time" Time="15" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="994" ConstraintType="Time" Time="36" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="994" ConstraintType="Time" Time="36" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="24.1 - Fermeture Lames Ecrans" Description="Petite Fille en Rose" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="0.0050000000000000001" ConstraintType="Time" Time="13" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -494,7 +494,7 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="1.74" ConstraintType="Time" Time="10" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="25.1 - Anneau pour Entrée Pupitres" Description="Annonce Débats TV ( C: 994° / A: 730°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="911" ConstraintType="Time" Time="20" Velocity="10" StartAcceleration="2" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="911" ConstraintType="Time" Time="20" Velocity="10" StartAcceleration="2" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="25.2 - Fermeture Lames Ecrans lointain " Description="Annonce Débat TV / Apres passage pupitres Anneau" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="1.994747843892748" ConstraintType="Time" Time="12" Velocity="0.10000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -505,7 +505,7 @@
             <Animation Machine="Lame Vidéo Lointain" MachineUniqueID="12455" Parameter="Position" IsComposite="false" Type="Target" Target="1.74" ConstraintType="Time" Time="12" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="26.1 - Anneau pour Sortie Pupitres" Description="Pour JT N°4 ( C: 994° / A: 911°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="730" ConstraintType="Time" Time="20" Velocity="10" StartAcceleration="2" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="730" ConstraintType="Time" Time="20" Velocity="10" StartAcceleration="2" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="27 - Fermeture Lames Ecrans JT N°4" Description="Télé Capital JT N°4 / Flash Spécial" Type="Target">
             <Animation Machine="Lame Vidéo Face" MachineUniqueID="12460" Parameter="Position" IsComposite="false" Type="Target" Target="0.0050000000000000001" ConstraintType="Time" Time="12" Velocity="0.5" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
@@ -517,7 +517,7 @@
             <Animation Machine="Périacte Lointain Jardin" MachineUniqueID="12435" Parameter="Position" IsComposite="false" Type="Target" Target="-12.42" ConstraintType="Velocity" Time="0" Velocity="0.20000000000000001" StartAcceleration="0.050000000000000003" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
         <Manoeuvre Name="28 - Tournette pour Cristal" Description="Début Besoin d&apos;Amour ( C: 994° / A: 730°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="1880" ConstraintType="Time" Time="100" Velocity="9" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="1880" ConstraintType="Time" Time="100" Velocity="9" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="28.1 - Ouverture Flip-Flap" Description="Besoin d&apos;Amour" Type="Target">
             <Animation Machine="Flip G-J2" MachineUniqueID="1456" Parameter="State" IsComposite="false" Type="Target" Target="Raised" ConstraintType="Time" Time="2" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
@@ -539,10 +539,10 @@
             <Animation Machine="Flip A-C3" MachineUniqueID="1893" Parameter="State" IsComposite="false" Type="Target" Target="Raised" ConstraintType="Time" Time="3.5" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
         <Manoeuvre Name="28.2 - Anneau Danseurs" Description="Besoin D&apos;amour / Anti-Horaire (C: 1880° / A: 730°)" Type="Target">
-            <Animation Machine="Tournette Anneau" MachineUniqueID="12611" Parameter="Position" IsComposite="false" Type="Target" Target="400" ConstraintType="Time" Time="43" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Anneau" IsComposite="false" Type="Target" Target="400" ConstraintType="Time" Time="43" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
         <Manoeuvre Name="28.3 - Tournette voiture Sortie " Description="Besoin d&apos;Amour ( C: 1880° / A: 400°)" Type="Target">
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Target" Target="2060" ConstraintType="Time" Time="25" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Target" Target="2060" ConstraintType="Time" Time="25" Velocity="10" StartAcceleration="1" EndAcceleration="1"/>
         </Manoeuvre>
         <Manoeuvre Name="28.4 - Déscente Romaine " Description="Fin Acte N°1" Type="Target">
             <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
@@ -589,7 +589,7 @@
                     <Curve Name="Position"/>
                 </Curves>
             </Animation>
-            <Animation Machine="Tournette Centre" MachineUniqueID="12606" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="684" End="924" Duration="32" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+            <Animation Machine="Tournettes" MachineUniqueID="33351" Parameter="Centre" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="684" End="924" Duration="32" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
                 <Curves>
                     <Curve Name="Position">
                         <ControlPoint Position="684" Time="3" Velocity="0" InAcceleration="2" OutAcceleration="2"/>

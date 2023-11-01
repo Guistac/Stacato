@@ -91,13 +91,6 @@ void AxisMapping::updateAxisCommand(double profileTime_seconds, double profileDe
 	
 	auto axis = getAxis();
 	
-	if(axis && axis->isEnabled() && b_enableMinimumLoadSurveillance){
-		if(axis->getForceActual() / 10 < minimumLoad_Kilograms){
-			Logger::warn("{} Minimum load surveillance was triggered", axis->getName());
-			axis->disable();
-		}
-	}
-	
 	if(!axis->isEnabled() || axis->isHoming()){
 		//if the axis is not enabled or is homing, the animatable doesn't do anything
 		animatablePosition->followActualValue(profileTime_seconds, profileDeltaTime_seconds);

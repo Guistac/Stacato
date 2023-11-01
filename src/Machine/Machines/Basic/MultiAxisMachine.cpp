@@ -126,6 +126,20 @@ void MultiAxisMachine::inputProcess() {
 
 void MultiAxisMachine::outputProcess(){
 
+	//handle Underload Surveillance
+	if(b_enableUnderloadSurveillance && b_allowUserUnderloadSurveillanceToggle){
+		for(auto mapping : axisMappings){
+			if(!mapping->isAxisConnected()) continue;
+			auto axis = mapping->getAxis();
+			if(axis && axis->isEnabled()){
+				if(axis->getForceActual() / 10 < mapping->minimumLoad_Kilograms){
+					Logger::warn("{} Minimum load surveillance was triggered", axis->getName());
+					axis->disable();
+				}
+			}
+		}
+	}
+	
 	//handle group surveillance
 	if(b_enableGroupSurveillance){
 		bool b_anyAxisEnabled = false;
@@ -251,6 +265,11 @@ void MultiAxisMachine::removeAxisMapping(std::shared_ptr<AxisMapping> mapping){
 bool MultiAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
 	
+	xml->SetAttribute("AllowUserHoming", b_allowUserHoming);
+	xml->SetAttribute("ShowLoad", b_showLoad);
+	xml->SetAttribute("AllowUserLimitSetting", b_allowUserLimitSettings);
+	xml->SetAttribute("AllowUserUnderloadSurveillanceToggle", b_allowUserUnderloadSurveillanceToggle);
+	
 	XMLElement* axisMappingsXML = xml->InsertNewChildElement("AxisMappings");
 	for(auto axisMapping : axisMappings){
 		tinyxml2::XMLElement* mappingXML = axisMappingsXML->InsertNewChildElement("AxisMapping");
@@ -265,6 +284,11 @@ bool MultiAxisMachine::saveMachine(tinyxml2::XMLElement* xml) {
 
 bool MultiAxisMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	
+	xml->QueryBoolAttribute("AllowUserHoming", &b_allowUserHoming);
+	xml->QueryBoolAttribute("ShowLoad", &b_showLoad);
+	xml->QueryBoolAttribute("AllowUserLimitSetting", &b_allowUserLimitSettings);
+	xml->QueryBoolAttribute("AllowUserUnderloadSurveillanceToggle", &b_allowUserUnderloadSurveillanceToggle);
 	
 	XMLElement* axisMappingsXML = xml->FirstChildElement("AxisMappings");
 	if(!axisMappingsXML) return false;
