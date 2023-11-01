@@ -310,6 +310,7 @@ public:
 	BitDirection bitshiftDirection = BitDirection::MSB_FIRST;
 	ClockEdge clockEdge = ClockEdge::RISING_EDGE;
 	Encoding encodingFormat = Encoding::BINARY;
+	bool b_invertDirection = false;
 	bool b_centerRangeOnZero = false;
 	bool b_hasResetSignal = false;
 	float resetTime_milliseconds = 1.0;

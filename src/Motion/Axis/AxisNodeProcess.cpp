@@ -458,6 +458,27 @@ void AxisNode::inputProcess(){
 
 void AxisNode::outputProcess(){
 	
+	auto limitAndSlowdownVelocityControl = [this](double targetVelocity){
+		double slowdownVelocity = std::abs(limitSlowdownVelocity->value);
+		double acc = axisInterface->getAccelerationLimit();
+		if(*lowerLimitSignal && (internalVelocityTarget < 0.0 || motionProfile.getVelocity() < 0.0)){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+		}
+		else if(*upperLimitSignal && (internalVelocityTarget > 0.0 || motionProfile.getVelocity() > 0.0)){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+		}
+		else if(*lowerSlowdownSignal && (internalVelocityTarget < -slowdownVelocity || motionProfile.getVelocity() < -slowdownVelocity)){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, -slowdownVelocity, acc);
+		}
+		else if(*upperSlowdownSignal && (internalVelocityTarget > slowdownVelocity || motionProfile.getVelocity() > slowdownVelocity)){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, slowdownVelocity, acc);
+		}
+		else{
+			double vel = getFilteredVelocity(targetVelocity);
+			motionProfile.matchVelocity(profileTimeDelta_seconds, vel, acc);
+		}
+	};
+	
 	//update the motion profile
 	switch(internalControlMode){
 		case InternalControlMode::MANUAL_VELOCITY_TARGET:
@@ -480,7 +501,8 @@ void AxisNode::outputProcess(){
 							break;
 						}
 					case LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
-						//we should implement slowdown here
+						limitAndSlowdownVelocityControl(internalVelocityTarget);
+						break;
 					default:
 						motionProfile.matchVelocity(profileTimeDelta_seconds, internalVelocityTarget, acc);
 						break;
@@ -519,7 +541,8 @@ void AxisNode::outputProcess(){
 						break;
 					}
 				case LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS:
-					//we should implement slowdown here
+					limitAndSlowdownVelocityControl(velTar);
+					break;
 				default:
 					motionProfile.matchVelocity(profileTimeDelta_seconds, velTar, accTar);
 					break;

@@ -433,7 +433,11 @@ void VIPA_050_1BS00::readInputs(){
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
 	int maxRevolutions = 0x1 << multiturnBitCount;
 	
-	encoderPosition_revolutions = (float)encoderValue / (float)incrementsPerRevolution;
+	int totalIncrements = 0x1 << (multiturnBitCount + singleTurnBitCount);
+	int positionIncrements = encoderValue;
+	if(b_invertDirection) positionIncrements = totalIncrements - encoderValue;
+	
+	encoderPosition_revolutions = (double)positionIncrements / (double)incrementsPerRevolution;
 	if(b_centerRangeOnZero && encoderPosition_revolutions >= maxRevolutions / 2) encoderPosition_revolutions -= maxRevolutions;
 	
 	uint16_t deltaT_microseconds = time_microseconds - previousReadingTime_microseconds;
@@ -544,6 +548,8 @@ void VIPA_050_1BS00::moduleParameterGui(){
 		ImGui::InputFloat("##resetTime", &resetTime_milliseconds, 0.0, 0.0, "%.1f ms");
 	}
 	
+	if(ImGui::Checkbox("Invert Direction", &b_invertDirection)) updateEncoderWorkingRange();
+	
 	if(ImGui::Checkbox("Center Encoder Range on Zero", &b_centerRangeOnZero)) updateEncoderWorkingRange();
 	
 	int multiturnBitCount = encoderBitCount - singleTurnBitCount;
@@ -630,6 +636,7 @@ bool VIPA_050_1BS00::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("TransmissionRate", Enumerator::getSaveString(transmissionFrequency));
 	xml->SetAttribute("IdleTime", Enumerator::getSaveString(pausetime));
 	xml->SetAttribute("CenterRangeOnZero", b_centerRangeOnZero);
+	xml->SetAttribute("InvertDirection", b_invertDirection);
 	xml->SetAttribute("HasResetSignal", b_hasResetSignal);
 	if(b_hasResetSignal) xml->SetAttribute("ResetTime", resetTime_milliseconds);
 	xml->SetAttribute("TotalBitCount", encoderBitCount);
@@ -655,6 +662,7 @@ bool VIPA_050_1BS00::load(tinyxml2::XMLElement* xml){
 	if(xml->QueryStringAttribute("IdleTime", &idleTimeString) != XML_SUCCESS) return Logger::warn("Could not find Idle Time attribute");
 	if(!Enumerator::isValidSaveName<MeasurementPauseTime>(idleTimeString)) return Logger::warn("Could not identify idle time attribute");
 	pausetime = Enumerator::getEnumeratorFromSaveString<MeasurementPauseTime>(idleTimeString);
+	if(xml->QueryBoolAttribute("InvertDirection", &b_invertDirection) != XML_SUCCESS) return Logger::warn("Could not identify Invert Direction attribute");
 	if(xml->QueryBoolAttribute("CenterRangeOnZero", &b_centerRangeOnZero) != XML_SUCCESS) return Logger::warn("Could not find Center on zero attribute");
 	if(xml->QueryBoolAttribute("HasResetSignal", &b_hasResetSignal) != XML_SUCCESS) return Logger::warn("Could not find Has Reset Signal attribute");
 	if(b_hasResetSignal){
