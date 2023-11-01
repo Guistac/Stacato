@@ -139,11 +139,11 @@ void AxisStateMachine::outputProcess(){
 				break;
 			case State::MOVING_TO_POSITIVE_LIMIT:
 			case State::AT_POSITIVE_LIMIT:
-				velocityTarget = std::abs(velocityTarget);
+				velocityTarget = std::clamp(std::abs(velocityTarget), minPositiveVelocity->value, maxPositiveVelocity->value);
 				break;
 			case State::MOVING_TO_NEGATIVE_LIMIT:
 			case State::AT_NEGATIVE_LIMIT:
-				velocityTarget = -std::abs(velocityTarget);
+				velocityTarget = std::clamp(-std::abs(velocityTarget), -std::abs(maxNegativeVelocity->value), -std::abs(minNegativeVelocity->value));
 				break;
 		}
 		
@@ -335,6 +335,12 @@ void AxisStateMachine::getDevices(std::vector<std::shared_ptr<Device>>& output) 
 
 bool AxisStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	
+	minNegativeVelocity->load(xml);
+	maxNegativeVelocity->load(xml);
+	minPositiveVelocity->load(xml);
+	maxPositiveVelocity->load(xml);
+	
 	XMLElement* controlWidgetXML = xml->FirstChildElement("ControlWidget");
 	if(!controlWidgetXML){
 		Logger::warn("Could not find hooded lift state machine control widget unique id");
@@ -348,6 +354,12 @@ bool AxisStateMachine::loadMachine(tinyxml2::XMLElement* xml) {
 }
 bool AxisStateMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
+	
+	minNegativeVelocity->save(xml);
+	maxNegativeVelocity->save(xml);
+	minPositiveVelocity->save(xml);
+	maxPositiveVelocity->save(xml);
+	
 	XMLElement* controlWidgetXML = xml->InsertNewChildElement("ControlWidget");
 	controlWidgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	return true;

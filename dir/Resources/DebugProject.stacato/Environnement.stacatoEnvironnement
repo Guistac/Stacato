@@ -167,7 +167,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="9.111287028208837"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-6.7661126053966605"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-6.7736809640156723"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="FeedbackDevice0"/>
@@ -2284,7 +2284,7 @@
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.059999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="26" LowerPositionLimitClearance="1" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.050000000000000003" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="7.1054273576010019e-15"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -2564,7 +2564,7 @@
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Romaine" UniqueID="804">
                 <NodeEditorPosition x="5659" y="746"/>
-                <NodeSpecificData ShortName="M">
+                <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="0.5" MinPositiveVelocity="0" MaxPositiveVelocity="0.5">
                     <ControlWidget UniqueID="31"/>
                 </NodeSpecificData>
                 <InputPins>

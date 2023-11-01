@@ -461,16 +461,16 @@ void AxisNode::outputProcess(){
 	auto limitAndSlowdownVelocityControl = [this](double targetVelocity){
 		double slowdownVelocity = std::abs(limitSlowdownVelocity->value);
 		double acc = axisInterface->getAccelerationLimit();
-		if(*lowerLimitSignal && (internalVelocityTarget < 0.0 || motionProfile.getVelocity() < 0.0)){
+		if(*lowerLimitSignal && (targetVelocity < 0.0 || motionProfile.getVelocity() < 0.0)){
 			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
 		}
-		else if(*upperLimitSignal && (internalVelocityTarget > 0.0 || motionProfile.getVelocity() > 0.0)){
+		else if(*upperLimitSignal && (targetVelocity > 0.0 || motionProfile.getVelocity() > 0.0)){
 			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
 		}
-		else if(*lowerSlowdownSignal && (internalVelocityTarget < -slowdownVelocity || motionProfile.getVelocity() < -slowdownVelocity)){
+		else if(*lowerSlowdownSignal && (targetVelocity < -slowdownVelocity || motionProfile.getVelocity() < -slowdownVelocity)){
 			motionProfile.matchVelocity(profileTimeDelta_seconds, -slowdownVelocity, acc);
 		}
-		else if(*upperSlowdownSignal && (internalVelocityTarget > slowdownVelocity || motionProfile.getVelocity() > slowdownVelocity)){
+		else if(*upperSlowdownSignal && (targetVelocity > slowdownVelocity || motionProfile.getVelocity() > slowdownVelocity)){
 			motionProfile.matchVelocity(profileTimeDelta_seconds, slowdownVelocity, acc);
 		}
 		else{

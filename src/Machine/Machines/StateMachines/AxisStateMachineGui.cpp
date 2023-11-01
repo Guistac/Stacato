@@ -19,6 +19,8 @@ void AxisStateMachine::controlsGui() {
 	ImGui::Text("Manual Controls");
 	ImGui::PopFont();
 	widgetGui();
+	
+	ImGui::Text("Velocity Target: %.3f", velocityTarget);
 }
 void AxisStateMachine::settingsGui() {
 	minNegativeVelocity->gui(Fonts::sansBold15);
