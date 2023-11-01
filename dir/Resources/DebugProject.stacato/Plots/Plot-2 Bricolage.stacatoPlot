@@ -2986,5 +2986,9 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
+        <Manoeuvre Name="M-24" Description="" Type="Target">
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Romaine" MachineUniqueID="804" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

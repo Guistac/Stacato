@@ -139,11 +139,13 @@ void AxisStateMachine::outputProcess(){
 				break;
 			case State::MOVING_TO_POSITIVE_LIMIT:
 			case State::AT_POSITIVE_LIMIT:
-				velocityTarget = std::clamp(std::abs(velocityTarget), minPositiveVelocity->value, maxPositiveVelocity->value);
+				if(actualState == State::AT_POSITIVE_LIMIT) requestState(State::STOPPED);
+				else velocityTarget = std::clamp(std::abs(velocityTarget), minPositiveVelocity->value, maxPositiveVelocity->value);
 				break;
 			case State::MOVING_TO_NEGATIVE_LIMIT:
 			case State::AT_NEGATIVE_LIMIT:
-				velocityTarget = std::clamp(-std::abs(velocityTarget), -std::abs(maxNegativeVelocity->value), -std::abs(minNegativeVelocity->value));
+				if(actualState == State::AT_NEGATIVE_LIMIT) requestState(State::STOPPED);
+				else velocityTarget = std::clamp(-std::abs(velocityTarget), -std::abs(maxNegativeVelocity->value), -std::abs(minNegativeVelocity->value));
 				break;
 		}
 		
