@@ -97,11 +97,10 @@ void AxisNode::inputProcess(){
 	axisInterface->state = lowestInterfaceState;
 	
 	
-	
+	//handle axis safety
 	bool previousSafetyResetSignal = *safetyResetInputSignal;
 	if(safetyFaultInputPin->isConnected()) safetyFaultInputPin->copyConnectedPinValue();
 	if(safetyResetInputPin->isConnected()) safetyResetInputPin->copyConnectedPinValue();
-	
 	if(!b_hasSafetyFault){
 		*safetyFaultOutputSignal = true;
 		if(safetyFaultInputPin->isConnected() && !*safetyFaultInputSignal){
@@ -129,17 +128,13 @@ void AxisNode::inputProcess(){
 			safetyFaultResetRequestTimeNanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 		}
 	}
-	
 	if(b_isClearingSafetyFault){
-		
 		uint64_t timeSinceClearRequest = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - safetyFaultResetRequestTimeNanos;
 		uint64_t maxClearTime = safetyClearSignalLengthSeconds * 1000000000;
 		uint64_t resetSignalOffsetTime = safetyResetSignalOffsetSeconds * 1000000000;
-		
 		*safetyFaultOutputSignal = true;
 		if(timeSinceClearRequest >= resetSignalOffsetTime) *safetyResetOutputSignal = true;
 		else *safetyResetOutputSignal = false;
-		
 		if(timeSinceClearRequest >= maxClearTime){
 			b_hasSafetyFault = true;
 			b_isClearingSafetyFault = false;
@@ -147,7 +142,6 @@ void AxisNode::inputProcess(){
 			*safetyFaultOutputSignal = false;
 			Logger::warn("{} Could not clear safety fault", getName());
 		}
-		
 		if(*safetyFaultInputSignal){
 			b_hasSafetyFault = false;
 			b_isClearingSafetyFault = false;
@@ -198,10 +192,6 @@ void AxisNode::inputProcess(){
 			Logger::info("[{}] Enabling Axis", getName());
 		}
 	}
-	
-	
-	
-	//handle enable process
 	if(b_isEnabling){
 		axisInterface->state = DeviceState::ENABLING;
 		bool b_allEnabled = true;
