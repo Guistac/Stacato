@@ -1,43 +1,43 @@
 <Environnement name="Starmania" notes="
 ">
-    <Dashboard Scale="0.89978701" OffsetX="1801.6692" OffsetY="-1731.2544" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.49997" SizeY="229.51373"/>
-        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.5" SizeY="228.73647"/>
-        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.49997" SizeY="228.90231"/>
-        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.5" SizeY="229.0137"/>
-        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.5" SizeY="228.57054"/>
-        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.49997" SizeY="228.62495"/>
-        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.5" SizeY="229.18185"/>
-        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.09984" SizeY="399.17017"/>
-        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.50003" SizeY="231.73401"/>
-        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.50003" SizeY="231.01131"/>
-        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.50003" SizeY="231.39999"/>
-        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.50003" SizeY="231.7887"/>
-        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.5" SizeY="231.73401"/>
-        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.5" SizeY="231.12262"/>
-        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.5" SizeY="231.39999"/>
-        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.5" SizeY="231.7887"/>
-        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.5" SizeY="228.90244"/>
-        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.5" SizeY="228.90244"/>
-        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.5" SizeY="229.01382"/>
-        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.5" SizeY="229.01382"/>
-        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.50003" SizeY="462.67957"/>
-        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.5" SizeY="228.79108"/>
-        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.5" SizeY="229.291"/>
-        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.5" SizeY="228.84785"/>
-        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.5" SizeY="229.57054"/>
-        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.5" SizeY="228.95909"/>
-        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.5" SizeY="228.84772"/>
-        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.5" SizeY="228.73633"/>
-        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.5" SizeY="228.84772"/>
-        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.5" SizeY="228.95909"/>
-        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.69971" SizeY="505.62497"/>
-        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.59995" SizeY="193.03276"/>
-        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.49997" SizeY="141.50648"/>
-        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.49997" SizeY="140.80508"/>
-        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.49998" SizeY="109.32648"/>
-        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.49998" SizeY="109.3858"/>
-        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.49997" SizeY="141.80289"/>
+    <Dashboard Scale="0.44895622" OffsetX="1813.8975" OffsetY="-996.64062" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.49998" SizeY="228.77348"/>
+        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.49998" SizeY="228.00102"/>
+        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.49998" SizeY="228.64951"/>
+        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.49998" SizeY="229.87685"/>
+        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.49998" SizeY="228.33165"/>
+        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.49998" SizeY="229.98004"/>
+        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.49998" SizeY="229.43475"/>
+        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10002" SizeY="397.2258"/>
+        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.5" SizeY="230.84305"/>
+        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.5" SizeY="230.73985"/>
+        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.5" SizeY="230.63654"/>
+        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.5" SizeY="230.53342"/>
+        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.5" SizeY="230.84305"/>
+        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.5" SizeY="231.96735"/>
+        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.5" SizeY="230.63654"/>
+        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.5" SizeY="230.53342"/>
+        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.49998" SizeY="229.89772"/>
+        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.49998" SizeY="229.89772"/>
+        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.49998" SizeY="228.89775"/>
+        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.49998" SizeY="228.89775"/>
+        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.49982" SizeY="457.96719"/>
+        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.49998" SizeY="228.67038"/>
+        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.49998" SizeY="228.54619"/>
+        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.49998" SizeY="229.22838"/>
+        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.49998" SizeY="229.33156"/>
+        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.49998" SizeY="229.20744"/>
+        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.49998" SizeY="227.98009"/>
+        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.49998" SizeY="228.98"/>
+        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.49998" SizeY="227.98009"/>
+        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.49998" SizeY="229.20744"/>
+        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.69971" SizeY="502.52518"/>
+        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.59996" SizeY="193.08374"/>
+        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.50009" SizeY="140.56921"/>
+        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.50009" SizeY="139.56157"/>
+        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.50005" SizeY="107.7813"/>
+        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.50005" SizeY="108.49722"/>
+        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.50009" SizeY="140.67281"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -2691,7 +2691,7 @@ function setup()
 	periacteFaceJardin_p = Environnement.getMachine("Périacte Face Jardin"):getAnimatable("Position")
 	periacteMilieuCour_p = Environnement.getMachine("Périacte Milieu Cour"):getAnimatable("Position")
 	periacteMilieuJardin_p = Environnement.getMachine("Périacte Milieu Jardin"):getAnimatable("Position")
-	periacteLointainCour_p = Environnement.getMachine("Péracte Lointain Cour"):getAnimatable("Position")
+	periacteLointainCour_p = Environnement.getMachine("Périacte Lointain Cour"):getAnimatable("Position")
 	periacteLointainJardin_p = Environnement.getMachine("Périacte Lointain Jardin"):getAnimatable("Position")
 	tournetteAnneau_p = Environnement.getMachine("Tournettes"):getAnimatable("Anneau")
 	tournetteCentre_p = Environnement.getMachine("Tournettes"):getAnimatable("Centre")
