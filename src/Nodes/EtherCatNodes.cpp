@@ -11,6 +11,7 @@
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 #include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
+#include "Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.h"
 #include "Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h"
 #include "Fieldbus/Devices/Kinco/KincoFD.h"
 

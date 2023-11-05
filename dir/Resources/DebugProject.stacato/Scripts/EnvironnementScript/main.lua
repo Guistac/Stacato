@@ -21,6 +21,7 @@ local p3C_Lim
 
 function setup()
 
+--[[
 	p1Jardin = Environnement.getMachine("Périacte Lointain Jardin"):getAnimatable("Position")
 	p1Cour = Environnement.getMachine("Périacte Lointain Cour"):getAnimatable("Position")
 	p2Jardin = Environnement.getMachine("Périacte Milieu Jardin"):getAnimatable("Position")
@@ -42,6 +43,8 @@ function setup()
 	p3J_Lim:enable()
 	p3C_Lim:enable()
 
+]]--
+
 end
 
 
@@ -49,6 +52,8 @@ end
 
 function update()
 
+
+--[[
 	local MinDistance = 1.0
 
 	local p1j_MaxPosition = math.min(p1Cour:getBrakingPosition(), p1Cour:getActualValue().Position) - MinDistance
@@ -65,7 +70,7 @@ function update()
 	local p3c_MinPosition = math.max(p3Jardin:getBrakingPosition(), p3Jardin:getActualValue().Position) + MinDistance
 	p3J_Lim:adjust(p3j_MaxPosition, 999)
 	p3C_Lim:adjust(-999, p3c_MinPosition)
-
+]]--
 
 end
 
@@ -74,6 +79,8 @@ end
 
 function exit()
 end
+
+
 
 
 

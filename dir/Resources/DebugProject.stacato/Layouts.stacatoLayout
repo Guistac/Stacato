@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Show"/>
+    <DefaultLayout Name="Maintenance"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>
@@ -7,7 +7,6 @@
                 <Window Name="Node Editor"/>
                 <Window Name="Log"/>
                 <Window Name="Setup"/>
-                <Window Name="Dashboard"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -428,7 +427,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Spl
         DockNode    ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
         DockNode    ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=X Selected=0xEDDB08E7
           DockNode  ID=0x0000000A Parent=0x00000009 SizeRef=519,1023 Selected=0xBC7A743B
-          DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 CentralNode=1 Selected=0xB00214C9
+          DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
       DockNode      ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
     DockNode        ID=0x00000002 Parent=0x0000000D SizeRef=439,938 HiddenTabBar=1 Selected=0x64F50EE5
   DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=575,1144 Split=Y Selected=0x64F50EE5

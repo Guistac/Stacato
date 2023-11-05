@@ -324,6 +324,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctions.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EtherCatJunctionsGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterfaceGui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.cpp
