@@ -5,6 +5,7 @@
 void EL7221_9014::onDisconnection() {
 	actuator->state = DeviceState::OFFLINE;
 	gpio->state = DeviceState::OFFLINE;
+	b_motorConnected = false;
 }
 void EL7221_9014::onConnection() {}
 void EL7221_9014::initialize() {
@@ -43,6 +44,8 @@ void EL7221_9014::initialize() {
 	txPdoAssignement.addEntry(0x6010, 0x13, 16, "Info Data 2 : Digital Inputs", &txPdo.infoData2_digitalInputs);
 	txPdoAssignement.addNewModule(0x1A06);
 	txPdoAssignement.addEntry(0x6010, 0x6, 32, "DRV Following error actual value", &txPdo.followingErrorActualValue);
+	txPdoAssignement.addNewModule(0x1A0C);
+	txPdoAssignement.addEntry(0x6000, 0xE, 16, "FB Status", &txPdo.fbStatus);
 	txPdoAssignement.addNewModule(0x1A0E);
 	txPdoAssignement.addEntry(0x6010, 0x3, 8, "DRV Modes of operation display", &txPdo.modeOfOperationDisplay);
 }
@@ -101,6 +104,8 @@ void EL7221_9014::readInputs() {
 	driverWarnings.i2tMotor			= bool(txPdo.infoData2_digitalInputs & (0x1 << 6));
 	driverWarnings.encoder			= bool(txPdo.infoData2_digitalInputs & (0x1 << 7));
 	
+	b_motorConnected = !bool(txPdo.fbStatus & (0x1 << 13));
+	
 	*digitalInput1_Value 									= bool(txPdo.infoData2_digitalInputs & (0x1 << 0));
 	*digitalInput2_Value									= bool(txPdo.infoData2_digitalInputs & (0x1 << 1));
 	actuator->actuatorProcessData.b_isEmergencyStopActive	= !bool(txPdo.infoData2_digitalInputs & (0x1 << 8));
@@ -157,6 +162,8 @@ void EL7221_9014::writeOutputs(){
 	if(controlWord.enableOperation) rxPdo.controlWord |= 0x1 << 3;
 	if(controlWord.faultReset)		rxPdo.controlWord |= 0x1 << 7;
 	
+	rxPdo.targetVelocity = velocityRequest_rps * motorSettings.velocityResolution_rps;
+	
 	rxPdoAssignement.pushDataTo(identity->outputs);
 }
 bool EL7221_9014::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
@@ -205,4 +212,100 @@ void EL7221_9014::configureDrive(){
 	if(!readSDO_U32(0x8011, 0x1B, motorSpeedLimitation, "Motor Speed Limitation")) return;
 	motorSettings.speedLimitation_rps = double(motorSpeedLimitation) / 60.0;
 	
+	Logger::info("Configuration Succeeded");
+	
+}
+
+void EL7221_9014::writeEncoderPositionOffset(uint32_t offset){
+	
+	std::thread worker([this,offset](){
+		
+		uint8_t fbPositionValid;
+		if(!readSDO_U8(0x6000, 0xE, fbPositionValid)) return;
+		if(fbPositionValid != 0x0){
+			Logger::warn("Encoder is Offline or being identified...");
+			return;
+		}
+		
+		Logger::info("Starting encoder offset write...");
+
+		//Using "FB OCT Memory Interface"
+		
+		//set Command to "Write Encoder Position Offset"
+		if(!writeSDO_S16(0xB001, 0x1, 16)) return;
+				
+		//Set Data Buffer containing new position offset
+		uint32_t buffer[8] = {offset,0,0,0,0,0,0,0};
+		if(1 != ec_SDOwrite(getSlaveIndex(), 0xB001, 0x6, false, 32, buffer, EC_TIMEOUTSAFE)) return;
+		
+		//Execute Command
+		if(!writeSDO_S16(0xB001, 0x5, 1)) return;
+		double startTime = Timing::getProgramTime_seconds();
+		
+		//Read status of command
+		bool b_succcess = false;
+		while(Timing::getProgramTime_seconds() - startTime < 2.0){
+			int16_t result;
+			if(readSDO_S16(0xB001, 0x5, result)){
+				if(result == 3) {
+					b_succcess = true;
+					break;
+				}
+				else if(result == 4){
+					Logger::warn("Encoder offset write returned error.");
+					return;
+				}
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+		if(!b_succcess) {
+			Logger::warn("Encoder offset write timed out.");
+			return;
+		}
+		
+		//read encoder position offset from FB OCT Info Data
+		uint32_t offsetReadback;
+		if(!readSDO_U32(0x9008, 0x20, offsetReadback)) return;
+		
+		if(offsetReadback == offset){
+			Logger::info("Encoder offset write succeeded ! New offset is {}", offsetReadback);
+		}
+		else{
+			Logger::warn("Encoder offset write succeeded but readback was not identical to request.");
+			Logger::warn("Requested Offset: {}  Readback: {}", offset, offsetReadback);
+		}
+		
+	});
+	
+	worker.detach();
+	
+	
+}
+
+
+
+std::string EL7221_9014::EL7211ServoMotor::getStatusString(){
+	if(etherCatDevice->isOffline()) return "Drive is Offline.";
+	if(!etherCatDevice->isStateOperational()) return "Drive is not in Operational State.";
+	if(!etherCatDevice->b_motorConnected) return "Motor is not connected.";
+	if(actuatorProcessData.b_isEmergencyStopActive) return "STO is active.";
+	if(etherCatDevice->statusWord.fault){
+		std::string faultMsg = "Drive has one or more errors:\n";
+		std::string errors = "";
+		if(etherCatDevice->driverErrors.adc)				errors += "	-ADC Error\n";
+		if(etherCatDevice->driverErrors.overcurrent) 		errors += "	-Overcurrent error\n";
+		if(etherCatDevice->driverErrors.undervoltage) 		errors += "	-Undervoltage error\n";
+		if(etherCatDevice->driverErrors.overvoltage) 		errors += "	-Overvoltage error\n";
+		if(etherCatDevice->driverErrors.overtemperature)	errors += "	-Overtemperature error\n";
+		if(etherCatDevice->driverErrors.i2tAmplifier) 		errors += "	-I2tAmplifier error\n";
+		if(etherCatDevice->driverErrors.i2tMotor) 			errors += "	-I2tMotor error\n";
+		if(etherCatDevice->driverErrors.encoder) 			errors += "	-Encoder error\n";
+		if(etherCatDevice->driverErrors.watchdog) 			errors += "	-Watchdog error\n";
+		if(errors == "") errors = " -STO triggered with active axis (or other unknown error).";
+		faultMsg += errors;
+		return faultMsg;
+	}
+	if(isEnabled()) return "Drive is Enabled.";
+	if(isReady()) return "Drive is Ready.";
+	return "Unknown State";
 }

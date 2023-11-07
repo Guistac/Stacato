@@ -12,7 +12,7 @@ public:
 		EL7211ServoMotor(std::shared_ptr<EL7221_9014> parentDevice) : etherCatDevice(parentDevice){}
 		std::shared_ptr<EL7221_9014> etherCatDevice;
 		virtual std::string getName() override { return std::string(etherCatDevice->getName()) + " Servo Motor"; }
-		virtual std::string getStatusString() override { return "No Status String Implemented..."; }
+		virtual std::string getStatusString() override;
 	};
 	
 	class EL7211Gpio : public GpioInterface{
@@ -48,6 +48,7 @@ public:
 		uint16_t infoData1_errors = 0;			//6010:12
 		uint16_t infoData2_digitalInputs = 0;	//6010:13
 		int32_t followingErrorActualValue = 0;	//6010:6
+		uint16_t fbStatus = 0;					//6000:E/F
 		uint8_t modeOfOperationDisplay = 0;		//6010:3
 	}txPdo;
 		
@@ -102,6 +103,7 @@ public:
 		FAULT
 	};
 	
+	bool b_motorConnected = false;
 	PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
 	PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
 	
@@ -119,4 +121,6 @@ public:
 	}motorSettings;
 	
 	void configureDrive();
+	void writeEncoderPositionOffset(uint32_t offset);
+	uint32_t offsetInputField;
 };

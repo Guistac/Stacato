@@ -3,26 +3,20 @@
 void EL7221_9014::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL7221-9014")){
 		
-		bool readyToSwitchOn		= txPdo.statusWord & (0x1 << 0);
-		bool switchedOn				= txPdo.statusWord & (0x1 << 1);
-		bool operationEnabled		= txPdo.statusWord & (0x1 << 2);
-		bool fault 					= txPdo.statusWord & (0x1 << 3);
-		bool quickstop 				= txPdo.statusWord & (0x1 << 5);
-		bool switchOnDisabled 		= txPdo.statusWord & (0x1 << 6);
-		bool warning 				= txPdo.statusWord & (0x1 << 7);
-		bool TxPdoToggle 			= txPdo.statusWord & (0x1 << 10);
-		bool internalLimitActive	= txPdo.statusWord & (0x1 << 11);
-		bool commandValueFollowed	= txPdo.statusWord & (0x1 << 12);
-		ImGui::Text("readyToSwitchOn: %i", readyToSwitchOn);
-		ImGui::Text("switchedOn: %i", switchedOn);
-		ImGui::Text("operationEnabled: %i", operationEnabled);
-		ImGui::Text("fault: %i", fault);
-		ImGui::Text("quickstop: %i", quickstop);
-		ImGui::Text("switchOnDisabled: %i", switchOnDisabled);
-		ImGui::Text("warning: %i", warning);
-		ImGui::Text("TxPdoToggle: %i", TxPdoToggle);
-		ImGui::Text("internalLimitActive: %i", internalLimitActive);
-		ImGui::Text("commandValueFollowed: %i", commandValueFollowed);
+		ImGui::Text("Motor Connected: %i", b_motorConnected);
+		
+		ImGui::Separator();
+		
+		ImGui::Text("readyToSwitchOn: %i", statusWord.readyToSwitchOn);
+		ImGui::Text("switchedOn: %i", statusWord.switchedOn);
+		ImGui::Text("operationEnabled: %i", statusWord.operationEnabled);
+		ImGui::Text("fault: %i", statusWord.fault);
+		ImGui::Text("quickstop: %i", statusWord.quickstop);
+		ImGui::Text("switchOnDisabled: %i", statusWord.switchOnDisabled);
+		ImGui::Text("warning: %i", statusWord.warning);
+		ImGui::Text("TxPdoToggle: %i", statusWord.TxPdoToggle);
+		ImGui::Text("internalLimitActive: %i", statusWord.internalLimitActive);
+		ImGui::Text("commandValueFollowed: %i", statusWord.commandValueFollowed);
 		
 		ImGui::Separator();
 		
@@ -56,8 +50,29 @@ void EL7221_9014::deviceSpecificGui() {
 		double maxVel = motorSettings.speedLimitation_rps;
 		ImGui::SliderScalar("Target Velocity", ImGuiDataType_Double, &velocityRequest_rps, &minVel, &maxVel);
 		if(ImGui::IsItemDeactivatedAfterEdit()) velocityRequest_rps = 0x0;
+		ImGui::Text("pdo velocity target: %i", rxPdo.targetVelocity);
+		
+		double pos = double(txPdo.fbPosition) / double(motorSettings.positionResolution_rev);
+		ImGui::Text("%.3f rev", pos);
 		
 		if(ImGui::Button("Configure Drive")) configureDrive();
+		
+		if(ImGui::Button("Set State Init")) {
+			identity->state = EC_STATE_INIT;
+			ec_writestate(getSlaveIndex());
+		}
+		if(ImGui::Button("Set State PreOp")) {
+			identity->state = EC_STATE_PRE_OP;
+			ec_writestate(getSlaveIndex());
+		}
+		
+		
+		ImGui::InputScalar("##offset", ImGuiDataType_U32, &offsetInputField);
+		ImGui::SameLine();
+		if(ImGui::Button("Set Encoder Offset")) writeEncoderPositionOffset(offsetInputField);
+		if(ImGui::Button("Zero Encoder")) writeEncoderPositionOffset(txPdo.fbPosition);
+		
+		ImGui::Text("%s", actuator->getStatusString().c_str());
 		
 		ImGui::EndTabItem();
 	}

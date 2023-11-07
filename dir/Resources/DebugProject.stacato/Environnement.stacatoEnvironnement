@@ -254,7 +254,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL7221-9014" Split="false" CustomName="EL7221-9014 (Alias:60001)" UniqueID="1822">
-                <NodeEditorPosition x="134" y="835"/>
+                <NodeEditorPosition x="116" y="487"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="60001"/>
                 </NodeSpecificData>
