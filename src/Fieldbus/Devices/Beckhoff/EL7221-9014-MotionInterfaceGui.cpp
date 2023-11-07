@@ -52,12 +52,10 @@ void EL7221_9014::deviceSpecificGui() {
 		ImGui::Checkbox("Enable", &b_enableRequest);
 		if(ImGui::Button("Fault Reset")) b_faultResetRequest = true;
 		
-		double minVel = -speedLimit_rps;
-		double maxVel = speedLimit_rps;
+		double minVel = -motorSettings.speedLimitation_rps;
+		double maxVel = motorSettings.speedLimitation_rps;
 		ImGui::SliderScalar("Target Velocity", ImGuiDataType_Double, &velocityRequest_rps, &minVel, &maxVel);
 		if(ImGui::IsItemDeactivatedAfterEdit()) velocityRequest_rps = 0x0;
-		rxPdo.targetVelocity = velocityRequest_rps * incrementsPerRevPerSecond;
-		ImGui::Text("targetVel: %i", rxPdo.targetVelocity);
 		
 		if(ImGui::Button("Configure Drive")) configureDrive();
 		
