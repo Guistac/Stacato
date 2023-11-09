@@ -266,6 +266,93 @@
                     <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1826" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:1238)" UniqueID="1828">
+                <NodeEditorPosition x="128" y="680"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="1238"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="40" AccelerationLimit_revolutionsPerSecondSquared="40" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="40"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="1829" Visible="true"/>
+                    <InputPin SaveString="Digital Out 2" DisplayString="Digital Out 2" DataType="Boolean" UniqueID="1830" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1831" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="1832" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1833" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1834" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 1" DisplayString="Digital In 1" DataType="Boolean" UniqueID="1835" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 2" DisplayString="Digital In 2" DataType="Boolean" UniqueID="1836" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 3" DisplayString="Digital In 3" DataType="Boolean" UniqueID="1837" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 4" DisplayString="Digital In 4" DataType="Boolean" UniqueID="1838" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 5" DisplayString="Digital In 5" DataType="Boolean" UniqueID="1839" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 6" DisplayString="Digital In 6" DataType="Boolean" UniqueID="1840" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog In 1" DisplayString="Analog In 1" DataType="Real" UniqueID="1841" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:3333)" UniqueID="1842">
+                <NodeEditorPosition x="128" y="1064"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="3333"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="40" AccelerationLimit_revolutionsPerSecondSquared="40" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="40"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="1843" Visible="true"/>
+                    <InputPin SaveString="Digital Out 2" DisplayString="Digital Out 2" DataType="Boolean" UniqueID="1844" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1845" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="1846" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1847" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1848" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 1" DisplayString="Digital In 1" DataType="Boolean" UniqueID="1849" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 2" DisplayString="Digital In 2" DataType="Boolean" UniqueID="1850" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 3" DisplayString="Digital In 3" DataType="Boolean" UniqueID="1851" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 4" DisplayString="Digital In 4" DataType="Boolean" UniqueID="1852" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 5" DisplayString="Digital In 5" DataType="Boolean" UniqueID="1853" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 6" DisplayString="Digital In 6" DataType="Boolean" UniqueID="1854" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog In 1" DisplayString="Analog In 1" DataType="Real" UniqueID="1855" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="PD4-E" Split="false" CustomName="PD4-E (Alias:456)" UniqueID="1856">
+                <NodeEditorPosition x="147" y="1457"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="456"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="40" AccelerationLimit_revolutionsPerSecondSquared="40" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="40"/>
+                    <Tuning PositionControllerProportionalGain="500"/>
+                    <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
+                    <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
+                    <EncoderOffset Revolutions="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="Digital Out 1" DisplayString="Digital Out 1" DataType="Boolean" UniqueID="1857" Visible="true"/>
+                    <InputPin SaveString="Digital Out 2" DisplayString="Digital Out 2" DataType="Boolean" UniqueID="1858" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1859" Visible="true" NoDataField="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="1860" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1861" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1862" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 1" DisplayString="Digital In 1" DataType="Boolean" UniqueID="1863" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 2" DisplayString="Digital In 2" DataType="Boolean" UniqueID="1864" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 3" DisplayString="Digital In 3" DataType="Boolean" UniqueID="1865" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 4" DisplayString="Digital In 4" DataType="Boolean" UniqueID="1866" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 5" DisplayString="Digital In 5" DataType="Boolean" UniqueID="1867" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Digital In 6" DisplayString="Digital In 6" DataType="Boolean" UniqueID="1868" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Analog In 1" DisplayString="Analog In 1" DataType="Real" UniqueID="1869" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="1741" StartPin="1687" EndPin="1740"/>

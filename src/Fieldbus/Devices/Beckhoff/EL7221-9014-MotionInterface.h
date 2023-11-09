@@ -114,13 +114,17 @@ public:
 	
 	struct MotorSettings{
 		double maxCurrent_amps = 0.0;
-		double ratedCurrent_amps = 0.0;
-		double speedLimitation_rps = 0.0;
+		double maxVelocity_rps = 0.0;
+		double workingRange_rev = 0.0;
 		int velocityResolution_rps = 0;
 		int positionResolution_rev = 0;
 	}motorSettings;
 	
-	void configureDrive();
-	void writeEncoderPositionOffset(uint32_t offset);
-	uint32_t offsetInputField;
+	void firstSetup();
+	
+	void resetEncoderPosition();
+	
+	void downloadDiagnostics();
+	std::string getDiagnosticsStringFromTextID(uint16_t textID);
 };
+

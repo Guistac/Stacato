@@ -43,36 +43,26 @@ void EL7221_9014::deviceSpecificGui() {
 		
 		ImGui::Separator();
 		
-		ImGui::Checkbox("Enable", &b_enableRequest);
-		if(ImGui::Button("Fault Reset")) b_faultResetRequest = true;
+		ImGui::Text("%s", actuator->getStatusString().c_str());
 		
-		double minVel = -motorSettings.speedLimitation_rps;
-		double maxVel = motorSettings.speedLimitation_rps;
+		if(ImGui::Button("Fault Reset")) b_faultResetRequest = true;
+		ImGui::SameLine();
+		ImGui::Checkbox("Enable", &b_enableRequest);
+		
+		double minVel = -motorSettings.maxVelocity_rps;
+		double maxVel = motorSettings.maxVelocity_rps;
 		ImGui::SliderScalar("Target Velocity", ImGuiDataType_Double, &velocityRequest_rps, &minVel, &maxVel);
 		if(ImGui::IsItemDeactivatedAfterEdit()) velocityRequest_rps = 0x0;
-		ImGui::Text("pdo velocity target: %i", rxPdo.targetVelocity);
 		
 		double pos = double(txPdo.fbPosition) / double(motorSettings.positionResolution_rev);
-		ImGui::Text("%.3f rev", pos);
+		double vel = double(txPdo.velocityActualValue) / double(motorSettings.velocityResolution_rps);
+		ImGui::Text("%.3frev %.1frev/s", pos, vel);
 		
-		if(ImGui::Button("Configure Drive")) configureDrive();
-		
-		if(ImGui::Button("Set State Init")) {
-			identity->state = EC_STATE_INIT;
-			ec_writestate(getSlaveIndex());
-		}
-		if(ImGui::Button("Set State PreOp")) {
-			identity->state = EC_STATE_PRE_OP;
-			ec_writestate(getSlaveIndex());
-		}
-		
-		
-		ImGui::InputScalar("##offset", ImGuiDataType_U32, &offsetInputField);
+		if(ImGui::Button("First Setup")) firstSetup();
 		ImGui::SameLine();
-		if(ImGui::Button("Set Encoder Offset")) writeEncoderPositionOffset(offsetInputField);
-		if(ImGui::Button("Zero Encoder")) writeEncoderPositionOffset(txPdo.fbPosition);
+		if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
 		
-		ImGui::Text("%s", actuator->getStatusString().c_str());
+		if(ImGui::Button("Reset Encoder Position")) resetEncoderPosition();
 		
 		ImGui::EndTabItem();
 	}

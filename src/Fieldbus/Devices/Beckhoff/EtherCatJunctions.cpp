@@ -250,6 +250,8 @@ bool EL5001::startupConfiguration() {
 	
 	bool success = true;
 	
+	//TODO: these parameters are store on the device eeprom upon writing them we should not upload them on each startup
+	
 	success &= writeSDO_U8(0x8010, 0x1, 0x0, "Disable Frame Error");
 	success &= writeSDO_U8(0x8010, 0x2, 0x0, "Enable Power Failure Bit");
 	success &= writeSDO_U8(0x8010, 0x3, inhibitTime->value != 0 ? 0x1 : 0x0, "Enable Inhibit Time");
