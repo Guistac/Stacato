@@ -156,6 +156,7 @@ public:
 	double getFollowingError(){ 			return actuatorProcessData.followingErrorActual; }
 	double getFollowingErrorNormalized(){ 	return std::abs(actuatorProcessData.followingErrorActual / actuatorConfig.followingErrorLimit); }
 	double getEffort(){ 					return actuatorProcessData.effortActual; }
+	double getVelocityNormalized(){			return feedbackProcessData.velocityActual / actuatorConfig.velocityLimit; }
 	
 	//get Estop state
 	bool isEmergencyStopActive(){ return actuatorProcessData.b_isEmergencyStopActive; }

@@ -37,6 +37,7 @@ public:
 		uint16_t controlWord = 0;				//7010:1
 		int32_t targetVelocity = 0;				//7010:6
 		uint32_t targetPosition = 0;			//7010:5
+		int16_t targetTorque = 0;				//7010:9
 		uint8_t modeOfOperationSelection = 0;	//7010:3
 	}rxPdo;
 	
@@ -103,28 +104,60 @@ public:
 		FAULT
 	};
 	
-	bool b_motorConnected = false;
-	PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-	PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
+	struct ProcessData{
+		bool b_motorConnected = false;
+		bool b_waitingForEnable = false;
+		uint64_t enableRequestTime_nanos;
+		bool b_hadFault = false;
+		PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
+		PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
+	}processData;
 	
-	bool b_enableRequest = false;
-	bool b_faultResetRequest = false;
+	float velocitySliderValue = 0.0;
 	
-	double velocityRequest_rps = 0.0;
-	
-	struct MotorSettings{
+	struct MotorNameplate{
+		bool b_motorIdentified = false;
+		double ratedCurrent_amps = 0.0;
 		double maxCurrent_amps = 0.0;
 		double maxVelocity_rps = 0.0;
 		double workingRange_rev = 0.0;
 		int velocityResolution_rps = 0;
 		int positionResolution_rev = 0;
-	}motorSettings;
+		double torqueConstant_mNmpA = 0.0;
+		bool b_hasBrake = false;
+		std::string motorType = "Unknown";
+		std::string serialNumber = "Unknown";
+		bool save(tinyxml2::XMLElement* parent);
+		bool load(tinyxml2::XMLElement* parent);
+	}motorNameplate;
+	
+	struct DriveSettings{
+		NumberParam<double> velocityLimit = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
+		NumberParam<double> accelerationLimit = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
+		NumberParam<double> currentLimit = NumberParameter<double>::make(0.0, "Current Limit", "CurrentLimit", "%.1f", Units::Current::Ampere, false);
+		BoolParam invertDirection = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+		NumberParam<double> positionFollowingErrorWindow = NumberParameter<double>::make(0.0, "Position Following Error Window", "PositionFollowingErrorWindow", "%.1f", Units::AngularDistance::Revolution, false);
+		NumberParam<int> positionFollowingErrorTimeout = NumberParameter<int>::make(0.0, "Position Following Error Timeout", "PositionFollowingErrorTimeout", "%i", Units::Time::Millisecond, false);
+		OptionParameter::Option option_faultReaction_Disable = OptionParameter::Option(0, "Disable Drive", "Disable");
+		OptionParameter::Option option_faultReaction_HaltRamp = OptionParameter::Option(1, "Halt Ramp", "HaltRamp");
+		std::vector<OptionParameter::Option*> options_faultReaction = {
+			&option_faultReaction_Disable,
+			&option_faultReaction_HaltRamp
+		};
+		OptionParam faultReaction = OptionParameter::make2(option_faultReaction_Disable, options_faultReaction, "Fault Reaction", "FaultReaction");
+		NumberParam<double> haltRampDeceleration = NumberParameter<double>::make(0.0, "Halt Ramp Deceleration", "HaltRampDeceleration", "%.1f", Units::AngularDistance::Revolution, false, 0, 0,"", "/s\xc2\xb2");
+		bool save(tinyxml2::XMLElement* parent);
+		bool load(tinyxml2::XMLElement* parent);
+	}driveSettings;
+	
+	void controlTab();
+	void settingsTab();
 	
 	void firstSetup();
-	
 	void resetEncoderPosition();
-	
 	void downloadDiagnostics();
-	std::string getDiagnosticsStringFromTextID(uint16_t textID);
+	void uploadParameters();
+	
+	void updateActuatorInterface();
 };
 
