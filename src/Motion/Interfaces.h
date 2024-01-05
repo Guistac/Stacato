@@ -265,6 +265,8 @@ public:
 	bool isAtUpperLimit(){ return processData.b_isAtUpperLimit; }
 	
 	std::string getHomingStepString(){ return configuration.homingStateStringCallback(); }
+    
+    bool isMoving(){ return processData.b_isMoving; }
 	
 private:
 	
@@ -304,6 +306,7 @@ private:
 		bool b_disable;
 		bool b_isAtLowerLimit;
 		bool b_isAtUpperLimit;
+        bool b_isMoving;
 	}processData;
 };
 

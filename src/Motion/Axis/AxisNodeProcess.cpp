@@ -635,6 +635,8 @@ void AxisNode::outputProcess(){
 				break;
 		}
 	}
+    
+    axisInterface->processData.b_isMoving = motionProfile.getVelocity() != 0.0;
 	
 }
 
