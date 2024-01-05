@@ -255,7 +255,8 @@ void AxisMapping::angularControlGui(){
 		int fullTurns = std::floor(positionDegrees / 360.0);
 		double singleTurnPosition = positionDegrees - fullTurns * 360.0;
 		char positiveAngleString[64];
-		snprintf(positiveAngleString, 64, "%iR+%.1f°", fullTurns, singleTurnPosition);
+		//snprintf(positiveAngleString, 64, "%iR+%.1f°", fullTurns, singleTurnPosition);
+        snprintf(positiveAngleString, 64, "%.1f°", positionDegrees); //quick fix for starmania since they prefer seeing the values in raw degrees
 		
 		drawing->AddCircleFilled(middle, radius * .5, ImColor(Colors::veryDarkGray), 64);
 		drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);
