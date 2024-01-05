@@ -153,6 +153,7 @@ void sequencerPlaybackControls(float height){}
 
 void PlaybackManagerWindow::onDraw(){
 
+    /*
 	ImGui::PushFont(Fonts::sansBold15);
 	backgroundText("Playback Speed Adjustement:", ImVec2(ImGui::GetContentRegionAvail().x, 0), Colors::darkGray, Colors::white);
 	ImGui::PopFont();
@@ -167,7 +168,8 @@ void PlaybackManagerWindow::onDraw(){
 	}
 	
 	ImGui::Separator();
-	
+	*/
+     
 	auto drawing = ImGui::GetWindowDrawList();
 	ImDrawListSplitter drawingLayers;
 	
