@@ -209,7 +209,7 @@ void Lexium32::readInputs() {
             servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
             Logger::info("[{}] Finished resetting singleturn encoder Position", getName());
         }
-		//_p_act = 0;
+		_p_act = 0; //no idea why removing this causes a movement after homing is done, but we'll keep it since it works
 	}
 	
 	//read power state
