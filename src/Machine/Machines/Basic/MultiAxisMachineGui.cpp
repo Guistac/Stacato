@@ -313,6 +313,7 @@ void MultiAxisMachine::setupGui(){
 	}
 	
 	for(int i = 0; i < axisMappings.size(); i++){
+        ImGui::PushID(i);
 		auto axisMapping = axisMappings[i];
 		ImGui::Separator();
 		if(!axisMapping->isAxisConnected()) ImGui::TextColored(Colors::red, "No Axis Connected");
@@ -332,15 +333,16 @@ void MultiAxisMachine::setupGui(){
 			auto axis = axisMapping->getAxis();
 			
 			glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
-			ImGui::BeginDisabled(!axis->canStartHoming());
+			
 			if(axis->isHoming()){
 				ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
 				if(ImGui::Button("Stop Homing", homingButtonSize)) axis->stopHoming();
 				ImGui::PopStyleColor();
 			}else{
+                ImGui::BeginDisabled(!axis->canStartHoming());
 				if(ImGui::Button("Start Homing", homingButtonSize)) axis->startHoming();
+                ImGui::EndDisabled();
 			}
-			ImGui::EndDisabled();
 
 
 			ImGui::SameLine();
@@ -357,6 +359,7 @@ void MultiAxisMachine::setupGui(){
 			
 			
 		}
+        ImGui::PopID();
 	}
 	
 }

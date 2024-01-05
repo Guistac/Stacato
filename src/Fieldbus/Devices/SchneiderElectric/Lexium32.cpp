@@ -201,8 +201,15 @@ void Lexium32::readInputs() {
     txPdoAssignement.pullDataFrom(identity->inputs);
 	
 	if(b_isHoming){
-		if(_p_act == 0) b_isHoming = false;
-		_p_act = 0;
+        if(_p_act == 0) {
+            b_isHoming = false;
+            servoMotor->positionOffset_revolutions = servoMotor->feedbackProcessData.positionOverride;
+            updateEncoderWorkingRange();
+            servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+            servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+            Logger::info("[{}] Finished resetting singleturn encoder Position", getName());
+        }
+		//_p_act = 0;
 	}
 	
 	//read power state
@@ -312,6 +319,7 @@ void Lexium32::writeOutputs() {
 	if(b_startHoming){
 		b_startHoming = false;
 		b_isHoming = true;
+        Logger::info("[{}] Manual Start singleturn encoder position reset", getName());
 	}
 	
 	if(b_isHoming){
@@ -387,12 +395,20 @@ void Lexium32::writeOutputs() {
 	
 	if(servoMotor->feedbackProcessData.b_overridePosition){
 		servoMotor->feedbackProcessData.b_overridePosition = false;
-		double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
-		double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
-		servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
-		updateEncoderWorkingRange();
-		servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
-		servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+        if(b_encoderIsMultiturn){
+            double overrideTargetPosition = servoMotor->feedbackProcessData.positionOverride;
+            double positionRaw = (double)_p_act / (double)positionUnitsPerRevolution;
+            servoMotor->positionOffset_revolutions = overrideTargetPosition - positionRaw;
+            updateEncoderWorkingRange();
+            servoMotor->feedbackProcessData.b_positionOverrideBusy = false;
+            servoMotor->feedbackProcessData.b_positionOverrideSucceeded = true;
+        }
+        else{
+            //Singleturn encoder position reset
+            servoMotor->feedbackProcessData.b_positionOverrideBusy = true;
+            b_isHoming = true;
+            Logger::info("[{}] Start resetting singleturn encoder position", getName());
+        }
 	}
 	
     //========== PREPARE RXPDO OUTPUTS ==========
@@ -740,8 +756,10 @@ void Lexium32::updateEncoderWorkingRange() {
 		servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
 		servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
 	}else{
-		servoMotor->feedbackConfig.positionLowerWorkingRangeBound = -std::numeric_limits<double>::infinity();
-		servoMotor->feedbackConfig.positionUpperWorkingRangeBound = std::numeric_limits<double>::infinity();
+        servoMotor->feedbackConfig.positionLowerWorkingRangeBound = INT32_MIN / positionUnitsPerRevolution;
+        servoMotor->feedbackConfig.positionUpperWorkingRangeBound = INT32_MAX / positionUnitsPerRevolution;
+        servoMotor->feedbackConfig.positionLowerWorkingRangeBound += servoMotor->positionOffset_revolutions;
+        servoMotor->feedbackConfig.positionUpperWorkingRangeBound += servoMotor->positionOffset_revolutions;
 	}
 }
 
