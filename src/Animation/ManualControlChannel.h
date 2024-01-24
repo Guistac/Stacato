@@ -44,13 +44,14 @@ public:
 	
 	void gui();
 	
-	void setControlValue(float controlValue);
+	void setControlValue(float controlValueX, float controlValueY);
 	
 private:
 	std::vector<std::shared_ptr<ChannelPreset>> channelPresets = {};
 	std::shared_ptr<ChannelPreset> activeChannelPreset = nullptr;
 	
-	float controlSliderValue = 0.0;
+	float controlSliderValueX = 0.0;
+	float controlSliderValueY = 0.0;
 	bool b_editLocked = true;
 };
 

@@ -16,8 +16,11 @@ void ManualControlChannel::gui(){
 	
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::BeginDisabled(activeChannelPreset == nullptr);
-	if(ImGui::SliderFloat("##controlSlider", &controlSliderValue, -1.0, 1.0)) setControlValue(controlSliderValue);
-	else if(ImGui::IsItemDeactivatedAfterEdit()) setControlValue(0.0);
+	if(ImGui::SliderFloat("##controlSliderX", &controlSliderValueX, -1.0, 1.0)) setControlValue(controlSliderValueX, 0.0);
+	else if(ImGui::IsItemDeactivatedAfterEdit()) setControlValue(0.0, 0.0);
+	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+	if(ImGui::SliderFloat("##controlSliderY", &controlSliderValueY, -1.0, 1.0)) setControlValue(0.0, controlSliderValueY);
+	else if(ImGui::IsItemDeactivatedAfterEdit()) setControlValue(0.0, 0.0);
 	ImGui::EndDisabled();
 	
 

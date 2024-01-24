@@ -126,16 +126,17 @@ void ManualControlChannel::removeChannelPreset(std::shared_ptr<ChannelPreset> pr
 
 void ManualControlChannel::setActiveChannelPreset(std::shared_ptr<ChannelPreset> preset){
 	//set all previous mappings to control value 0
-	setControlValue(0.0);
+	setControlValue(0.0, 0.0);
 	//then set the new preset
 	activeChannelPreset = preset;
 }
 
-void ManualControlChannel::setControlValue(float controlValue){
-	controlSliderValue = std::clamp(controlValue, -1.0f, 1.0f);
+void ManualControlChannel::setControlValue(float controlValueX, float controlValueY){
+	controlSliderValueX = std::clamp(controlValueX, -1.0f, 1.0f);
+	controlSliderValueY = std::clamp(controlValueY, -1.0f, 1.0f);
 	if(activeChannelPreset == nullptr) return;
 	for(auto mapping : activeChannelPreset->getMappings()){
-		mapping->animatable->setManualControlTarget(controlSliderValue * mapping->multiplier->value);
+		mapping->animatable->setManualControlTarget(controlSliderValueX * mapping->multiplier->value, controlSliderValueY * mapping->multiplier->value);
 	}
 }
 

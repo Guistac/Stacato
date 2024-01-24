@@ -350,6 +350,12 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	setUserUpperLimit(upperPositionLimit->value);
 	
 	positionUnit = axis->getPositionUnit();
+	if(linearWidgetOrientation_parameter->value == linearWidgetOrientation_vertical.getInt()){
+		animatablePosition->direction = AnimatablePosition::Direction::VERTICAL;
+	}
+	else if(linearWidgetOrientation_parameter->value == linearWidgetOrientation_horizontal.getInt()){
+		animatablePosition->direction = AnimatablePosition::Direction::HORIZONTAL;
+	}
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = lowerPositionLimit->value;
 	animatablePosition->upperPositionLimit = upperPositionLimit->value;

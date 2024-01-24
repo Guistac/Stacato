@@ -103,18 +103,9 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Playback speed adjustement toggle
 	rgbButton4->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 4 : {}", rgbButton4->isPressed());
-		if(rgbButton4->isPressed()){
-			b_playbackSpeedAdjustButtonPressed = true;
-			Environnement::getManualControlChannel()->setControlValue(0.0);
-		}
-		else{
-			b_playbackSpeedAdjustButtonPressed = false;
-		}
 	});
 	rgbButton4->setOutputUpdateCallback([&](){
-		float br = Timing::getSinusWave(0.2, 0.0, 1.0);
-		if(b_playbackSpeedAdjustButtonPressed) rgbButton4->setColor(glm::vec3(br,br,br));
-		else rgbButton4->setColor(glm::vec3(0,0,0));
+		rgbButton4->setColor(glm::vec3(0,0,0));
 	});
 	
 	
@@ -264,14 +255,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	
 	
 	joystick->setInputUpdateCallback([&](){
-		if(b_playbackSpeedAdjustButtonPressed){
-			double min = PlaybackManager::getMinPlaybackSpeedMultiplier();
-			double max = PlaybackManager::getMaxPlaybackSpeedMutliplier();
-			double output = ((joystick->getPosition().x * 0.5) + 0.5) * (max - min) + min;
-			PlaybackManager::setPlaybackSpeedMultiplier(output);
-		}else{
-			Environnement::getManualControlChannel()->setControlValue(joystick->getPosition().y);
-		}
+		Environnement::getManualControlChannel()->setControlValue(joystick->getPosition().x, joystick->getPosition().y);
 	});
 	
 
@@ -285,5 +269,5 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 
 
 void StacatoCompact::onDisconnection(){
-	Environnement::getManualControlChannel()->setControlValue(0.0);
+	Environnement::getManualControlChannel()->setControlValue(0.0, 0.0);
 }

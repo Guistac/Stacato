@@ -176,6 +176,11 @@ public:
 		return std::string(targetstring);
 	}
 	
+	enum class Direction{
+		VERTICAL,
+		HORIZONTAL
+	}direction = Direction::HORIZONTAL;
+	
 };
 
 
