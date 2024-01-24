@@ -17,7 +17,7 @@ void AxisMapping::controlGui(){
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 
 	ImGui::BeginDisabled(b_disableControlGui);
-	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr, b_invertControlGui);
+	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr);
 	ImGui::EndDisabled();
 	float controlsHeight = ImGui::GetItemRectSize().y;
 

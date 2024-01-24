@@ -57,6 +57,12 @@ void PositionControlledMachine::initialize() {
 		lowerPositionLimit->onEdit();
 		updateAnimatableParameters();
 	});
+	invertControlGui->addEditCallback([this](){
+		updateAnimatableParameters();
+	});
+	linearWidgetOrientation_parameter->addEditCallback([this](){
+		updateAnimatableParameters();
+	});
 	
 }
 
@@ -356,6 +362,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	else if(linearWidgetOrientation_parameter->value == linearWidgetOrientation_horizontal.getInt()){
 		animatablePosition->direction = AnimatablePosition::Direction::HORIZONTAL;
 	}
+	animatablePosition->b_invertManualControls = invertControlGui->value;
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = lowerPositionLimit->value;
 	animatablePosition->upperPositionLimit = upperPositionLimit->value;

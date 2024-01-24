@@ -166,7 +166,7 @@ public:
 	double velocitySliderDisplayValue = 0.0;
 	double rapidTargetPositionDisplayValue = 0.0;
 	
-	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr, bool invert = false);
+	void manualControlsVerticalGui(float sliderHeight, const char* customName = nullptr);
 	void manualControlsHorizontalGui(float sliderWidth, const char* customName = nullptr);
 	
 	
@@ -180,6 +180,7 @@ public:
 		VERTICAL,
 		HORIZONTAL
 	}direction = Direction::HORIZONTAL;
+	bool b_invertManualControls = false;
 	
 };
 

@@ -215,7 +215,7 @@ void PositionControlledMachine::verticalWidgetGui(){
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * 0.2));
 	ImGui::BeginDisabled(!isEnabled());
 
-	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr, invertControlGui->value);
+	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr);
 	float controlsHeight = ImGui::GetItemRectSize().y;
 
 	ImGui::SameLine();
@@ -389,6 +389,7 @@ void PositionControlledMachine::horizontalWidgetGui(){
 		float minPos = animatablePosition->lowerPositionLimit;
 		float maxPos = animatablePosition->upperPositionLimit;
 		double norm = (pos - minPos) / (maxPos - minPos);
+		if(invertControlGui->value) return std::clamp(1.0 - norm, 0.0, 1.0);
 		return std::clamp(norm, 0.0, 1.0);
 	};
 	

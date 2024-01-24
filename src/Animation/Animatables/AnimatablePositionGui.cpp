@@ -8,7 +8,7 @@
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
 
-void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const char* customName, bool invert){
+void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const char* customName){
 		
 	ImGui::BeginGroup();
 	
@@ -34,7 +34,7 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
 	if (ImGui::IsItemActive()) {
 		float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
-		if(invert) requestedVelocity *= -1.0;
+		if(b_invertManualControls) requestedVelocity *= -1.0;
 		setManualVelocityTarget(requestedVelocity);
 	}
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {
@@ -138,6 +138,7 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::SliderScalar("##ManualVelocity", ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
 	if (ImGui::IsItemActive()) {
 		float requesterVelocity = velocitySliderDisplayValue * velocityLimit;
+		if(b_invertManualControls) requesterVelocity *= -1.0;
 		setManualVelocityTarget(requesterVelocity);
 	}
 	else if (ImGui::IsItemDeactivatedAfterEdit()) {

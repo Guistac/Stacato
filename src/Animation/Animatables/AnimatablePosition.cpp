@@ -352,9 +352,12 @@ void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
 			break;
 	}
 	
+	//we don't invert the slider display value
+	velocitySliderDisplayValue = manualCommand;
+	if(b_invertManualControls) manualCommand *= -1.0;
+	
 	//if we are in the middle of an animation and the requested velocity is 0, skip the command
 	if(manualCommand == 0.0 && hasAnimation()) return;
-	velocitySliderDisplayValue = manualCommand;
 	setManualVelocityTarget(velocityLimit * manualCommand);
 }
 
