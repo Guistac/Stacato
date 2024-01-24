@@ -1,43 +1,43 @@
 <Environnement name="Starmania" notes="
 ">
-    <Dashboard Scale="0.44895622" OffsetX="1813.8975" OffsetY="-996.64062" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.49998" SizeY="228.77348"/>
-        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.49998" SizeY="228.00102"/>
-        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.49998" SizeY="228.64951"/>
-        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.49998" SizeY="229.87685"/>
-        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.49998" SizeY="228.33165"/>
-        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.49998" SizeY="229.98004"/>
-        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.49998" SizeY="229.43475"/>
-        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10002" SizeY="397.2258"/>
-        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.5" SizeY="230.84305"/>
-        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.5" SizeY="230.73985"/>
-        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.5" SizeY="230.63654"/>
-        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.5" SizeY="230.53342"/>
-        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.5" SizeY="230.84305"/>
-        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.5" SizeY="231.96735"/>
-        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.5" SizeY="230.63654"/>
-        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.5" SizeY="230.53342"/>
-        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.49998" SizeY="229.89772"/>
-        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.49998" SizeY="229.89772"/>
-        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.49998" SizeY="228.89775"/>
-        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.49998" SizeY="228.89775"/>
-        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.49982" SizeY="457.96719"/>
-        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.49998" SizeY="228.67038"/>
-        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.49998" SizeY="228.54619"/>
-        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.49998" SizeY="229.22838"/>
-        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.49998" SizeY="229.33156"/>
-        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.49998" SizeY="229.20744"/>
-        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.49998" SizeY="227.98009"/>
-        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.49998" SizeY="228.98"/>
-        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.49998" SizeY="227.98009"/>
-        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.49998" SizeY="229.20744"/>
-        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.69971" SizeY="502.52518"/>
-        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.59996" SizeY="193.08374"/>
-        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.50009" SizeY="140.56921"/>
-        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.50009" SizeY="139.56157"/>
-        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.50005" SizeY="107.7813"/>
-        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.50005" SizeY="108.49722"/>
-        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.50009" SizeY="140.67281"/>
+    <Dashboard Scale="0.6931172" OffsetX="1801.6691" OffsetY="-1411.594" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.5" SizeY="224.65851"/>
+        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.5" SizeY="225.98679"/>
+        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.5" SizeY="225.82802"/>
+        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.5" SizeY="224.82802"/>
+        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.5" SizeY="226.04173"/>
+        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.5" SizeY="225.4402"/>
+        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.5" SizeY="224.76849"/>
+        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10017" SizeY="397.26132"/>
+        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.49997" SizeY="230.22638"/>
+        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.49997" SizeY="229.6142"/>
+        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.49997" SizeY="229.00197"/>
+        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.49997" SizeY="229.8325"/>
+        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.49997" SizeY="230.22638"/>
+        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.49997" SizeY="230.05696"/>
+        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.49997" SizeY="229.00197"/>
+        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.49997" SizeY="229.8325"/>
+        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.50005" SizeY="225.93179"/>
+        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.5" SizeY="225.93179"/>
+        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.5" SizeY="224.93179"/>
+        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.5" SizeY="224.93179"/>
+        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.49988" SizeY="460.38522"/>
+        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.5" SizeY="225.48903"/>
+        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.50005" SizeY="225.21574"/>
+        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.5" SizeY="224.98679"/>
+        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.50009" SizeY="225.59898"/>
+        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.50009" SizeY="225.32573"/>
+        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.50005" SizeY="224.88297"/>
+        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.5" SizeY="225.88297"/>
+        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.5" SizeY="224.88297"/>
+        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.5" SizeY="225.32573"/>
+        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.70029" SizeY="503.883"/>
+        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.60008" SizeY="191.16899"/>
+        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.50006" SizeY="142.0278"/>
+        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.50006" SizeY="142.30933"/>
+        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.49994" SizeY="109.59077"/>
+        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.49994" SizeY="109.29173"/>
+        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.50006" SizeY="141.87111"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -166,7 +166,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="9.111287028208837"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-38.348873122533426"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44986966112623" PositionOffset="-373.37740411033434"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="FeedbackDevice0"/>
@@ -203,7 +203,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="9.1110000000000007"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44999999999999" PositionOffset="-41.248872949765385"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="282.44999999999999" PositionOffset="-375.97780048670558"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="FeedbackDevice0"/>
@@ -2119,7 +2119,7 @@
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.5" AccelerationLimit="0.059999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="11.913" LowerPositionLimitClearance="1" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.050000000000000003" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="-7.1054273576010019e-15"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="62.543000999999997" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -2257,7 +2257,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4390000000000001"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.55395" PositionOffset="-0.22267753701810022"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.55395" PositionOffset="-0.093282738553723821"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -3292,7 +3292,7 @@ end</Script>
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="8" ProcessDataTimeoutMilliseconds="7" ClockStableThresholdMilliseconds="2" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="8" ProcessDataTimeoutMilliseconds="7" ClockStableThresholdMilliseconds="2" FieldbusTimeoutDelayMilliseconds="500"/>
 </FieldbusSettings>
 
 <ManualControlChannel>

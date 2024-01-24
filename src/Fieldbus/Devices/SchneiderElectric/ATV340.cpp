@@ -229,6 +229,9 @@ bool ATV340::startupConfiguration() {
 //==============================================================
 
 void ATV340::readInputs() {
+	
+	uint16_t lastFaultCode_previous = lastFaultCode;
+	
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	axis->updateInputs();
 	
@@ -238,6 +241,12 @@ void ATV340::readInputs() {
 	
 	if(motor->isEnabled() && !axis->isEnabled()) {
 		axis->disable();
+	}
+	
+	
+	if(lastFaultCode != lastFaultCode_previous){
+		if(lastFaultCode == 0x0) Logger::info("[{}] Fault Cleared !", getName());
+		else Logger::error("[{}] Fault Code {} : {}", getName(), lastFaultCode, getErrorCodeString());
 	}
 	
 	//update servo state
