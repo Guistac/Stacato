@@ -349,6 +349,7 @@ void PositionControlledMachine::updateAnimatableParameters(){
 	setUserLowerLimit(lowerPositionLimit->value);
 	setUserUpperLimit(upperPositionLimit->value);
 	
+	positionUnit = axis->getPositionUnit();
 	animatablePosition->setUnit(axis->getPositionUnit());
 	animatablePosition->lowerPositionLimit = lowerPositionLimit->value;
 	animatablePosition->upperPositionLimit = upperPositionLimit->value;
