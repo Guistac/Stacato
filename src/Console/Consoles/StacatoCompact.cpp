@@ -140,7 +140,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 		if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
 		if(!rgbButton8->isPressed()) manoeuvre->rapidToTarget();
 		*/
-		if(!rgbButton8->isPressed()) Environnement::homeAllMachines();
+		//if(!rgbButton8->isPressed()) Environnement::homeAllMachines();
 	});
 	rgbButton8->setOutputUpdateCallback([&](){
 		/*
@@ -152,8 +152,9 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 		}
 		else rgbButton8->setColor(glm::vec3(0));
 		 */
-		if(Environnement::canHomeAllMachines()) rgbButton8->setColor(glm::vec3(0.0, 0.0, 0.0));
-		else rgbButton8->setColor(glm::vec3(.1f, .1f, .1f));
+		//if(Environnement::canHomeAllMachines()) rgbButton8->setColor(glm::vec3(0.0, 0.0, 0.0));
+		//else
+		rgbButton8->setColor(glm::vec3(.1f, .1f, .1f));
 	});
 	
 	
