@@ -1258,6 +1258,14 @@ public:
 		return nullptr;
 	}
 	
+	bool overwriteIfOptionExists(int enumerator){
+		if(Option* matchingOption = findOption(enumerator)){
+			overwrite(matchingOption);
+			return true;
+		}
+		return false;
+	}
+	
 	void overwrite(Option* newValue){
 		value = newValue->enumerator;
 		displayValue = newValue;

@@ -7,6 +7,8 @@
 
 #include "Gui/Assets/Colors.h"
 
+#include "Project/Editor/Parameter.h"
+
 class Lexium32 : public EtherCatDevice {
 public:
 	
@@ -247,36 +249,6 @@ public:
 
     //===== GPIO Input settings ======
 
-    enum class InputPin {
-		DI0,
-		DI1,
-		DI2,
-		DI3,
-		DI4,
-		DI5,
-		NONE
-    };
-	
-	uint8_t getInputPinSubindex(InputPin pin){
-		switch(pin){
-			case InputPin::DI0: return 0x1;
-			case InputPin::DI1: return 0x2;
-			case InputPin::DI2: return 0x3;
-			case InputPin::DI3: return 0x4;
-			case InputPin::DI4: return 0x5;
-			case InputPin::DI5: return 0x6;
-			default: return 0x0;
-		}
-	}
-
-    InputPin negativeLimitSwitchPin = InputPin::NONE;
-    bool b_negativeLimitSwitchNormallyClosed = false;
-	
-    InputPin positiveLimitSwitchPin = InputPin::NONE;
-    bool b_positiveLimitSwitchNormallyClosed = false;
-	
-	InputPin holdingBrakeReleasePin = InputPin::NONE;
-
     bool b_invertDI0 = false;
     bool b_invertDI1 = false;
     bool b_invertDI2 = false;
@@ -288,7 +260,63 @@ public:
     DataTransferState pinAssignementUploadState = DataTransferState::NO_TRANSFER;
     void downloadPinAssignements();
     DataTransferState pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
-
+	
+	OptionParameter::Option option_di_Freely_Available 		= OptionParameter::Option(1,	"Freely Available", "FreelyAvailable");
+	OptionParameter::Option option_di_Fault_Reset 			= OptionParameter::Option(2,	"Fault Reset", "FaultReset");
+	OptionParameter::Option option_di_Enable 				= OptionParameter::Option(3,	"Enable", "Enable");
+	OptionParameter::Option option_di_Halt 					= OptionParameter::Option(4,	"Halt", "Halt");
+	OptionParameter::Option option_di_Positive_Limit_Switch = OptionParameter::Option(22,	"Positive Limit Switch", "PositiveLimitSwitch");
+	OptionParameter::Option option_di_Negative_Limit_Switch = OptionParameter::Option(23,	"Negative Limit Switch", "NegativeLimitSwitch");
+	OptionParameter::Option option_di_Release_Holding_Brake = OptionParameter::Option(40,	"Release Holding Brake", "ReleaseHoldingBrake");
+	std::vector<OptionParameter::Option*> options_diFunction = {
+		&option_di_Freely_Available,
+		&option_di_Fault_Reset,
+		&option_di_Enable,
+		&option_di_Halt,
+		&option_di_Positive_Limit_Switch,
+		&option_di_Negative_Limit_Switch,
+		&option_di_Release_Holding_Brake
+	};
+	
+	OptionParam di0Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI0 Function", "DI0Function");
+	OptionParam di1Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI1 Function", "DI1Function");
+	OptionParam di2Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI2 Function", "DI2Function");
+	OptionParam di3Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI3 Function", "DI3Function");
+	OptionParam di4Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI4 Function", "DI4Function");
+	OptionParam di5Function_parameter = OptionParameter::make2(option_di_Freely_Available, options_diFunction, "DI5 Function", "DI5Function");
+	
+	OptionParameter::Option option_do_Freely_Available		= OptionParameter::Option(1, 	"Freely Available",		"FreelyAvailable");
+	OptionParameter::Option option_do_No_Fault				= OptionParameter::Option(2,	"No Fault",				"NoFault");
+	OptionParameter::Option option_do_Active				= OptionParameter::Option(3,	"Active",				"Active");
+	OptionParameter::Option option_do_Halt_Acknowledge		= OptionParameter::Option(9,	"Halt Acknowledge",		"HaltAcknowledge");
+	OptionParameter::Option option_do_Motor_Standstill		= OptionParameter::Option(13,	"Motor Standstill",		"MotorStandstill");
+	OptionParameter::Option option_do_Motor_Moves_Positive	= OptionParameter::Option(22,	"Motor Moves Positive",	"MotorMovesPositive");
+	OptionParameter::Option option_do_Motor_Moves_Negative	= OptionParameter::Option(23,	"Motor Moves Negative",	"MotorMovesNegative");
+	std::vector<OptionParameter::Option*> options_doFunction = {
+		&option_do_Freely_Available,
+		&option_do_No_Fault,
+		&option_do_Active,
+		&option_do_Halt_Acknowledge,
+		&option_do_Motor_Standstill,
+		&option_do_Motor_Moves_Positive,
+		&option_do_Motor_Moves_Negative
+	};
+	
+	OptionParam dq0Function_parameter = OptionParameter::make2(option_do_Freely_Available, options_doFunction, "DQ0 Function", "DQ0Function");
+	OptionParam dq1Function_parameter = OptionParameter::make2(option_do_Freely_Available, options_doFunction, "DQ1 Function", "DQ1Function");
+	OptionParam dq2Function_parameter = OptionParameter::make2(option_do_Freely_Available, options_doFunction, "DQ2 Function", "DQ2Function");
+	
+	OptionParameter::Option option_limitSwitchEvaluation_Inactive = OptionParameter::Option(0, "Inactive", "Inactive");
+	OptionParameter::Option option_limitSwitchEvaluation_NormallyClosed = OptionParameter::Option(1, "Normally Closed", "NormallyClosed");
+	OptionParameter::Option option_limitSwitchEvaluation_NormallyOpen = OptionParameter::Option(2, "Normally Open", "NormallyOpen");
+	std::vector<OptionParameter::Option*> options_limitSwitchEvaluation = {
+		&option_limitSwitchEvaluation_Inactive,
+		&option_limitSwitchEvaluation_NormallyClosed,
+		&option_limitSwitchEvaluation_NormallyOpen
+	};
+	OptionParam positiveLimitSwitchEvaluation_parameter = OptionParameter::make2(option_limitSwitchEvaluation_Inactive, options_limitSwitchEvaluation, "Positive Limit Switch Evaluation", "PositiveLimitSwitchEvaluation");
+	OptionParam negativeLimitSwitchEvaluation_parameter = OptionParameter::make2(option_limitSwitchEvaluation_Inactive, options_limitSwitchEvaluation, "Negative Limit Switch Evaluation", "NegativeLimitSwitchEvaluation");
+	
 	
     //===== Encoder Settings =====
 		
@@ -350,15 +378,3 @@ public:
 	{Lexium32::QuickStopReaction::DECELERATION_RAMP, "Deceleration Ramp", "DecelerationRamp"}\
 
 DEFINE_ENUMERATOR(Lexium32::QuickStopReaction, QuickstopRectionTypeString)
-
-
-#define InputPinStrings \
-	{Lexium32::InputPin::DI0, "Digital Input 0", "DI0"},\
-	{Lexium32::InputPin::DI1, "Digital Input 1", "DI1"},\
-	{Lexium32::InputPin::DI2, "Digital Input 2", "DI2"},\
-	{Lexium32::InputPin::DI3, "Digital Input 3", "DI3"},\
-	{Lexium32::InputPin::DI4, "Digital Input 4", "DI4"},\
-	{Lexium32::InputPin::DI5, "Digital Input 5", "DI5"},\
-	{Lexium32::InputPin::NONE, "Unassigned", "Unassigned"}\
-
-DEFINE_ENUMERATOR(Lexium32::InputPin, InputPinStrings)

@@ -1,43 +1,43 @@
 <Environnement name="Starmania" notes="
 ">
-    <Dashboard Scale="0.6931172" OffsetX="1801.6691" OffsetY="-1411.594" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.5" SizeY="224.65851"/>
-        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.5" SizeY="225.98679"/>
-        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.5" SizeY="225.82802"/>
-        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.5" SizeY="224.82802"/>
-        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.5" SizeY="226.04173"/>
-        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.5" SizeY="225.4402"/>
-        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.5" SizeY="224.76849"/>
-        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10017" SizeY="397.26132"/>
-        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.49997" SizeY="230.22638"/>
-        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.49997" SizeY="229.6142"/>
-        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.49997" SizeY="229.00197"/>
-        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.49997" SizeY="229.8325"/>
-        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.49997" SizeY="230.22638"/>
-        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.49997" SizeY="230.05696"/>
-        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.49997" SizeY="229.00197"/>
-        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.49997" SizeY="229.8325"/>
-        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.50005" SizeY="225.93179"/>
-        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.5" SizeY="225.93179"/>
-        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.5" SizeY="224.93179"/>
-        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.5" SizeY="224.93179"/>
-        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.49988" SizeY="460.38522"/>
-        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.5" SizeY="225.48903"/>
-        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.50005" SizeY="225.21574"/>
-        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.5" SizeY="224.98679"/>
-        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.50009" SizeY="225.59898"/>
-        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.50009" SizeY="225.32573"/>
-        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.50005" SizeY="224.88297"/>
-        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.5" SizeY="225.88297"/>
-        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.5" SizeY="224.88297"/>
-        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.5" SizeY="225.32573"/>
-        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.70029" SizeY="503.883"/>
-        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.60008" SizeY="191.16899"/>
-        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.50006" SizeY="142.0278"/>
-        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.50006" SizeY="142.30933"/>
-        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.49994" SizeY="109.59077"/>
-        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.49994" SizeY="109.29173"/>
-        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.50006" SizeY="141.87111"/>
+    <Dashboard Scale="0.6931172" OffsetX="1801.6691" OffsetY="-1432.5664" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Flip E-J3" UniqueID="7" PositionX="-1257" PositionY="2011" SizeX="136.5" SizeY="225.43228"/>
+        <Widget Name="Flip E-C2" UniqueID="16" PositionX="-531" PositionY="2014" SizeX="136.5" SizeY="225.31781"/>
+        <Widget Name="Flip C-J3" UniqueID="8" PositionX="-1256" PositionY="2245" SizeX="136.5" SizeY="225.15903"/>
+        <Widget Name="Flip C-J2" UniqueID="21" PositionX="-1110" PositionY="2246" SizeX="136.5" SizeY="225.60179"/>
+        <Widget Name="Flip C-C2" UniqueID="15" PositionX="-530" PositionY="2252" SizeX="136.5" SizeY="225.37285"/>
+        <Widget Name="Flip A-J3" UniqueID="9" PositionX="-1256" PositionY="2482" SizeX="136.5" SizeY="224.77122"/>
+        <Widget Name="Flip A-C2" UniqueID="14" PositionX="-526" PositionY="2487" SizeX="136.5" SizeY="225.54227"/>
+        <Widget Name="Vol" UniqueID="30" PositionX="-17" PositionY="1798" SizeX="149.10017" SizeY="396.59235"/>
+        <Widget Name="Périacte Face Cour" UniqueID="29" PositionX="-1526" PositionY="2470" SizeX="262.49997" SizeY="229.5575"/>
+        <Widget Name="Lame Vidéo Face" UniqueID="27" PositionX="-1526" PositionY="2234" SizeX="262.49997" SizeY="228.94522"/>
+        <Widget Name="Périacte Milieu Cour" UniqueID="25" PositionX="-1526" PositionY="1998" SizeX="262.49997" SizeY="229.77579"/>
+        <Widget Name="Périacte Lointain Cour" UniqueID="23" PositionX="-1526" PositionY="1762" SizeX="262.49997" SizeY="229.16351"/>
+        <Widget Name="Périacte Face Jardin" UniqueID="28" PositionX="-1790" PositionY="2470" SizeX="262.49997" SizeY="229.5575"/>
+        <Widget Name="Lame Vidéo Lointain" UniqueID="26" PositionX="-1790" PositionY="2235" SizeX="262.49997" SizeY="229.38797"/>
+        <Widget Name="Périacte Milieu Jardin" UniqueID="24" PositionX="-1790" PositionY="1998" SizeX="262.49997" SizeY="229.77579"/>
+        <Widget Name="Périacte Lointain Jardin" UniqueID="22" PositionX="-1791" PositionY="1762" SizeX="262.49997" SizeY="229.16351"/>
+        <Widget Name="Flip G-J2" UniqueID="2" PositionX="-1107" PositionY="1776" SizeX="136.50005" SizeY="225.26286"/>
+        <Widget Name="Flip G-C1" UniqueID="5" PositionX="-674" PositionY="1776" SizeX="136.5" SizeY="225.26286"/>
+        <Widget Name="Flip G-J1" UniqueID="3" PositionX="-963" PositionY="1777" SizeX="136.5" SizeY="225.70561"/>
+        <Widget Name="Flip G-Axe" UniqueID="4" PositionX="-819" PositionY="1777" SizeX="136.5" SizeY="225.70561"/>
+        <Widget Name="Tournettes" UniqueID="43" PositionX="-968" PositionY="2009" SizeX="431.49988" SizeY="461.159"/>
+        <Widget Name="Flip G-C2" UniqueID="6" PositionX="-530" PositionY="1775" SizeX="136.5" SizeY="224.8201"/>
+        <Widget Name="Flip E-J2" UniqueID="20" PositionX="-1109" PositionY="2009" SizeX="136.50005" SizeY="225.98952"/>
+        <Widget Name="Flip E-C3" UniqueID="17" PositionX="-388" PositionY="2015" SizeX="136.5" SizeY="225.76056"/>
+        <Widget Name="Flip C-C3" UniqueID="18" PositionX="-386" PositionY="2251" SizeX="136.50009" SizeY="224.93008"/>
+        <Widget Name="Flip A-C3" UniqueID="19" PositionX="-384" PositionY="2485" SizeX="136.50009" SizeY="224.65675"/>
+        <Widget Name="Flip A-J2" UniqueID="10" PositionX="-1107" PositionY="2484" SizeX="136.50005" SizeY="225.65674"/>
+        <Widget Name="Flip A-J1" UniqueID="11" PositionX="-960" PositionY="2483" SizeX="136.5" SizeY="225.21399"/>
+        <Widget Name="Flip A-Axe" UniqueID="12" PositionX="-814" PositionY="2484" SizeX="136.5" SizeY="225.65674"/>
+        <Widget Name="Flip A-C1" UniqueID="13" PositionX="-671" PositionY="2485" SizeX="136.5" SizeY="224.65675"/>
+        <Widget Name="Pont Lumière" UniqueID="32" PositionX="-237" PositionY="2205" SizeX="372.70029" SizeY="503.21402"/>
+        <Widget Name="Romaine" UniqueID="31" PositionX="-225" PositionY="1893" SizeX="180.60008" SizeY="190.50006"/>
+        <Widget Name="H.M. Cour" UniqueID="37" PositionX="143" PositionY="2538" SizeX="178.50006" SizeY="141.35883"/>
+        <Widget Name="H.M. Jardin" UniqueID="36" PositionX="143" PositionY="2392" SizeX="178.50006" SizeY="141.64035"/>
+        <Widget Name="A.U." UniqueID="34" PositionX="154" PositionY="2279" SizeX="157.49994" SizeY="110.36464"/>
+        <Widget Name="Sécu Vol" UniqueID="40" PositionX="153" PositionY="2060" SizeX="157.49994" SizeY="110.0655"/>
+        <Widget Name="H.M. Vol" UniqueID="38" PositionX="142" PositionY="1912" SizeX="178.50006" SizeY="141.20212"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -323,8 +323,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="3"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="8.26947021484375"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -358,8 +357,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="3"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="-280.57759857177734"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -393,8 +391,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="23" DI3Function="1" DI4Function="3" DI5Function="1" DQ0Function="1" DQ1Function="9" DQ2Function="22" NegativeLimitSwitchEvaluation="2" PositiveLimitSwitchEvaluation="1"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="72.5264892578125"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -428,8 +425,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="544.74882507324219"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -463,8 +459,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="361.57208251953125"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -498,8 +493,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="593.12837982177734"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -533,8 +527,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="-359.23277282714844"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -568,8 +561,7 @@
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="10"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="1406.1242218017578"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -604,8 +596,7 @@
                     <MaxFollowingError revolutions="2"/>
                     <CurrentLimit amps="6"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="70"/>
-                    <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
-                    <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="true"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="86.880348205566406"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -639,8 +630,7 @@
                     <MaxFollowingError revolutions="4"/>
                     <CurrentLimit amps="15"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="7.0800000000000001"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="false" PositionOffset="-1.3573379516601562"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -674,8 +664,7 @@
                     <MaxFollowingError revolutions="1.5"/>
                     <CurrentLimit amps="15"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="5"/>
-                    <NegativeLimitSwitch Pin="Unassigned"/>
-                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <IOFunctions DI0Function="1" DI1Function="1" DI2Function="1" DI3Function="1" DI4Function="1" DI5Function="1" DQ0Function="1" DQ1Function="1" DQ2Function="1" NegativeLimitSwitchEvaluation="0" PositiveLimitSwitchEvaluation="0"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
                     <EncoderSettings RangeShifted="false" PositionOffset="-2.82330322265625"/>
                     <HoldingBrake HasHoldingBrake="false"/>
@@ -2884,7 +2873,7 @@ end</Script>
                 <NodeSpecificData ShortName="M" AllowUserHoming="true" ShowLoad="false" AllowUserLimitSetting="false" AllowUserUnderloadSurveillanceToggle="false">
                     <AxisMappings>
                         <AxisMapping AxisPinSaveName="Axis0" InvertDirection="false" PositionOffset="0" UserLowerPositionLimit="-7200" UserUpperPositionLimit="7200" MinimumLoad="0"/>
-                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="false" PositionOffset="0" UserLowerPositionLimit="-7200" UserUpperPositionLimit="7200" MinimumLoad="0"/>
+                        <AxisMapping AxisPinSaveName="Axis1" InvertDirection="false" PositionOffset="0" UserLowerPositionLimit="-5731.4465169766254" UserUpperPositionLimit="5730.14715768719" MinimumLoad="0"/>
                     </AxisMappings>
                     <ControWidget UniqueID="43"/>
                 </NodeSpecificData>

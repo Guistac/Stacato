@@ -630,34 +630,19 @@ void Lexium32::uploadPinAssignements() {
 		return false;
 	};
 	
-	for(auto& pin : Enumerator::getTypes<InputPin>()){
-		if(pin.enumerator == InputPin::NONE) continue;
-		uint16_t IOfunct_DIx;
-		if(negativeLimitSwitchPin == pin.enumerator) IOfunct_DIx = 23;
-		else if(positiveLimitSwitchPin == pin.enumerator) IOfunct_DIx = 22;
-		else if(holdingBrakeReleasePin == pin.enumerator) IOfunct_DIx = 40;
-		else IOfunct_DIx = 1;
-		if(!writeSDO_U16(0x3007, getInputPinSubindex(pin.enumerator), IOfunct_DIx)) return onFailure();
-	}
+	if(!writeSDO_U16(0x3007, 0x1, di0Function_parameter->value, "DI0_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x2, di1Function_parameter->value, "DI1_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x3, di2Function_parameter->value, "DI2_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x4, di3Function_parameter->value, "DI3_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x5, di4Function_parameter->value, "DI4_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x6, di5Function_parameter->value, "DI5_Function")) return onFailure();
 	
-	uint16_t IOsigLIMN;
-	if(negativeLimitSwitchPin == InputPin::NONE) IOsigLIMN = 0;
-	else if(b_negativeLimitSwitchNormallyClosed) IOsigLIMN = 1;
-	else IOsigLIMN = 2;
-	if(!writeSDO_U16(0x3006, 0xF, IOsigLIMN)) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x9, dq0Function_parameter->value, "DQ0_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0xA, dq1Function_parameter->value, "DQ1_Function")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0xB, dq2Function_parameter->value, "DQ2_Function")) return onFailure();
 	
-	uint16_t IOsigLIMP;
-	if(positiveLimitSwitchPin == InputPin::NONE) IOsigLIMP = 0;
-	else if(b_positiveLimitSwitchNormallyClosed) IOsigLIMP = 1;
-	else IOsigLIMP = 2;
-	if(!writeSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
-
-	
-	//set all output pins to freely available
-	uint16_t IOfunct_DQx = 1;
-	if(!writeSDO_U16(0x3007, 0x9, IOfunct_DQx)) return onFailure();
-	if(!writeSDO_U16(0x3007, 0xA, IOfunct_DQx)) return onFailure();
-	if(!writeSDO_U16(0x3007, 0xB, IOfunct_DQx)) return onFailure();
+	if(!writeSDO_U16(0x3007, 0xF, negativeLimitSwitchEvaluation_parameter->value, "Negative Limit Switch Evaluation")) return onFailure();
+	if(!writeSDO_U16(0x3007, 0x10, positiveLimitSwitchEvaluation_parameter->value, "Positive Limit Switch Evaluation")) return onFailure();
 
 	pinAssignementUploadState = DataTransferState::SAVING;
 	if (!saveToEEPROM()) return onFailure();
@@ -675,46 +660,31 @@ void Lexium32::downloadPinAssignements() {
 		return false;
 	};
 	
-	negativeLimitSwitchPin = InputPin::NONE;
-	positiveLimitSwitchPin = InputPin::NONE;
-	holdingBrakeReleasePin = InputPin::NONE;
+	uint16_t di0func, di1func, di2func, di3func, di4func, di5func, dq0func, dq1func, dq2func, nlim, plim;
 	
-	for (auto& type : Enumerator::getTypes<InputPin>()) {
-		if (type.enumerator == InputPin::NONE) continue;
-		
-		uint16_t IOfunct_DIx;
-		if(!readSDO_U16(0x3007, getInputPinSubindex(type.enumerator), IOfunct_DIx)) return onFailure();
-		
-		//for each pin, read the function assignement stored on the drive
-		switch (IOfunct_DIx) {
-			case 23: negativeLimitSwitchPin = type.enumerator; break;
-			case 22: positiveLimitSwitchPin = type.enumerator; break;
-			case 40: holdingBrakeReleasePin = type.enumerator; break;
-			case 1: //freely available pin / unassigned
-			default: break;
-		}
-	}
-
+	if(!readSDO_U16(0x3007, 0x1, di0func, "DI0_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x2, di1func, "DI1_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x3, di2func, "DI2_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x4, di3func, "DI3_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x5, di4func, "DI4_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x6, di5func, "DI5_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x9, dq0func, "DQ0_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0xA, dq1func, "DQ1_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0xB, dq2func, "DQ2_Function")) return onFailure();
+	if(!readSDO_U16(0x3007, 0xF, nlim, "Negative Limit Switch Evaluation")) return onFailure();
+	if(!readSDO_U16(0x3007, 0x10, plim, "Positive Limit Switch Evaluation")) return onFailure();
 	
-	if(negativeLimitSwitchPin != InputPin::NONE){
-		uint16_t IOsignLMN;
-		if(!readSDO_U16(0x3006, 0xF, IOsignLMN)) return onFailure();
-		switch(IOsignLMN){
-			case 1: b_negativeLimitSwitchNormallyClosed = true; break;
-			case 2: b_negativeLimitSwitchNormallyClosed = false; break;
-			default: return onFailure();
-		}
-	}
-	
-	if(positiveLimitSwitchPin != InputPin::NONE){
-		uint16_t IOsigLIMP;
-		if(!readSDO_U16(0x3006, 0x10, IOsigLIMP)) return onFailure();
-		switch(IOsigLIMP){
-			case 1: b_positiveLimitSwitchNormallyClosed = true; break;
-			case 2: b_positiveLimitSwitchNormallyClosed = false; break;
-			default: return onFailure();
-		}
-	}
+	if(!di0Function_parameter->overwriteIfOptionExists(di0func)) return onFailure();
+	if(!di1Function_parameter->overwriteIfOptionExists(di1func)) return onFailure();
+	if(!di2Function_parameter->overwriteIfOptionExists(di2func)) return onFailure();
+	if(!di3Function_parameter->overwriteIfOptionExists(di3func)) return onFailure();
+	if(!di4Function_parameter->overwriteIfOptionExists(di4func)) return onFailure();
+	if(!di5Function_parameter->overwriteIfOptionExists(di5func)) return onFailure();
+	if(!dq0Function_parameter->overwriteIfOptionExists(dq0func)) return onFailure();
+	if(!dq1Function_parameter->overwriteIfOptionExists(dq1func)) return onFailure();
+	if(!dq2Function_parameter->overwriteIfOptionExists(dq2func)) return onFailure();
+	if(!negativeLimitSwitchEvaluation_parameter->overwriteIfOptionExists(nlim)) return onFailure();
+	if(!positiveLimitSwitchEvaluation_parameter->overwriteIfOptionExists(plim)) return onFailure();
 
 	pinAssignementDownloadState = DataTransferState::SUCCEEDED;
 }
@@ -976,13 +946,18 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
 
-    XMLElement* negativeLimitSwitchXML = xml->InsertNewChildElement("NegativeLimitSwitch");
-    negativeLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(negativeLimitSwitchPin));
-    if (negativeLimitSwitchPin != InputPin::NONE) negativeLimitSwitchXML->SetAttribute("NormallyClosed", b_negativeLimitSwitchNormallyClosed);
-
-    XMLElement* positiveLimitSwitchXML = xml->InsertNewChildElement("PositiveLimitSwitch");
-    positiveLimitSwitchXML->SetAttribute("Pin", Enumerator::getSaveString(positiveLimitSwitchPin));
-    if (positiveLimitSwitchPin != InputPin::NONE) positiveLimitSwitchXML->SetAttribute("NormallyClosed", b_positiveLimitSwitchNormallyClosed);
+	XMLElement* ioFunctionsXML = xml->InsertNewChildElement("IOFunctions");
+	di0Function_parameter->save(ioFunctionsXML);
+	di1Function_parameter->save(ioFunctionsXML);
+	di2Function_parameter->save(ioFunctionsXML);
+	di3Function_parameter->save(ioFunctionsXML);
+	di4Function_parameter->save(ioFunctionsXML);
+	di5Function_parameter->save(ioFunctionsXML);
+	dq0Function_parameter->save(ioFunctionsXML);
+	dq1Function_parameter->save(ioFunctionsXML);
+	dq2Function_parameter->save(ioFunctionsXML);
+	negativeLimitSwitchEvaluation_parameter->save(ioFunctionsXML);
+	positiveLimitSwitchEvaluation_parameter->save(ioFunctionsXML);
 
     XMLElement* pinInversionXML = xml->InsertNewChildElement("DigitalPinInversion");
     pinInversionXML->SetAttribute("DI0", b_invertDI0);
@@ -1050,34 +1025,29 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
             break;
     }
 
-    XMLElement* negativeLimitSwitchXML = xml->FirstChildElement("NegativeLimitSwitch");
-    if (negativeLimitSwitchXML == nullptr) return Logger::warn("Could not find negative limit switch attribute");
-    const char* negativeLimitSwitchPinString = "";
-    negativeLimitSwitchXML->QueryStringAttribute("Pin", &negativeLimitSwitchPinString);
-    if (!Enumerator::isValidSaveName<InputPin>(negativeLimitSwitchPinString)) return Logger::warn("Could not read negative limit switch pin attribute");
-	negativeLimitSwitchPin = Enumerator::getEnumeratorFromSaveString<InputPin>(negativeLimitSwitchPinString);
-    if (negativeLimitSwitchPin != InputPin::NONE) {
-        if (negativeLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_negativeLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of negative limit switch");
-    }
-
-    XMLElement* positiveLimitSwitchXML = xml->FirstChildElement("PositiveLimitSwitch");
-    if (positiveLimitSwitchXML == nullptr) return Logger::warn("Could not find positive limit switch attribute");
-    const char* positiveLimitSwitchPinString = "";
-    positiveLimitSwitchXML->QueryStringAttribute("Pin", &positiveLimitSwitchPinString);
-    if (!Enumerator::isValidSaveName<InputPin>(positiveLimitSwitchPinString)) return Logger::warn("Could not read positive limit switch pin attribute");
-	positiveLimitSwitchPin = Enumerator::getEnumeratorFromSaveString<InputPin>(positiveLimitSwitchPinString);
-    if (positiveLimitSwitchPin != InputPin::NONE) {
-        if (positiveLimitSwitchXML->QueryBoolAttribute("NormallyClosed", &b_positiveLimitSwitchNormallyClosed) != XML_SUCCESS) return Logger::warn("Could not read normally closed attribute of positive limit switch");
-    }
+	if(XMLElement* ioFunctionsXML = xml->FirstChildElement("IOFunctions")){
+		di0Function_parameter->load(ioFunctionsXML);
+		di1Function_parameter->load(ioFunctionsXML);
+		di2Function_parameter->load(ioFunctionsXML);
+		di3Function_parameter->load(ioFunctionsXML);
+		di4Function_parameter->load(ioFunctionsXML);
+		di5Function_parameter->load(ioFunctionsXML);
+		dq0Function_parameter->load(ioFunctionsXML);
+		dq1Function_parameter->load(ioFunctionsXML);
+		dq2Function_parameter->load(ioFunctionsXML);
+		negativeLimitSwitchEvaluation_parameter->load(ioFunctionsXML);
+		positiveLimitSwitchEvaluation_parameter->load(ioFunctionsXML);
+	}
+	else return Logger::warn("Could not find IOFunctions XML");
 
     XMLElement* pinInversionXML = xml->FirstChildElement("DigitalPinInversion");
     if (pinInversionXML == nullptr) return Logger::warn("Could not find pin inversion attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI0", &b_invertDI0) != XML_SUCCESS) return Logger::warn("Could not find inver DI0 attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI1", &b_invertDI1) != XML_SUCCESS) return Logger::warn("Could not find inver DI1 attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI2", &b_invertDI2) != XML_SUCCESS) return Logger::warn("Could not find inver DI2 attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI3", &b_invertDI3) != XML_SUCCESS) return Logger::warn("Could not find inver DI3 attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI4", &b_invertDI4) != XML_SUCCESS) return Logger::warn("Could not find inver DI4 attribute");
-    if (pinInversionXML->QueryBoolAttribute("DI5", &b_invertDI5) != XML_SUCCESS) return Logger::warn("Could not find inver DI5 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI0", &b_invertDI0) != XML_SUCCESS) return Logger::warn("Could not find invert DI0 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI1", &b_invertDI1) != XML_SUCCESS) return Logger::warn("Could not find invert DI1 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI2", &b_invertDI2) != XML_SUCCESS) return Logger::warn("Could not find invert DI2 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI3", &b_invertDI3) != XML_SUCCESS) return Logger::warn("Could not find invert DI3 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI4", &b_invertDI4) != XML_SUCCESS) return Logger::warn("Could not find invert DI4 attribute");
+    if (pinInversionXML->QueryBoolAttribute("DI5", &b_invertDI5) != XML_SUCCESS) return Logger::warn("Could not find invert DI5 attribute");
 
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");

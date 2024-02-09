@@ -563,6 +563,7 @@ void Lexium32::gpioGui() {
     ImGui::Text("%s", Enumerator::getDisplayString(pinAssignementUploadState));
 
 
+	/*
     ImGui::Text("Negative Limit Switch");
     if (ImGui::BeginCombo("##negativeLimitSwitch", Enumerator::getDisplayString(negativeLimitSwitchPin))) {
         for (auto& type : Enumerator::getTypes<InputPin>()) {
@@ -604,6 +605,25 @@ void Lexium32::gpioGui() {
 		
 		ImGui::EndCombo();
 	}
+	*/
+	
+	di0Function_parameter->gui(Fonts::sansBold15);
+	di1Function_parameter->gui(Fonts::sansBold15);
+	di2Function_parameter->gui(Fonts::sansBold15);
+	di3Function_parameter->gui(Fonts::sansBold15);
+	di4Function_parameter->gui(Fonts::sansBold15);
+	di5Function_parameter->gui(Fonts::sansBold15);
+	
+	ImGui::Separator();
+	
+	negativeLimitSwitchEvaluation_parameter->gui(Fonts::sansBold15);
+	positiveLimitSwitchEvaluation_parameter->gui(Fonts::sansBold15);
+	
+	ImGui::Separator();
+	
+	dq0Function_parameter->gui(Fonts::sansBold15);
+	dq1Function_parameter->gui(Fonts::sansBold15);
+	dq2Function_parameter->gui(Fonts::sansBold15);
 
     ImGui::Separator();
 
