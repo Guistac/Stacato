@@ -1,15 +1,12 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="1.321934" OffsetX="1174.097" OffsetY="-376.04742" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="T-C" UniqueID="4" PositionX="-644" PositionY="774" SizeX="178.5" SizeY="388.26715"/>
-        <Widget Name="T-A" UniqueID="2" PositionX="-1012" PositionY="771" SizeX="178.5" SizeY="388.24124"/>
-        <Widget Name="T-B" UniqueID="3" PositionX="-830" PositionY="773" SizeX="178.5" SizeY="388.51065"/>
-        <Widget Name="T-0" UniqueID="1" PositionX="-832" PositionY="380" SizeX="178.5" SizeY="388.14752"/>
+    <Dashboard Scale="0.9880634" OffsetX="1308.0455" OffsetY="-376.05286" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="1" PositionX="-832" PositionY="380" SizeX="178.50002" SizeY="386.96606"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis 0" UniqueID="461">
-                <NodeEditorPosition x="24" y="-60"/>
+                <NodeEditorPosition x="17" y="149"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="4.2000000000000002" AccelerationLimit="0.29999999999999999" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.10000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <PositionFeedbackMapping InterfacePinID="699" UnitConversion="0.035548231336805555"/>
                     <VelocityFeedbackMapping InterfacePinID="481" UnitConversion="12.801774999999999"/>
@@ -115,251 +112,8 @@
                     <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="520" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3005)" UniqueID="525">
-                <NodeEditorPosition x="581" y="-514"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3005"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="526" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="527" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="528" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="529" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="530" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="531" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="532" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="533" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="534" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="535" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="536" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="537" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="538" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="539" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3006)" UniqueID="540">
-                <NodeEditorPosition x="577" y="-103"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3006"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="541" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="542" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="543" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="544" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="545" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="546" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="547" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="548" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="549" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="550" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="551" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="552" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="553" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="554" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3009)" UniqueID="555">
-                <NodeEditorPosition x="581" y="333"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3009"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="556" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="557" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="558" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="559" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="560" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="561" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="562" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="563" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="564" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="565" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="566" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="567" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="568" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="569" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3010)" UniqueID="570">
-                <NodeEditorPosition x="578" y="737"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3010"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="571" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="572" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="573" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="574" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="575" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="576" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="577" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="578" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="579" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="580" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="581" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="582" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="583" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="584" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3007)" UniqueID="585">
-                <NodeEditorPosition x="1464" y="-97"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3007"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="586" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="587" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="588" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="589" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="590" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="591" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="592" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="593" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="594" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="595" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="596" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="597" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="598" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="599" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="MicroFlex_e190" Split="false" CustomName="MicroFlex e190 (Alias:3008)" UniqueID="600">
-                <NodeEditorPosition x="1469" y="317"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="3008"/>
-                    <Axis VelocityLimit="70" AccelerationLimit="35" MaxCurrent="100" MaxFollowingError="1" InvertDirection="true"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Digital Output 0" DisplayString="Digital Output 0" DataType="Boolean" UniqueID="601" Visible="true"/>
-                    <InputPin SaveString="Digital Output 1" DisplayString="Digital Output 1" DataType="Boolean" UniqueID="602" Visible="true"/>
-                    <InputPin SaveString="Digital Output 2" DisplayString="Digital Output 2" DataType="Boolean" UniqueID="603" Visible="true"/>
-                    <InputPin SaveString="Analog Output 0" DisplayString="Analog Output 0" DataType="Real" UniqueID="604" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="605" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="606" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="607" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="608" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="609" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Digital Input 0" DisplayString="Digital Input 0" DataType="Boolean" UniqueID="610" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 1" DisplayString="Digital Input 1" DataType="Boolean" UniqueID="611" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 2" DisplayString="Digital Input 2" DataType="Boolean" UniqueID="612" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Digital Input 3" DisplayString="Digital Input 3" DataType="Boolean" UniqueID="613" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Analog Input 0" DisplayString="Analog Input 0" DataType="Real" UniqueID="614" Visible="true" DisableDataField="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis A" UniqueID="615">
-                <NodeEditorPosition x="880" y="-236"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="10.5" AccelerationLimit="0.84999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="701" UnitConversion="0.035554000000000002"/>
-                    <VelocityFeedbackMapping InterfacePinID="530" UnitConversion="5.4299999999999997"/>
-                    <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="530" UnitConversion="5.4299999999999997" ControlMode="2"/>
-                        <ActuatorMapping InterfacePinID="545" UnitConversion="5.4299999999999997" ControlMode="2"/>
-                    </ActuatorMappings>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="616" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="617" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="618" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="619" Visible="false"/>
-                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="620" Visible="false"/>
-                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="621" Visible="false"/>
-                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="622" Visible="false"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="623" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="152" Visible="false"/>
-                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="153" Visible="true"/>
-                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="154" Visible="true"/>
-                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="155" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="625" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="626" Visible="true"/>
-                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="158" Visible="true"/>
-                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="159" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis B" UniqueID="628">
-                <NodeEditorPosition x="882" y="601"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="10.5" AccelerationLimit="0.84999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="703" UnitConversion="0.035553656684027775"/>
-                    <VelocityFeedbackMapping InterfacePinID="560" UnitConversion="5.4299999999999997"/>
-                    <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="560" UnitConversion="5.4297100067138748" ControlMode="2"/>
-                        <ActuatorMapping InterfacePinID="575" UnitConversion="5.4297100067138748" ControlMode="2"/>
-                    </ActuatorMappings>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="629" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="630" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="631" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="632" Visible="false"/>
-                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="633" Visible="false"/>
-                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="634" Visible="false"/>
-                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="635" Visible="false"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="636" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="168" Visible="false"/>
-                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="169" Visible="true"/>
-                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="170" Visible="true"/>
-                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="171" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="638" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="639" Visible="true"/>
-                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="174" Visible="true"/>
-                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="175" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis C" UniqueID="641">
-                <NodeEditorPosition x="1776" y="168"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="10.5" AccelerationLimit="0.84999999999999998" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.20000000000000001" PositionLoopMaxError="2" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-720" UpperPositionLimit="720" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
-                    <PositionFeedbackMapping InterfacePinID="705" UnitConversion="0.035554000000000002"/>
-                    <VelocityFeedbackMapping InterfacePinID="590" UnitConversion="5.4299999999999997"/>
-                    <ActuatorMappings>
-                        <ActuatorMapping InterfacePinID="590" UnitConversion="5.4299999999999997" ControlMode="2"/>
-                        <ActuatorMapping InterfacePinID="605" UnitConversion="5.4299999999999997" ControlMode="2"/>
-                    </ActuatorMappings>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="642" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Feedback" DisplayString="Feedback" DataType="MotionFeedbackInterface" UniqueID="643" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="644" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="645" Visible="false"/>
-                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="646" Visible="false"/>
-                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="647" Visible="false"/>
-                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="648" Visible="false"/>
-                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="649" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="184" Visible="false"/>
-                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="185" Visible="true"/>
-                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="186" Visible="true"/>
-                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="187" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="651" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control Signal" DataType="Boolean" UniqueID="652" Visible="true"/>
-                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="190" Visible="true"/>
-                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="191" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="T-0" UniqueID="661">
-                <NodeEditorPosition x="304" y="-26"/>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Tournette" UniqueID="661">
+                <NodeEditorPosition x="297" y="183"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-720" UpperPositionLimit="720"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
@@ -374,56 +128,8 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="665" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="T-A" UniqueID="666">
-                <NodeEditorPosition x="1160" y="-193"/>
-                <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-720" UpperPositionLimit="720"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
-                    <ControWidget UniqueID="2"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="667" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="668" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="669" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="670" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="T-B" UniqueID="671">
-                <NodeEditorPosition x="1150" y="622"/>
-                <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-720" UpperPositionLimit="720"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
-                    <ControWidget UniqueID="3"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="672" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="673" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="674" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="675" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="T-C" UniqueID="676">
-                <NodeEditorPosition x="2048" y="201"/>
-                <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-720" UpperPositionLimit="720"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false"/>
-                    <ControWidget UniqueID="4"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="677" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="678" Visible="true" NoDataField="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="679" Visible="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="680" Visible="true"/>
-                </OutputPins>
-            </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="IL_EC_BK_BusCoupler" Split="false" CustomName="Phoenix Contact Bus Coupler (Alias:3100)" UniqueID="686">
-                <NodeEditorPosition x="-402" y="843"/>
+                <NodeEditorPosition x="-402" y="679"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3100"/>
                     <ModularDeviceProfile>
@@ -461,24 +167,12 @@
             <Link UniqueID="521" StartPin="481" EndPin="462"/>
             <Link UniqueID="522" StartPin="496" EndPin="462"/>
             <Link UniqueID="523" StartPin="511" EndPin="462"/>
-            <Link UniqueID="654" StartPin="530" EndPin="616"/>
-            <Link UniqueID="655" StartPin="545" EndPin="616"/>
-            <Link UniqueID="656" StartPin="560" EndPin="629"/>
-            <Link UniqueID="657" StartPin="575" EndPin="629"/>
-            <Link UniqueID="658" StartPin="590" EndPin="642"/>
-            <Link UniqueID="659" StartPin="605" EndPin="642"/>
-            <Link UniqueID="684" StartPin="651" EndPin="678"/>
             <Link UniqueID="716" StartPin="700" EndPin="707"/>
             <Link UniqueID="718" StartPin="702" EndPin="708"/>
             <Link UniqueID="719" StartPin="704" EndPin="709"/>
             <Link UniqueID="720" StartPin="706" EndPin="710"/>
-            <Link UniqueID="737" StartPin="703" EndPin="630"/>
-            <Link UniqueID="739" StartPin="705" EndPin="643"/>
-            <Link UniqueID="740" StartPin="701" EndPin="617"/>
-            <Link UniqueID="742" StartPin="638" EndPin="673"/>
             <Link UniqueID="776" StartPin="699" EndPin="463"/>
             <Link UniqueID="777" StartPin="471" EndPin="663"/>
-            <Link UniqueID="779" StartPin="625" EndPin="668"/>
         </Links>
     </NodeGraph>
 </Environnement>

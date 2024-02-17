@@ -1,7 +1,7 @@
 <Plot Name="Tests">
     <ManoeuvreList>
         <Manoeuvre Name="Move Synchro Avant" Description="2 Tours" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="720" Duration="210" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="720" Duration="210" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position"/>
                 </Curves>
@@ -23,7 +23,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="Move Synchro Arrière" Description="2 Tours" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="720" End="0" Duration="210" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="720" End="0" Duration="210" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position"/>
                 </Curves>
@@ -45,7 +45,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="Test Courbes" Description="Plein de points partout !!" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position">
                         <ControlPoint Position="161.59324097864828" Time="58.018823209313986" Velocity="0" InAcceleration="0.29999999999999999" OutAcceleration="0.29999999999999999"/>
@@ -87,7 +87,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="Move Synchro Avant" Description="3 Tours" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="272" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="272" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position"/>
                 </Curves>
@@ -109,7 +109,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="Move Synchro Arrière" Description="3 Tours" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1080" End="0" Duration="272" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1080" End="0" Duration="272" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position"/>
                 </Curves>
@@ -131,7 +131,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="Move Synchro Avant" Description="3 Tours très lents ... zzzzZZzzZzzzzZZzz" Type="Sequence">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="35999.997951999998" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1080" Duration="35999.997951999998" TimeOffset="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999">
                 <Curves>
                     <Curve Name="Position"/>
                 </Curves>
@@ -153,7 +153,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="M-6" Description="" Type="Target">
-            <Animation Machine="T-0" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
+            <Animation Machine="Tournette" MachineUniqueID="661" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.29999999999999999" EndAcceleration="0.29999999999999999"/>
             <Animation Machine="T-A" MachineUniqueID="666" Parameter="Position" IsComposite="false" Type="Target" Target="370" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
             <Animation Machine="T-B" MachineUniqueID="671" Parameter="Position" IsComposite="false" Type="Target" Target="360" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
             <Animation Machine="T-C" MachineUniqueID="676" Parameter="Position" IsComposite="false" Type="Target" Target="400" ConstraintType="Time" Time="80" Velocity="0" StartAcceleration="0.84999999999999998" EndAcceleration="0.84999999999999998"/>
