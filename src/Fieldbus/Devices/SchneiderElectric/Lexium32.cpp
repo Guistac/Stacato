@@ -641,8 +641,8 @@ void Lexium32::uploadPinAssignements() {
 	if(!writeSDO_U16(0x3007, 0xA, dq1Function_parameter->value, "DQ1_Function")) return onFailure();
 	if(!writeSDO_U16(0x3007, 0xB, dq2Function_parameter->value, "DQ2_Function")) return onFailure();
 	
-	if(!writeSDO_U16(0x3007, 0xF, negativeLimitSwitchEvaluation_parameter->value, "Negative Limit Switch Evaluation")) return onFailure();
-	if(!writeSDO_U16(0x3007, 0x10, positiveLimitSwitchEvaluation_parameter->value, "Positive Limit Switch Evaluation")) return onFailure();
+	if(!writeSDO_U16(0x3006, 0xF, negativeLimitSwitchEvaluation_parameter->value, "Negative Limit Switch Evaluation")) return onFailure();
+	if(!writeSDO_U16(0x3006, 0x10, positiveLimitSwitchEvaluation_parameter->value, "Positive Limit Switch Evaluation")) return onFailure();
 
 	pinAssignementUploadState = DataTransferState::SAVING;
 	if (!saveToEEPROM()) return onFailure();
@@ -671,8 +671,8 @@ void Lexium32::downloadPinAssignements() {
 	if(!readSDO_U16(0x3007, 0x9, dq0func, "DQ0_Function")) return onFailure();
 	if(!readSDO_U16(0x3007, 0xA, dq1func, "DQ1_Function")) return onFailure();
 	if(!readSDO_U16(0x3007, 0xB, dq2func, "DQ2_Function")) return onFailure();
-	if(!readSDO_U16(0x3007, 0xF, nlim, "Negative Limit Switch Evaluation")) return onFailure();
-	if(!readSDO_U16(0x3007, 0x10, plim, "Positive Limit Switch Evaluation")) return onFailure();
+	if(!readSDO_U16(0x3006, 0xF, nlim, "Negative Limit Switch Evaluation")) return onFailure();
+	if(!readSDO_U16(0x3006, 0x10, plim, "Positive Limit Switch Evaluation")) return onFailure();
 	
 	if(!di0Function_parameter->overwriteIfOptionExists(di0func)) return onFailure();
 	if(!di1Function_parameter->overwriteIfOptionExists(di1func)) return onFailure();
