@@ -73,7 +73,7 @@ namespace PhoenixContact{
 
 class IB_IL_24_48_DOR_2 : public EtherCAT::ModularDeviceProfile::DeviceModule{
 public:
-	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0x123)
+	DEFINE_MODULAR_DEVICE_MODULE(IB_IL_24_48_DOR_2, "IB IL 24/48 DOR 2/W-PAC", "Relais Output x2", 0xC2BD)
 	
 	//pdo data
 	uint8_t outputByte;
