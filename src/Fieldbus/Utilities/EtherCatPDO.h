@@ -53,7 +53,7 @@ struct EtherCatPdoAssignement {
 		modules.push_back(module);
 	}
 	
-	void addEntry(uint16_t idx, uint8_t sidx, uint8_t bitCount, const char* n, void* data) {
+	void addEntry(uint16_t idx, uint8_t sidx, uint8_t bitCount, std::string n, void* data) {
 
 		EtherCatPdoEntry entry;
 		entry.index = idx;
@@ -66,7 +66,7 @@ struct EtherCatPdoAssignement {
 		entry.bitOffset = totalBitCount % 8;
 
 		modules.back().entries.push_back(entry);
-		strcpy(modules.back().entries.back().name, n);
+		strcpy(modules.back().entries.back().name, n.c_str());
 
 		totalBitCount += bitCount;
 		totalByteCount = totalBitCount / 8;

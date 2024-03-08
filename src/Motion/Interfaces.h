@@ -2,7 +2,7 @@
 
 #include "MotionTypes.h"
 
-class DeviceInterface{
+class DeviceInterface : public std::enable_shared_from_this<DeviceInterface>{
 public:
 	enum class Type{
 		GPIO,

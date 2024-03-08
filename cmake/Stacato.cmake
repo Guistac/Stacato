@@ -327,6 +327,11 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterfaceGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7222-0010.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7222-0010.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/EL7222-0010Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/Submodules/EL722xActuator.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/Submodules/EL722xActuator.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.cpp

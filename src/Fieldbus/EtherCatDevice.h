@@ -241,6 +241,9 @@ public:
 	
 	bool executeSDOTasks(std::vector<std::shared_ptr<SDOTask>>& taskList);
 	
+	uint64_t cycleProgramTime_nanoseconds = 0;
+	uint64_t cycleDeltaTime_nanoseconds = 0;
+	double cycleDeltaTime_seconds = 0.0;
 };
 
 #define EtherCatIdentificationTypeStrings \

@@ -1,5 +1,8 @@
 #include <pch.h>
 
+//cycleProgramTime_nanoseconds
+//cycleDeltaTime_nanoseconds
+
 #include "EtherCatFieldbus.h"
 
 #include "Fieldbus/EtherCatDevice.h"
@@ -857,6 +860,12 @@ namespace EtherCatFieldbus {
         }
         ec_send_processdata();
         
+		
+		for(auto& etherCatDevice : discoveredDevices){
+			etherCatDevice->cycleProgramTime_nanoseconds = currentCycleProgramTime_nanoseconds;
+			etherCatDevice->cycleDeltaTime_nanoseconds = currentCycleDeltaT_nanoseconds;
+			etherCatDevice->cycleDeltaTime_seconds = currentCycleDeltaT_seconds;
+		}
         Environnement::updateEtherCatHardware();
 
         Logger::info("===== Cyclic Exchange Stopped !");
