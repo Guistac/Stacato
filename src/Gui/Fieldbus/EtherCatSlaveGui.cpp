@@ -67,6 +67,11 @@ void EtherCatDevice::nodeSpecificGui() {
 								sendReceiveEtherCatRegisterGui();
 								ImGui::EndTabItem();
 							}
+							if(ImGui::BeginTabItem("ESM")){
+								esmControlGui();
+								ImGui::EndTabItem();
+							}
+							/*
 							if(ImGui::BeginTabItem("SII")){
 								sendReceiveSiiGui();
 								ImGui::EndTabItem();
@@ -75,6 +80,7 @@ void EtherCatDevice::nodeSpecificGui() {
 								sendReceiveEeprom();
 								ImGui::EndTabItem();
 							}
+							*/
 							
 							ImGui::EndTabBar();
 						}
@@ -547,6 +553,38 @@ void EtherCatDevice::downloadAlStatusCodeGui(){
 	}
 }
 
+
+void EtherCatDevice::esmControlGui(){
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("EtherCAT State Machine Control");
+	ImGui::PopFont();
+	
+	if(ImGui::Button("Request Init")){
+		identity->state = EC_STATE_INIT;
+		ec_writestate(getSlaveIndex());
+		ec_readstate();
+	}
+	if(ImGui::Button("Request SafeOp")){
+		identity->state = EC_STATE_SAFE_OP;
+		ec_writestate(getSlaveIndex());
+		ec_readstate();
+	}
+	if(ImGui::Button("Request PreOp")){
+		identity->state = EC_STATE_PRE_OP;
+		ec_writestate(getSlaveIndex());
+		ec_readstate();
+	}
+	if(ImGui::Button("Request Op")){
+		identity->state = EC_STATE_OPERATIONAL;
+		ec_writestate(getSlaveIndex());
+		ec_readstate();
+	}
+	if(ImGui::Button("Request Boot")){
+		identity->state = EC_STATE_BOOT;
+		ec_writestate(getSlaveIndex());
+		ec_readstate();
+	}
+}
 
 
 void EtherCatDevice::sendReceiveEtherCatRegisterGui() {

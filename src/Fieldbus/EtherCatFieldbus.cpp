@@ -953,6 +953,12 @@ namespace EtherCatFieldbus {
 
 		//===================== ENVIRONNEMENT UPDATE =======================
 
+		for(auto& etherCatDevice : discoveredDevices){
+			etherCatDevice->cycleProgramTime_nanoseconds = currentCycleProgramTime_nanoseconds;
+			etherCatDevice->cycleDeltaTime_nanoseconds = currentCycleDeltaT_nanoseconds;
+			etherCatDevice->cycleDeltaTime_seconds = currentCycleDeltaT_seconds;
+		}
+		
 		if (b_networkRunning) Environnement::updateEtherCatHardware();
 
 		//=========== HANDLE MASTER AND REFERENCE CLOCK DRIFT ============

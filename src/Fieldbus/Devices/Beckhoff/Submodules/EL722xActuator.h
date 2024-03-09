@@ -33,10 +33,9 @@ public:
 		std::string pinName = getChannelName();
 		actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, pinName.c_str());
 	}
-	void initialize(){
-		auto thisActuatorInterface = std::static_pointer_cast<ActuatorInterface>(shared_from_this());
-		actuatorPin->assignData(thisActuatorInterface);
-	}
+	void initialize();
+	
+	void gui();
 	
 	void firstSetup();
 	ThreadSafe<std::string> firstSetupProgress;
@@ -46,8 +45,6 @@ public:
 	
 	void uploadParameters();
 	ThreadSafe<std::string> uploadParameterStatus;
-	
-	void readOCT();
 	
 	void onDisconnection();
 	void readInputs();
@@ -77,7 +74,7 @@ public:
 		int32_t targetVelocity = 0;				//7010:6
 		uint32_t targetPosition = 0;			//7010:5
 		int16_t targetTorque = 0;				//7010:9
-		uint8_t modeOfOperationSelection = 0;	//7010:3
+		uint8_t modeOfOperationSelection = 8;	//7010:3
 	}rxPdo;
 	
 	struct TxPDO{
@@ -212,7 +209,7 @@ private:
 			default: return 0x0;
 		}
 	}
-	virtual std::string getStatusString() override { return ""; }
+	virtual std::string getStatusString() override;
 	void updateProprieties();
 
 };

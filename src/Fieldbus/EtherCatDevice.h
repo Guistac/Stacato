@@ -149,6 +149,7 @@ public:
     void identificationGui();
     void sendReceiveCanOpenGui();
     void sendReceiveEtherCatRegisterGui();
+	void esmControlGui();
     void sendReceiveSiiGui();
     void sendReceiveEeprom();
 	void downloadAlStatusCodeGui();

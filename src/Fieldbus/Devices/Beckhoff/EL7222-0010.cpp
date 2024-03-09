@@ -160,15 +160,17 @@ bool EL7222_0010::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 
 void EL7222_0010::downloadDiagnostics(){
-	
-		
 		auto getDiagnosticsStringFromTextID = [](uint16_t textID) -> std::string{
 			switch(textID){
-				case 0x0001: return "No error";
-				case 0x0002: return "Communication established";
+				case 0x0000: return "No Error";
 				case 0x1201: return "Communication re-established";
 				case 0x4101: return "Terminal-Overtemperature";
-				case 0x4102: return "Discrepancy in the PDO-Configuration";
+				case 0x4102: return "PDO-configuration is incompatible to the selected mode of operation";
+				case 0x4107: return "Undervoltage Up";
+				case 0x4109: return "Overvoltage Up";
+				case 0x410A: return "Fan";
+				case 0x410B: return "Error detected, but disabled by suppression mask";
+				case 0x4201: return "No communication to field-side (Auxiliary voltage missing)";
 				case 0x4301: return "Feedback-Warning";
 				case 0x4411: return "DC-Link undervoltage";
 				case 0x4412: return "DC-Link overvoltage";
@@ -180,42 +182,62 @@ void EL7222_0010::downloadDiagnostics(){
 				case 0x4419: return "Limit: Amplifier I2T-model exceeds 100%%";
 				case 0x441A: return "Limit: Motor I2T-model exceeds 100%%";
 				case 0x441B: return "Limit: Velocity limitation";
-				case 0x441C: return "Voltage on STO-/Hardware enable input missing";
-				case 0x441D: return "Internal hardware error";
+				case 0x441C: return "Axis disabled via STO";
 				case 0x4420: return "Cogging compensation not supported (%u)";
-				case 0x8002: return "Communication aborted";
-				case 0x8102: return "Invalid combination of Inputs and Outputs PDOs";
-				case 0x8103: return "No variable linkage";
+				case 0x4421: return "I2T-Model Brake chopper overload";
+				case 0x4422: return "Limit: Brake chopper I2T-model exceeds 100%%";
+				case 0x4423: return "Brake resistor not connected";
+				case 0x4424: return "Modes of operation invalid";
 				case 0x8104: return "Terminal-Overtemperature";
 				case 0x8105: return "PD-Watchdog";
+				case 0x810A: return "Fan";
+				case 0x810B: return "Undervoltage Up";
+				case 0x810C: return "Overvoltage Up";
 				case 0x8135: return "Cycletime has to be a multiple of 125 �s";
 				case 0x8137: return "Electronic name plate: CRC error";
-				case 0x8146: return "Sync-Mode and PDO-Configuration are not compatible";
+				case 0x8144: return "Hardware fault (%d)";
+				case 0x817F: return "Error: 0x%X, 0x%X, 0x%X";
+				case 0x81B0: return "Content of PDO 0x%X is invalid: Item 0x%X:%X cannot be mapped";
+				case 0x81B1: return "Content of PDO 0x%X is invalid: Item 0x%X:%X has an unsupported length (%d bit)";
 				case 0x8201: return "No communication to field-side (Auxiliary voltage missing)";
 				case 0x8302: return "Feedback-Error";
 				case 0x8304: return "OCT communication error";
+				case 0x831A: return "Number of encoder-increments per revolution is not a power of two";
 				case 0x8403: return "ADC Error";
 				case 0x8404: return "Overcurrent";
+				case 0x8405: return "Modulo position invalid (feedback position has changed too much while drive was turned off)";
 				case 0x8406: return "Undervoltage DC-Link";
 				case 0x8407: return "Overvoltage DC-Link";
 				case 0x8408: return "I2T-Model Amplifier overload";
 				case 0x8409: return "I2T-Model motor overload";
-				case 0x840B: return "Motor error or commutation malfunction";
-				case 0x840C: return "Phase failure";
+				case 0x840B: return "Commutation error";
+				case 0x840C: return "Motor not connected";
+				case 0x8415: return "Invalid modulo range";
 				case 0x8416: return "Motor-Overtemperature";
 				case 0x8417: return "Maximum rotating field velocity exceeded";
-				case 0x841C: return "STO-/Hardware enable input de-energized while the axis was enabled";
-				case 0x841D: return "Internal hardware error";
-				case 0x8441: return "Following error";
+				case 0x841C: return "STO while the axis was enabled";
+				case 0x8420: return "Teach-In Process (%d) failed";
+				case 0x8421: return "Teach-In Process Timeout (STO, DC-Link, ...)";
+				case 0x8422: return "Drive configuration missing";
+				case 0x8423: return "Invalid process data format (number of singleturn bits+multiturn bits != 32)";
+				case 0x8441: return "Maximum following error distance exceeded";
+				case 0x8443: return "Invalid value for Mode of Operation";
+				case 0x8445: return "I2T-Model Brake chopper overload";
+				case 0x8446: return "Brake chopper overcurrent";
+				case 0x8448: return "Drive / axis is not referenced";
+				case 0x8449: return "Target position not in modulo range";
+				case 0x844A: return "Modulo position: Checksum error";
+				case 0x844B: return "Modulo position: Storage not supported for singleturn encoder";
+				case 0x844C: return "Position offset cannot be used in the selected configuration";
 				case 0x8450: return "Invalid start type 0x%x";
 				case 0x8451: return "Invalid limit switch level";
 				case 0x8452: return "Drive error during positioning";
 				case 0x8453: return "Latch unit will be used by multiple modules";
 				case 0x8454: return "Drive not in control";
-				case 0x8455: return "Invalid value for \"Target acceleration\"";
-				case 0x8456: return "Invalid value for \"Target deceleration\"";
-				case 0x8457: return "Invalid value for \"Target velocity\"";
-				case 0x8458: return "Invalid value for \"Target position\"";
+				case 0x8455: return "Invalid value for Target acceleration";
+				case 0x8456: return "Invalid value for Target deceleration";
+				case 0x8457: return "Invalid value for Target velocity";
+				case 0x8458: return "Invalid value for Target position";
 				case 0x8459: return "Emergency stop active";
 				case 0x845A: return "Target position exceeds Modulofactor";
 				case 0x845B: return "Drive must be disabled";
@@ -248,10 +270,10 @@ void EL7222_0010::downloadDiagnostics(){
 				uint64_t timestamp = *((uint64_t*)(&buffer[8]));				//8bytes
 				std::string message = getDiagnosticsStringFromTextID(textID);
 				
-				if(flags == 0x0) 		Logger::info(		"[{}] Info    0x{:x} : {}", i, textID, message);
-				else if(flags == 0x1) 	Logger::warn(		"[{}] Warning 0x{:x} : {}", i, textID, message);
-				else if(flags == 0x2) 	Logger::error(		"[{}] Error   0x{:x} : {}", i, textID, message);
-				else 					Logger::critical(	"[{}] Message 0x{:x} : {}", i, textID, message);
+				if(flags == 0x0) 		Logger::info(		"[{}] <Info>    0x{:x} : {}", i, textID, message);
+				else if(flags == 0x1) 	Logger::warn(		"[{}] <Warning> 0x{:x} : {}", i, textID, message);
+				else if(flags == 0x2) 	Logger::error(		"[{}] <Error>   0x{:x} : {}", i, textID, message);
+				else 					Logger::critical(	"[{}] <Message> 0x{:x} : {}", i, textID, message);
 			}
 		}
 		
