@@ -5,11 +5,13 @@ void EL722x_Actuator::initialize(){
 	actuatorPin->assignData(thisActuatorInterface);
 	driveSettings.accelerationLimit->addEditCallback([this](){ updateProprieties(); });
 	driveSettings.velocityLimit->addEditCallback([this](){ updateProprieties(); });
+	driveSettings.positionFollowingErrorWindow->addEditCallback([this](){ updateProprieties(); });
 }
 
 void EL722x_Actuator::updateProprieties(){
 	actuatorConfig.accelerationLimit = std::abs(driveSettings.accelerationLimit->value);
 	actuatorConfig.velocityLimit = std::abs(driveSettings.velocityLimit->value);
+	actuatorConfig.followingErrorLimit = std::abs(driveSettings.positionFollowingErrorWindow->value);
 	actuatorConfig.b_supportsPositionControl = true;
 	actuatorConfig.b_supportsVelocityControl = true;
 	actuatorConfig.b_supportsForceControl = false;
@@ -45,34 +47,8 @@ void EL722x_Actuator::readInputs(){
 	statusWord.internalLimitActive	= bool(txPdo.statusWord & (0x1 << 11));
 	statusWord.commandValueFollowed	= bool(txPdo.statusWord & (0x1 << 12));
 	
-	if(statusWord.fault)					processData.powerStateActual = PowerState::FAULT;
-	else if(statusWord.operationEnabled)	processData.powerStateActual = PowerState::OPERATION_ENABLED;
-	else if(statusWord.switchedOn)			processData.powerStateActual = PowerState::SWITCHED_ON;
-	else if(statusWord.readyToSwitchOn)		processData.powerStateActual = PowerState::READY_TO_SWITCH_ON;
-	else if(statusWord.switchOnDisabled)	processData.powerStateActual = PowerState::SWITCH_ON_DISABLED;
-	else 									processData.powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-	
-	driverErrors.adc				= bool(txPdo.infoData1_errors & (0x1 << 0));
-	driverErrors.overcurrent		= bool(txPdo.infoData1_errors & (0x1 << 1));
-	driverErrors.undervoltage		= bool(txPdo.infoData1_errors & (0x1 << 2));
-	driverErrors.overvoltage		= bool(txPdo.infoData1_errors & (0x1 << 3));
-	driverErrors.overtemperature	= bool(txPdo.infoData1_errors & (0x1 << 4));
-	driverErrors.i2tAmplifier		= bool(txPdo.infoData1_errors & (0x1 << 5));
-	driverErrors.i2tMotor			= bool(txPdo.infoData1_errors & (0x1 << 6));
-	driverErrors.encoder			= bool(txPdo.infoData1_errors & (0x1 << 7));
-	driverErrors.watchdog			= bool(txPdo.infoData1_errors & (0x1 << 8));
-	
-	driverWarnings.undervoltage		= bool(txPdo.infoData2_digitalInputs & (0x1 << 2));
-	driverWarnings.overvoltage		= bool(txPdo.infoData2_digitalInputs & (0x1 << 3));
-	driverWarnings.overtemperature	= bool(txPdo.infoData2_digitalInputs & (0x1 << 4));
-	driverWarnings.i2tAmplifier		= bool(txPdo.infoData2_digitalInputs & (0x1 << 5));
-	driverWarnings.i2tMotor			= bool(txPdo.infoData2_digitalInputs & (0x1 << 6));
-	driverWarnings.encoder			= bool(txPdo.infoData2_digitalInputs & (0x1 << 7));
-	
 	processData.b_motorConnected = !bool(txPdo.fbStatus & (0x1 << 13));
-	
    
-	//actuatorProcessData.b_isEmergencyStopActive	= !bool(txPdo.infoData2_digitalInputs & (0x1 << 8));
 	actuatorProcessData.followingErrorActual = double(txPdo.followingErrorActualValue) / motorNameplate.positionResolution_rev;
 	double actualCurrent = std::abs(motorNameplate.ratedCurrent_amps * double(txPdo.torqueActualValue) / 1000.0);
 	actuatorProcessData.effortActual = actualCurrent / driveSettings.currentLimit->value;
@@ -80,282 +56,220 @@ void EL722x_Actuator::readInputs(){
 	feedbackProcessData.positionActual = double(txPdo.fbPosition) / motorNameplate.positionResolution_rev;
 	feedbackProcessData.velocityActual = double(txPdo.velocityActualValue) / motorNameplate.velocityResolution_rps;
 	feedbackProcessData.forceActual = double(txPdo.torqueActualValue) / 1000.0 * motorNameplate.ratedCurrent_amps * motorNameplate.torqueConstant_mNmpA / 1000.0;
-   
-   if(!processData.b_motorConnected) 										state = DeviceState::NOT_READY;
-   else if(isEmergencyStopActive())											state = DeviceState::NOT_READY;
-   else if(processData.powerStateActual == PowerState::OPERATION_ENABLED && processData.powerStateTarget != PowerState::OPERATION_ENABLED) state = DeviceState::DISABLING;
-   else if(processData.powerStateTarget == PowerState::OPERATION_ENABLED && processData.powerStateActual != PowerState::OPERATION_ENABLED) state = DeviceState::ENABLING;
-   else if(processData.powerStateActual == PowerState::OPERATION_ENABLED)	state = DeviceState::ENABLED;
-   else if(processData.powerStateActual == PowerState::READY_TO_SWITCH_ON) 	state = DeviceState::READY;
-   else if(processData.powerStateActual == PowerState::SWITCHED_ON) 		state = DeviceState::READY;
-   else if(processData.powerStateActual == PowerState::FAULT)				state = DeviceState::READY;
-   else 																	state = DeviceState::NOT_READY;
-   
-   //fault event detection
-   if(!processData.b_hadFault && statusWord.fault){
-	   processData.b_hadFault = true;
-	   Logger::warn("[{}] Fault Detected.", getName());
-   }
-   else if(processData.b_hadFault && !statusWord.fault){
-	   processData.b_hadFault = false;
-	   Logger::info("[{}] Fault Cleared", getName());
-   }
+	
+	if(!processData.b_motorConnected)										state = DeviceState::NOT_READY;
+	else if(statusWord.operationEnabled && !processData.b_enableTarget)		state = DeviceState::DISABLING;
+	else if(!statusWord.operationEnabled && processData.b_enableTarget)		state = DeviceState::ENABLING;
+	else if(statusWord.operationEnabled)									state = DeviceState::ENABLED;
+	else 																	state = DeviceState::READY;
+	
+	
+	//fault event detection
+	if(!processData.b_hadFault && statusWord.fault) Logger::warn("[{}] Fault Detected.", getName());
+	else if(processData.b_hadFault && !statusWord.fault) Logger::info("[{}] Fault Cleared", getName());
+	processData.b_hadFault = statusWord.fault;
    
 }
 
 void EL722x_Actuator::writeOutputs(){
 	
-	 //reset fault request bit
-	 if(controlWord.faultReset) controlWord.faultReset = false;
+	//reset fault request bit
+	if(controlWord.faultReset) controlWord.faultReset = false;
 	 
-	 if(actuatorProcessData.b_enable){
-		 actuatorProcessData.b_enable = false;
-		 processData.b_waitingForEnable = true;
-		 processData.enableRequestTime_nanos = etherCatDevice->cycleProgramTime_nanoseconds;
-		 if(statusWord.fault) controlWord.faultReset = true;
-	 }
-	 if(actuatorProcessData.b_disable){
-		 actuatorProcessData.b_disable = false;
-		 processData.b_waitingForEnable = false;
-		 processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-	 }
-	 
-	 if(processData.b_waitingForEnable){
-		 if(!statusWord.fault) processData.powerStateTarget = PowerState::OPERATION_ENABLED;
-		 //else processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-		 double timeSinceEnableRequest_ms = double(etherCatDevice->cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos) / 1000000.0;
-		 if(timeSinceEnableRequest_ms > 100.0){
-			 Logger::warn("[{}] Enable request timed out", getName());
-			 processData.b_waitingForEnable = false;
-			 processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-		 }
-		 if(processData.powerStateActual == PowerState::OPERATION_ENABLED) {
-			 processData.b_waitingForEnable = false;
-			 Logger::trace("[{}] Drive Enabled (took {}ms)", getName(), timeSinceEnableRequest_ms);
-		 }
-	 }
-	 else if(statusWord.fault) processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-	 
-	switch(processData.powerStateTarget){
-			
-		case PowerState::OPERATION_ENABLED:
-			switch (processData.powerStateActual) {
-				case PowerState::READY_TO_SWITCH_ON:
-					controlWord.enableVoltage = true;
-					controlWord.switchOn = true;
-					controlWord.enableOperation = false;
-					break;
-				case PowerState::SWITCHED_ON:
-				case PowerState::OPERATION_ENABLED:
-					controlWord.enableVoltage = true;
-					controlWord.switchOn = true;
-					controlWord.enableOperation = true;
-					break;
-				default:
-					controlWord.enableVoltage = true;
-					controlWord.switchOn = false;
-					controlWord.enableOperation = false;
-					break;
-			}
-			break;
-		case PowerState::READY_TO_SWITCH_ON:
-		default:
-			controlWord.enableVoltage = true;
-			controlWord.switchOn = false;
-			controlWord.enableOperation = false;
-			break;
+	//react to power state commands
+	if(actuatorProcessData.b_enable){
+		actuatorProcessData.b_enable = false;
+		//start enable request and mark down time of request
+		processData.b_waitingForEnable = true;
+		processData.enableRequestTime_nanos = etherCatDevice->cycleProgramTime_nanoseconds;
+		//clear fault on enable request
+		if(statusWord.fault) controlWord.faultReset = true;
+	}
+	if(actuatorProcessData.b_disable){
+		actuatorProcessData.b_disable = false;
+		processData.b_waitingForEnable = false;
+		processData.b_enableTarget = false;
+	}
+
+	//handle drive enable process
+	if(processData.b_waitingForEnable){
+		//don't enable while there is a fault
+		processData.b_enableTarget = !statusWord.fault;
+		//check for enable timeout
+		if(etherCatDevice->cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos > 200'000'000){
+			Logger::warn("[{}] Enable request timed out", getName());
+			processData.b_waitingForEnable = false;
+			processData.b_enableTarget = false;
+		}
+		//check if drive is enabled
+		else if(statusWord.operationEnabled){
+			processData.b_waitingForEnable = false;
+			Logger::trace("[{}] Drive Enabled (took {}ms)", getName(), double(etherCatDevice->cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos) / 1000000.0);
+		}
+	}
+	//react to unexpected drive disable
+	else if(processData.b_enableTarget && !statusWord.operationEnabled){
+		processData.b_enableTarget = false;
+		processData.b_waitingForEnable = false;
+		Logger::warn("[{}] Drive was Disabled", getName());
+	}
+	
+	
+	//DS402 State Machine Control
+	if(processData.b_enableTarget && statusWord.switchedOn){
+		//third: enable operation
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = true;
+		controlWord.enableOperation = true;
+	}
+	else if(statusWord.readyToSwitchOn){
+		//second: switch on
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = true;
+		controlWord.enableOperation = false;
+	}
+	else if(statusWord.switchOnDisabled){
+		//first: enable voltage
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = false;
+		controlWord.enableOperation = false;
+	}
+	else{
+		//if there is a fault, we go back to this state
+		controlWord.enableVoltage = false;
+		controlWord.switchOn = false;
+		controlWord.enableOperation = false;
 	}
 	
 	 
-	 rxPdo.controlWord = 0x0;
-	 if(controlWord.switchOn) 		rxPdo.controlWord |= 0x1 << 0;
-	 if(controlWord.enableVoltage) 	rxPdo.controlWord |= 0x1 << 1;
-	 if(!controlWord.quickstop) 		rxPdo.controlWord |= 0x1 << 2;
-	 if(controlWord.enableOperation) rxPdo.controlWord |= 0x1 << 3;
-	 if(controlWord.faultReset)		rxPdo.controlWord |= 0x1 << 7;
+	//construct control word
+	rxPdo.controlWord = 0x0;
+	if(controlWord.switchOn) 			rxPdo.controlWord |= 0x1 << 0;
+	if(controlWord.enableVoltage) 		rxPdo.controlWord |= 0x1 << 1;
+	if(!controlWord.quickstop) 			rxPdo.controlWord |= 0x1 << 2;
+	if(controlWord.enableOperation) 	rxPdo.controlWord |= 0x1 << 3;
+	if(controlWord.faultReset)			rxPdo.controlWord |= 0x1 << 7;
 	 
-	 rxPdo.targetVelocity = actuatorProcessData.velocityTarget * motorNameplate.velocityResolution_rps;
-	 rxPdo.targetPosition = std::abs(actuatorProcessData.positionTarget) * motorNameplate.positionResolution_rev;
-	 if(actuatorProcessData.positionTarget < 0.0) rxPdo.targetPosition = UINT32_MAX - rxPdo.targetPosition;
-	 
-	 switch(actuatorProcessData.controlMode){
-		 case ActuatorInterface::ControlMode::POSITION:
-			 rxPdo.modeOfOperationSelection = 0x8;
-			 break;
-		 case ActuatorInterface::ControlMode::VELOCITY:
-			 rxPdo.modeOfOperationSelection = 0x9;
-			 break;
-		 case ActuatorInterface::ControlMode::FORCE:
-			 rxPdo.modeOfOperationSelection = 0xA;
-			 break;
-	 }
+	//set operating mode
+	if(!actuatorPin->isConnected()) {
+		rxPdo.modeOfOperationSelection = 0x9;
+		
+		//update manual velocity profile generator
+		double velocityDelta_rps = std::abs(driveSettings.accelerationLimit->value * etherCatDevice->cycleDeltaTime_seconds);
+		if(processData.manualVelocityProfile_rps < processData.manualVelocityTarget_rps){
+			processData.manualVelocityProfile_rps += velocityDelta_rps;
+			if(processData.manualVelocityProfile_rps > processData.manualVelocityTarget_rps){
+				processData.manualVelocityProfile_rps = processData.manualVelocityTarget_rps;
+			}
+		}
+		else if(processData.manualVelocityProfile_rps > processData.manualVelocityTarget_rps){
+			processData.manualVelocityProfile_rps -= velocityDelta_rps;
+			if(processData.manualVelocityProfile_rps < processData.manualVelocityTarget_rps){
+				processData.manualVelocityProfile_rps = processData.manualVelocityTarget_rps;
+			}
+		}
+		if(!isEnabled()) processData.manualVelocityProfile_rps = 0.0;
+		rxPdo.targetVelocity = processData.manualVelocityProfile_rps * motorNameplate.velocityResolution_rps;
+	}
+	else{
+		processData.manualVelocityTarget_rps = 0.0;
+		processData.manualVelocityProfile_rps = 0.0;
+		switch(actuatorProcessData.controlMode){
+			case ActuatorInterface::ControlMode::POSITION:	rxPdo.modeOfOperationSelection = 0x8; break;
+			case ActuatorInterface::ControlMode::VELOCITY:	rxPdo.modeOfOperationSelection = 0x9; break;
+			case ActuatorInterface::ControlMode::FORCE: 	rxPdo.modeOfOperationSelection = 0xA; break;
+		}
+		rxPdo.targetVelocity = actuatorProcessData.velocityTarget * motorNameplate.velocityResolution_rps;
+	}
+	
+	rxPdo.targetPosition = std::abs(actuatorProcessData.positionTarget) * motorNameplate.positionResolution_rev;
+	if(actuatorProcessData.positionTarget < 0.0) rxPdo.targetPosition = UINT32_MAX - rxPdo.targetPosition;
+	
 }
 
 
 
 //std::string firstSetupProgress = "";
-void EL722x_Actuator::firstSetup(){
-	 std::thread worker([this](){
+bool EL722x_Actuator::readMotorNameplate(){
+			 
+	 char motorVendor[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x1, motorVendor, 64, "Motor Vendor")) return false;
+	 char motorType[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x2, motorType, 64, "Motor Type")) return false;
+	 char serialNumber[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x3, serialNumber, 64, "Serial Number")) return false;
+	 char orderCode[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x4, orderCode, 64, "Order Code")) return false;
+	 char motorContruction[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x5, motorContruction, 64, "Motor Construction")) return false;
+	 char brakeType[64];
+	 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x1B, brakeType, 64, "Brake Type")) return false;
 	 
-		 auto doFirstSetup = [this]()->bool{
-			 
-			 if(etherCatDevice->identity == nullptr) return false;
-			 
-			 Logger::info("Starting First Setup.");
-			 firstSetupProgress.write("Starting...");
-			 
-			 //Enable all autoconfig options
-			 //this way the drive configures all parameters for the connected motor
-			 //we will turn off autoconfig when first setup is done
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x1, 1, "Enable Autoconfig")) return false;
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x2, 1, "Reconfig Identical Motor")) return false;
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x3, 1, "Reconfig Non-Identical Motor")) return false;
+	 uint32_t encoderWorkingRangeRevolutions;
+	 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x13, encoderWorkingRangeRevolutions, "Encoder Working Range")) return false;
+	 uint32_t encoderOperatingMinutes;
+	 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x1C, encoderOperatingMinutes, "Encoder Operation Minute Counter")) return false;
+	 
+	 uint8_t singleturnBits;
+	 if(!etherCatDevice->readSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x12, singleturnBits, "Singleturn Resolution")) return false;
+	 uint8_t multiturnBits;
+	 if(!etherCatDevice->readSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x13, multiturnBits, "Multiturn Resolution")) return false;
+	 
+	 uint32_t motorMaxCurrentmA;
+	 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x11, motorMaxCurrentmA, "Max Motor Current")) return false;
+	 uint32_t motorRatedCurrentmA;
+	 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x12, motorRatedCurrentmA, "Rated Motor Current")) return false;
+	 uint32_t motorSpeedLimitationRpm;
+	 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x1B, motorSpeedLimitationRpm, "Motor Speed Limitation")) return false;
+	 uint32_t torqueContant;
+	 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x16, torqueContant, "Torque Constant")) return false;
+	 
+	 uint32_t velocityEncoderResolution;
+	 if(!etherCatDevice->readSDO_U32(0x9010 + getCanOpenIndexOffset(), 0x14, velocityEncoderResolution, "Velocity Encoder Resolution")) return false;
+	 uint32_t positionEncoderResolution;
+	 if(!etherCatDevice->readSDO_U32(0x9010 + getCanOpenIndexOffset(), 0x15, positionEncoderResolution, "Position Encoder Resolution")) return false;
+	 
+	 Logger::info("	--------- MOTOR {} ---------", channel);
+	 Logger::info("	Vendor: {}", motorVendor);
+	 Logger::info("	Type: {}", motorType);
+	 Logger::info("	Serial Number: {}", serialNumber);
+	 Logger::info("	Order Code: {}", orderCode);
+	 Logger::info("	Motor Construction: {}", motorContruction);
+	 Logger::info("	Brake Type: {}", brakeType);
+	 Logger::info("	Rated Current: {}A", double(motorRatedCurrentmA) / 1000.0);
+	 Logger::info("	Max Current: {}A", double(motorMaxCurrentmA) / 1000.0);
+	 Logger::info("	Max Speed: {}rpm", motorSpeedLimitationRpm);
+	 Logger::info("	Torque Constant: {}mNm/A", torqueContant);
+	 Logger::info("	Encoder Resolution: {}bits singleturn / {}bits multiturn", singleturnBits, multiturnBits);
+	 Logger::info("	Encoder Working Range: {}rev", encoderWorkingRangeRevolutions);
+	 Logger::info("	Operating Hours: {}h", encoderOperatingMinutes / 60);
+	 
+	 //set position offset source to encoder memory
+	 if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0xD, 1, "Position Offset Source")) return false;
 				 
-			 
-			 
-			 //set ESM state to Init and the Pre-Operational to trigger reading of motor nameplate
-			 etherCatDevice->identity->state = EC_STATE_PRE_OP;
-			 ec_writestate(etherCatDevice->getSlaveIndex());
-			 if(EC_STATE_INIT != ec_statecheck(etherCatDevice->getSlaveIndex(), EC_STATE_INIT, EC_TIMEOUTSTATE)) {
-				 return Logger::warn("Could not set ESM state to Init");
-			 }else Logger::info("State Preop");
-			 
-			 etherCatDevice->identity->state = EC_STATE_SAFE_OP;
-			 ec_writestate(etherCatDevice->getSlaveIndex());
-			 if(EC_STATE_PRE_OP != ec_statecheck(etherCatDevice->getSlaveIndex(), EC_STATE_PRE_OP, EC_TIMEOUTSTATE)) {
-				 return Logger::warn("Could not set ESM state to Safe-Op");
-			 }else Logger::info("State SafeOP");
-			 
-			 
-			 //reading of nameplate seems to happen on transition to preop
-	
-			 Logger::info("Starting reading of motor nameplate. (this can take up to 10 seconds)");
-			 firstSetupProgress.write("Reading motor nameplate (0s)");
-			 
-			 double octReadStartTime = Timing::getProgramTime_seconds();
-			 while(true){
-				 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				 uint8_t fbPositionValid;
-				 if(etherCatDevice->readSDO_U8(0x6000 + getCanOpenIndexOffset(), 0xE, fbPositionValid) && fbPositionValid == 0x0) break;
-				 
-				 double readTime = Timing::getProgramTime_seconds() - octReadStartTime;
-				 if(readTime > 10.0){
-					 Logger::warn("failed to read motor nameplate, request timed out.");
-					 return false;
-				 }
-				 
-				 char loadString[32];
-				 snprintf(loadString, 32, "Reading motor nameplate (%.1fs)", readTime);
-				 firstSetupProgress.write(loadString);
-			 }
-			 
-			 char motorVendor[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x1, motorVendor, 64, "Motor Vendor")) return false;
-			 char motorType[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x2, motorType, 64, "Motor Type")) return false;
-			 char serialNumber[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x3, serialNumber, 64, "Serial Number")) return false;
-			 char orderCode[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x4, orderCode, 64, "Order Code")) return false;
-			 char motorContruction[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x5, motorContruction, 64, "Motor Construction")) return false;
-			 char brakeType[64];
-			 if(!etherCatDevice->readSDO_String(0x9009 + getCanOpenIndexOffset(), 0x1B, brakeType, 64, "Brake Type")) return false;
-			 
-			 uint32_t encoderWorkingRangeRevolutions;
-			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x13, encoderWorkingRangeRevolutions, "Encoder Working Range")) return false;
-			 uint32_t encoderOperatingMinutes;
-			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x1C, encoderOperatingMinutes, "Encoder Operation Minute Counter")) return false;
-			 
-			 uint8_t singleturnBits;
-			 if(!etherCatDevice->readSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x12, singleturnBits, "Singleturn Resolution")) return false;
-			 uint8_t multiturnBits;
-			 if(!etherCatDevice->readSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x13, multiturnBits, "Multiturn Resolution")) return false;
-			 
-			 uint32_t motorMaxCurrentmA;
-			 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x11, motorMaxCurrentmA, "Max Motor Current")) return false;
-			 uint32_t motorRatedCurrentmA;
-			 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x12, motorRatedCurrentmA, "Rated Motor Current")) return false;
-			 uint32_t motorSpeedLimitationRpm;
-			 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x1B, motorSpeedLimitationRpm, "Motor Speed Limitation")) return false;
-			 uint32_t torqueContant;
-			 if(!etherCatDevice->readSDO_U32(0x8011 + getCanOpenIndexOffset(), 0x16, torqueContant, "Torque Constant")) return false;
-			 
-			 uint32_t velocityEncoderResolution;
-			 if(!etherCatDevice->readSDO_U32(0x9010 + getCanOpenIndexOffset(), 0x14, velocityEncoderResolution, "Velocity Encoder Resolution")) return false;
-			 uint32_t positionEncoderResolution;
-			 if(!etherCatDevice->readSDO_U32(0x9010 + getCanOpenIndexOffset(), 0x15, positionEncoderResolution, "Position Encoder Resolution")) return false;
-			 
-			 Logger::info("---- Motor Nameplate ----");
-			 Logger::info("	Vendor: {}", motorVendor);
-			 Logger::info("	Type: {}", motorType);
-			 Logger::info("	Serial Number: {}", serialNumber);
-			 Logger::info("	Order Code: {}", orderCode);
-			 Logger::info("	Motor Construction: {}", motorContruction);
-			 Logger::info("	Brake Type: {}", brakeType);
-			 Logger::info("	Rated Current: {}A", double(motorRatedCurrentmA) / 1000.0);
-			 Logger::info("	Max Current: {}A", double(motorMaxCurrentmA) / 1000.0);
-			 Logger::info("	Max Speed: {}rpm", motorSpeedLimitationRpm);
-			 Logger::info("	Torque Constant: {}mNm/A", torqueContant);
-			 Logger::info("	Encoder Resolution: {}bits singleturn / {}bits multiturn", singleturnBits, multiturnBits);
-			 Logger::info("	Encoder Working Range: {}rev", encoderWorkingRangeRevolutions);
-			 Logger::info("	Operating Hours: {}h", encoderOperatingMinutes / 60);
-			 
-			 firstSetupProgress.write("Finishing");
-			 
-			 //disable autoconfig for future motor connections
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x1, 0, "Enable Autoconfig")) return false;
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x2, 0, "Reconfig Identical Motor")) return false;
-			 if(!etherCatDevice->writeSDO_U8(0x8008 + getCanOpenIndexOffset(), 0x3, 0, "Reconfig Non-Identical Motor")) return false;
-			 
-			 //set position offset source to encoder memory
-			 if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0xD, 1, "Position Offset Source")) return false;
-						 
-			 /*
-			 //Select Info Data 1 : Driver Errors
-			 if(!etherCatDevice->writeSDO_U8(0x8010 + getCanOpenIndexOffset(), 0x39, 5, "Select Info Data 1")) return false;
-			 
-			 //Select Info Data 2 : Digital Input Levels
-			 if(!etherCatDevice->writeSDO_U8(0x8010 + getCanOpenIndexOffset(), 0x3A, 10, "Select Info Data 2")) return false;
-			 
-			 //Set Feature bits to RMS Current values + Increased Output Current
-			 if(!etherCatDevice->writeSDO_U32(0x8010 + getCanOpenIndexOffset(), 0x54, 3, "Feature Bits")) return false;
-			 */
-			  
-			  
-			 //set REFERENCED field
-			 //It will get set to false/0x0 if a motor with a different serial number or a motor with single turn encoder is connected.
-			 //This way we can detect if the motor changed and force first setup again.
-			 if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x2, 1)) return false;
-			 
-			 motorNameplate.ratedCurrent_amps = double(motorRatedCurrentmA) / 1000.0;
-			 motorNameplate.maxCurrent_amps = double(motorMaxCurrentmA) / 1000.0;
-			 motorNameplate.maxVelocity_rps = double(motorSpeedLimitationRpm) / 60.0;
-			 motorNameplate.workingRange_rev = encoderWorkingRangeRevolutions;
-			 motorNameplate.velocityResolution_rps = velocityEncoderResolution;
-			 motorNameplate.positionResolution_rev = positionEncoderResolution;
-			 motorNameplate.torqueConstant_mNmpA = torqueContant;
-			 motorNameplate.b_hasBrake = false; //TODO: detect motor brake
-			 motorNameplate.motorType = motorType;
-			 motorNameplate.serialNumber = serialNumber;
-			 motorNameplate.b_motorIdentified = true;
-			 
-			 updateProprieties();
-			 
-			 return true;
-		 };
-		 
-		 if(doFirstSetup()) {
-			 firstSetupProgress.write("Done");
-			 Logger::info("First Setup Finished Successfully.");
-		 }
-		 else {
-			 firstSetupProgress.write("Failed");
-			 Logger::warn("First Setup Failed");
-		 }
-	 });
-	
-	 worker.detach();
+	 //Select Info Data 1 : Digital Inputs
+	 if(!etherCatDevice->writeSDO_U8(0x8010 + getCanOpenIndexOffset(), 0x39, 10, "Select Info Data 1")) return false;
+	  
+	 //set REFERENCED field
+	 //It will get set to false/0x0 if a motor with a different serial number or a motor with single turn encoder is connected.
+	 //This way we can detect if the motor changed and force first setup again.
+	 if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0x2, 1)) return false;
+	 
+	 motorNameplate.ratedCurrent_amps = double(motorRatedCurrentmA) / 1000.0;
+	 motorNameplate.maxCurrent_amps = double(motorMaxCurrentmA) / 1000.0;
+	 motorNameplate.maxVelocity_rps = double(motorSpeedLimitationRpm) / 60.0;
+	 motorNameplate.workingRange_rev = encoderWorkingRangeRevolutions;
+	 motorNameplate.velocityResolution_rps = velocityEncoderResolution;
+	 motorNameplate.positionResolution_rev = positionEncoderResolution;
+	 motorNameplate.torqueConstant_mNmpA = torqueContant;
+	 motorNameplate.b_hasBrake = false; //TODO: detect motor brake
+	 motorNameplate.motorType = motorType;
+	 motorNameplate.serialNumber = serialNumber;
+	 motorNameplate.b_motorIdentified = true;
+	 
+	 updateProprieties();
+	 
+	 return true;
 }
 
 
@@ -596,25 +510,8 @@ bool EL722x_Actuator::DriveSettings::load(tinyxml2::XMLElement* parent){
 std::string EL722x_Actuator::getStatusString(){
 	if(etherCatDevice->isOffline()) return "Drive is Offline.";
 	if(!etherCatDevice->isStateOperational()) return "Drive is not in Operational State.";
-	if(!processData.b_motorConnected) return "Motor is not connected.";
-	//if(actuatorProcessData.b_isEmergencyStopActive) return "STO is active.";
-	if(statusWord.fault){
-		std::string faultMsg = "Drive has one or more errors:\n";
-		std::string errors = "";
-		if(driverErrors.adc)				errors += "	-ADC Error\n";
-		if(driverErrors.overcurrent) 		errors += "	-Overcurrent error\n";
-		if(driverErrors.undervoltage) 		errors += "	-Undervoltage error\n";
-		if(driverErrors.overvoltage) 		errors += "	-Overvoltage error\n";
-		if(driverErrors.overtemperature)	errors += "	-Overtemperature error\n";
-		if(driverErrors.i2tAmplifier) 		errors += "	-I2tAmplifier error\n";
-		if(driverErrors.i2tMotor) 			errors += "	-I2tMotor error\n";
-		if(driverErrors.encoder) 			errors += "	-Encoder error\n";
-		if(driverErrors.watchdog) 			errors += "	-Watchdog error\n";
-		if(errors == "") 									errors += "	-Generic error (download diagnostics for more information)\n";
-		faultMsg += errors;
-		faultMsg.pop_back(); //remove last line return from message
-		return faultMsg;
-	}
+	if(!processData.b_motorConnected) return "Motor is not connected or is being identified";
+	if(statusWord.fault) return "Axis has Fault";
 	if(isEnabled()) return "Drive is Enabled.";
 	if(isReady()) return "Drive is Ready.";
 	if(isEnabling()) return "Drive is Enabling...";
@@ -628,6 +525,71 @@ void EL722x_Actuator::gui(){
 	if(ImGui::BeginTabBar("##ActuatorTabBar")){
 		
 		if(ImGui::BeginTabItem("Control")){
+
+			double defaultFramePadding = ImGui::GetStyle().FramePadding.y;
+			ImGui::GetStyle().FramePadding.y = ImGui::GetTextLineHeight() * 0.5;
+			
+			ImVec2 powerButtonSize(ImGui::GetTextLineHeight() * 5.0, ImGui::GetFrameHeight());
+			ImVec4 powerButtonColor;
+			if(isEnabled()) powerButtonColor = Colors::green;
+			else if(!isOnline()) powerButtonColor = Colors::blue;
+			else if(isReady()) powerButtonColor = Colors::yellow;
+			else powerButtonColor = Colors::red;
+			
+			ImGui::PushStyleColor(ImGuiCol_Button, powerButtonColor);
+			if(isEnabled()){
+				if(ImGui::Button("Disable", powerButtonSize)) disable();
+			}
+			else {
+				ImGui::BeginDisabled(!isReady());
+				if(ImGui::Button("Enable", powerButtonSize)) enable();
+				ImGui::EndDisabled();
+			}
+			ImGui::PopStyleColor();
+			
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			char velocitySliderString[64];
+			snprintf(velocitySliderString, 64, "Target Velocity: %.1frev/s", processData.manualVelocityTarget_rps);
+			ImGui::BeginDisabled(!isEnabled());
+			if(ImGui::SliderFloat("##TargetVelocity", &processData.manualVelocityTarget_rps, -getVelocityLimit(), getVelocityLimit(), velocitySliderString));
+			if(ImGui::IsItemDeactivatedAfterEdit()) processData.manualVelocityTarget_rps = 0.0;
+			ImGui::EndDisabled();
+			ImGui::GetStyle().FramePadding.y = defaultFramePadding;
+
+			float velocityNormalized = getVelocityNormalized();
+			float positionNormalized = getPositionNormalizedToWorkingRange();
+			float followingErrorNormalized = getFollowingErrorNormalized();
+			float effortNormalized = getEffort();
+			
+			ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+			char progressString[64];
+			snprintf(progressString, 64, "Position: %.3frev", getPosition());
+			ImGui::ProgressBar(positionNormalized, progressSize, progressString);
+			snprintf(progressString, 64, "Following Error: %.3frev", getFollowingError());
+			ImGui::ProgressBar(followingErrorNormalized, progressSize, progressString);
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized < 0.0 ? Colors::red : Colors::green);
+			snprintf(progressString, 64, "Velocity: %.1frev/s", getVelocity());
+			ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, progressString);
+			ImGui::PopStyleColor();
+			snprintf(progressString, 64, "Torque: %.2fNm", getForce());
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
+			ImGui::ProgressBar(getEffort(), progressSize, progressString);
+			ImGui::PopStyleColor();
+			snprintf(progressString, 64, "Effort: %.1f%%", effortNormalized * 100.0);
+			ImGui::ProgressBar(effortNormalized, progressSize, progressString);
+
+			ImGui::Text("Status: %s", getStatusString().c_str());
+			
+			if(ImGui::Button("Reset Encoder")) resetEncoderPosition();
+			ImGui::SameLine();
+			ImGui::Text("%s", resetEncoderPositionProgress.read().c_str());
+			
+			ImGui::EndTabItem();
+		}
+		
+		if(ImGui::BeginTabItem("Settings")){
 			
 			auto tableRowBool = [](std::string fieldName, bool data){
 				ImGui::TableNextRow();
@@ -661,138 +623,28 @@ void EL722x_Actuator::gui(){
 				ImGui::Text("%s", data.c_str());
 			};
 
-			if(ImGui::CollapsingHeader("Motor Nameplate")){
-				if(ImGui::BeginTable("##MotorNameplate", 2, ImGuiTableFlags_Borders)){
-					tableRowBool("Motor Identified", motorNameplate.b_motorIdentified);
-					tableRowString("Type", motorNameplate.motorType);
-					tableRowString("Serial Number", motorNameplate.serialNumber);
-					tableRowDouble("Rated Current", motorNameplate.ratedCurrent_amps, "A");
-					tableRowDouble("Max Current", motorNameplate.maxCurrent_amps, "A");
-					tableRowDouble("Max Velocity", motorNameplate.maxVelocity_rps, "rev/s");
-					tableRowDouble("Working Range", motorNameplate.workingRange_rev, "rev");
-					tableRowInt("Velocity Encoder Resolution", motorNameplate.velocityResolution_rps, "inc");
-					tableRowInt("Position Encoder Resolution", motorNameplate.positionResolution_rev, "inc");
-					tableRowDouble("Torque Constant", motorNameplate.torqueConstant_mNmpA, "mNm/A");
-					tableRowBool("Has Brake", motorNameplate.b_hasBrake);
-					ImGui::EndTable();
-				};
-			}
-
-			if(ImGui::CollapsingHeader("Status Word")){
-				if(ImGui::BeginTable("##StatusWord", 2, ImGuiTableFlags_Borders)){
-					tableRowBool("Ready To Switch On", statusWord.readyToSwitchOn);
-					tableRowBool("Switched On", statusWord.switchedOn);
-					tableRowBool("Operation Enabled", statusWord.operationEnabled);
-					tableRowBool("Fault", statusWord.fault);
-					tableRowBool("Quickstop", statusWord.quickstop);
-					tableRowBool("Switch On Disabled", statusWord.switchOnDisabled);
-					tableRowBool("Warning", statusWord.warning);
-					tableRowBool("TxPdo Toggle", statusWord.TxPdoToggle);
-					tableRowBool("Internal Limit Active", statusWord.internalLimitActive);
-					tableRowBool("Command Value Followed", statusWord.commandValueFollowed);
-					ImGui::EndTable();
-				}
-			}
-
-			if(ImGui::CollapsingHeader("Control Word")){
-				if(ImGui::BeginTable("##ControlWord", 2, ImGuiTableFlags_Borders)){
-					tableRowBool("Switch On", controlWord.switchOn);
-					tableRowBool("Enable Voltage", controlWord.enableVoltage);
-					tableRowBool("Quickstop", controlWord.quickstop);
-					tableRowBool("Enable Operation", controlWord.enableOperation);
-					tableRowBool("Fault Reset", controlWord.faultReset);
-					ImGui::EndTable();
-				}
-			}
-
-			if(ImGui::CollapsingHeader("Errors")){
-				if(ImGui::BeginTable("##Errors", 2, ImGuiTableFlags_Borders)){
-					tableRowBool("Motor Connected", processData.b_motorConnected);
-					//tableRowBool("STO Active", actuator->actuatorProcessData.b_isEmergencyStopActive);
-					tableRowBool("ADC Error", driverErrors.adc);
-					tableRowBool("Overcurrent Error", driverErrors.overcurrent);
-					tableRowBool("Undervoltage Error", driverErrors.undervoltage);
-					tableRowBool("Overvoltage Error", driverErrors.overvoltage);
-					tableRowBool("Overtemperature Error", driverErrors.overtemperature);
-					tableRowBool("I2tAmplifier Error", driverErrors.i2tAmplifier);
-					tableRowBool("I2tMotor Error", driverErrors.i2tMotor);
-					tableRowBool("Encoder Error", driverErrors.encoder);
-					tableRowBool("Watchdog Error", driverErrors.watchdog);
-					ImGui::EndTable();
-				}
-			}
-
-			if(ImGui::CollapsingHeader("Warnings")){
-				if(ImGui::BeginTable("##Warnings", 2, ImGuiTableFlags_Borders)){
-					tableRowBool("Undervoltage Warning", driverWarnings.undervoltage);
-					tableRowBool("Overvoltage Warning", driverWarnings.overvoltage);
-					tableRowBool("Overtemperature Warning", driverWarnings.overtemperature);
-					tableRowBool("I2tAmplifier Warning", driverWarnings.i2tAmplifier);
-					tableRowBool("I2tMotor Warning", driverWarnings.i2tMotor);
-					tableRowBool("Encoder Warning", driverWarnings.encoder);
-					ImGui::EndTable();
-				}
-			}
-
-			ImGui::Separator();
-
-			if(isEnabled()){
-				if(ImGui::Button("Disable")) disable();
-			}
-			else {
-				ImGui::BeginDisabled(!isReady());
-				if(ImGui::Button("Enable")) enable();
-				ImGui::EndDisabled();
-			}
-
-			if(ImGui::SliderFloat("##TargetVelocity", &velocitySliderValue, -getVelocityLimit(), getVelocityLimit())){
-				setVelocityTarget(velocitySliderValue);
-			}
-			if(ImGui::IsItemDeactivatedAfterEdit()) {
-				setVelocityTarget(0.0);
-				velocitySliderValue = 0.0;
-			}
-
-			float velocityNormalized = getVelocityNormalized();
-			float positionNormalized = getPositionNormalizedToWorkingRange();
-			float followingErrorNormalized = getFollowingErrorNormalized();
-			float effortNormalized = getEffort();
 			
-			ImVec2 progressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
-			char progressString[64];
-			snprintf(progressString, 64, "Position: %.3frev", getPosition());
-			ImGui::ProgressBar(positionNormalized, progressSize, progressString);
-			snprintf(progressString, 64, "Following Error: %.3frev", getFollowingError());
-			ImGui::ProgressBar(followingErrorNormalized, progressSize, progressString);
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, velocityNormalized < 0.0 ? Colors::red : Colors::green);
-			snprintf(progressString, 64, "Velocity: %.1frev/s", getVelocity());
-			ImGui::ProgressBar(std::abs(velocityNormalized), progressSize, progressString);
-			ImGui::PopStyleColor();
-			snprintf(progressString, 64, "Torque: %.2fNm", getForce());
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::orange);
-			ImGui::ProgressBar(getEffort(), progressSize, progressString);
-			ImGui::PopStyleColor();
-			snprintf(progressString, 64, "Effort: %.1f%%", effortNormalized * 100.0);
-			ImGui::ProgressBar(effortNormalized, progressSize, progressString);
-
-			//ImGui::Text("Status: %s", getStatusString().c_str());
+			ImGui::PushFont(Fonts::sansBold20);
+			ImGui::Text("Motor Nameplate");
+			ImGui::PopFont();
+			if(ImGui::BeginTable("##MotorNameplate", 2, ImGuiTableFlags_Borders)){
+				tableRowBool("Motor Identified", motorNameplate.b_motorIdentified);
+				tableRowString("Type", motorNameplate.motorType);
+				tableRowString("Serial Number", motorNameplate.serialNumber);
+				tableRowDouble("Rated Current", motorNameplate.ratedCurrent_amps, "A");
+				tableRowDouble("Max Current", motorNameplate.maxCurrent_amps, "A");
+				tableRowDouble("Max Velocity", motorNameplate.maxVelocity_rps, "rev/s");
+				tableRowDouble("Working Range", motorNameplate.workingRange_rev, "rev");
+				tableRowInt("Velocity Encoder Resolution", motorNameplate.velocityResolution_rps, "inc");
+				tableRowInt("Position Encoder Resolution", motorNameplate.positionResolution_rev, "inc");
+				tableRowDouble("Torque Constant", motorNameplate.torqueConstant_mNmpA, "mNm/A");
+				tableRowBool("Has Brake", motorNameplate.b_hasBrake);
+				ImGui::EndTable();
+			};
 			
-			
-			
-			ImGui::Checkbox("switchOn", &controlWord.switchOn);
-			ImGui::Checkbox("enableVoltage", &controlWord.enableVoltage);
-			ImGui::Checkbox("quickstop", &controlWord.quickstop);
-			ImGui::Checkbox("enableOperation", &controlWord.enableOperation);
-			ImGui::Checkbox("faultReset", &controlWord.faultReset);
-			
-			
-			
-			
-			ImGui::EndTabItem();
-		}
-		
-		if(ImGui::BeginTabItem("Settings")){
-			
+			ImGui::PushFont(Fonts::sansBold20);
+			ImGui::Text("Drive Settings");
+			ImGui::PopFont();
 			
 			float frameHeight = ImGui::GetFrameHeight();
 			ImGui::PushFont(Fonts::sansBold15);
@@ -823,16 +675,9 @@ void EL722x_Actuator::gui(){
 				ImGui::EndTable();
 			}
 			
-			if(ImGui::Button("First Setup")) firstSetup();
-			ImGui::SameLine();
-			ImGui::Text("%s", firstSetupProgress.read().c_str());
-			if(ImGui::Button("Reset Encoder")) resetEncoderPosition();
-			ImGui::SameLine();
-			ImGui::Text("%s", resetEncoderPositionProgress.read().c_str());
 			if(ImGui::Button("Upload Parameters")) uploadParameters();
 			ImGui::SameLine();
 			ImGui::Text("%s", uploadParameterStatus.read().c_str());
-			
 			
 			ImGui::EndTabItem();
 		}

@@ -562,27 +562,27 @@ void EtherCatDevice::esmControlGui(){
 	if(ImGui::Button("Request Init")){
 		identity->state = EC_STATE_INIT;
 		ec_writestate(getSlaveIndex());
-		ec_readstate();
-	}
-	if(ImGui::Button("Request SafeOp")){
-		identity->state = EC_STATE_SAFE_OP;
-		ec_writestate(getSlaveIndex());
-		ec_readstate();
+		ec_statecheck(getSlaveIndex(), EC_STATE_INIT, EC_TIMEOUTSAFE);
 	}
 	if(ImGui::Button("Request PreOp")){
 		identity->state = EC_STATE_PRE_OP;
 		ec_writestate(getSlaveIndex());
-		ec_readstate();
+		ec_statecheck(getSlaveIndex(), EC_STATE_PRE_OP, EC_TIMEOUTSAFE);
+	}
+	if(ImGui::Button("Request SafeOp")){
+		identity->state = EC_STATE_SAFE_OP;
+		ec_writestate(getSlaveIndex());
+		ec_statecheck(getSlaveIndex(), EC_STATE_SAFE_OP, EC_TIMEOUTSAFE);
 	}
 	if(ImGui::Button("Request Op")){
 		identity->state = EC_STATE_OPERATIONAL;
 		ec_writestate(getSlaveIndex());
-		ec_readstate();
+		ec_statecheck(getSlaveIndex(), EC_STATE_OPERATIONAL, EC_TIMEOUTSAFE);
 	}
 	if(ImGui::Button("Request Boot")){
 		identity->state = EC_STATE_BOOT;
 		ec_writestate(getSlaveIndex());
-		ec_readstate();
+		ec_statecheck(getSlaveIndex(), EC_STATE_BOOT, EC_TIMEOUTSAFE);
 	}
 }
 

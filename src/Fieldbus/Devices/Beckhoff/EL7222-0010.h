@@ -30,4 +30,6 @@ public:
 	
 	void downloadDiagnostics();
 	
+	void readMotorNameplatesAndConfigureDrive();
+	
 };

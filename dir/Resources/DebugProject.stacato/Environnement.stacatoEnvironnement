@@ -4,16 +4,16 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL7222-0010" Split="false" CustomName="EL7222-0010 (Alias:0)" UniqueID="11">
-                <NodeEditorPosition x="138" y="360"/>
+                <NodeEditorPosition x="74" y="200"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <Actuator1>
                         <MotorNameplate IsIdentified="true" RatedCurrentAmps="4.9500000000000002" MaxCurrentAmps="27.800000000000001" MaxVelocityRps="21.300000000000001" WorkingRangeRev="4096" VelocityResolutionRps="268435" PositionResolutionRev="1048576" TorqueConstant="270" HasBrake="false" MotorType="AM8131-xFx0" SerialNumber="aa402gwb"/>
-                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="1" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
+                        <DriveSettings VelocityLimit="20" AccelerationLimit="100" CurrentLimit="5" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
                     </Actuator1>
                     <Actuator2>
                         <MotorNameplate IsIdentified="true" RatedCurrentAmps="8" MaxCurrentAmps="44.299999999999997" MaxVelocityRps="20.833333333333332" WorkingRangeRev="4096" VelocityResolutionRps="268435" PositionResolutionRev="1048576" TorqueConstant="296" HasBrake="false" MotorType="AM8132-xJx0" SerialNumber="aa401zxs"/>
-                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="1" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
+                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="5" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
                     </Actuator2>
                 </NodeSpecificData>
                 <InputPins/>
@@ -28,7 +28,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M (Alias:1140)" UniqueID="20">
-                <NodeEditorPosition x="-76" y="267"/>
+                <NodeEditorPosition x="56" y="433"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1140"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="17.640000000000001" EncoderIsMultiturn="true"/>
@@ -62,13 +62,55 @@
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="34" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="36">
+                <NodeEditorPosition x="360" y="256"/>
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="20" AccelerationLimit="20" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="1" PositionLoopMaxError="1" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-100" UpperPositionLimit="100" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                    <FeedbackMappings/>
+                    <ActuatorMappings>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="-45.309638977050781"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice2" ControlMode="1" UnitConversion="1" PositionOffset="-51.890289306640625"/>
+                    </ActuatorMappings>
+                    <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SafetyRules SafetyClearSignalTime="0.5">
+                        <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
+                        <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
+                    </SafetyRules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="37" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="38" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="39" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="40" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="41" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="42" Visible="false"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="43" Visible="false"/>
+                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="44" Visible="true"/>
+                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="45" Visible="true"/>
+                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="46" Visible="true"/>
+                    <InputPin SaveString="ActuatorDevice0" DisplayString="Actuator Device 0" DataType="ActuatorInterface" UniqueID="51" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ActuatorDevice1" DisplayString="Actuator Device 1" DataType="ActuatorInterface" UniqueID="74" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ActuatorDevice2" DisplayString="Actuator Device 2" DataType="ActuatorInterface" UniqueID="78" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="47" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control" DataType="Boolean" UniqueID="48" Visible="true"/>
+                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="49" Visible="true"/>
+                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="50" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
-        <Links/>
+        <Links>
+            <Link UniqueID="79" StartPin="24" EndPin="78"/>
+            <Link UniqueID="80" StartPin="12" EndPin="51"/>
+            <Link UniqueID="81" StartPin="13" EndPin="74"/>
+        </Links>
     </NodeGraph>
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="2" ProcessDataTimeoutMilliseconds="0.80000001192092896" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="4" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="112"/>
 </FieldbusSettings>
 
 <ManualControlChannel>

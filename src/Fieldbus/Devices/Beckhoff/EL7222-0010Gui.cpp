@@ -14,9 +14,9 @@ void EL7222_0010::deviceSpecificGui() {
 			}
 			if(ImGui::BeginTabItem("Drive")){
 				if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
+				if(ImGui::Button("Detect Motors")) readMotorNameplatesAndConfigureDrive();
 				ImGui::EndTabItem();
 			}
-				
 				
 			ImGui::EndTabBar();
 		}

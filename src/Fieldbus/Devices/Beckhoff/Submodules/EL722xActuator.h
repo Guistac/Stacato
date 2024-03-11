@@ -20,6 +20,9 @@ private:
 	std::mutex mutex;
 };
 
+
+
+
 class EL722x_Actuator : public ActuatorInterface{
 public:
 	
@@ -34,11 +37,10 @@ public:
 		actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, pinName.c_str());
 	}
 	void initialize();
+	bool readMotorNameplate();
 	
-	void gui();
 	
-	void firstSetup();
-	ThreadSafe<std::string> firstSetupProgress;
+
 	
 	void resetEncoderPosition();
 	ThreadSafe<std::string> resetEncoderPositionProgress;
@@ -52,8 +54,12 @@ public:
 	
 	bool save(tinyxml2::XMLElement* parent);
 	bool load(tinyxml2::XMLElement* parent);
+
+	void gui();
 	
 	std::shared_ptr<NodePin> actuatorPin;
+	std::shared_ptr<NodePin> digitalIn1Pin;
+	std::shared_ptr<NodePin> digitalIn2Pin;
 	
 	struct Nameplate{
 		bool b_motorIdentified = false;
@@ -82,34 +88,13 @@ public:
 		uint16_t statusWord = 0;				//6010:1
 		int32_t velocityActualValue = 0;		//6010:7
 		int16_t torqueActualValue = 0;			//6010:8
-		uint16_t infoData1_errors = 0;			//6010:12
-		uint16_t infoData2_digitalInputs = 0;	//6010:13
-		uint16_t infoData3 = 0;
+		uint16_t infoData1_dcLinkVoltage = 0;
+		uint16_t infoData2_digitalInputs = 0;
+		//uint16_t infoData3 = 0; //is available but we don't use it
 		int32_t followingErrorActualValue = 0;	//6010:6
 		uint16_t fbStatus = 0;					//6000:E/F
 		uint8_t modeOfOperationDisplay = 0;		//6010:3
 	}txPdo;
-		
-	struct DriverErrors{
-		bool adc = false;
-		bool overcurrent = false;
-		bool undervoltage = false;
-		bool overvoltage = false;
-		bool overtemperature = false;
-		bool i2tAmplifier = false;
-		bool i2tMotor = false;
-		bool encoder = false;
-		bool watchdog = false;
-	}driverErrors;
-	
-	struct DriverWarnings{
-		bool undervoltage = false;
-		bool overvoltage = false;
-		bool overtemperature = false;
-		bool i2tAmplifier = false;
-		bool i2tMotor = false;
-		bool encoder = false;
-	}driverWarnings;
 	
 	struct StatusWord{
 		bool readyToSwitchOn = false;
@@ -132,25 +117,15 @@ public:
 		bool faultReset = false;
 	}controlWord;
 	
-	enum class PowerState{
-		OPERATION_ENABLED,
-		SWITCHED_ON,
-		READY_TO_SWITCH_ON,
-		SWITCH_ON_DISABLED,
-		NOT_READY_TO_SWITCH_ON,
-		FAULT
-	};
-	
 	struct ProcessData{
 		bool b_motorConnected = false;
 		bool b_waitingForEnable = false;
 		uint64_t enableRequestTime_nanos;
 		bool b_hadFault = false;
-		PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-		PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
+		bool b_enableTarget = false;
+		float manualVelocityTarget_rps = 0.0;
+		double manualVelocityProfile_rps = 0.0;
 	}processData;
-	
-	float velocitySliderValue = 0.0;
 	
 	struct MotorNameplate{
 		bool b_motorIdentified = false;
