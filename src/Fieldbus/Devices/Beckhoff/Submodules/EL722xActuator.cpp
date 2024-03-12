@@ -1,5 +1,7 @@
 #include "EL722xActuator.h"
 
+#include "../EL7222-0010.h"
+
 void EL722x_Actuator::initialize(){
 	auto thisActuatorInterface = std::static_pointer_cast<ActuatorInterface>(shared_from_this());
 	actuatorPin->assignData(thisActuatorInterface);
@@ -122,20 +124,21 @@ void EL722x_Actuator::writeOutputs(){
 		controlWord.switchOn = true;
 		controlWord.enableOperation = true;
 	}
-	else if(statusWord.readyToSwitchOn){
+	else if(processData.b_enableTarget && statusWord.readyToSwitchOn){
 		//second: switch on
 		controlWord.enableVoltage = true;
 		controlWord.switchOn = true;
 		controlWord.enableOperation = false;
 	}
-	else if(statusWord.switchOnDisabled){
+	else if(processData.b_enableTarget && statusWord.switchOnDisabled){
 		//first: enable voltage
 		controlWord.enableVoltage = true;
 		controlWord.switchOn = false;
 		controlWord.enableOperation = false;
 	}
 	else{
-		//if there is a fault, we go back to this state
+		//if the drive is disabled, we go to this state
+		//another state doesn't allow us to reset encoder position offset
 		controlWord.enableVoltage = false;
 		controlWord.switchOn = false;
 		controlWord.enableOperation = false;
@@ -246,6 +249,9 @@ bool EL722x_Actuator::readMotorNameplate(){
 	 
 	 //set position offset source to encoder memory
 	 if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0xD, 1, "Position Offset Source")) return false;
+	
+	//set position offset source to drive memory
+	//if(!etherCatDevice->writeSDO_U8(0x8000 + getCanOpenIndexOffset(), 0xD, 2, "Position Offset Source")) return false;
 				 
 	 //Select Info Data 1 : Digital Inputs
 	 if(!etherCatDevice->writeSDO_U8(0x8010 + getCanOpenIndexOffset(), 0x39, 10, "Select Info Data 1")) return false;
@@ -277,50 +283,62 @@ void EL722x_Actuator::resetEncoderPosition(){
 	 std::thread worker([this](){
 		
 		 auto overrideEncoderPosition = [this]() -> bool {
+			 
+			 if(isEnabled()) {
+				 resetEncoderPositionProgress.write("Cannot reset encoder with power state enabled");
+				 return false;
+			 }
+			 if(!etherCatDevice->isStateOperational()) {
+				 resetEncoderPositionProgress.write("Cannot reset encoder while fieldbus is not running");
+				 return false;
+			 }
 		
 			 resetEncoderPositionProgress.write("Starting");
 			 
-			 if(!etherCatDevice->isStateOperational()) {
-				 resetEncoderPositionProgress.write("Encoder cannot be reset while the fieldbus is not running");
-				 return false;
-			 }
-			 
 			 uint8_t fbPositionValid;
 			 if(!etherCatDevice->readSDO_U8(0x6000 + getCanOpenIndexOffset(), 0xE, fbPositionValid) || fbPositionValid != 0x0){
-				 Logger::warn("Encoder is Offline or being identified.");
+				 Logger::warn("Motor is Offline or being identified.");
 				 return false;
 			 }
 
-			 uint32_t positionEncoderResolution;
+			 uint32_t positionEncoderResolution; //increments per encoder revolution
 			 if(!etherCatDevice->readSDO_U32(0x9010 + getCanOpenIndexOffset(), 0x15, positionEncoderResolution, "Position Encoder Resolution")) return false;
-			 uint32_t encoderWorkingRangeRevolutions;
+			 uint32_t encoderWorkingRangeRevolutions; //amount of turns
 			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x13, encoderWorkingRangeRevolutions, "Encoder Working Range")) return false;
-			 uint32_t positionActual;
+			 uint32_t positionActual; //position feedback pdo
 			 if(!etherCatDevice->readSDO_U32(0x6000 + getCanOpenIndexOffset(), 0x11, positionActual, "Encoder Position")) return false;
-			 uint32_t offsetActual;
-			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x20, offsetActual, "Encoder Position Offset")) return false;
+			 uint32_t currentEncoderOffset; //offset stored inside the motor nameplate
+			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x20, currentEncoderOffset, "Encoder Position Offset")) return false;
 			 
-			 int maxOffset = positionEncoderResolution * encoderWorkingRangeRevolutions;
+			 //the offset should not be bigger than the entire resolution of the encoder
+			 //for the motors we know, that resolution is 20bits ST + 12 bits multiturn
+			 //so an offset greater than UINT32_MAX cannot exist
+			 //in the case of our motors the following maxOffset evaluates to 0, which is equal to 2^32
+			 //since the offset is also an uint32_t, any offset higher than that gets capped by the container bounds
+			 //if there is ever an encoder with less resolution connected, this takes care of capping the max offset
+			 uint32_t maxOffset = positionEncoderResolution * encoderWorkingRangeRevolutions;
 			 
-			 //positionActual = rawPosition - currentOffset
-			 //rawPosition = positionActual + currentOffset
-			 //rawPosition - newOffset = 0
-			 //newOffset = rawPosition
+			 //positionActual = rawEncoderPosition - currentEncoderOffset
+			 //rawEncoderPosition = positionActual + currentEncoderOffset
+			 //rawEncoderPosition - newOffset = desiredPosition
+			 //newOffset = rawEncoderPosition - desiredPosition
+			 //if desired position == 0 then newOffset == rawEncoderPosition
 			 
-			 uint32_t rawPosition = positionActual + offsetActual;
-			 if(rawPosition >= maxOffset) rawPosition -= maxOffset;
-			 uint32_t offset = rawPosition;
+			 uint64_t rawPosition = positionActual + currentEncoderOffset;
+			 if(maxOffset != 0) while(rawPosition >= maxOffset) rawPosition -= maxOffset;
+			 uint32_t newEncoderOffset = uint32_t(rawPosition);
 			 
 			 Logger::info("Actual Position: {}", positionActual);
-			 Logger::info("Current Offset: {}", offsetActual);
+			 Logger::info("Current Offset: {}", currentEncoderOffset);
 			 Logger::info("Raw Position: {}", rawPosition);
+			 Logger::info("New Offset: {}", newEncoderOffset);
 			 Logger::info("Starting encoder offset write...");
 			 
 			 //Set OCT Interface Command to "Write Encoder Position Offset"
 			 if(!etherCatDevice->writeSDO_S16(0xB001 + getCanOpenIndexOffset(), 0x1, 16, "OCT Interface Command 'Write Encoder Position Offset'")) return false;
 					 
 			 //Set Data Buffer containing new position offset
-			 uint32_t buffer[8] = {offset,0,0,0,0,0,0,0};
+			 uint32_t buffer[8] = {newEncoderOffset,0,0,0,0,0,0,0};
 			 if(1 != ec_SDOwrite(etherCatDevice->getSlaveIndex(), 0xB001 + getCanOpenIndexOffset(), 0x6, false, 32, buffer, EC_TIMEOUTSAFE)) {
 				 Logger::warn("Could not upload encoder position offset to data buffer");
 				 return false;
@@ -329,36 +347,21 @@ void EL722x_Actuator::resetEncoderPosition(){
 			 //Execute Command
 			 if(!etherCatDevice->writeSDO_S16(0xB001 + getCanOpenIndexOffset(), 0x5, 1, "Execute OCT Interface Command")) return false;
 			 
-			 
 			 resetEncoderPositionProgress.write("Waiting for encoder");
 			 
 			 //Wait for command status update
 			 double commandExecuteTime = Timing::getProgramTime_seconds();
 			 while(true){
 				 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				 int16_t result;
-				 if(etherCatDevice->readSDO_S16(0xB001 + getCanOpenIndexOffset(), 0x5, result)){
-					 if(result == 3) break;
-					 if(result == 4){
-						 Logger::warn("Encoder offset write returned error.");
-						 return false;
-					 }
-				 }
+				 
+				 uint32_t readback;
+				 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x20, readback, "Encoder Position Offset")) return false;
+				 if(readback == newEncoderOffset) break;
+	
 				 if(Timing::getProgramTime_seconds() - commandExecuteTime > 2.0){
 					 Logger::warn("Encoder offset write timed out.");
 					 return false;
 				 }
-			 }
-			 
-			 
-			 //read encoder position offset from FB OCT Info Data
-			 uint32_t offsetReadback;
-			 if(!etherCatDevice->readSDO_U32(0x9008 + getCanOpenIndexOffset(), 0x20, offsetReadback, "Encoder Position Offset")) return false;
-			 
-			 if(offsetReadback != offset){
-				 Logger::warn("Encoder offset write succeeded but readback was not identical to request.");
-				 Logger::warn("Requested Offset: {}  Readback: {}", offset, offsetReadback);
-				 return false;
 			 }
 			 
 			 return true;
@@ -582,7 +585,7 @@ void EL722x_Actuator::gui(){
 
 			ImGui::Text("Status: %s", getStatusString().c_str());
 			
-			if(ImGui::Button("Reset Encoder")) resetEncoderPosition();
+			if(ImGui::Button("Reset Encoder Position")) resetEncoderPosition();
 			ImGui::SameLine();
 			ImGui::Text("%s", resetEncoderPositionProgress.read().c_str());
 			
@@ -641,6 +644,33 @@ void EL722x_Actuator::gui(){
 				tableRowBool("Has Brake", motorNameplate.b_hasBrake);
 				ImGui::EndTable();
 			};
+			
+			if(ImGui::CollapsingHeader("Status Word")){
+				if(ImGui::BeginTable("##StatusWord", 2, ImGuiTableFlags_Borders)){
+					tableRowBool("Ready To Switch On", statusWord.readyToSwitchOn);
+					tableRowBool("Switched On", statusWord.switchedOn);
+					tableRowBool("Operation Enabled", statusWord.operationEnabled);
+					tableRowBool("Fault", statusWord.fault);
+					tableRowBool("Quickstop", statusWord.quickstop);
+					tableRowBool("Switch On Disabled", statusWord.switchOnDisabled);
+					tableRowBool("Warning", statusWord.warning);
+					tableRowBool("TxPdo Toggle", statusWord.TxPdoToggle);
+					tableRowBool("Internal Limit Active", statusWord.internalLimitActive);
+					tableRowBool("Command Value Followed", statusWord.commandValueFollowed);
+					ImGui::EndTable();
+				}
+			}
+			
+			if(ImGui::CollapsingHeader("Control Word")){
+				if(ImGui::BeginTable("##ControlWord", 2, ImGuiTableFlags_Borders)){
+					tableRowBool("Switch On", controlWord.switchOn);
+					tableRowBool("Enable Voltage", controlWord.enableVoltage);
+					tableRowBool("Quickstop", controlWord.quickstop);
+					tableRowBool("Enable Operation", controlWord.enableOperation);
+					tableRowBool("Fault Reset", controlWord.faultReset);
+					ImGui::EndTable();
+				}
+			}
 			
 			ImGui::PushFont(Fonts::sansBold20);
 			ImGui::Text("Drive Settings");

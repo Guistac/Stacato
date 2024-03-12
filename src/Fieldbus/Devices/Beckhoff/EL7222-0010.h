@@ -22,14 +22,19 @@ public:
 	std::shared_ptr<EL722x_Actuator> actuator2;
 	std::shared_ptr<EL7222Gpio> gpio;
 	
-	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "GPIO");
+	std::shared_ptr<NodePin> devicePin;
 	std::vector<std::shared_ptr<bool>> digitalInputValues;
 	std::vector<std::shared_ptr<NodePin>> digitalInputPins;
 	
 	std::vector<BoolParam> pinInversionParameters;
 	
+	std::string getDiagnosticsStringFromTextID(uint16_t textID);
 	void downloadDiagnostics();
+	void downloadLatestDiagnosticsMessage();
+	uint16_t latestDiagnosticsMessageTextID = 0x0;
 	
 	void readMotorNameplatesAndConfigureDrive();
+	
+	bool requestStateSafeOp();
 	
 };

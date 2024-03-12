@@ -21,6 +21,8 @@ void EL7222_0010::deviceSpecificGui() {
 				if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
 				if(ImGui::Button("Detect Motors")) readMotorNameplatesAndConfigureDrive();
 				
+				if(ImGui::Button("Download latest Message")) downloadLatestDiagnosticsMessage();
+				
 				ImGui::Separator();
 				
 				ImGui::PushFont(Fonts::sansBold20);

@@ -845,6 +845,10 @@ namespace EtherCatFieldbus {
         Logger::info("===== Waiting For clocks to stabilize before requesting Operational State...");
 		startupProgress.setProgress(0.65, "Waiting for clocks to stabilize");
 		
+		//fill in the rxpdo data before sending the first process data frame
+		//else we will send uninitialized data and this makes some devices unhappy
+		for(auto ethercatDevice : discoveredDevices) ethercatDevice->rxPdoAssignement.pushDataTo(ethercatDevice->identity->outputs);
+		
 		//========= CYCLIC EXCHANGE ============
 		while (b_cyclicExchangeThreadRunning && !b_cyclicExchangeTimedOut) cycle();
 		//======================================

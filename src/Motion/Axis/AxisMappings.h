@@ -71,10 +71,16 @@ public:
 	bool save(tinyxml2::XMLElement* parent);
 	bool load(tinyxml2::XMLElement* parent);
 	
-	void enable(){ getActuatorInterface()->enable(); }
-	void disable(){ getActuatorInterface()->disable(); }
-	virtual bool isReady() override { return getActuatorInterface()->isReady(); }
-	virtual bool isEnabled() override { return getActuatorInterface()->isEnabled(); }
+	void enable(){ if(isActuatorConnected()) getActuatorInterface()->enable(); }
+	void disable(){ if(isActuatorConnected()) getActuatorInterface()->disable(); }
+	virtual bool isReady() override {
+		if(isActuatorConnected()) return getActuatorInterface()->isReady();
+		return false;
+	}
+	virtual bool isEnabled() override {
+		if(isActuatorConnected()) return getActuatorInterface()->isEnabled();
+		return false;
+	}
 	
 	virtual std::string getName() override {
 		if(!isActuatorConnected()) return actuatorPin->displayString;
