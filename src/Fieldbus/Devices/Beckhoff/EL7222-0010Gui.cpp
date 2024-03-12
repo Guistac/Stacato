@@ -18,10 +18,8 @@ void EL7222_0010::deviceSpecificGui() {
 				ImGui::Text("Utilities");
 				ImGui::PopFont();
 				
-				if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
-				if(ImGui::Button("Detect Motors")) readMotorNameplatesAndConfigureDrive();
-				
-				if(ImGui::Button("Download latest Message")) downloadLatestDiagnosticsMessage();
+				if(ImGui::Button("Detect Motors and Configure Drives")) readMotorNameplatesAndConfigureDrive();				
+				if(ImGui::Button("Download Diagnostics")) downloadCompleteDiagnostics();
 				
 				ImGui::Separator();
 				

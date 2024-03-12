@@ -9,11 +9,11 @@
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <Actuator1>
                         <MotorNameplate IsIdentified="true" RatedCurrentAmps="4.9500000000000002" MaxCurrentAmps="27.800000000000001" MaxVelocityRps="21.300000000000001" WorkingRangeRev="4096" VelocityResolutionRps="268435" PositionResolutionRev="1048576" TorqueConstant="270" HasBrake="false" MotorType="AM8131-xFx0" SerialNumber="aa402gwb"/>
-                        <DriveSettings VelocityLimit="20" AccelerationLimit="100" CurrentLimit="0.5" InvertDirection="false" PositionFollowingErrorWindow="0.5" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
+                        <DriveSettings VelocityLimit="20" AccelerationLimit="100" CurrentLimit="1" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
                     </Actuator1>
                     <Actuator2>
                         <MotorNameplate IsIdentified="true" RatedCurrentAmps="8" MaxCurrentAmps="44.299999999999997" MaxVelocityRps="20.833333333333332" WorkingRangeRev="4096" VelocityResolutionRps="268435" PositionResolutionRev="1048576" TorqueConstant="296" HasBrake="false" MotorType="AM8132-xJx0" SerialNumber="aa401zxs"/>
-                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="0.5" InvertDirection="false" PositionFollowingErrorWindow="0.5" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
+                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="1" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="1" HaltRampDeceleration="100"/>
                     </Actuator2>
                     <PinInversion InvertA1="false" InvertA2="false" InvertB1="false" InvertB2="false"/>
                 </NodeSpecificData>
@@ -29,11 +29,12 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="15">
-                <NodeEditorPosition x="368" y="443"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="0" AccelerationLimit="0" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="1" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
+                <NodeEditorPosition x="360" y="295"/>
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="0" VelocityLimit="20" AccelerationLimit="20" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="1" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="-500" UpperPositionLimit="500" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0">
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="-0.86690521240234375"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -49,11 +50,12 @@
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="19" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="20" Visible="false"/>
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="21" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="22" Visible="true"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="22" Visible="false"/>
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="23" Visible="true"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="24" Visible="true"/>
                     <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="25" Visible="true"/>
                     <InputPin SaveString="ActuatorDevice0" DisplayString="Actuator Device 0" DataType="ActuatorInterface" UniqueID="30" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ActuatorDevice1" DisplayString="Actuator Device 1" DataType="ActuatorInterface" UniqueID="34" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="26" Visible="true" NoDataField="true"/>
@@ -65,6 +67,7 @@
         </Nodes>
         <Links>
             <Link UniqueID="32" StartPin="13" EndPin="30"/>
+            <Link UniqueID="35" StartPin="12" EndPin="34"/>
         </Links>
     </NodeGraph>
 </Environnement>

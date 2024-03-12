@@ -29,9 +29,8 @@ public:
 	std::vector<BoolParam> pinInversionParameters;
 	
 	std::string getDiagnosticsStringFromTextID(uint16_t textID);
-	void downloadDiagnostics();
-	void downloadLatestDiagnosticsMessage();
-	uint16_t latestDiagnosticsMessageTextID = 0x0;
+	void downloadCompleteDiagnostics();
+	void downloadLatestDiagnosticsMessage(uint16_t* output, bool* b_downloadFinished);
 	
 	void readMotorNameplatesAndConfigureDrive();
 	

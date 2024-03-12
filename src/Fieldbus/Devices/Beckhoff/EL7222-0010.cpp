@@ -359,7 +359,7 @@ std::string EL7222_0010::getDiagnosticsStringFromTextID(uint16_t textID){
 	}
 }
 
-void EL7222_0010::downloadDiagnostics(){
+void EL7222_0010::downloadCompleteDiagnostics(){
 		
 	uint8_t newestMessageSubindex;
 	if(!readSDO_U8(0x10F3, 0x2, newestMessageSubindex)) return;
@@ -387,23 +387,25 @@ void EL7222_0010::downloadDiagnostics(){
 	}
 }
 
-void EL7222_0010::downloadLatestDiagnosticsMessage(){
-	uint8_t newestMessageSubindex;
-	if(!readSDO_U8(0x10F3, 0x2, newestMessageSubindex)) return;
+void EL7222_0010::downloadLatestDiagnosticsMessage(uint16_t* output, bool* b_downloadFinished){
 	
-	uint8_t buffer[64];
-	int size = 64;
-	if(1 != ec_SDOread(getSlaveIndex(), 0x10F3, newestMessageSubindex, false, &size, &buffer, EC_TIMEOUTSAFE)) return;
+	if(output == nullptr || b_downloadFinished == nullptr) return;
+	*output = 0x0;
+	*b_downloadFinished = false;
 	
-	uint32_t diagCode = *((uint32_t*)(&buffer[0]));					//4bytes
-	uint16_t flags = *((uint16_t*)(&buffer[4]));					//2bytes
-	uint16_t textID = *((uint16_t*)(&buffer[6]));					//2bytes
-	uint64_t timestamp = *((uint64_t*)(&buffer[8]));				//8bytes
-	std::string message = getDiagnosticsStringFromTextID(textID);
-	if(flags == 0x0) 		Logger::info(		"<Info>    0x{:x} diagCode:{:x} time:{} : {}", textID, diagCode, timestamp, message);
-	else if(flags == 0x1) 	Logger::warn(		"<Warning> 0x{:x} diagCode:{:x} time:{} : {}", textID, diagCode, timestamp, message);
-	else if(flags == 0x2) 	Logger::error(		"<Error>   0x{:x} diagCode:{:x} time:{} : {}", textID, diagCode, timestamp, message);
-	else 					Logger::critical(	"<Message> 0x{:x} diagCode:{:x} time:{} : {}", textID, diagCode, timestamp, message);
+	
+	std::thread worker = std::thread([this, output, b_downloadFinished](){
+		uint8_t newestMessageSubindex;
+		if(!readSDO_U8(0x10F3, 0x2, newestMessageSubindex)) return;
+		uint8_t buffer[64];
+		int size = 64;
+		if(1 != ec_SDOread(getSlaveIndex(), 0x10F3, newestMessageSubindex, false, &size, &buffer, EC_TIMEOUTSAFE)) return;
+		uint16_t textID = *((uint16_t*)(&buffer[6]));					//2bytes
+		*output = textID;
+		*b_downloadFinished = true;
+	});
+	
+	worker.detach();
 	
 }
 

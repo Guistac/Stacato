@@ -67,13 +67,43 @@ void EL722x_Actuator::readInputs(){
 	
 	
 	//fault event detection
-	if(!processData.b_hadFault && statusWord.fault) Logger::warn("[{}] Fault Detected.", getName());
+	if(!processData.b_hadFault && statusWord.fault) {
+		Logger::warn("[{}] Fault Detected, downloading error code...", getName());
+		//since we can't have an error message in the process data
+		//we request an asynchronous download of the last diagnostics message by the drive
+		//this method will copy the last error message and raise a flag when it's done
+		std::static_pointer_cast<EL7222_0010>(etherCatDevice)->downloadLatestDiagnosticsMessage(&lastErrorTextID, &b_newErrorID);
+	}
 	else if(processData.b_hadFault && !statusWord.fault) Logger::info("[{}] Fault Cleared", getName());
 	processData.b_hadFault = statusWord.fault;
+	
+	//check if a new error id is available from download thread
+	if(b_newErrorID){
+		b_newErrorID = false;
+		lastErrorString = std::static_pointer_cast<EL7222_0010>(etherCatDevice)->getDiagnosticsStringFromTextID(lastErrorTextID);
+		Logger::warn("[{}] Error {:x} : {}", getName(), lastErrorTextID, lastErrorString);
+	}
    
 }
 
 void EL722x_Actuator::writeOutputs(){
+	
+	
+	if(feedbackProcessData.b_overridePosition){
+		feedbackProcessData.b_overridePosition = false;
+		feedbackProcessData.b_positionOverrideBusy = true;
+		actuatorProcessData.b_disable = true;
+	}
+	if(feedbackProcessData.b_positionOverrideBusy && !isEnabled()){
+		resetEncoderPosition(&feedbackProcessData.b_positionOverrideBusy, &feedbackProcessData.b_positionOverrideSucceeded);
+		feedbackProcessData.b_positionOverrideBusy = false;
+		feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	if(feedbackProcessData.b_positionOverrideSucceeded && !feedbackProcessData.b_positionOverrideBusy){
+		//we could automatically reenable after homing, but it's not really needed right now
+		//actuatorProcessData.b_enable = true;
+	}
+	
 	
 	//reset fault request bit
 	if(controlWord.faultReset) controlWord.faultReset = false;
@@ -279,10 +309,15 @@ bool EL722x_Actuator::readMotorNameplate(){
 }
 
 
-void EL722x_Actuator::resetEncoderPosition(){
-	 std::thread worker([this](){
+void EL722x_Actuator::resetEncoderPosition(bool* b_busy, bool* b_success){
+	
+	if(b_busy == nullptr || b_success == nullptr) return;
+	*b_busy = true;
+	*b_success = false;
+	
+	 std::thread worker([this, b_busy, b_success](){
 		
-		 auto overrideEncoderPosition = [this]() -> bool {
+		 auto overrideEncoderPosition = [this, b_busy, b_success]() -> bool {
 			 
 			 if(isEnabled()) {
 				 resetEncoderPositionProgress.write("Cannot reset encoder with power state enabled");
@@ -371,11 +406,14 @@ void EL722x_Actuator::resetEncoderPosition(){
 		 if(overrideEncoderPosition()) {
 			 resetEncoderPositionProgress.write("Done");
 			 Logger::info("Encoder Position Reset Succeeded.");
+			 *b_success = true;
 		 }
 		 else {
 			 resetEncoderPositionProgress.write("Failed");
 			 Logger::warn("Encoder Position Reset Failed.");
+			 *b_success = false;
 		 }
+		 *b_busy = false;
 		 
 		 
 	 });
@@ -514,7 +552,7 @@ std::string EL722x_Actuator::getStatusString(){
 	if(etherCatDevice->isOffline()) return "Drive is Offline.";
 	if(!etherCatDevice->isStateOperational()) return "Drive is not in Operational State.";
 	if(!processData.b_motorConnected) return "Motor is not connected or is being identified";
-	if(statusWord.fault) return "Axis has Fault";
+	if(statusWord.fault) return "Fault: " + lastErrorString;
 	if(isEnabled()) return "Drive is Enabled.";
 	if(isReady()) return "Drive is Ready.";
 	if(isEnabling()) return "Drive is Enabling...";
@@ -585,7 +623,7 @@ void EL722x_Actuator::gui(){
 
 			ImGui::Text("Status: %s", getStatusString().c_str());
 			
-			if(ImGui::Button("Reset Encoder Position")) resetEncoderPosition();
+			if(ImGui::Button("Reset Encoder Position")) feedbackProcessData.b_overridePosition = true;
 			ImGui::SameLine();
 			ImGui::Text("%s", resetEncoderPositionProgress.read().c_str());
 			

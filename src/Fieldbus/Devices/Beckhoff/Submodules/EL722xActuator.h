@@ -42,7 +42,7 @@ public:
 	
 
 	
-	void resetEncoderPosition();
+	void resetEncoderPosition(bool* b_busy, bool* b_success);
 	ThreadSafe<std::string> resetEncoderPositionProgress;
 	
 	void uploadParameters();
@@ -61,20 +61,6 @@ public:
 	std::shared_ptr<NodePin> digitalIn1Pin;
 	std::shared_ptr<NodePin> digitalIn2Pin;
 	
-	struct Nameplate{
-		bool b_motorIdentified = false;
-		double ratedCurrent_amps = 0.0;
-		double maxCurrent_amps = 0.0;
-		double maxVelocity_rps = 0.0;
-		double workingRange_rev = 0.0;
-		int velocityResolution_rps = 0;
-		int positionResolution_rev = 0;
-		double torqueConstant_mNmpA = 0.0;
-		std::string motorType = "Unknown";
-		std::string serialNumber = "Unknown";
-		std::string brakeType = "Unknown";
-	}nameplate;
-	
 	struct RxPDO{
 		uint16_t controlWord = 0;				//7010:1
 		int32_t targetVelocity = 0;				//7010:6
@@ -92,6 +78,23 @@ public:
 		uint16_t fbStatus = 0;					//6000:E
 		uint8_t modeOfOperationDisplay = 0;		//6010:3
 	}txPdo;
+	
+	
+private:
+	
+	struct Nameplate{
+		bool b_motorIdentified = false;
+		double ratedCurrent_amps = 0.0;
+		double maxCurrent_amps = 0.0;
+		double maxVelocity_rps = 0.0;
+		double workingRange_rev = 0.0;
+		int velocityResolution_rps = 0;
+		int positionResolution_rev = 0;
+		double torqueConstant_mNmpA = 0.0;
+		std::string motorType = "Unknown";
+		std::string serialNumber = "Unknown";
+		std::string brakeType = "Unknown";
+	}nameplate;
 	
 	struct StatusWord{
 		bool readyToSwitchOn = false;
@@ -159,8 +162,6 @@ public:
 		bool load(tinyxml2::XMLElement* parent);
 	}driveSettings;
 	
-	
-private:
 	std::shared_ptr<EtherCatDevice> etherCatDevice;
 	int channel; //add an offset of 0x100 on CanOpen indeces for 2nd channel on devices that support it
 	virtual std::string getName() override {
@@ -181,6 +182,10 @@ private:
 	}
 	virtual std::string getStatusString() override;
 	void updateProprieties();
+	
+	bool b_newErrorID = false;
+	uint16_t lastErrorTextID = 0x0;
+	std::string lastErrorString = "";
 
 };
 
