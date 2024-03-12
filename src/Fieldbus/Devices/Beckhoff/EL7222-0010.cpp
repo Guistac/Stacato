@@ -20,14 +20,16 @@ void EL7222_0010::initialize() {
 	
 	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
+	for(int i = 0; i < 4; i++) digitalInputValues.push_back(std::make_shared<bool>(false));
+	digitalInputPins.push_back(std::make_shared<NodePin>(digitalInputValues[0], NodePin::Direction::NODE_OUTPUT, "1A"));
+	digitalInputPins.push_back(std::make_shared<NodePin>(digitalInputValues[1], NodePin::Direction::NODE_OUTPUT, "2A"));
+	digitalInputPins.push_back(std::make_shared<NodePin>(digitalInputValues[2], NodePin::Direction::NODE_OUTPUT, "1B"));
+	digitalInputPins.push_back(std::make_shared<NodePin>(digitalInputValues[3], NodePin::Direction::NODE_OUTPUT, "2B"));
+	
 	addNodePin(actuator1->actuatorPin);
 	addNodePin(actuator2->actuatorPin);
 	addNodePin(gpioPin);
-	addNodePin(digitalInput1A_pin);
-	addNodePin(digitalInput2A_pin);
-	addNodePin(digitalInput1B_pin);
-	addNodePin(digitalInput2B_pin);
-	
+	for(int i = 0; i < 4; i++) addNodePin(digitalInputPins[i]);
 	
 	rxPdoAssignement.addNewModule(0x1610);
 	rxPdoAssignement.addEntry(0x7010, 0x1, 16, "CH1 Control Word", &actuator1->rxPdo.controlWord);
@@ -64,7 +66,7 @@ void EL7222_0010::initialize() {
 	txPdoAssignement.addNewModule(0x1A13);
 	txPdoAssignement.addEntry(0x6010, 0x8, 16, "CH1 Torque Actual Value", &actuator1->txPdo.torqueActualValue);
 	txPdoAssignement.addNewModule(0x1A14);
-	txPdoAssignement.addEntry(0x6010, 0x12, 16, "CH1 Info Data 1", &actuator1->txPdo.infoData2_digitalInputs);
+	txPdoAssignement.addEntry(0x6010, 0x1, 16, "CH1 Info Data 1", &txPdo.infoData1_digitalInputs);
 	txPdoAssignement.addNewModule(0x1A17);
 	txPdoAssignement.addEntry(0x6010, 0x3, 8, "CH1 Modes of Operation Display", &actuator1->txPdo.modeOfOperationDisplay);
 	
@@ -80,10 +82,13 @@ void EL7222_0010::initialize() {
 	txPdoAssignement.addEntry(0x6110, 0x7, 32, "CH2 Velocity Actual Value", &actuator2->txPdo.velocityActualValue);
 	txPdoAssignement.addNewModule(0x1A53);
 	txPdoAssignement.addEntry(0x6110, 0x8, 16, "CH2 Torque Actual Value", &actuator2->txPdo.torqueActualValue);
-	txPdoAssignement.addNewModule(0x1A54);
-	txPdoAssignement.addEntry(0x6110, 0x12, 16, "CH2 Info Data 1", &actuator2->txPdo.infoData2_digitalInputs);
 	txPdoAssignement.addNewModule(0x1A57);
 	txPdoAssignement.addEntry(0x6110, 0x3, 8, "CH2 Modes of Operation Display", &actuator2->txPdo.modeOfOperationDisplay);
+	
+	pinInversionParameters.push_back(BooleanParameter::make(false, "Invert A1", "InvertA1"));
+	pinInversionParameters.push_back(BooleanParameter::make(false, "Invert A2", "InvertA2"));
+	pinInversionParameters.push_back(BooleanParameter::make(false, "Invert B1", "InvertB1"));
+	pinInversionParameters.push_back(BooleanParameter::make(false, "Invert B2", "InvertB2"));
 	
 }
 
@@ -110,6 +115,17 @@ void EL7222_0010::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	actuator1->readInputs();
 	actuator2->readInputs();
+	
+	bool digitalInputs[4] = {
+		bool(txPdo.infoData1_digitalInputs & 0x1),
+		bool(txPdo.infoData1_digitalInputs & 0x2),
+		bool(txPdo.infoData1_digitalInputs & 0x100),
+		bool(txPdo.infoData1_digitalInputs & 0x200)
+	};
+	for(int i = 0; i < 4; i++) {
+		if(pinInversionParameters[i]->value) digitalInputs[i] = !digitalInputs[i];
+		*digitalInputValues[i] = digitalInputs[i];
+	}
 }
 
 
@@ -140,11 +156,12 @@ void EL7222_0010::readMotorNameplatesAndConfigureDrive(){
 			if(!writeSDO_U8(0x8108, 0x3, 1, "CH2 Reconfig Non-Identical Motor")) return false;
 			
 			//Now we want to trigger scanning of the drives OCT interfaces to read the motor nameplates
-			//to do this we must take the drive through the Ethercat state machine up to Safe-Operational
-			//the following song and dance is to satisfy all requirements to go from PreOp to SafeOp
-			//we have to to PDO configuration, DC and Sync configuration as well as SyncManager Configuration
-			//This is really stupid and complicated, thanks Beckhoff...
-			
+			//To do this we must take the drive through the Ethercat state machine up to Safe-Operational
+			//After scanning we're already in PreOp state
+			//The following song and dance is to satisfy all requirements to go from PreOp to SafeOp
+			//We have to to PDO configuration, DC and Sync configuration as well as SyncManager Configuration
+			//This is really stupid and complicated, couldn't you just have implemented a CanOpen command for OCT scanning ?
+			//Also your documentation says almost nothing about how to even do this this, you're just trying to force me to use twincat, Thanks Beckhoff...
 			
 			//first take the drive to preop if it is not already there (like it should after being scanned)
 			if(EC_STATE_PRE_OP != ec_statecheck(getSlaveIndex(), EC_STATE_PRE_OP, EC_TIMEOUTSAFE)){
@@ -372,6 +389,8 @@ bool EL7222_0010::saveDeviceData(tinyxml2::XMLElement* xml) {
 	XMLElement* actuator2XML = xml->InsertNewChildElement("Actuator2");
 	actuator1->save(actuator1XML);
 	actuator2->save(actuator2XML);
+	XMLElement* pinInversionsXML = xml->InsertNewChildElement("PinInversion");
+	for(auto parameter : pinInversionParameters) parameter->save(pinInversionsXML);
 	return true;
 }
 
@@ -388,6 +407,10 @@ bool EL7222_0010::loadDeviceData(tinyxml2::XMLElement* xml) {
 	if(XMLElement* actuatorXML = xml->FirstChildElement("Actuator2")){
 		if(!actuator2->load(actuatorXML)) b_success = false;
 	}else b_success = false;
+	
+	if(XMLElement* pinInversionsXML = xml->FirstChildElement("PinInversion")){
+		for(auto parameter : pinInversionParameters) parameter->load(pinInversionsXML);
+	}
 	
 	return b_success;
 }

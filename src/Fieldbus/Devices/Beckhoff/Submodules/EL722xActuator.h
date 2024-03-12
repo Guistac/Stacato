@@ -88,9 +88,7 @@ public:
 		uint16_t statusWord = 0;				//6010:1
 		int32_t velocityActualValue = 0;		//6010:7
 		int16_t torqueActualValue = 0;			//6010:8
-		uint16_t infoData1_dcLinkVoltage = 0;
-		uint16_t infoData2_digitalInputs = 0;
-		//uint16_t infoData3 = 0; //is available but we don't use it
+		uint16_t infoData1_digitalInputs = 0;	//i dunno bro
 		int32_t followingErrorActualValue = 0;	//6010:6
 		uint16_t fbStatus = 0;					//6000:E/F
 		uint8_t modeOfOperationDisplay = 0;		//6010:3

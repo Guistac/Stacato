@@ -13,8 +13,22 @@ void EL7222_0010::deviceSpecificGui() {
 				ImGui::EndTabItem();
 			}
 			if(ImGui::BeginTabItem("Drive")){
+				
+				ImGui::PushFont(Fonts::sansBold20);
+				ImGui::Text("Utilities");
+				ImGui::PopFont();
+				
 				if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
 				if(ImGui::Button("Detect Motors")) readMotorNameplatesAndConfigureDrive();
+				
+				ImGui::Separator();
+				
+				ImGui::PushFont(Fonts::sansBold20);
+				ImGui::Text("Digital Input Inversion");
+				ImGui::PopFont();
+				
+				for(auto parameter : pinInversionParameters) parameter->gui(parameter->value ? Fonts::sansBold15 : Fonts::sansRegular15);
+				
 				ImGui::EndTabItem();
 			}
 				
