@@ -1,5 +1,19 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence"/>
+        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+            <Animation Machine="Position Controlled Machine" MachineUniqueID="200" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-1800" End="-1800" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="1775" Time="209.80573543015726" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="-1785" Time="402.12765957446805" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1765" Time="592.70123291015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="-1735" Time="818.24237060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1735.2777777777774" Time="1038.184680436869" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="-1740.4166666666667" Time="1257.0860314523588" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1735.2777777777774" Time="1477.382053654024" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

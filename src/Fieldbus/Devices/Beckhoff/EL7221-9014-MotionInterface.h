@@ -107,6 +107,7 @@ public:
 	struct ProcessData{
 		bool b_motorConnected = false;
 		bool b_waitingForEnable = false;
+		bool b_enableTarget = false;
 		uint64_t enableRequestTime_nanos;
 		bool b_hadFault = false;
 		PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;

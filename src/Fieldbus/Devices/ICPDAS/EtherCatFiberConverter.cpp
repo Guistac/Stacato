@@ -29,3 +29,11 @@ void ECAT_2515_6PortJunction::writeOutputs(){}
 bool ECAT_2515_6PortJunction::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool ECAT_2515_6PortJunction::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
+void ECAT_2517_7PortJunction::onDisconnection() {}
+void ECAT_2517_7PortJunction::onConnection() {}
+void ECAT_2517_7PortJunction::initialize() {}
+bool ECAT_2517_7PortJunction::startupConfiguration() { return true; }
+void ECAT_2517_7PortJunction::readInputs() {}
+void ECAT_2517_7PortJunction::writeOutputs(){}
+bool ECAT_2517_7PortJunction::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool ECAT_2517_7PortJunction::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

@@ -48,6 +48,7 @@ namespace NodeFactory{
             new ECAT_2511_A_FiberConverter(),
             new ECAT_2511_B_FiberConverter(),
 			new ECAT_2515_6PortJunction(),
+			new ECAT_2517_7PortJunction(),
 			new KincoFD()
 		};
 

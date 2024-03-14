@@ -126,13 +126,10 @@ void EL7221_9014::readInputs() {
 	
 	if(!processData.b_motorConnected) 										actuator->state = DeviceState::NOT_READY;
 	else if(actuator->isEmergencyStopActive())								actuator->state = DeviceState::NOT_READY;
-	else if(processData.powerStateActual == PowerState::OPERATION_ENABLED && processData.powerStateTarget != PowerState::OPERATION_ENABLED)	actuator->state = DeviceState::DISABLING;
-	else if(processData.powerStateTarget == PowerState::OPERATION_ENABLED && processData.powerStateActual != PowerState::OPERATION_ENABLED) actuator->state = DeviceState::ENABLING;
-	else if(processData.powerStateActual == PowerState::OPERATION_ENABLED)	actuator->state = DeviceState::ENABLED;
-	else if(processData.powerStateActual == PowerState::READY_TO_SWITCH_ON) actuator->state = DeviceState::READY;
-	else if(processData.powerStateActual == PowerState::SWITCHED_ON) 		actuator->state = DeviceState::READY;
-	else if(processData.powerStateActual == PowerState::FAULT)				actuator->state = DeviceState::READY;
-	else 																	actuator->state = DeviceState::NOT_READY;
+	else if(statusWord.operationEnabled && !processData.b_enableTarget)		actuator->state = DeviceState::DISABLING;
+	else if(!statusWord.operationEnabled && processData.b_enableTarget)		actuator->state = DeviceState::ENABLING;
+	else if(statusWord.operationEnabled)									actuator->state = DeviceState::ENABLED;
+	else 																	actuator->state = DeviceState::READY;
 	
 	//fault event detection
 	if(!processData.b_hadFault && statusWord.fault){
@@ -161,51 +158,60 @@ void EL7221_9014::writeOutputs(){
 	if(actuator->actuatorProcessData.b_disable){
 		actuator->actuatorProcessData.b_disable = false;
 		processData.b_waitingForEnable = false;
+		processData.b_enableTarget = false;
 		processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
 	}
 	
 	if(processData.b_waitingForEnable){
-		if(!statusWord.fault) processData.powerStateTarget = PowerState::OPERATION_ENABLED;
-		//else processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-		double timeSinceEnableRequest_ms = double(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - processData.enableRequestTime_nanos) / 1000000.0;
-		if(timeSinceEnableRequest_ms > 100.0){
+		//don't enable while there is a fault
+		processData.b_enableTarget = !statusWord.fault;
+		//check for enable timeout
+		if(cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos > 300'000'000){
 			Logger::warn("[{}] Enable request timed out", getName());
 			processData.b_waitingForEnable = false;
-			processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
+			processData.b_enableTarget = false;
 		}
-		if(processData.powerStateActual == PowerState::OPERATION_ENABLED) {
+		//check if drive is enabled
+		else if(statusWord.operationEnabled){
 			processData.b_waitingForEnable = false;
-			Logger::trace("[{}] Drive Enabled (took {}ms)", getName(), timeSinceEnableRequest_ms);
+			Logger::trace("[{}] Drive Enabled (took {}ms)", getName(), double(cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos) / 1000000.0);
 		}
 	}
-	else if(statusWord.fault) processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
-	
-	switch(processData.powerStateTarget){
-		case PowerState::OPERATION_ENABLED:
-			controlWord.enableVoltage = true;
-			controlWord.switchOn = true;
-			controlWord.enableOperation = true;
-			break;
-		case PowerState::SWITCHED_ON:
-			controlWord.enableVoltage = true;
-			controlWord.switchOn = true;
-			controlWord.enableOperation = false;
-			break;
-		case PowerState::READY_TO_SWITCH_ON:
-			controlWord.enableVoltage = true;
-			controlWord.switchOn = false;
-			controlWord.enableOperation = false;
-			break;
-		case PowerState::SWITCH_ON_DISABLED:
-			controlWord.enableVoltage = false;
-			controlWord.switchOn = false;
-			controlWord.enableOperation = false;
-			break;
-		default:
-			controlWord.enableVoltage = false;
-			controlWord.switchOn = false;
-			controlWord.enableOperation = false;
+	//react to unexpected drive disable
+	else if(processData.b_enableTarget && !statusWord.operationEnabled){
+		processData.b_enableTarget = false;
+		processData.b_waitingForEnable = false;
+		Logger::warn("[{}] Drive was Disabled", getName());
 	}
+	
+	
+	//DS402 State Machine Control
+	if(processData.b_enableTarget && statusWord.switchedOn){
+		//third: enable operation
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = true;
+		controlWord.enableOperation = true;
+	}
+	else if(processData.b_enableTarget && statusWord.readyToSwitchOn){
+		//second: switch on
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = true;
+		controlWord.enableOperation = false;
+	}
+	else if(processData.b_enableTarget && statusWord.switchOnDisabled){
+		//first: enable voltage
+		controlWord.enableVoltage = true;
+		controlWord.switchOn = false;
+		controlWord.enableOperation = false;
+	}
+	else{
+		//if the drive is disabled, we go to this state
+		//another state doesn't allow us to reset encoder position offset
+		controlWord.enableVoltage = false;
+		controlWord.switchOn = false;
+		controlWord.enableOperation = false;
+	}
+	
 	rxPdo.controlWord = 0x0;
 	if(controlWord.switchOn) 		rxPdo.controlWord |= 0x1 << 0;
 	if(controlWord.enableVoltage) 	rxPdo.controlWord |= 0x1 << 1;

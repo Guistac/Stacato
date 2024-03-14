@@ -26,3 +26,5 @@ void ECAT_2515_6PortJunction::deviceSpecificGui() {
 		ImGui::EndTabItem();
 	}
 }
+
+void ECAT_2517_7PortJunction::deviceSpecificGui() {}
