@@ -84,13 +84,6 @@ void EL7221_9014::readInputs() {
 	statusWord.internalLimitActive	= bool(txPdo.statusWord & (0x1 << 11));
 	statusWord.commandValueFollowed	= bool(txPdo.statusWord & (0x1 << 12));
 	
-	if(statusWord.fault)					processData.powerStateActual = PowerState::FAULT;
-	else if(statusWord.operationEnabled)	processData.powerStateActual = PowerState::OPERATION_ENABLED;
-	else if(statusWord.switchedOn)			processData.powerStateActual = PowerState::SWITCHED_ON;
-	else if(statusWord.readyToSwitchOn)		processData.powerStateActual = PowerState::READY_TO_SWITCH_ON;
-	else if(statusWord.switchOnDisabled)	processData.powerStateActual = PowerState::SWITCH_ON_DISABLED;
-	else 									processData.powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-	
 	driverErrors.adc				= bool(txPdo.infoData1_errors & (0x1 << 0));
 	driverErrors.overcurrent		= bool(txPdo.infoData1_errors & (0x1 << 1));
 	driverErrors.undervoltage		= bool(txPdo.infoData1_errors & (0x1 << 2));
@@ -146,6 +139,21 @@ void EL7221_9014::readInputs() {
 
 void EL7221_9014::writeOutputs(){
 	
+	if(actuator->feedbackProcessData.b_overridePosition){
+		actuator->feedbackProcessData.b_overridePosition = false;
+		actuator->feedbackProcessData.b_positionOverrideBusy = true;
+		actuator->actuatorProcessData.b_disable = true;
+	}
+	if(actuator->feedbackProcessData.b_positionOverrideBusy && !actuator->isEnabled()){
+		resetEncoderPosition(&actuator->feedbackProcessData.b_positionOverrideBusy, &actuator->feedbackProcessData.b_positionOverrideSucceeded);
+		actuator->feedbackProcessData.b_positionOverrideBusy = false;
+		actuator->feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
+	if(actuator->feedbackProcessData.b_positionOverrideSucceeded && !actuator->feedbackProcessData.b_positionOverrideBusy){
+		//we could automatically reenable after homing, but it's not really needed right now
+		//actuatorProcessData.b_enable = true;
+	}
+	
 	//reset fault request bit
 	if(controlWord.faultReset) controlWord.faultReset = false;
 	
@@ -159,7 +167,6 @@ void EL7221_9014::writeOutputs(){
 		actuator->actuatorProcessData.b_disable = false;
 		processData.b_waitingForEnable = false;
 		processData.b_enableTarget = false;
-		processData.powerStateTarget = PowerState::READY_TO_SWITCH_ON;
 	}
 	
 	if(processData.b_waitingForEnable){
@@ -219,23 +226,45 @@ void EL7221_9014::writeOutputs(){
 	if(controlWord.enableOperation) rxPdo.controlWord |= 0x1 << 3;
 	if(controlWord.faultReset)		rxPdo.controlWord |= 0x1 << 7;
 	
-	rxPdo.targetVelocity = actuator->actuatorProcessData.velocityTarget * motorNameplate.velocityResolution_rps;
-	rxPdo.targetPosition = std::abs(actuator->actuatorProcessData.positionTarget) * motorNameplate.positionResolution_rev;
-	if(actuator->actuatorProcessData.positionTarget < 0.0) rxPdo.targetPosition = UINT32_MAX - rxPdo.targetPosition;
-	
-	switch(actuator->actuatorProcessData.controlMode){
-		case ActuatorInterface::ControlMode::POSITION:
-			rxPdo.modeOfOperationSelection = 0x8;
-			break;
-		case ActuatorInterface::ControlMode::VELOCITY:
-			rxPdo.modeOfOperationSelection = 0x9;
-			break;
-		case ActuatorInterface::ControlMode::FORCE:
-			rxPdo.modeOfOperationSelection = 0xA;
-			break;
+	//set operating mode
+	if(!actuatorPin->isConnected()) {
+		
+		rxPdo.modeOfOperationSelection = 0x9;
+		
+		//update manual velocity profile generator
+		double velocityDelta_rps = std::abs(driveSettings.accelerationLimit->value * cycleDeltaTime_seconds);
+		if(processData.manualVelocityProfile_rps < processData.manualVelocityTarget_rps){
+			processData.manualVelocityProfile_rps += velocityDelta_rps;
+			if(processData.manualVelocityProfile_rps > processData.manualVelocityTarget_rps){
+				processData.manualVelocityProfile_rps = processData.manualVelocityTarget_rps;
+			}
+		}
+		else if(processData.manualVelocityProfile_rps > processData.manualVelocityTarget_rps){
+			processData.manualVelocityProfile_rps -= velocityDelta_rps;
+			if(processData.manualVelocityProfile_rps < processData.manualVelocityTarget_rps){
+				processData.manualVelocityProfile_rps = processData.manualVelocityTarget_rps;
+			}
+		}
+		if(!actuator->isEnabled()) processData.manualVelocityProfile_rps = 0.0;
+		rxPdo.targetVelocity = processData.manualVelocityProfile_rps * motorNameplate.velocityResolution_rps;
+		 
+	}
+	else{
+		processData.manualVelocityTarget_rps = 0.0;
+		processData.manualVelocityProfile_rps = 0.0;
+		switch(actuator->actuatorProcessData.controlMode){
+			case ActuatorInterface::ControlMode::POSITION:	rxPdo.modeOfOperationSelection = 0x8; break;
+			case ActuatorInterface::ControlMode::VELOCITY:	rxPdo.modeOfOperationSelection = 0x9; break;
+			case ActuatorInterface::ControlMode::FORCE: 	rxPdo.modeOfOperationSelection = 0xA; break;
+		}
+		rxPdo.targetVelocity = actuator->actuatorProcessData.velocityTarget * motorNameplate.velocityResolution_rps;
 	}
 	
+	rxPdo.targetPosition = std::abs(actuator->actuatorProcessData.positionTarget) * motorNameplate.positionResolution_rev;
+	if(actuator->actuatorProcessData.positionTarget < 0.0) rxPdo.targetPosition = UINT32_MAX - rxPdo.targetPosition;
+
 	rxPdoAssignement.pushDataTo(identity->outputs);
+	
 }
 
 
@@ -398,6 +427,7 @@ void EL7221_9014::firstSetup(){
 	worker.detach();
 }
 
+/*
 void EL7221_9014::resetEncoderPosition(){
 	std::thread worker([this](){
 		
@@ -492,6 +522,118 @@ void EL7221_9014::resetEncoderPosition(){
 		
 	});
 	worker.detach();
+}
+*/
+
+void EL7221_9014::resetEncoderPosition(bool* b_busy, bool* b_success){
+	
+	if(b_busy == nullptr || b_success == nullptr) return;
+	*b_busy = true;
+	*b_success = false;
+	
+	 std::thread worker([this, b_busy, b_success](){
+		
+		 auto overrideEncoderPosition = [this, b_busy, b_success]() -> bool {
+			 
+			 if(actuator->isEnabled()) {
+				 //resetEncoderPositionProgress.write("Cannot reset encoder with power state enabled");
+				 return false;
+			 }
+			 if(!isStateOperational()) {
+				 //resetEncoderPositionProgress.write("Cannot reset encoder while fieldbus is not running");
+				 return false;
+			 }
+		
+			 //resetEncoderPositionProgress.write("Starting");
+			 
+			 uint8_t fbPositionValid;
+			 if(!readSDO_U8(0x6000, 0xE, fbPositionValid) || fbPositionValid != 0x0){
+				 Logger::warn("Motor is Offline or being identified.");
+				 return false;
+			 }
+
+			 uint32_t positionEncoderResolution; //increments per encoder revolution
+			 if(!readSDO_U32(0x9010, 0x15, positionEncoderResolution, "Position Encoder Resolution")) return false;
+			 uint32_t encoderWorkingRangeRevolutions; //amount of turns
+			 if(!readSDO_U32(0x9008, 0x13, encoderWorkingRangeRevolutions, "Encoder Working Range")) return false;
+			 uint32_t positionActual; //position feedback pdo
+			 if(!readSDO_U32(0x6000, 0x11, positionActual, "Encoder Position")) return false;
+			 uint32_t currentEncoderOffset; //offset stored inside the motor nameplate
+			 if(!readSDO_U32(0x9008, 0x20, currentEncoderOffset, "Encoder Position Offset")) return false;
+			 
+			 //the offset should not be bigger than the entire resolution of the encoder
+			 //for the motors we know, that resolution is 20bits ST + 12 bits multiturn
+			 //so an offset greater than UINT32_MAX cannot exist
+			 //in the case of our motors the following maxOffset evaluates to 0, which is equal to 2^32
+			 //since the offset is also an uint32_t, any offset higher than that gets capped by the container bounds
+			 //if there is ever an encoder with less resolution connected, this takes care of capping the max offset
+			 uint32_t maxOffset = positionEncoderResolution * encoderWorkingRangeRevolutions;
+			 
+			 //positionActual = rawEncoderPosition - currentEncoderOffset
+			 //rawEncoderPosition = positionActual + currentEncoderOffset
+			 //rawEncoderPosition - newOffset = desiredPosition
+			 //newOffset = rawEncoderPosition - desiredPosition
+			 //if desired position == 0 then newOffset == rawEncoderPosition
+			 
+			 uint64_t rawPosition = positionActual + currentEncoderOffset;
+			 if(maxOffset != 0) while(rawPosition >= maxOffset) rawPosition -= maxOffset;
+			 uint32_t newEncoderOffset = uint32_t(rawPosition);
+			 
+			 Logger::info("Actual Position: {}", positionActual);
+			 Logger::info("Current Offset: {}", currentEncoderOffset);
+			 Logger::info("Raw Position: {}", rawPosition);
+			 Logger::info("New Offset: {}", newEncoderOffset);
+			 Logger::info("Starting encoder offset write...");
+			 
+			 //Set OCT Interface Command to "Write Encoder Position Offset"
+			 if(!writeSDO_S16(0xB001, 0x1, 16, "OCT Interface Command 'Write Encoder Position Offset'")) return false;
+					 
+			 //Set Data Buffer containing new position offset
+			 uint32_t buffer[8] = {newEncoderOffset,0,0,0,0,0,0,0};
+			 if(1 != ec_SDOwrite(getSlaveIndex(), 0xB001, 0x6, false, 32, buffer, EC_TIMEOUTSAFE)) {
+				 Logger::warn("Could not upload encoder position offset to data buffer");
+				 return false;
+			 }
+			 
+			 //Execute Command
+			 if(!writeSDO_S16(0xB001, 0x5, 1, "Execute OCT Interface Command")) return false;
+			 
+			 //resetEncoderPositionProgress.write("Waiting for encoder");
+			 
+			 //Wait for command status update
+			 double commandExecuteTime = Timing::getProgramTime_seconds();
+			 while(true){
+				 std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				 
+				 uint32_t readback;
+				 if(!readSDO_U32(0x9008, 0x20, readback, "Encoder Position Offset")) return false;
+				 if(readback == newEncoderOffset) break;
+	
+				 if(Timing::getProgramTime_seconds() - commandExecuteTime > 2.0){
+					 Logger::warn("Encoder offset write timed out.");
+					 return false;
+				 }
+			 }
+			 
+			 return true;
+			 
+		 };
+		 
+		 if(overrideEncoderPosition()) {
+			 //resetEncoderPositionProgress.write("Done");
+			 Logger::info("Encoder Position Reset Succeeded.");
+			 *b_success = true;
+		 }
+		 else {
+			 //resetEncoderPositionProgress.write("Failed");
+			 Logger::warn("Encoder Position Reset Failed.");
+			 *b_success = false;
+		 }
+		 *b_busy = false;
+		 
+		 
+	 });
+	 worker.detach();
 }
 
 

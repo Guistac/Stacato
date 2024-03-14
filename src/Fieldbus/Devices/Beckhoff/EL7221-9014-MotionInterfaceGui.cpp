@@ -136,13 +136,8 @@ void EL7221_9014::controlTab(){
 		ImGui::EndDisabled();
 	}
 	
-	if(ImGui::SliderFloat("##TargetVelocity", &velocitySliderValue, -actuator->getVelocityLimit(), actuator->getVelocityLimit())){
-		actuator->setVelocityTarget(velocitySliderValue);
-	}
-	if(ImGui::IsItemDeactivatedAfterEdit()) {
-		actuator->setVelocityTarget(0.0);
-		velocitySliderValue = 0.0;
-	}
+	ImGui::SliderFloat("##TargetVelocity", &processData.manualVelocityTarget_rps, -actuator->getVelocityLimit(), actuator->getVelocityLimit());
+	if(ImGui::IsItemDeactivatedAfterEdit()) processData.manualVelocityTarget_rps = 0.0;
 	
 	float velocityNormalized = actuator->getVelocityNormalized();
 	float positionNormalized = actuator->getPositionNormalizedToWorkingRange();
@@ -165,7 +160,7 @@ void EL7221_9014::controlTab(){
 	ImGui::SameLine();
 	if(ImGui::Button("Download Diagnostics")) downloadDiagnostics();
 	
-	if(ImGui::Button("Reset Encoder Position")) resetEncoderPosition();
+	if(ImGui::Button("Reset Encoder Position")) actuator->feedbackProcessData.b_overridePosition = true;
 	
 	ImGui::Text("Status: %s", actuator->getStatusString().c_str());
 	ImGui::Text("Position: %.3frev", actuator->getPosition());

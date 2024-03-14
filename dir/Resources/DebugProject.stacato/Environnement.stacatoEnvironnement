@@ -250,19 +250,19 @@
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
                         <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="0.38211822509765625"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice2" ControlMode="1" UnitConversion="1" PositionOffset="-0.38260650634765625"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice3" ControlMode="1" UnitConversion="1" PositionOffset="-0.46879959106445312"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice4" ControlMode="1" UnitConversion="1" PositionOffset="713.29964447021484"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice5" ControlMode="1" UnitConversion="1" PositionOffset="430.13278579711914"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice6" ControlMode="1" UnitConversion="1" PositionOffset="-3.0842971801757812"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice7" ControlMode="1" UnitConversion="1" PositionOffset="-0.40085983276367188"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice8" ControlMode="1" UnitConversion="1" PositionOffset="-0.380157470703125"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice9" ControlMode="1" UnitConversion="1" PositionOffset="0.223114013671875"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice2" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice3" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice4" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice5" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice6" ControlMode="1" UnitConversion="1" PositionOffset="-75.426033020019531"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice7" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice8" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice9" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
                         <ActuatorMapping PinSaveName="ActuatorDevice10" ControlMode="1" UnitConversion="1" PositionOffset="179.04045486450195"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice11" ControlMode="1" UnitConversion="1" PositionOffset="-0.54656219482421875"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice11" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
-                    <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
-                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice2"/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice2"/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
@@ -315,18 +315,23 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="204" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:0)" UniqueID="217">
+                <NodeEditorPosition x="457" y="23"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
         </Nodes>
         <Links>
-            <Link UniqueID="187" StartPin="109" EndPin="175"/>
             <Link UniqueID="189" StartPin="86" EndPin="177"/>
             <Link UniqueID="190" StartPin="87" EndPin="178"/>
             <Link UniqueID="191" StartPin="94" EndPin="179"/>
             <Link UniqueID="192" StartPin="95" EndPin="180"/>
-            <Link UniqueID="193" StartPin="30" EndPin="181"/>
             <Link UniqueID="194" StartPin="35" EndPin="182"/>
             <Link UniqueID="195" StartPin="36" EndPin="183"/>
             <Link UniqueID="196" StartPin="51" EndPin="184"/>
-            <Link UniqueID="198" StartPin="115" EndPin="186"/>
             <Link UniqueID="209" StartPin="171" EndPin="202"/>
         </Links>
     </NodeGraph>

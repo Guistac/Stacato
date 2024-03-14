@@ -110,11 +110,9 @@ public:
 		bool b_enableTarget = false;
 		uint64_t enableRequestTime_nanos;
 		bool b_hadFault = false;
-		PowerState powerStateActual = PowerState::NOT_READY_TO_SWITCH_ON;
-		PowerState powerStateTarget = PowerState::READY_TO_SWITCH_ON;
+		float manualVelocityTarget_rps = 0.0;
+		double manualVelocityProfile_rps = 0.0;
 	}processData;
-	
-	float velocitySliderValue = 0.0;
 	
 	struct MotorNameplate{
 		bool b_motorIdentified = false;
@@ -155,7 +153,7 @@ public:
 	void settingsTab();
 	
 	void firstSetup();
-	void resetEncoderPosition();
+	void resetEncoderPosition(bool* b_busy, bool* b_success);
 	void downloadDiagnostics();
 	void uploadParameters();
 	
