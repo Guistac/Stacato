@@ -245,6 +245,7 @@ public:
 	uint64_t cycleProgramTime_nanoseconds = 0;
 	uint64_t cycleDeltaTime_nanoseconds = 0;
 	double cycleDeltaTime_seconds = 0.0;
+	uint64_t dcStartTime_nanoseconds = 0;
 };
 
 #define EtherCatIdentificationTypeStrings \

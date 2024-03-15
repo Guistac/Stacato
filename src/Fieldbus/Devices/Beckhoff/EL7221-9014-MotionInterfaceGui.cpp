@@ -204,6 +204,11 @@ void EL7221_9014::settingsTab(){
 	
 	if(ImGui::Button("Upload Parameters")) uploadParameters();
 	
+	ImGui::Separator();
+	
+	invertDI1_param->gui(invertDI1_param->value ? Fonts::sansBold15 : Fonts::sansRegular15);
+	invertDI2_param->gui(invertDI2_param->value ? Fonts::sansBold15 : Fonts::sansRegular15);
+	
 }
 
 

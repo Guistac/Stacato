@@ -13,6 +13,7 @@ public:
 		std::shared_ptr<EL7221_9014> etherCatDevice;
 		virtual std::string getName() override { return std::string(etherCatDevice->getName()) + " Servo Motor"; }
 		virtual std::string getStatusString() override;
+		std::string lastErrorString = "";
 	};
 	
 	class EL7211Gpio : public GpioInterface{
@@ -32,6 +33,9 @@ public:
 	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "GPIO");
 	std::shared_ptr<NodePin> digitalInput1_pin = std::make_shared<NodePin>(digitalInput1_Value, NodePin::Direction::NODE_OUTPUT, "DI1");
 	std::shared_ptr<NodePin> digitalInput2_pin = std::make_shared<NodePin>(digitalInput2_Value, NodePin::Direction::NODE_OUTPUT, "DI2");
+	
+	BoolParam invertDI1_param = BooleanParameter::make(false, "Invert DI1", "InvertDI1");
+	BoolParam invertDI2_param = BooleanParameter::make(false, "Invert DI2", "InvertDI2");
 	
 	struct RxPDO{
 		uint16_t controlWord = 0;				//7010:1
@@ -112,6 +116,8 @@ public:
 		bool b_hadFault = false;
 		float manualVelocityTarget_rps = 0.0;
 		double manualVelocityProfile_rps = 0.0;
+		uint16_t lastErrorTextID = 0x0;
+		bool b_newErrorID = false;
 	}processData;
 	
 	struct MotorNameplate{
@@ -152,9 +158,11 @@ public:
 	void controlTab();
 	void settingsTab();
 	
+	std::string getDiagnosticsStringFromTextID(uint16_t textID);
 	void firstSetup();
 	void resetEncoderPosition(bool* b_busy, bool* b_success);
 	void downloadDiagnostics();
+	void downloadLatestDiagnosticsMessage(uint16_t* output, bool* b_downloadFinished);
 	void uploadParameters();
 	
 	void updateActuatorInterface();

@@ -128,7 +128,7 @@ void EL722x_Actuator::writeOutputs(){
 		//don't enable while there is a fault
 		processData.b_enableTarget = !statusWord.fault;
 		//check for enable timeout
-		if(etherCatDevice->cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos > 300'000'000){
+		if(etherCatDevice->cycleProgramTime_nanoseconds - processData.enableRequestTime_nanos > 400'000'000){
 			Logger::warn("[{}] Enable request timed out", getName());
 			processData.b_waitingForEnable = false;
 			processData.b_enableTarget = false;
@@ -151,7 +151,7 @@ void EL722x_Actuator::writeOutputs(){
 	if(processData.b_enableTarget && statusWord.switchedOn){
 		//third: enable operation
 		controlWord.enableVoltage = true;
-		controlWord.switchOn = true;
+		controlWord.switchOn = true; 
 		controlWord.enableOperation = true;
 	}
 	else if(processData.b_enableTarget && statusWord.readyToSwitchOn){

@@ -8,7 +8,9 @@ void EL7221_9014::onDisconnection() {
 	processData.b_motorConnected = false;
 }
 
-void EL7221_9014::onConnection() {}
+void EL7221_9014::onConnection() {
+	gpio->state = DeviceState::ENABLED;
+}
 
 void EL7221_9014::initialize() {
 	auto thisEL7211 = std::static_pointer_cast<EL7221_9014>(shared_from_this());
@@ -103,9 +105,6 @@ void EL7221_9014::readInputs() {
 	
 	processData.b_motorConnected = !bool(txPdo.fbStatus & (0x1 << 13));
 	
-	*digitalInput1_Value 									= bool(txPdo.infoData2_digitalInputs & (0x1 << 0));
-	*digitalInput2_Value									= bool(txPdo.infoData2_digitalInputs & (0x1 << 1));
-	
 	auto& apd = actuator->actuatorProcessData;
 	apd.b_isEmergencyStopActive	= !bool(txPdo.infoData2_digitalInputs & (0x1 << 8));
 	apd.followingErrorActual = double(txPdo.followingErrorActualValue) / motorNameplate.positionResolution_rev;
@@ -125,15 +124,29 @@ void EL7221_9014::readInputs() {
 	else 																	actuator->state = DeviceState::READY;
 	
 	//fault event detection
-	if(!processData.b_hadFault && statusWord.fault){
-		processData.b_hadFault = true;
-		Logger::warn("[{}] Fault Detected.", getName());
+	if(!processData.b_hadFault && statusWord.fault) {
+		Logger::warn("[{}] Fault Detected, downloading error code...", getName());
+		//since we can't have an error message in the process data
+		//we request an asynchronous download of the last diagnostics message by the drive
+		//this method will copy the last error message and raise a flag when it's done
+		downloadLatestDiagnosticsMessage(&processData.lastErrorTextID, &processData.b_newErrorID);
 	}
-	else if(processData.b_hadFault && !statusWord.fault){
-		processData.b_hadFault = false;
-		Logger::info("[{}] Fault Cleared", getName());
+	else if(processData.b_hadFault && !statusWord.fault) Logger::info("[{}] Fault Cleared", getName());
+	processData.b_hadFault = statusWord.fault;
+	
+	//check if a new error id is available from download thread
+	if(processData.b_newErrorID){
+		processData.b_newErrorID = false;
+		actuator->lastErrorString = getDiagnosticsStringFromTextID(processData.lastErrorTextID);
+		Logger::warn("[{}] Error {:x} : {}", getName(), processData.lastErrorTextID, actuator->lastErrorString);
 	}
 	
+	bool di1 = bool(txPdo.infoData2_digitalInputs & (0x1 << 0));
+	bool di2 = bool(txPdo.infoData2_digitalInputs & (0x1 << 1));
+	if(invertDI1_param->value) di1 = !di1;
+	if(invertDI2_param->value) di2 = !di1;
+	*digitalInput1_Value = di1;
+	*digitalInput2_Value = di2;
 }
 
 
@@ -427,104 +440,6 @@ void EL7221_9014::firstSetup(){
 	worker.detach();
 }
 
-/*
-void EL7221_9014::resetEncoderPosition(){
-	std::thread worker([this](){
-		
-		auto overrideEncoderPosition = [this]() -> bool {
-
-			if(!isStateOperational()) {
-				Logger::warn("Encoder cannot be reset while the fieldbus is not running");
-				return false;
-			}
-			
-			uint8_t fbPositionValid;
-			if(!readSDO_U8(0x6000, 0xE, fbPositionValid) || fbPositionValid != 0x0){
-				Logger::warn("Encoder is Offline or being identified.");
-				return false;
-			}
-
-			uint32_t positionEncoderResolution;
-			if(!readSDO_U32(0x9010, 0x15, positionEncoderResolution, "Position Encoder Resolution")) return false;
-			uint32_t encoderWorkingRangeRevolutions;
-			if(!readSDO_U32(0x9008, 0x13, encoderWorkingRangeRevolutions, "Encoder Working Range")) return false;
-			uint32_t positionActual;
-			if(!readSDO_U32(0x6000, 0x11, positionActual, "Encoder Position")) return false;
-			uint32_t offsetActual;
-			if(!readSDO_U32(0x9008, 0x20, offsetActual, "Encoder Position Offset")) return false;
-			
-			int maxOffset = positionEncoderResolution * encoderWorkingRangeRevolutions;
-			
-			//positionActual = rawPosition - currentOffset
-			//rawPosition = positionActual + currentOffset
-			//rawPosition - newOffset = 0
-			//newOffset = rawPosition
-			
-			uint32_t rawPosition = positionActual + offsetActual;
-			if(rawPosition >= maxOffset) rawPosition -= maxOffset;
-			uint32_t offset = rawPosition;
-			
-			Logger::info("Actual Position: {}", positionActual);
-			Logger::info("Current Offset: {}", offsetActual);
-			Logger::info("Raw Position: {}", rawPosition);
-			
-			
-			Logger::info("Starting encoder offset write...");
-			
-			//Set OCT Interface Command to "Write Encoder Position Offset"
-			if(!writeSDO_S16(0xB001, 0x1, 16, "OCT Interface Command 'Write Encoder Position Offset'")) return false;
-					
-			//Set Data Buffer containing new position offset
-			uint32_t buffer[8] = {offset,0,0,0,0,0,0,0};
-			if(1 != ec_SDOwrite(getSlaveIndex(), 0xB001, 0x6, false, 32, buffer, EC_TIMEOUTSAFE)) {
-				Logger::warn("Could not upload encoder position offset to data buffer");
-				return false;
-			}
-			
-			//Execute Command
-			if(!writeSDO_S16(0xB001, 0x5, 1, "Execute OCT Interface Command")) return false;
-			
-			//Wait for command status update
-			double commandExecuteTime = Timing::getProgramTime_seconds();
-			while(true){
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				int16_t result;
-				if(readSDO_S16(0xB001, 0x5, result)){
-					if(result == 3) break;
-					if(result == 4){
-						Logger::warn("Encoder offset write returned error.");
-						return false;
-					}
-				}
-				if(Timing::getProgramTime_seconds() - commandExecuteTime > 2.0){
-					Logger::warn("Encoder offset write timed out.");
-					return false;
-				}
-			}
-			
-			//read encoder position offset from FB OCT Info Data
-			uint32_t offsetReadback;
-			if(!readSDO_U32(0x9008, 0x20, offsetReadback, "Encoder Position Offset")) return false;
-			
-			if(offsetReadback != offset){
-				Logger::warn("Encoder offset write succeeded but readback was not identical to request.");
-				Logger::warn("Requested Offset: {}  Readback: {}", offset, offsetReadback);
-				return false;
-			}
-			
-			return true;
-			
-		};
-		
-		if(overrideEncoderPosition()) Logger::info("Encoder Position Reset Succeeded.");
-		else Logger::warn("Encoder Position Reset Failed.");
-		
-		
-	});
-	worker.detach();
-}
-*/
-
 void EL7221_9014::resetEncoderPosition(bool* b_busy, bool* b_success){
 	
 	if(b_busy == nullptr || b_success == nullptr) return;
@@ -609,7 +524,7 @@ void EL7221_9014::resetEncoderPosition(bool* b_busy, bool* b_success){
 				 if(!readSDO_U32(0x9008, 0x20, readback, "Encoder Position Offset")) return false;
 				 if(readback == newEncoderOffset) break;
 	
-				 if(Timing::getProgramTime_seconds() - commandExecuteTime > 2.0){
+				 if(Timing::getProgramTime_seconds() - commandExecuteTime > 3.0){
 					 Logger::warn("Encoder offset write timed out.");
 					 return false;
 				 }
@@ -655,7 +570,8 @@ std::string EL7221_9014::EL7211ServoMotor::getStatusString(){
 		if(etherCatDevice->driverErrors.i2tMotor) 			errors += "	-I2tMotor error\n";
 		if(etherCatDevice->driverErrors.encoder) 			errors += "	-Encoder error\n";
 		if(etherCatDevice->driverErrors.watchdog) 			errors += "	-Watchdog error\n";
-		if(errors == "") 									errors += "	-Generic error (download diagnostics for more information)\n";
+		if(lastErrorString != "") 							errors += " -" + lastErrorString + "\n";
+		//if(errors == "") 									errors += "	-Generic error (download diagnostics for more information)\n";
 		faultMsg += errors;
 		faultMsg.pop_back(); //remove last line return from message
 		return faultMsg;
@@ -677,6 +593,9 @@ bool EL7221_9014::saveDeviceData(tinyxml2::XMLElement* xml) {
 	XMLElement* driveSettingsXML = xml->InsertNewChildElement("DriveSettings");
 	driveSettings.save(driveSettingsXML);
 	
+	invertDI1_param->save(xml);
+	invertDI2_param->save(xml);
+	
 	return true;
 }
 
@@ -686,6 +605,9 @@ bool EL7221_9014::loadDeviceData(tinyxml2::XMLElement* xml) {
 	
 	if(XMLElement* motorNameplateXML = xml->FirstChildElement("MotorNameplate")) motorNameplate.load(motorNameplateXML);
 	if(XMLElement* driveSettingsXML = xml->FirstChildElement("DriveSettings")) driveSettings.load(driveSettingsXML);
+	
+	invertDI1_param->load(xml);
+	invertDI2_param->load(xml);
 	
 	updateActuatorInterface();
 	
@@ -749,73 +671,89 @@ bool EL7221_9014::DriveSettings::load(tinyxml2::XMLElement* parent){
 	haltRampDeceleration->load(parent);
 }
 
+std::string EL7221_9014::getDiagnosticsStringFromTextID(uint16_t textID){
+	switch(textID){
+		case 0x0001: return "No error";
+		case 0x0002: return "Communication established";
+		case 0x1201: return "Communication re-established";
+		case 0x4101: return "Terminal-Overtemperature";
+		case 0x4102: return "Discrepancy in the PDO-Configuration";
+		case 0x4301: return "Feedback-Warning";
+		case 0x4411: return "DC-Link undervoltage";
+		case 0x4412: return "DC-Link overvoltage";
+		case 0x4413: return "I2T Amplifier overload";
+		case 0x4414: return "I2T Motor overload";
+		case 0x4415: return "Speed limitation active";
+		case 0x4417: return "Motor-Overtemperature";
+		case 0x4418: return "Limit: Current";
+		case 0x4419: return "Limit: Amplifier I2T-model exceeds 100%%";
+		case 0x441A: return "Limit: Motor I2T-model exceeds 100%%";
+		case 0x441B: return "Limit: Velocity limitation";
+		case 0x441C: return "Voltage on STO-/Hardware enable input missing";
+		case 0x441D: return "Internal hardware error";
+		case 0x4420: return "Cogging compensation not supported (%u)";
+		case 0x8002: return "Communication aborted";
+		case 0x8102: return "Invalid combination of Inputs and Outputs PDOs";
+		case 0x8103: return "No variable linkage";
+		case 0x8104: return "Terminal-Overtemperature";
+		case 0x8105: return "PD-Watchdog";
+		case 0x8135: return "Cycletime has to be a multiple of 125 �s";
+		case 0x8137: return "Electronic name plate: CRC error";
+		case 0x8146: return "Sync-Mode and PDO-Configuration are not compatible";
+		case 0x8201: return "No communication to field-side (Auxiliary voltage missing)";
+		case 0x8302: return "Feedback-Error";
+		case 0x8304: return "OCT communication error";
+		case 0x8403: return "ADC Error";
+		case 0x8404: return "Overcurrent";
+		case 0x8406: return "Undervoltage DC-Link";
+		case 0x8407: return "Overvoltage DC-Link";
+		case 0x8408: return "I2T-Model Amplifier overload";
+		case 0x8409: return "I2T-Model motor overload";
+		case 0x840B: return "Motor error or commutation malfunction";
+		case 0x840C: return "Phase failure";
+		case 0x8416: return "Motor-Overtemperature";
+		case 0x8417: return "Maximum rotating field velocity exceeded";
+		case 0x841C: return "STO-/Hardware enable input de-energized while the axis was enabled";
+		case 0x841D: return "Internal hardware error";
+		case 0x8441: return "Following error";
+		case 0x8450: return "Invalid start type 0x%x";
+		case 0x8451: return "Invalid limit switch level";
+		case 0x8452: return "Drive error during positioning";
+		case 0x8453: return "Latch unit will be used by multiple modules";
+		case 0x8454: return "Drive not in control";
+		case 0x8455: return "Invalid value for \"Target acceleration\"";
+		case 0x8456: return "Invalid value for \"Target deceleration\"";
+		case 0x8457: return "Invalid value for \"Target velocity\"";
+		case 0x8458: return "Invalid value for \"Target position\"";
+		case 0x8459: return "Emergency stop active";
+		case 0x845A: return "Target position exceeds Modulofactor";
+		case 0x845B: return "Drive must be disabled";
+		case 0x845C: return "No Feedback found";
+		case 0x845D: return "Modulo factor invalid";
+		case 0x845E: return "Invalid target position window";
+		default: return "Unknown Diagnostics Message";
+	}
+}
+
+void EL7221_9014::downloadLatestDiagnosticsMessage(uint16_t* output, bool* b_downloadFinished){
+	if(output == nullptr || b_downloadFinished == nullptr) return;
+	*output = 0x0;
+	*b_downloadFinished = false;
+	std::thread worker = std::thread([this, output, b_downloadFinished](){
+		uint8_t newestMessageSubindex;
+		if(!readSDO_U8(0x10F3, 0x2, newestMessageSubindex)) return;
+		uint8_t buffer[64];
+		int size = 64;
+		if(1 != ec_SDOread(getSlaveIndex(), 0x10F3, newestMessageSubindex, false, &size, &buffer, EC_TIMEOUTSAFE)) return;
+		uint16_t textID = *((uint16_t*)(&buffer[6]));					//2bytes
+		*output = textID;
+		*b_downloadFinished = true;
+	});
+	worker.detach();
+}
+
 
 void EL7221_9014::downloadDiagnostics(){
-	
-	auto getDiagnosticsStringFromTextID = [](uint16_t textID) -> std::string{
-		switch(textID){
-			case 0x0001: return "No error";
-			case 0x0002: return "Communication established";
-			case 0x1201: return "Communication re-established";
-			case 0x4101: return "Terminal-Overtemperature";
-			case 0x4102: return "Discrepancy in the PDO-Configuration";
-			case 0x4301: return "Feedback-Warning";
-			case 0x4411: return "DC-Link undervoltage";
-			case 0x4412: return "DC-Link overvoltage";
-			case 0x4413: return "I2T Amplifier overload";
-			case 0x4414: return "I2T Motor overload";
-			case 0x4415: return "Speed limitation active";
-			case 0x4417: return "Motor-Overtemperature";
-			case 0x4418: return "Limit: Current";
-			case 0x4419: return "Limit: Amplifier I2T-model exceeds 100%%";
-			case 0x441A: return "Limit: Motor I2T-model exceeds 100%%";
-			case 0x441B: return "Limit: Velocity limitation";
-			case 0x441C: return "Voltage on STO-/Hardware enable input missing";
-			case 0x441D: return "Internal hardware error";
-			case 0x4420: return "Cogging compensation not supported (%u)";
-			case 0x8002: return "Communication aborted";
-			case 0x8102: return "Invalid combination of Inputs and Outputs PDOs";
-			case 0x8103: return "No variable linkage";
-			case 0x8104: return "Terminal-Overtemperature";
-			case 0x8105: return "PD-Watchdog";
-			case 0x8135: return "Cycletime has to be a multiple of 125 �s";
-			case 0x8137: return "Electronic name plate: CRC error";
-			case 0x8146: return "Sync-Mode and PDO-Configuration are not compatible";
-			case 0x8201: return "No communication to field-side (Auxiliary voltage missing)";
-			case 0x8302: return "Feedback-Error";
-			case 0x8304: return "OCT communication error";
-			case 0x8403: return "ADC Error";
-			case 0x8404: return "Overcurrent";
-			case 0x8406: return "Undervoltage DC-Link";
-			case 0x8407: return "Overvoltage DC-Link";
-			case 0x8408: return "I2T-Model Amplifier overload";
-			case 0x8409: return "I2T-Model motor overload";
-			case 0x840B: return "Motor error or commutation malfunction";
-			case 0x840C: return "Phase failure";
-			case 0x8416: return "Motor-Overtemperature";
-			case 0x8417: return "Maximum rotating field velocity exceeded";
-			case 0x841C: return "STO-/Hardware enable input de-energized while the axis was enabled";
-			case 0x841D: return "Internal hardware error";
-			case 0x8441: return "Following error";
-			case 0x8450: return "Invalid start type 0x%x";
-			case 0x8451: return "Invalid limit switch level";
-			case 0x8452: return "Drive error during positioning";
-			case 0x8453: return "Latch unit will be used by multiple modules";
-			case 0x8454: return "Drive not in control";
-			case 0x8455: return "Invalid value for \"Target acceleration\"";
-			case 0x8456: return "Invalid value for \"Target deceleration\"";
-			case 0x8457: return "Invalid value for \"Target velocity\"";
-			case 0x8458: return "Invalid value for \"Target position\"";
-			case 0x8459: return "Emergency stop active";
-			case 0x845A: return "Target position exceeds Modulofactor";
-			case 0x845B: return "Drive must be disabled";
-			case 0x845C: return "No Feedback found";
-			case 0x845D: return "Modulo factor invalid";
-			case 0x845E: return "Invalid target position window";
-			default: return "Unknown Diagnostics Message";
-		}
-	};
-	
 	uint8_t newestMessageSubindex;
 	if(!readSDO_U8(0x10F3, 0x2, newestMessageSubindex)) return;
 	if(newestMessageSubindex == 0x0) {
@@ -838,14 +776,17 @@ void EL7221_9014::downloadDiagnostics(){
 			uint64_t timestamp = *((uint64_t*)(&buffer[8]));
 			std::string message = getDiagnosticsStringFromTextID(textID);
 			
-			if(flags == 0x0) 		Logger::info(		"[{}] Info    0x{:x} : {}", i, textID, message);
-			else if(flags == 0x1) 	Logger::warn(		"[{}] Warning 0x{:x} : {}", i, textID, message);
-			else if(flags == 0x2) 	Logger::error(		"[{}] Error   0x{:x} : {}", i, textID, message);
-			else 					Logger::critical(	"[{}] Message 0x{:x} : {}", i, textID, message);
+			double time_seconds = (double(timestamp) - double(dcStartTime_nanoseconds)) / 1000000000.0;
+			
+			if(flags == 0x0) 		Logger::info(		"[{}] Info    0x{:x} : {} (t:{:.3f}s)", i, textID, message, time_seconds);
+			else if(flags == 0x1) 	Logger::warn(		"[{}] Warning 0x{:x} : {} (t:{:.3f}s)", i, textID, message, time_seconds);
+			else if(flags == 0x2) 	Logger::error(		"[{}] Error   0x{:x} : {} (t:{:.3f}s)", i, textID, message, time_seconds);
+			else 					Logger::critical(	"[{}] Message 0x{:x} : {} (t:{:.3f}s)", i, textID, message, time_seconds);
 		}
 	}
 	
 }
+
 
 void EL7221_9014::uploadParameters(){
 	

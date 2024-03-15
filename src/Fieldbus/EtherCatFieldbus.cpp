@@ -925,6 +925,12 @@ namespace EtherCatFieldbus {
 				frameSentTime_nanoseconds = cycleStartTime_nanoseconds;
 			}
 		}
+		
+		static bool b_firstCycle = true;
+		if(b_firstCycle){
+			b_firstCycle = false;
+			for(auto ethercatDevice : discoveredDevices) ethercatDevice->dcStartTime_nanoseconds = ec_DCtime;
+		}
 			
 		metrics.frameCount++;
 		

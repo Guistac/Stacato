@@ -8,7 +8,9 @@ void EL7222_0010::onDisconnection() {
 	gpio->state = DeviceState::OFFLINE;
 }
 
-void EL7222_0010::onConnection() {}
+void EL7222_0010::onConnection() {
+	gpio->state = DeviceState::ENABLED;
+}
 
 void EL7222_0010::initialize() {
 	auto thisEtherCatDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
@@ -379,10 +381,12 @@ void EL7222_0010::downloadCompleteDiagnostics(){
 			uint16_t textID = *((uint16_t*)(&buffer[6]));					//2bytes
 			uint64_t timestamp = *((uint64_t*)(&buffer[8]));				//8bytes
 			std::string message = getDiagnosticsStringFromTextID(textID);
-			if(flags == 0x0) 		Logger::info(		"[{}] <Info>    0x{:x} diagCode:{:x} : {}", i, textID, diagCode, message);
-			else if(flags == 0x1) 	Logger::warn(		"[{}] <Warning> 0x{:x} diagCode:{:x} : {}", i, textID, diagCode, message);
-			else if(flags == 0x2) 	Logger::error(		"[{}] <Error>   0x{:x} diagCode:{:x} : {}", i, textID, diagCode, message);
-			else 					Logger::critical(	"[{}] <Message> 0x{:x} diagCode:{:x} : {}", i, textID, diagCode, message);
+			double time_seconds = (double(timestamp) - double(dcStartTime_nanoseconds)) / 1000000000.0;
+			
+			if(flags == 0x0) 		Logger::info(		"[{}] <Info>    0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
+			else if(flags == 0x1) 	Logger::warn(		"[{}] <Warning> 0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
+			else if(flags == 0x2) 	Logger::error(		"[{}] <Error>   0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
+			else 					Logger::critical(	"[{}] <Message> 0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
 		}
 	}
 }

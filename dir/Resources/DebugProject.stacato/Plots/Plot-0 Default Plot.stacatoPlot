@@ -1,16 +1,1282 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Position Controlled Machine" MachineUniqueID="200" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="-1800" End="-1800" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+        <Manoeuvre Name="Random" Description="" Type="Sequence">
+            <Animation Machine="Feuille 1" MachineUniqueID="409" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="1775" Time="209.80573543015726" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="-1785" Time="402.12765957446805" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="1765" Time="592.70123291015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="-1735" Time="818.24237060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="1735.2777777777774" Time="1038.184680436869" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="-1740.4166666666667" Time="1257.0860314523588" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
-                        <ControlPoint Position="1735.2777777777774" Time="1477.382053654024" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.778993017042239" Time="23.373670212765958" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="34.95623617777418" Time="40.966755319148938" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="79.004379272460938" Time="68.110374450683594" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="12.330415725708008" Time="86.457443237304688" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="80.929977416992188" Time="117.11968231201172" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="26.648520650175001" Time="136.47207446808511" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="60.774888750239072" Time="157.58377659574469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 2" MachineUniqueID="414" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="4.0545120239257812" Time="12.817819595336914" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="44.064735412597656" Time="23.625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="8.5262432098388672" Time="39.961437225341797" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="92.547714233398438" Time="61.324466705322266" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="13.939391136169434" Time="75.298667907714844" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="58.892055511474609" Time="85.840484619140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="24.530332565307617" Time="107.9281005859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.902275085449219" Time="135.78860473632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="18.411121368408203" Time="156.62124633789062" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="47.124340057373047" Time="169.67300415039062" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 3" MachineUniqueID="419" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="1.2302606105804443" Time="12.298783302307129" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="27.354583740234375" Time="26.856527328491211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="8.5262422561645508" Time="33.884403228759766" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="85.016372680664062" Time="50.952102661132812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="9.4676599502563477" Time="57.728981018066406" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="75.131500244140625" Time="85.338493347167969" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="52.772842407226562" Time="94.876327514648438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.725509643554688" Time="110.68904876708984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.4070320129394531" Time="120.97986602783203" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="37.004108428955078" Time="128.00773620605469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.4070320129394531" Time="141.31051635742188" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="40.534423828125" Time="156.11924743652344" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 4" MachineUniqueID="424" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="30.884897232055664" Time="11.294800758361816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.9363235235214233" Time="26.354536056518555" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.90228271484375" Time="39.908294677734375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="62.893077850341797" Time="50.952102661132812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.90228271484375" Time="70.278762817382812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="61.95166015625" Time="79.314598083496094" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="93.7244873046875" Time="102.15519714355469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="18.881830215454102" Time="115.70896148681641" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="84.781021118164062" Time="141.05950927734375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="26.177812576293945" Time="147.83639526367188" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="46.653633117675781" Time="165.65707397460938" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 5" MachineUniqueID="429" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="65.011268615722656" Time="6.0238938331604004" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="39.122295379638672" Time="15.812721252441406" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="69.953704833984375" Time="26.103540420532227" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="15.351516723632812" Time="47.187168121337891" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="68.541580200195312" Time="63.752876281738281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="12.056556701660156" Time="73.792701721191406" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="25.707103729248047" Time="83.330528259277344" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1130948066711426" Time="97.637275695800781" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="96.078025817871094" Time="120.97986602783203" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="17.940412521362305" Time="130.01570129394531" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="89.723464965820312" Time="148.58938598632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="12.997973442077637" Time="159.6331787109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="75.837562561035156" Time="172.68495178222656" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 6" MachineUniqueID="434" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.52419799566268921" Time="17.820686340332031" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="49.948593139648438" Time="25.852544784545898" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="11.585847854614258" Time="38.6533203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="94.430549621582031" Time="50.952102661132812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="33.709148406982422" Time="61.744911193847656" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="81.721420288085938" Time="81.573562622070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="21.941434860229492" Time="108.93208312988281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="74.190078735351562" Time="122.48583984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="26.883874893188477" Time="138.29856872558594" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="76.543624877929688" Time="153.86029052734375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 7" MachineUniqueID="439" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="20.52931022644043" Time="11.043805122375488" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="4.9959287643432617" Time="18.071681976318359" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="72.5426025390625" Time="29.366481781005859" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="4.7605748176574707" Time="39.657299041748047" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="72.665704939100479" Time="46.244680851063833" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="23.118207931518555" Time="61.242919921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="85.722442626953125" Time="74.043693542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="13.233328819274902" Time="94.123344421386719" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="87.369926452636719" Time="102.15519714355469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="15.351517677307129" Time="124.99579620361328" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="94.901260375976562" Time="161.39015197753906" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 8" MachineUniqueID="444" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="6.8787636756896973" Time="9.7888278961181641" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.2302612066268921" Time="15.059734344482422" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="43.829383850097656" Time="23.091592788696289" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="8.5262432098388672" Time="32.127433776855469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="69.953712463378906" Time="44.928207397460938" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="22.412145614624023" Time="60.991924285888672" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="96.313385009765625" Time="82.326545715332031" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="36.533401489257812" Time="94.123344421386719" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="88.546699523925781" Time="126.75276184082031" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="12.527266502380371" Time="142.31448364257812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="93.724494934082031" Time="169.42201232910156" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 9" MachineUniqueID="449" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="89.488121032714844" Time="11.545796394348145" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="53.714267730712891" Time="21.083627700805664" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="89.958824157714844" Time="33.884403228759766" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="7.5848274230957031" Time="54.215045928955078" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="85.957801818847656" Time="69.2747802734375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="6.6434102058410645" Time="81.071571350097656" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="75.837570190429688" Time="94.625328063964844" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="9.9383697509765625" Time="111.1910400390625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="85.016387939453125" Time="134.53363037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="5.4666385650634766" Time="153.60929870605469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="59.127414703369141" Time="164.65309143066406" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 10" MachineUniqueID="454" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="79.367881774902344" Time="22.087610244750977" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.8191587924957275" Time="46.434181213378906" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="95.842681884765625" Time="76.55364990234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="4.9959301948547363" Time="103.1591796875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="93.959846496582031" Time="145.57743835449219" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="5.2312846183776855" Time="157.91693115234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="22.647500991821289" Time="167.19142150878906" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 11" MachineUniqueID="459" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="93.724494934082031" Time="15.290369987487793" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="4.7605757713317871" Time="31.58338737487793" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="93.2537841796875" Time="56.148246765136719" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="5.937347412109375" Time="66.425376892089844" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="93.959846496582031" Time="92.494209289550781" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="16.057580947875977" Time="103.27266693115234" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="94.430557250976562" Time="128.84016418457031" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="15.822227478027344" Time="138.86663818359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="72.542610168457031" Time="157.91694641113281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 12" MachineUniqueID="464" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="180" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="51.596076965332031" Time="13.034414291381836" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="15.116164207458496" Time="24.063533782958984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="81.015365600585938" Time="40.356552124023438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.5838043689727783" Time="60.409496307373047" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="87.369926452636719" Time="79.209129333496094" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="8.0555362701416016" Time="88.984939575195312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="80.309303283691406" Time="108.28590393066406" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="7.3494729995727539" Time="114.55244445800781" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="92.077018737792969" Time="136.61068725585938" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="14.645455360412598" Time="147.89047241210938" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="82.427490234375" Time="158.41825866699219" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="Aller Retour Synchro 50%" Description="" Type="Sequence">
+            <Animation Machine="Feuille 1" MachineUniqueID="409" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 2" MachineUniqueID="414" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 3" MachineUniqueID="419" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 4" MachineUniqueID="424" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 5" MachineUniqueID="429" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 6" MachineUniqueID="434" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 7" MachineUniqueID="439" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 8" MachineUniqueID="444" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 9" MachineUniqueID="449" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 10" MachineUniqueID="454" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 11" MachineUniqueID="459" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 12" MachineUniqueID="464" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="300" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="100" Time="10" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="20" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="30" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="40" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="50" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="60" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="70" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="80" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="90" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="100" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="110" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="120" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="130" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="140" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="150" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="160" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="170" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="180" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="190" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="200" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="210" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="220" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="230" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="240" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="250" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="260" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="270" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="0" Time="280" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="100" Time="290" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="30min Aller Retour" Description="" Type="Sequence">
+            <Animation Machine="Feuille 1" MachineUniqueID="409" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 2" MachineUniqueID="414" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 3" MachineUniqueID="419" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 4" MachineUniqueID="424" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 5" MachineUniqueID="429" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 6" MachineUniqueID="434" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 7" MachineUniqueID="439" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 8" MachineUniqueID="444" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 9" MachineUniqueID="449" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 10" MachineUniqueID="454" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 11" MachineUniqueID="459" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Feuille 12" MachineUniqueID="464" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="1800" TimeOffset="0" StartAcceleration="20" EndAcceleration="20">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="99.17050691244242" Time="35.053154603164913" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.3364055299539199" Time="57.587325419485211" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663594470046107" Time="86.380988129227816" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="118.75203704833984" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.396316528320312" Time="151.12443542480469" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.396589333686947" Time="176.02274031158888" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="221.01948547363281" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="252.18890380859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="289.02548217773438" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="334.36282348632812" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="376.8665771484375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="405.202392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="444.87255859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="476.0419921875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="501.54421997070312" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="532.713623046875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="572.3837890625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="617.72113037109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="646.05694580078125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="691.394287109375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="725.39727783203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="782.0689697265625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="810.40478515625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.1105990409851074" Time="851.34942626953125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="891.0791015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="3.3640553951263428" Time="925.133056640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="967.7005615234375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.8571429252624512" Time="1001.7545166015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1041.484130859375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.3502304553985596" Time="1064.186767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.91705322265625" Time="1118.1055908203125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1152.1595458984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1189.0513916015625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.5898617506027222" Time="1220.267578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1251.483642578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.0829492807388306" Time="1279.862060546875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.663597106933594" Time="1322.429443359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1350.8077392578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.410140991210938" Time="1393.375244140625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1424.5914306640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1475.67236328125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1509.726318359375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.142860412597656" Time="1546.6181640625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="2.0967741012573242" Time="1574.9964599609375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1620.4017333984375" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1634.5909423828125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="97.903228759765625" Time="1688.509765625" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="1.843317985534668" Time="1708.37451171875" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
+                        <ControlPoint Position="98.156684875488281" Time="1756.61767578125" Velocity="0" InAcceleration="20" OutAcceleration="20"/>
                     </Curve>
                 </Curves>
             </Animation>

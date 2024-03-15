@@ -310,6 +310,8 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	maxHomingDistanceCoarse->save(xml);
 	maxHomingDistanceFine->save(xml);
 	
+	maxEnableTimeSeconds->save(xml);
+	
 	return true;
 }
 
@@ -412,6 +414,8 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= homingVelocityFine->load(xml);
 	success &= maxHomingDistanceCoarse->load(xml);
 	success &= maxHomingDistanceFine->load(xml);
+	
+	maxEnableTimeSeconds->load(xml);
 	
 	manualAccelerationEntry = accelerationLimit->value;
 	
