@@ -66,6 +66,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::copy(){
 bool SequenceAnimation::onSave(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
 	
+	xml->SetAttribute("isLoop", b_isLoop);
 	interpolationType->save(xml);
 	start->save(xml);
 	target->save(xml);
@@ -103,6 +104,7 @@ std::shared_ptr<SequenceAnimation> SequenceAnimation::load(tinyxml2::XMLElement*
 	
 	auto sequenceAnimation = std::make_shared<SequenceAnimation>(animatable);
 	
+	xml->QueryBoolAttribute("isLoop", &sequenceAnimation->b_isLoop);
 	if(!sequenceAnimation->interpolationType->load(xml)) return nullptr;
 	if(!sequenceAnimation->start->load(xml)) return nullptr;
 	if(!sequenceAnimation->target->load(xml)) return nullptr;
@@ -340,8 +342,13 @@ void SequenceAnimation::updateAfterParameterEdit(){
 	auto& curves = getCurves();
 	
 	auto animatable = getAnimatable();
+	
+	//make start and end point the same
+	if(b_isLoop) animatable->copyParameterValue(start, target);
+	
 	auto startValue = animatable->parameterValueToAnimationValue(start);
 	auto targetValue = animatable->parameterValueToAnimationValue(target);
+	
 	std::vector<double> curveStartPositions = animatable->getCurvePositionsFromAnimationValue(startValue);
 	std::vector<double> curveEndPositions = animatable->getCurvePositionsFromAnimationValue(targetValue);
 	

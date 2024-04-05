@@ -90,11 +90,12 @@ bool TargetAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 
 bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 	if(Stacato::Editor::getCurrentProject()->isPlotEditLocked()){
-		if(ImGui::BeginTable("##TrackParameters", 8, tableFlags)){
+		if(ImGui::BeginTable("##TrackParameters", 9, tableFlags)){
 			ImGui::TableSetupColumn("Playback");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
 			ImGui::TableSetupColumn("Current");
+			ImGui::TableSetupColumn("Loop");
 			ImGui::TableSetupColumn("Start");		//sequencer start
 			ImGui::TableSetupColumn("End");			//sequencer end
 			ImGui::TableSetupColumn("Duration");
@@ -102,13 +103,14 @@ bool SequenceAnimation::beginTrackSheetTable(ImGuiTableFlags tableFlags){
 			return true;
 		}
 	}else{
-		if(ImGui::BeginTable("##TrackParameters", 10, tableFlags)){
+		if(ImGui::BeginTable("##TrackParameters", 11, tableFlags)){
 			ImGui::TableSetupColumn("Manage");
 			ImGui::TableSetupColumn("Playback");
 			ImGui::TableSetupColumn("Machine");
 			ImGui::TableSetupColumn("Parameter");
 			ImGui::TableSetupColumn("Current");
 			//ImGui::TableSetupColumn("Interpolation");
+			ImGui::TableSetupColumn("Loop");
 			ImGui::TableSetupColumn("Start");		//sequencer start
 			ImGui::TableSetupColumn("End");			//sequencer end
 			ImGui::TableSetupColumn("Duration");
@@ -358,25 +360,28 @@ void SequenceAnimation::trackSheetRowGui(){
 		
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		
-		//[4] "Start"
 		ImGui::TableSetColumnIndex(4);
+		ImGui::Checkbox("##loop", &b_isLoop);
+		
+		//[5] "Start"
+		ImGui::TableSetColumnIndex(5);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		start->gui();
 		if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 		
-		//[5] "End"
-		ImGui::TableSetColumnIndex(5);
+		//[6] "End"
+		ImGui::TableSetColumnIndex(6);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		target->gui();
 		if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 		
-		//[6] "Duration"
-		ImGui::TableSetColumnIndex(6);
+		//[7] "Duration"
+		ImGui::TableSetColumnIndex(7);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		duration->gui();
 		
-		//[7] "Ramps"			//for kinematic or bezier
-		ImGui::TableSetColumnIndex(7);
+		//[8] "Ramps"			//for kinematic or bezier
+		ImGui::TableSetColumnIndex(8);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		inAcceleration->gui();
 		if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
@@ -396,24 +401,32 @@ void SequenceAnimation::trackSheetRowGui(){
 		interpolationType->combo(compatibleTypes.data(), compatibleTypes.size());
 		*/
 		
-		//[5] "Start"
 		ImGui::TableSetColumnIndex(5);
+		if(ImGui::Checkbox("##loop", &b_isLoop)){
+			if(b_isLoop) updateAfterParameterEdit();
+		}
+		
+		//[5] "Start"
+		ImGui::TableSetColumnIndex(6);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		start->gui();
 		if(!start->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 		ImGui::SameLine();
 		if(ImGui::Button("Capture##Start")) captureStart();
 		
+		
 		//[6] "End"
-		ImGui::TableSetColumnIndex(6);
+		ImGui::BeginDisabled(b_isLoop);
+		ImGui::TableSetColumnIndex(7);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		target->gui();
 		if(!target->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 		ImGui::SameLine();
 		if(ImGui::Button("Capture##Target")) captureTarget();
+		ImGui::EndDisabled();
 		
 		//[7] "Duration"
-		ImGui::TableSetColumnIndex(7);
+		ImGui::TableSetColumnIndex(8);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		duration->gui();
 		ImGui::SameLine();
@@ -435,12 +448,12 @@ void SequenceAnimation::trackSheetRowGui(){
 		}
 		
 		//[8] "Time Offset"
-		ImGui::TableSetColumnIndex(8);
+		ImGui::TableSetColumnIndex(9);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		timeOffset->gui();
 		
 		//[9] "Ramps"			//for kinematic or bezier
-		ImGui::TableSetColumnIndex(9);
+		ImGui::TableSetColumnIndex(10);
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 5.0);
 		inAcceleration->gui();
 		if(!inAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();

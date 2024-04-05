@@ -178,6 +178,8 @@ public:
 		return false;
 	}
 	
+	bool b_isLoop = false;
+	
 private:
 	
 	bool b_shouldRefocusCurves = false;
@@ -427,6 +429,7 @@ public:
 	virtual void trackSheetRowGui() override;
 	virtual void drawCurveControls() override;
 	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
+	
 };
 
 

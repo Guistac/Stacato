@@ -292,7 +292,17 @@ void Manoeuvre::curveEditor(){
 
 		if(ImPlot::IsPlotHovered()){
 		
-			if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !currentProject->isPlotEditLocked()){
+			if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)){
+				auto selectedCurve = getSelectedEditorCurve();
+				auto selectedAnimation = getSelectedEditorAnimation();
+				if(selectedCurve != nullptr && selectedAnimation != nullptr){
+					ImPlotPoint mousePoint = ImPlot::GetPlotMousePos();
+					selectedAnimation->addCurvePoint(selectedCurve, mousePoint.x, mousePoint.y);
+				}
+			}
+			
+			//double clicking causes refocus
+			else if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !currentProject->isPlotEditLocked()){
 				auto selectedCurve = getSelectedEditorCurve();
 				auto selectedAnimation = getSelectedEditorAnimation();
 				if(selectedCurve != nullptr && selectedAnimation != nullptr){

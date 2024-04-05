@@ -346,5 +346,12 @@ void Animation::updatePlaybackState(){
 void Animation::incrementPlaybackPosition(double timeIncrement_seconds){
 	playbackPosition_seconds += timeIncrement_seconds;
 	//playbackPosition_seconds = (playbackTime_microseconds - playbackStartTime_microseconds) / 1000000.0;
-	playbackPosition_seconds = std::min(playbackPosition_seconds, duration_seconds);
+	
+	if(b_isLoop){
+		//if we are looping, let the playback position overflow and restart playback
+		if(playbackPosition_seconds >= duration_seconds) playbackPosition_seconds -= duration_seconds;
+	}else{
+		//don't let the playback position get larger than the duration
+		playbackPosition_seconds = std::min(playbackPosition_seconds, duration_seconds);
+	}
 }
