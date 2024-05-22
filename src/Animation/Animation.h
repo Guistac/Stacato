@@ -400,6 +400,9 @@ public:
 public:
 	virtual void addCurvePoint(std::shared_ptr<Motion::Curve> curve, float time, float position) override;
 	
+	void changeGlobalSpeed(double factor);
+	void subtractTime(double from, double amount);
+	
 	//————————————————————— Playback —————————————————————
 	
 public:

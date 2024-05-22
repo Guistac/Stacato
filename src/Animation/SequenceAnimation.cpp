@@ -501,3 +501,36 @@ void SequenceAnimation::updateTheoreticalShortestDuration(){
 	}
 	
 }
+
+
+void SequenceAnimation::changeGlobalSpeed(double factor){
+	if(factor <= 0.0) return;
+	for(auto curve : getCurves()){
+		for(auto point : curve->getPoints()){
+			point->time *= factor;
+			point->velocity /= factor;
+			point->inAcceleration /= factor;
+			point->outAcceleration /= factor;
+		}
+	}
+	setDuration(getDuration()*factor);
+	duration->overwrite(getDuration());
+	updateAfterCurveEdit();
+}
+
+void SequenceAnimation::subtractTime(double from, double amount){
+	if(from < 0.0) return;
+	//if(amount <= 0.0) return;
+	//if(amount > from) return;
+	
+	for(auto curve : getCurves()){
+		for(auto point : curve->getPoints()){
+			if(point->time < from) continue;
+			if(point == curve->getPoints().back()) continue;
+			point->time -= amount;
+		}
+	}
+	
+	updateAfterCurveEdit();
+	
+}

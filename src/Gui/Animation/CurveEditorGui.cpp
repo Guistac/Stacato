@@ -25,7 +25,7 @@ void Manoeuvre::curveEditor(){
 	ImGui::BeginChild("SequenceEditor", glm::vec2(sequenceEditorWidth, sequenceEditorHeight));
 	
 	if(!currentProject->isPlotEditLocked()){
-	
+		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetStyle().ItemSpacing.y));
 		float inputFieldWidth = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * .5f;
 		
@@ -33,7 +33,7 @@ void Manoeuvre::curveEditor(){
 		ImDrawList* drawing = ImGui::GetWindowDrawList();
 		ImColor backgroundColor = ImColor(Colors::veryDarkGray);
 		float rounding = ImGui::GetStyle().FrameRounding;
-
+		
 		auto pointFieldEditor = [&](const char* name, double* data, const char* txt = "", const char* format = "%.3f") -> bool {
 			glm::vec2 cursor = ImGui::GetCursorPos();
 			ImGui::Dummy(fieldsize);
@@ -128,7 +128,7 @@ void Manoeuvre::curveEditor(){
 		ImGui::PopStyleVar();
 		
 		ImGui::Separator();
-			
+		
 	}
 	
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
@@ -185,6 +185,35 @@ void Manoeuvre::curveEditor(){
 		}
 		ImGui::PopID();
 	}
+	
+	static double speedFactor = 1.0;
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+	ImGui::InputDouble("##speedFactor", &speedFactor);
+	ImGui::SameLine();
+	if(ImGui::Button("Change Global Speed")){
+		for(auto animation : getAnimations()){
+			if(auto sequence = std::dynamic_pointer_cast<SequenceAnimation>(animation)){
+				sequence->changeGlobalSpeed(speedFactor);
+			}
+		}
+	}
+	
+	static double from = 0.0;
+	static double amount = 0.0;
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+	ImGui::InputDouble("##from", &from);
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
+	ImGui::InputDouble("##amount", &amount);
+	ImGui::SameLine();
+	if(ImGui::Button("Subtract")){
+		for(auto animation : getAnimations()){
+			if(auto sequence = std::dynamic_pointer_cast<SequenceAnimation>(animation)){
+				sequence->subtractTime(from, amount);
+			}
+		}
+	}
+	
 	
 	ImGui::PopStyleVar();
 	
