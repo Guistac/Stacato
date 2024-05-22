@@ -1,0 +1,54 @@
+<Plot Name="Default Plot">
+    <ManoeuvreList>
+        <Manoeuvre Name="TEST MONTEE" Description="" Type="Sequence">
+            <Animation Machine="Plateforme Sous Sol" MachineUniqueID="94" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="5.6972858840044707e-07" End="1.8500000000000001" Duration="11.4" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Plateforme Scène" MachineUniqueID="89" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="1.8" Duration="20.5" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.011159517426273455" Time="9.5297297297297288" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="TEST DESCENTE" Description="" Type="Sequence">
+            <Animation Machine="Plateforme Scène" MachineUniqueID="89" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1.8" End="0" Duration="11.01" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+            <Animation Machine="Plateforme Sous Sol" MachineUniqueID="94" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="1.8500000000000001" End="0" Duration="20.5" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="1.8497520061184831" Time="9.1972971343012233" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="TEST AUTO" Description="" Type="Sequence">
+            <Animation Machine="Plateforme Sous Sol" MachineUniqueID="94" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="90" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0" Time="10.54054054054054" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="1.8326030843286969" Time="21.858699735024619" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="1.8377618865768075" Time="51.5" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="0.0056501156163599187" Time="64.824324324324337" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Plateforme Scène" MachineUniqueID="89" Parameter="Position" IsComposite="false" Type="Sequence" interpolationType="Trapezoidal" Start="0" End="0" Duration="90" TimeOffset="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.10000000000000001">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.0056826844611692073" Time="20" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="1.7994343882911008" Time="33.038506192436863" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="1.7999306700906654" Time="40.378378378378379" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                        <ControlPoint Position="0" Time="53.148648648648653" Velocity="0" InAcceleration="0.10000000000000001" OutAcceleration="0.10000000000000001"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+    </ManoeuvreList>
+</Plot>

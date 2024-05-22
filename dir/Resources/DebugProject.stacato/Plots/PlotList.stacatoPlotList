@@ -1,7 +1,3 @@
 <Plots>
-    <Plot FileName="Plot-0 Acte 1.stacatoPlot"/>
-    <Plot FileName="Plot-1 Acte 2.stacatoPlot"/>
-    <Plot FileName="Plot-2 Bricolage.stacatoPlot"/>
-    <Plot FileName="Plot-3 Mise &amp; Maintenance.stacatoPlot"/>
-    <Plot FileName="Plot-4 ---------- STARMANIA ----------.stacatoPlot"/>
+    <Plot FileName="Plot-0 Default Plot.stacatoPlot"/>
 </Plots>
