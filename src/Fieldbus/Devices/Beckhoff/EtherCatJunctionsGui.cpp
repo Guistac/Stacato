@@ -34,6 +34,17 @@ void EK1122::deviceSpecificGui() {
 	}
 }
 
+void EL2004::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL2004")){
+		for(int i = 0; i < 4; i++){
+			ImGui::PushID(i);
+			signalInversionParams[i]->gui(Fonts::sansBold15);
+			ImGui::PopID();
+		}
+		ImGui::EndTabItem();
+	}
+}
+
 void EL2008::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL2008")){
 		for(int i = 0; i < 8; i++){
@@ -48,6 +59,17 @@ void EL2008::deviceSpecificGui() {
 void EL1008::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL1008")){
 		for(int i = 0; i < 8; i++){
+			ImGui::PushID(i);
+			signalInversionParams[i]->gui(Fonts::sansBold15);
+			ImGui::PopID();
+		}
+		ImGui::EndTabItem();
+	}
+}
+
+void EL1809::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL1809")){
+		for(int i = 0; i < 16; i++){
 			ImGui::PushID(i);
 			signalInversionParams[i]->gui(Fonts::sansBold15);
 			ImGui::PopID();

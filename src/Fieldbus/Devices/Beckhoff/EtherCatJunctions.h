@@ -26,6 +26,18 @@ public:
 	DEFINE_ETHERCAT_DEVICE(EK1122, "EK1122 2-Port EtherCAT Junction", "EK1122", "Beckhoff", "Utilities", 0x2, 0x4622c52)
 };
 
+class EL2004 : public EtherCatDevice{
+public:
+DEFINE_ETHERCAT_DEVICE(EL2004, "EL2004 4x Digital Output", "EL2004", "Beckhoff", "I/O", 0x2, 0x7d43052)
+	//rxPdo
+	bool outputs[4] = {0,0,0,0};
+	
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+	
+};
+
 class EL2008 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL2008, "EL2008 8x Digital Output", "EL2008", "Beckhoff", "I/O", 0x2, 0x7d83052)
@@ -43,6 +55,18 @@ public:
 DEFINE_ETHERCAT_DEVICE(EL1008, "EL1008 8x Digital Input", "EL1008", "Beckhoff", "I/O", 0x2, 0x3f03052)
 	//txPdo
 	bool inputs[8] = {0,0,0,0,0,0,0,0};
+	
+	std::vector<std::shared_ptr<bool>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	std::vector<BoolParam> signalInversionParams;
+	
+};
+
+class EL1809 : public EtherCatDevice{
+public:
+DEFINE_ETHERCAT_DEVICE(EL1809, "EL1809 16x Digital Input", "EL1809", "Beckhoff", "I/O", 0x2, 0x7113052)
+	//txPdo
+	bool inputs[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
 	std::vector<std::shared_ptr<bool>> pinValues;
 	std::vector<std::shared_ptr<NodePin>> pins;

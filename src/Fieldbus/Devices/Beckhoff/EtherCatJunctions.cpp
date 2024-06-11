@@ -39,6 +39,52 @@ void EK1122::writeOutputs(){}
 bool EK1122::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EK1122::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
+
+void EL2004::onDisconnection() {}
+void EL2004::onConnection() {}
+void EL2004::initialize() {
+	rxPdoAssignement.addNewModule(0x1600);
+	for(int i = 0; i < 4; i++){
+		char name[32];
+		snprintf(name, 32, "Channel %i", i + 1);
+		rxPdoAssignement.addEntry(0x1600 + i, 0x1, 1, name, &outputs[i]);
+	}
+	for(int i = 0; i < 4; i++){
+		char pinName[16];
+		int inputNumber = i + 1;
+		snprintf(pinName, 16, "DO%i", inputNumber);
+		auto pinValue = std::make_shared<bool>(false);
+		auto pin = std::make_shared<NodePin>(pinValue, NodePin::Direction::NODE_INPUT, pinName);
+		pinValues.push_back(pinValue);
+		addNodePin(pin);
+		char parameterName[64];
+		snprintf(parameterName, 64, "Invert DO%i", inputNumber);
+		char parameterSaveName[64];
+		snprintf(parameterSaveName, 64, "InvertDO%i", inputNumber);
+		auto inversionParam = BooleanParameter::make(false, parameterName, parameterSaveName);
+		signalInversionParams.push_back(inversionParam);
+	}
+}
+bool EL2004::startupConfiguration() { return true; }
+void EL2004::readInputs() {}
+void EL2004::writeOutputs(){
+	for(int i = 0; i < 4; i++){
+		if(getInputPins()[i]->isConnected()) getInputPins()[i]->copyConnectedPinValue();
+		outputs[i] = *pinValues[i];
+		if(signalInversionParams[i]->value) outputs[i] = !outputs[i];
+	}
+	rxPdoAssignement.pushDataTo(identity->outputs);
+}
+bool EL2004::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++) signalInversionParams[i]->save(xml);
+	return true;
+}
+bool EL2004::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++) signalInversionParams[i]->load(xml);
+	return true;
+}
+
+
 void EL2008::onDisconnection() {}
 void EL2008::onConnection() {}
 void EL2008::initialize() {
@@ -123,6 +169,50 @@ bool EL1008::saveDeviceData(tinyxml2::XMLElement* xml) {
 }
 bool EL1008::loadDeviceData(tinyxml2::XMLElement* xml) {
 	for(int i = 0; i < 8; i++) signalInversionParams[i]->load(xml);
+	return true;
+}
+
+
+
+void EL1809::onDisconnection() {}
+void EL1809::onConnection() {}
+void EL1809::initialize() {
+	txPdoAssignement.addNewModule(0x1600);
+	for(int i = 0; i < 16; i++){
+		char name[32];
+		snprintf(name, 32, "Channel %i", i + 1);
+		txPdoAssignement.addEntry(0x1A00 + i, 0x1, 1, name, &inputs[i]);
+	}
+	for(int i = 0; i < 16; i++){
+		char pinName[16];
+		int inputNumber = i + 1;
+		snprintf(pinName, 16, "DI%i", inputNumber);
+		auto pinValue = std::make_shared<bool>(false);
+		auto pin = std::make_shared<NodePin>(pinValue, NodePin::Direction::NODE_OUTPUT, pinName);
+		pinValues.push_back(pinValue);
+		addNodePin(pin);
+		char parameterName[64];
+		snprintf(parameterName, 64, "Invert DI%i", inputNumber);
+		char parameterSaveName[64];
+		snprintf(parameterSaveName, 64, "InvertDI%i", inputNumber);
+		auto inversionParam = BooleanParameter::make(false, parameterName, parameterSaveName);
+		signalInversionParams.push_back(inversionParam);
+	}
+}
+bool EL1809::startupConfiguration() { return true; }
+void EL1809::readInputs() {
+	txPdoAssignement.pullDataFrom(identity->inputs);
+	for(int i = 0; i < 16; i++){
+		*pinValues[i] = signalInversionParams[i]->value ? !inputs[i] : inputs[i];
+	}
+}
+void EL1809::writeOutputs(){}
+bool EL1809::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 16; i++) signalInversionParams[i]->save(xml);
+	return true;
+}
+bool EL1809::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 16; i++) signalInversionParams[i]->load(xml);
 	return true;
 }
 

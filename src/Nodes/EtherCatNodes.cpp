@@ -38,6 +38,8 @@ namespace NodeFactory{
 			new EK1122(),
 			new EL5001(),
 			new EL1008(),
+			new EL1809(),
+			new EL2004(),
 			new EL2008(),
 			new EL2912(),
 			new EL2624(),

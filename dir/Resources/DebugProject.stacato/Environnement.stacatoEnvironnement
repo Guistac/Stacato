@@ -265,6 +265,108 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="148" Visible="false"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:0)" UniqueID="151">
+                <NodeEditorPosition x="-617" y="283"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:0)" UniqueID="152">
+                <NodeEditorPosition x="-630" y="350"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="153" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="154" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="155" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="156" Visible="true"/>
+                    <InputPin SaveString="DO5" DisplayString="DO5" DataType="Boolean" UniqueID="157" Visible="true"/>
+                    <InputPin SaveString="DO6" DisplayString="DO6" DataType="Boolean" UniqueID="158" Visible="true"/>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="159" Visible="true"/>
+                    <InputPin SaveString="DO8" DisplayString="DO8" DataType="Boolean" UniqueID="160" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1809" Split="false" CustomName="EL1809 16x Digital Input (Alias:1002)" UniqueID="161">
+                <NodeEditorPosition x="-627" y="611"/>
+                <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false" InvertDI9="false" InvertDI10="false" InvertDI11="false" InvertDI12="false" InvertDI13="false" InvertDI14="false" InvertDI15="false" InvertDI16="false">
+                    <Identification Type="StationAlias" StationAlias="1002"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="162" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="163" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="164" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="165" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="166" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="167" Visible="true"/>
+                    <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="168" Visible="true"/>
+                    <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="169" Visible="true"/>
+                    <OutputPin SaveString="DI9" DisplayString="DI9" DataType="Boolean" UniqueID="170" Visible="true"/>
+                    <OutputPin SaveString="DI10" DisplayString="DI10" DataType="Boolean" UniqueID="171" Visible="true"/>
+                    <OutputPin SaveString="DI11" DisplayString="DI11" DataType="Boolean" UniqueID="172" Visible="true"/>
+                    <OutputPin SaveString="DI12" DisplayString="DI12" DataType="Boolean" UniqueID="173" Visible="true"/>
+                    <OutputPin SaveString="DI13" DisplayString="DI13" DataType="Boolean" UniqueID="174" Visible="true"/>
+                    <OutputPin SaveString="DI14" DisplayString="DI14" DataType="Boolean" UniqueID="175" Visible="true"/>
+                    <OutputPin SaveString="DI15" DisplayString="DI15" DataType="Boolean" UniqueID="176" Visible="true"/>
+                    <OutputPin SaveString="DI16" DisplayString="DI16" DataType="Boolean" UniqueID="177" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2004" Split="false" CustomName="EL2004 4x Digital Output (Alias:0)" UniqueID="178">
+                <NodeEditorPosition x="-321" y="287"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false">
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="179" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="180" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="181" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="182" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2004" Split="false" CustomName="EL2004 4x Digital Output (Alias:0)" UniqueID="183">
+                <NodeEditorPosition x="-312" y="448"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false">
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="184" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="185" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="186" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="187" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2004" Split="false" CustomName="EL2004 4x Digital Output (Alias:0)" UniqueID="188">
+                <NodeEditorPosition x="-308" y="603"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false">
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="189" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="190" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="191" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="192" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2004" Split="false" CustomName="EL2004 4x Digital Output (Alias:0)" UniqueID="193">
+                <NodeEditorPosition x="-301" y="761"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false">
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="194" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="195" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="196" Visible="true"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="197" Visible="true"/>
+                </InputPins>
+                <OutputPins/>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="66" StartPin="25" EndPin="48"/>
