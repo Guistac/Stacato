@@ -6,8 +6,6 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.cpp
     ${STACATO_SOURCE_DIRECTORY}/Core/pch.h
 
-    ${STACATO_SOURCE_DIRECTORY}/Visualizer/ofRenderer.h
-    ${STACATO_SOURCE_DIRECTORY}/Visualizer/ofRenderer.cpp
     ${STACATO_SOURCE_DIRECTORY}/Visualizer/Visualizer.h
     ${STACATO_SOURCE_DIRECTORY}/Visualizer/Visualizer.cpp
 

@@ -2,11 +2,10 @@
 #include "Visualizer.h"
 
 #include "Scripting/Script.h"
-#include "ofRenderer.h"
-//#include <ofMain.h>
 
 #include "Scripting/CanvasLibrary.h"
 #include "Scripting/EnvironnementLibrary.h"
+
 
 /*
 // declare the wrapped modules
@@ -47,10 +46,9 @@ namespace Environnement::StageVisualizer{
 	
 	void onStart(){
 		script.stop();
-		/*
 		script.setLoadLibrairiesCallback([](lua_State* L){
-			luaopen_of(L);
-			luaopen_glm(L);
+			//luaopen_of(L);
+			//luaopen_glm(L);
 			Scripting::CanvasLibrary::openLib(L);
 			Scripting::EnvironnementLibrary::openlib(L);
 			
@@ -66,9 +64,8 @@ namespace Environnement::StageVisualizer{
 			lua_setfield( L, -2, "path" ); 			//set the new path string as index "path" of the table at -2
 			lua_pop( L, 1 ); 						//pop the package table from top of stack
 			
-			ofSetDataPathRoot(scriptFolder);
+			//ofSetDataPathRoot(scriptFolder);
 		});
-		*/
 		script.compileAndRun();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
 	}
@@ -108,9 +105,9 @@ namespace Environnement::StageVisualizer{
 	bool b_mousePressed = false;
 
 	void resizeFrameBuffer(int width, int height){
-		/*
 		frameBufferWidth = width;
 		frameBufferHeight = height;
+		/*
 		ofFboSettings settings;
 		settings.textureTarget = GL_TEXTURE_2D;
 		settings.internalformat = GL_RGBA;
@@ -156,15 +153,15 @@ namespace Environnement::StageVisualizer{
 			onStart();
 		}
 		
-		/*
+		
 		//actual script rendering
-		ofRenderer::startRender();
-		framebuffer.begin();
+		//ofRenderer::startRender();
+		//framebuffer.begin();
 		if(script.isRunning()) script.callFunction("update");
-		else ofBackground(0, 0, 0, 255);
-		framebuffer.end();
-		ofRenderer::finishRender();
-		*/
+		//else ofBackground(0, 0, 0, 255);
+		//framebuffer.end();
+		//ofRenderer::finishRender();
+		
 		 
 		if(b_shouldStop){
 			b_shouldStop = false;
@@ -198,12 +195,12 @@ namespace Environnement::StageVisualizer{
 		}
 		 */
 		
-		/*
+		
 		if(!script.isRunning()){
-			glm::vec2 textPos = ImGui::GetItemRectMin() + glm::vec2(5.0, 5.0);
+			ImVec2 rectmin = ImGui::GetItemRectMin();
+			glm::vec2 textPos(rectmin.x + 5.0, rectmin.y + 5.0);
 			ImGui::GetWindowDrawList()->AddText(textPos, ImColor(1.0f, 1.0f, 1.0f, 1.0f), "Stage Visualizer script is not running.");
 		}
-		 */
 	}
 
 	void reset(){
