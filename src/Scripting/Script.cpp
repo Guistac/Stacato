@@ -95,12 +95,14 @@ void LuaScript::editor(ImVec2 size_arg){
 
 
 bool LuaScript::load(const char* filePath){
+	/*
 	scriptFilePath = filePath;
 	if(!std::filesystem::exists(std::filesystem::path(filePath))) return false;
 	std::ifstream inputFileStream(scriptFilePath);
 	std::stringstream buffer;
 	buffer << inputFileStream.rdbuf();
 	textEditor.SetText(buffer.str());
+	*/
 	return true;
 }
 
@@ -110,9 +112,11 @@ void LuaScript::load(std::string& script){
 }
 
 void LuaScript::save(const char* filePath){
+	/*
 	std::ofstream outputFileStream(filePath);
 	outputFileStream << textEditor.GetText();
 	outputFileStream.close();
+	*/
 }
 
 std::string LuaScript::getScriptText(){
@@ -123,15 +127,21 @@ std::string LuaScript::getScriptText(){
 }
 
 void LuaScript::reloadSaved(){
+	/*
 	if(!std::filesystem::exists(std::filesystem::path(scriptFilePath))) return;
 	std::ifstream inputFileStream(scriptFilePath);
 	std::stringstream buffer;
 	buffer << inputFileStream.rdbuf();
 	textEditor.SetText(buffer.str());
+	 */
 }
 
 
 bool LuaScript::compile(bool hideSuccessMessage){
+	return true;
+	//TODO: reimplement this
+	
+	/*
 	if(isRunning()) stop();
 	
 	//initialize lua state and load librairies
@@ -167,9 +177,11 @@ bool LuaScript::compile(bool hideSuccessMessage){
 			return false;
 		}
 	}
+	 */
 }
 
 void LuaScript::compileAndRun() {
+	/*
 	if(!compile(true)) return;
 	addConsoleMessage("Starting Script...", ScriptFlag::INFO);
 	if(lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
@@ -179,30 +191,36 @@ void LuaScript::compileAndRun() {
 		handleScriptError(luaErrorString, ScriptFlag::RUNTIME_ERROR);
 		stop();
 	}
+	 */
 }
 
 bool LuaScript::isRunning(){
-	return L != nullptr;
+	//return L != nullptr;
 }
 
 void LuaScript::stop(){
+	/*
 	if(L != nullptr) {
 		lua_close(L);
 		L = nullptr;
 		addConsoleMessage("Script Stopped", ScriptFlag::INFO);
 	}
+	 */
 }
 
 
 bool LuaScript::checkHasFunction(const char* functionName){
+	/*
 	if(!isRunning()) return false;
 	lua_getglobal(L, functionName);
 	bool b_hasFunction = lua_type(L, -1) == LUA_TFUNCTION;
 	lua_pop(L, 1);
 	return b_hasFunction;
+	 */
 }
 
 void LuaScript::callFunction(const char* functionName){
+	/*
 	if(!isRunning()) return;
 	lua_getglobal(L, functionName);
 	if(lua_type(L, -1) != LUA_TFUNCTION) {
@@ -219,6 +237,7 @@ void LuaScript::callFunction(const char* functionName){
 		handleScriptError(luaErrorString, ScriptFlag::RUNTIME_ERROR);
 		stop();
 	}
+	 */
 }
 
 

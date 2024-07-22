@@ -2,8 +2,8 @@
 
 namespace Environnement::StageVisualizer{
 
-	void initialize(int openGlVersionMajor, int openGlVersionMinor);
-	void terminate();
+	//void initialize(int openGlVersionMajor, int openGlVersionMinor);
+	//void terminate();
  
 	void compile();
 	void start();

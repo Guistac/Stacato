@@ -1,6 +1,6 @@
 #include "CanvasLibrary.h"
 
-#include <ofxLua.h>
+#include <lua.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
 

@@ -3,21 +3,23 @@
 
 #include "Scripting/Script.h"
 #include "ofRenderer.h"
-#include <ofMain.h>
+//#include <ofMain.h>
 
 #include "Scripting/CanvasLibrary.h"
 #include "Scripting/EnvironnementLibrary.h"
 
+/*
 // declare the wrapped modules
 extern "C" {
 	int luaopen_of(lua_State* L);
 	int luaopen_glm(lua_State* L);
 }
+*/
 
 namespace Environnement::StageVisualizer{
 
 
-
+/*
 	void initialize(int openGlVersionMajor, int openGlVersionMinor){
 		ofRenderer::init(openGlVersionMajor, openGlVersionMinor);
 	}
@@ -25,11 +27,11 @@ namespace Environnement::StageVisualizer{
 	void terminate(){
 		ofRenderer::terminate();
 	}
-
+*/
 
 	std::string scriptFolder;
 	LuaScript script("Stage Visualizer Script");
-	ofFbo framebuffer;
+	//ofFbo framebuffer;
 
 	void compile(){
 		script.stop();
@@ -45,6 +47,7 @@ namespace Environnement::StageVisualizer{
 	
 	void onStart(){
 		script.stop();
+		/*
 		script.setLoadLibrairiesCallback([](lua_State* L){
 			luaopen_of(L);
 			luaopen_glm(L);
@@ -65,7 +68,7 @@ namespace Environnement::StageVisualizer{
 			
 			ofSetDataPathRoot(scriptFolder);
 		});
-		
+		*/
 		script.compileAndRun();
 		if(script.checkHasFunction("setup")) script.callFunction("setup");
 	}
@@ -105,6 +108,7 @@ namespace Environnement::StageVisualizer{
 	bool b_mousePressed = false;
 
 	void resizeFrameBuffer(int width, int height){
+		/*
 		frameBufferWidth = width;
 		frameBufferHeight = height;
 		ofFboSettings settings;
@@ -114,6 +118,7 @@ namespace Environnement::StageVisualizer{
 		settings.height = frameBufferHeight;
 		settings.numSamples = 4;
 		framebuffer.allocate(settings);
+		 */
 	}
 
 	void canvas(glm::vec2 size_arg, float border, float rounding){
@@ -141,14 +146,17 @@ namespace Environnement::StageVisualizer{
 		mousePosY = std::max(mousePosY, 0);
 		b_mousePressed = ImGui::IsMouseDown(ImGuiMouseButton_Left);
 		
+		
+		
 		//this allows ofWidth() and ofHeight() to work
-		ofRenderer::setCurrentRenderSize(frameBufferWidth, frameBufferHeight);
+		//ofRenderer::setCurrentRenderSize(frameBufferWidth, frameBufferHeight);
 				
 		if(b_shouldStart) {
 			b_shouldStart = false;
 			onStart();
 		}
 		
+		/*
 		//actual script rendering
 		ofRenderer::startRender();
 		framebuffer.begin();
@@ -156,7 +164,8 @@ namespace Environnement::StageVisualizer{
 		else ofBackground(0, 0, 0, 255);
 		framebuffer.end();
 		ofRenderer::finishRender();
-		
+		*/
+		 
 		if(b_shouldStop){
 			b_shouldStop = false;
 			onStop();
@@ -168,6 +177,7 @@ namespace Environnement::StageVisualizer{
 		min -= glm::vec2(border, border);
 		max += glm::vec2(border, border);
 		
+		/*
 		//draw the framebuffer to the imgui canvas
 		ImTextureID textureID = (ImTextureID)(uintptr_t)framebuffer.getTexture().texData.textureID;
 		if(rounding <= 0.0) {
@@ -186,11 +196,14 @@ namespace Environnement::StageVisualizer{
 														 ImColor(1.0f, 1.0f, 1.0f, 1.0f),
 														 rounding);
 		}
+		 */
 		
+		/*
 		if(!script.isRunning()){
 			glm::vec2 textPos = ImGui::GetItemRectMin() + glm::vec2(5.0, 5.0);
 			ImGui::GetWindowDrawList()->AddText(textPos, ImColor(1.0f, 1.0f, 1.0f, 1.0f), "Stage Visualizer script is not running.");
 		}
+		 */
 	}
 
 	void reset(){

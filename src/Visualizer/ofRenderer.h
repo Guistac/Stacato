@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 namespace ofRenderer{
 	void init(int openGlVersionMajor, int openGlVersionMinor);
 	void terminate();
@@ -9,3 +10,4 @@ namespace ofRenderer{
 	void setCurrentRenderSize(int width, int height);
 }
 
+*/

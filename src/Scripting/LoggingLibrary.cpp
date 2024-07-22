@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "LoggingLibrary.h"
 
-#include <ofxLua.h>
+#include <lua.hpp>
 
 #include "Script.h"
 

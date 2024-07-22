@@ -2,7 +2,7 @@
 
 #include "Images.h"
 
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -11,7 +11,7 @@ namespace Images{
 
 	// Simple helper function to load an image into a OpenGL texture with common settings
 	bool LoadTextureFromFile(const char* filename, Image& output){
-		
+		/*
 		// Load from file
 		unsigned char* image_data = stbi_load(filename, &output.width, &output.height, NULL, 4);
 		if (image_data == NULL) return false;
@@ -32,7 +32,7 @@ namespace Images{
 	#endif
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, output.width, output.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 		stbi_image_free(image_data);
-		
+		*/
 		return true;
 	}
 

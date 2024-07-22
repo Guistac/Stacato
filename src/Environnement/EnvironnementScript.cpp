@@ -32,6 +32,10 @@ namespace Script{
    }
    
    void start(){
+	   //TODO: reimplement this
+	   return;
+	   
+	   /*
 	   script.stop();
 	   mutex.lock();
 	   script.setLoadLibrairiesCallback([](lua_State* L){
@@ -54,6 +58,7 @@ namespace Script{
 	   if(script.checkHasFunction("setup")) script.callFunction("setup");
 	   mutex.unlock();
 	   Logger::info("Started Environnement Script");
+		*/
    }
 
 	void update(){

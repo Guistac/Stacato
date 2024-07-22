@@ -59,11 +59,11 @@ void initialize(){
 	Images::load();
 	ImGui::StyleColorsDark();
 	
-	Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
+	//Environnement::StageVisualizer::initialize(OPENGL_VERSION_MAJOR, OPENGL_VERSION_MINOR);
 }
 
 void terminate(){
-	Environnement::StageVisualizer::terminate();
+	//Environnement::StageVisualizer::terminate();
 }
 
 

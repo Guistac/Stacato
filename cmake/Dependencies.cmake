@@ -26,9 +26,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/tinyxml2.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/stb.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/Serial.cmake)
 
-# Graphics
-include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/openFrameworks.cmake)
-
+# Scripting
+include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/lua.cmake)
 
 set(STACATO_DEPENDENCIES
 # Windowing
@@ -52,6 +51,6 @@ set(STACATO_DEPENDENCIES
     tinyxml2
     stb
     serial
-# Graphics
-    openFrameworks
+# Scripting
+    lua_lib
 )

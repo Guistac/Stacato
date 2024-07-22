@@ -32,15 +32,9 @@
 [submodule "deps/imguicolortextedit"]
 	path = deps/imguicolortextedit
 	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
-[submodule "deps/openframeworksAddons/ofxLua"]
-	path = deps/openframeworksAddons/ofxLua
-	url = https://github.com/Guistac/ofxLua.git
 [submodule "deps/glfw"]
 	path = deps/glfw
 	url = https://github.com/Guistac/glfw.git
-[submodule "deps/openframeworks"]
-	path = deps/openframeworks
-	url = https://github.com/Guistac/openFrameworks.git
 [submodule "deps/stb"]
 	path = deps/stb
 	url = https://github.com/nothings/stb.git
@@ -53,3 +47,6 @@
 [submodule "deps/artnode"]
 	path = deps/artnode
 	url = https://github.com/tobiasebsen/ArtNode.git
+[submodule "deps/lua"]
+	path = deps/lua
+	url = https://github.com/marovira/lua

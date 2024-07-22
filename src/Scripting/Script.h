@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ofxLua.h>
+#include <lua.hpp>
 #include <TextEditor.h>
 
 class LuaScript{
@@ -28,7 +28,7 @@ public:
 	typedef std::function<void(lua_State*)> LoadLibrariesCallback;
 	LoadLibrariesCallback loadLibCallback = [](lua_State* L){};
 	void setLoadLibrairiesCallback(LoadLibrariesCallback cb){ loadLibCallback = cb; }
-	
+	 
 	void logInfo(const char* message);
 	void logWarning(const char* message);
 	void clearConsole();

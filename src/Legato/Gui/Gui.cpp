@@ -12,7 +12,7 @@
 
 #define GLFW_INCLUDE_NONE //necessary or glfw will include its own GL loader
 #include <GLFW/glfw3.h>
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <implot.h>
@@ -112,9 +112,9 @@ namespace Legato::Gui{
 		glfwSwapInterval(1);
 		
 		//Load OpenGL Functions
-		glewExperimental = GL_TRUE;
-		if(glewInit() != GLEW_OK) return false;
-		Logger::debug("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
+		//glewExperimental = GL_TRUE;
+		//if(glewInit() != GLEW_OK) return false;
+		//Logger::debug("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
 		
 		//initialize gui contexts
 		IMGUI_CHECKVERSION();
