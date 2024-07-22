@@ -1,7 +1,6 @@
 #pragma once
 
-//#include <ofxLua.h>
-#include "lua.hpp"
+#include <lua.hpp>
 
 
 class LuaTable{
