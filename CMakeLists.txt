@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 #======= Workspace ========
-project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX)
+project(Stacato VERSION 0.2 DESCRIPTION "Stage Control Automation Toolbox" LANGUAGES CXX C)
 
 #we are using C++20
 set(CMAKE_CXX_STANDARD 20)
@@ -23,7 +23,7 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSTACATO_DEBUG")
 
 # Generate config.h file (will be in build binaries folder)
-configure_file(src/core/config.h.in src/core/config.h)
+configure_file(src/Core/config.h.in src/Core/config.h)
 
 # Compiler Configuration :
 # Visual Studio

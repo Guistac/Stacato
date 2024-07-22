@@ -31,7 +31,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Colors.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.h
-    ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Fonts.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/fonts.cpp
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Images.h
     ${STACATO_SOURCE_DIRECTORY}/Gui/Assets/Images.cpp
 

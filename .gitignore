@@ -1,6 +1,7 @@
 #=== Directories =======
 
 /Build
+/build
 /out
 .vs/
 bin/
