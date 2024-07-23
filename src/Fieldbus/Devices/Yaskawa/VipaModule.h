@@ -78,8 +78,8 @@ public:
 	virtual void moduleParameterGui();
 	
 	//saving and loading
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml){};
+	virtual bool load(tinyxml2::XMLElement* xml){};
 };
 
 
