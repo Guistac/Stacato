@@ -1,18 +1,18 @@
 <Environnement name="MYLENE FARMER" notes="
 ">
-    <Dashboard Scale="0" OffsetX="1129" OffsetY="-743" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="DmG-2 [+++]" UniqueID="2" PositionX="-311" PositionY="1584" SizeX="149" SizeY="391"/>
-        <Widget Name="DmG-3  [M&amp;-]" UniqueID="3" PositionX="-160" PositionY="1585" SizeX="149" SizeY="392"/>
-        <Widget Name="GmD-11 [+]" UniqueID="11" PositionX="-971" PositionY="1184" SizeX="149" SizeY="392"/>
-        <Widget Name="GmD-10 [-&amp;-]" UniqueID="10" PositionX="-1124" PositionY="1185" SizeX="149" SizeY="391"/>
-        <Widget Name="CmD-6 [+++]" UniqueID="6" PositionX="-466" PositionY="1182" SizeX="149" SizeY="391"/>
-        <Widget Name="CmD-5 [M&amp;M]" UniqueID="5" PositionX="-617" PositionY="1182" SizeX="149" SizeY="391"/>
-        <Widget Name="CmD-4 [++]" UniqueID="4" PositionX="-768" PositionY="1182" SizeX="149" SizeY="391"/>
-        <Widget Name="CmG-9 [--]" UniqueID="9" PositionX="-490" PositionY="1585" SizeX="149" SizeY="392"/>
-        <Widget Name="CmG-8 [++]" UniqueID="8" PositionX="-641" PositionY="1585" SizeX="149" SizeY="392"/>
-        <Widget Name="CmG-7 [-]" UniqueID="7" PositionX="-792" PositionY="1585" SizeX="149" SizeY="392"/>
-        <Widget Name="GmG-12 [+&amp;-]" UniqueID="12" PositionX="-1124" PositionY="1588" SizeX="149" SizeY="391"/>
-        <Widget Name="DmD-1 [++&amp;--]" UniqueID="1" PositionX="-160" PositionY="1182" SizeX="149" SizeY="391"/>
+    <Dashboard Scale="0.37905803" OffsetX="1382.6287" OffsetY="-1177.9768" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="DmG-2 [+++]" UniqueID="2" PositionX="-311" PositionY="1584" SizeX="149.10008" SizeY="393.57663"/>
+        <Widget Name="DmG-3  [M&amp;-]" UniqueID="3" PositionX="-160" PositionY="1585" SizeX="149.10008" SizeY="392.57672"/>
+        <Widget Name="GmD-11 [+]" UniqueID="11" PositionX="-971" PositionY="1184" SizeX="149.10008" SizeY="392.58267"/>
+        <Widget Name="GmD-10 [-&amp;-]" UniqueID="10" PositionX="-1124" PositionY="1185" SizeX="149.10008" SizeY="394.22079"/>
+        <Widget Name="CmD-6 [+++]" UniqueID="6" PositionX="-466" PositionY="1182" SizeX="149.10008" SizeY="394.58267"/>
+        <Widget Name="CmD-5 [M&amp;M]" UniqueID="5" PositionX="-617" PositionY="1182" SizeX="149.10008" SizeY="394.58267"/>
+        <Widget Name="CmD-4 [++]" UniqueID="4" PositionX="-768" PositionY="1182" SizeX="149.10008" SizeY="394.58267"/>
+        <Widget Name="CmG-9 [--]" UniqueID="9" PositionX="-490" PositionY="1585" SizeX="149.10008" SizeY="392.57672"/>
+        <Widget Name="CmG-8 [++]" UniqueID="8" PositionX="-641" PositionY="1585" SizeX="149.10008" SizeY="392.57672"/>
+        <Widget Name="CmG-7 [-]" UniqueID="7" PositionX="-792" PositionY="1585" SizeX="149.10008" SizeY="392.57672"/>
+        <Widget Name="GmG-12 [+&amp;-]" UniqueID="12" PositionX="-1124" PositionY="1588" SizeX="149.10008" SizeY="392.21475"/>
+        <Widget Name="DmD-1 [++&amp;--]" UniqueID="1" PositionX="-160" PositionY="1182" SizeX="149.10008" SizeY="394.58267"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

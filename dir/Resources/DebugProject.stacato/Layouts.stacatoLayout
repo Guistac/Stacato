@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Test"/>
+    <DefaultLayout Name="Exploitation"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Contrôle Manuel"/>

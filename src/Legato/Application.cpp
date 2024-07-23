@@ -11,6 +11,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <clocale>
+
 namespace Application{
 	
 	std::function<bool()> userInitializationFunction;
@@ -47,7 +49,7 @@ namespace Application{
 		
 		//——— initialize glfw for windowing and user inputs
 		#if defined(STACATO_MACOS)
-			#if define(STACATO_DEBUG)
+			#if defined(STACATO_DEBUG)
 				//for debug builds, don't change the working directory
 				//resources and debug project are loaded and saved to the repository's dir/ folder
 				glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, false);

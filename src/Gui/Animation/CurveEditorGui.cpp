@@ -150,13 +150,14 @@ void Manoeuvre::curveEditor(){
 			auto& curve = animation->getCurves()[c];
 			
 			glm::vec2 lineStartCursor = ImGui::GetCursorPos();
+			
+			ImGui::SetNextItemAllowOverlap();
 			ImGui::InvisibleButton("background", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()));
 			glm::vec2 min = ImGui::GetItemRectMin();
 			glm::vec2 max = ImGui::GetItemRectMax();
 			
 			ImGui::SetCursorPosY(lineStartCursor.y);
 			ImGui::SetCursorPosX(lineStartCursor.x + ImGui::GetFrameHeight());
-			ImGui::SetItemAllowOverlap();
 			if(ImGui::InvisibleButton("SelectionCatcher", glm::vec2(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight()))){
 				selectEditorCurve(animation, curve);
 			}
@@ -170,7 +171,6 @@ void Manoeuvre::curveEditor(){
 			drawing->AddRectFilled(min, max, itemColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 			
 			ImGui::SetCursorPos(lineStartCursor);
-			ImGui::SetItemAllowOverlap();
 			ImGui::Checkbox("##visible", &curve->b_visibleInEditor);
 			
 			ImGui::SameLine(0.f, ImGui::GetStyle().FramePadding.x);
@@ -262,7 +262,7 @@ void Manoeuvre::curveEditor(){
 			limits.push_back(glm::vec2(plotBoundsMax.x, plotBoundsMin.y));
 			if (endTime > 0.0) {
 				ImPlot::SetNextFillStyle(Colors::black, 0.5);
-				ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
+				ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, ImPlotShadedFlags_None, 0, sizeof(glm::vec2));
 				ImPlot::PlotInfLines("##Limits1", &startTime, 1, ImPlotInfLinesFlags_None);
 				ImPlot::PlotInfLines("##Limits2", &endTime, 1, ImPlotInfLinesFlags_None);
 			}
@@ -275,7 +275,6 @@ void Manoeuvre::curveEditor(){
 			if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
 		}
         
-        /*
 		//draw curve editor controls
 		for (auto& animation : getAnimations()) {
 			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
@@ -284,7 +283,6 @@ void Manoeuvre::curveEditor(){
 			ImGui::PopID();
 			ImGui::PopID();
 		}
-        */
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();

@@ -50,9 +50,9 @@ void etherCatMetrics() {
 			ImPlot::SetupAxisFormat(ImAxis_Y1, "%gms");
 			ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-			ImPlot::PlotLine("Clock Drift", &dcTimeErrors.front().x, &dcTimeErrors.front().y, dcTimeErrors.size(), dcTimeErrors.offset(), dcTimeErrors.stride());
+			ImPlot::PlotLine("Clock Drift", &dcTimeErrors.front().x, &dcTimeErrors.front().y, dcTimeErrors.size(), ImPlotLineFlags_None, dcTimeErrors.offset(), dcTimeErrors.stride());
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
-			ImPlot::PlotLine("Average", &averageDcTimeErrors.front().x, &averageDcTimeErrors.front().y, averageDcTimeErrors.size(), averageDcTimeErrors.offset(), averageDcTimeErrors.stride());
+			ImPlot::PlotLine("Average", &averageDcTimeErrors.front().x, &averageDcTimeErrors.front().y, averageDcTimeErrors.size(), ImPlotLineFlags_None, averageDcTimeErrors.offset(), averageDcTimeErrors.stride());
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), 2.0);
 			ImPlot::PlotInfLines("Limits", &maxPositiveDrift, 1, ImPlotInfLinesFlags_Horizontal);
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), 2.0);
@@ -79,35 +79,35 @@ void etherCatMetrics() {
 			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 1.0f);
 			if (!cycleLengths.empty()) {
 				ImPlot::SetNextFillStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-				ImPlot::PlotShaded("Cycle", &cycleLengths.front().x, &cycleLengths.front().y, cycleLengths.size(), 0.0L, cycleLengths.offset(), cycleLengths.stride());
+				ImPlot::PlotShaded("Cycle", &cycleLengths.front().x, &cycleLengths.front().y, cycleLengths.size(), 0.0L, ImPlotShadedFlags_None, cycleLengths.offset(), cycleLengths.stride());
 				ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
-				ImPlot::PlotLine("Cycle", &cycleLengths.front().x, &cycleLengths.front().y, cycleLengths.size(), cycleLengths.offset(), cycleLengths.stride());
+				ImPlot::PlotLine("Cycle", &cycleLengths.front().x, &cycleLengths.front().y, cycleLengths.size(), ImPlotLineFlags_None, cycleLengths.offset(), cycleLengths.stride());
 			}
 			if (!timeoutDelays.empty()) {
 				ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 1.0f, 0.5f), 2.0);
-				ImPlot::PlotLine("Timeout", &timeoutDelays.front().x, &timeoutDelays.front().y, timeoutDelays.size(), timeoutDelays.offset(), timeoutDelays.stride());
+				ImPlot::PlotLine("Timeout", &timeoutDelays.front().x, &timeoutDelays.front().y, timeoutDelays.size(), ImPlotLineFlags_None, timeoutDelays.offset(), timeoutDelays.stride());
 			}
 			if (!processDelays.empty()) {
 				ImPlot::SetNextFillStyle(ImVec4(1.0f, 1.0f, 0.0f, 0.5f));
-				ImPlot::PlotShaded("Process", &processDelays.front().x, &processDelays.front().y, processDelays.size(), 0.0L, processDelays.offset(), processDelays.stride());
+				ImPlot::PlotShaded("Process", &processDelays.front().x, &processDelays.front().y, processDelays.size(), 0.0L, ImPlotShadedFlags_None, processDelays.offset(), processDelays.stride());
 				ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), 1.0);
-				ImPlot::PlotLine("Process", &processDelays.front().x, &processDelays.front().y, processDelays.size(), processDelays.offset(), processDelays.stride());
+				ImPlot::PlotLine("Process", &processDelays.front().x, &processDelays.front().y, processDelays.size(), ImPlotLineFlags_None, processDelays.offset(), processDelays.stride());
 			}
 			if (!receiveDelays.empty()) {
 				ImPlot::SetNextFillStyle(ImVec4(0.0f, 0.0f, 1.0f, 0.5f));
-				ImPlot::PlotShaded("Receive", &receiveDelays.front().x, &receiveDelays.front().y, receiveDelays.size(), 0.0L, receiveDelays.offset(), receiveDelays.stride());
+				ImPlot::PlotShaded("Receive", &receiveDelays.front().x, &receiveDelays.front().y, receiveDelays.size(), 0.0L, ImPlotShadedFlags_None, receiveDelays.offset(), receiveDelays.stride());
 				ImPlot::SetNextLineStyle(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0);
-				ImPlot::PlotLine("Receive", &receiveDelays.front().x, &receiveDelays.front().y, receiveDelays.size(), receiveDelays.offset(), receiveDelays.stride());
+				ImPlot::PlotLine("Receive", &receiveDelays.front().x, &receiveDelays.front().y, receiveDelays.size(), ImPlotLineFlags_None, receiveDelays.offset(), receiveDelays.stride());
 			}
 			if (!sendDelays.empty()) {
 				ImPlot::SetNextFillStyle(ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
-				ImPlot::PlotShaded("Send", &sendDelays.front().x, &sendDelays.front().y, sendDelays.size(), 0.0L, sendDelays.offset(), sendDelays.stride());
+				ImPlot::PlotShaded("Send", &sendDelays.front().x, &sendDelays.front().y, sendDelays.size(), 0.0L, ImPlotShadedFlags_None, sendDelays.offset(), sendDelays.stride());
 				ImPlot::SetNextLineStyle(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), 1.0);
-				ImPlot::PlotLine("Send", &sendDelays.front().x, &sendDelays.front().y, sendDelays.size(), sendDelays.offset(), sendDelays.stride());
+				ImPlot::PlotLine("Send", &sendDelays.front().x, &sendDelays.front().y, sendDelays.size(), ImPlotLineFlags_None, sendDelays.offset(), sendDelays.stride());
 			}
 			if (!timeouts.empty()) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, 4.0, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 0.0);
-				ImPlot::PlotScatter("##Timeouts", &timeouts.front().x, &timeouts.front().y, timeouts.size(), timeouts.offset(), timeouts.stride());
+				ImPlot::PlotScatter("##Timeouts", &timeouts.front().x, &timeouts.front().y, timeouts.size(), ImPlotScatterFlags_None, timeouts.offset(), timeouts.stride());
 			}
 			ImPlot::PopStyleVar();
 			ImPlot::EndPlot();
@@ -125,7 +125,7 @@ void etherCatMetrics() {
 				percentages[0] = 0.0;
 				percentages[1] = 0.0;
 			}
-			ImPlot::PlotPieChart(metrics.frameReturnTypeChars, percentages, 2, 0.2, 0.2, 0.4, "%.2f%%");
+			ImPlot::PlotPieChart(metrics.frameReturnTypeChars, percentages, 2, 0.5, 0.5, 0.4, "%.2f%%");
 			ImPlot::EndPlot();
 		}
 
@@ -138,7 +138,7 @@ void etherCatMetrics() {
 		if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
 			ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
-			ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
+			ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), ImPlotStairsFlags_None, workingCounters.offset(), workingCounters.stride());
 			ImPlot::EndPlot();
 		}
 

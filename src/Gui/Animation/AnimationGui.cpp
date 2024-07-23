@@ -557,7 +557,7 @@ void Animation::drawCurves(){
 			std::vector<glm::vec2> headerPoints;
 			headerPoints.push_back(glm::vec2(startTime, startPoint->position));
 			headerPoints.push_back(glm::vec2(startPoint->time, startPoint->position));
-			ImPlot::PlotLine(curveName, &headerPoints.front().x, &headerPoints.front().y, headerPoints.size(), 0, sizeof(glm::vec2));
+			ImPlot::PlotLine(curveName, &headerPoints.front().x, &headerPoints.front().y, headerPoints.size(), ImPlotLineFlags_None, 0, sizeof(glm::vec2));
 		}
 		
 		float inflectionPointSize = ImGui::GetTextLineHeight() * 0.15;
@@ -567,11 +567,11 @@ void Animation::drawCurves(){
 			if (interpolation->b_valid) {
 				std::vector<Motion::Point>& points = interpolation->displayPoints;
 				if(b_selected) ImPlot::SetNextLineStyle(ImColor(Colors::white), ImGui::GetTextLineHeight() * .15f);
-				ImPlot::PlotLine(curveName, &points.front().time, &points.front().position, points.size(), 0, sizeof(Motion::Point));
+				ImPlot::PlotLine(curveName, &points.front().time, &points.front().position, points.size(), ImPlotLineFlags_None, 0, sizeof(Motion::Point));
 				std::vector<Motion::Point>& inflectionPoints = interpolation->displayInflectionPoints;
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond, inflectionPointSize, Colors::red, 0.0);
 				if(!inflectionPoints.empty())
-					ImPlot::PlotScatter("##inflectionPoints", &inflectionPoints.front().time, &inflectionPoints.front().position, inflectionPoints.size(), 0, sizeof(Motion::Point));
+					ImPlot::PlotScatter("##inflectionPoints", &inflectionPoints.front().time, &inflectionPoints.front().position, inflectionPoints.size(), ImPlotLineFlags_None, 0, sizeof(Motion::Point));
 				if(b_selected && interpolation->getType() == InterpolationType::TRAPEZOIDAL){
 					glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
 					averagePosition /= 2.0;
@@ -585,7 +585,7 @@ void Animation::drawCurves(){
 				errorPoints.push_back(interpolation->inPoint->toPoint());
 				errorPoints.push_back(interpolation->outPoint->toPoint());
 				ImPlot::SetNextLineStyle(Colors::red, ImGui::GetTextLineHeight() * 0.2);
-				ImPlot::PlotLine(curveName, &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), 0, sizeof(Motion::Point));
+				ImPlot::PlotLine(curveName, &errorPoints.front().time, &errorPoints.front().position, errorPoints.size(), ImPlotLineFlags_None, 0, sizeof(Motion::Point));
 				glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
 				averagePosition /= 2.0;
 				ImGui::PushFont(Fonts::sansBold15);
@@ -601,13 +601,13 @@ void Animation::drawCurves(){
 			std::vector<glm::vec2> trailerPoints;
 			trailerPoints.push_back(glm::vec2(endPoint->time, endPoint->position));
 			trailerPoints.push_back(glm::vec2(endTime, endPoint->position));
-			ImPlot::PlotLine(curveName, &trailerPoints.front().x, &trailerPoints.front().y, trailerPoints.size(), 0, sizeof(glm::vec2));
+			ImPlot::PlotLine(curveName, &trailerPoints.front().x, &trailerPoints.front().y, trailerPoints.size(), ImPlotLineFlags_None, 0, sizeof(glm::vec2));
 		}
 		
 		if(!b_selected){
 			for(auto controlPoint : curve->getPoints()){
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, controlPointSize, Colors::white, 0.0);
-				ImPlot::PlotScatter("##controlPoint", &controlPoint->time, &controlPoint->position, 1);
+				ImPlot::PlotScatter("##controlPoint", &controlPoint->time, &controlPoint->position, ImPlotLineFlags_None, 1);
 			}
 		}
 		
@@ -645,7 +645,10 @@ void SequenceAnimation::drawCurveControls(){
 			else controlPointColor = ImColor(Colors::white);
 			float controlPointSize = ImGui::GetTextLineHeight() * .25f;
 			
-			bool controlPointEdited = ImPlot::DragPoint(i, &controlPoint->time, &controlPoint->position, controlPointColor, controlPointSize);
+			bool pointClicked = false;
+			bool pointHovered = false;
+			bool pointHeld = false;
+			bool controlPointEdited = ImPlot::DragPoint(i, &controlPoint->time, &controlPoint->position, controlPointColor, controlPointSize, ImPlotDragToolFlags_None,&pointClicked,&pointHovered,&pointHeld);
 			//bool controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, controlPointColor, controlPointSize);
 			if(controlPointEdited) edited = true;
 			
@@ -655,7 +658,7 @@ void SequenceAnimation::drawCurveControls(){
 				if(controlPoint->time <= curve->getStart()->time) controlPoint->time = curve->getStart()->time + 0.001;
 			}
 			
-			if(ImGui::IsItemClicked()) getManoeuvre()->selectControlPoint(controlPoint);
+			if(pointClicked || pointHeld) getManoeuvre()->selectControlPoint(controlPoint);
 
 			if (!controlPoint->b_valid) {
 				ImPlot::Annotation(controlPoint->time, controlPoint->position, glm::vec4(0.5, 0.0, 0.0, 0.5), glm::vec2(30, -30), false, "%s", Enumerator::getDisplayString(controlPoint->validationError));
