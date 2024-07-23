@@ -114,7 +114,7 @@ namespace Environnement::NodeGraph::Gui{
 					const auto p0 = rect_center - glm::vec2(r, r);
 					const auto p1 = rect_center + glm::vec2(r, r);
 
-					drawList->AddRectFilled(p0, p1, color, 0, 15 + extra_segments);
+					drawList->AddRectFilled(p0, p1, color, 0, ImDrawFlags_RoundCornersAll + extra_segments);
 				}
 				else
 				{
@@ -123,9 +123,9 @@ namespace Environnement::NodeGraph::Gui{
 					const auto p1 = rect_center + glm::vec2(r, r);
 
 					if (innerColor & 0xFF000000)
-						drawList->AddRectFilled(p0, p1, innerColor, 0, 15 + extra_segments);
+						drawList->AddRectFilled(p0, p1, innerColor, 0, ImDrawFlags_RoundCornersAll + extra_segments);
 
-					drawList->AddRect(p0, p1, color, 0, 15 + extra_segments, 2.0f * outline_scale);
+					drawList->AddRect(p0, p1, color, 0, ImDrawFlags_RoundCornersAll + extra_segments, 2.0f * outline_scale);
 
 				}
 			}
@@ -168,8 +168,8 @@ namespace Environnement::NodeGraph::Gui{
 					const auto cr = r * 0.5f;
 					const auto p0 = rect_center - glm::vec2(r, r);
 					const auto p1 = rect_center + glm::vec2(r, r);
-
-					drawList->AddRectFilled(p0, p1, color, cr, 15);
+					
+					drawList->AddRectFilled(p0, p1, color, cr, ImDrawFlags_RoundCornersAll);
 				}
 				else
 				{
@@ -179,9 +179,9 @@ namespace Environnement::NodeGraph::Gui{
 					const auto p1 = rect_center + glm::vec2(r, r);
 
 					if (innerColor & 0xFF000000)
-						drawList->AddRectFilled(p0, p1, innerColor, cr, 15);
+						drawList->AddRectFilled(p0, p1, innerColor, cr, ImDrawFlags_RoundCornersAll);
 
-					drawList->AddRect(p0, p1, color, cr, 15, 2.0f * outline_scale);
+					drawList->AddRect(p0, p1, color, cr, ImDrawFlags_RoundCornersAll, 2.0f * outline_scale);
 				}
 			}
 			else if (type == 5)
