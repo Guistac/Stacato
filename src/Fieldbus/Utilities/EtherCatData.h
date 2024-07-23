@@ -58,10 +58,10 @@ public:
 	}
 
 	EtherCatBaseData(const char* n, EtherCatData::Type t, DataFormat::Type r) {
-		sprintf(name, n);
+		snprintf(name, 128, n);
 		dataType = t;
 		if (dataType == EtherCatData::Type::STRING) dataFormat = DataFormat::STRING;
-		else if (r = DataFormat::STRING) dataFormat = DataFormat::DECIMAL;
+		else if (r == DataFormat::STRING) dataFormat = DataFormat::DECIMAL;
 		else dataFormat = r;
 	}
 
@@ -92,6 +92,7 @@ public:
 			case EtherCatData::Type::UINT64_T:	sprintf(valueString, "%lli", u64); break;
 			case EtherCatData::Type::INT64_T:	sprintf(valueString, "%lli", s64); break;
 			case EtherCatData::Type::STRING:	return stringBuffer;
+			default: return "none";
 		}
 		return valueString;
 	}

@@ -79,6 +79,7 @@ struct EtherCatPdoAssignement {
 				output += entry.bitCount;
 			}
 		}
+		return output;
 	}
 
 	bool mapToSyncManager(uint16_t slaveIndex, uint16_t syncManagerIndex, bool b_PDOconfig = true) {

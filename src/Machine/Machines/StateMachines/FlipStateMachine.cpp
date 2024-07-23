@@ -62,6 +62,8 @@ void FlipStateMachine::initialize() {
 std::string FlipStateMachine::getStatusString(){
 	std::string status;
 	switch(state){
+		case DeviceState::ENABLING: return "Enabling...";
+		case DeviceState::DISABLING: return "Disalbing...";
 		case DeviceState::OFFLINE:
 			status = "Machine is Offline:";
 			if(!areAllPinsConnected()) {
@@ -109,6 +111,7 @@ std::string FlipStateMachine::getStatusString(){
 			}
 			return status;
 	}
+	return "";
 }
 
 void FlipStateMachine::inputProcess() {

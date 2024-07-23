@@ -1,20 +1,20 @@
 #pragma once
 
 #define DEFINE_VIPA_MODULE(className, saveName, displayName) public:\
-	virtual void onConstruction();\
-	virtual std::shared_ptr<VipaModule> getInstance(){\
+	virtual void onConstruction() override;\
+	virtual std::shared_ptr<VipaModule> getInstance() override {\
 		auto newModule = std::make_shared<className>();\
 		newModule->onConstruction();\
 		return newModule;\
 	}\
-	virtual const char* getSaveName(){ return saveName; }\
-	virtual const char* getDisplayName() { return displayName; }\
-	virtual void onSetIndex(int i);\
-	virtual void addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement);\
-	virtual void addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement);\
-	virtual bool configureParameters();\
-	virtual void readInputs();\
-	virtual void writeOutputs();\
+	virtual const char* getSaveName() override { return saveName; }\
+	virtual const char* getDisplayName() override { return displayName; }\
+	virtual void onSetIndex(int i) override;\
+	virtual void addTxPdoMappingModule(EtherCatPdoAssignement& txPdoAssignement) override;\
+	virtual void addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignement) override;\
+	virtual bool configureParameters() override;\
+	virtual void readInputs() override;\
+	virtual void writeOutputs() override;\
 
 #include "Motion/Interfaces.h"
 #include "VIPA-053-1EC01.h"
@@ -78,8 +78,8 @@ public:
 	virtual void moduleParameterGui();
 	
 	//saving and loading
-	virtual bool save(tinyxml2::XMLElement* xml){}
-	virtual bool load(tinyxml2::XMLElement* xml){}
+	virtual bool save(tinyxml2::XMLElement* xml);
+	virtual bool load(tinyxml2::XMLElement* xml);
 };
 
 
@@ -107,9 +107,9 @@ public:
 	//parameters
 	bool invertOutputs[4] = {false, false, false, false};
 	
-	virtual void moduleParameterGui();
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual void moduleParameterGui() override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 };
 
 
@@ -130,9 +130,9 @@ public:
 	//parameters
 	bool invertInputs[8] = {false, false, false, false, false, false, false};
 	
-	virtual void moduleParameterGui();
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual void moduleParameterGui() override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 };
 
 //=================================================================
@@ -152,9 +152,9 @@ public:
 	//parameters
 	bool invertOutputs[8] = {false, false, false, false, false, false, false, false};
 	
-	virtual void moduleParameterGui();
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual void moduleParameterGui() override;
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 };
 
 //=================================================================
@@ -320,8 +320,8 @@ public:
 	virtual void moduleParameterGui();
 	
 	//==== Parameter Saving & Loading ====
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 };
 
@@ -403,8 +403,8 @@ public:
 	void moduleParameterGui();
 	
 	//==== Parameter Saving & Loading ====
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 };
 
 #define VipaAnalogVoltageRangeTypeString \
@@ -493,8 +493,8 @@ public:
 	virtual void moduleParameterGui();
 	
 	//==== Parameter Saving & Loading ====
-	virtual bool save(tinyxml2::XMLElement* xml);
-	virtual bool load(tinyxml2::XMLElement* xml);
+	virtual bool save(tinyxml2::XMLElement* xml) override;
+	virtual bool load(tinyxml2::XMLElement* xml) override;
 	
 };
 

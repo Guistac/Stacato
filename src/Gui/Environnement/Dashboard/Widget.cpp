@@ -26,6 +26,7 @@ bool WidgetInstance::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("PositionY", position.y);
 	xml->SetAttribute("SizeX", size.x);
 	xml->SetAttribute("SizeY", size.y);
+	return true;
 }
 
 std::shared_ptr<WidgetInstance> WidgetInstance::load(tinyxml2::XMLElement* xml){

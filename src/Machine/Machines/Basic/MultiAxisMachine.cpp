@@ -173,7 +173,7 @@ void MultiAxisMachine::outputProcess(){
 
 void MultiAxisMachine::onEnableHardware() {}
 void MultiAxisMachine::onDisableHardware() {}
-bool MultiAxisMachine::isSimulationReady(){}
+bool MultiAxisMachine::isSimulationReady(){ return false; }
 void MultiAxisMachine::onEnableSimulation() {}
 void MultiAxisMachine::onDisableSimulation() {}
 std::string MultiAxisMachine::getStatusString(){ return "No Status..."; }

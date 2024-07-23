@@ -897,8 +897,8 @@ void VIPA_050_1BB40::addRxPdoMappingModule(EtherCatPdoAssignement& rxPdoAssignem
 
 bool VIPA_050_1BB40::configureParameters(){
 	uint16_t settingsObjectIndex = 0x3100 + moduleIndex;
-	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, getInputFilterCode(channel0InputFilter->value)));
-	if(parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x4, getInputFilterCode(channel1InputFilter->value)));
+	if(!parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x2, getInputFilterCode(channel0InputFilter->value))) return false;
+	if(!parentBusCoupler->writeSDO_U8(settingsObjectIndex, 0x4, getInputFilterCode(channel1InputFilter->value))) return false;
 	return true;
 }
 

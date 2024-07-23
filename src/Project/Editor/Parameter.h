@@ -891,6 +891,7 @@ public:
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), Enumerator::getSaveString(value));
+		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml) override {
@@ -995,6 +996,7 @@ public:
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value->saveName);
+		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml) override {
@@ -1094,6 +1096,7 @@ public:
 	
 	virtual bool save(tinyxml2::XMLElement* xml) override {
 		xml->SetAttribute(getSaveString(), value);
+		return true;
 	}
 	
 	virtual bool load(tinyxml2::XMLElement* xml) override {

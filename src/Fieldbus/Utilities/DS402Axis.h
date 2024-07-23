@@ -189,6 +189,7 @@ public:
 		int8_t opMode;
 		if(!parentDevice->readSDO_S8(0x6061, 0x0, opMode, "DS402 Operating Mode")) return false;
 		output = OperatingMode(opMode);
+		return true;
 	}
 	
 	///60C2.? Interpolation Time Period
@@ -198,6 +199,7 @@ public:
 		int8_t exponent = -3;
 		if(!parentDevice->writeSDO_U8(0x60C2, 0x1, base)) return false;
 		if(!parentDevice->writeSDO_S8(0x60C2, 0x2, exponent)) return false;
+		return true;
 	}
 	
 	///6065.0 Following Error Window
@@ -266,16 +268,19 @@ public:
 	///6046.0 vl velocity min max amount
 	bool setMaxMinFrequency(){
 		//return parentDevice->writeSDO_U16(0x6046, 0x0, <#const uint16_t &data#>);
+		return false;
 	}
 	
 	///6048.0 velocity acceleration
 	bool setFrequencyAcceleration(){
 		//return parentDevice->writeSDO_U16(0x6048, 0x0, <#const uint16_t &data#>);
+		return false;
 	}
 	
 	///6049.? velocity deceleration
 	bool setFrequencyDeceleration(){
 		//return parentDevice->writeSDO_U16(0x6049, 0x0, <#const uint16_t &data#>);
+		return false;
 	}
 	
 	//=== Position
