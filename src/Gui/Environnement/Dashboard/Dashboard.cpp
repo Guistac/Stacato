@@ -116,6 +116,8 @@ void Dashboard::canvas(){
         }
         fitView();
     }
+
+	if(newSize.x <= 0.0 || newSize.y <= 0.0) return;
 	
 	//begin dashboard window and set main coordinates
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
@@ -126,6 +128,8 @@ void Dashboard::canvas(){
 	
 	//main interaction catcher
 	ImGui::SetCursorPos(ImVec2(0,0));
+	if(dashboardSize.x <= 0.0) dashboardSize.x = 1;
+	if(dashboardSize.y <= 0.0) dashboardSize.y = 1;
 	ImGui::InvisibleButton("Dashboard", dashboardSize);
 	ImGui::SetItemAllowOverlap();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();

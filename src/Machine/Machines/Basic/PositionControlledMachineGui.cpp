@@ -217,6 +217,7 @@ void PositionControlledMachine::verticalWidgetGui(){
 
 	animatablePosition->manualControlsVerticalGui(ImGui::GetTextLineHeight() * 10.f, nullptr, invertControlGui->value);
 	float controlsHeight = ImGui::GetItemRectSize().y;
+	if(controlsHeight <= 0.0) controlsHeight = 1.0;
 
 	ImGui::SameLine();
 
