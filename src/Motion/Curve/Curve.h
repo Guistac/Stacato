@@ -41,7 +41,7 @@ namespace Motion {
 		int id;
 		Unit unit = Units::None::None;
 		Point toPoint(){
-			return Point{.time = time, .position = position, .acceleration = outAcceleration, .velocity = velocity};
+			return Point{.time = time, .position = position, .velocity = velocity, .acceleration = outAcceleration};
 		}
 		
 		//TURN DISPLAY HACK

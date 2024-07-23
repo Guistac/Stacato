@@ -292,7 +292,10 @@ inline double NodePin::read(){
 }
 
 inline void NodePin::copyConnectedPinValue(){
-	if(!isConnected()) return logNoConnectionError();
+	if(!isConnected()) {
+		logNoConnectionError();
+		return;
+	}
 	switch(dataType){
 		case DataType::BOOLEAN:
 			*getSharedPointer<bool>() = getConnectedPin()->read<bool>();
@@ -317,7 +320,10 @@ inline void NodePin::copyConnectedPinValue(){
 
 template<>
 inline void NodePin::write(bool data){
-	if(pointer.expired()) return logWriteNullPointerError();
+	if(pointer.expired()) {
+		logWriteNullPointerError();
+		return;
+	}
 	switch(dataType){
 		case DataType::BOOLEAN:
 			*getSharedPointer<bool>() = data;
@@ -335,7 +341,10 @@ inline void NodePin::write(bool data){
 
 template<>
 inline void NodePin::write(int data){
-	if(pointer.expired()) return logWriteNullPointerError();
+	if(pointer.expired()) {
+		logWriteNullPointerError();
+		return;
+	}
 	switch(dataType){
 		case DataType::BOOLEAN:
 			*getSharedPointer<bool>() = data;
@@ -353,7 +362,10 @@ inline void NodePin::write(int data){
 
 template<>
 inline void NodePin::write(double data){
-	if(pointer.expired()) return logWriteNullPointerError();
+	if(pointer.expired()) {
+		logWriteNullPointerError();
+		return;
+	}
 	switch(dataType){
 		case DataType::BOOLEAN:
 			*getSharedPointer<bool>() = data;
@@ -410,55 +422,82 @@ inline NodePin::DataType NodePin::detectType(std::shared_ptr<Motion::Axis> ptr) 
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<bool> ptr) {
-	if(dataType != DataType::BOOLEAN) return logTypeMismatchError(ptr);
+	if(dataType != DataType::BOOLEAN) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<int> ptr) {
-	if(dataType != DataType::INTEGER) return logTypeMismatchError(ptr);
+	if(dataType != DataType::INTEGER) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<double> ptr) {
-	if(dataType != DataType::REAL) return logTypeMismatchError(ptr);
+	if(dataType != DataType::REAL) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<GpioInterface> ptr) {
-	if(dataType != DataType::GPIO_INTERFACE) return logTypeMismatchError(ptr);
+	if(dataType != DataType::GPIO_INTERFACE) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<MotionFeedbackInterface> ptr) {
-	if(dataType != DataType::MOTIONFEEDBACK_INTERFACE) return logTypeMismatchError(ptr);
+	if(dataType != DataType::MOTIONFEEDBACK_INTERFACE) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<ActuatorInterface> ptr) {
-	if(dataType != DataType::ACTUATOR_INTERFACE) return logTypeMismatchError(ptr);
+	if(dataType != DataType::ACTUATOR_INTERFACE) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<AxisInterface> ptr) {
-	if(dataType != DataType::AXIS_INTERFACE) return logTypeMismatchError(ptr);
+	if(dataType != DataType::AXIS_INTERFACE) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<DeadMansSwitch> ptr) {
-	if(dataType != DataType::DEAD_MANS_SWITCH) return logTypeMismatchError(ptr);
+	if(dataType != DataType::DEAD_MANS_SWITCH) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }
 
 
 template<>
 inline void NodePin::assignData(std::shared_ptr<Motion::Axis> ptr) {
-	if(dataType != DataType::AXIS) return logTypeMismatchError(ptr);
+	if(dataType != DataType::AXIS) {
+		logTypeMismatchError(ptr);
+		return;
+	}
 	pointer = ptr;
 }

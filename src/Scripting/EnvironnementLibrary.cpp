@@ -113,7 +113,7 @@ namespace Scripting::EnvironnementLibrary{
 							lua_AnimatablePosition.push(L, animatable->toPosition()); return 1;
 						default:
 							lua_pushnil(L);
-							return;
+							return 1;
 					}
 				}
 			}
@@ -247,6 +247,7 @@ namespace Scripting::EnvironnementLibrary{
 			bool enabled = lua_toboolean(L, 2);
 			if(enabled) constraint->enable();
 			else constraint->disable();
+			return 0;
 		}
 
 		int isEnabled(lua_State* L){

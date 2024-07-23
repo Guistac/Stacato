@@ -138,7 +138,7 @@ bool LuaScript::compile(bool hideSuccessMessage){
 	
 	//initialize lua state and load librairies
 	L = luaL_newstate();
-	if(L == nullptr) return;
+	if(L == nullptr) return false;
 	luaL_openlibs(L);
 	Scripting::LogLibrary::openLib(L, this);
 	loadLibCallback(L);

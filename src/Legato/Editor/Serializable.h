@@ -84,12 +84,14 @@ public:
 	}
 	bool serializeAttribute(std::string attributeSaveString, long long data){
 		if(!logAttributeSerializationError(attributeSaveString)) return false;
-		xmlElement->SetAttribute(attributeSaveString.c_str(), data);
+		int64_t d = data;
+		xmlElement->SetAttribute(attributeSaveString.c_str(), d);
 		return true;
 	}
 	bool serializeAttribute(std::string attributeSaveString, unsigned long long data){
 		if(!logAttributeSerializationError(attributeSaveString)) return false;
-		xmlElement->SetAttribute(attributeSaveString.c_str(), data);
+		uint64_t d = data;
+		xmlElement->SetAttribute(attributeSaveString.c_str(), d);
 		return true;
 	}
 	bool serializeAttribute(std::string attributeSaveString, float data){
@@ -118,12 +120,16 @@ public:
 	}
 	bool deserializeAttribute(std::string idString, long long& data){
 		if(!logAttributeDeserializationError(idString)) return false;
-		tinyxml2::XMLError result = xmlElement->QueryInt64Attribute(idString.c_str(), &data);
+		int64_t d;
+		tinyxml2::XMLError result = xmlElement->QueryInt64Attribute(idString.c_str(), &d);
+		data = d;
 		return logAttributeDeserializationResult(result, idString);
 	}
 	bool deserializeAttribute(std::string idString, unsigned long long& data){
 		if(!logAttributeDeserializationError(idString)) return false;
-		tinyxml2::XMLError result = xmlElement->QueryUnsigned64Attribute(idString.c_str(), &data);
+		uint64_t d;
+		tinyxml2::XMLError result = xmlElement->QueryUnsigned64Attribute(idString.c_str(), &d);
+		data = d;
 		return logAttributeDeserializationResult(result, idString);
 	}
 	bool deserializeAttribute(std::string idString, float& data){

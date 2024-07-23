@@ -135,7 +135,6 @@ public:
 		new(userData) std::shared_ptr<T>(object); /*new placement operator*/
 		luaL_getmetatable(L, typeNameString.value);
 		lua_setmetatable(L, -2);
-		return 1;
 	}
 																									
 	static std::shared_ptr<T> checkArgument(lua_State* L, int argumentIndex){
