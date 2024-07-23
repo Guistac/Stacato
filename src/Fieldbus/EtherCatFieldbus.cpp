@@ -205,10 +205,13 @@ namespace EtherCatFieldbus {
 		ecx_contextt* context = &ecx_context;
 		ecx_portt* port = context->port;
 		ec_stackT* stack = &port->stack;
-		//pcap_t** socket_ptr = stack->sock;
-		//pcap_t* socket = *socket_ptr;
-		//return socket != nullptr;
-		return true;
+		#if defined(STACATO_MACOS)
+			pcap_t** socket_ptr = stack->sock;
+			pcap_t* socket = *socket_ptr;
+			return socket != nullptr;
+		#else
+			return true;
+		#endif
 	}
 
     //============== Update Network interface card list
