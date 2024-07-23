@@ -175,11 +175,10 @@ void gui(){
 
 
 
-	
 	void QuitApplicationPopup::onDraw() {
 		ImGui::Text("Do you really want to exit the application ?");
 		ImGui::Text("Proceeding will stop motion and discard any unsaved changes");
-		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();
+		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape)) close();
 		ImGui::SameLine();
 		if (ImGui::Button("Quit without Saving")) {
 			close();
@@ -189,7 +188,7 @@ void gui(){
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.5, 0.0, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
-		if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
+		if (ImGui::Button("Save and Quit") || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 			//if(Project::Gui::save()) ApplicationWindow::quit();
 			close();
 		}
@@ -241,7 +240,7 @@ void gui(){
 	void CloseProjectPopup::onDraw(){
 		ImGui::Text("Do you really want to close the current project ?");
 		ImGui::Text("Proceeding will stop motion and discard any unsaved changes");
-		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) close();
+		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape)) close();
 		ImGui::SameLine();
 		if (ImGui::Button("Close without saving")) {
 			//Project::confirmNewProjectRequest();
@@ -251,7 +250,7 @@ void gui(){
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.5, 0.0, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
-		if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
+		if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 			bool b_saved = Stacato::Editor::getCurrentProject()->writeFile();
 			close();
 		}

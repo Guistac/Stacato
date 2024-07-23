@@ -107,10 +107,10 @@ namespace PlotGui{
 			float cueSizeSelectedY = cueSizeY + controlButtonSize + ImGui::GetStyle().ItemSpacing.y;
 			
 			if(ImGui::IsWindowFocused()){
-				if(ImGui::IsKeyPressed(GLFW_KEY_UP)) {
+				if(ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
 					manoeuvreList->selectPreviousManoeuvre();
 				}
-				if(ImGui::IsKeyPressed(GLFW_KEY_DOWN)) {
+				if(ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
 					manoeuvreList->selectNextManoeuvre();
 				}
 			}

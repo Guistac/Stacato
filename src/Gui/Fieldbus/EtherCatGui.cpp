@@ -570,7 +570,7 @@ void listNetworkConnections(){
 
 void drawDeviceConnections(std::shared_ptr<EtherCatDevice> device){
 	if(ImGui::CollapsingHeader(device->getName())){
-		ImGui::TreePush();
+		ImGui::TreePush("dev");
 		for(auto connection : device->connections){
 			if(connection->parentDevice == device){
 				drawDeviceConnections(connection->childDevice);

@@ -62,14 +62,14 @@ namespace Environnement::Gui{
 		ImGui::InputText("##password", passwordBuffer, 256, ImGuiInputTextFlags_Password);
 		ImGui::PopStyleColor();
 		
-		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)) {
+		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
 			sprintf(passwordBuffer, "");
 			Stacato::Editor::lock();
 			close();
 		}
 		ImGui::SameLine();
 		
-		if (ImGui::Button("Enter") || ImGui::IsKeyPressed(GLFW_KEY_ENTER)) {
+		if (ImGui::Button("Enter") || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 			std::string pass = passwordBuffer;
 			if(Stacato::Editor::checkEditorPassword(pass)){
 				Stacato::Editor::unlock();

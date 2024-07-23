@@ -375,7 +375,7 @@ namespace Stacato::Gui {
 		static bool imguiMetricsWindowOpen = false;
 		static bool implotDemoWindowOpen = false;
 		
-		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_ALT) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SUPER)) {
+		if (ImGui::IsKeyDown(ImGuiKey_LeftAlt) && ImGui::IsKeyDown(ImGuiKey_LeftSuper)) {
 			if (ImGui::BeginMenu("Utilities")) {
 				if (ImGui::MenuItem("ImGui Demo Window", nullptr, &imguiDemoWindowOpen))		imguiDemoWindowOpen = true;
 				if (ImGui::MenuItem("ImGui Metrics Window", nullptr, &imguiMetricsWindowOpen))	imguiMetricsWindowOpen = true;
@@ -385,31 +385,31 @@ namespace Stacato::Gui {
 		}
 		ImGui::EndMenuBar();
 		
-		static KeyboardShortcut quitShortcut(GLFW_KEY_A, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut quitShortcut(ImGuiKey_A, KeyboardShortcut::Modifier::SUPER);
 		if(quitShortcut.isTriggered()) Application::requestQuit();
 		
-		static KeyboardShortcut newProjectShortcut(GLFW_KEY_N, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut newProjectShortcut(ImGuiKey_N, KeyboardShortcut::Modifier::SUPER);
 		if(newProjectShortcut.isTriggered()) Stacato::Editor::createNewProject();
 		
-		static KeyboardShortcut openProjectShortcut(GLFW_KEY_O, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut openProjectShortcut(ImGuiKey_O, KeyboardShortcut::Modifier::SUPER);
 		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();
 		
-		static KeyboardShortcut saveAsShortcut(GLFW_KEY_S, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut saveAsShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		if(saveAsShortcut.isTriggered()) Stacato::Gui::saveAs();
 		
-		static KeyboardShortcut saveShortcut(GLFW_KEY_S, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut saveShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::SUPER);
 		if(saveShortcut.isTriggered()) Stacato::Gui::save();
 		
 		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
 		
-		static KeyboardShortcut undoShortcut(GLFW_KEY_W, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut undoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::SUPER);
 		if(undoShortcut.isTriggered()) CommandHistory::undo();
 
-		static KeyboardShortcut redoShortcut(GLFW_KEY_W, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut redoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		if(redoShortcut.isTriggered()) CommandHistory::redo();
 		
-		static KeyboardShortcut unlockEditorShortcut(GLFW_KEY_U, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		if(unlockEditorShortcut.isTriggered()){
 			if(Stacato::Editor::isLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
 			else Stacato::Editor::lock();

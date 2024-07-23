@@ -85,7 +85,7 @@ namespace Environnement::NodeGraph::Gui{
 					ImGui::PopFont();
 				}
 				
-				ImGui::TreePush();
+				ImGui::TreePush("DetectedDevices");
 				
 				for (auto device : EtherCatFieldbus::getUnmatchedDevices()) {
 					const char* deviceDisplayName = device->getName();

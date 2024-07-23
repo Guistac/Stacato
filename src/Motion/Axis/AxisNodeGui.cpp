@@ -812,7 +812,7 @@ void AxisNode::devicesTab(){
 			}
 			ImGui::SameLine(0.0,0.0);
 			backgroundText(deviceStatusString.c_str(), ImVec2(0,0), deviceStatusColor, Colors::black, ImDrawFlags_RoundCornersRight);
-			ImGui::TreePush();
+			ImGui::TreePush("deviceindent");
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::Text("%s", device->getStatusString().c_str());
 			ImGui::PopStyleColor();

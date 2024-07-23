@@ -239,13 +239,13 @@ void Manoeuvre::curveEditor(){
 		maxX += rangeX * extraRange;
 		minY -= rangeY * extraRange;
 		maxY += rangeY * extraRange;
-		ImPlot::SetNextPlotLimits(minX, maxX, minY, maxY, ImGuiCond_Always);
+		ImPlot::SetNextAxesLimits(minX, maxX, minY, maxY, ImGuiCond_Always);
 	}
 	
-	ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoChild | ImPlotFlags_NoLegend;
+	ImPlotFlags plotFlags = ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoLegend;
 	
 	ImPlot::GetStyle().Use24HourClock = true;
-	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags, ImPlotAxisFlags_Time)) {
+	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
 		
 		//draw manoeuvre bounds
 		if (getType() != ManoeuvreType::KEY) {
@@ -263,8 +263,8 @@ void Manoeuvre::curveEditor(){
 			if (endTime > 0.0) {
 				ImPlot::SetNextFillStyle(Colors::black, 0.5);
 				ImPlot::PlotShaded("##shaded", &limits.front().x, &limits.front().y, limits.size(), -INFINITY, 0, sizeof(glm::vec2));
-				ImPlot::PlotVLines("##Limits1", &startTime, 1);
-				ImPlot::PlotVLines("##Limits2", &endTime, 1);
+				ImPlot::PlotInfLines("##Limits1", &startTime, 1, ImPlotInfLinesFlags_None);
+				ImPlot::PlotInfLines("##Limits2", &endTime, 1, ImPlotInfLinesFlags_None);
 			}
 		}
 		
@@ -290,11 +290,11 @@ void Manoeuvre::curveEditor(){
 			double playbackTime = getSychronizedPlaybackPosition();
             
             if(Environnement::isSimulating()){
-				if(ImPlot::DragLineX("Playhead", &playbackTime)) setSynchronizedPlaybackPosition(playbackTime);
+				if(ImPlot::DragLineX(33333, &playbackTime, Colors::white)) setSynchronizedPlaybackPosition(playbackTime);
             }else{
                 if(!isnan(playbackTime)){
                     ImPlot::SetNextLineStyle(Colors::white, ImGui::GetTextLineHeight() * 0.1);
-                    ImPlot::PlotVLines("Playhead", &playbackTime, 1);
+					ImPlot::PlotInfLines("Playhead", &playbackTime, 1, ImPlotInfLinesFlags_None);
                 }
             }
             
@@ -321,7 +321,7 @@ void Manoeuvre::curveEditor(){
 
 		if(ImPlot::IsPlotHovered()){
 		
-			if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)){
+			if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsKeyDown(ImGuiKey_LeftShift)){
 				auto selectedCurve = getSelectedEditorCurve();
 				auto selectedAnimation = getSelectedEditorAnimation();
 				if(selectedCurve != nullptr && selectedAnimation != nullptr){
@@ -344,7 +344,7 @@ void Manoeuvre::curveEditor(){
 			}
 		}
 		
-		if(!currentProject->isPlotEditLocked() && ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(GLFW_KEY_DELETE) || ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE))){
+		if(!currentProject->isPlotEditLocked() && ImGui::IsWindowFocused() && (ImGui::IsKeyPressed(ImGuiKey_Delete) || ImGui::IsKeyPressed(ImGuiKey_Backspace))){
 			deletedControlPointSelection();
 			selectedEditorCurve->refresh();
 		}

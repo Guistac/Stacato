@@ -50,7 +50,7 @@ void EtherCatStartPopup::onDraw(){
 		if (ImGui::Button("Retry")) Environnement::start();
 	}
 	
-	if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
+	if(ImGui::IsKeyPressed(ImGuiKey_Escape)){
 		Environnement::stop();
 		close();
 	}

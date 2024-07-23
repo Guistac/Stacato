@@ -109,7 +109,7 @@ namespace ReorderableList{
 				state.draggedItemCenterAbsolutePosition.y = std::max(state.draggedItemCenterAbsolutePosition.y, ImGui::GetWindowPos().y);
 							
 				//allow cancelling of drag action by escape key
-				if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE)){
+				if(ImGui::IsKeyPressed(ImGuiKey_Escape)){
 					state.draggedItemIndex = -1;
 					storePressedItemIndex(-1);
 					storeDraggedItemIndex(-1);

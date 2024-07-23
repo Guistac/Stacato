@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 #include <imgui_node_editor.h>
-#include <imgui_node_editor_internal.h>
+//#include <imgui_node_editor_internal.h>
 #include <GLFW/glfw3.h>
 
 #include "Environnement/NodeGraph/NodeGraph.h"
@@ -292,7 +292,7 @@ namespace Environnement::NodeGraph::Gui{
 		
 		std::vector<std::shared_ptr<Node>> selectedNodes = getSelectedNodes();
 
-		if (ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE)){
+		if (ImGui::IsKeyPressed(ImGuiKey_Backspace)){
 			//node editor is hovered and no other item is active (such as text input fields)
 			if (!ImGui::IsAnyItemActive() && ImGui::IsItemHovered()) {
 				if(!selectedNodes.empty()){

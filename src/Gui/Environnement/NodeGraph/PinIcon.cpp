@@ -50,21 +50,20 @@ namespace Environnement::NodeGraph::Gui{
 			const auto tip_top = glm::vec2(canvas_x + canvas_w * 0.5f, top);
 			const auto tip_right = glm::vec2(right, center_y);
 			const auto tip_bottom = glm::vec2(canvas_x + canvas_w * 0.5f, bottom);
-
 			drawList->PathLineTo(glm::vec2(left, top) + glm::vec2(0, rounding));
-			drawList->PathBezierCurveTo(
+			drawList->PathBezierCubicCurveTo(
 				glm::vec2(left, top),
 				glm::vec2(left, top),
 				glm::vec2(left, top) + glm::vec2(rounding, 0));
 			drawList->PathLineTo(tip_top);
 			drawList->PathLineTo(tip_top + (tip_right - tip_top) * tip_round);
-			drawList->PathBezierCurveTo(
+			drawList->PathBezierCubicCurveTo(
 				tip_right,
 				tip_right,
 				tip_bottom + (tip_right - tip_bottom) * tip_round);
 			drawList->PathLineTo(tip_bottom);
 			drawList->PathLineTo(glm::vec2(left, bottom) + glm::vec2(rounding, 0));
-			drawList->PathBezierCurveTo(
+			drawList->PathBezierCubicCurveTo(
 				glm::vec2(left, bottom),
 				glm::vec2(left, bottom),
 				glm::vec2(left, bottom) - glm::vec2(0, rounding));

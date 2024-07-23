@@ -44,3 +44,9 @@
 [submodule "deps/lua"]
 	path = deps/lua
 	url = https://github.com/marovira/lua
+[submodule "deps/implot"]
+	path = deps/implot
+	url = https://github.com/epezent/implot.git
+[submodule "deps/imguinodeeditor"]
+	path = deps/imguinodeeditor
+	url = https://github.com/thedmd/imgui-node-editor.git

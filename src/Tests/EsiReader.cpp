@@ -119,12 +119,12 @@ public:
 	void draw(){
 		ImGui::Text("Physics %s", physics.c_str());
 		if(ImGui::CollapsingHeader("Data Types")){
-			ImGui::TreePush();
+			ImGui::TreePush("DataT");
 			for(auto& dataType : dataTypes) ImGui::Text("%s", dataType->name.c_str());
 			ImGui::TreePop();
 		}
 		if(ImGui::CollapsingHeader("Objects")){
-			ImGui::TreePush();
+			ImGui::TreePush("Obj");
 			for(auto& object : objects){
 				ImGui::PushFont(Fonts::sansBold15);
 				ImGui::Text("%s", object->name.c_str());
@@ -218,7 +218,7 @@ void loadESI(const char* path){
 
 
 void displayNodeContent(std::shared_ptr<DocumentNode> node, bool topNode = true){
-	if(!topNode) ImGui::TreePush();
+	if(!topNode) ImGui::TreePush("TopNode");
 	if(!node->content.empty()) ImGui::TextWrapped("Content: %s", node->content.c_str());
 	auto& childNodes = node->getNodes();
 	for(int i = 0; i < childNodes.size(); i++){

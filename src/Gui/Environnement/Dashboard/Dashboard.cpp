@@ -274,7 +274,7 @@ void Dashboard::canvas(){
         draggedWidget = nullptr;
     }
 	if(selectedWidget){
-		if(ImGui::IsKeyPressed(GLFW_KEY_BACKSPACE) || ImGui::IsKeyPressed(GLFW_KEY_DELETE)){
+		if(ImGui::IsKeyPressed(ImGuiKey_Backspace) || ImGui::IsKeyPressed(ImGuiKey_Delete)){
 			removeWidget(selectedWidget);
 		}
 	}

@@ -136,25 +136,25 @@ public:
 		if(gameState == GameState::NOT_STARTED) respawnSnake();
 		
 		//get last pressed direction key, or no direction if they are all released
-		if(ImGui::IsKeyDown(GLFW_KEY_UP)) {
+		if(ImGui::IsKeyDown(ImGuiKey_UpArrow)) {
 			if(!b_keyUp) {
 				lastDirectionKey = Direction::UP;
 				b_keyUp = true;
 			}
 		}else b_keyUp = false;
-		if(ImGui::IsKeyDown(GLFW_KEY_DOWN)) {
+		if(ImGui::IsKeyDown(ImGuiKey_DownArrow)) {
 			if(!b_keyDown) {
 				lastDirectionKey = Direction::DOWN;
 				b_keyDown = true;
 			}
 		}else b_keyDown = false;
-		if(ImGui::IsKeyDown(GLFW_KEY_LEFT)) {
+		if(ImGui::IsKeyDown(ImGuiKey_LeftArrow)) {
 			if(!b_keyLeft) {
 				lastDirectionKey = Direction::LEFT;
 				b_keyLeft = true;
 			}
 		}else b_keyLeft = false;
-		if(ImGui::IsKeyDown(GLFW_KEY_RIGHT)) {
+		if(ImGui::IsKeyDown(ImGuiKey_RightArrow)) {
 			if(!b_keyRight) {
 				lastDirectionKey = Direction::RIGHT;
 				b_keyRight = true;

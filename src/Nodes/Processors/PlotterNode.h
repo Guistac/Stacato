@@ -23,13 +23,13 @@ public:
 
 	virtual void inputProcess() override;
 	
-	virtual void nodeSpecificGui() {
+	virtual void nodeSpecificGui() override {
 		if (ImGui::BeginTabItem("Plot")) {
 			if (ImGui::InputInt("Buffer Size", &bufferSize, 0, 0)) data.setMaxSize(bufferSize);
 			ImGui::InputFloat("Display Length Second", &displayLengthSeconds, 0.1, 1.0, "%.1fs");
-			ImPlot::FitNextPlotAxes(false, true);
-			ImPlot::SetNextPlotLimitsX((double)data.newest().x - (double)displayLengthSeconds, data.newest().x, ImGuiCond_Always);
-			ImPlotFlags plotFlags = ImPlotFlags_AntiAliased | ImPlotFlags_CanvasOnly | ImPlotFlags_NoChild | ImPlotFlags_Query | ImPlotFlags_NoTitle;
+			ImPlot::SetNextAxisToFit(ImAxis_Y1);
+			ImPlot::SetNextAxisLimits(ImAxis_X1, (double)data.newest().x - (double)displayLengthSeconds, data.newest().x, ImGuiCond_Always);
+			ImPlotFlags plotFlags = ImPlotFlags_CanvasOnly | ImPlotFlags_NoTitle;
 			if (ImPlot::BeginPlot("Plot", nullptr, nullptr, ImVec2(-1, ImGui::GetTextLineHeight() * 15.0), plotFlags)) {
 				ImPlot::PlotLine("Data", &data.front().x, &data.front().y, data.size(), data.offset(), data.stride());
 				ImPlot::EndPlot();
@@ -38,7 +38,7 @@ public:
 		}
 	}
 
-	virtual bool load(tinyxml2::XMLElement* xml) { 
+	virtual bool load(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		Logger::trace("Loading Plotter Node Specific Attributes for node {}", getName());
 		XMLElement* plotterXML = xml->FirstChildElement("Plotter");
@@ -49,7 +49,7 @@ public:
 		return true;
 	}
 
-	virtual bool save(tinyxml2::XMLElement* xml) {
+	virtual bool save(tinyxml2::XMLElement* xml) override {
 		using namespace tinyxml2;
 		XMLElement* plotterXML = xml->InsertNewChildElement("Plotter");
 		plotterXML->SetAttribute("BufferSize", bufferSize);

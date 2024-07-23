@@ -338,7 +338,7 @@ void cCurvesTest(){
 				ImPlot::PlotLine("CatchupVelocity", &catchupTimePoints.front(), &catchupVelocityPoints.front(), catchupVelocityPoints.size(), 0, sizeof(double));
 				ImPlot::PlotLine("CatchupAcceleration", &catchupTimePoints.front(), &catchupAccelerationPoints.front(), catchupAccelerationPoints.size(), 0, sizeof(double));
 				ImPlot::PlotLine("CatchupPhase", &catchupTimePoints.front(), &catchupPhasePoints.front(), catchupPhasePoints.size(), 0, sizeof(double));
-				ImPlot::DragPoint("##CatchUpStart", &catchUpTime, &catchUpPosition);
+				ImPlot::DragPoint(10001, &catchUpTime, &catchUpPosition, ImVec4(1.0,1.0,1.0,1.0));
 				if(b_caughtUp){
 					ImPlot::PlotScatter("CatchupPosition", &catchupTime, &catchupPosition, 1);
 				}
@@ -351,12 +351,12 @@ void cCurvesTest(){
 				ImPlot::PlotLine("##LineToTarget", targetTimeLine, targetPositionLine, 2);
 				ImPlot::PlotScatter("End", &targetTimeLine[0], &targetPositionLine[0], 1);
 				
-				ImPlot::DragPoint("End", &endTime, &endPosition);
-				ImPlot::DragPoint("Start", &startTime, &startPosition);
+				ImPlot::DragPoint(10002, &endTime, &endPosition, ImVec4(1.0,1.0,1.0,1.0));
+				ImPlot::DragPoint(10003, &startTime, &startPosition,  ImVec4(1.0,1.0,1.0,1.0));
 			}else{
 				
-				ImPlot::DragPoint("Start", &startTime, &startPosition);
-				ImPlot::DragLineY("End", &endPosition);
+				ImPlot::DragPoint(10004, &startTime, &startPosition,  ImVec4(1.0,1.0,1.0,1.0));
+				ImPlot::DragLineY(10005, &endPosition,  ImVec4(1.0,1.0,1.0,1.0));
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, 5.0, ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 0);
 				ImPlot::PlotScatter("End", &time.back(), &position.back(), 1);
 			}

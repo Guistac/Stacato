@@ -476,7 +476,7 @@ void end(bool b_wasOpen){
 	}
 	
 	//key to add to selection
-	bool b_selectionAddKeyDown = ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT) || ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT);
+	bool b_selectionAddKeyDown = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
 	
 	//handle mouse release
 	if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){

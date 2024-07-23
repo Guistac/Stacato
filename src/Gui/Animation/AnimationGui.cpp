@@ -511,8 +511,8 @@ void AnimationKey::drawCurveControls(){
 			else if(i == 1) curveName = std::string(std::string(animatable->getName()) + ".y").c_str();
 			else curveName = std::string(std::string(animatable->getName()) + ".z").c_str();
 		}
-				
-		if(ImPlot::DragLineY(curveName, &targetValues[i], true, Colors::gray, 4.0)) edited = true;
+
+		if(ImPlot::DragLineY(i, &targetValues[i], Colors::gray, 4.0)) edited = true;
 	}
 	
 	if(edited) validate();
@@ -576,7 +576,8 @@ void Animation::drawCurves(){
 					glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
 					averagePosition /= 2.0;
 					float vel = interpolation->castToTrapezoidal()->coastVelocity;
-					ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0,0), Colors::darkYellow, "%.2f%s/s", vel, curve->unit->abbreviated);
+					ImPlot::Annotation(averagePosition.x, averagePosition.y, Colors::darkYellow, glm::vec2(0,0), false, "%.2f%s/s", vel, curve->unit->abbreviated);
+					//ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0,0), Colors::darkYellow, "%.2f%s/s", vel, curve->unit->abbreviated);
 				}
 			}
 			else {
@@ -588,7 +589,8 @@ void Animation::drawCurves(){
 				glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
 				averagePosition /= 2.0;
 				ImGui::PushFont(Fonts::sansBold15);
-				ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0, 0), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(interpolation->validationError));
+				ImPlot::Annotation(averagePosition.x, averagePosition.y, glm::vec4(0.5, 0.0, 0.0, 0.5), glm::vec2(0, 0), false, "%s", Enumerator::getDisplayString(interpolation->validationError));
+//				ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0, 0), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(interpolation->validationError));
 				
 				ImGui::PopFont();
 			}
@@ -643,7 +645,8 @@ void SequenceAnimation::drawCurveControls(){
 			else controlPointColor = ImColor(Colors::white);
 			float controlPointSize = ImGui::GetTextLineHeight() * .25f;
 			
-			bool controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, controlPointColor, controlPointSize);
+			bool controlPointEdited = ImPlot::DragPoint(i, &controlPoint->time, &controlPoint->position, controlPointColor, controlPointSize);
+			//bool controlPointEdited = ImPlot::DragPoint("", &controlPoint->time, &controlPoint->position, true, controlPointColor, controlPointSize);
 			if(controlPointEdited) edited = true;
 			
 			//limit the movement of control points to the range of the first and last points
@@ -655,7 +658,8 @@ void SequenceAnimation::drawCurveControls(){
 			if(ImGui::IsItemClicked()) getManoeuvre()->selectControlPoint(controlPoint);
 
 			if (!controlPoint->b_valid) {
-				ImPlot::Annotate(controlPoint->time, controlPoint->position, glm::vec2(30, -30), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(controlPoint->validationError));
+				ImPlot::Annotation(controlPoint->time, controlPoint->position, glm::vec4(0.5, 0.0, 0.0, 0.5), glm::vec2(30, -30), false, "%s", Enumerator::getDisplayString(controlPoint->validationError));
+				//ImPlot::Annotate(controlPoint->time, controlPoint->position, glm::vec2(30, -30), glm::vec4(0.5, 0.0, 0.0, 0.5), "%s", Enumerator::getDisplayString(controlPoint->validationError));
 			}
 			
 			ImGui::PopID();
