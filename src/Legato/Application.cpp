@@ -42,8 +42,6 @@ namespace Application{
 		
 		//——— this thread will do general setup and then loop while drawing the gui
 		//pthread_setname_np("Gui Thread");
-	
-		
 		
 		//====== START INITIALIZING APP
 		
@@ -78,20 +76,23 @@ namespace Application{
 			if(filePath) Workspace::openFile(std::filesystem::path(filePath));
 		});
 		
+
 		//——— Logger is initialized after working directory is defined to have log file access
 		NewLogger::initialize();
 		Logger::info("Stacato Version {}.{} {} ({})", VERSION_MAJOR, VERSION_MINOR, STACATO_OS_NAME, STACATO_BUILD_TYPE);
 		
 		//——— core library initialization
 		Random::initialize();
-		FileDialog::init();
+		FileDialog::init(); //this sets locale on unix for some reason...
+
+		//——— set locale, this sets decimal points to . and not ,
+		std::setlocale(LC_NUMERIC, "C");
 		
 		//——— Gui Initialization
 		Legato::Gui::initialize();
 		
 		//——— User Initialization
-		userInitializationFunction();
-		
+		userInitializationFunction();		
 		
 		//====== APP IS FULLY INITIALIZED
 		
@@ -105,7 +106,6 @@ namespace Application{
 			Logger::info("[Application] Application was launched with file path {}", applicationLaunchFilePath.string());
 			Workspace::openFile(applicationLaunchFilePath);
 		}
-		
 		
 		//====== RUN APPLICATION
 		

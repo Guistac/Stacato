@@ -860,8 +860,8 @@
                 <NodeEditorPosition x="1383" y="328"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1238"/>
-                    <Limits VelocityLimit_revolutionsPerSecond="40" AccelerationLimit_revolutionsPerSecondSquared="40" CurrentLimit_amps="2.1000000000000001" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
-                    <DefaultManualAcceleration revolutionsPerSecondSquared="40"/>
+                    <Limits VelocityLimit_revolutionsPerSecond="40.100000000000001" AccelerationLimit_revolutionsPerSecondSquared="40.100000000000001" CurrentLimit_amps="2" MaxFollowingError_revolutions="1" InvertDirectionOfMotion="false"/>
+                    <DefaultManualAcceleration revolutionsPerSecondSquared="4"/>
                     <Tuning PositionControllerProportionalGain="500"/>
                     <LimitSwitches UseDigitalInput1asNegativeLimit="false" UseDigitalInput2asPositiveLimit="false"/>
                     <DigitalInputInversion DigitalIn1="false" DigitalIn2="false" DigitalIn3="false" DigitalIn4="false" DigitalIn5="false" DigitalIn6="false"/>
@@ -940,7 +940,7 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="4" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="112"/>
+    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="4" ClockStableThresholdMilliseconds="0.40000000596046448" FieldbusTimeoutDelayMilliseconds="112"/>
 </FieldbusSettings>
 
 <ManualControlChannel ActivePresetName="Toulmonde">

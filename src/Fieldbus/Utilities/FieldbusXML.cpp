@@ -62,7 +62,7 @@ namespace EtherCatFieldbus {
 		if (timingXML->QueryIntAttribute("ProcessIntervalMilliseconds", &processInterval_milliseconds) != XML_SUCCESS) return Logger::warn("Could not load process interval value");
 		if (timingXML->QueryDoubleAttribute("ProcessDataTimeoutMilliseconds", &processDataTimeout_milliseconds) != XML_SUCCESS) return Logger::warn("Could not load process data timeout value");
 		if (timingXML->QueryDoubleAttribute("ClockStableThresholdMilliseconds", &clockStableThreshold_milliseconds) != XML_SUCCESS) return Logger::warn("Coult not load clock stable threshold value");
-		if(timingXML->QueryDoubleAttribute("FieldbusTimeoutDelayMilliseconds", &fieldbusTimeout_milliseconds) != XML_SUCCESS) return Logger::warn("Coult not load fieldbus timeout delay value");
+		if (timingXML->QueryDoubleAttribute("FieldbusTimeoutDelayMilliseconds", &fieldbusTimeout_milliseconds) != XML_SUCCESS) return Logger::warn("Coult not load fieldbus timeout delay value");
 		
 		Logger::info("Successfully Loaded Fieldbus Parameters");
 

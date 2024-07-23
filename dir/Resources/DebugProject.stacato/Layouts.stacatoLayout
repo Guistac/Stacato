@@ -1750,8 +1750,8 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 S
         <Layout>
             <ComponentName Value="Test"/>
             <OpenWindows>
-                <Window Name="Node Editor"/>
                 <Window Name="Log"/>
+                <Window Name="EtherCAT Fieldbus"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -1981,10 +1981,10 @@ Collapsed=0
 DockId=0x00000008,0
 
 [Window][EtherCAT Fieldbus]
-Pos=521,29
-Size=911,1144
+Pos=644,29
+Size=1276,1023
 Collapsed=0
-DockId=0x0000000B,1
+DockId=0x0000000B,0
 
 [Window][Visualizer Script]
 ViewportPos=0,25
@@ -2176,7 +2176,7 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,93 Size=1920,1023 
             DockNode    ID=0x0000000C Parent=0x00000004 SizeRef=436,836 Split=Y Selected=0xB00214C9
               DockNode  ID=0x0000000D Parent=0x0000000C SizeRef=436,228 Selected=0x8E074A3E
               DockNode  ID=0x0000000E Parent=0x0000000C SizeRef=436,306 Selected=0xB00214C9
-        DockNode        ID=0x0000000B Parent=0x00000009 SizeRef=1276,1023 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
+        DockNode        ID=0x0000000B Parent=0x00000009 SizeRef=1276,1023 CentralNode=1 HiddenTabBar=1 Selected=0xEDDB08E7
     DockNode            ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
   DockNode              ID=0x00000002 Parent=0xD5272B65 SizeRef=439,938 HiddenTabBar=1 Selected=0x64F50EE5
 
