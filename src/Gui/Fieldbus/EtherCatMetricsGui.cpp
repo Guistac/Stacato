@@ -45,10 +45,10 @@ void etherCatMetrics() {
 		
 		if (lockXAxis) ImPlot::SetNextAxisLimits(ImAxis_X1, (double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
 		if (lockYAxis) ImPlot::SetNextAxisLimits(ImAxis_Y1, -1.0, 1.0, ImGuiCond_Always);
-		ImPlot::SetupAxisFormat(ImAxis_Y1, "%gms");
-		ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 
 		if (ImPlot::BeginPlot("Clock Drift", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
+			ImPlot::SetupAxisFormat(ImAxis_Y1, "%gms");
+			ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0);
 			ImPlot::PlotLine("Clock Drift", &dcTimeErrors.front().x, &dcTimeErrors.front().y, dcTimeErrors.size(), dcTimeErrors.offset(), dcTimeErrors.stride());
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
@@ -73,9 +73,9 @@ void etherCatMetrics() {
 		
 		if (lockXAxis) ImPlot::SetNextAxisLimits(ImAxis_X1, (double)dcTimeErrors.newest().x - (double)historyLength_seconds, dcTimeErrors.newest().x, ImGuiCond_Always);
 		if (lockYAxis) ImPlot::SetNextAxisLimits(ImAxis_Y1, 0.0, EtherCatFieldbus::processInterval_milliseconds * 1.1, ImGuiCond_Always);
-		ImPlot::SetupAxisFormat(ImAxis_Y1, "%gms");
-		ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 		if (ImPlot::BeginPlot("Cycle Timing", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
+			ImPlot::SetupAxisFormat(ImAxis_Y1, "%gms");
+			ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 1.0f);
 			if (!cycleLengths.empty()) {
 				ImPlot::SetNextFillStyle(ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
@@ -135,8 +135,8 @@ void etherCatMetrics() {
 		if (lockXAxis) ImPlot::SetNextAxisLimits(ImAxis_X1, (double)workingCounters.newest().x - (double)historyLength_seconds, workingCounters.newest().x, ImGuiCond_Always);
 		ImPlot::SetNextAxisLimits(ImAxis_Y1, -6.0, 10.0, ImGuiCond_Always);
 
-		ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 		if (ImPlot::BeginPlot("Working Counter", NULL, NULL, ImVec2(-1, plotHeight), plotFlags)) {
+			ImPlot::SetupAxisFormat(ImAxis_X1, "%gs");
 			ImPlot::SetNextLineStyle(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 2.0);
 			ImPlot::PlotStairs("##WorkingCounter", &workingCounters.front().x, &workingCounters.front().y, workingCounters.size(), workingCounters.offset(), workingCounters.stride());
 			ImPlot::EndPlot();

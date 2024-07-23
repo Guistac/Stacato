@@ -21,3 +21,15 @@ logs/
 *.xcodeproj
 *.xcworkspace
 *.log
+
+CachedData/
+CachedProfilesData/
+Cookies
+Cookies-journal
+Network Persistent State
+Preferences
+TransportSecurity
+Trust Tokens
+Trust Tokens-journal
+User/
+machineid

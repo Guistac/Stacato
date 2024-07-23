@@ -227,6 +227,13 @@ namespace EtherCatFieldbus {
 					continue;
 				}
 				#endif
+
+				#ifdef STACATO_UNIX
+				if(strstr(nics->name, "eth") == nullptr && strstr(nics->name, "en") == nullptr){
+					nics = nics->next;
+					continue;
+				}
+				#endif
 				
 				std::shared_ptr<NetworkInterfaceCard> nic = std::make_shared<NetworkInterfaceCard>();
 				strcpy(nic->name, nics->name);

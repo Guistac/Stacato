@@ -90,6 +90,7 @@ bool FeedbackToFeedbackVelocityComparison::save(tinyxml2::XMLElement* parent) {
 	if(mapping1) parent->SetAttribute("FeedbackMapping1PinSaveName", mapping1->getPin()->saveString);
 	if(mapping2) parent->SetAttribute("FeedbackMapping2PinSaveName", mapping2->getPin()->saveString);
 	parent->SetAttribute("MaxVelocityDeviation", maxVelocityDeviation);
+	return true;
 }
 
 bool FeedbackToFeedbackVelocityComparison::load(tinyxml2::XMLElement* parent) {
@@ -157,6 +158,7 @@ bool FeedbackToFeedbackPositionComparison::save(tinyxml2::XMLElement* parent) {
 	if(mapping1) parent->SetAttribute("FeedbackMapping1PinSaveName", mapping1->getPin()->saveString);
 	if(mapping2) parent->SetAttribute("FeedbackMapping2PinSaveName", mapping2->getPin()->saveString);
 	parent->SetAttribute("MaxPositionDeviation", maxPositionDeviation);
+	return true;
 }
 
 bool FeedbackToFeedbackPositionComparison::load(tinyxml2::XMLElement* parent) {
