@@ -658,6 +658,7 @@ bool EL7221_9014::DriveSettings::save(tinyxml2::XMLElement* parent){
 	positionFollowingErrorTimeout->save(parent);
 	faultReaction->save(parent);
 	haltRampDeceleration->save(parent);
+	return true;
 }
 
 bool EL7221_9014::DriveSettings::load(tinyxml2::XMLElement* parent){
@@ -669,6 +670,7 @@ bool EL7221_9014::DriveSettings::load(tinyxml2::XMLElement* parent){
 	positionFollowingErrorTimeout->load(parent);
 	faultReaction->load(parent);
 	haltRampDeceleration->load(parent);
+	return true;
 }
 
 std::string EL7221_9014::getDiagnosticsStringFromTextID(uint16_t textID){

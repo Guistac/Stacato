@@ -7,6 +7,8 @@
 #cmakedefine STACATO_MACOS
 #cmakedefine STACATO_BELOW_MACOS_1_14
 
+#cmakedefine STACATO_UNIX
+
 #cmakedefine STACATO_OS_NAME "@STACATO_OS_NAME@"
 
 #ifdef STACATO_DEBUG

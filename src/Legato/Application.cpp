@@ -48,19 +48,30 @@ namespace Application{
 		//====== START INITIALIZING APP
 		
 		//——— initialize glfw for windowing and user inputs
-		#if defined(STACATO_MACOS) && defined(STACATO_DEBUG)
-			//for debug builds, don't change the working directory
-			//resources and debug project are loaded and saved to the repository's dir/ folder
-			glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, false);
-		#else
-			//for release builds, change the working directory to the resources folder inside the .app bundle
-			glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, true);
+		#if defined(STACATO_MACOS)
+			#if define(STACATO_DEBUG)
+				//for debug builds, don't change the working directory
+				//resources and debug project are loaded and saved to the repository's dir/ folder
+				glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, false);
+			#else
+				//for release builds, change the working directory to the resources folder inside the .app bundle
+				glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, true);
+			#endif
 		#endif
 		glfwInit(); //this also sets the working directory to .app/Resources on MacOs builds
+
 		#if defined(STACATO_WIN32) && defined(STACATO_RELEASE)
 			//for windows release builds, set working directory to "Resources" folder located next to executable
 			std::string defaultWorkingDirectory = std::filesystem::current_path().string();
 			std::filesystem::current_path(defaultWorkingDirectory + "/Resources");
+		#endif
+
+		#if defined(STACATO_UNIX)
+			#if defined(STACATO_DEBUG)
+				std::string defaultWorkingDirectory = std::filesystem::current_path().string();
+				std::string debugWorkingDirectory = defaultWorkingDirectory + "/../dir/Resources";
+				std::filesystem::current_path(debugWorkingDirectory);
+			#endif
 		#endif
 		
 		glfwSetOpenFileCallback([](const char* filePath){

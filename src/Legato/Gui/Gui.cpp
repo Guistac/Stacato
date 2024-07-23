@@ -128,19 +128,27 @@ namespace Legato::Gui{
 		
 		//figure out gui scale
 		#ifdef STACATO_WIN32
-		float displayScale;
-		glfwGetWindowContentScale(window, &displayScale, nullptr);
-		guiScale = 1.25f * displayScale; //best scaling to match Windows Gui
+			float displayScale;
+			glfwGetWindowContentScale(window, &displayScale, nullptr);
+			guiScale = 1.25f * displayScale; //best scaling to match Windows Gui
 		#endif
 		#ifdef STACATO_MACOS
-		guiScale = 1.4f; //best scaling to match MacOS Gui
+			guiScale = 1.4f; //best scaling to match MacOS Gui
 		#endif
+		#ifdef STACATO_UNIX
+			guiScale = 1.4f;
+		#endif
+
+
 		ImGui::GetStyle().ScaleAllSizes(guiScale);
 		Logger::debug("Gui Scale: {}", guiScale);
 		
 		//initialize glfw & opengl backends
 		ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
 		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
+
+		std::string path = std::filesystem::current_path().string();
+		Logger::warn("Current Path: {}", path);
 
 		//user gui initialization
 		userInitializationFunction();

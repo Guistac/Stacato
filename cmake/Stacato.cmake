@@ -510,3 +510,11 @@ if(APPLE)
     set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/src/Core/Info.plist")
 endif()
 
+
+if(UNIX)
+
+    set(debugWorkingDirectory ${PROJECT_SOURCE_DIR}/dir/Resources)
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES WORKING_DIRECTORY debugWorkingDirectory)
+
+endif()

@@ -54,6 +54,7 @@ bool initialize(){
 	::Workspace::openFile(debugFilePath);
 	#endif
 	
+	return true;
 }
 
 
@@ -68,6 +69,7 @@ bool terminate(){
 	//stop hardware or simulation and terminate fieldbus
 	Environnement::terminate();
 	
+	return true;
 }
 
 

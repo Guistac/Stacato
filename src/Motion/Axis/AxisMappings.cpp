@@ -36,6 +36,7 @@ bool ActuatorMapping::save(tinyxml2::XMLElement* parent){
 	controlModeParameter->save(parent);
 	deviceUnitsPerAxisUnits->save(parent);
 	parent->SetAttribute("PositionOffset", actuatorPositionOffset);
+	return true;
 }
 bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
 	const char* pinSaveString;
@@ -47,6 +48,7 @@ bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
 	
 	controlModeParameter->onEdit();
 	deviceUnitsPerAxisUnits->onEdit();
+	return true;
 }
 
 

@@ -169,4 +169,5 @@ bool ManualControlChannel::load(tinyxml2::XMLElement* xml){
 			}
 		}
 	}
+	return true;
 }
