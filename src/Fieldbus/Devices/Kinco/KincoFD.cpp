@@ -449,6 +449,8 @@ bool KincoFD::uploadConfiguration(){
 	if(!writeSDO_U8(0x2FF0, 0x3, 1, "Store Motor Data")) return false;
 	
 	Logger::info("[{}] Configuration uploaded, reboot drive to make parameters valid", getName());
+
+	return true;
 }
 
 void KincoFD::updateActuatorInterface(){

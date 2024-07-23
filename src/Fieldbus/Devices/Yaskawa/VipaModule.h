@@ -78,8 +78,8 @@ public:
 	virtual void moduleParameterGui();
 	
 	//saving and loading
-	virtual bool save(tinyxml2::XMLElement* xml){};
-	virtual bool load(tinyxml2::XMLElement* xml){};
+	virtual bool save(tinyxml2::XMLElement* xml){ return false; };
+	virtual bool load(tinyxml2::XMLElement* xml){ return false; };
 };
 
 
@@ -317,7 +317,7 @@ public:
 	double positionOffset = 0.0;
 	
 	//==== Gui Stuff ====
-	virtual void moduleParameterGui();
+	virtual void moduleParameterGui() override;
 	
 	//==== Parameter Saving & Loading ====
 	virtual bool save(tinyxml2::XMLElement* xml) override;
@@ -400,7 +400,7 @@ public:
 	bool shortCircuitDetectionSettings[4] = {false, false, false, false};
 	 
 	//==== Parameter Gui ====
-	void moduleParameterGui();
+	void moduleParameterGui() override;
 	
 	//==== Parameter Saving & Loading ====
 	virtual bool save(tinyxml2::XMLElement* xml) override;
@@ -490,7 +490,7 @@ public:
 	
 	
 	//==== Gui Stuff ====
-	virtual void moduleParameterGui();
+	virtual void moduleParameterGui() override;
 	
 	//==== Parameter Saving & Loading ====
 	virtual bool save(tinyxml2::XMLElement* xml) override;

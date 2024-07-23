@@ -6,6 +6,7 @@
 
 
 std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
+	/*
 	for(auto& port : serial::list_ports()){
 		if(port.port.find(portMatchingString) != std::string::npos){
 			auto openedPort = std::make_shared<serial::Serial>(port.port);
@@ -13,6 +14,7 @@ std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 			else openedPort = nullptr;
 		}
 	}
+	*/
 	return nullptr;
 }
 

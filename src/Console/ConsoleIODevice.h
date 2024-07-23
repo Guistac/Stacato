@@ -65,7 +65,7 @@ public:
 	
 	virtual Type getType() = 0;
 	
-	virtual bool readInput(uint8_t* data, size_t size) {}
+	virtual bool readInput(uint8_t* data, size_t size) { return false; }
 	virtual bool outputChanged() { return false; }
 	virtual void writeOutput(uint8_t** data, size_t* size) {}
 	
@@ -95,6 +95,7 @@ public:
 			b_isPressed = b_newState;
 			return true;
 		}
+		return false;
 	}
 	
 	bool isPressed(){ return b_isPressed; }
@@ -115,6 +116,7 @@ public:
 			position = newPosition;
 			return true;
 		}
+		return false;
 	}
 	
 	glm::vec2 getPosition(){ return position; }

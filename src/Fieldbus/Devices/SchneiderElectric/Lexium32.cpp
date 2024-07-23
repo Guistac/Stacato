@@ -514,6 +514,8 @@ bool Lexium32::uploadGeneralParameters() {
     generalParameterUploadState = DataTransferState::SAVED;
 	
 	updateEncoderWorkingRange();
+
+	return true;
 }
 
 
@@ -596,6 +598,8 @@ bool Lexium32::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::SUCCEEDED;
 	
 	updateEncoderWorkingRange();
+
+	return true;
 }
 
 
