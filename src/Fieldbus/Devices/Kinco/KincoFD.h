@@ -130,7 +130,7 @@ public:
 	BoolParam DOUT4Polarity_parameter; //2010:D:b3 (u16)
 	BoolParam DOUT5Polarity_parameter; //2010:D:b4 (u16)
 	
-	void uploadConfiguration();
+	bool uploadConfiguration();
 	
 	void updateActuatorInterface();
 	

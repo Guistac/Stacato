@@ -126,7 +126,7 @@ void SerialPort::readByte(uint8_t newByte){
 			if(newByte == stopByte) messageReceivedCallback(currentMessage, currentIncomingMessageLength);
 			break;
 	}
-	return false;
+	//return false;
  };
 
 

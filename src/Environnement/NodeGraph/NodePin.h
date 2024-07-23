@@ -251,7 +251,6 @@ inline NodePin::Flags operator|(NodePin::Flags a, NodePin::Flags b) {
 
 DEFINE_ENUMERATOR(NodePin::DataType, NodePinDataTypes)
 
-
 //==============================================================
 //=========== Direct Reading with Implicit Conversion ==========
 //==============================================================

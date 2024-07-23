@@ -121,63 +121,7 @@ DEFINE_ENUMERATOR(SignalApproach, SignalApproachStrings)
 
 //================================================================================================================================
 
-enum class HomingStep{
-	NOT_STARTED,
 
-	//steps for searching low limit
-	SEARCHING_LOW_LIMIT_COARSE,
-	FOUND_LOW_LIMIT_COARSE,
-	SEARCHING_LOW_LIMIT_FINE,
-	FOUND_LOW_LIMIT_FINE,
-	RESETTING_POSITION_FEEDBACK,
-
-	//stepts for searching high limit
-	SEARCHING_HIGH_LIMIT_COARSE,
-	FOUND_HIGH_LIMIT_COARSE,
-	SEARCHING_HIGH_LIMIT_FINE,
-	FOUND_HIGH_LIMIT_FINE,
-	SETTING_HIGH_LIMIT,
-
-	//steps for searching position reference
-	SEARCHING_REFERENCE_FROM_BELOW_COARSE,
-	FOUND_REFERENCE_FROM_BELOW_COARSE,
-	SEARCHING_REFERENCE_FROM_BELOW_FINE,
-	FOUND_REFERENCE_FROM_BELOW_FINE,
-	//SETTING_REFERENCE_LOW,
-	SEARCHING_REFERENCE_FROM_ABOVE_COARSE,
-	FOUND_REFERENCE_FROM_ABOVE_COARSE,
-	SEARCHING_REFERENCE_FROM_ABOVE_FINE,
-	FOUND_REFERENCE_FROM_ABOVE_FINE,
-	//SETTING_REFERENCE_HIGH,
-	MOVING_TO_REFERENCE_MIDDLE,
-
-	FINISHED
-};
-
-#define HomingStepStrings \
-	{HomingStep::NOT_STARTED,							.displayString = "Not Started"},\
-	{HomingStep::SEARCHING_LOW_LIMIT_COARSE,			.displayString = "Searching Low Limit Coarse"},\
-	{HomingStep::FOUND_LOW_LIMIT_COARSE,				.displayString = "Found Low Limit Coarse"},\
-	{HomingStep::SEARCHING_LOW_LIMIT_FINE,				.displayString = "Searching Low Limit Fine"},\
-	{HomingStep::FOUND_LOW_LIMIT_FINE,					.displayString = "Found Low Limit Fine"},\
-	{HomingStep::RESETTING_POSITION_FEEDBACK,			.displayString = "Resetting Position Feedback"},\
-	{HomingStep::SEARCHING_HIGH_LIMIT_COARSE,			.displayString = "Searching High Limit Coarse"},\
-	{HomingStep::FOUND_HIGH_LIMIT_COARSE,				.displayString = "Found High Limit Coarse"},\
-	{HomingStep::SEARCHING_HIGH_LIMIT_FINE,				.displayString = "Seraching High Limit Fine"},\
-	{HomingStep::FOUND_HIGH_LIMIT_FINE,					.displayString = "Found High Limit Fine"},\
-	{HomingStep::SETTING_HIGH_LIMIT,					.displayString = "Setting High Limit"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE,	.displayString = "Searching Reference From Below Coarse"},\
-	{HomingStep::FOUND_REFERENCE_FROM_BELOW_COARSE,		.displayString = "Found Reference From Below Coarse"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE,	.displayString = "Searching Reference From Below Fine"},\
-	{HomingStep::FOUND_REFERENCE_FROM_BELOW_FINE,		.displayString = "Found Reference From Below Fine"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE,	.displayString = "Searching Reference From Above Coarse"},\
-	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_COARSE,		.displayString = "Found Reference From Above Coarse"},\
-	{HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE,	.displayString = "Searching Reference From Above Fine"},\
-	{HomingStep::FOUND_REFERENCE_FROM_ABOVE_FINE,		.displayString = "Found Reference From Above Fine"},\
-	{HomingStep::MOVING_TO_REFERENCE_MIDDLE,			.displayString = "Moving To Reference Middle"},\
-	{HomingStep::FINISHED,								.displayString = "Finished"}\
-
-DEFINE_ENUMERATOR(HomingStep, HomingStepStrings)
 
 //================================================================================================================================
 

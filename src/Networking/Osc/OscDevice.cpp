@@ -26,7 +26,8 @@ void OscDevice::connect(){
 	if(!oscSocket->isOpen()) {
 		b_enabled = false;
 		oscSocket = nullptr;
-		return Logger::error("{} : Could not start Osc Socket", getName());
+		Logger::error("{} : Could not start Osc Socket", getName());
+		return;
 	}
 	
 	onConnection();

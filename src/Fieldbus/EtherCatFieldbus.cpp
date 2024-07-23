@@ -164,7 +164,7 @@ namespace EtherCatFieldbus {
 		Logger::info("===== Starting Fieldbus");
 					
 		std::thread ethercatFieldbusStarter([]() {
-			pthread_setname_np("EtherCAT Process Starter Thread");
+			//pthread_setname_np("EtherCAT Process Starter Thread");
 			
 			if(!initializeNetwork()){
 				Logger::error("failed to initialize network");
@@ -205,9 +205,10 @@ namespace EtherCatFieldbus {
 		ecx_contextt* context = &ecx_context;
 		ecx_portt* port = context->port;
 		ec_stackT* stack = &port->stack;
-		pcap_t** socket_ptr = stack->sock;
-		pcap_t* socket = *socket_ptr;
-		return socket != nullptr;
+		//pcap_t** socket_ptr = stack->sock;
+		//pcap_t* socket = *socket_ptr;
+		//return socket != nullptr;
+		return true;
 	}
 
     //============== Update Network interface card list
@@ -815,7 +816,7 @@ namespace EtherCatFieldbus {
 		b_cyclicExchangeThreadRunning = true;
 		b_cyclicExchangeTimedOut = false;
 		
-		pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
+		//pthread_setname_np("EtherCAT Cyclic Exchange Thread (osal rtThread)");
 
 		metrics.init(processInterval_milliseconds);
 		
@@ -1074,7 +1075,7 @@ namespace EtherCatFieldbus {
 
 	void transitionToOperationalState() {
 		std::thread opStateHandler([]() {
-			pthread_setname_np("EtherCAT Operational State Transition Handler");
+			//pthread_setname_np("EtherCAT Operational State Transition Handler");
 			Logger::debug("===== Clocks Stabilized, Setting All Slaves to Operational state...");
 			//set all slaves to operational (by setting slave 0 to operational)
 			ec_slave[0].state = EC_STATE_OPERATIONAL;
@@ -1158,7 +1159,7 @@ namespace EtherCatFieldbus {
 		slaveStateHandler = std::thread([]() {
 			b_slaveStateHandlerRunning = true;
 			
-			pthread_setname_np("EtherCAT State Transition Handler Thread");
+			//pthread_setname_np("EtherCAT State Transition Handler Thread");
 			Logger::debug("Started Slave State Handler Thread");
 			while (b_slaveStateHandlerRunning) {
 
@@ -1280,7 +1281,7 @@ namespace EtherCatFieldbus {
 		}
 		transmissionErrorCounterThread = std::thread([]() {
 			b_transmissionErrorCounterRunning = true;
-			pthread_setname_np("EtherCAT Transmission Error Counter");
+			//pthread_setname_np("EtherCAT Transmission Error Counter");
 			Logger::debug("Started Transmission Error Counter");
 			while (b_transmissionErrorCounterRunning) {
 				updateTransmissionErrorCounters();
@@ -1320,7 +1321,7 @@ namespace EtherCatFieldbus {
 		
 		b_errorWatcherRunning = true;
 		errorWatcherThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Error Watcher Thread");
+			//pthread_setname_np("EtherCAT Error Watcher Thread");
 			Logger::debug("===== Started EtherCAT Error Watchdog");
 			while (b_errorWatcherRunning) {
 				while (EtherCatError::hasError()) EtherCatError::logError();
@@ -1351,7 +1352,7 @@ namespace EtherCatFieldbus {
 		}
 		b_detectionThreadRunning = true;
 		slaveDetectionThread = std::thread([]() {
-			pthread_setname_np("EtherCAT Detection Handler Thread");
+			//pthread_setname_np("EtherCAT Detection Handler Thread");
 			Logger::debug("Started EtherCAT Detection Handler");
 			while (b_detectionThreadRunning) {
 				if(b_networkInitialized) ec_readstate();

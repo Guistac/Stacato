@@ -180,7 +180,7 @@ bool TargetAnimation::canStartPlayback(){
 
 bool TargetAnimation::onStartPlayback(){
 	clearCurves();
-	if(!canStartPlayback()) return;
+	if(!canStartPlayback()) return false;
 	auto animatable = getAnimatable();
 	auto thisTargetAnimation = shared_from_this()->toTarget();
 	setPlaybackPosition(0.0);

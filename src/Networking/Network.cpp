@@ -10,7 +10,7 @@ bool b_initialized;
 
 void init() {
 	io_context_handler = std::thread([&]() {
-		pthread_setname_np("Asio Network Thread");
+		//pthread_setname_np("Asio Network Thread");
 		asio::io_context::work dummyWork(io_context);
 		b_initialized = true;
 		Logger::info("===== Started IP Network IO Context");

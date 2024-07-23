@@ -1,10 +1,11 @@
 #include "Units.h"
 
 #define UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type) \
-	const std::vector<const UnitStructure* const>& get(){\
-		for(const UnitTypeStructure& type : getAllUnits()){\
+	std::vector<UnitStructure*> get(){\
+		for(UnitTypeStructure& type : getAllUnits()){\
 			if(type.unitType == Type) return type.units;\
 		}\
+		return {};\
 	}\
 	bool isValidSaveString(const char* saveString){\
 		for(auto& unitType : getAllUnits()){\
@@ -20,14 +21,14 @@ namespace Units{
 
 	struct UnitTypeStructure{
 		Units::Type unitType;
-		const std::vector<const UnitStructure* const> units;
+		std::vector<UnitStructure*> units;
 	};
 
 	std::vector<UnitTypeStructure>& getAllUnits();
 
 	namespace None{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::NONE);
-		extern const UnitStructure* const None = new UnitStructure{
+		UnitStructure* None = new UnitStructure{
 			.unitType = Units::Type::NONE,
 			.singular = "",
 			.plural = "",
@@ -40,7 +41,7 @@ namespace Units{
 
 	namespace Fraction{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::FRACTION)
-		extern const UnitStructure* const Percent = new UnitStructure{
+		UnitStructure* Percent = new UnitStructure{
 			.unitType = Units::Type::FRACTION,
 			.singular = "Percent",
 			.plural = "Percent",
@@ -49,7 +50,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		extern const UnitStructure* const Permille = new UnitStructure{
+		UnitStructure* Permille = new UnitStructure{
 			.unitType = Units::Type::FRACTION,
 			.singular = "Permille",
 			.plural = "Permille",
@@ -62,7 +63,7 @@ namespace Units{
 
 	namespace LinearDistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::LINEAR_DISTANCE);
-		const UnitStructure* const Millimeter = new UnitStructure{
+		UnitStructure* Millimeter = new UnitStructure{
 			.unitType = Units::Type::LINEAR_DISTANCE,
 			.singular = "Millimeter",
 			.plural = "Millimeters",
@@ -71,7 +72,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Centimeter = new UnitStructure{
+		UnitStructure* Centimeter = new UnitStructure{
 			.unitType = Units::Type::LINEAR_DISTANCE,
 			.singular = "Centimeter",
 			.plural = "Centimeter",
@@ -80,7 +81,7 @@ namespace Units{
 			.baseMultiplier = 10.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Meter = new UnitStructure{
+		UnitStructure* Meter = new UnitStructure{
 			.unitType = Units::Type::LINEAR_DISTANCE,
 			.singular = "Meter",
 			.plural = "Meters",
@@ -93,7 +94,7 @@ namespace Units{
 
 	namespace AngularDistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::ANGULAR_DISTANCE);
-		const UnitStructure* const Degree = new UnitStructure{
+		UnitStructure* Degree = new UnitStructure{
 			.unitType = Units::Type::ANGULAR_DISTANCE,
 			.singular = "Degree",
 			.plural = "Degrees",
@@ -102,7 +103,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Radian = new UnitStructure{
+		UnitStructure* Radian = new UnitStructure{
 			.unitType = Units::Type::ANGULAR_DISTANCE,
 			.singular = "Radian",
 			.plural = "Radians",
@@ -111,7 +112,7 @@ namespace Units{
 			.baseMultiplier = 57.2958,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Revolution = new UnitStructure{
+		UnitStructure* Revolution = new UnitStructure{
 			.unitType = Units::Type::ANGULAR_DISTANCE,
 			.singular = "Revolution",
 			.plural = "Revolutions",
@@ -124,7 +125,7 @@ namespace Units{
 
 	namespace Time{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::TIME);
-		const UnitStructure* const Nanosecond = new UnitStructure{
+		UnitStructure* Nanosecond = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Nanosecond",
 			.plural = "Nanoseconds",
@@ -133,7 +134,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Microsecond = new UnitStructure{
+		UnitStructure* Microsecond = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Microsecond",
 			.plural = "Microseconds",
@@ -142,7 +143,7 @@ namespace Units{
 			.baseMultiplier = 1000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Millisecond = new UnitStructure{
+		UnitStructure* Millisecond = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Millisecond",
 			.plural = "Milliseconds",
@@ -151,7 +152,7 @@ namespace Units{
 			.baseMultiplier = 1000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Second = new UnitStructure{
+		UnitStructure* Second = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Second",
 			.plural = "Second",
@@ -160,7 +161,7 @@ namespace Units{
 			.baseMultiplier = 1000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Minute = new UnitStructure{
+		UnitStructure* Minute = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Minute",
 			.plural = "Minutes",
@@ -169,7 +170,7 @@ namespace Units{
 			.baseMultiplier = 60000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Hour = new UnitStructure{
+		UnitStructure* Hour = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Hour",
 			.plural = "Hours",
@@ -178,7 +179,7 @@ namespace Units{
 			.baseMultiplier = 3600000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Day = new UnitStructure{
+		UnitStructure* Day = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Day",
 			.plural = "Days",
@@ -187,7 +188,7 @@ namespace Units{
 			.baseMultiplier = 86400000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Week = new UnitStructure{
+		UnitStructure* Week = new UnitStructure{
 			.unitType = Units::Type::TIME,
 			.singular = "Week",
 			.plural = "Weeks",
@@ -200,7 +201,7 @@ namespace Units{
 
 	namespace Frequency{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::FREQUENCY);
-		const UnitStructure* const Hertz = new UnitStructure{
+		UnitStructure* Hertz = new UnitStructure{
 			.unitType = Units::Type::FREQUENCY,
 			.singular = "Hertz",
 			.plural = "Hertz",
@@ -209,7 +210,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Kilohertz = new UnitStructure{
+		UnitStructure* Kilohertz = new UnitStructure{
 			.unitType = Units::Type::FREQUENCY,
 			.singular = "Kilohertz",
 			.plural = "Kilohertz",
@@ -218,7 +219,7 @@ namespace Units{
 			.baseMultiplier = 1000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Megahertz = new UnitStructure{
+		UnitStructure* Megahertz = new UnitStructure{
 			.unitType = Units::Type::FREQUENCY,
 			.singular = "Megahertz",
 			.plural = "Megahertz",
@@ -227,7 +228,7 @@ namespace Units{
 			.baseMultiplier = 1000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Gigahertz = new UnitStructure{
+		UnitStructure* Gigahertz = new UnitStructure{
 			.unitType = Units::Type::FREQUENCY,
 			.singular = "Gigahertz",
 			.plural = "Gigahertz",
@@ -240,7 +241,7 @@ namespace Units{
 
 	namespace Voltage{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::VOLTAGE);
-		const UnitStructure* const Millivolt = new UnitStructure{
+		UnitStructure* Millivolt = new UnitStructure{
 			.unitType = Units::Type::VOLTAGE,
 			.singular = "Millivolt",
 			.plural = "Millivolts",
@@ -249,7 +250,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Volt = new UnitStructure{
+		UnitStructure* Volt = new UnitStructure{
 			.unitType = Units::Type::VOLTAGE,
 			.singular = "Volt",
 			.plural = "Volts",
@@ -258,7 +259,7 @@ namespace Units{
 			.baseMultiplier = 1000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Kilovolt = new UnitStructure{
+		UnitStructure* Kilovolt = new UnitStructure{
 			.unitType = Units::Type::VOLTAGE,
 			.singular = "Kilovolt",
 			.plural = "Kilovolts",
@@ -271,7 +272,7 @@ namespace Units{
 
 	namespace Current{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::CURRENT);
-		const UnitStructure* const Milliampere = new UnitStructure{
+		UnitStructure* Milliampere = new UnitStructure{
 			.unitType = Units::Type::CURRENT,
 			.singular = "Milliampere",
 			.plural = "Milliamperes",
@@ -280,7 +281,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Ampere = new UnitStructure{
+		UnitStructure* Ampere = new UnitStructure{
 			.unitType = Units::Type::CURRENT,
 			.singular = "Ampere",
 			.plural = "Amperes",
@@ -293,7 +294,7 @@ namespace Units{
 
 	namespace Resistance{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::RESISTANCE);
-		const UnitStructure* const Ohm = new UnitStructure{
+		UnitStructure* Ohm = new UnitStructure{
 			.unitType = Units::Type::RESISTANCE,
 			.singular = "Ohm",
 			.plural = "Ohms",
@@ -302,7 +303,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const KiloOhm = new UnitStructure{
+		UnitStructure* KiloOhm = new UnitStructure{
 			.unitType = Units::Type::RESISTANCE,
 			.singular = "KiloOhm",
 			.plural = "KiloOhms",
@@ -315,7 +316,7 @@ namespace Units{
 
 	namespace Power{
 	UNIT_TYPE_FUNCTIONS(Type::POWER);
-		const UnitStructure* const Watt = new UnitStructure{
+		UnitStructure* Watt = new UnitStructure{
 			.unitType = Units::Type::POWER,
 			.singular = "Watt",
 			.plural = "Watts",
@@ -324,7 +325,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const KiloWatt = new UnitStructure{
+		UnitStructure* KiloWatt = new UnitStructure{
 			.unitType = Units::Type::POWER,
 			.singular = "KiloWatt",
 			.plural = "KiloWatts",
@@ -337,7 +338,7 @@ namespace Units{
 
 	namespace Temperature{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::TEMPERATURE);
-		const UnitStructure* const Kelvin = new UnitStructure{
+		UnitStructure* Kelvin = new UnitStructure{
 			.unitType = Units::Type::TEMPERATURE,
 			.singular = "Kelvin",
 			.plural = "Kelvin",
@@ -346,7 +347,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Celsius = new UnitStructure{
+		UnitStructure* Celsius = new UnitStructure{
 			.unitType = Units::Type::TEMPERATURE,
 			.singular = "Degree Celsius",
 			.plural = "Degrees Celsius",
@@ -355,7 +356,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 273.15
 		};
-		const UnitStructure* const Fahrenheit = new UnitStructure{
+		UnitStructure* Fahrenheit = new UnitStructure{
 			.unitType = Units::Type::TEMPERATURE,
 			.singular = "Degree Farenheit",
 			.plural = "Degrees Farenheit",
@@ -368,7 +369,7 @@ namespace Units{
 
 	namespace Mass{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::MASS);
-		const UnitStructure* const Gram = new UnitStructure{
+		UnitStructure* Gram = new UnitStructure{
 			.unitType = Units::Type::MASS,
 			.singular = "Gram",
 			.plural = "Grams",
@@ -377,7 +378,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Kilogram = new UnitStructure{
+		UnitStructure* Kilogram = new UnitStructure{
 			.unitType = Units::Type::MASS,
 			.singular = "Kilogram",
 			.plural = "Kilograms",
@@ -386,7 +387,7 @@ namespace Units{
 			.baseMultiplier = 1000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Ton = new UnitStructure{
+		UnitStructure* Ton = new UnitStructure{
 			.unitType = Units::Type::MASS,
 			.singular = "Ton",
 			.plural = "Tons",
@@ -399,7 +400,7 @@ namespace Units{
 
 	namespace Force{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::MASS);
-		const UnitStructure* const Newton = new UnitStructure{
+		UnitStructure* Newton = new UnitStructure{
 			.unitType = Units::Type::FORCE,
 			.singular = "Newton",
 			.plural = "Newtons",
@@ -408,7 +409,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const KiloNewton = new UnitStructure{
+		UnitStructure* KiloNewton = new UnitStructure{
 			.unitType = Units::Type::FORCE,
 			.singular = "KiloNewton",
 			.plural = "KiloNewtons",
@@ -421,7 +422,7 @@ namespace Units{
 
 	namespace Data{
 	UNIT_TYPE_FUNCTIONS_IMPLEMENTATION(Type::DATA);
-		const UnitStructure* const Bit = new UnitStructure{
+		UnitStructure* Bit = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "Bit",
 			.plural = "Bits",
@@ -430,7 +431,7 @@ namespace Units{
 			.baseMultiplier = 1.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const Byte = new UnitStructure{
+		UnitStructure* Byte = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "Byte",
 			.plural = "Bytes",
@@ -439,7 +440,7 @@ namespace Units{
 			.baseMultiplier = 8.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const KiloBit = new UnitStructure{
+		UnitStructure* KiloBit = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "KiloBit",
 			.plural = "KiloBits",
@@ -448,7 +449,7 @@ namespace Units{
 			.baseMultiplier = 1000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const KiloByte = new UnitStructure{
+		UnitStructure* KiloByte = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "KiloByte",
 			.plural = "KiloBytes",
@@ -457,7 +458,7 @@ namespace Units{
 			.baseMultiplier = 8000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const MegaBit = new UnitStructure{
+		UnitStructure* MegaBit = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "MegaBit",
 			.plural = "MegaBits",
@@ -466,7 +467,7 @@ namespace Units{
 			.baseMultiplier = 1000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const MegaByte = new UnitStructure{
+		UnitStructure* MegaByte = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "MegaByte",
 			.plural = "MegaBytes",
@@ -475,7 +476,7 @@ namespace Units{
 			.baseMultiplier = 8000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const GigaBit = new UnitStructure{
+		UnitStructure* GigaBit = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "GigaBit",
 			.plural = "GigaBits",
@@ -484,7 +485,7 @@ namespace Units{
 			.baseMultiplier = 1000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const GigaByte = new UnitStructure{
+		UnitStructure* GigaByte = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "GigaByte",
 			.plural = "GigaBytes",
@@ -493,7 +494,7 @@ namespace Units{
 			.baseMultiplier = 8000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const TeraBit = new UnitStructure{
+		UnitStructure* TeraBit = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "TeraBit",
 			.plural = "TeraBits",
@@ -502,7 +503,7 @@ namespace Units{
 			.baseMultiplier = 1000000000000.0,
 			.baseOffset = 0.0
 		};
-		const UnitStructure* const TeraByte = new UnitStructure{
+		UnitStructure* TeraByte = new UnitStructure{
 			.unitType = Units::Type::DATA,
 			.singular = "TeraByte",
 			.plural = "TeraBytes",
@@ -610,7 +611,7 @@ namespace Units{
 		return false;
 	}
 
-	const UnitStructure* const fromSaveString(const char* saveString){
+	UnitStructure* fromSaveString(const char* saveString){
 		for(auto& unitType : getAllUnits()){
 			for(auto& unit : unitType.units){
 				if(strcmp(saveString, unit->saveString) == 0) return unit;
@@ -619,7 +620,7 @@ namespace Units{
 		return nullptr;
 	}
 
-	double convert(double input, const UnitStructure* inputUnit, const UnitStructure* outputUnit){
+	double convert(double input, UnitStructure* inputUnit, UnitStructure* outputUnit){
 		double baseToInputMultiplier = inputUnit->baseMultiplier;
 		double baseToInputOffset = inputUnit->baseOffset;
 		double baseToOutputMultiplier = outputUnit->baseMultiplier;
@@ -630,7 +631,7 @@ namespace Units{
 	}
 
 
-	void convert(const std::vector<double>& input, std::vector<double>& output, const UnitStructure* inputUnit, const UnitStructure* outputUnit){
+	void convert(std::vector<double>& input, std::vector<double>& output, UnitStructure* inputUnit, UnitStructure* outputUnit){
 		double baseToInputMultiplier = inputUnit->baseMultiplier;
 		double baseToInputOffset = inputUnit->baseOffset;
 		double baseToOutputMultiplier = outputUnit->baseMultiplier;

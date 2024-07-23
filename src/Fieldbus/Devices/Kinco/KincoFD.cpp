@@ -361,7 +361,7 @@ bool KincoFD::loadDeviceData(tinyxml2::XMLElement* xml) {
 }
 
 
-void KincoFD::uploadConfiguration(){
+bool KincoFD::uploadConfiguration(){
 	
 	switch(EtherCatFieldbus::processInterval_milliseconds){
 		case 1:
@@ -379,7 +379,7 @@ void KincoFD::uploadConfiguration(){
 		default:
 			Logger::warn("[{}] Could not set ECAN_Sync_Cycle cycle time", getName());
 			Logger::warn("	Supported cycle times are 1/2/4/8ms, current fieldbus cycle time is {}ms", EtherCatFieldbus::processInterval_milliseconds);
-			return;
+			return false;
 	}
 	
 	//ECAN_Sync_Clock (1==enabled)
@@ -484,7 +484,7 @@ bool KincoFD::startAutoTuning(){
 		if(readSDO_S8(0x3040, 0x1, Tuning_Method) && Tuning_Method < 0){
 			Logger::warn("Tuning failed for reason {}", Tuning_Method);
 			b_isAutotuning = false;
-			return;
+			return false;
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
@@ -498,7 +498,7 @@ bool KincoFD::startAutoTuning(){
 	 If changing stiffness via communication, WriteFUN_CTL(3041.05) must be set to 1 first, and be set back to 0 after stiffness has been changed.
 	 **/
 	
-	
+	return true;
 	
 }
 

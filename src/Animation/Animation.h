@@ -334,6 +334,7 @@ public:
 	static bool beginTrackSheetTable(ImGuiTableFlags tableFlags);
 };
 
+
 #define TargetConstraintStrings \
 {TargetAnimation::Constraint::VELOCITY, 	.displayString = "Velocity", .saveString = "Velocity"},\
 {TargetAnimation::Constraint::TIME, 		.displayString = "Time", 	.saveString = "Time"},\

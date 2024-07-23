@@ -222,9 +222,9 @@ public:
     double maxMotorVelocity = 0.0;
 	double maxMotorCurrent_amps = 0.0;
 
-    void uploadGeneralParameters();
+    bool uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;
-    void downloadGeneralParameters();
+    bool downloadGeneralParameters();
     DataTransferState generalParameterDownloadState = DataTransferState::NO_TRANSFER;
 
     //======= QuickStop Settings =======
@@ -271,9 +271,9 @@ public:
     bool b_invertDI2 = false;
     bool b_invertDI3 = false;
 
-    void uploadPinAssignements();
+    bool uploadPinAssignements();
     DataTransferState pinAssignementUploadState = DataTransferState::NO_TRANSFER;
-    void downloadPinAssignements();
+    bool downloadPinAssignements();
     DataTransferState pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
 	
@@ -287,7 +287,7 @@ public:
 	bool b_encoderIsMultiturn = false;
 
     float manualAbsoluteEncoderPosition_revolutions = 0.0;
-    void uploadManualAbsoluteEncoderPosition();
+    bool uploadManualAbsoluteEncoderPosition();
     DataTransferState encoderAbsolutePositionUploadState = DataTransferState::NO_TRANSFER;
 
     //display variable for the new encoder position setting

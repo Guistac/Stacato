@@ -41,7 +41,8 @@ namespace Application{
 	void run(){
 		
 		//——— this thread will do general setup and then loop while drawing the gui
-		pthread_setname_np("Gui Thread");
+		//pthread_setname_np("Gui Thread");
+	
 		
 		
 		//====== START INITIALIZING APP

@@ -72,7 +72,7 @@ public:
 		return deserializeFromParent(*parent);
 	}
 	virtual bool deserializeFromParent(std::shared_ptr<Serializable> parent){
-		deserializeFromParent(*parent.get());
+		return deserializeFromParent(*parent.get());
 	}
 	
 	//————— ATTRIBUTE SERIALIZATION

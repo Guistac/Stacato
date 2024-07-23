@@ -862,7 +862,7 @@ void scrollingText(const char* ID, const char* text, float width, bool lock, flo
 
 float verticalSeparator(float width, bool drawLine, bool allowMoving){
 	float height = ImGui::GetContentRegionAvail().y;
-	if(height <= 0.0) return;
+	if(height <= 0.0) return 0.0;
 	float output = 0.0;
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
 	ImGui::SameLine();

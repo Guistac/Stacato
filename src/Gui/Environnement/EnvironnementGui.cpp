@@ -63,7 +63,7 @@ namespace Environnement::Gui{
 		ImGui::PopStyleColor();
 		
 		if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-			sprintf(passwordBuffer, "");
+			snprintf(passwordBuffer, 256, "");
 			Stacato::Editor::lock();
 			close();
 		}
@@ -73,7 +73,7 @@ namespace Environnement::Gui{
 			std::string pass = passwordBuffer;
 			if(Stacato::Editor::checkEditorPassword(pass)){
 				Stacato::Editor::unlock();
-				sprintf(passwordBuffer, "");
+				snprintf(passwordBuffer, 256, "");
 				close();
 			}else{
 				wrongInputTime_seconds = Timing::getProgramTime_seconds();

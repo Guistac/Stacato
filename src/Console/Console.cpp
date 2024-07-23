@@ -49,7 +49,7 @@ void Console::onDisconnection(){
 void Console::onConnection(){
 	Logger::info("Console {} Connected !", consoleName);
 	std::string threadName = "Console " + getName() + " Input Handler";
-	pthread_setname_np(threadName.c_str());
+	//pthread_setname_np(threadName.c_str());
 	connectionState = ConnectionState::CONNECTED;
 	ConsoleHandler::applyMapping(shared_from_this());
 	outputHandler = std::thread([this](){ updateOutputs(); });
@@ -263,7 +263,7 @@ void Console::handleTimeout(){
 
 void Console::updateInputs(){
 	std::string threadName = "Console " + getName() + " Connection Handler";
-	pthread_setname_np(threadName.c_str());
+	//pthread_setname_np(threadName.c_str());
 	b_inputHandlerRunning = true;
 	while(b_inputHandlerRunning){
 		if(!isConnected()) connect();
@@ -275,7 +275,7 @@ void Console::updateInputs(){
 
 void Console::updateOutputs(){
 	std::string threadName = "Console " + getName() + " Output Handler";
-	pthread_setname_np(threadName.c_str());
+	//pthread_setname_np(threadName.c_str());
 	b_outputHandlerRunning = true;
 	while(b_outputHandlerRunning){
 		for(int i = 0; i < ioDevices.size(); i++){

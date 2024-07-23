@@ -21,12 +21,12 @@ namespace Stacato::Runner{
 		std::lock_guard<std::mutex> lock(runnerMutex);
 		if(b_isRunning) {
 			Logger::warn("[Stacato Runner] Cannot run project {} : another project is still running", project->getName());
-			return false;
+			return;
 		}
 		runningProject = project;
 		b_isRunning = true;
 		runnerThread = std::thread(projectRuntime);
-		return true;
+		return;
 	}
 
 	void stop(){

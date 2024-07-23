@@ -55,7 +55,10 @@ std::vector<std::shared_ptr<OscMessage>> OscSocket::getMessages() {
 }
 
 void OscSocket::send(std::shared_ptr<OscMessage> message) {
-	if (!isOpen()) return Logger::warn("Could not send osc message {}, socket is not open", message->getAddress());
+	if (!isOpen()) {
+		Logger::warn("Could not send osc message {}, socket is not open", message->getAddress());
+		return;
+	}
 	char outBuffer[1024];
 	int size = 1024;
 	int bufferSize = message->getBuffer(outBuffer, size);

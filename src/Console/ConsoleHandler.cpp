@@ -22,7 +22,7 @@ namespace ConsoleHandler{
 	}
 
 	void update(){
-		pthread_setname_np("Console Handler Thread");
+		//pthread_setname_np("Console Handler Thread");
 		while(b_handlerRunning){
 			if(connectedConsole){
 				if(connectedConsole->wasDisconnected()) {

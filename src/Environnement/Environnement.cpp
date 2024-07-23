@@ -63,9 +63,9 @@ namespace Environnement {
 		}
 	}
 	bool isManualControlEnabledForMachineIndex(int index){
-		if(index < 0 || index >= getMachines().size()) return;
+		if(index < 0 || index >= getMachines().size()) return false;
 		auto machine = getMachines()[index];
-		if(machine->getAnimatables().empty()) return;
+		if(machine->getAnimatables().empty()) return false;
 		if(auto activePreset = manualControlChannel->getActiveChannelPreset()){
 			auto animatable = machine->getAnimatables().front();
 			return activePreset->hasAnimatable(animatable);
@@ -181,7 +181,7 @@ namespace Environnement {
 		simulationStartTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 		
 		environnementSimulator = std::thread([](){
-			pthread_setname_np("Environnement Simulation Thread");
+			//pthread_setname_np("Environnement Simulation Thread");
 			while(b_isRunning){
 				updateSimulation();
 				//run simulation at 100Hz and free the cpu core in between processing cycles
@@ -539,7 +539,7 @@ namespace Environnement {
 	}
 
 	void homeAllMachines(){
-		if(!canHomeAllMachines()) return false;
+		if(!canHomeAllMachines()) return;
 		for(auto machine : Environnement::getMachines()){
 			if(auto homeableMachine = std::dynamic_pointer_cast<PositionControlledMachine>(machine)){
 				if(homeableMachine->canStartHoming()) homeableMachine->startHoming();

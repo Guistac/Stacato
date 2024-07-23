@@ -471,7 +471,7 @@ void Lexium32::writeOutputs() {
 //===================== GENERAL PARAMETERS =====================
 //==============================================================
 
-void Lexium32::uploadGeneralParameters() {
+bool Lexium32::uploadGeneralParameters() {
     generalParameterUploadState = DataTransferState::TRANSFERRING;
 
 	auto onFailure = [&]() -> bool {
@@ -517,7 +517,7 @@ void Lexium32::uploadGeneralParameters() {
 }
 
 
-void Lexium32::downloadGeneralParameters() {
+bool Lexium32::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::TRANSFERRING;
 	
 	auto onFailure = [&]() -> bool {
@@ -605,7 +605,7 @@ void Lexium32::downloadGeneralParameters() {
 //==============================================================
 
 
-void Lexium32::uploadPinAssignements() {
+bool Lexium32::uploadPinAssignements() {
 
 	pinAssignementUploadState = DataTransferState::TRANSFERRING;
 
@@ -648,10 +648,12 @@ void Lexium32::uploadPinAssignements() {
 	
 	pinAssignementUploadState = DataTransferState::SAVED;
 	Logger::info("Pin Assignement Successfull");
+
+	return true;
 }
 
 
-void Lexium32::downloadPinAssignements() {
+bool Lexium32::downloadPinAssignements() {
 	pinAssignementDownloadState = DataTransferState::NO_TRANSFER;
 
 	auto onFailure = [&]() -> bool{
@@ -701,6 +703,8 @@ void Lexium32::downloadPinAssignements() {
 	}
 
 	pinAssignementDownloadState = DataTransferState::SUCCEEDED;
+
+	return true;
 }
 
 
@@ -709,7 +713,7 @@ void Lexium32::downloadPinAssignements() {
 //====================== ENCODER SETTINGS ======================
 //==============================================================
 
-void Lexium32::uploadManualAbsoluteEncoderPosition() {
+bool Lexium32::uploadManualAbsoluteEncoderPosition() {
     encoderAbsolutePositionUploadState = DataTransferState::TRANSFERRING;
 
 	auto onFailure = [&]() -> bool {
@@ -723,6 +727,8 @@ void Lexium32::uploadManualAbsoluteEncoderPosition() {
     encoderAbsolutePositionUploadState = DataTransferState::SAVING;
 	if (!saveToEEPROM()) return onFailure();
 	encoderAbsolutePositionUploadState = DataTransferState::SAVED;
+
+	return true;
 }
 
 

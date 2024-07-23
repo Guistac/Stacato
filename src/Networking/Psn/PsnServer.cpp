@@ -158,7 +158,7 @@ bool PsnServer::startServer(){
     
 	b_serverRunning = true;
 	std::thread infoSenderThread([&, this](){
-		pthread_setname_np("PSN Info Sender Thread");
+		//pthread_setname_np("PSN Info Sender Thread");
 		uint32_t sleepTimeMicroseconds = 1000000.0 / infoSendingFrequency->value;
 		while(b_serverRunning){
 			
@@ -197,7 +197,7 @@ bool PsnServer::startServer(){
     
     
 	std::thread dataSenderThread([&, this](){
-		pthread_setname_np("PSN Data Sender Thread");
+		//pthread_setname_np("PSN Data Sender Thread");
 		uint32_t sleepTimeMicroseconds = 1000000.0 / dataSendingFrequency->value;
 		while(b_serverRunning){
 			script->callFunction("update");

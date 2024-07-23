@@ -700,12 +700,18 @@ void AxisNode::updateFeedbackRatioToMatchPosition(){
 }
 
 void AxisNode::onFeedbackRatioUpdate(){
-	if(motionProfile.getVelocity() != 0.0)
-		return Logger::error("[{}] Could not update feedback ratio while axis is moving", getName());
-	if(selectedPositionFeedbackMapping == nullptr || !selectedPositionFeedbackMapping->isFeedbackConnected())
-		return Logger::error("[{}] Could not update feedback ratio, there is no position feedback device", getName());
-	if(newPositionForFeedbackRatio == 0.0)
-		return Logger::error("[{}] Could not update feedback ratio, the target position is zero", getName());
+	if(motionProfile.getVelocity() != 0.0){
+		Logger::error("[{}] Could not update feedback ratio while axis is moving", getName());
+		return;
+	}
+	if(selectedPositionFeedbackMapping == nullptr || !selectedPositionFeedbackMapping->isFeedbackConnected()){
+		Logger::error("[{}] Could not update feedback ratio, there is no position feedback device", getName());
+		return;
+	}
+	if(newPositionForFeedbackRatio == 0.0){
+		Logger::error("[{}] Could not update feedback ratio, the target position is zero", getName());
+		return;
+	}
 	
 	auto positionFeedbackInterface = selectedPositionFeedbackMapping->getFeedbackInterface();
 	double newPositionFeedbackRatio = positionFeedbackInterface->getPosition() / newPositionForFeedbackRatio;

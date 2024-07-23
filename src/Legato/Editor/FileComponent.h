@@ -143,12 +143,12 @@ public:
 	
 private:
 	
-	virtual bool serializeIntoParent(Serializable& parent) override { throwSerializationAssertion(); }
-	virtual bool serializeIntoParent(Serializable* parent) override { throwSerializationAssertion(); }
-	virtual bool serializeIntoParent(std::shared_ptr<Serializable> parent) override { throwSerializationAssertion(); }
-	virtual bool deserializeFromParent(Serializable& parent) override { throwSerializationAssertion(); }
-	virtual bool deserializeFromParent(Serializable* parent) override { throwSerializationAssertion(); }
-	virtual bool deserializeFromParent(std::shared_ptr<Serializable> parent) override { throwSerializationAssertion(); }
+	virtual bool serializeIntoParent(Serializable& parent) override { throwSerializationAssertion(); return false; }
+	virtual bool serializeIntoParent(Serializable* parent) override { throwSerializationAssertion(); return false; }
+	virtual bool serializeIntoParent(std::shared_ptr<Serializable> parent) override { throwSerializationAssertion(); return false; }
+	virtual bool deserializeFromParent(Serializable& parent) override { throwSerializationAssertion(); return false; }
+	virtual bool deserializeFromParent(Serializable* parent) override { throwSerializationAssertion(); return false; }
+	virtual bool deserializeFromParent(std::shared_ptr<Serializable> parent) override { throwSerializationAssertion(); return false; }
 	
 	void throwSerializationAssertion(){
 		assert("File Component cannot be serialized or deserialized, use readFile() and writeFile() methods");
