@@ -3,8 +3,8 @@
 
 #include "config.h"
 
-//#define OPENGL_VERSION_MAJOR 4
-//#define OPENGL_VERSION_MINOR 1
+#define OPENGL_VERSION_MAJOR 4
+#define OPENGL_VERSION_MINOR 1
 #define OPENGL_VERSION_STRING "#version 410 core"
 
 #define GLFW_INCLUDE_NONE //don't let GLFW include a gl loader, we're using GLAD
@@ -96,10 +96,12 @@ namespace Legato::Gui{
 
 	void initialize(){
 			
-		//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
-		//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
+		//this is needed on MacOs, not on unix...
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
+		
 		#if defined(STACATO_MACOS)
-		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
 							
 		//this opens the main application window and creates the main opengl context
