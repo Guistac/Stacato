@@ -385,31 +385,31 @@ namespace Stacato::Gui {
 		}
 		ImGui::EndMenuBar();
 		
-		static KeyboardShortcut quitShortcut(ImGuiKey_A, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut quitShortcut(ImGuiKey_A);
 		if(quitShortcut.isTriggered()) Application::requestQuit();
 		
-		static KeyboardShortcut newProjectShortcut(ImGuiKey_N, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut newProjectShortcut(ImGuiKey_N);
 		if(newProjectShortcut.isTriggered()) Stacato::Editor::createNewProject();
 		
-		static KeyboardShortcut openProjectShortcut(ImGuiKey_O, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut openProjectShortcut(ImGuiKey_O);
 		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();
 		
-		static KeyboardShortcut saveAsShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut saveAsShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
 		if(saveAsShortcut.isTriggered()) Stacato::Gui::saveAs();
 		
-		static KeyboardShortcut saveShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut saveShortcut(ImGuiKey_S);
 		if(saveShortcut.isTriggered()) Stacato::Gui::save();
 		
 		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
 		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
 		
-		static KeyboardShortcut undoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::SUPER);
+		static KeyboardShortcut undoShortcut(ImGuiKey_W);
 		if(undoShortcut.isTriggered()) CommandHistory::undo();
 
-		static KeyboardShortcut redoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut redoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
 		if(redoShortcut.isTriggered()) CommandHistory::redo();
 		
-		static KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		static KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
 		if(unlockEditorShortcut.isTriggered()){
 			if(Stacato::Editor::isLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
 			else Stacato::Editor::lock();
