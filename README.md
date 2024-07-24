@@ -10,3 +10,17 @@ cd Stacato
 git checkout 0.2
 sh deps/openframeworks/scripts/osx/download_libs.sh
 ```
+
+
+## Build Instructions (Linux)
+
+Execute the following commands, then generate project files with CMake.
+
+```
+git clone https://github.com/Guistac/Stacato.git
+cd Stacato
+git checkout Linux2
+git submodule init
+git submodule update
+code .
+```
