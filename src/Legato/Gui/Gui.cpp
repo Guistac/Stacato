@@ -2,24 +2,24 @@
 #include "Gui.h"
 
 #include "config.h"
+
+//#define OPENGL_VERSION_MAJOR 4
+//#define OPENGL_VERSION_MINOR 1
+#define OPENGL_VERSION_STRING "#version 410 core"
+
+#define GLFW_INCLUDE_NONE //don't let GLFW include a gl loader, we're using GLAD
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#include <implot.h>
+
 #include "Legato/Application.h"
 #include "Legato/Application_Private.h"
 #include "Gui_Private.h"
-
-#define OPENGL_VERSION_MAJOR 4
-#define OPENGL_VERSION_MINOR 1
-#define OPENGL_VERSION_STRING "#version 410 core"
-
-#define GLFW_INCLUDE_NONE //necessary or glfw will include its own GL loader
-#include <GLFW/glfw3.h>
-//#include <GL/glew.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#include <implot.h>
-
 #include "Window.h"
-#include <imgui_internal.h>
-
 
 namespace Legato::Gui{
 
@@ -70,6 +70,12 @@ namespace Legato::Gui{
 			ImGui::RenderPlatformWindowsDefault();
 		}
 		
+		/*
+		//NOTE: this causes jittering and inconsistencies when dragging viewport windows on linux...
+		//		initially this was a fix to avoid problems on macos when dragging windows above the menu bar on second monitor
+		//		we'll disable it for now, i need to check if this issue was resolved on macos
+		//		(needs to include imgui_internal.h)
+
 		//correct platform window and imgui viewport position desynchronization
 		auto& viewports = ImGui::GetCurrentContext()->Viewports;
 		for(int i = 0; i < viewports.size(); i++){
@@ -83,14 +89,15 @@ namespace Legato::Gui{
 				viewport->PlatformRequestMove = true;
 			}
 		}
+		*/
 
 	}
 
 
 	void initialize(){
 			
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 		#if defined(STACATO_MACOS)
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
@@ -111,10 +118,11 @@ namespace Legato::Gui{
 		glfwMakeContextCurrent(mainWindow);
 		glfwSwapInterval(1);
 		
-		//Load OpenGL Functions
-		//glewExperimental = GL_TRUE;
-		//if(glewInit() != GLEW_OK) return false;
-		//Logger::debug("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
+		if(!gladLoadGL()){
+			Logger::error("Failed to load GLAD bindings");
+			return;
+		}
+		Logger::debug("OpenGL Version {}", (const char*)glGetString(GL_VERSION));
 		
 		//initialize gui contexts
 		IMGUI_CHECKVERSION();

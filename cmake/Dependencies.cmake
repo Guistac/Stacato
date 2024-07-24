@@ -3,6 +3,9 @@ set(DEPENDENCIES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 # Windowing
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/glfw.cmake)
 
+#Graphics
+include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/glad.cmake)
+
 # Math
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/glm.cmake)
 
@@ -32,6 +35,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/lua.cmake)
 set(STACATO_DEPENDENCIES
 # Windowing
     glfw
+# Graphics
+    glad
 # Math
     glm
 # Graphical User Interface
