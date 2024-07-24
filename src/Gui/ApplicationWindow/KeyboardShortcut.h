@@ -37,14 +37,10 @@ public:
 		if(m_control) 	f_modifiers -= f_control;
 		if(m_shift) 	f_modifiers -= f_shift;
 		
-		if(f_modifiers == 0) {
-			Logger::warn("{}", getString());
-		}
-
 		return f_modifiers == 0;
 	}
 
-	const char* getString(){
+	const char* getString(){<
 		std::string output;
 		if(m_control){
 		#if defined(STACATO_MACOS)
