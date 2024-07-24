@@ -37,17 +37,51 @@ namespace Stacato::Gui {
 
 		auto currentProject = Stacato::Editor::getCurrentProject();
 		
+
+		static KeyboardShortcut quitShortcut(ImGuiKey_Q);
+		if(quitShortcut.isTriggered()) Application::requestQuit();
+		
+		static KeyboardShortcut newProjectShortcut(ImGuiKey_N);
+		if(newProjectShortcut.isTriggered()) Stacato::Editor::createNewProject();
+		
+		static KeyboardShortcut openProjectShortcut(ImGuiKey_O);
+		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();
+		
+		static KeyboardShortcut saveAsShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
+		if(saveAsShortcut.isTriggered()) Stacato::Gui::saveAs();
+		
+		static KeyboardShortcut saveShortcut(ImGuiKey_S);
+		if(saveShortcut.isTriggered()) Stacato::Gui::save();
+		
+		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
+		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
+		
+		static KeyboardShortcut undoShortcut(ImGuiKey_W);
+		if(undoShortcut.isTriggered()) CommandHistory::undo();
+
+		static KeyboardShortcut redoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
+		if(redoShortcut.isTriggered()) CommandHistory::redo();
+		
+		static KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
+		if(unlockEditorShortcut.isTriggered()){
+			if(Stacato::Editor::isLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
+			else Stacato::Editor::lock();
+		}
+
+
+
+
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Stacato")) {
 			if (ImGui::MenuItem("About")) Stacato::Gui::AboutPopup::get()->open();
 			ImGui::Separator();
-			if (ImGui::MenuItem("Quit", "Cmd Q")) Application::requestQuit();
+			if (ImGui::MenuItem("Quit", quitShortcut.getString())) Application::requestQuit();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
 			
-			if (ImGui::MenuItem("New Project", "Cmd N")) Stacato::Editor::createNewProject();
-			if (ImGui::MenuItem("Open Project...", "Cmd O")) Stacato::Gui::load();
+			if (ImGui::MenuItem("New Project", newProjectShortcut.getString())) Stacato::Editor::createNewProject();
+			if (ImGui::MenuItem("Open Project...", openProjectShortcut.getString())) Stacato::Gui::load();
 			
 			ImGui::Separator();
 			 
@@ -62,18 +96,16 @@ namespace Stacato::Gui {
 			ImGui::BeginDisabled(currentProject == nullptr);
 			
 			ImGui::BeginDisabled(!currentProject->hasFilePath());
-			if (ImGui::MenuItem("Save", "Cmd S")) currentProject->writeFile();
+			if (ImGui::MenuItem("Save", saveShortcut.getString())) currentProject->writeFile();
 			ImGui::EndDisabled();
 			
-			if (ImGui::MenuItem("Save As...", "Cmd Shift S")) Stacato::Gui::saveAs();
+			if (ImGui::MenuItem("Save As...", saveAsShortcut.getString())) Stacato::Gui::saveAs();
 			
-			ImGui::BeginDisabled(!currentProject->hasFilePath());
-			if (ImGui::MenuItem("Reload Saved", "Cmd Shift R")) {/*Project::reloadSaved();*/}
-			ImGui::EndDisabled();
+			//ImGui::BeginDisabled(!currentProject->hasFilePath());
+			//if (ImGui::MenuItem("Reload Saved", "Cmd Shift R")) {/*Project::reloadSaved();*/}
+			//ImGui::EndDisabled();
 			
-			if(ImGui::MenuItem("Close")){
-				
-			}
+			//if(ImGui::MenuItem("Close")){}
 			
 			ImGui::EndDisabled();
 			
@@ -126,9 +158,9 @@ namespace Stacato::Gui {
 			
 			//ImGui::Separator();
 			if(Stacato::Editor::isLocked()){
-				if(ImGui::MenuItem("Show Environnement Editor", "Cmd Shift U")) Environnement::Gui::UnlockEditorPopup::get()->open();
+				if(ImGui::MenuItem("Show Environnement Editor", unlockEditorShortcut.getString())) Environnement::Gui::UnlockEditorPopup::get()->open();
 			}
-			else if(ImGui::MenuItem("Hide Environnement Editor", "Cmd Shift U")) Stacato::Editor::lock();
+			else if(ImGui::MenuItem("Hide Environnement Editor", unlockEditorShortcut.getString())) Stacato::Editor::lock();
 			ImGui::EndMenu();
 		}
 		if(ImGui::BeginMenu("Plot")){
@@ -384,36 +416,6 @@ namespace Stacato::Gui {
 			}
 		}
 		ImGui::EndMenuBar();
-		
-		static KeyboardShortcut quitShortcut(ImGuiKey_A);
-		if(quitShortcut.isTriggered()) Application::requestQuit();
-		
-		static KeyboardShortcut newProjectShortcut(ImGuiKey_N);
-		if(newProjectShortcut.isTriggered()) Stacato::Editor::createNewProject();
-		
-		static KeyboardShortcut openProjectShortcut(ImGuiKey_O);
-		if(openProjectShortcut.isTriggered()) Stacato::Gui::load();
-		
-		static KeyboardShortcut saveAsShortcut(ImGuiKey_S, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
-		if(saveAsShortcut.isTriggered()) Stacato::Gui::saveAs();
-		
-		static KeyboardShortcut saveShortcut(ImGuiKey_S);
-		if(saveShortcut.isTriggered()) Stacato::Gui::save();
-		
-		//static KeyboardShortcut reloadSavedShortcut(GLFW_KEY_R, KeyboardShortcut::Modifier::SUPER, KeyboardShortcut::Modifier::SHIFT);
-		//if(reloadSavedShortcut.isTriggered()) Project::reloadSaved();
-		
-		static KeyboardShortcut undoShortcut(ImGuiKey_W);
-		if(undoShortcut.isTriggered()) CommandHistory::undo();
-
-		static KeyboardShortcut redoShortcut(ImGuiKey_W, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
-		if(redoShortcut.isTriggered()) CommandHistory::redo();
-		
-		static KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::CTRL_CMD, KeyboardShortcut::Modifier::SHIFT);
-		if(unlockEditorShortcut.isTriggered()){
-			if(Stacato::Editor::isLocked()) Environnement::Gui::UnlockEditorPopup::get()->open();
-			else Stacato::Editor::lock();
-		}
 		
 		if(ImGui::IsKeyDown(ImGuiKey_UpArrow) &&
 		   ImGui::IsKeyDown(ImGuiKey_DownArrow) &&

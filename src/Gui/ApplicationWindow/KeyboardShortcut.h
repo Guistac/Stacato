@@ -37,7 +37,29 @@ public:
 		if(m_control) 	f_modifiers -= f_control;
 		if(m_shift) 	f_modifiers -= f_shift;
 		
+		if(f_modifiers == 0) {
+			Logger::warn("{}", getString());
+		}
+
 		return f_modifiers == 0;
+	}
+
+	const char* getString(){
+		std::string output;
+		if(m_control){
+		#if defined(STACATO_MACOS)
+			output += "Cmd ";
+		#else
+			output += "Ctrl ";
+		#endif
+		}
+		if(m_alt) output += "Alt ";
+		if(m_shift) output += "Shift ";
+		output += imGuiKeyToString(key);
+
+		static char cstr[64];
+		strcpy(cstr, output.c_str());
+		return cstr;
 	}
 	
 private:
@@ -50,7 +72,49 @@ private:
 			case Modifier::SHIFT: 		m_shift = true; 	break;
 		}
 	}
-	
+
+	std::string imGuiKeyToString(ImGuiKey k){
+		switch(k){
+			case ImGuiKey_0: return "0";
+			case ImGuiKey_1: return "1";
+			case ImGuiKey_2: return "2";
+			case ImGuiKey_3: return "3";
+			case ImGuiKey_4: return "4";
+			case ImGuiKey_5: return "5";
+			case ImGuiKey_6: return "6";
+			case ImGuiKey_7: return "7";
+			case ImGuiKey_8: return "8";
+			case ImGuiKey_9: return "9";
+			case ImGuiKey_A: return "A";
+			case ImGuiKey_B: return "B";
+			case ImGuiKey_C: return "C";
+			case ImGuiKey_D: return "D";
+			case ImGuiKey_E: return "E";
+			case ImGuiKey_F: return "F";
+			case ImGuiKey_G: return "G";
+			case ImGuiKey_H: return "H";
+			case ImGuiKey_I: return "I";
+			case ImGuiKey_J: return "J";
+			case ImGuiKey_K: return "K";
+			case ImGuiKey_L: return "L";
+			case ImGuiKey_M: return "M";
+			case ImGuiKey_N: return "N";
+			case ImGuiKey_O: return "O";
+			case ImGuiKey_P: return "P";
+			case ImGuiKey_Q: return "Q";
+			case ImGuiKey_R: return "R";
+			case ImGuiKey_S: return "S";
+			case ImGuiKey_T: return "T";
+			case ImGuiKey_U: return "U";
+			case ImGuiKey_V: return "V";
+			case ImGuiKey_W: return "W";
+			case ImGuiKey_X: return "X";
+			case ImGuiKey_Y: return "Y";
+			case ImGuiKey_Z: return "Z";
+			default: return "???";
+		}
+	}
+		
 	bool m_alt = false;
 	bool m_control = false;
 	bool m_shift = false;
