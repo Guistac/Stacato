@@ -876,10 +876,9 @@ DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Spl
         <Layout>
             <ComponentName Value="Exploitation"/>
             <OpenWindows>
-                <Window Name="Track Sheet Editor"/>
                 <Window Name="Curve Editor"/>
-                <Window Name="Dashboard"/>
                 <Window Name="Log"/>
+                <Window Name="EtherCAT Fieldbus"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -931,13 +930,13 @@ Collapsed=0
 
 [Window][Track Sheet Editor]
 Pos=0,29
-Size=1005,305
+Size=645,305
 Collapsed=0
 DockId=0x00000004,0
 
 [Window][Curve Editor]
-Pos=0,336
-Size=1126,427
+Pos=0,29
+Size=611,1023
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -958,7 +957,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=1440,763
+Size=925,1052
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -1055,8 +1054,8 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=1007,29
-Size=433,305
+Pos=0,29
+Size=925,305
 Collapsed=0
 DockId=0x00000002,0
 
@@ -1066,8 +1065,8 @@ Size=515,508
 Collapsed=0
 
 [Window][Toolbar]
-Pos=0,763
-Size=1440,84
+Pos=0,1052
+Size=925,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -1110,7 +1109,7 @@ DockId=0x00000008,0
 
 [Window][EtherCAT Fieldbus]
 Pos=0,29
-Size=1298,938
+Size=611,1023
 Collapsed=0
 DockId=0x0000000C,1
 
@@ -1123,8 +1122,8 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=1128,336
-Size=312,427
+Pos=613,29
+Size=312,1023
 Collapsed=0
 DockId=0x0000000D,0
 
@@ -1292,7 +1291,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split=X Selected=0xAE98FAB7
+DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=995,93 Size=925,1023 Split=X Selected=0xAE98FAB7
   DockNode            ID=0x00000006 Parent=0xD5272B65 SizeRef=976,1023 Split=X Selected=0xFCCC3921
     DockNode          ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
     DockNode          ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=Y Selected=0xEDDB08E7
@@ -1300,11 +1299,11 @@ DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Spl
         DockNode      ID=0x00000001 Parent=0x00000005 SizeRef=1005,611 Split=X Selected=0x47C7A3F3
           DockNode    ID=0x0000000A Parent=0x00000001 SizeRef=246,371 HiddenTabBar=1 Selected=0xEBD2820B
           DockNode    ID=0x0000000B Parent=0x00000001 SizeRef=1049,371 Split=X Selected=0x47C7A3F3
-            DockNode  ID=0x00000004 Parent=0x0000000B SizeRef=605,537 HiddenTabBar=1 Selected=0x47C7A3F3
+            DockNode  ID=0x00000004 Parent=0x0000000B SizeRef=605,537 Selected=0x47C7A3F3
             DockNode  ID=0x0000000E Parent=0x0000000B SizeRef=398,537 Selected=0x8E074A3E
-        DockNode      ID=0x00000002 Parent=0x00000005 SizeRef=433,611 HiddenTabBar=1 Selected=0xB00214C9
+        DockNode      ID=0x00000002 Parent=0x00000005 SizeRef=433,611 Selected=0xB00214C9
       DockNode        ID=0x00000010 Parent=0x00000009 SizeRef=997,427 Split=X Selected=0x8506A884
-        DockNode      ID=0x0000000C Parent=0x00000010 SizeRef=1126,733 CentralNode=1 HiddenTabBar=1 Selected=0x8506A884
+        DockNode      ID=0x0000000C Parent=0x00000010 SizeRef=1126,733 CentralNode=1 Selected=0xEDDB08E7
         DockNode      ID=0x0000000D Parent=0x00000010 SizeRef=312,733 HiddenTabBar=1 Selected=0x64F50EE5
   DockNode            ID=0x00000007 Parent=0xD5272B65 SizeRef=663,1023 Selected=0x7AEFDC53
 

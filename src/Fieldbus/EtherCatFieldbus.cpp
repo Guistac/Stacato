@@ -903,10 +903,20 @@ namespace EtherCatFieldbus {
 		using namespace std::chrono;
 		
 		//======================= THREAD TIMING =========================
-
-		//bruteforce timing precision by using 100% of CPU core
-		//update and compare system time to next process
-		do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
+		#if defined(STACATO_MACOS)
+			//bruteforce timing precision by using 100% of CPU core
+			//update and compare system time to next process
+			do { systemTime_nanoseconds = Timing::getProgramTime_nanoseconds(); } while (systemTime_nanoseconds < cycleStartTime_nanoseconds);
+		#else if defined(STACATO_UNIX)
+			//let the thread sleep until the next cycle
+			//ideally this uses some kind of realtime capability...
+			systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			if(cycleStartTime_nanoseconds > systemTime_nanoseconds){
+				uint32_t sleepTimeMicroseconds = (cycleStartTime_nanoseconds - systemTime_nanoseconds) / 1000;
+				osal_usleep(sleepTimeMicroseconds);
+				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
+			}
+		#endif
 
 		//============= PROCESS DATA SENDING AND RECEIVING ==============
 
