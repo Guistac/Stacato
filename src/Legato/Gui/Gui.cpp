@@ -13,7 +13,7 @@
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-
+#include <imgui_internal.h>
 #include <implot.h>
 
 #include "Legato/Application.h"
@@ -70,13 +70,11 @@ namespace Legato::Gui{
 			ImGui::RenderPlatformWindowsDefault();
 		}
 		
-		/*
-		//NOTE: this causes jittering and inconsistencies when dragging viewport windows on linux...
-		//		initially this was a fix to avoid problems on macos when dragging windows above the menu bar on second monitor
-		//		we'll disable it for now, i need to check if this issue was resolved on macos
-		//		(needs to include imgui_internal.h)
-
 		//correct platform window and imgui viewport position desynchronization
+		//when a window is moved and released, this checks if the internal position and actual window position match
+		//if not it reads the actual window position and writes it to the internal position
+		//if we dont use this, it can happen that the mouse cursor is offset from actual gui items
+		//and this can cause a soft lock of the ui in that window
 		auto& viewports = ImGui::GetCurrentContext()->Viewports;
 		for(int i = 0; i < viewports.size(); i++){
 			ImGuiViewportP* viewport = viewports[i];
@@ -85,11 +83,13 @@ namespace Legato::Gui{
 			int platformPosX, platformPosY;
 			glfwGetWindowPos(windowhandle, &platformPosX, &platformPosY);
 			if(viewport->Pos.x != platformPosX || viewport->Pos.y != platformPosY){
-				//this forces resync of viewport position and window positions
-				viewport->PlatformRequestMove = true;
+				if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+					//this forces resync of viewport position and window positions
+					viewport->PlatformRequestMove = true;
+					Logger::trace("Corrected viewport position to {} {}", platformPosX, platformPosY);
+				}
 			}
 		}
-		*/
 
 	}
 

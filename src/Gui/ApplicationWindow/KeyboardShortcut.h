@@ -40,7 +40,7 @@ public:
 		return f_modifiers == 0;
 	}
 
-	const char* getString(){<
+	const char* getString(){
 		std::string output;
 		if(m_control){
 		#if defined(STACATO_MACOS)
