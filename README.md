@@ -24,3 +24,15 @@ git submodule init
 git submodule update
 code .
 ```
+
+To prepare a bare linux system for development the following needs to be installed:
+```
+git
+cmake
+make
+clang
+xorg-dev
+gtk+-3.0
+wireshark
+vscode (extensions: cmaketools c/c++)
+```
