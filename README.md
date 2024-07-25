@@ -14,8 +14,18 @@ sh deps/openframeworks/scripts/osx/download_libs.sh
 
 ## Build Instructions (Linux)
 
-Execute the following commands, then generate project files with CMake.
+Steps for a bare linux machine:
+install vscode .deb file
+instlal vscode extensions: cmaketools c/c++
+run these commands:
+```
+sudo apt update
+sudo apt updgrade
+sudo apt install git cmake clang xorg-dev gtk+-3.0 wireshark
+sudo apt-get install gtk+-3.0
+```
 
+To clone repo and start developping:
 ```
 git clone https://github.com/Guistac/Stacato.git
 cd Stacato
@@ -23,16 +33,4 @@ git checkout Linux2
 git submodule init
 git submodule update
 code .
-```
-
-To prepare a bare linux system for development the following needs to be installed:
-```
-git
-cmake
-make
-clang
-xorg-dev
-gtk+-3.0
-wireshark
-vscode (extensions: cmaketools c/c++)
 ```
