@@ -5,23 +5,24 @@
 Execute the following commands, then generate project files with CMake.
 
 ```
-git clone https://github.com/Guistac/Stacato.git --recursive
+git clone https://github.com/Guistac/Stacato.git
 cd Stacato
-git checkout 0.2
-sh deps/openframeworks/scripts/osx/download_libs.sh
+git checkout Linux2
+git submodule init
+git submodule update
 ```
 
 
 ## Build Instructions (Linux)
 
 Steps for a bare linux machine:
-install vscode .deb file
-instlal vscode extensions: cmaketools c/c++
+- install vscode .deb file
+- install vscode extensions: cmaketools c/c++
 run these commands:
 ```
 sudo apt update
 sudo apt updgrade
-sudo apt-get install git cmake clang xorg-dev gtk+-3.0 wireshark
+sudo apt-get install git cmake clang xorg-dev gtk+-3.0 wireshark htop
 ```
 
 To clone repo and start developping:
