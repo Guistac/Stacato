@@ -85,6 +85,11 @@ namespace EtherCatFieldbus {
 	void transitionToOperationalState();
 	void stopCyclicExchange();
 
+	bool b_pollNics = false;
+	bool b_discoveredDevices = false;
+	bool b_stateTransitions = false;
+	bool b_transmissionErrors = false;
+
 	void startPollingNetworkInterfaceCards();
 	void stopPollingNetworkInterfaceCards();
 
@@ -254,6 +259,8 @@ namespace EtherCatFieldbus {
 	std::vector<std::shared_ptr<NetworkInterfaceCard>> previousDetectedNics;
 
 	void startPollingNetworkInterfaceCards(){
+		if(!b_pollNics) return;
+
 		b_nicCheckerRunning = true;
 		nicChecker = std::thread([](){
 			
@@ -1170,7 +1177,8 @@ namespace EtherCatFieldbus {
 	bool b_slaveStateHandlerRunning = false;
 
     void startHandlingStateTransitions() {
-		
+		if(!b_stateTransitions) return;
+
 		if(b_slaveStateHandlerRunning){
 			Logger::error("Can't start slave state transition handler while it is running.");
 			return;
@@ -1295,6 +1303,8 @@ namespace EtherCatFieldbus {
 	}
 
 	void startCountingTransmissionErrors(){
+		if(!b_transmissionErrors) return;
+
 		if(b_transmissionErrorCounterRunning){
 			Logger::error("Can't start transmission error counter while it is running");
 			return;
@@ -1365,7 +1375,8 @@ namespace EtherCatFieldbus {
 	std::thread slaveDetectionThread;
 
 	void startPollingDiscoveredDevices() {
-		return;
+		if(!b_discoveredDevices) return;
+		
 		if (b_detectionThreadRunning) {
 			Logger::error("Can't start Discovered Device Detection while it is running");
 			return;

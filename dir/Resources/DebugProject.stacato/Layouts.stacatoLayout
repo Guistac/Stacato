@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Exploitation"/>
+    <DefaultLayout Name="Diagnostics Réseau"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Contrôle Manuel"/>
@@ -437,8 +437,6 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split
             <OpenWindows>
                 <Window Name="Log"/>
                 <Window Name="EtherCAT Fieldbus"/>
-                <Window Name="EtherCAT Devices"/>
-                <Window Name="EtherCAT Network"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -521,7 +519,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=1440,763
+Size=1280,647
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -564,6 +562,8 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
+ViewportPos=0,69
+ViewportId=0x36A60932
 Pos=0,29
 Size=418,880
 Collapsed=0
@@ -580,7 +580,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Starting Environnement]
-Pos=705,558
+Pos=325,295
 Size=630,140
 Collapsed=0
 
@@ -627,8 +627,8 @@ Size=515,508
 Collapsed=0
 
 [Window][Toolbar]
-Pos=0,763
-Size=1440,84
+Pos=0,647
+Size=1280,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -670,8 +670,8 @@ Collapsed=0
 DockId=0x00000008,0
 
 [Window][EtherCAT Fieldbus]
-Pos=504,29
-Size=441,734
+Pos=0,29
+Size=785,618
 Collapsed=0
 DockId=0x00000010,0
 
@@ -684,8 +684,8 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=947,29
-Size=493,734
+Pos=787,29
+Size=493,618
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -707,7 +707,7 @@ Collapsed=0
 
 [Window][EtherCAT Network]
 Pos=109,29
-Size=393,734
+Size=393,618
 Collapsed=0
 DockId=0x00000011,0
 
@@ -750,7 +750,7 @@ Collapsed=0
 
 [Window][EtherCAT Devices]
 Pos=0,29
-Size=107,734
+Size=107,618
 Collapsed=0
 DockId=0x00000001,0
 
@@ -853,11 +853,11 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split=X Selected=0xAE98FAB7
-  DockNode            ID=0x00000001 Parent=0xD5272B65 SizeRef=107,734 HiddenTabBar=1 Selected=0x90F1A334
+DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,98 Size=1280,618 Split=X Selected=0xAE98FAB7
+  DockNode            ID=0x00000001 Parent=0xD5272B65 SizeRef=107,734 Selected=0x90F1A334
   DockNode            ID=0x00000002 Parent=0xD5272B65 SizeRef=1331,734 Split=X
     DockNode          ID=0x00000003 Parent=0x00000002 SizeRef=393,1144 Split=Y Selected=0xEBD2820B
-      DockNode        ID=0x00000011 Parent=0x00000003 SizeRef=271,880 HiddenTabBar=1 Selected=0xBC7A743B
+      DockNode        ID=0x00000011 Parent=0x00000003 SizeRef=271,880 Selected=0xBC7A743B
       DockNode        ID=0x00000013 Parent=0x00000003 SizeRef=271,262 HiddenTabBar=1 Selected=0x8E074A3E
     DockNode          ID=0x00000004 Parent=0x00000002 SizeRef=936,1144 Split=X
       DockNode        ID=0x0000000D Parent=0x00000004 SizeRef=571,1144 Split=X
@@ -876,8 +876,9 @@ DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Spl
         <Layout>
             <ComponentName Value="Exploitation"/>
             <OpenWindows>
+                <Window Name="Manoeuvre List"/>
+                <Window Name="Track Sheet Editor"/>
                 <Window Name="Curve Editor"/>
-                <Window Name="Log"/>
                 <Window Name="EtherCAT Fieldbus"/>
             </OpenWindows>
             <ImGuiIniString>
@@ -929,14 +930,14 @@ Size=417,881
 Collapsed=0
 
 [Window][Track Sheet Editor]
-Pos=0,29
-Size=645,305
+Pos=325,29
+Size=955,222
 Collapsed=0
-DockId=0x00000004,0
+DockId=0x00000011,0
 
 [Window][Curve Editor]
-Pos=0,29
-Size=611,1023
+Pos=325,337
+Size=955,310
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -957,7 +958,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=925,1052
+Size=1280,647
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -1000,12 +1001,10 @@ Size=393,168
 Collapsed=0
 
 [Window][Manoeuvre List]
-ViewportPos=0,72
-ViewportId=0x36A60932
 Pos=0,29
-Size=246,537
+Size=323,618
 Collapsed=0
-DockId=0x0000000A,0
+DockId=0x00000003,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -1018,7 +1017,7 @@ Size=2056,961
 Collapsed=0
 
 [Window][Starting Environnement]
-Pos=713,558
+Pos=325,295
 Size=630,140
 Collapsed=0
 
@@ -1065,8 +1064,8 @@ Size=515,508
 Collapsed=0
 
 [Window][Toolbar]
-Pos=0,1052
-Size=925,84
+Pos=0,647
+Size=1280,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -1095,8 +1094,8 @@ Size=489,359
 Collapsed=0
 
 [Window][Node Editor]
-Pos=0,568
-Size=1660,605
+Pos=247,336
+Size=719,311
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -1108,10 +1107,10 @@ Collapsed=0
 DockId=0x00000008,0
 
 [Window][EtherCAT Fieldbus]
-Pos=0,29
-Size=611,1023
+Pos=325,253
+Size=955,82
 Collapsed=0
-DockId=0x0000000C,1
+DockId=0x00000012,0
 
 [Window][Visualizer Script]
 ViewportPos=0,25
@@ -1122,8 +1121,8 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=613,29
-Size=312,1023
+Pos=968,336
+Size=312,311
 Collapsed=0
 DockId=0x0000000D,0
 
@@ -1144,10 +1143,10 @@ Size=1555,938
 Collapsed=0
 
 [Window][EtherCAT Network]
-Pos=0,29
-Size=247,1144
+Pos=0,482
+Size=323,165
 Collapsed=0
-DockId=0x0000000A,1
+DockId=0x0000000A,0
 
 [Window][Environnement Script]
 ViewportPos=423,257
@@ -1291,21 +1290,25 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace             ID=0xD5272B65 Window=0xEA71A0E1 Pos=995,93 Size=925,1023 Split=X Selected=0xAE98FAB7
-  DockNode            ID=0x00000006 Parent=0xD5272B65 SizeRef=976,1023 Split=X Selected=0xFCCC3921
-    DockNode          ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
-    DockNode          ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=Y Selected=0xEDDB08E7
-      DockNode        ID=0x00000005 Parent=0x00000009 SizeRef=997,305 Split=X Selected=0x47C7A3F3
-        DockNode      ID=0x00000001 Parent=0x00000005 SizeRef=1005,611 Split=X Selected=0x47C7A3F3
-          DockNode    ID=0x0000000A Parent=0x00000001 SizeRef=246,371 HiddenTabBar=1 Selected=0xEBD2820B
-          DockNode    ID=0x0000000B Parent=0x00000001 SizeRef=1049,371 Split=X Selected=0x47C7A3F3
-            DockNode  ID=0x00000004 Parent=0x0000000B SizeRef=605,537 Selected=0x47C7A3F3
-            DockNode  ID=0x0000000E Parent=0x0000000B SizeRef=398,537 Selected=0x8E074A3E
-        DockNode      ID=0x00000002 Parent=0x00000005 SizeRef=433,611 Selected=0xB00214C9
-      DockNode        ID=0x00000010 Parent=0x00000009 SizeRef=997,427 Split=X Selected=0x8506A884
-        DockNode      ID=0x0000000C Parent=0x00000010 SizeRef=1126,733 CentralNode=1 Selected=0xEDDB08E7
-        DockNode      ID=0x0000000D Parent=0x00000010 SizeRef=312,733 HiddenTabBar=1 Selected=0x64F50EE5
-  DockNode            ID=0x00000007 Parent=0xD5272B65 SizeRef=663,1023 Selected=0x7AEFDC53
+DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,98 Size=1280,618 Split=X Selected=0xAE98FAB7
+  DockNode              ID=0x0000000B Parent=0xD5272B65 SizeRef=323,618 Split=Y Selected=0xEBD2820B
+    DockNode            ID=0x00000003 Parent=0x0000000B SizeRef=245,451 HiddenTabBar=1 Selected=0xEBD2820B
+    DockNode            ID=0x0000000A Parent=0x0000000B SizeRef=245,165 Selected=0xBC7A743B
+  DockNode              ID=0x0000000F Parent=0xD5272B65 SizeRef=955,618 Split=X
+    DockNode            ID=0x00000006 Parent=0x0000000F SizeRef=976,1023 Split=X Selected=0xFCCC3921
+      DockNode          ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
+      DockNode          ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=Y Selected=0xEDDB08E7
+        DockNode        ID=0x00000005 Parent=0x00000009 SizeRef=997,306 Split=X Selected=0x47C7A3F3
+          DockNode      ID=0x00000001 Parent=0x00000005 SizeRef=1005,611 Split=X Selected=0x47C7A3F3
+            DockNode    ID=0x00000004 Parent=0x00000001 SizeRef=605,537 Split=Y Selected=0x47C7A3F3
+              DockNode  ID=0x00000011 Parent=0x00000004 SizeRef=630,222 HiddenTabBar=1 Selected=0x47C7A3F3
+              DockNode  ID=0x00000012 Parent=0x00000004 SizeRef=630,82 HiddenTabBar=1 Selected=0xEDDB08E7
+            DockNode    ID=0x0000000E Parent=0x00000001 SizeRef=398,537 Selected=0x8E074A3E
+          DockNode      ID=0x00000002 Parent=0x00000005 SizeRef=433,611 Selected=0xB00214C9
+        DockNode        ID=0x00000010 Parent=0x00000009 SizeRef=997,310 Split=X Selected=0x8506A884
+          DockNode      ID=0x0000000C Parent=0x00000010 SizeRef=1126,733 CentralNode=1 HiddenTabBar=1 Selected=0x8506A884
+          DockNode      ID=0x0000000D Parent=0x00000010 SizeRef=312,733 Selected=0x64F50EE5
+    DockNode            ID=0x00000007 Parent=0x0000000F SizeRef=663,1023 Selected=0x7AEFDC53
 
 </ImGuiIniString>
         </Layout>

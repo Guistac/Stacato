@@ -1,17 +1,10 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-1" Description="" Type="Sequence">
-            <Animation Machine="DmD-1 [++&amp;--]" MachineUniqueID="409" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="1" Duration="10" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+            <Animation Machine="3 Steppers" MachineUniqueID="552" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Trapezoidal" Start="0.000244140625" End="0.000244140625" Duration="12" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="0.98563064426978175" Time="0.93546099290780127" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.11020805483734809" Time="2.2070921985815604" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.99278283272205647" Time="3.8531914893617021" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.11163848390504816" Time="5.4680851063829783" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.81111829801037505" Time="6.3028368794326237" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.49070218684556277" Time="6.8177304964539003" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.87262678146362305" Time="7.8475179672241211" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="0.13309492739281253" Time="8.9631205673758867" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="25.186870085866534" Time="5.9894736842105267" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
                     </Curve>
                 </Curves>
             </Animation>
