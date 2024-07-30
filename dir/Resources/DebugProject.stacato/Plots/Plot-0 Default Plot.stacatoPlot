@@ -1,13 +1,5 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-1" Description="" Type="Sequence">
-            <Animation Machine="3 Steppers" MachineUniqueID="552" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Trapezoidal" Start="0.000244140625" End="0.000244140625" Duration="12" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
-                <Curves>
-                    <Curve Name="Position">
-                        <ControlPoint Position="25.186870085866534" Time="5.9894736842105267" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                    </Curve>
-                </Curves>
-            </Animation>
-        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Sequence"/>
     </ManoeuvreList>
 </Plot>

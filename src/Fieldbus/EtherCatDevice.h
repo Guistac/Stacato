@@ -177,7 +177,20 @@ public:
     bool writeSDO_U64(uint16_t index, uint8_t subindex, const uint64_t& data, std::string variableName = "");
     bool writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data, std::string variableName = "");
     bool writeSDO_String(uint16_t index, uint8_t subindex, const char* data, std::string variableName = "");
-
+	
+	bool readSercos_ParameterName(uint16_t IDN, std::string& parameterName, uint8_t driveNumber = 0);
+	bool readSercos_U8(uint16_t IDN, uint8_t& data, uint8_t driveNumber = 0);
+	bool readSercos_U16(uint16_t IDN, uint16_t& data, uint8_t driveNumber = 0);
+	bool readSercos_U32(uint16_t IDN, uint32_t& data, uint8_t driveNumber = 0);
+	bool readSercos_String(uint16_t IDN, std::string& data, uint8_t driveNumber = 0);
+	bool readSercos_Array(uint16_t IDN, uint8_t* data, int& size, uint8_t driveNumber = 0);
+	
+	bool writeSercos_U8(uint16_t IDN, uint8_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U16(uint16_t IDN, uint16_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U32(uint16_t IDN, uint32_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U64(uint16_t IDN, uint64_t data, uint8_t driveNumber = 0);
+	bool writeSercos_Array(uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber = 0);
+	
     //===== Reading And Writing Data
 
     EtherCatRegisterData uploadRegisterData = EtherCatRegisterData("uploadData", 0x0, EtherCatData::Type::UINT16_T, DataFormat::Type::BINARY);

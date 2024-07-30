@@ -628,7 +628,8 @@ namespace EtherCatFieldbus {
 		
 		startupProgress.setProgress(0.55, "Waiting for Safe-Operational State");
         Logger::debug("===== Checking For Safe-Operational State...");
-        if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
+        //if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
+		if (ec_statecheck(0, EC_STATE_SAFE_OP, 10'000'000) != EC_STATE_SAFE_OP) {
 			startupProgress.setFailure("Not all slaves reached Safe-Operational State. Check the Log for more detailed errors.");
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
             return false;
