@@ -29,6 +29,7 @@ void ATV340::initialize() {
 	addNodePin(gpio_pin);
 	addNodePin(velocity_Pin);
 	addNodePin(load_Pin);
+	addNodePin(stoStatus_Pin);
 	addNodePin(digitalInput1_Pin);
 	addNodePin(digitalInput2_Pin);
 	addNodePin(digitalInput3_Pin);
@@ -272,6 +273,7 @@ void ATV340::readInputs() {
 	bool DI15 = logicInputs & (0x1 << 14);
 	bool DI16 = logicInputs & (0x1 << 15);
 	
+	*stoStatusValue = b_estop;
 	*digitalInput1_Signal = invertDigitalInput1_Param->value ? !DI1 : DI1;
 	*digitalInput2_Signal = invertDigitalInput2_Param->value ? !DI2 : DI2;
 	*digitalInput3_Signal = invertDigitalInput3_Param->value ? !DI3 : DI3;

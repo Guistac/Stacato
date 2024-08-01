@@ -43,6 +43,7 @@ void Lexium32::initialize() {
     addNodePin(actualVelocityPin);
     addNodePin(gpioDevicePin);
 		
+	addNodePin(stoStatusPin);
     addNodePin(digitalIn0Pin);
     addNodePin(digitalIn1Pin);
     addNodePin(digitalIn2Pin);
@@ -271,13 +272,13 @@ void Lexium32::readInputs() {
     bool DI4 = (_IO_act & 0x10) != 0x0;
     bool DI5 = (_IO_act & 0x20) != 0x0;
 	
+	*stoStatusValue = b_stoActive;
 	*digitalIn0Value = b_invertDI0 ? !DI0 : DI0;
 	*digitalIn1Value = b_invertDI1 ? !DI1 : DI1;
 	*digitalIn2Value = b_invertDI2 ? !DI2 : DI2;
 	*digitalIn3Value = b_invertDI3 ? !DI3 : DI3;
 	*digitalIn4Value = b_invertDI4 ? !DI4 : DI4;
 	*digitalIn5Value = b_invertDI5 ? !DI5 : DI5;
-
 	
 	if(!isConnected()) 														servoMotor->state = DeviceState::OFFLINE;
 	else if(b_hasFault && b_faultNeedsRestart) 								servoMotor->state = DeviceState::OFFLINE;

@@ -17,7 +17,7 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="2" ClockStableThresholdMilliseconds="0.20000000298023224" FieldbusTimeoutDelayMilliseconds="100"/>
+    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="2" ClockStableThresholdMilliseconds="0.5" FieldbusTimeoutDelayMilliseconds="100"/>
 </FieldbusSettings>
 
 <ManualControlChannel>

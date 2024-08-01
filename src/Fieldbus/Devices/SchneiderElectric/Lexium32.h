@@ -48,6 +48,7 @@ public:
 	std::shared_ptr<double> actualVelocityValue = std::make_shared<double>(0.0);
 	
 	std::shared_ptr<LexiumGpio> gpioDevice;
+	std::shared_ptr<bool> stoStatusValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn0Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn1Value = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalIn2Value = std::make_shared<bool>(false);
@@ -72,6 +73,7 @@ public:
 																		   NodePin::Flags::DisableDataField | NodePin::Flags::HidePin);
 	
     std::shared_ptr<NodePin> gpioDevicePin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT, "GPIO");
+	std::shared_ptr<NodePin> stoStatusPin = std::make_shared<NodePin>(stoStatusValue, NodePin::Direction::NODE_OUTPUT, "STO", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn0Pin = std::make_shared<NodePin>(digitalIn0Value, NodePin::Direction::NODE_OUTPUT, "DI0", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn1Pin = std::make_shared<NodePin>(digitalIn1Value, NodePin::Direction::NODE_OUTPUT, "DI1", NodePin::Flags::DisableDataField);
     std::shared_ptr<NodePin> digitalIn2Pin = std::make_shared<NodePin>(digitalIn2Value, NodePin::Direction::NODE_OUTPUT, "DI2", NodePin::Flags::DisableDataField);

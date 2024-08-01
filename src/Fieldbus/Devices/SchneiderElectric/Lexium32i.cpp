@@ -41,6 +41,7 @@ void Lexium32i::initialize() {
     addNodePin(actualVelocityPin);
     addNodePin(gpioDevicePin);
 		
+	addNodePin(stoStatusPin);
     addNodePin(digitalIn0Pin);
     addNodePin(digitalIn1Pin);
     addNodePin(digitalIn2Pin);
@@ -265,6 +266,7 @@ void Lexium32i::readInputs() {
     bool DI2 = (_IO_act & 0x4) != 0x0;
     bool DI3 = (_IO_act & 0x8) != 0x0;
 	
+	*stoStatusValue = b_stoActive;
 	*digitalIn0Value = b_invertDI0 ? !DI0 : DI0;
 	*digitalIn1Value = b_invertDI1 ? !DI1 : DI1;
 	*digitalIn2Value = b_invertDI2 ? !DI2 : DI2;

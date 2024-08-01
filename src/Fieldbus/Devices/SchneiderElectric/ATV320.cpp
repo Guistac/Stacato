@@ -40,6 +40,7 @@ void ATV320::initialize() {
 	addNodePin(actuatorPin);
 	addNodePin(gpioPin);
 	
+	addNodePin(stoStatusPin);
 	addNodePin(digitalInput1Pin);
 	addNodePin(digitalInput2Pin);
 	addNodePin(digitalInput3Pin);
@@ -240,6 +241,7 @@ void ATV320::readInputs() {
 	//update output pin data
 	*actualVelocity = actuator->getVelocity();
 	*actualLoad = actuator->getEffort();
+	*stoStatusValue = b_stoActive;
 	*digitalInput1Signal = invertLogicInput1Parameter->value ? logicInputs & 0x1 : !(logicInputs & 0x1);
 	*digitalInput2Signal = invertLogicInput2Parameter->value ? logicInputs & 0x2 : !(logicInputs & 0x2);
 	*digitalInput3Signal = invertLogicInput3Parameter->value ? logicInputs & 0x4 : !(logicInputs & 0x4);

@@ -38,13 +38,16 @@ namespace EtherCatError {
             case EC_ERR_TYPE_EMERGENCY:
                 Logger::error("EMERGENCY Error: Slave '{}' ErrorCode:{:X}", slaveName, error.ErrorCode); break;
             case EC_ERR_TYPE_SOE_ERROR:
+				/*
 				switch (error.AbortCode) {
 					case 1: errorString = "Unexpected Frame Returned"; break;
 					case 4: errorString = "No Response"; break;
 					default: errorString = "Unknown Abort Code"; break;
 				}
+				*/
 				errorString = ec_soeerror2string(error.ErrorCode);
-                Logger::warn("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString); break;
+				if(error.ErrorCode == 0x800A) Logger::info("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString);
+                else Logger::warn("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString); break;
             case EC_ERR_TYPE_MBX_ERROR:
 				errorString = ec_mbxerror2string(error.ErrorCode);
                 Logger::warn("MAILBOX Error: Slave '{}' Error: {}", slaveName, errorString); break;

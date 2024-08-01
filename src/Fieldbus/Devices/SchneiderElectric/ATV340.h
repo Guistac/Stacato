@@ -68,6 +68,7 @@ public:
 	std::shared_ptr<NodePin> velocity_Pin = std::make_shared<NodePin>(velocity_Value, NodePin::Direction::NODE_OUTPUT, "Velocity", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> load_Pin = std::make_shared<NodePin>(load_Value, NodePin::Direction::NODE_OUTPUT, "Effort", NodePin::Flags::DisableDataField);
 	
+	std::shared_ptr<bool> stoStatusValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput1_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput2_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput3_Signal = std::make_shared<bool>(false);
@@ -79,6 +80,7 @@ public:
 	std::shared_ptr<bool> digitalInput14_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput15_Signal = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalInput16_Signal = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> stoStatus_Pin = std::make_shared<NodePin>(stoStatusValue, NodePin::Direction::NODE_OUTPUT, "STO", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput1_Pin = std::make_shared<NodePin>(digitalInput1_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 1", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput2_Pin = std::make_shared<NodePin>(digitalInput2_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 2", NodePin::Flags::DisableDataField);
 	std::shared_ptr<NodePin> digitalInput3_Pin = std::make_shared<NodePin>(digitalInput3_Signal, NodePin::Direction::NODE_OUTPUT, "Digital Input 3", NodePin::Flags::DisableDataField);
