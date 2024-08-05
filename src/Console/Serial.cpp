@@ -3,14 +3,21 @@
 
 #include "Serial.h"
 #include <serial/serial.h>
+#include "config.h"
 
 
 std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 	auto serialports = serial::list_ports();
 	for(auto& port : serialports){
+		#if defined(STACATO_UNIX)
+		if(port.description.find(portMatchingString) != std::string::npos){
+		#else if defined(STACATO_MACOS)
 		if(port.port.find(portMatchingString) != std::string::npos){
+		#endif
 			auto openedPort = std::make_shared<serial::Serial>(port.port);
-			if(openedPort->isOpen()) return std::make_shared<SerialPort>(openedPort, port.port);
+			if(openedPort->isOpen()) {
+				return std::make_shared<SerialPort>(openedPort, port.port);
+			}
 			else openedPort = nullptr;
 		}
 	}
@@ -35,7 +42,7 @@ constexpr uint8_t stopByte = 0x99;
 	
 void SerialPort::read(){
 	try{
-		while(size_t byteCount = serialPort->available()){
+		while(int byteCount = serialPort->available()){
 			serialPort->read(incomingBytes, byteCount);
 			for(int i = 0; i < byteCount; i++) readByte(incomingBytes[i]);
 		}
@@ -60,8 +67,10 @@ void SerialPort::read(){
 	}
 }
 
-void SerialPort::send(uint8_t* message, size_t messageLength){
+void SerialPort::send(uint8_t* message, int messageLength){
 	
+	static int outframecount = 0;
+
 	outgoingFrame[0] = startByte;
 	outgoingFrame[1] = messageLength;
 	memcpy(outgoingFrame + 2, message, messageLength);
@@ -69,7 +78,7 @@ void SerialPort::send(uint8_t* message, size_t messageLength){
 	for(int i = 0; i < messageLength; i++) checksum ^= message[i];
 	outgoingFrame[2 + messageLength] = checksum;
 	outgoingFrame[3 + messageLength] = stopByte;
-	size_t frameLength = messageLength + 4;
+	int frameLength = messageLength + 4;
 	
 	try{
 		serialPort->write(outgoingFrame, frameLength);
@@ -90,6 +99,43 @@ void SerialPort::send(uint8_t* message, size_t messageLength){
 		Logger::info("{}", e.what());
 		onIssue();	
 	}
+}
+
+void SerialPort::sendMultiple(std::vector<std::vector<uint8_t>>& messages){
+	uint8_t outBuffer[1024];
+	int byteCount = 0;
+	for(auto& msg : messages){
+		uint8_t messageLength = msg.size();
+		uint8_t* thisMessage = &outBuffer[byteCount];
+		thisMessage[0] = startByte;
+		thisMessage[1] = messageLength;
+		memcpy(thisMessage + 2, &msg[0], messageLength);
+		uint8_t checksum = messageLength;
+		for(int i = 0; i < messageLength; i++) checksum ^= msg[i];
+		thisMessage[2 + messageLength] = checksum;
+		thisMessage[3 + messageLength] = stopByte;
+		byteCount += messageLength + 4;
+	}
+	try{
+		serialPort->write(outBuffer, byteCount);
+	}
+	catch(serial::IOException e){
+		Logger::critical("Error while writing to serial port {} :", portName);
+		Logger::critical("Error #{} : {}",  e.getErrorNumber(), e.what());
+		onIssue();
+	}
+	catch(serial::SerialException e){
+		Logger::info("Error while writing to serial port {} :", portName);
+		Logger::info("{}", e.what());
+		b_portOpen = false;
+		onIssue();
+	}
+	catch(serial::PortNotOpenedException e){
+		Logger::info("Error while writing to serial port {} :", portName);
+		Logger::info("{}", e.what());
+		onIssue();	
+	}
+
 }
 
 void SerialPort::onIssue(){

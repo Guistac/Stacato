@@ -27,6 +27,7 @@ bool FeedbackMapping::load(tinyxml2::XMLElement* parent){
 	deviceUnitsPerAxisUnits->load(parent);
 	
 	deviceUnitsPerAxisUnits->onEdit();
+	return true;
 }
 
 

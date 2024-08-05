@@ -50,13 +50,13 @@ public:
 	void setInputUpdateCallback(IOUpdateCallback callback){ inputUpdateCallback = callback; }
 	void setOutputUpdateCallback(IOUpdateCallback callback){ outputUpdateCallback = callback; }
 	
-	void updateInput(uint8_t* data, size_t size){
+	void updateInput(uint8_t* data, int size){
 		if(readInput(data, size)){
 			inputUpdateCallback();
 		}
 	}
 	
-	bool updateOutput(uint8_t** data, size_t* size){
+	bool updateOutput(uint8_t* data, int* size){
 		outputUpdateCallback();
 		if(outputChanged()) {
 			writeOutput(data, size);
@@ -67,9 +67,9 @@ public:
 	
 	virtual Type getType() = 0;
 	
-	virtual bool readInput(uint8_t* data, size_t size) { return false; }
+	virtual bool readInput(uint8_t* data, int size) { return false; }
 	virtual bool outputChanged() { return false; }
-	virtual void writeOutput(uint8_t** data, size_t* size) {}
+	virtual void writeOutput(uint8_t* data, int* size) {}
 	
 protected:
 	IOUpdateCallback inputUpdateCallback = [](){};
@@ -85,7 +85,7 @@ public:
 	
 	virtual Type getType() override { return Type::PUSHBUTTON; }
 	
-	virtual bool readInput(uint8_t* data, size_t size) override {
+	virtual bool readInput(uint8_t* data, int size) override {
 		if(size != 1) return false;
 		bool b_newState;
 		switch(data[0]){
@@ -111,7 +111,7 @@ public:
 	
 	virtual Type getType() override { return Type::JOYSTICK_2AXIS; }
 	
-	virtual bool readInput(uint8_t* data, size_t size) override {
+	virtual bool readInput(uint8_t* data, int size) override {
 		if(size != 2) return false;
 		glm::vec2 newPosition((int8_t)data[0] / 127.f, (int8_t)data[1] / 127.f);
 		if(position != newPosition){
@@ -132,7 +132,7 @@ public:
 	
 	virtual Type getType() override { return Type::JOYSTICK_3AXIS; }
 	
-	virtual bool readInput(uint8_t* data, size_t size) override {
+	virtual bool readInput(uint8_t* data, int size) override {
 		if(size != 3) return false;
 		glm::vec3 newPosition((int8_t)data[0] / 127.f, (int8_t)data[1] / 127.f, (int8_t)data[2] / 127.f);
 		if(position != newPosition){
@@ -162,10 +162,9 @@ public:
 		return b_state != b_previousState;
 	};
 	
-	virtual void writeOutput(uint8_t** data, size_t* size) override {
+	virtual void writeOutput(uint8_t* data, int* size) override {
 		b_previousState = b_state;
-		outputData[0] = b_state;
-		*data = outputData;
+		data[0] = b_state;
 		*size = 1;
 	}
 	
@@ -186,10 +185,9 @@ public:
 		return f_brightness != f_previousBrightness;
 	};
 	
-	virtual void writeOutput(uint8_t** data, size_t* size) override {
+	virtual void writeOutput(uint8_t* data, int* size) override {
 		f_previousBrightness = f_brightness;
-		outputData[0] = f_brightness * 255.f;
-		*data = outputData;
+		data[0] = f_brightness * 255.f;
 		*size = 1;
 	}
 	
@@ -210,12 +208,11 @@ public:
 		return v_color != v_previousColor;
 	};
 	
-	virtual void writeOutput(uint8_t** data, size_t* size) override {
+	virtual void writeOutput(uint8_t* data, int* size) override {
 		v_previousColor = v_color;
-		outputData[0] = v_color.x * 255.f;
-		outputData[1] = v_color.y * 255.f;
-		outputData[2] = v_color.z * 255.f;
-		*data = outputData;
+		data[0] = v_color.x * 255.f;
+		data[1] = v_color.y * 255.f;
+		data[2] = v_color.z * 255.f;
 		*size = 3;
 	}
 	

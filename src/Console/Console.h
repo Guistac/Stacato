@@ -81,12 +81,12 @@ private:
 	
 	uint8_t outputMessage[128];
 
-	void readMessage(uint8_t*, size_t);
-	void receiveConnectionConfirmation(uint8_t* message, size_t size);
-	void receiveIdentificationReply(uint8_t* message, size_t size);
-	void receiveDeviceEnumerationReply(uint8_t* message, size_t size);
-	void receiveHeartbeat(uint8_t* message, size_t size);
-	void receiveDeviceInput(uint8_t* message, size_t size);
+	void readMessage(uint8_t*, int);
+	void receiveConnectionConfirmation(uint8_t* message, int size);
+	void receiveIdentificationReply(uint8_t* message, int size);
+	void receiveDeviceEnumerationReply(uint8_t* message, int size);
+	void receiveHeartbeat(uint8_t* message, int size);
+	void receiveDeviceInput(uint8_t* message, int size);
 	
 	void sendConnectionRequest();
 	void sendIdentificationRequest();

@@ -7,13 +7,15 @@ public:
 	
 	SerialPort(std::shared_ptr<serial::Serial> port, std::string& name);
 	
-	typedef std::function<void(uint8_t*,size_t)> MessageReceiveCallback;
+	typedef std::function<void(uint8_t*,int)> MessageReceiveCallback;
 	typedef std::function<void(void)> PortCloseCallback;
 	void setMessageReceiveCallback(MessageReceiveCallback callback){ messageReceivedCallback = callback; }
 	void setPortCloseCallback(PortCloseCallback callback) { portClosedCallback = callback; }
 	
 	void read();
-	void send(uint8_t* buffer, size_t size);
+	void send(uint8_t* buffer, int size);
+	void sendMultiple(std::vector<std::vector<uint8_t>>& messages);
+
 	
 private:
 	
@@ -23,7 +25,7 @@ private:
 	std::string portName;
 	std::shared_ptr<serial::Serial> serialPort;
 	bool b_portOpen = false;
-	MessageReceiveCallback messageReceivedCallback = [](uint8_t*, size_t){};
+	MessageReceiveCallback messageReceivedCallback = [](uint8_t*, int){};
 	PortCloseCallback portClosedCallback = [](){};
 	
 	enum class IncomingMessageState{

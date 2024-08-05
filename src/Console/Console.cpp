@@ -15,7 +15,7 @@ std::shared_ptr<Console> Console::initialize(std::shared_ptr<SerialPort> port){
 	auto console = std::make_shared<Console>();
 	console->serialPort = port;
 	console->connectionState = ConnectionState::NOT_CONNECTED;
-	console->serialPort->setMessageReceiveCallback([console](uint8_t* message, size_t size){
+	console->serialPort->setMessageReceiveCallback([console](uint8_t* message, int size){
 		console->readMessage(message, size);
 	});
 	console->serialPort->setPortCloseCallback([console](){
@@ -61,7 +61,7 @@ void Console::setMapping(std::shared_ptr<ConsoleMapping> mapping_){
 }
 
 
-void Console::receiveDeviceInput(uint8_t* message, size_t size){
+void Console::receiveDeviceInput(uint8_t* message, int size){
 	
 	IODevice::Type deviceType = IODevice::getTypeFromCode(message[0]);
 	uint8_t deviceIndex = message[1];
@@ -71,7 +71,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 	if(device->getType() != deviceType) return;
 	
 	if(size < 3) return;
-	size_t deviceInputDataSize = size - 2;
+	int deviceInputDataSize = size - 2;
 	uint8_t* deviceInputData = &message[2];
 	
 	device->updateInput(deviceInputData, deviceInputDataSize);
@@ -92,7 +92,12 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 			float y = (int8_t)message[3] / 127.f;
 			Logger::warn("Joystick {} x:{:.2f} y:{:.2f}", message[1], x, y);
 			}break;
-		case IODevice::Type::JOYSTICK_3AXIS:	break;
+		case IODevice::Type::JOYSTICK_3AXIS:{
+			float x = (int8_t)message[2] / 127.f;
+			float y = (int8_t)message[3] / 127.f;
+			float z = (int8_t)message[4] / 127.f;
+			Logger::warn("Joystick {} x:{:.2f} y:{:.2f} z:{:.2f}", message[1], x, y, z);
+			}break;
 		case IODevice::Type::LED:				break;
 		case IODevice::Type::LED_PWM:			break;
 		case IODevice::Type::LED_RGB:			break;
@@ -112,7 +117,7 @@ void Console::receiveDeviceInput(uint8_t* message, size_t size){
 	*/
 }
 
-void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){
+void Console::receiveConnectionConfirmation(uint8_t* message, int size){
 	if(connectionState != ConnectionState::CONNECTION_REQUESTED) return;
 	if(size != 4) return;
     uint8_t msb = message[1];
@@ -124,7 +129,7 @@ void Console::receiveConnectionConfirmation(uint8_t* message, size_t size){
 	Logger::debug("Received Connection Confirmation");
 }
 
-void Console::receiveIdentificationReply(uint8_t* message, size_t size){
+void Console::receiveIdentificationReply(uint8_t* message, int size){
 	if(connectionState != ConnectionState::IDENTIFICATION_REQUESTED) return;
 	if(size < 2) return;
 	if(message[size - 1] != 0) return;
@@ -134,7 +139,7 @@ void Console::receiveIdentificationReply(uint8_t* message, size_t size){
 	Logger::debug("Received Identification Reply, console name is {}", consoleName);
 }
 
-void Console::receiveDeviceEnumerationReply(uint8_t* message, size_t size){
+void Console::receiveDeviceEnumerationReply(uint8_t* message, int size){
 	if(connectionState != ConnectionState::DEVICE_ENUMERATION_REQUESTED) return;
 	if(size < 2) return;
 	for(int i = 1; i < size; i++) if(IODevice::getTypeFromCode(message[i]) == IODevice::Type::UNKNOWN) return;
@@ -150,7 +155,7 @@ void Console::receiveDeviceEnumerationReply(uint8_t* message, size_t size){
 	connectionState = ConnectionState::DEVICE_ENUMERATION_RECEIVED;
 }
 
-void Console::receiveHeartbeat(uint8_t* message, size_t size){
+void Console::receiveHeartbeat(uint8_t* message, int size){
 	if(size != 1) return;
     double now_millis = Timing::getProgramTime_milliseconds();
     lastHeartbeatReceiveTime = now_millis;
@@ -159,7 +164,7 @@ void Console::receiveHeartbeat(uint8_t* message, size_t size){
 
 
 
-void Console::readMessage(uint8_t* message, size_t messageLength){
+void Console::readMessage(uint8_t* message, int messageLength){
 	uint8_t header = message[0];
 	switch(header){
 		case CONNECTION_CONFIRMATION: 	receiveConnectionConfirmation(message, messageLength); break;
@@ -278,17 +283,22 @@ void Console::updateOutputs(){
 	//pthread_setname_np(threadName.c_str());
 	b_outputHandlerRunning = true;
 	while(b_outputHandlerRunning){
+
+		std::vector<std::vector<uint8_t>> messages;
+
 		for(int i = 0; i < ioDevices.size(); i++){
-			uint8_t* deviceData;
-			size_t deviceDataSize = 0;
-			if(ioDevices[i]->updateOutput(&deviceData, &deviceDataSize)){
-				outputMessage[0] = IODevice::getCodeFromType(ioDevices[i]->getType());
-				outputMessage[1] = i;
-				memcpy(&outputMessage[2], deviceData, deviceDataSize);
-				size_t messageSize = deviceDataSize + 2;
-				serialPort->send(outputMessage, messageSize);
+			uint8_t buffer[32];
+			int size;
+			if(ioDevices[i]->updateOutput(buffer + 2, &size)){
+				buffer[0] = IODevice::getCodeFromType(ioDevices[i]->getType());
+				buffer[1] = i;
+				size += 2;
+				messages.push_back(std::vector<uint8_t>(buffer, buffer + size));
 			}
 		}
+
+		serialPort->sendMultiple(messages);
+		
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 }
