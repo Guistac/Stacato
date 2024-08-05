@@ -130,8 +130,8 @@ void Dashboard::canvas(){
 	ImGui::SetCursorPos(ImVec2(0,0));
 	if(dashboardSize.x <= 0.0) dashboardSize.x = 1;
 	if(dashboardSize.y <= 0.0) dashboardSize.y = 1;
+	ImGui::SetNextItemAllowOverlap();
 	ImGui::InvisibleButton("Dashboard", dashboardSize);
-	ImGui::SetItemAllowOverlap();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	//panning & zooming

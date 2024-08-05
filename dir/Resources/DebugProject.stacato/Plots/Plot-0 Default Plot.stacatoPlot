@@ -1,7 +1,31 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
-            <Animation Machine="Tournette" MachineUniqueID="222" Parameter="Position" IsComposite="false" Type="Target" Target="5000" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="0.5" EndAcceleration="0.5"/>
+            <Animation Machine="Tournette" MachineUniqueID="222" Parameter="Position" IsComposite="false" Type="Target" Target="5000" ConstraintType="Velocity" Time="0" Velocity="1" StartAcceleration="0.5" EndAcceleration="0.5"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Target">
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 2" MachineUniqueID="1324" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="2" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 2" MachineUniqueID="1324" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="2" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 3" MachineUniqueID="1328" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="4" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 3" MachineUniqueID="1328" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="4" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 4" MachineUniqueID="1332" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="6" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 4" MachineUniqueID="1332" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="6" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1 (copy)" Description="" Type="Target">
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 2" MachineUniqueID="1324" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="2" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 2" MachineUniqueID="1324" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="2" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 3" MachineUniqueID="1328" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="4" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 3" MachineUniqueID="1328" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="4" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 4" MachineUniqueID="1332" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="6" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 4" MachineUniqueID="1332" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="6" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+            <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

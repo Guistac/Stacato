@@ -118,6 +118,7 @@ namespace PlotGui{
 			ImGuiWindow* list = ImGui::GetCurrentWindow();
 			
 			for (auto& manoeuvre : manoeuvres) {
+				ImGui::SetNextItemAllowOverlap();
 				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
 					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 						ImGui::SetScrollHereY(.5f);
