@@ -3,6 +3,7 @@
 
 std::shared_ptr<PushButton>		IODevice::toPushButton(){ 		return std::dynamic_pointer_cast<PushButton>(shared_from_this()); }
 std::shared_ptr<Joystick2X>		IODevice::toJoystick2X(){ 		return std::dynamic_pointer_cast<Joystick2X>(shared_from_this()); }
+std::shared_ptr<Joystick3X>		IODevice::toJoystick3X(){ 		return std::dynamic_pointer_cast<Joystick3X>(shared_from_this()); }
 std::shared_ptr<LED>			IODevice::toLED(){ 				return std::dynamic_pointer_cast<LED>(shared_from_this()); }
 std::shared_ptr<LED_PWM>		IODevice::toLED_PWM(){ 			return std::dynamic_pointer_cast<LED_PWM>(shared_from_this()); }
 std::shared_ptr<LED_RGB>		IODevice::toLED_RGB(){ 			return std::dynamic_pointer_cast<LED_RGB>(shared_from_this()); }
@@ -18,7 +19,7 @@ std::shared_ptr<IODevice> IODevice::make(Type deviceType){
 		case Type::ENCODER:			return nullptr;
 		case Type::JOYSTICK_1AXIS:	return nullptr;
 		case Type::JOYSTICK_2AXIS:	return std::make_shared<Joystick2X>();
-		case Type::JOYSTICK_3AXIS:	return nullptr;
+		case Type::JOYSTICK_3AXIS:	return std::make_shared<Joystick3X>();
 		case Type::LED:				return std::make_shared<LED>();
 		case Type::LED_PWM:			return std::make_shared<LED_PWM>();
 		case Type::LED_RGB:			return std::make_shared<LED_RGB>();

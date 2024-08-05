@@ -2,6 +2,7 @@
 
 class PushButton;
 class Joystick2X;
+class Joystick3X;
 class LED;
 class LED_PWM;
 class LED_RGB;
@@ -37,6 +38,7 @@ public:
 	
 	std::shared_ptr<PushButton>		toPushButton();
 	std::shared_ptr<Joystick2X>		toJoystick2X();
+	std::shared_ptr<Joystick3X>		toJoystick3X();
 	std::shared_ptr<LED>			toLED();
 	std::shared_ptr<LED_PWM>		toLED_PWM();
 	std::shared_ptr<LED_RGB>		toLED_RGB();
@@ -125,6 +127,28 @@ private:
 	glm::vec2 position = {.0f, .0f};
 };
 
+class Joystick3X : public virtual IODevice{
+public:
+	
+	virtual Type getType() override { return Type::JOYSTICK_3AXIS; }
+	
+	virtual bool readInput(uint8_t* data, size_t size) override {
+		if(size != 3) return false;
+		glm::vec3 newPosition((int8_t)data[0] / 127.f, (int8_t)data[1] / 127.f, (int8_t)data[2] / 127.f);
+		if(position != newPosition){
+			position = newPosition;
+			return true;
+		}
+		return false;
+	}
+	
+	glm::vec3 getPosition(){ return position; }
+	
+private:
+	glm::vec3 position = {.0f, .0f, .0f};
+	
+};
+
 
 
 
@@ -180,7 +204,7 @@ private:
 class LED_RGB : public virtual IODevice{
 public:
 	
-	virtual Type getType() override { return Type::LED_PWM; }
+	virtual Type getType() override { return Type::LED_RGB; }
 	
 	virtual bool outputChanged() override {
 		return v_color != v_previousColor;

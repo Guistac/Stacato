@@ -8,6 +8,7 @@
 #include "Consoles/StacatoCompact.h"
 #include "Consoles/ButtonBoard.h"
 #include "Consoles/ConsoleStarmania.h"
+#include "Consoles/StacatoV2.h"
 
 namespace ConsoleHandler{
 
@@ -51,7 +52,8 @@ namespace ConsoleHandler{
 
 	std::vector<std::shared_ptr<ConsoleMapping>> mappingDictionnary = {
 		std::make_shared<ConsoleStarmania>(),
-		std::make_shared<StacatoCompact>()
+		std::make_shared<StacatoCompact>(),
+		std::make_shared<StacatoV2>()
 	};
 
 	void applyMapping(std::shared_ptr<Console> console){

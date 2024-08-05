@@ -254,6 +254,10 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompactGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoCompact.h
 
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoV2.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoV2Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Console/Consoles/StacatoV2.h
+
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.cpp
     ${STACATO_SOURCE_DIRECTORY}/Tests/C_Curves.h
     ${STACATO_SOURCE_DIRECTORY}/Tests/CommandZ.cpp

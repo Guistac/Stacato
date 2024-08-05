@@ -17,7 +17,7 @@ namespace Timing {
 	inline bool getBlink(double period_seconds){ return fmod(getProgramTime_seconds(), period_seconds) < (period_seconds * .5); }
 
 	inline double getSinusWave(double period_seconds, double min, double max){
-		double normalized = std::sin(getProgramTime_seconds() / period_seconds) * 0.5 + 0.5;
+		double normalized = std::sin(M_PI * getProgramTime_seconds() / period_seconds) * 0.5 + 0.5;
 		return (normalized * (max - min)) - min;
 	}
 	inline double getTriangleWave(double period_seconds, double min, double max){
