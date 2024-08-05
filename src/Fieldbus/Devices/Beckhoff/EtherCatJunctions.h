@@ -26,6 +26,12 @@ public:
 	DEFINE_ETHERCAT_DEVICE(EK1122, "EK1122 2-Port EtherCAT Junction", "EK1122", "Beckhoff", "Utilities", 0x2, 0x4622c52)
 };
 
+class EK1521_0010 : public EtherCatDevice {
+public:
+	DEFINE_ETHERCAT_DEVICE(EK1521_0010, "EK1521-0010 1-port EtherCAT fiber-optic junction", "EK1521-0010", "Beckhoff", "Utilities", 0x2, 0x5f12c52)
+};
+
+
 class EL2008 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL2008, "EL2008 8x Digital Output", "EL2008", "Beckhoff", "I/O", 0x2, 0x7d83052)
