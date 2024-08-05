@@ -1,5 +1,7 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-1" Description="" Type="Sequence"/>
+        <Manoeuvre Name="M-0" Description="" Type="Target">
+            <Animation Machine="Tournette" MachineUniqueID="222" Parameter="Position" IsComposite="false" Type="Target" Target="5000" ConstraintType="Velocity" Time="0" Velocity="2" StartAcceleration="0.5" EndAcceleration="0.5"/>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

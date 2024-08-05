@@ -5,6 +5,30 @@ void AX5206::deviceSpecificGui() {
 		if(ImGui::BeginTabBar("Drive")){
 			if(ImGui::BeginTabItem("Drive")){
 				
+				if(ImGui::Button("Download Serial")){
+					
+					struct SercosString{
+						uint16_t length;
+						uint16_t maxLength;
+						char chars[1024];
+						std::string get(){ return std::string(chars, length); }
+					};
+					
+					int smanV = 1024;
+					SercosString manV;
+					int ssndc = 1024;
+					SercosString sndc;
+					
+					bool ret1 = readSercos_Array(30, (uint8_t*)&manV, smanV);
+					bool ret2 = readSercos_Array(432, (uint8_t*)&sndc, ssndc);
+					
+					auto manufacturerVersion = manV.get();
+					auto serialNumber = sndc.get();
+					
+					Logger::info("Manufacturer Version: {}", manufacturerVersion);
+					Logger::info("Serial Number Drive Control: {}", serialNumber);
+				}
+				
 				if(ImGui::Button("Test")){
 					
 					struct IDN_List{
