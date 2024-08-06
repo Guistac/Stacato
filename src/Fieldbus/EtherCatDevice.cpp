@@ -250,8 +250,8 @@ bool EtherCatDevice::executeSDOTasks(std::vector<std::shared_ptr<SDOTask>>& task
 }
 
 
-bool EtherCatDevice::readSercos_ParameterName(uint16_t IDN, std::string& parameterName, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_ParameterName(char paramType, uint16_t IDN, std::string& parameterName, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	uint8_t buffer[EC_SOE_MAXNAME];
 	int pSize = EC_SOE_MAXNAME;
 	if(1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_NAME_B, IDN, &pSize, buffer, EC_TIMEOUTRXM)){
@@ -262,26 +262,26 @@ bool EtherCatDevice::readSercos_ParameterName(uint16_t IDN, std::string& paramet
 	return false;
 }
 
-bool EtherCatDevice::readSercos_U8(uint16_t IDN, uint8_t& data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_U8(char paramType, uint16_t IDN, uint8_t& data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	int pSize = 1;
 	return 1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, &pSize, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::readSercos_U16(uint16_t IDN, uint16_t& data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_U16(char paramType, uint16_t IDN, uint16_t& data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	int pSize = 2;
 	return 1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, &pSize, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::readSercos_U32(uint16_t IDN, uint32_t& data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_U32(char paramType, uint16_t IDN, uint32_t& data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	int pSize = 4;
 	return 1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, &pSize, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::readSercos_String(uint16_t IDN, std::string& data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_String(char paramType, uint16_t IDN, std::string& data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	uint8_t buffer[1024];
 	int pSize = 1024;
 	if(1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, &pSize, buffer, EC_TIMEOUTRXM)){
@@ -292,33 +292,33 @@ bool EtherCatDevice::readSercos_String(uint16_t IDN, std::string& data, uint8_t 
 	return false;
 }
 
-bool EtherCatDevice::readSercos_Array(uint16_t IDN, uint8_t* data, int& size, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::readSercos_Array(char paramType, uint16_t IDN, uint8_t* data, int& size, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEread(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, &size, data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::writeSercos_U8(uint16_t IDN, uint8_t data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::writeSercos_U8(char paramType, uint16_t IDN, uint8_t data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, 1, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::writeSercos_U16(uint16_t IDN, uint16_t data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::writeSercos_U16(char paramType, uint16_t IDN, uint16_t data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, 2, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::writeSercos_Array(uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::writeSercos_Array(char paramType, uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, size, data, EC_TIMEOUTSAFE);
 }
 
-bool EtherCatDevice::writeSercos_U32(uint16_t IDN, uint32_t data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::writeSercos_U32(char paramType, uint16_t IDN, uint32_t data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, 4, &data, EC_TIMEOUTRXM);
 }
 
-bool EtherCatDevice::writeSercos_U64(uint16_t IDN, uint64_t data, uint8_t driveNumber, bool Pvalue){
-	if(Pvalue) IDN += 32768;
+bool EtherCatDevice::writeSercos_U64(char paramType, uint16_t IDN, uint64_t data, uint8_t driveNumber){
+	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, 8, &data, EC_TIMEOUTRXM);
 }
 

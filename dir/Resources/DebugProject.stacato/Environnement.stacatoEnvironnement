@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.91626781" OffsetX="384.18314" OffsetY="-109.06009" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.5" SizeY="389.65747"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60004" SizeY="192.7592"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60004" SizeY="192.9238"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.60004" SizeY="193.34152"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60004" SizeY="192.70958"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.60004" SizeY="192.79071"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.5" SizeY="141.41199"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.25792"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.5" SizeY="141.65753"/>
+    <Dashboard Scale="1.4140146" OffsetX="411.43793" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.5" SizeY="388.4024"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60004" SizeY="194.02454"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.59999" SizeY="194.00575"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.60004" SizeY="193.80794"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60004" SizeY="193.79015"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.60004" SizeY="193.4113"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.5" SizeY="142.13231"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49997" SizeY="110.44781"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.5" SizeY="141.81682"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -616,6 +616,14 @@
                 <OutputPins>
                     <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="1339" Visible="false" DisableDataField="true"/>
                 </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5206" Split="false" CustomName="AX5206 (Alias:1234)" UniqueID="1345">
+                <NodeEditorPosition x="324" y="582"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="1234"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links>

@@ -5,6 +5,13 @@ void AX5206::deviceSpecificGui() {
 		if(ImGui::BeginTabBar("Drive")){
 			if(ImGui::BeginTabItem("Drive")){
 				
+				if(ImGui::Button("Read Invalid IDNs for PreOp->SafeOp")) getInvalidIDNsForSafeOp();
+				if(ImGui::Button("Read Invalid IDNs for SafeOp->Op")) getInvalidIDNsForOp();
+				if(ImGui::Button("Read Shutdown Errors")) getShutdownErrorList();
+				if(ImGui::Button("Read Error History")) getErrorHistory();
+				if(ImGui::Button("Clear Error History")) clearErrorHistory();
+				if(ImGui::Button("Read Diagnostics Message")) getDiagnosticsMessage();
+				/*
 				if(ImGui::Button("Download Serial")){
 					
 					struct SercosString{
@@ -76,6 +83,7 @@ void AX5206::deviceSpecificGui() {
 					
 					Logger::warn("Feedback scan {} {}", ret0, ret1);
 				}
+				 */
 				
 				
 				ImGui::PushID("Axis0");

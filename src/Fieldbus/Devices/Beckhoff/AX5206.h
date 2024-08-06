@@ -80,4 +80,15 @@ public:
 	DriveControl ax0_driveControl;
 	DriveControl ax1_driveControl;
 	
+	bool AM8051_1G20_0000_startupList(uint8_t axis);
+	bool AM8052_1J20_0000_startupList(uint8_t axis);
+	
+	void getInvalidIDNsForSafeOp();
+	void getInvalidIDNsForOp();
+	void getShutdownErrorList();
+	void getErrorHistory();
+	void clearErrorHistory();
+	void getDiagnosticsMessage();
+	
+	std::string getErrorString(uint32_t errorCode);
 };

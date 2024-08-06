@@ -52,26 +52,34 @@ bool AX5206::startupConfiguration() {
 	axis1_atList.IDNs[3] = 189;	//(4) Following Distance
 	//34 bytes total for AT
 	
+	//========== STARTUP LIST ==========
 	
+	writeSercos_U16('S', 15, 7); //Telegram Type
 	
 	//upload process data configuration
-	writeSercos_Array(24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
-	writeSercos_Array(24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
-	writeSercos_Array(16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
-	writeSercos_Array(16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
-	
-	writeSercos_U16(34768, 1); //Configured Safety Option (1 == AX5801 Card) [MANDATORY]
+	writeSercos_Array('S', 16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
+	writeSercos_Array('S', 24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
+	writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
+	writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
 	
 	//setup cycle times
 	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
+	writeSercos_U16('S', 1, cycleTime_micros); //Control unit cycle time (TNcyc) [MANDATORY]
+	writeSercos_U16('S', 2, cycleTime_micros); //Communication cycle time (tScyc) [MANDATORY]
+	
+	writeSercos_U16('S', 32, 11); //Operation mode
+	
+	AM8051_1G20_0000_startupList(0);
+	AM8052_1J20_0000_startupList(1);
+	
 	uint32_t cycleTime_nanos = cycleTime_micros * 1000;
 	uint32_t driveInterruptTime_nanos = 250'000;
-	writeSercos_U16(1, cycleTime_micros); //Control unit cycle time (TNcyc) [MANDATORY]
-	writeSercos_U16(2, cycleTime_micros); //Communication cycle time (tScyc) [MANDATORY]
 	ec_dcsync01(getSlaveIndex(), true, driveInterruptTime_nanos, cycleTime_nanos - driveInterruptTime_nanos, 0); //[MANDATORY]
 	
+	writeSercos_U16('P', 2000, 1); //Configured Safety Option (1 == AX5801 Card) [MANDATORY]
+	
+	
 	//TODO: figure out shitftime in dc function
-	//TODO: how to change operating mode during operation
 	
 	return true;
 }
@@ -100,24 +108,421 @@ bool AX5206::loadDeviceData(tinyxml2::XMLElement* xml) {
 	return true;
 }
 
+bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
+	bool ret = writeSercos_U64('P', 10, 0x1ff, axis);
+	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
+	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
+	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
+	bool ret3 = writeSercos_U16('P', 202, 100, axis); //mains voltage positive tolerance range [10.0V]
+	bool ret4 = writeSercos_U16('P', 203, 100, axis); //mains voltage negative tolerance range [10.0V]
+	bool ret5 = writeSercos_U16('P', 204, 9, axis); //Power management control word [internal brake resistor, others] [0x9] corrected for [REV 203]
+	uint8_t P0053[16] = {
+		0x0c, 0x00, 0x22, 0x00, 0x41, 0x4d, 0x38, 0x30,
+		0x35, 0x31, 0x2d, 0x78, 0x47, 0x78, 0x30, 00};
+	bool ret6 = writeSercos_Array('P', 53, P0053, 16, axis); //configured motor type [Motor Name String]
+	bool ret7 = writeSercos_U16('P', 50, 0, axis); //motor contruction type [synchronous, rotary]
+	uint8_t P0062[12] = {
+		0x08, 0x00, 0x08, 0x00, 0x44, 0x07, 0x50, 0x00,
+		0x64, 0x00, 0x01, 0x00};
+	bool ret8 = writeSercos_Array('P', 62, P0062, 12, axis); //Thermal Motor Model [...] Corrected for [REV 203]
+	bool ret9 = writeSercos_U16('P', 51, 4, axis); //Number of pole pairs [4]
+	bool ret10 = writeSercos_U32('S', 111, 4750, axis); //Motor continuous stall current [4.750A]
+	bool ret11 = writeSercos_U32('S', 196, 4200, axis); //Motor rated current [4.200A]
+	bool ret12 = writeSercos_U32('S', 109, 20900, axis); //Motor peak current [20.900A]
+	bool ret13 = writeSercos_U16('P', 77, 4000, axis); //Motor rated voltage [400.0V]
+	bool ret14 = writeSercos_U16('P', 67, 8900, axis); //Motor winding : Dielectric strength [890.0V]
+	uint8_t P0089[40] = {
+		0x24, 0x00, 0x24, 0x00, 0x26, 0x83, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	bool ret15 = writeSercos_Array('P', 89, P0089, 40, axis); //Motor data constraints [...]
+	bool ret16 = writeSercos_U32('P', 73, 1780, axis); //Motor peak torque [17.8Nm]
+	uint8_t P0055[84] = {
+		0x50, 0x00, 0x50, 0x00, 0x2a, 0x08, 0x00, 0x00,
+		0x54, 0x10, 0x00, 0x00, 0x7e, 0x18, 0x00, 0x00,
+		0xa8, 0x20, 0x00, 0x00, 0x04, 0x29, 0x00, 0x00,
+		0xd4, 0x30, 0x00, 0x00, 0x08, 0x39, 0x00, 0x00,
+		0x3c, 0x41, 0x00, 0x00, 0x70, 0x49, 0x00, 0x00,
+		0xa4, 0x51, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00,
+		0xf4, 0x01, 0x00, 0x00, 0xd3, 0x02, 0x00, 0x00,
+		0x9f, 0x03, 0x00, 0x00, 0x56, 0x04, 0x00, 0x00,
+		0x00, 0x05, 0x00, 0x00, 0x96, 0x05, 0x00, 0x00,
+		0x22, 0x06, 0x00, 0x00, 0x90, 0x06, 0x00, 0x00,
+		0xf4, 0x06, 0x00, 0x00};
+	bool ret17 = writeSercos_Array('P', 74, P0055, 84, axis); //Motor torque/force characteristic
+	bool ret18 = writeSercos_U16('P', 55, 730, axis); //Motor EMF [73.0 mV/rpm]
+	uint8_t P0066[12] = {
+		0x08, 0x00, 0x08, 0x00, 0x68, 0x01, 0x00, 0x00,
+		0xa0, 0x05, 0x00, 0x00};
+	bool ret19 = writeSercos_Array('P', 66, P0066, 12, axis); //Electric motor model [...]
+	uint8_t P0075[84] = {
+		0x50, 0x00, 0x50, 0x00, 0x2a, 0x08, 0x00, 0x00,
+		0x54, 0x10, 0x00, 0x00, 0x7e, 0x18, 0x00, 0x00,
+		0xa8, 0x20, 0x00, 0x00, 0x04, 0x29, 0x00, 0x00,
+		0xd4, 0x30, 0x00, 0x00, 0x08, 0x39, 0x00, 0x00,
+		0x3c, 0x41, 0x00, 0x00, 0x70, 0x49, 0x00, 0x00,
+		0xa4, 0x51, 0x00, 0x00, 0x82, 0x05, 0x00, 0x00,
+		0x50, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00,
+		0xba, 0x04, 0x00, 0x00, 0x60, 0x04, 0x00, 0x00,
+		0xd1, 0x03, 0x00, 0x00, 0x22, 0x03, 0x00, 0x00,
+		0x95, 0x02, 0x00, 0x00, 0x07, 0x02, 0x00, 0x00,
+		0x7a, 0x01, 0x00, 0x00};
+	bool ret20 = writeSercos_Array('P', 75, P0075, 84, axis); //Motor inductance characteristic [...]
+	bool ret21 = writeSercos_U32('S', 113, 9000, axis); //Maximum motor speed [9000rpm]
+	bool ret22 = writeSercos_U32('S', 91, 153008209, axis); //Bipolar velocity limit value [wtf is this unit]
+	uint8_t P0071[12] = {
+		0x08, 0x00, 0x08, 0x00, 0xe0, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00};
+	bool ret23 = writeSercos_Array('P', 71, P0071, 12, axis); //Mechanical motor data [...]
+	bool ret24 = writeSercos_U16('S', 201, 1200, axis); //Motor warning temperature [120.0°C]
+	bool ret25 = writeSercos_U16('S', 204, 1400, axis); //Motor shut down temperature [140.0°C]
+	uint8_t P0076[44] = {
+		0x28, 0x00, 0x28, 0x00, 0x70, 0xfe, 0x65, 0xff,
+		0x5a, 0x00, 0x4f, 0x01, 0x44, 0x02, 0x39, 0x03,
+		0x2e, 0x04, 0x28, 0x05, 0x18, 0x06, 0x12, 0x07,
+		0x67, 0x01, 0xb8, 0x01, 0x16, 0x02, 0x82, 0x02,
+		0xfa, 0x02, 0x80, 0x03, 0x13, 0x04, 0xb4, 0x04,
+		0x61, 0x05, 0x18, 0x06};
+	bool ret26 = writeSercos_Array('P', 76, P0076, 44, axis); //Motor temperature sensor characteristic [...]
+	bool ret27 = writeSercos_U16('P', 451, 0, axis); //Current controller settings 2 [various...]
+	bool ret28 = writeSercos_U16('P', 57, 27000, axis); //Electrical commutation offset [270.00°]
+	bool ret29 = writeSercos_U16('P', 61, 7, axis); //Motor temperature sensor type [via feedback process data, characteristic table]
+	bool ret30 = writeSercos_U16('P', 2, 62, axis); //Current ctrl cycle time [62.5µs]
+	uint8_t P0054[20] = {
+		0x10, 0x00, 0x22, 0x00, 0x41, 0x58, 0x35, 0x31,
+		0x30, 0x36, 0x2d, 0x30, 0x30, 0x30, 0x30, 0x2d,
+		0x23, 0x23, 0x23, 0x23};
+	bool ret31 = writeSercos_Array('P', 54, P0054, 20, axis); //configured drive type [...]
+	bool ret32 = writeSercos_U32('P', 93, 4750, axis); //configured channel current [4.750A]
+	bool ret33 = writeSercos_U32('P', 92, 9500, axis); //configured channel peak current [9.500A]
+	bool ret34 = writeSercos_U16('P', 70, 489, axis); //motor continuous stall torque [4.89Nm] [u16/u32]
+	bool ret35 = writeSercos_U16('S', 106, 432, axis); //Current loop proportional gain 1 [43.2V/A]
+	bool ret36 = writeSercos_U16('S', 107, 8, axis); //Current control loop integral action time 1 [0.8ms]
+	uint8_t P0150[228] = {
+		0xe0, 0x00, 0xe0, 0x00, 0x03, 0x00, 0x00, 0x00,
+		0x53, 0x69, 0x63, 0x6b, 0x23, 0x45, 0x4b, 0x4d,
+		0x33, 0x36, 0x2d, 0x30, 0x4b, 0x46, 0x30, 0x41,
+		0x30, 0x53, 0x31, 0x36, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x0e, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x0e, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x96, 0x00, 0x96, 0x00, 0x69, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00};
+	bool ret37 = writeSercos_Array('P', 150, P0150, 228, axis); //Feedback 1 type [...]
+	uint8_t P0514[16] = {
+		0x0c, 0x00, 0x0c, 0x00, 0x01, 0x00, 0x00, 0x00,
+		0xf4, 0x01, 0xe8, 0x03, 0xbc, 0x02, 0x00, 0x00};
+	bool ret38 = writeSercos_Array('P', 514, P0514, 16, axis); //Velocity Observer [...]
+	bool ret39 = writeSercos_U16('P', 511, 150, axis); //Velocity filter 1: Low pass time constant [0.150ms]
+	bool ret40 = writeSercos_U32('S', 100, 105, axis); //Velocity loop proportional gain [0.105 N/(m/s)]
+	bool ret41 = writeSercos_U16('S', 101, 80, axis); //Velocity loop intergral action time [8.0ms]
+		
+	return true;
+	
+}
 
-/*
-writeSercos_U16(32, 11, 0);	//Primary Operation Mode [axis0]
-writeSercos_U16(32, 11, 1);	//Primary Operation Mode [axis1]
+bool AX5206::AM8052_1J20_0000_startupList(uint8_t axis){
+	
+	bool ret = writeSercos_U64('P', 10, 0x1ff, axis);
+	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
+	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
+	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
+	bool ret3 = writeSercos_U16('P', 202, 100, axis); //mains voltage positive tolerance range [10.0V]
+	bool ret4 = writeSercos_U16('P', 203, 100, axis); //mains voltage negative tolerance range [10.0V]
+	bool ret5 = writeSercos_U16('P', 204, 9, axis); //Power management control word [internal brake resistor, others] [0x9] corrected for [REV 203]
+	uint8_t P0053[16] = {
+		0x0c, 0x00, 0x22, 0x00, 0x41, 0x4d, 0x38, 0x30,
+		0x35, 0x32, 0x2d, 0x78, 0x4a, 0x78, 0x30, 0x00};
+	bool ret6 = writeSercos_Array('P', 53, P0053, 16, axis); //configured motor type [Motor Name String]
+	bool ret7 = writeSercos_U16('P', 50, 0, axis); //motor contruction type [synchronous, rotary]
+	uint8_t P0062[12] = {
+		0x08, 0x00, 0x08, 0x00, 0xe8, 0x08, 0x50, 0x00,
+		0x64, 0x00, 0x01, 0x00};
+	bool ret8 = writeSercos_Array('P', 62, P0062, 12, axis); //Thermal Motor Model [...] Corrected for [REV 203]
+	bool ret9 = writeSercos_U16('P', 51, 4, axis); //Number of pole pairs [4]
+	bool ret10 = writeSercos_U32('S', 111, 6300, axis); //Motor continuous stall current [6.3000A]
+	bool ret11 = writeSercos_U32('S', 196, 5200, axis); //Motor rated current [5.200A]
+	bool ret12 = writeSercos_U32('S', 109, 33600, axis); //Motor peak current [33.600A]
+	bool ret13 = writeSercos_U16('P', 77, 4000, axis); //Motor rated voltage [400.0V]
+	bool ret14 = writeSercos_U16('P', 67, 8900, axis); //Motor winding : Dielectric strength [890.0V]
+	uint8_t P0089[40] = {
+		0x24, 0x00, 0x24, 0x00, 0x26, 0x83, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	bool ret15 = writeSercos_Array('P', 89, P0089, 40, axis); //Motor data constraints [...]
+	bool ret16 = writeSercos_U32('P', 73, 3530, axis); //Motor peak torque [35.3Nm]
+	uint8_t P0055[84] = {
+		0x50, 0x00, 0x50, 0x00, 0x20, 0x0d, 0x00, 0x00,
+		0x40, 0x1a, 0x00, 0x00, 0x74, 0x27, 0x00, 0x00,
+		0x58, 0x34, 0x00, 0x00, 0xa0, 0x41, 0x00, 0x00,
+		0xe8, 0x4e, 0x00, 0x00, 0xcc, 0x5b, 0x00, 0x00,
+		0x14, 0x69, 0x00, 0x00, 0xf8, 0x75, 0x00, 0x00,
+		0x40, 0x83, 0x00, 0x00, 0x03, 0x02, 0x00, 0x00,
+		0xe3, 0x03, 0x00, 0x00, 0xa0, 0x05, 0x00, 0x00,
+		0x3a, 0x07, 0x00, 0x00, 0xac, 0x08, 0x00, 0x00,
+		0xf6, 0x09, 0x00, 0x00, 0x22, 0x0b, 0x00, 0x00,
+		0x30, 0x0c, 0x00, 0x00, 0x0c, 0x0d, 0x00, 0x00,
+		0xca, 0x0d, 0x00, 0x00};
+	bool ret17 = writeSercos_Array('P', 74, P0055, 84, axis); //Motor torque/force characteristic
+	bool ret18 = writeSercos_U16('P', 55, 890, axis); //Motor EMF [89.0 mV/rpm]
+	uint8_t P0066[12] = {
+		0x08, 0x00, 0x08, 0x00, 0xe6, 0x00, 0x00, 0x00,
+		0x1a, 0x04, 0x00, 0x00};
+	bool ret19 = writeSercos_Array('P', 66, P0066, 12, axis); //Electric motor model [...]
+	uint8_t P0075[84] = {
+		0x50, 0x00, 0x50, 0x00, 0x20, 0x0d, 0x00, 0x00,
+		0x40, 0x1a, 0x00, 0x00, 0x74, 0x27, 0x00, 0x00,
+		0x58, 0x34, 0x00, 0x00, 0xa0, 0x41, 0x00, 0x00,
+		0xe8, 0x4e, 0x00, 0x00, 0xcc, 0x5b, 0x00, 0x00,
+		0x14, 0x69, 0x00, 0x00, 0xf8, 0x75, 0x00, 0x00,
+		0x40, 0x83, 0x00, 0x00, 0x06, 0x04, 0x00, 0x00,
+		0xdf, 0x03, 0x00, 0x00, 0xa6, 0x03, 0x00, 0x00,
+		0x6f, 0x03, 0x00, 0x00, 0x2f, 0x03, 0x00, 0x00,
+		0xc8, 0x02, 0x00, 0x00, 0x49, 0x02, 0x00, 0x00,
+		0xe2, 0x01, 0x00, 0x00, 0x7a, 0x01, 0x00, 0x00,
+		0x13, 0x01, 0x00, 0x00};
+	bool ret20 = writeSercos_Array('P', 75, P0075, 84, axis); //Motor inductance characteristic [...]
+	bool ret21 = writeSercos_U32('S', 113, 9000, axis); //Maximum motor speed [9000rpm]
+	bool ret22 = writeSercos_U32('S', 91, 153008209, axis); //Bipolar velocity limit value [wtf is this unit]
+	uint8_t P0071[12] = {
+		0x08, 0x00, 0x08, 0x00, 0x98, 0x01, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00};
+	bool ret23 = writeSercos_Array('P', 71, P0071, 12, axis); //Mechanical motor data [...]
+	bool ret24 = writeSercos_U16('S', 201, 1200, axis); //Motor warning temperature [120.0°C]
+	bool ret25 = writeSercos_U16('S', 204, 1400, axis); //Motor shut down temperature [140.0°C]
+	uint8_t P0076[44] = {
+		0x28, 0x00, 0x28, 0x00, 0x70, 0xfe, 0x65, 0xff,
+		0x5a, 0x00, 0x4f, 0x01, 0x44, 0x02, 0x39, 0x03,
+		0x2e, 0x04, 0x28, 0x05, 0x18, 0x06, 0x12, 0x07,
+		0x67, 0x01, 0xb8, 0x01, 0x16, 0x02, 0x82, 0x02,
+		0xfa, 0x02, 0x80, 0x03, 0x13, 0x04, 0xb4, 0x04,
+		0x61, 0x05, 0x18, 0x06};
+	bool ret26 = writeSercos_Array('P', 76, P0076, 44, axis); //Motor temperature sensor characteristic [...]
+	bool ret27 = writeSercos_U16('P', 451, 1, axis); //Current controller settings [various...]
+	bool ret28 = writeSercos_U16('P', 57, 27000, axis); //Electrical commutation offset [270.00°]
+	bool ret29 = writeSercos_U16('P', 61, 7, axis); //Motor temperature sensor type [via feedback process data, characteristic table]
+	bool ret30 = writeSercos_U16('P', 2, 62, axis); //Current ctrl cycle time [62.5µs]
+	uint8_t P0054[20] = {
+		0x10, 0x00, 0x22, 0x00, 0x41, 0x58, 0x35, 0x32,
+		0x30, 0x36, 0x2d, 0x30, 0x30, 0x30, 0x30, 0x2d,
+		0x23, 0x23, 0x23, 0x23
+		//0x10, 0x00, 0x22, 0x00, 0x41, 0x58, 0x35, 0x31,
+		//0x30, 0x36, 0x2d, 0x30, 0x30, 0x30, 0x30, 0x2d,
+		//0x23, 0x23, 0x23, 0x23
+	};
+	bool ret31 = writeSercos_Array('P', 54, P0054, 20, axis); //configured drive type [...]
+	bool ret32 = writeSercos_U32('P', 93, 6000, axis); //configured channel current [6.000A]
+	bool ret33 = writeSercos_U32('P', 92, 12600, axis); //configured channel peak current [12.000A]
+	bool ret34 = writeSercos_U16('P', 70, 819, axis); //motor continuous stall torque [8.19Nm] [u16/u32]
+	bool ret35 = writeSercos_U16('S', 106, 315, axis); //Current loop proportional gain 1 [31.5V/A]
+	bool ret36 = writeSercos_U16('S', 107, 8, axis); //Current control loop integral action time 1 [0.8ms]
+	uint8_t P0150[228] = {
+		0xe0, 0x00, 0xe0, 0x00, 0x03, 0x00, 0x00, 0x00,
+		0x53, 0x69, 0x63, 0x6b, 0x23, 0x45, 0x4b, 0x4d,
+		0x33, 0x36, 0x2d, 0x30, 0x4b, 0x46, 0x30, 0x41,
+		0x30, 0x53, 0x31, 0x36, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x18, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x18, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x0c, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x96, 0x00, 0x96, 0x00, 0x69, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00};
+	bool ret37 = writeSercos_Array('P', 150, P0150, 228, axis); //Feedback 1 type [...]
+	uint8_t P0514[16] = {
+		0x0c, 0x00, 0x0c, 0x00, 0x01, 0x00, 0x00, 0x00,
+		0xf4, 0x01, 0xe8, 0x03, 0xbc, 0x02, 0x00, 0x00};
+	bool ret38 = writeSercos_Array('P', 514, P0514, 16, axis); //Velocity Observer [...]
+	bool ret39 = writeSercos_U16('P', 511, 150, axis); //Velocity filter 1: Low pass time constant [0.150ms]
+	bool ret40 = writeSercos_U32('S', 100, 208, axis); //Velocity loop proportional gain [0.191 N/(m/s)]
+	bool ret41 = writeSercos_U16('S', 101, 80, axis); //Velocity loop intergral action time [8.0ms]
+		
+	return true;
+	
+}
 
-writeSercos_U16(15, 7, 0); //Telegram Type, [axis0]
-writeSercos_U16(15, 7, 1); //Telegram Type [axis1]
 
-writeSercos_U64(32778, 0, 0); //P-0010
-writeSercos_U16(33072, 1, 0); //P-0304
-writeSercos_U64(32778, 0, 1); //P-0010
-writeSercos_U16(33072, 1, 1); //P-0304
+void AX5206::getInvalidIDNsForSafeOp(){
+	struct IDN_List{
+		uint16_t actualLength = 0; //number of bytes in the idns array
+		uint16_t maxLength = 0;
+		uint16_t idns[10000] = {0};
+	}invalidIDNs;
+	int size = 100;
+	
+	if(!readSercos_Array('S', 21, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
+	
+	int invalidIDNcount = invalidIDNs.actualLength / 2;
+	Logger::info("Invalid IDNs for PreOp->SafeOp Transition ({})", invalidIDNcount);
+	for(int i = 0; i < invalidIDNcount; i++){
+		uint16_t idn = invalidIDNs.idns[i];
+		if(idn > 32768) Logger::info("    P-0-{}", idn - 32768);
+		else Logger::info("    S-0-{}", idn);
+	}
+}
 
-writeSercos_U16(33072, 1, 0); //P-0-304 Report diagnostics information [axis0]
-writeSercos_U16(33072, 1, 1); //P-0-304 Report diagnostics information [axis1]
-writeSercos_U16(32969, 4000); //P-0-201 Nominal Mains Voltage
-writeSercos_U16(33324, 0, 0); //position interpolation type
-writeSercos_U16(33324, 0, 1); //position interpolation type
-writeSercos_U16(0104, 100, 0); //position loop Kv
-writeSercos_U16(0104, 100, 1); //position loop Kv
-*/
+void AX5206::getInvalidIDNsForOp(){
+	struct IDN_List{
+		uint16_t actualLength = 0; //number of bytes in the idns array
+		uint16_t maxLength = 0;
+		uint16_t idns[10000] = {0};
+	}invalidIDNs;
+	int size = 100;
+	
+	if(!readSercos_Array('S', 22, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
+	
+	int invalidIDNcount = invalidIDNs.actualLength / 2;
+	Logger::info("Invalid IDNs for SafeOp->Op Transition ({})", invalidIDNcount);
+	for(int i = 0; i < invalidIDNcount; i++){
+		uint16_t idn = invalidIDNs.idns[i];
+		if(idn > 32768) Logger::info("    P-0-{}", idn - 32768);
+		else Logger::info("    S-0-{}", idn);
+	}
+}
+
+
+void AX5206::getShutdownErrorList(){
+	uint16_t err0, err1;
+	bool ret0 = readSercos_U16('S', 11, err0);
+	bool ret1 = readSercos_U16('S', 11, err1);
+	
+	auto logErrors = [](uint16_t err){
+		if(err & 0x1) Logger::warn("    -Motor overload shut down");
+		if(err & 0x2) Logger::warn("    -Heatsink overtemperature shutdown");
+		if(err & 0x4) Logger::warn("    -Motor overtemperature shut down");
+		if(err & 0x8) Logger::warn("    -Drive overtemperature shut down");
+		if(err & 0x10) Logger::warn("    -Control voltage error");
+		if(err & 0x20) Logger::warn("    -Feedback error");
+		if(err & 0x40) Logger::warn("    -Commutation error");
+		if(err & 0x80) Logger::warn("    -Overcurrent error");
+		if(err & 0x100) Logger::warn("    -Overvoltage error");
+		if(err & 0x200) Logger::warn("    -Undervoltage error");
+		if(err & 0x400) Logger::warn("    -Power supply phase error");
+		if(err & 0x800) Logger::warn("    -Excessive position deivation");
+		if(err & 0x1000) Logger::warn("    -communication error");
+		if(err & 0x2000) Logger::warn("    -Overtravel limit exceeded");
+		if(err & 0x4000) Logger::warn("    -Unknown error");
+		if(err & 0x8000) Logger::warn("    -Manufacturer specific error");
+		if(err == 0x0) Logger::info("    No Errors.");
+	};
+	
+	Logger::warn("Axis 0 Errors: ");
+	logErrors(err0);
+	Logger::warn("Axis 1 Errors: ");
+	logErrors(err1);
+}
+
+void AX5206::getErrorHistory(){
+	struct ErrorList{
+		uint16_t actualSize;
+		uint16_t maxSize;
+		uint32_t errors[100];
+	}errorList;
+	int errorListSize;
+	struct ErrorTimeList{
+		uint16_t actualSize;
+		uint16_t maxSize;
+		uint32_t errorTimes[100];
+	}errorTimeList;
+	int errorTimeListSize;
+	
+	auto secondsToTimeString = [](int total_seconds) -> std::string {
+		int hours = total_seconds / 3600;
+		int minutes = (total_seconds % 3600) / 60;
+		int seconds = total_seconds % 60;
+		char buffer[128];
+		snprintf(buffer, 128, "%02d:%02d:%02d", hours, minutes, seconds);
+		return std::string(buffer);
+	};
+	
+	auto showErrorHistory = [&](uint8_t axis){
+		bool ret1 = readSercos_Array('P', 300, (uint8_t*)&errorList, errorListSize, axis);
+		bool ret2 = readSercos_Array('P', 301, (uint8_t*)&errorTimeList, errorTimeListSize, axis);
+		if(ret1 && ret2){
+			int errorCount = errorList.actualSize / 4;
+			Logger::warn("Error History Axis [{}]", axis);
+			for(int i = 0; i < errorCount; i++){
+				uint32_t errorCode = errorList.errors[i];
+				std::string errorString = getErrorString(errorCode);
+				std::string timeString = secondsToTimeString(errorTimeList.errorTimes[i]);
+				
+				
+				
+				Logger::warn("    {:X} : {} ({})", errorCode, errorString, timeString);
+			}
+		}
+	};
+	
+	showErrorHistory(0);
+	showErrorHistory(1);
+}
+
+void AX5206::clearErrorHistory(){
+	bool ret = writeSercos_U16('P', 905, 3);
+}
+
+void AX5206::getDiagnosticsMessage(){
+	std::string ax0diag;
+	std::string ax1diag;
+	bool ret0 = readSercos_String('S', 95, ax0diag, 0);
+	bool ret1 = readSercos_String('S', 95, ax0diag, 1);
+	Logger::warn("Axis0: {}", ax0diag);
+	Logger::warn("Axis1: {}", ax1diag);
+}
+
+
+std::string AX5206::getErrorString(uint32_t errorCode){
+	switch(errorCode){
+		case 0xF152: return "Initialization of the feedback: Command failed";
+		case 0xF4A5: return "SoE Communication: Parameter error (invalid data for transition to safeop)";
+		case 0xF720: return "Feedback \"general\": Initialization failed";
+		case 0xF850: return "One cable feedback: Link missing";
+		case 0xF851: return "One cable feedback: Initialization failed";
+		case 0xFC03: return "Control voltage error: undervoltage";
+		case 0xFD08: return "Motor management: Drive type don't match";
+		case 0xFD47: return "Power management error";
+		default: return "";
+	};
+}

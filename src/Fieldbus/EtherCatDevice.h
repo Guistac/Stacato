@@ -178,18 +178,18 @@ public:
     bool writeSDO_S64(uint16_t index, uint8_t subindex, const int64_t& data, std::string variableName = "");
     bool writeSDO_String(uint16_t index, uint8_t subindex, const char* data, std::string variableName = "");
 	
-	bool readSercos_ParameterName(uint16_t IDN, std::string& parameterName, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool readSercos_U8(uint16_t IDN, uint8_t& data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool readSercos_U16(uint16_t IDN, uint16_t& data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool readSercos_U32(uint16_t IDN, uint32_t& data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool readSercos_String(uint16_t IDN, std::string& data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool readSercos_Array(uint16_t IDN, uint8_t* data, int& size, uint8_t driveNumber = 0, bool Pvalue = false);
+	bool readSercos_ParameterName(char paramType, uint16_t IDN, std::string& parameterName, uint8_t driveNumber = 0);
+	bool readSercos_U8(char paramType, uint16_t IDN, uint8_t& data, uint8_t driveNumber = 0);
+	bool readSercos_U16(char paramType, uint16_t IDN, uint16_t& data, uint8_t driveNumber = 0);
+	bool readSercos_U32(char paramType, uint16_t IDN, uint32_t& data, uint8_t driveNumber = 0);
+	bool readSercos_String(char paramType, uint16_t IDN, std::string& data, uint8_t driveNumber = 0);
+	bool readSercos_Array(char paramType, uint16_t IDN, uint8_t* data, int& size, uint8_t driveNumber = 0);
 	
-	bool writeSercos_U8(uint16_t IDN, uint8_t data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool writeSercos_U16(uint16_t IDN, uint16_t data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool writeSercos_U32(uint16_t IDN, uint32_t data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool writeSercos_U64(uint16_t IDN, uint64_t data, uint8_t driveNumber = 0, bool Pvalue = false);
-	bool writeSercos_Array(uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber = 0, bool Pvalue = false);
+	bool writeSercos_U8(char paramType, uint16_t IDN, uint8_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U16(char paramType, uint16_t IDN, uint16_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U32(char paramType, uint16_t IDN, uint32_t data, uint8_t driveNumber = 0);
+	bool writeSercos_U64(char paramType, uint16_t IDN, uint64_t data, uint8_t driveNumber = 0);
+	bool writeSercos_Array(char paramType, uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber = 0);
 	
     //===== Reading And Writing Data
 
