@@ -67,16 +67,17 @@ bool AX5206::startupConfiguration() {
 	writeSercos_U16('S', 1, cycleTime_micros); //Control unit cycle time (TNcyc) [MANDATORY]
 	writeSercos_U16('S', 2, cycleTime_micros); //Communication cycle time (tScyc) [MANDATORY]
 	
-	writeSercos_U16('S', 32, 11); //Operation mode
-	
 	AM8051_1G20_0000_startupList(0);
 	AM8052_1J20_0000_startupList(1);
+	
+	writeSercos_U16('S', 32, 11, 0); //Operation mode
+	writeSercos_U16('S', 32, 11, 1); //Operation mode
+	
+	writeSercos_U16('P', 2000, 1); //Configured Safety Option (1 == AX5801 Card) [MANDATORY]
 	
 	uint32_t cycleTime_nanos = cycleTime_micros * 1000;
 	uint32_t driveInterruptTime_nanos = 250'000;
 	ec_dcsync01(getSlaveIndex(), true, driveInterruptTime_nanos, cycleTime_nanos - driveInterruptTime_nanos, 0); //[MANDATORY]
-	
-	writeSercos_U16('P', 2000, 1); //Configured Safety Option (1 == AX5801 Card) [MANDATORY]
 	
 	
 	//TODO: figure out shitftime in dc function
@@ -109,7 +110,7 @@ bool AX5206::loadDeviceData(tinyxml2::XMLElement* xml) {
 }
 
 bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
-	bool ret = writeSercos_U64('P', 10, 0x1ff, axis);
+	bool ret = writeSercos_U64('P', 10, 0x1fff, axis);
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
@@ -118,7 +119,7 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 	bool ret5 = writeSercos_U16('P', 204, 9, axis); //Power management control word [internal brake resistor, others] [0x9] corrected for [REV 203]
 	uint8_t P0053[16] = {
 		0x0c, 0x00, 0x22, 0x00, 0x41, 0x4d, 0x38, 0x30,
-		0x35, 0x31, 0x2d, 0x78, 0x47, 0x78, 0x30, 00};
+		0x35, 0x31, 0x2d, 0x78, 0x47, 0x78, 0x30, 0x00};
 	bool ret6 = writeSercos_Array('P', 53, P0053, 16, axis); //configured motor type [Motor Name String]
 	bool ret7 = writeSercos_U16('P', 50, 0, axis); //motor contruction type [synchronous, rotary]
 	uint8_t P0062[12] = {
@@ -186,12 +187,12 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 		0xfa, 0x02, 0x80, 0x03, 0x13, 0x04, 0xb4, 0x04,
 		0x61, 0x05, 0x18, 0x06};
 	bool ret26 = writeSercos_Array('P', 76, P0076, 44, axis); //Motor temperature sensor characteristic [...]
-	bool ret27 = writeSercos_U16('P', 451, 0, axis); //Current controller settings 2 [various...]
+	bool ret27 = writeSercos_U16('P', 451, 1, axis); //Current controller settings 2 [various...]
 	bool ret28 = writeSercos_U16('P', 57, 27000, axis); //Electrical commutation offset [270.00°]
 	bool ret29 = writeSercos_U16('P', 61, 7, axis); //Motor temperature sensor type [via feedback process data, characteristic table]
 	bool ret30 = writeSercos_U16('P', 2, 62, axis); //Current ctrl cycle time [62.5µs]
 	uint8_t P0054[20] = {
-		0x10, 0x00, 0x22, 0x00, 0x41, 0x58, 0x35, 0x31,
+		0x10, 0x00, 0x22, 0x00, 0x41, 0x58, 0x35, 0x32,
 		0x30, 0x36, 0x2d, 0x30, 0x30, 0x30, 0x30, 0x2d,
 		0x23, 0x23, 0x23, 0x23};
 	bool ret31 = writeSercos_Array('P', 54, P0054, 20, axis); //configured drive type [...]
@@ -236,7 +237,7 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 		0xf4, 0x01, 0xe8, 0x03, 0xbc, 0x02, 0x00, 0x00};
 	bool ret38 = writeSercos_Array('P', 514, P0514, 16, axis); //Velocity Observer [...]
 	bool ret39 = writeSercos_U16('P', 511, 150, axis); //Velocity filter 1: Low pass time constant [0.150ms]
-	bool ret40 = writeSercos_U32('S', 100, 105, axis); //Velocity loop proportional gain [0.105 N/(m/s)]
+	bool ret40 = writeSercos_U32('S', 100, 144, axis); //Velocity loop proportional gain [0.144 N/(m/s)]
 	bool ret41 = writeSercos_U16('S', 101, 80, axis); //Velocity loop intergral action time [8.0ms]
 		
 	return true;
@@ -245,7 +246,7 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 
 bool AX5206::AM8052_1J20_0000_startupList(uint8_t axis){
 	
-	bool ret = writeSercos_U64('P', 10, 0x1ff, axis);
+	bool ret = writeSercos_U64('P', 10, 0x1fff, axis);
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
@@ -487,10 +488,8 @@ void AX5206::getErrorHistory(){
 				uint32_t errorCode = errorList.errors[i];
 				std::string errorString = getErrorString(errorCode);
 				std::string timeString = secondsToTimeString(errorTimeList.errorTimes[i]);
-				
-				
-				
-				Logger::warn("    {:X} : {} ({})", errorCode, errorString, timeString);
+				if(errorString == "") Logger::error("    {:X} ({})", errorCode, errorString, timeString);
+				else Logger::warn("    {:X} : {} ({})", errorCode, errorString, timeString);
 			}
 		}
 	};
@@ -515,13 +514,16 @@ void AX5206::getDiagnosticsMessage(){
 
 std::string AX5206::getErrorString(uint32_t errorCode){
 	switch(errorCode){
+		case 0xF101: return "Axis state machine: Initialize error (selected uninitialized operating mode)";
 		case 0xF152: return "Initialization of the feedback: Command failed";
+		case 0xF415: return "Distributed clocks: Process data synchronization lost";
 		case 0xF4A5: return "SoE Communication: Parameter error (invalid data for transition to safeop)";
 		case 0xF720: return "Feedback \"general\": Initialization failed";
 		case 0xF850: return "One cable feedback: Link missing";
 		case 0xF851: return "One cable feedback: Initialization failed";
 		case 0xFC03: return "Control voltage error: undervoltage";
 		case 0xFD08: return "Motor management: Drive type don't match";
+		case 0xFD11: return "Periphery voltage too low";
 		case 0xFD47: return "Power management error";
 		default: return "";
 	};
