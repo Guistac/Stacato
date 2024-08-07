@@ -6,147 +6,53 @@ void AX5206::deviceSpecificGui() {
 			if(ImGui::BeginTabItem("Drive")){
 				
 				if(ImGui::Button("Read Invalid IDNs for PreOp->SafeOp")) getInvalidIDNsForSafeOp();
-				if(ImGui::Button("Read Invalid IDNs for SafeOp->Op")) getInvalidIDNsForOp();
 				if(ImGui::Button("Read Shutdown Errors")) getShutdownErrorList();
 				if(ImGui::Button("Read Error History")) getErrorHistory();
-				if(ImGui::Button("Clear Error History")) clearErrorHistory();
 				if(ImGui::Button("Read Diagnostics Message")) getDiagnosticsMessage();
-				/*
-				if(ImGui::Button("Download Serial")){
-					
-					struct SercosString{
-						uint16_t length;
-						uint16_t maxLength;
-						char chars[1024];
-						std::string get(){ return std::string(chars, length); }
-					};
-					
-					int smanV = 1024;
-					SercosString manV;
-					int ssndc = 1024;
-					SercosString sndc;
-					
-					bool ret1 = readSercos_Array(30, (uint8_t*)&manV, smanV);
-					bool ret2 = readSercos_Array(432, (uint8_t*)&sndc, ssndc);
-					
-					auto manufacturerVersion = manV.get();
-					auto serialNumber = sndc.get();
-					
-					Logger::info("Manufacturer Version: {}", manufacturerVersion);
-					Logger::info("Serial Number Drive Control: {}", serialNumber);
-				}
 				
-				if(ImGui::Button("Test")){
-					
-					struct IDN_List{
-						uint16_t actualLength = 0; //number of bytes in the idns array
-						uint16_t maxLength = 0;
-						uint16_t idns[10000] = {0};
-					};
-					
-					IDN_List test;
-					int size = 20000;
-					bool ret = readSercos_Array(25, (uint8_t*)&test, size);
-					
-					for(int i = 0; i < test.actualLength; i++){
-						if(test.idns[i] == 0) continue;
-						if(test.idns[i] > 32768) Logger::error("P-0-{}", test.idns[i] - 32768);
-						else Logger::error("S-0-{}", test.idns[i]);
+				ImGui::Text("STO: %s", processData.b_stoActive ? "Safe" : "Clear");
+				ImGui::Text("DI0: %i   DI1: %i   DI2: %i   DI3: %i   DI4: %i   DI5: %i   DI6: %i",
+							processData.digitalInput0,
+							processData.digitalInput1,
+							processData.digitalInput2,
+							processData.digitalInput3,
+							processData.digitalInput4,
+							processData.digitalInput5,
+							processData.digitalInput6);
+				
+				double velMin = -90;
+				double velMax = 90.0;
+				
+				
+				auto axisControlGui = [&](std::shared_ptr<AX5206_Servo> servo, uint8_t axisNumber){
+					ImGui::PushID(axisNumber);
+					ImGui::PushFont(Fonts::sansBold20);
+					ImGui::Text("Axis %i", axisNumber);
+					ImGui::PopFont();
+					if(servo->isEnabled()) {
+						if(ImGui::Button("Disable")) servo->disable();
 					}
-					
-					Logger::warn("{}", test.actualLength);
-				}
+					else {
+						ImGui::BeginDisabled(!servo->isReady());
+						if(ImGui::Button("Enable")) servo->enable();
+						ImGui::EndDisabled();
+					}
+					ImGui::SameLine();
+					ImGui::Text("%s", servo->getStatusString().c_str());
+					if(ImGui::SliderFloat("Velocity", &servo->guiVelocitySliderValue, velMin, velMax)) servo->setVelocityTarget(servo->guiVelocitySliderValue);
+					if(ImGui::IsItemDeactivatedAfterEdit()) {
+						servo->setVelocityTarget(0.0);
+						servo->guiVelocitySliderValue = 0.0;
+					}
+					ImGui::Text("Velocity: %.3frev/s", servo->feedbackProcessData.velocityActual);
+					ImGui::Text("Position: %.3frev", servo->feedbackProcessData.positionActual);
+					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual);
+					//ImGui::Text("Error: %i", processData.ax0_driveStatus.shutdownError);
+					ImGui::PopID();
+				};
 				
-				if(ImGui::Button("Scan Feedback Axis 0")){
-					if(writeSercos_U16(163, 3, 0, true)){
-						Logger::info("Scanning feedback on axis 0");
-					}else Logger::warn("Failed to scan feedback");
-				}
-				if(ImGui::Button("Scan Feedback Axis 1")){
-					if(writeSercos_U16(163, 3, 1, true)){
-						Logger::info("Scanning feedback on axis 1");
-					}else Logger::warn("Failed to scan feedback");
-				}
-				
-				if(ImGui::Button("Show Feedback Type")){
-					uint16_t data0[2048] = {0};
-					uint16_t data1[2048] = {0};
-					int size0 = 2048;
-					int size1 = 2048;
-					bool ret0 = readSercos_Array(151, (uint8_t*)data0, size0, 0, true);
-					bool ret1 = readSercos_Array(151, (uint8_t*)data1, size1, 1, true);
-					
-					std::string mot0;
-					std::string mot1;
-					readSercos_String(53, mot0, 0, true);
-					readSercos_String(53, mot1, 1, true);
-					
-					Logger::warn("Feedback scan {} {}", ret0, ret1);
-				}
-				 */
-				
-				
-				ImGui::PushID("Axis0");
-				ImGui::PushFont(Fonts::sansBold20);
-				ImGui::Text("Axis 0");
-				ImGui::PopFont();
-				ImGui::Checkbox("realtimeBit1", &ax0_driveControl.realtimeBit1);
-				ImGui::Checkbox("realtimeBit2", &ax0_driveControl.realtimeBit2);
-				ImGui::Checkbox("syncBit", &ax0_driveControl.syncBit);
-				ImGui::Checkbox("haltRestart", &ax0_driveControl.haltRestart);
-				ImGui::Checkbox("enable", &ax0_driveControl.enable);
-				ImGui::Checkbox("driveOnOff", &ax0_driveControl.driveOnOff);
-				ImGui::InputScalar("operatingMode", ImGuiDataType_U8, &ax0_driveControl.operatingMode);
-				ImGui::Text("driveStatusWord: %X", acknowledgeTelegram.ax0_driveStatusWord);
-				ImGui::TreePush("status0");
-				ImGui::Text("followsCommand: %i", ax0_driveStatus.followsCommand);
-				ImGui::Text("realtimeBit1: %i", ax0_driveStatus.realtimeBit1);
-				ImGui::Text("realtimeBit2: %i", ax0_driveStatus.realtimeBit2);
-				ImGui::Text("operatingMode: %i", ax0_driveStatus.operatingMode);
-				ImGui::Text("infoChange: %i", ax0_driveStatus.infoChange);
-				ImGui::Text("warningChange: %i", ax0_driveStatus.warningChange);
-				ImGui::Text("shutdownError: %i", ax0_driveStatus.shutdownError);
-				ImGui::Text("status: %i", ax0_driveStatus.status);
-				ImGui::TreePop();
-				ImGui::Text("positionFeedbackValue1: %X",acknowledgeTelegram.ax0_positionFeedbackValue1);
-				ImGui::Text("velocityFeedbackValue: %X",acknowledgeTelegram.ax0_velocityFeedbackValue);
-				ImGui::Text("torqueFeedbackValue: %X",acknowledgeTelegram.ax0_torqueFeedbackValue);
-				ImGui::Text("followingDistance: %X",acknowledgeTelegram.ax0_followingDistance);
-				ImGui::PopID();
-				
-				
-				
-				ImGui::PushID("Axis1");
-				ImGui::PushFont(Fonts::sansBold20);
-				ImGui::Text("Axis 1");
-				ImGui::PopFont();
-				ImGui::Checkbox("realtimeBit1", &ax1_driveControl.realtimeBit1);
-				ImGui::Checkbox("realtimeBit2", &ax1_driveControl.realtimeBit2);
-				ImGui::Checkbox("syncBit", &ax1_driveControl.syncBit);
-				ImGui::Checkbox("haltRestart", &ax1_driveControl.haltRestart);
-				ImGui::Checkbox("enable", &ax1_driveControl.enable);
-				ImGui::Checkbox("driveOnOff", &ax1_driveControl.driveOnOff);
-				ImGui::InputScalar("operatingMode", ImGuiDataType_U8, &ax0_driveControl.operatingMode);
-				ImGui::Text("driveStatusWord: %X", acknowledgeTelegram.ax1_driveStatusWord);
-				ImGui::TreePush("status1");
-				ImGui::Text("followsCommand: %i", ax1_driveStatus.followsCommand);
-				ImGui::Text("realtimeBit1: %i", ax1_driveStatus.realtimeBit1);
-				ImGui::Text("realtimeBit2: %i", ax1_driveStatus.realtimeBit2);
-				ImGui::Text("operatingMode: %i", ax1_driveStatus.operatingMode);
-				ImGui::Text("infoChange: %i", ax1_driveStatus.infoChange);
-				ImGui::Text("warningChange: %i", ax1_driveStatus.warningChange);
-				ImGui::Text("shutdownError: %i", ax1_driveStatus.shutdownError);
-				ImGui::Text("status: %i", ax1_driveStatus.status);
-				ImGui::TreePop();
-				ImGui::Text("positionFeedbackValue1: %X",acknowledgeTelegram.ax1_positionFeedbackValue1);
-				ImGui::Text("velocityFeedbackValue: %X",acknowledgeTelegram.ax1_velocityFeedbackValue);
-				ImGui::Text("torqueFeedbackValue: %X",acknowledgeTelegram.ax1_torqueFeedbackValue);
-				ImGui::Text("followingDistance: %X",acknowledgeTelegram.ax1_followingDistance);
-				ImGui::PopID();
-				
-				ImGui::NewLine();
-				ImGui::Text("Digital Inputs: %X", acknowledgeTelegram.digitalInputsState);
-				
+				axisControlGui(servo0, 0);
+				axisControlGui(servo1, 1);
 				
 				ImGui::EndTabItem();
 				

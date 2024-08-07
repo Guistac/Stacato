@@ -198,7 +198,9 @@ public:
 		double velocityTarget = 0.0;	//in position units per second
 		double forceTarget = 0.0;		//in newton for linear actuators and newton meters for rotary actuators
 		bool b_enable = false;
+		bool b_enabling = false;
 		bool b_disable = false;
+		uint64_t enableRequest_nanos;
 		bool b_applyHoldingBrake = false;
 		bool b_releaseHoldingBrake = false;
 		bool b_quickstop = false;
