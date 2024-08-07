@@ -9,36 +9,8 @@ public:
 	double unitsPerRPM = 17895.697;
 	double unitsPerRev = 1048576.0;
 	uint64_t enableTimeout_nanos = 300'000'000; //300ms
-	
-	class AX5206_Servo : public ActuatorInterface{
-	public:
-		AX5206_Servo(std::shared_ptr<AX5206> drive_, std::string name_, uint8_t channel_){
-			drive = drive_;
-			name = name_;
-			channel = channel_;
-		}
-		virtual std::string getName() override { return name; }
-		virtual std::string getStatusString() override { return drive->getAxisStatus(channel); }
-		
-		float guiVelocitySliderValue = 0.0;
-	private:
-		std::string name;
-		std::shared_ptr<AX5206> drive;
-		uint8_t channel;
-	};
-	
-	class AX5206_Gpio : public GpioInterface{
-	public:
-		AX5206_Gpio(std::shared_ptr<AX5206> drive_, std::string name_){
-			drive = drive_;
-			name = name_;
-		}
-		virtual std::string getName() override { return name; }
-		virtual std::string getStatusString() override { return drive->getGpioStatus(); }
-	private:
-		std::string name;
-		std::shared_ptr<AX5206> drive;
-	};
+	double velMin = -90;
+	double velMax = 90.0;
 	
 	struct DriveStatus{
 		bool followsCommand;
@@ -115,10 +87,6 @@ public:
 	
 	struct ProcessData{
 		bool b_stoActive = false;
-		DriveStatus ax0_driveStatus;
-		DriveStatus ax1_driveStatus;
-		DriveControl ax0_driveControl;
-		DriveControl ax1_driveControl;
 		bool digitalInput0 = false;
 		bool digitalInput1 = false;
 		bool digitalInput2 = false;
@@ -129,12 +97,64 @@ public:
 		bool digitalOutput7 = false;
 	}processData;
 	
+	class AX5206_Servo : public ActuatorInterface{
+	public:
+		AX5206_Servo(std::shared_ptr<AX5206> drive_, std::string name_, uint8_t channel_){
+			drive = drive_;
+			name = name_;
+			channel = channel_;
+		}
+		virtual std::string getName() override { return name; }
+		virtual std::string getStatusString() override { return drive->getAxisStatus(channel); }
+		
+		float guiVelocitySliderValue = 0.0;
+		DriveStatus statusWord;
+		DriveControl controlWord;
+	private:
+		std::string name;
+		std::shared_ptr<AX5206> drive;
+		uint8_t channel;
+	};
+	
+	class AX5206_Gpio : public GpioInterface{
+	public:
+		AX5206_Gpio(std::shared_ptr<AX5206> drive_, std::string name_){
+			drive = drive_;
+			name = name_;
+		}
+		virtual std::string getName() override { return name; }
+		virtual std::string getStatusString() override { return drive->getGpioStatus(); }
+	private:
+		std::string name;
+		std::shared_ptr<AX5206> drive;
+	};
+	
 	std::shared_ptr<AX5206_Servo> servo0;
 	std::shared_ptr<AX5206_Servo> servo1;
 	std::shared_ptr<AX5206_Gpio> gpio;
 	
-	bool AM8051_1G20_0000_startupList(uint8_t axis);
-	bool AM8052_1J20_0000_startupList(uint8_t axis);
+	std::shared_ptr<bool> STOValue = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin0Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin1Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin2Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin3Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin4Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin5Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalin6Value = std::make_shared<bool>(false);
+	std::shared_ptr<bool> digitalout7Value = std::make_shared<bool>(false);
+	
+	std::shared_ptr<NodePin> actuator0Pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator 0");
+	std::shared_ptr<NodePin> actuator1Pin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "Actuator 1");
+	std::shared_ptr<NodePin> gpioPin = std::make_shared<NodePin>(NodePin::DataType::GPIO_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "GPIO");
+	std::shared_ptr<NodePin> STO_pin = std::make_shared<NodePin>(STOValue, NodePin::Direction::NODE_OUTPUT, "STO");
+	std::shared_ptr<NodePin> digitalInput0_pin = std::make_shared<NodePin>(digitalin0Value, NodePin::Direction::NODE_OUTPUT, "DI0");
+	std::shared_ptr<NodePin> digitalInput1_pin = std::make_shared<NodePin>(digitalin1Value, NodePin::Direction::NODE_OUTPUT, "DI1");
+	std::shared_ptr<NodePin> digitalInput2_pin = std::make_shared<NodePin>(digitalin2Value, NodePin::Direction::NODE_OUTPUT, "DI2");
+	std::shared_ptr<NodePin> digitalInput3_pin = std::make_shared<NodePin>(digitalin3Value, NodePin::Direction::NODE_OUTPUT, "DI3");
+	std::shared_ptr<NodePin> digitalInput4_pin = std::make_shared<NodePin>(digitalin4Value, NodePin::Direction::NODE_OUTPUT, "DI4");
+	std::shared_ptr<NodePin> digitalInput5_pin = std::make_shared<NodePin>(digitalin5Value, NodePin::Direction::NODE_OUTPUT, "DI5");
+	std::shared_ptr<NodePin> digitalInput6_pin = std::make_shared<NodePin>(digitalin6Value, NodePin::Direction::NODE_OUTPUT, "DI6");
+	std::shared_ptr<NodePin> digitalOutput7_pin = std::make_shared<NodePin>(digitalout7Value, NodePin::Direction::NODE_INPUT, "DO7");
 	
 	void getInvalidIDNsForSafeOp();
 	void getInvalidIDNsForOp();
@@ -144,11 +164,70 @@ public:
 	void requestFaultReset(uint8_t axis);
 	std::string getAxisStatus(uint8_t axis);
 	std::string getGpioStatus();
-	
 	std::string getErrorString(uint32_t errorCode);
 	std::string getClass1Errors(uint16_t class1diagnostics);
+	
+	BoolParam invertSTO_param = BooleanParameter::make(false, "Invert STO Pin", "InvertSTOPin");
+	BoolParam invertDigitalIn0_param = BooleanParameter::make(false, "Invert Digital Input 0", "InvertDigitalIn0");
+	BoolParam invertDigitalIn1_param = BooleanParameter::make(false, "Invert Digital Input 1", "InvertDigitalIn1");
+	BoolParam invertDigitalIn2_param = BooleanParameter::make(false, "Invert Digital Input 2", "InvertDigitalIn2");
+	BoolParam invertDigitalIn3_param = BooleanParameter::make(false, "Invert Digital Input 3", "InvertDigitalIn3");
+	BoolParam invertDigitalIn4_param = BooleanParameter::make(false, "Invert Digital Input 4", "InvertDigitalIn4");
+	BoolParam invertDigitalIn5_param = BooleanParameter::make(false, "Invert Digital Input 5", "InvertDigitalIn5");
+	BoolParam invertDigitalIn6_param = BooleanParameter::make(false, "Invert Digital Input 6", "InvertDigitalIn6");
+	BoolParam invertDigitalOut7_param = BooleanParameter::make(false, "Invert Digital Output 7", "InvertDigitalOut7");
+	
+	enum class MotorType{
+		NO_MOTOR = 0,
+		AM8051_1G20 = 1,
+		AM8052_1J20 = 2
+	};
+	
+	bool AM8051_1G20_0000_startupList(uint8_t axis);
+	bool AM8052_1J20_0000_startupList(uint8_t axis);
+	
+	void configureMotor(uint8_t axisNumber, MotorType type){
+		switch(type){
+			case MotorType::AM8051_1G20: AM8051_1G20_0000_startupList(axisNumber); break;
+			case MotorType::AM8052_1J20: AM8052_1J20_0000_startupList(axisNumber); break;
+			default:
+			case MotorType::NO_MOTOR:
+				break;
+		}
+	}
+
+	OptionParameter::Option option_motor_none = OptionParameter::Option(int(MotorType::NO_MOTOR), "No Motor", "NoMotor");
+	OptionParameter::Option option_motor_am8051_1g20 = OptionParameter::Option(int(MotorType::AM8051_1G20), "AM8051-1G20", "AM8051-1G20");
+	OptionParameter::Option option_motor_am8052_1j20 = OptionParameter::Option(int(MotorType::AM8052_1J20), "AM8052-1J20", "AM8052-1J20");
+	
+	std::vector<OptionParameter::Option*> motorTypeOptions = {
+		&option_motor_none,
+		&option_motor_am8051_1g20,
+		&option_motor_am8052_1j20
+	};
+	
+	OptionParam motorType_Channel0 = OptionParameter::make2(option_motor_none, motorTypeOptions, "Channel 0 Motor Type", "Channel0MotorType");
+	OptionParam motorType_Channel1 = OptionParameter::make2(option_motor_none, motorTypeOptions, "Channel 1 Motor Type", "Channel1MotorType");
 };
 
 
-//Encoder reset
-//Current Limit
+//TODO: Encoder reset
+
+//velocity limit
+//S-0-0091 Bipolar velocity limit value
+
+//acceleration limit
+//S-0-0136 Positive acceleration limit value
+//S-x-0137 Negative acceleration limit value
+
+//following error limit
+//S-0-0159 Monitoring Window
+
+//current/torque limit
+//AX5206 peak amplifier current 26.0A, rated current 12.0A
+//AX5206 channel peak current 13.0A, rated current 9.0A
+//P-0-0092 configured channel peak current
+//P-0-0093 configured channel current
+//S-0-0092 Bipolar torque limit value
+
+//fault reaction / deceleration ramp

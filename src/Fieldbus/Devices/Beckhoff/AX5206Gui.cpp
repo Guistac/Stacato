@@ -10,20 +10,6 @@ void AX5206::deviceSpecificGui() {
 				if(ImGui::Button("Read Error History")) getErrorHistory();
 				if(ImGui::Button("Read Diagnostics Message")) getDiagnosticsMessage();
 				
-				ImGui::Text("STO: %s", processData.b_stoActive ? "Safe" : "Clear");
-				ImGui::Text("DI0: %i   DI1: %i   DI2: %i   DI3: %i   DI4: %i   DI5: %i   DI6: %i",
-							processData.digitalInput0,
-							processData.digitalInput1,
-							processData.digitalInput2,
-							processData.digitalInput3,
-							processData.digitalInput4,
-							processData.digitalInput5,
-							processData.digitalInput6);
-				
-				double velMin = -90;
-				double velMax = 90.0;
-				
-				
 				auto axisControlGui = [&](std::shared_ptr<AX5206_Servo> servo, uint8_t axisNumber){
 					ImGui::PushID(axisNumber);
 					ImGui::PushFont(Fonts::sansBold20);
@@ -46,7 +32,7 @@ void AX5206::deviceSpecificGui() {
 					}
 					ImGui::Text("Velocity: %.3frev/s", servo->feedbackProcessData.velocityActual);
 					ImGui::Text("Position: %.3frev", servo->feedbackProcessData.positionActual);
-					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual);
+					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual * 100.0);
 					//ImGui::Text("Error: %i", processData.ax0_driveStatus.shutdownError);
 					ImGui::PopID();
 				};
@@ -56,6 +42,21 @@ void AX5206::deviceSpecificGui() {
 				
 				ImGui::EndTabItem();
 				
+			}
+			if(ImGui::BeginTabItem("Parameters")){
+				motorType_Channel0->gui(Fonts::sansBold15);
+				motorType_Channel1->gui(Fonts::sansBold15);
+				ImGui::Separator();
+				invertSTO_param->gui(Fonts::sansBold15);
+				invertDigitalIn0_param->gui(Fonts::sansBold15);
+				invertDigitalIn1_param->gui(Fonts::sansBold15);
+				invertDigitalIn2_param->gui(Fonts::sansBold15);
+				invertDigitalIn3_param->gui(Fonts::sansBold15);
+				invertDigitalIn4_param->gui(Fonts::sansBold15);
+				invertDigitalIn5_param->gui(Fonts::sansBold15);
+				invertDigitalIn6_param->gui(Fonts::sansBold15);
+				invertDigitalOut7_param->gui(Fonts::sansBold15);
+				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
 		}
