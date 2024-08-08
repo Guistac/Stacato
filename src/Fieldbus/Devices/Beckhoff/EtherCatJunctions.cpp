@@ -48,6 +48,15 @@ void EK1521_0010::writeOutputs(){}
 bool EK1521_0010::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EK1521_0010::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
+void CU1521_0010::onDisconnection() {}
+void CU1521_0010::onConnection() {}
+void CU1521_0010::initialize() {}
+bool CU1521_0010::startupConfiguration() { return true; }
+void CU1521_0010::readInputs() {}
+void CU1521_0010::writeOutputs(){}
+bool CU1521_0010::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool CU1521_0010::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+
 void EL2008::onDisconnection() {}
 void EL2008::onConnection() {}
 void EL2008::initialize() {

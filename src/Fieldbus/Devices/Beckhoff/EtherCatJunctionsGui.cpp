@@ -41,6 +41,13 @@ void EK1521_0010::deviceSpecificGui() {
 	}
 }
 
+void CU1521_0010::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("CU1521-0010")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
+
 void EL2008::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL2008")){
 		for(int i = 0; i < 8; i++){

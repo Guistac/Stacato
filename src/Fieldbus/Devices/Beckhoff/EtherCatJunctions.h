@@ -31,6 +31,10 @@ public:
 	DEFINE_ETHERCAT_DEVICE(EK1521_0010, "EK1521-0010 1-port EtherCAT fiber-optic junction", "EK1521-0010", "Beckhoff", "Utilities", 0x2, 0x5f12c52)
 };
 
+class CU1521_0010 : public EtherCatDevice {
+public:
+	DEFINE_ETHERCAT_DEVICE(CU1521_0010, "CU1521-0010 Ethernet / Single-mode fiber converter", "CU1521-0010", "Beckhoff", "Utilities", 0x2, 0x5f15432)
+};
 
 class EL2008 : public EtherCatDevice{
 public:

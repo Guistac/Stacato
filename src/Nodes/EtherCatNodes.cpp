@@ -40,6 +40,7 @@ namespace NodeFactory{
 			new EK1100(),
 			new EK1122(),
 			new EK1521_0010(),
+			new CU1521_0010(),
 			new EL5001(),
 			new EL1008(),
 			new EL2008(),
