@@ -162,7 +162,7 @@ public:
 		uint8_t channel;
 		const double unitsPerRPM = 17895.697;
 		const double unitsPerRev = 1048576.0;
-		const uint64_t enableTimeout_nanos = 300'000'000; //300ms
+		const uint64_t enableTimeout_nanos = 500'000'000; //300ms
 	};
 	
 	class Gpio : public GpioInterface{
@@ -239,7 +239,8 @@ public:
 //S-0-0092 Bipolar torque limit value
 
 //fault reaction / deceleration ramp
-
+//P-0-0350 Error reaction control word
+//S-0-0429 Emergency stop deceleration
 
 
 /*
