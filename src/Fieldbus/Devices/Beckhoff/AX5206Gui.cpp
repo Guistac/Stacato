@@ -10,7 +10,7 @@ void AX5206::deviceSpecificGui() {
 				if(ImGui::Button("Read Error History")) getErrorHistory();
 				if(ImGui::Button("Read Diagnostics Message")) getDiagnosticsMessage();
 				
-				auto axisControlGui = [&](std::shared_ptr<AX5206_Servo> servo, uint8_t axisNumber){
+				auto axisControlGui = [&](std::shared_ptr<Axis> servo, uint8_t axisNumber){
 					ImGui::PushID(axisNumber);
 					ImGui::PushFont(Fonts::sansBold20);
 					ImGui::Text("Axis %i", axisNumber);
@@ -37,16 +37,13 @@ void AX5206::deviceSpecificGui() {
 					ImGui::PopID();
 				};
 				
-				axisControlGui(servo0, 0);
-				axisControlGui(servo1, 1);
+				axisControlGui(axis0, 0);
+				axisControlGui(axis1, 1);
 				
 				ImGui::EndTabItem();
 				
 			}
-			if(ImGui::BeginTabItem("Parameters")){
-				motorType_Channel0->gui(Fonts::sansBold15);
-				motorType_Channel1->gui(Fonts::sansBold15);
-				ImGui::Separator();
+			if(ImGui::BeginTabItem("General")){
 				invertSTO_param->gui(Fonts::sansBold15);
 				invertDigitalIn0_param->gui(Fonts::sansBold15);
 				invertDigitalIn1_param->gui(Fonts::sansBold15);
@@ -58,8 +55,27 @@ void AX5206::deviceSpecificGui() {
 				invertDigitalOut7_param->gui(Fonts::sansBold15);
 				ImGui::EndTabItem();
 			}
+			if(ImGui::BeginTabItem("Axis 0")){
+				axis0->settingsGui();
+				ImGui::EndTabItem();
+			}
+			if(ImGui::BeginTabItem("Axis 1")){
+				axis1->settingsGui();
+				ImGui::EndTabItem();
+			}
+			
 			ImGui::EndTabBar();
 		}
 		ImGui::EndTabItem();
 	}
+}
+
+void AX5206::Axis::settingsGui(){
+	ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Axis %i", channel);
+	ImGui::PopFont();
+	motorType->gui(Fonts::sansBold15);
+	velocityLimit_revps->gui(Fonts::sansBold15);
+	accelerationLimit_revps2->gui(Fonts::sansBold15);
+	positionFollowingErrorLimit_rev->gui(Fonts::sansBold15);
 }

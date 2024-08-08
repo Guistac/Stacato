@@ -5,14 +5,11 @@
 class AX5206 : public EtherCatDevice{
 public:
 	DEFINE_ETHERCAT_DEVICE(AX5206, "AX5206", "AX5206", "Beckhoff", "Servo Drives", 0x2, 0x14566012)
-		
-	double unitsPerRPM = 17895.697;
-	double unitsPerRev = 1048576.0;
-	uint64_t enableTimeout_nanos = 300'000'000; //300ms
+	
 	double velMin = -90;
 	double velMax = 90.0;
 	
-	struct DriveStatus{
+	struct StatusWord{
 		bool followsCommand;
 		bool realtimeBit1;
 		bool realtimeBit2;
@@ -21,7 +18,7 @@ public:
 		bool warningChange;
 		bool shutdownError;
 		uint8_t status;
-		void update(uint16_t driveStatusWord){
+		void decode(uint16_t driveStatusWord){
 			followsCommand = (driveStatusWord >> 3) & 0x1;
 			realtimeBit1 = (driveStatusWord >> 6) & 0x1;
 			realtimeBit2 = (driveStatusWord >> 7) & 0x1;
@@ -35,7 +32,7 @@ public:
 		bool isReady(){ return status == 1 || status == 2 || status == 3; }
 	};
 	
-	struct DriveControl{
+	struct ControlWord{
 		bool b_realtimeBit1 = false;
 		bool b_realtimeBit2 = false;
 		uint8_t operatingMode = 0;
@@ -43,7 +40,7 @@ public:
 		bool b_haltRestart = false;
 		bool b_enable = false;
 		bool b_driveOnOff = false;
-		void update(uint16_t& masterControlWord){
+		void encode(uint16_t& masterControlWord){
 			masterControlWord = 0x0;
 			masterControlWord |= b_realtimeBit1 << 6;
 			masterControlWord |= b_realtimeBit2 << 7;
@@ -56,7 +53,7 @@ public:
 		}
 		void enable(){ b_haltRestart = true; b_enable = true; b_driveOnOff = true; }
 		void disable(){ b_haltRestart = false; b_enable = false; b_driveOnOff = false; }
-		bool requestingEnable(){ return b_haltRestart && b_enable && b_driveOnOff; }
+		bool isRequestingEnable(){ return b_haltRestart && b_enable && b_driveOnOff; }
 		void toggleSyncBit(){ b_syncBit = !b_syncBit; }
 	};
 	
@@ -97,31 +94,80 @@ public:
 		bool digitalOutput7 = false;
 	}processData;
 	
-	class AX5206_Servo : public ActuatorInterface{
-	public:
-		AX5206_Servo(std::shared_ptr<AX5206> drive_, std::string name_, uint8_t channel_){
-			drive = drive_;
-			name = name_;
-			channel = channel_;
+	void getInvalidIDNsForSafeOp();
+	void getInvalidIDNsForOp();
+	void getShutdownErrorList();
+	void getErrorHistory();
+	void getDiagnosticsMessage();
+	void requestFaultReset(uint8_t axis);
+	std::string getGpioStatus();
+	std::string getErrorString(uint32_t errorCode);
+	std::string getClass1Errors(uint16_t class1diagnostics);
+	
+	enum class MotorType{
+		NO_MOTOR = 0,
+		AM8051_1G20 = 1,
+		AM8052_1J20 = 2
+	};
+	
+	bool AM8051_1G20_0000_startupList(uint8_t axis);
+	bool AM8052_1J20_0000_startupList(uint8_t axis);
+	
+	void uploadMotorConfiguration(uint8_t axisNumber, MotorType type){
+		switch(type){
+			case MotorType::AM8051_1G20: AM8051_1G20_0000_startupList(axisNumber); break;
+			case MotorType::AM8052_1J20: AM8052_1J20_0000_startupList(axisNumber); break;
+			default:
+			case MotorType::NO_MOTOR:
+				break;
 		}
+	}
+	
+	OptionParameter::Option option_motor_none = OptionParameter::Option(int(MotorType::NO_MOTOR), "No Motor", "NoMotor");
+	OptionParameter::Option option_motor_am8051_1g20 = OptionParameter::Option(int(MotorType::AM8051_1G20), "AM8051-1G20", "AM8051-1G20");
+	OptionParameter::Option option_motor_am8052_1j20 = OptionParameter::Option(int(MotorType::AM8052_1J20), "AM8052-1J20", "AM8052-1J20");
+	std::vector<OptionParameter::Option*> motorTypeOptions = {
+		&option_motor_none,
+		&option_motor_am8051_1g20,
+		&option_motor_am8052_1j20
+	};
+	
+	class Axis : public ActuatorInterface{
+	public:
+		Axis(std::shared_ptr<AX5206> d, std::string n, uint8_t c) : drive(d), name(n), channel(c){
+			motorType = OptionParameter::make2(drive->option_motor_none, drive->motorTypeOptions, "Motor Type", "MotorType");
+		}
+		//Gui Stuff
 		virtual std::string getName() override { return name; }
-		virtual std::string getStatusString() override { return drive->getAxisStatus(channel); }
-		
+		virtual std::string getStatusString() override;
+		void settingsGui();
 		float guiVelocitySliderValue = 0.0;
-		DriveStatus statusWord;
-		DriveControl controlWord;
+		//Process Data
+		StatusWord statusWord;
+		ControlWord controlWord;
+		uint16_t class1Errors;
+		void updateInputs(uint16_t status, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto);
+		void updateOutputs(uint16_t& controlWord, int32_t& vel, uint32_t& pos);
+		//Parameters
+		OptionParam motorType;
+		MotorType getMotorType(){ return MotorType(motorType->value); }
+		NumberParam<double> velocityLimit_revps = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
+		NumberParam<double> accelerationLimit_revps2 = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
+		NumberParam<double> positionFollowingErrorLimit_rev = NumberParameter<double>::make(0.0, "Position Following Error Limit", "PositionFollowingErrorLimit", "%.1f", Units::AngularDistance::Revolution, false);
+		bool save(tinyxml2::XMLElement* xml);
+		bool load(tinyxml2::XMLElement* xml);
 	private:
 		std::string name;
 		std::shared_ptr<AX5206> drive;
 		uint8_t channel;
+		const double unitsPerRPM = 17895.697;
+		const double unitsPerRev = 1048576.0;
+		const uint64_t enableTimeout_nanos = 300'000'000; //300ms
 	};
 	
-	class AX5206_Gpio : public GpioInterface{
+	class Gpio : public GpioInterface{
 	public:
-		AX5206_Gpio(std::shared_ptr<AX5206> drive_, std::string name_){
-			drive = drive_;
-			name = name_;
-		}
+		Gpio(std::shared_ptr<AX5206> d, std::string n) : drive(d), name(n){}
 		virtual std::string getName() override { return name; }
 		virtual std::string getStatusString() override { return drive->getGpioStatus(); }
 	private:
@@ -129,9 +175,9 @@ public:
 		std::shared_ptr<AX5206> drive;
 	};
 	
-	std::shared_ptr<AX5206_Servo> servo0;
-	std::shared_ptr<AX5206_Servo> servo1;
-	std::shared_ptr<AX5206_Gpio> gpio;
+	std::shared_ptr<Axis> axis0;
+	std::shared_ptr<Axis> axis1;
+	std::shared_ptr<Gpio> gpio;
 	
 	std::shared_ptr<bool> STOValue = std::make_shared<bool>(false);
 	std::shared_ptr<bool> digitalin0Value = std::make_shared<bool>(false);
@@ -156,16 +202,7 @@ public:
 	std::shared_ptr<NodePin> digitalInput6_pin = std::make_shared<NodePin>(digitalin6Value, NodePin::Direction::NODE_OUTPUT, "DI6");
 	std::shared_ptr<NodePin> digitalOutput7_pin = std::make_shared<NodePin>(digitalout7Value, NodePin::Direction::NODE_INPUT, "DO7");
 	
-	void getInvalidIDNsForSafeOp();
-	void getInvalidIDNsForOp();
-	void getShutdownErrorList();
-	void getErrorHistory();
-	void getDiagnosticsMessage();
-	void requestFaultReset(uint8_t axis);
-	std::string getAxisStatus(uint8_t axis);
-	std::string getGpioStatus();
-	std::string getErrorString(uint32_t errorCode);
-	std::string getClass1Errors(uint16_t class1diagnostics);
+
 	
 	BoolParam invertSTO_param = BooleanParameter::make(false, "Invert STO Pin", "InvertSTOPin");
 	BoolParam invertDigitalIn0_param = BooleanParameter::make(false, "Invert Digital Input 0", "InvertDigitalIn0");
@@ -177,40 +214,11 @@ public:
 	BoolParam invertDigitalIn6_param = BooleanParameter::make(false, "Invert Digital Input 6", "InvertDigitalIn6");
 	BoolParam invertDigitalOut7_param = BooleanParameter::make(false, "Invert Digital Output 7", "InvertDigitalOut7");
 	
-	enum class MotorType{
-		NO_MOTOR = 0,
-		AM8051_1G20 = 1,
-		AM8052_1J20 = 2
-	};
-	
-	bool AM8051_1G20_0000_startupList(uint8_t axis);
-	bool AM8052_1J20_0000_startupList(uint8_t axis);
-	
-	void configureMotor(uint8_t axisNumber, MotorType type){
-		switch(type){
-			case MotorType::AM8051_1G20: AM8051_1G20_0000_startupList(axisNumber); break;
-			case MotorType::AM8052_1J20: AM8052_1J20_0000_startupList(axisNumber); break;
-			default:
-			case MotorType::NO_MOTOR:
-				break;
-		}
-	}
-
-	OptionParameter::Option option_motor_none = OptionParameter::Option(int(MotorType::NO_MOTOR), "No Motor", "NoMotor");
-	OptionParameter::Option option_motor_am8051_1g20 = OptionParameter::Option(int(MotorType::AM8051_1G20), "AM8051-1G20", "AM8051-1G20");
-	OptionParameter::Option option_motor_am8052_1j20 = OptionParameter::Option(int(MotorType::AM8052_1J20), "AM8052-1J20", "AM8052-1J20");
-	
-	std::vector<OptionParameter::Option*> motorTypeOptions = {
-		&option_motor_none,
-		&option_motor_am8051_1g20,
-		&option_motor_am8052_1j20
-	};
-	
-	OptionParam motorType_Channel0 = OptionParameter::make2(option_motor_none, motorTypeOptions, "Channel 0 Motor Type", "Channel0MotorType");
-	OptionParam motorType_Channel1 = OptionParameter::make2(option_motor_none, motorTypeOptions, "Channel 1 Motor Type", "Channel1MotorType");
 };
 
 
+//TODO: Error Logging
+//TODO: OpMode Selection Setting
 //TODO: Encoder reset
 
 //velocity limit
@@ -231,3 +239,18 @@ public:
 //S-0-0092 Bipolar torque limit value
 
 //fault reaction / deceleration ramp
+
+
+
+/*
+
+ AX5206 Driver last features
+ Mise en route romaine
+ Mise en route tournettes
+ Mise en route vols
+ Boutons Console
+ Tactile Console
+
+ Siegfried, séquences pétales
+ 
+*/

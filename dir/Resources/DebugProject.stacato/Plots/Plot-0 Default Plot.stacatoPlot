@@ -3,6 +3,70 @@
         <Manoeuvre Name="M-0" Description="" Type="Target">
             <Animation Machine="Tournette" MachineUniqueID="222" Parameter="Position" IsComposite="false" Type="Target" Target="5000" ConstraintType="Velocity" Time="0" Velocity="1" StartAcceleration="0.5" EndAcceleration="0.5"/>
         </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Sequence">
+            <Animation Machine="Centre" MachineUniqueID="1551" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="10" End="15" Duration="180" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="521.30239520958082" Time="38.135929463629687" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="179.87688460711917" Time="63.859029407689178" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="301.7634730538922" Time="91.527553269654661" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="540.8652694610779" Time="112.04041146216018" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="145.26047904191617" Time="136.3357825128582" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="269.25413519194626" Time="155.3552216116785" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Anneau" MachineUniqueID="1556" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="10" End="15" Duration="180" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="240.71738181288902" Time="18.807740313887866" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="60.384514049141714" Time="35.080291970802918" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="305.15471817062286" Time="52.567883211678826" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="83.695962060711338" Time="70.200000000000003" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="252.70396014459118" Time="90.867153284671531" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="500.97088146780777" Time="112.54598540145984" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="534.77248108458377" Time="122.66277372262772" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="463.67256464929642" Time="130.61167883211678" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="482.3217230585521" Time="136.53722627737224" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3 (copy)" Description="" Type="Sequence">
+            <Animation Machine="Centre" MachineUniqueID="1551" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="10" End="15" Duration="180" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="199.370626008616" Time="19.33394837212958" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="144.38620834180105" Time="26.2351048073144" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="184.6263984124472" Time="31.974556207820896" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="166.82934575603633" Time="36.110186531518011" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="252.75394059611324" Time="47.065564575270926" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="179.87688460711917" Time="63.859029407689178" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="301.7634730538922" Time="91.527553269654661" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="540.8652694610779" Time="112.04041146216018" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="145.26047904191617" Time="136.3357825128582" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="269.25413519194626" Time="155.3552216116785" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Anneau" MachineUniqueID="1556" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="10" End="15" Duration="180" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="114.17001914350637" Time="11.613956839018362" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="81.364013354174944" Time="17.025620792217616" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="92.758970006676876" Time="20.212482454161677" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="64.483226015098325" Time="25.355240121037511" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="305.15471817062286" Time="52.567883211678826" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="83.695962060711338" Time="70.200000000000003" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="252.70396014459118" Time="90.867153284671531" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="500.97088146780777" Time="112.54598540145984" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="534.77248108458377" Time="122.66277372262772" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="463.67256464929642" Time="130.61167883211678" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                        <ControlPoint Position="482.3217230585521" Time="136.53722627737224" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
         <Manoeuvre Name="M-1" Description="" Type="Target">
             <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>

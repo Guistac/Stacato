@@ -2,21 +2,22 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 
 void AX5206::onDisconnection(){
-	servo0->state = DeviceState::OFFLINE;
-	servo1->state = DeviceState::OFFLINE;
+	axis0->state = DeviceState::OFFLINE;
+	axis1->state = DeviceState::OFFLINE;
 	gpio->state = DeviceState::OFFLINE;
 }
+
 void AX5206::onConnection(){
 	gpio->state = DeviceState::ENABLED;
 }
 
 void AX5206::initialize(){
 	auto thisAX5206 = std::static_pointer_cast<AX5206>(shared_from_this());
-	servo0 = std::make_shared<AX5206_Servo>(thisAX5206, "Actuator 1", 0);
-	servo1 = std::make_shared<AX5206_Servo>(thisAX5206, "Actuator 2", 1);
-	gpio = std::make_shared<AX5206_Gpio>(thisAX5206, "Gpio");
+	axis0 = std::make_shared<Axis>(thisAX5206, "Actuator 1", 0);
+	axis1 = std::make_shared<Axis>(thisAX5206, "Actuator 2", 1);
+	gpio = std::make_shared<Gpio>(thisAX5206, "Gpio");
 	
-	auto initializeServo = [](std::shared_ptr<AX5206_Servo> servo){
+	auto initializeAxis = [](std::shared_ptr<Axis> servo){
 		auto& fbcfg = servo->feedbackConfig;
 		fbcfg.b_supportsForceFeedback = false;
 		fbcfg.b_supportsPositionFeedback = true;
@@ -39,11 +40,11 @@ void AX5206::initialize(){
 		acfg.forceLimitPositive = 0.0;
 	};
 	
-	initializeServo(servo0);
-	initializeServo(servo1);
+	initializeAxis(axis0);
+	initializeAxis(axis1);
 	
-	actuator0Pin->assignData(std::static_pointer_cast<ActuatorInterface>(servo0));
-	actuator1Pin->assignData(std::static_pointer_cast<ActuatorInterface>(servo1));
+	actuator0Pin->assignData(std::static_pointer_cast<ActuatorInterface>(axis0));
+	actuator1Pin->assignData(std::static_pointer_cast<ActuatorInterface>(axis1));
 	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 	
 	addNodePin(actuator0Pin);
@@ -110,9 +111,12 @@ bool AX5206::startupConfiguration() {
 	writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
 	writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
 	
-	configureMotor(0, MotorType(motorType_Channel0->value));
-	configureMotor(1, MotorType(motorType_Channel1->value));
-
+	writeSercos_U64('P', 10, 0x1fb9, 0);
+	writeSercos_U64('P', 10, 0x1fb9, 1);
+	
+	uploadMotorConfiguration(0, axis0->getMotorType());
+	uploadMotorConfiguration(1, axis1->getMotorType());
+	
 	writeSercos_U16('S', 32, 2, 0); //Operation mode 0 VEL
 	writeSercos_U16('S', 32, 2, 1); //Operation mode 0 VEL
 	
@@ -134,7 +138,7 @@ bool AX5206::startupConfiguration() {
 }
 
 bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
-	bool ret = writeSercos_U64('P', 10, 0x1ffd, axis);
+	
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
@@ -270,7 +274,6 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 
 bool AX5206::AM8052_1J20_0000_startupList(uint8_t axis){
 	
-	bool ret = writeSercos_U64('P', 10, 0x1ffd, axis);
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
@@ -405,12 +408,10 @@ bool AX5206::AM8052_1J20_0000_startupList(uint8_t axis){
 	
 }
 
-
 void AX5206::readInputs(){
 	memcpy(&acknowledgeTelegram, identity->inputs, identity->Ibytes);
 		
 	//Drive Data
-	
 	processData.b_stoActive = acknowledgeTelegram.safetyOptionState & 0x1;
 	processData.digitalInput0 = acknowledgeTelegram.digitalInputsState & 0x1;
 	processData.digitalInput1 = acknowledgeTelegram.digitalInputsState & 0x2;
@@ -430,51 +431,18 @@ void AX5206::readInputs(){
 	*digitalin6Value = invertDigitalIn6_param->value ? !processData.digitalInput6 : processData.digitalInput6;
 
 	//Axis Data
-	auto updateServoInputs = [this](std::shared_ptr<AX5206_Servo> servo, uint8_t axisNumber, uint16_t status, int32_t pos, int32_t vel, int16_t tor){
-		servo->statusWord.update(status);
-		if(servo->actuatorProcessData.b_enabling){
-			if(servo->statusWord.isEnabled()){
-				servo->actuatorProcessData.b_enabling = false;
-				Logger::info("Axis {} Enabled", axisNumber);
-			}
-			else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - servo->actuatorProcessData.enableRequest_nanos > enableTimeout_nanos){
-				servo->actuatorProcessData.b_enabling = false;
-				servo->controlWord.disable();
-				Logger::warn("Axis {} Enable timeout", axisNumber);
-			}
-		}
-		else if(servo->isEnabled() && !servo->statusWord.isEnabled()){
-			servo->actuatorProcessData.b_enabling = false;
-			servo->controlWord.disable();
-			Logger::warn("Axis {} Disabled", axisNumber);
-		}
-		if(servo->statusWord.isEnabled()) {
-			if(servo->controlWord.requestingEnable()) servo->state = DeviceState::ENABLED;
-			else servo->state = DeviceState::DISABLING;
-		}
-		else{
-			if(servo->actuatorProcessData.b_enabling) servo->state = DeviceState::ENABLING;
-			else if(processData.b_stoActive || !servo->statusWord.isReady()) servo->state = DeviceState::NOT_READY;
-			else servo->state = DeviceState::READY;
-		}
-		
-		servo->feedbackProcessData.positionActual = double(pos) / unitsPerRev;
-		servo->feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
-		servo->actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
-		servo->actuatorProcessData.b_isEmergencyStopActive = processData.b_stoActive;
-		servo->b_hasFault = servo->statusWord.shutdownError;
-	};
-	
-	updateServoInputs(servo0, 0,
-						acknowledgeTelegram.ax0_driveStatusWord,
+	axis0->updateInputs(acknowledgeTelegram.ax0_driveStatusWord,
 						acknowledgeTelegram.ax0_positionFeedbackValue1,
 						acknowledgeTelegram.ax0_velocityFeedbackValue,
-						acknowledgeTelegram.ax0_torqueFeedbackValue);
-	updateServoInputs(servo1, 1,
-						acknowledgeTelegram.ax1_driveStatusWord,
+						acknowledgeTelegram.ax0_torqueFeedbackValue,
+						acknowledgeTelegram.ax0_class1Diagnostics,
+						processData.b_stoActive);
+	axis1->updateInputs(acknowledgeTelegram.ax1_driveStatusWord,
 						acknowledgeTelegram.ax1_positionFeedbackValue1,
 						acknowledgeTelegram.ax1_velocityFeedbackValue,
-						acknowledgeTelegram.ax1_torqueFeedbackValue);
+						acknowledgeTelegram.ax1_torqueFeedbackValue,
+						acknowledgeTelegram.ax1_class1Diagnostics,
+						processData.b_stoActive);
 		
 }
 
@@ -488,41 +456,90 @@ void AX5206::writeOutputs(){
 	masterDataTelegram.digitalOutput = processData.digitalOutput7 ? 0x80 : 0x0;
 
 	//Axis Data
-	
-	auto updateServoOutputs = [this](std::shared_ptr<AX5206_Servo> servo, uint8_t axisNumber, uint16_t& controlWord, int32_t& vel, uint32_t& pos){
-		servo->controlWord.toggleSyncBit();
-		if(servo->actuatorProcessData.b_enable){
-			servo->actuatorProcessData.b_enable = false;
-			servo->actuatorProcessData.b_enabling = true;
-			servo->actuatorProcessData.enableRequest_nanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-			if(servo->statusWord.shutdownError) requestFaultReset(axisNumber);
-		}
-		if(servo->actuatorProcessData.b_enabling){
-			if(!servo->statusWord.shutdownError) servo->controlWord.enable();
-		}
-		if(servo->actuatorProcessData.b_disable){
-			servo->actuatorProcessData.b_disable = false;
-			servo->actuatorProcessData.b_enabling = false;
-			servo->controlWord.disable();
-		}
-		servo->controlWord.update(controlWord);
-		
-		vel = servo->actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
-		pos = servo->actuatorProcessData.positionTarget * unitsPerRev;
-	};
-		
-	updateServoOutputs(servo0, 0, masterDataTelegram.ax0_masterControlWord, masterDataTelegram.ax0_velocityCommandValue, masterDataTelegram.ax0_positionCommandValue);
-	updateServoOutputs(servo1, 1, masterDataTelegram.ax1_masterControlWord, masterDataTelegram.ax1_velocityCommandValue, masterDataTelegram.ax1_positionCommandValue);
+	axis0->updateOutputs(masterDataTelegram.ax0_masterControlWord,
+						 masterDataTelegram.ax0_velocityCommandValue,
+						 masterDataTelegram.ax0_positionCommandValue);
+	axis1->updateOutputs(masterDataTelegram.ax1_masterControlWord,
+						 masterDataTelegram.ax1_velocityCommandValue,
+						 masterDataTelegram.ax1_positionCommandValue);
 	
 	memcpy(identity->outputs, &masterDataTelegram, identity->Obytes);
 }
 
+void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto){
+	
+	//TODO: Error Reaction and Logging
+	class1Errors = err;
+	
+	statusWord.decode(statusw);
+	if(actuatorProcessData.b_enabling){
+		if(statusWord.isEnabled()){
+			actuatorProcessData.b_enabling = false;
+			Logger::info("Axis {} Enabled", channel);
+		}
+		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - actuatorProcessData.enableRequest_nanos > enableTimeout_nanos){
+			actuatorProcessData.b_enabling = false;
+			controlWord.disable();
+			Logger::warn("Axis {} Enable timeout", channel);
+		}
+	}
+	else if(isEnabled() && !statusWord.isEnabled()){
+		actuatorProcessData.b_enabling = false;
+		controlWord.disable();
+		Logger::warn("Axis {} Disabled", channel);
+	}
+	if(statusWord.isEnabled()) {
+		if(controlWord.isRequestingEnable()) state = DeviceState::ENABLED;
+		else state = DeviceState::DISABLING;
+	}
+	else{
+		if(actuatorProcessData.b_enabling) state = DeviceState::ENABLING;
+		else if(sto || !statusWord.isReady()) state = DeviceState::NOT_READY;
+		else state = DeviceState::READY;
+	}
+	
+	feedbackProcessData.positionActual = double(pos) / unitsPerRev;
+	feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
+	actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
+	actuatorProcessData.b_isEmergencyStopActive = sto;
+	b_hasFault = statusWord.shutdownError;
+}
+
+void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos){
+	controlWord.toggleSyncBit();
+	if(actuatorProcessData.b_enable){
+		actuatorProcessData.b_enable = false;
+		actuatorProcessData.b_enabling = true;
+		actuatorProcessData.enableRequest_nanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		if(statusWord.shutdownError) drive->requestFaultReset(channel);
+	}
+	if(actuatorProcessData.b_enabling){
+		if(!statusWord.shutdownError) controlWord.enable();
+	}
+	if(actuatorProcessData.b_disable){
+		actuatorProcessData.b_disable = false;
+		actuatorProcessData.b_enabling = false;
+		controlWord.disable();
+	}
+	controlWord.encode(controlw);
+	
+	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
+	pos = actuatorProcessData.positionTarget * unitsPerRev;
+}
+
+void AX5206::requestFaultReset(uint8_t axis){
+	std::thread faultResetThread([this,axis](){
+		//set & enable command
+		if(writeSercos_U16('S', 99, 3, axis)) Logger::info("Requested fault reset");
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//cancel command
+		if(writeSercos_U16('S', 99, 0, axis)) Logger::info("Fault reset request finished");
+	});
+	faultResetThread.detach();
+}
+
 bool AX5206::saveDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-	
-	XMLElement* motorTypesXML = xml->InsertNewChildElement("MotorTypes");
-	motorType_Channel0->save(motorTypesXML);
-	motorType_Channel1->save(motorTypesXML);
 	
 	XMLElement* pinInversionXML = xml->InsertNewChildElement("PinInversion");
 	invertSTO_param->save(pinInversionXML);
@@ -535,16 +552,17 @@ bool AX5206::saveDeviceData(tinyxml2::XMLElement* xml) {
 	invertDigitalIn6_param->save(pinInversionXML);
 	invertDigitalOut7_param->save(pinInversionXML);
 	
+	XMLElement* axis0XML = xml->InsertNewChildElement("Axis0");
+	axis0->save(axis0XML);
+	
+	XMLElement* axis1XML = xml->InsertNewChildElement("Axis1");
+	axis1->save(axis1XML);
+	
 	return true;
 }
 
 bool AX5206::loadDeviceData(tinyxml2::XMLElement* xml) {
 	using namespace tinyxml2;
-	
-	if(XMLElement* motorTypesXML = xml->FirstChildElement("MotorTypes")){
-		motorType_Channel0->load(motorTypesXML);
-		motorType_Channel1->load(motorTypesXML);
-	}
 	
 	if(XMLElement* pinInversionXML = xml->FirstChildElement("PinInversion")){
 		invertSTO_param->load(pinInversionXML);
@@ -558,7 +576,46 @@ bool AX5206::loadDeviceData(tinyxml2::XMLElement* xml) {
 		invertDigitalOut7_param->load(pinInversionXML);
 	}
 	
+	if(XMLElement* axis0XML = xml->FirstChildElement("Axis0")){
+		axis0->load(axis0XML);
+	}
+	
+	if(XMLElement* axis1XML = xml->FirstChildElement("Axis1")){
+		axis1->load(axis1XML);
+	}
+	
 	return true;
+}
+
+bool AX5206::Axis::save(tinyxml2::XMLElement* xml){
+	motorType->save(xml);
+	velocityLimit_revps->save(xml);
+	accelerationLimit_revps2->save(xml);
+	positionFollowingErrorLimit_rev->save(xml);
+	return true;
+}
+
+bool AX5206::Axis::load(tinyxml2::XMLElement* xml){
+	motorType->load(xml);
+	velocityLimit_revps->load(xml);
+	accelerationLimit_revps2->load(xml);
+	positionFollowingErrorLimit_rev->load(xml);
+	return true;
+}
+
+std::string AX5206::Axis::getStatusString(){
+	if(!isOnline()) return "Actuator Offline";
+	else if(isEnabled()) return "Actuator Enabled";
+	else if(isEnabling()) return "Actuator Enabling...";
+	else if(isReady()) return "Actuator Ready";
+	else{
+		if(isEmergencyStopActive()) return "STO is active";
+		if(hasFault()) {
+			std::string output = "Axis has errors:\n";
+			return output + drive->getClass1Errors(class1Errors);
+		}
+		else return "Actuator not ready";
+	}
 }
 
 void AX5206::getInvalidIDNsForSafeOp(){
@@ -599,7 +656,6 @@ void AX5206::getInvalidIDNsForOp(){
 	}
 }
 
-
 std::string AX5206::getClass1Errors(uint16_t c1diag){
 	if(c1diag == 0x0) return "No Errors";
 	std::string output;
@@ -629,8 +685,8 @@ void AX5206::getShutdownErrorList(){
 	bool ret1 = readSercos_U16('S', 11, err1);
 	Logger::warn("Axis 0 Errors: ");
 	Logger::error("{}", getClass1Errors(err0));
-	Logger::warn("Axis 1 Errors: ");
-	Logger::error("{}", getClass1Errors(err1));
+	//Logger::warn("Axis 1 Errors: "); //this does not seem to show anything
+	//Logger::error("{}", getClass1Errors(err1));
 }
 
 void AX5206::getErrorHistory(){
@@ -680,19 +736,22 @@ void AX5206::getDiagnosticsMessage(){
 	std::string ax0diag;
 	std::string ax1diag;
 	bool ret0 = readSercos_String('S', 95, ax0diag, 0);
-	bool ret1 = readSercos_String('S', 95, ax0diag, 1);
+	//bool ret1 = readSercos_String('S', 95, ax0diag, 1); //this never displays anything
 	Logger::warn("Axis0: {}", ax0diag);
-	Logger::warn("Axis1: {}", ax1diag);
+	//Logger::warn("Axis1: {}", ax1diag);
 }
 
 std::string AX5206::getErrorString(uint32_t errorCode){
 	switch(errorCode){
 		case 0xF100: return "Axis state machine: Communication error";
 		case 0xF101: return "Axis state machine: Initialize error (selected uninitialized operating mode)";
+		case 0xF106: return "Axis state machine: No motor configured";
 		case 0xF152: return "Initialization of the feedback: Command failed";
 		case 0xF166: return "Process data mapping: MDT - S-0-0024";
 		case 0xF2A7: return "Torque off triggered from \"shorted coils brake\" or \"DC brake\"";
 		case 0xF415: return "Distributed clocks: Process data synchronization lost";
+		case 0xF4A1: return "SoE Communication: Internal error";
+		case 0xF4A3: return "SoE Communication: Internal error";
 		case 0xF4A5: return "SoE Communication: Parameter error (invalid data for transition to safeop)";
 		case 0xF720: return "Feedback \"general\": Initialization failed";
 		case 0xF850: return "One cable feedback: Link missing";
@@ -703,6 +762,7 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xF85F: return "One cable feedback: Read of the cyclic data failed";
 		case 0xFC03: return "Control voltage error: undervoltage";
 		case 0xFD08: return "Motor management: Drive type don't match";
+		case 0xFD09: return "Motor management: Motor type don't match";
 		case 0xFD11: return "Periphery voltage too low";
 		case 0xFD1A: return "A/D-Converter: Motor temperature - measuring error";
 		case 0xFD43: return "Mains supply: Power down";
@@ -710,37 +770,6 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xFDD3: return "Safety switch off while the axis was enabled";
 		default: return "";
 	};
-}
-
-void AX5206::requestFaultReset(uint8_t axis){
-	std::thread faultResetThread([this,axis](){
-		//set & enable command
-		if(writeSercos_U16('S', 99, 3, axis)) Logger::info("Requested fault reset");
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		//cancel command
-		if(writeSercos_U16('S', 99, 0, axis)) Logger::info("Fault reset request finished");
-	});
-	faultResetThread.detach();
-}
-
-std::string AX5206::getAxisStatus(uint8_t axis){
-	auto getAxisString = [this](std::shared_ptr<AX5206_Servo> servo, uint16_t errors) -> std::string {
-		if(!servo->isOnline()) return "Actuator Offline";
-		else if(servo->isEnabled()) return "Actuator Enabled";
-		else if(servo->isEnabling()) return "Actuator Enabling...";
-		else if(servo->isReady()) return "Actuator Ready";
-		else{
-			if(servo->isEmergencyStopActive()) return "STO is active";
-			if(servo->hasFault()) {
-				std::string output = "Axis has errors:\n";
-				return output + getClass1Errors(errors);
-			}
-			else return "Actuator not ready";
-		}
-	};
-	if(axis == 0) return getAxisString(servo0, acknowledgeTelegram.ax0_class1Diagnostics);
-	else if(axis == 1) return getAxisString(servo1, acknowledgeTelegram.ax1_class1Diagnostics);
-	else return "Wrong Axis Number";
 }
 
 std::string AX5206::getGpioStatus(){
