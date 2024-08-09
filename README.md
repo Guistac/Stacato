@@ -76,3 +76,24 @@ All of this we do programmatically in our application code:
 
 - give priority to a thread using the scheduling policies of `pthread` 
 - set cpu affinity for realtime threads using `cpu_set_t` and `pthread_setaffinity_np`
+
+
+
+
+## Register .Stacato Files on Linux Machines
+
+```
+cd /usr/share/applications
+sudo nano Stacato.desktop
+```
+
+```
+[Desktop Entry]
+Name=Stacato
+Exec=pkexec ~/Stacato/build/Stacato %F
+Icon=~/Stacato/dir/Stacato_AppIcon.png
+Type=Application
+Terminal=true
+Categories=CoolStuff
+```
+

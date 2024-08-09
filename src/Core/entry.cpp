@@ -21,5 +21,5 @@ int main(int argcount, const char ** args){
 	Legato::Gui::setTerminationFunction(Stacato::Gui::terminate);
 	
 	//launch application
-	Application::run();
+	Application::run(argcount, args);
 }

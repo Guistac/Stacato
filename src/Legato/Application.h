@@ -9,7 +9,7 @@ void setInitializationFunction(std::function<bool()> fn);
 void setTerminationFunction(std::function<bool()> fn);
 void setQuitRequestFunction(std::function<bool()> fn);
 
-void run();
+void run(int argcount, const char ** args);
 
 void requestQuit();
 void quitImmediately();
