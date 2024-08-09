@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.4140165" OffsetX="411.43704" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49998" SizeY="388.40161"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60002" SizeY="194.02428"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.59998" SizeY="194.00471"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.59998" SizeY="193.80728"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.59998" SizeY="193.78978"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.59998" SizeY="193.41034"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49998" SizeY="142.1317"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.44742"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49998" SizeY="141.81604"/>
+    <Dashboard Scale="1.4133718" OffsetX="411.76532" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49997" SizeY="388.66806"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60001" SizeY="194.11264"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60005" SizeY="193.65324"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.60001" SizeY="194.02921"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60001" SizeY="193.9214"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.60001" SizeY="193.72191"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.50002" SizeY="142.3324"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.58163"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.50002" SizeY="142.0831"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -618,7 +618,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Romaine LH (Alias:410)" UniqueID="1473">
-                <NodeEditorPosition x="380" y="547"/>
+                <NodeEditorPosition x="392" y="863"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="410"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="true"/>
@@ -654,7 +654,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M VAR2 (Alias:199)" UniqueID="1551">
-                <NodeEditorPosition x="-688" y="139"/>
+                <NodeEditorPosition x="-680" y="977"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="199"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="true"/>
@@ -690,7 +690,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M VAR3 (Alias:201)" UniqueID="1567">
-                <NodeEditorPosition x="-446" y="140"/>
+                <NodeEditorPosition x="-438" y="978"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="201"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="false"/>
@@ -726,7 +726,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32i" Split="false" CustomName="Lexium32i VAR1 (Alias:206)" UniqueID="1583">
-                <NodeEditorPosition x="-189" y="141"/>
+                <NodeEditorPosition x="-181" y="979"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="206"/>
                     <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="11.300000000000001" EncoderIsMultiturn="false"/>
@@ -759,7 +759,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:202)" UniqueID="1596">
-                <NodeEditorPosition x="-587" y="524"/>
+                <NodeEditorPosition x="-440" y="534"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="202"/>
                 </NodeSpecificData>
@@ -767,7 +767,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input VAR2 (Alias:203)" UniqueID="1597">
-                <NodeEditorPosition x="-587" y="574"/>
+                <NodeEditorPosition x="-440" y="584"/>
                 <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
                     <Identification Type="StationAlias" StationAlias="203"/>
                 </NodeSpecificData>
@@ -778,7 +778,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input VAR3 (Alias:204)" UniqueID="1600">
-                <NodeEditorPosition x="-587" y="674"/>
+                <NodeEditorPosition x="-440" y="684"/>
                 <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
                     <Identification Type="StationAlias" StationAlias="204"/>
                 </NodeSpecificData>
@@ -789,7 +789,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 8x Digital Input (Alias:205)" UniqueID="1603">
-                <NodeEditorPosition x="-587" y="775"/>
+                <NodeEditorPosition x="-440" y="785"/>
                 <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
                     <Identification Type="StationAlias" StationAlias="205"/>
                 </NodeSpecificData>
