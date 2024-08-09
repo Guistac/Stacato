@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.4133718" OffsetX="411.76532" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49997" SizeY="388.66806"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60001" SizeY="194.11264"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60005" SizeY="193.65324"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.60001" SizeY="194.02921"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60001" SizeY="193.9214"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.60001" SizeY="193.72191"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.50002" SizeY="142.3324"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.58163"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.50002" SizeY="142.0831"/>
+    <Dashboard Scale="1.4139996" OffsetX="411.44565" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49997" SizeY="388.40857"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.59995" SizeY="194.02657"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.5999" SizeY="194.01404"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.59995" SizeY="193.8131"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.59995" SizeY="193.79323"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.59995" SizeY="193.41853"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.50002" SizeY="142.13699"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.45095"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.50002" SizeY="141.82301"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -618,7 +618,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Romaine LH (Alias:410)" UniqueID="1473">
-                <NodeEditorPosition x="392" y="863"/>
+                <NodeEditorPosition x="284" y="904"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="410"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="true"/>
@@ -804,6 +804,103 @@
                     <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="1610" Visible="false"/>
                     <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="1611" Visible="false"/>
                 </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:299)" UniqueID="1657">
+                <NodeEditorPosition x="924" y="799"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="299"/>
+                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="2.2000000000000002" RatedMotorVoltage="400" RatedMotorCurrent="5.0899999999999999" MotorRatedSpeed="2900"/>
+                    <MotionControlSettings AccelerationRamp="5" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="120" SwitchingFrequency="16"/>
+                    <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
+                    <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1" FaultResetPin="0" ExternalFaultPin="0" PresetSlowdownSpeedPin="0"/>
+                    <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="1658" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="1659" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1660" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1661" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1662" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1663" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1664" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1665" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6 Défaut Externe" DataType="Boolean" UniqueID="1666" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1667" Visible="false"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1668" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5206" Split="false" CustomName="AX5206 (Alias:301)" UniqueID="1669">
+                <NodeEditorPosition x="1136" y="807"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="301"/>
+                    <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
+                    <Axis0 MotorType="0" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0"/>
+                    <Axis1 MotorType="0" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1670" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator 0" DisplayString="Actuator 0" DataType="ActuatorInterface" UniqueID="1671" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Actuator 1" DisplayString="Actuator 1" DataType="ActuatorInterface" UniqueID="1672" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1673" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1674" Visible="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0 PO Anneau" DataType="Boolean" UniqueID="1675" Visible="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 PO Tournette" DataType="Boolean" UniqueID="1676" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 Retour AU" DataType="Boolean" UniqueID="1677" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1678" Visible="false"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1679" Visible="false"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1680" Visible="false"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="1681" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:302)" UniqueID="1682">
+                <NodeEditorPosition x="1336" y="819"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="302"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input Anneau (Alias:303)" UniqueID="1683">
+                <NodeEditorPosition x="1340" y="891"/>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
+                    <Identification Type="StationAlias" StationAlias="303"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1684" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1685" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input Tournette (Alias:304)" UniqueID="1686">
+                <NodeEditorPosition x="1344" y="1023"/>
+                <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
+                    <Identification Type="StationAlias" StationAlias="304"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1687" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1688" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:305)" UniqueID="1689">
+                <NodeEditorPosition x="1352" y="1143"/>
+                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
+                    <Identification Type="StationAlias" StationAlias="305"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO1" DisplayString="DO1 Zero SSI Anneau" DataType="Boolean" UniqueID="1690" Visible="true"/>
+                    <InputPin SaveString="DO2" DisplayString="DO2 Zero SSI Tournette" DataType="Boolean" UniqueID="1691" Visible="true"/>
+                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="1692" Visible="false"/>
+                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="1693" Visible="false"/>
+                    <InputPin SaveString="DO5" DisplayString="DO5" DataType="Boolean" UniqueID="1694" Visible="false"/>
+                    <InputPin SaveString="DO6" DisplayString="DO6" DataType="Boolean" UniqueID="1695" Visible="false"/>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1696" Visible="false"/>
+                    <InputPin SaveString="DO8" DisplayString="DO8" DataType="Boolean" UniqueID="1697" Visible="false"/>
+                </InputPins>
+                <OutputPins/>
             </Node>
         </Nodes>
         <Links>
