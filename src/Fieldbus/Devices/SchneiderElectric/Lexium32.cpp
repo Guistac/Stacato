@@ -118,10 +118,6 @@ bool Lexium32::startupConfiguration() {
     uint16_t CTRL2_KFPp = 1000;
     if (!writeSDO_U16(0x3013, 0x6, CTRL2_KFPp)) return false;
 
-    //opmode cyclic synchronous position
-    int8_t DCOMopmode_set = 8;
-    if (!writeSDO_S8(0x6060, 0x0, DCOMopmode_set)) return false;
-
     uint32_t ECATinpshifttime_set = 250000;
     if (!writeSDO_U32(0x1C33, 0x3, ECATinpshifttime_set)) return false;
 

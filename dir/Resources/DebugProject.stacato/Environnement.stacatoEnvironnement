@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.4140335" OffsetX="411.42834" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49998" SizeY="388.39456"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.59999" SizeY="194.02193"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.59996" SizeY="193.99525"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.59999" SizeY="193.80141"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.59999" SizeY="193.78627"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.59999" SizeY="193.4021"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49998" SizeY="142.1264"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.44386"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49998" SizeY="141.80893"/>
+    <Dashboard Scale="1.4140165" OffsetX="411.43704" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.49998" SizeY="388.40161"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60002" SizeY="194.02428"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.59998" SizeY="194.00471"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.59998" SizeY="193.80728"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.59998" SizeY="193.78978"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.59998" SizeY="193.41034"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49998" SizeY="142.1317"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49998" SizeY="110.44742"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49998" SizeY="141.81604"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -617,101 +617,192 @@
                     <OutputPin SaveString="State" DisplayString="State" DataType="Integer" UniqueID="1339" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:1000)" UniqueID="1429">
-                <NodeEditorPosition x="334" y="124"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M Romaine LH (Alias:410)" UniqueID="1473">
+                <NodeEditorPosition x="380" y="547"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="1000"/>
-                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0" RatedMotorVoltage="0" RatedMotorCurrent="0" MotorRatedSpeed="1400"/>
-                    <MotionControlSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="50" SwitchingFrequency="4"/>
-                    <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
-                    <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1" FaultResetPin="0" ExternalFaultPin="0" PresetSlowdownSpeedPin="0"/>
-                    <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
+                    <Identification Type="StationAlias" StationAlias="410"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="11.199999999999999" EncoderIsMultiturn="true"/>
+                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="10" manualAcceleration_rpsps="10"/>
+                    <InvertDirectionOfMovement Invert="true"/>
+                    <MaxFollowingError revolutions="1"/>
+                    <CurrentLimit amps="2"/>
+                    <Quickstop Reaction="TorqueRamp" MaxCurrent_amps="10"/>
+                    <NegativeLimitSwitch Pin="DI1" NormallyClosed="true"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="true" DI1="true" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
-                <InputPins/>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0 Acquittement XPS" DataType="Boolean" UniqueID="1474" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="1475" Visible="false"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="1476" Visible="false"/>
+                </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="1430" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="1431" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1432" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1433" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1434" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1435" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1436" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1437" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="1438" Visible="true" DisableDataField="true"/>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1439" Visible="true"/>
-                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1440" Visible="true"/>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1477" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1478" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1479" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1480" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1481" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1482" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0 Fin de Course Haut" DataType="Boolean" UniqueID="1483" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 Surcourse Haut" DataType="Boolean" UniqueID="1484" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 Etat Prévnta ??" DataType="Boolean" UniqueID="1485" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1486" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1487" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1488" Visible="false" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:1002)" UniqueID="1442">
-                <NodeEditorPosition x="824" y="132"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M VAR2 (Alias:199)" UniqueID="1551">
+                <NodeEditorPosition x="-688" y="139"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="1002"/>
+                    <Identification Type="StationAlias" StationAlias="199"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="true"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
+                    <InvertDirectionOfMovement Invert="true"/>
+                    <MaxFollowingError revolutions="1"/>
+                    <CurrentLimit amps="10"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="0.29999999999999999"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0 Zero SSI" DataType="Boolean" UniqueID="1552" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1 Acquittement PREV" DataType="Boolean" UniqueID="1553" Visible="true"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="1554" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1555" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1556" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1557" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1558" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1559" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1560" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0 FDC Haut" DataType="Boolean" UniqueID="1561" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 FDC Bas" DataType="Boolean" UniqueID="1562" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 SRC Haut" DataType="Boolean" UniqueID="1563" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3 SRC Bas" DataType="Boolean" UniqueID="1564" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4 Retour frein 1" DataType="Boolean" UniqueID="1565" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5 Retour frein 2" DataType="Boolean" UniqueID="1566" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32M" Split="false" CustomName="Lexium32M VAR3 (Alias:201)" UniqueID="1567">
+                <NodeEditorPosition x="-446" y="140"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="201"/>
+                    <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="false"/>
+                    <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="100"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="0.125"/>
+                    <CurrentLimit amps="10"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="0.29999999999999999"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0 Zero SSI" DataType="Boolean" UniqueID="1568" Visible="true"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="1569" Visible="false"/>
+                    <InputPin SaveString="DQ2" DisplayString="DQ2" DataType="Boolean" UniqueID="1570" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1571" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1572" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1573" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1574" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1575" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1576" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0 FDC Haut" DataType="Boolean" UniqueID="1577" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 FDC Bas" DataType="Boolean" UniqueID="1578" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 SRC Haut" DataType="Boolean" UniqueID="1579" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3 SRC Bas" DataType="Boolean" UniqueID="1580" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4 Retour Frein" DataType="Boolean" UniqueID="1581" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5 Forcage Frein Externe" DataType="Boolean" UniqueID="1582" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="Lexium32i" Split="false" CustomName="Lexium32i VAR1 (Alias:206)" UniqueID="1583">
+                <NodeEditorPosition x="-189" y="141"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="206"/>
+                    <MotorProperties MaxVelocity="133.33333333333334" MaxCurrent="11.300000000000001" EncoderIsMultiturn="false"/>
+                    <KinematicLimits velocityLimit_rps="10" accelerationLimit_rpsps="10" manualAcceleration_rpsps="10"/>
+                    <InvertDirectionOfMovement Invert="false"/>
+                    <MaxFollowingError revolutions="0.125"/>
+                    <CurrentLimit amps="10.5"/>
+                    <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
+                    <NegativeLimitSwitch Pin="Unassigned"/>
+                    <PositiveLimitSwitch Pin="Unassigned"/>
+                    <DigitalPinInversion DI0="false" DI1="false" DI2="false" DI3="false"/>
+                    <EncoderSettings RangeShifted="false" PositionOffset="0"/>
+                    <HoldingBrake HasHoldingBrake="true"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DQ0" DisplayString="DQ0" DataType="Boolean" UniqueID="1584" Visible="false"/>
+                    <InputPin SaveString="DQ1" DisplayString="DQ1" DataType="Boolean" UniqueID="1585" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Servo Motor" DisplayString="Servo Motor" DataType="ActuatorInterface" UniqueID="1586" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="1587" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="1588" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="1589" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1590" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1591" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0 Came ??" DataType="Boolean" UniqueID="1592" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1593" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1594" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1595" Visible="false" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:202)" UniqueID="1596">
+                <NodeEditorPosition x="-587" y="524"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="202"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input (Alias:1003)" UniqueID="1443">
-                <NodeEditorPosition x="832" y="179"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input VAR2 (Alias:203)" UniqueID="1597">
+                <NodeEditorPosition x="-587" y="574"/>
                 <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
-                    <Identification Type="StationAlias" StationAlias="1003"/>
+                    <Identification Type="StationAlias" StationAlias="203"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins>
-                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1444" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1445" Visible="true"/>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1598" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1599" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input (Alias:1004)" UniqueID="1446">
-                <NodeEditorPosition x="832" y="300"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL5001" Split="false" CustomName="EL5001 SSI Input VAR3 (Alias:204)" UniqueID="1600">
+                <NodeEditorPosition x="-587" y="674"/>
                 <NodeSpecificData SSIFrameSize="24" MultiturnResolution="12" SingleturnResolution="12" SSICoding="1" SSIBaudrate="3" InhibitTime="0" CenterOnZero="false" InvertDirection="false" HasResetSignal="true" ResetTime="100">
-                    <Identification Type="StationAlias" StationAlias="1004"/>
+                    <Identification Type="StationAlias" StationAlias="204"/>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins>
-                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1447" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1448" Visible="true"/>
+                    <OutputPin SaveString="SSI Encoder" DisplayString="SSI Encoder" DataType="MotionFeedbackInterface" UniqueID="1601" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Encoder Reset" DisplayString="Encoder Reset" DataType="Boolean" UniqueID="1602" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 8x Digital Output (Alias:1005)" UniqueID="1449">
-                <NodeEditorPosition x="824" y="405"/>
-                <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
-                    <Identification Type="StationAlias" StationAlias="1005"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 8x Digital Input (Alias:205)" UniqueID="1603">
+                <NodeEditorPosition x="-587" y="775"/>
+                <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
+                    <Identification Type="StationAlias" StationAlias="205"/>
                 </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DO1" DisplayString="DO1" DataType="Boolean" UniqueID="1450" Visible="true"/>
-                    <InputPin SaveString="DO2" DisplayString="DO2" DataType="Boolean" UniqueID="1451" Visible="true"/>
-                    <InputPin SaveString="DO3" DisplayString="DO3" DataType="Boolean" UniqueID="1452" Visible="true"/>
-                    <InputPin SaveString="DO4" DisplayString="DO4" DataType="Boolean" UniqueID="1453" Visible="true"/>
-                    <InputPin SaveString="DO5" DisplayString="DO5" DataType="Boolean" UniqueID="1454" Visible="true"/>
-                    <InputPin SaveString="DO6" DisplayString="DO6" DataType="Boolean" UniqueID="1455" Visible="true"/>
-                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1456" Visible="true"/>
-                    <InputPin SaveString="DO8" DisplayString="DO8" DataType="Boolean" UniqueID="1457" Visible="true"/>
-                </InputPins>
-                <OutputPins/>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5206" Split="false" CustomName="AX5206 (Alias:1001)" UniqueID="1459">
-                <NodeEditorPosition x="360" y="571"/>
-                <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="1001"/>
-                    <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="1" VelocityLimit="1" AccelerationLimit="2" PositionFollowingErrorLimit="3"/>
-                    <Axis1 MotorType="0" VelocityLimit="4" AccelerationLimit="5" PositionFollowingErrorLimit="6"/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1460" Visible="true"/>
-                </InputPins>
+                <InputPins/>
                 <OutputPins>
-                    <OutputPin SaveString="Actuator 0" DisplayString="Actuator 0" DataType="ActuatorInterface" UniqueID="1461" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Actuator 1" DisplayString="Actuator 1" DataType="ActuatorInterface" UniqueID="1462" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="1463" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="1464" Visible="true"/>
-                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="1465" Visible="true"/>
-                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="1466" Visible="true"/>
-                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="1467" Visible="true"/>
-                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="1468" Visible="true"/>
-                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="1469" Visible="true"/>
-                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="1470" Visible="true"/>
-                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="1471" Visible="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1 puis Moteur VAR1" DataType="Boolean" UniqueID="1604" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2 puis Moteur VAR2" DataType="Boolean" UniqueID="1605" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3 puis Moteur VAR 3" DataType="Boolean" UniqueID="1606" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4 Dis Frein VAR 2" DataType="Boolean" UniqueID="1607" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5 Dis Frein VAR 3" DataType="Boolean" UniqueID="1608" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="1609" Visible="false"/>
+                    <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="1610" Visible="false"/>
+                    <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="1611" Visible="false"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -760,6 +851,8 @@
             <Link UniqueID="1341" StartPin="1261" EndPin="1330"/>
             <Link UniqueID="1342" StartPin="1276" EndPin="1334"/>
             <Link UniqueID="1343" StartPin="1291" EndPin="1338"/>
+            <Link UniqueID="1613" StartPin="1599" EndPin="1552"/>
+            <Link UniqueID="1614" StartPin="1602" EndPin="1568"/>
         </Links>
     </NodeGraph>
 </Environnement>
