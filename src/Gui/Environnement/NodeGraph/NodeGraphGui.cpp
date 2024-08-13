@@ -308,10 +308,18 @@ namespace Environnement::NodeGraph::Gui{
 
 		if (getWasJustLoaded()) {
 			getWasJustLoaded() = false;
+			loadTime_seconds = Timing::getProgramTime_seconds();
+			autoCentered = false;
 			for (auto node : getNodes()) node->restoreSavedPosition();
+		}
+		
+		if(!autoCentered && Timing::getProgramTime_seconds() - loadTime_seconds > 0.1){
+			autoCentered = true;
 			centerView();
 			showFlow();
 		}
+		
+		
 
 	}
 

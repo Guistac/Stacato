@@ -38,6 +38,9 @@ namespace Environnement::NodeGraph{
 	bool b_justLoaded = false;
 	bool& getWasJustLoaded(){ return b_justLoaded; }
 
+	float loadTime_seconds = 0.0;
+	bool autoCentered = false;
+
 	void addNode(std::shared_ptr<Node> newNode) {
 		if(newNode->uniqueID == -1){
 			newNode->uniqueID = getNewUniqueID();

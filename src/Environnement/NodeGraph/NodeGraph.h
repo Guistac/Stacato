@@ -70,6 +70,9 @@ namespace Environnement::NodeGraph{
 	bool& getShowOutputValues();
 	bool& getWasJustLoaded();
 
+	extern float loadTime_seconds;
+	extern bool autoCentered;
+
 	void reset();
 	
 }
