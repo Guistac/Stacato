@@ -3,8 +3,6 @@
         <Manoeuvre Name="M-0" Description="" Type="Target">
             <Animation Machine="Tournette" MachineUniqueID="222" Parameter="Position" IsComposite="false" Type="Target" Target="5000" ConstraintType="Velocity" Time="0" Velocity="1" StartAcceleration="0.5" EndAcceleration="0.5"/>
         </Manoeuvre>
-        <Manoeuvre Name="M-3" Description="" Type="Sequence"/>
-        <Manoeuvre Name="M-3 (copy)" Description="" Type="Sequence"/>
         <Manoeuvre Name="M-1" Description="" Type="Target">
             <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="State" IsComposite="false" Type="Target" Target="NegativeLimit" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
@@ -28,6 +26,21 @@
             <Animation Machine="Pétale 4" MachineUniqueID="1332" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="6" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="State" IsComposite="false" Type="Target" Target="PositiveLimit" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
             <Animation Machine="Pétale 5" MachineUniqueID="1336" Parameter="Velocity" IsComposite="false" Type="Target" Target="7.5" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="0" EndAcceleration="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Sequence">
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="State" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Step" Start="NegativeLimit" End="NegativeLimit" Duration="10" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
+                <Curves>
+                    <Curve Name="State">
+                        <ControlPoint Position="-0.55880000000000007" Time="2.705758426966292" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                        <ControlPoint Position="0.33440000000000003" Time="4.2816011235955047" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Pétale 1" MachineUniqueID="1319" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Step" Start="0" End="0" Duration="10" TimeOffset="0" StartAcceleration="0" EndAcceleration="0">
+                <Curves>
+                    <Curve Name="Value"/>
+                </Curves>
+            </Animation>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

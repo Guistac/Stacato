@@ -386,6 +386,13 @@ void SequenceAnimation::updateAfterParameterEdit(){
 
 void SequenceAnimation::updateAfterCurveEdit(){
 	auto& curves = getCurves();
+	if(getAnimatable()->getType() == AnimatableType::STATE){
+		for(auto& curve : curves){
+			for(auto& point : curve->getPoints()){
+				point->position = std::round(point->position);
+			}
+		}
+	}
 	for(auto& curve : curves) curve->refresh();
 	validate();
 }

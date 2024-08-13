@@ -245,7 +245,8 @@ void Manoeuvre::curveEditor(){
 	ImPlotFlags plotFlags = ImPlotFlags_NoBoxSelect | ImPlotFlags_NoMenus | ImPlotFlags_NoLegend;
 	
 	ImPlot::GetStyle().Use24HourClock = true;
-	if (ImPlot::BeginPlot("##SequenceCurveDisplay", 0, 0, ImGui::GetContentRegionAvail(), plotFlags)) {
+		
+	if(ImPlot::BeginPlot("##SequenceCurvedisplay", ImGui::GetContentRegionAvail(), plotFlags)){
 		
 		//draw manoeuvre bounds
 		if (getType() != ManoeuvreType::KEY) {
