@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.4133549" OffsetX="411.77399" OffsetY="-113" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.50003" SizeY="388.67508"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60001" SizeY="194.11499"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60001" SizeY="193.66267"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="417" PositionY="406" SizeX="180.60005" SizeY="194.03505"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60005" SizeY="193.92485"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="416" PositionY="603" SizeX="180.60005" SizeY="193.73016"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49998" SizeY="142.33765"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.50002" SizeY="110.58513"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49998" SizeY="142.09015"/>
+    <Dashboard Scale="1.0129623" OffsetX="3.156311" OffsetY="-109.05609" AutoFit="false" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.50006" SizeY="387.6922"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60004" SizeY="193.7468"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60004" SizeY="194.13287"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60004" SizeY="193.51834"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49994" SizeY="140.57323"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49994" SizeY="109.45438"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49994" SizeY="140.6794"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="419" PositionY="408" SizeX="180.60004" SizeY="193.92065"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="419" PositionY="605" SizeX="180.60004" SizeY="194.36136"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -78,7 +78,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Pétale 1" UniqueID="76">
-                <NodeEditorPosition x="1293" y="-1147"/>
+                <NodeEditorPosition x="1565" y="-1147"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="300"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.37" RatedMotorVoltage="230" RatedMotorCurrent="1.5800000000000001" MotorRatedSpeed="1400"/>
@@ -103,7 +103,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Pétale 2" UniqueID="87">
-                <NodeEditorPosition x="1293" y="-939"/>
+                <NodeEditorPosition x="1565" y="-939"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="310"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.37" RatedMotorVoltage="230" RatedMotorCurrent="1.5800000000000001" MotorRatedSpeed="1400"/>
@@ -128,7 +128,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Pétale 3" UniqueID="98">
-                <NodeEditorPosition x="1293" y="-731"/>
+                <NodeEditorPosition x="1565" y="-731"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="320"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.37" RatedMotorVoltage="230" RatedMotorCurrent="1.5800000000000001" MotorRatedSpeed="1400"/>
@@ -153,7 +153,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Pétale 4" UniqueID="109">
-                <NodeEditorPosition x="1293" y="-521"/>
+                <NodeEditorPosition x="1565" y="-521"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="330"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.37" RatedMotorVoltage="230" RatedMotorCurrent="1.5800000000000001" MotorRatedSpeed="1400"/>
@@ -178,7 +178,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Pétale 5" UniqueID="120">
-                <NodeEditorPosition x="1293" y="-313"/>
+                <NodeEditorPosition x="1565" y="-313"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="340"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.37" RatedMotorVoltage="230" RatedMotorCurrent="1.5800000000000001" MotorRatedSpeed="1400"/>
@@ -203,7 +203,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Pétales (Alias:350)" UniqueID="132">
-                <NodeEditorPosition x="392" y="-273"/>
+                <NodeEditorPosition x="1328" y="-816"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="350"/>
                 </NodeSpecificData>
@@ -211,7 +211,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2624" Split="false" CustomName="EL2624 Pétales (Alias:370)" UniqueID="133">
-                <NodeEditorPosition x="392" y="-226"/>
+                <NodeEditorPosition x="1328" y="-769"/>
                 <NodeSpecificData InvertR1="false" InvertR2="false" InvertR3="false" InvertR4="false">
                     <Identification Type="StationAlias" StationAlias="370"/>
                 </NodeSpecificData>
@@ -225,12 +225,12 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tournette" UniqueID="138">
                 <NodeEditorPosition x="680" y="-528"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="4.5" AccelerationLimit="0.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="100" PositionLoopMinError="0" PositionLoopErrorTimeout="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="-7200" UpperPositionLimit="0" LowerPositionLimitClearance="7200" UpperPositionLimitClearance="0" HomingDirection="1" SignalApproachMethod="1" HomingVelocityCoarse="3" HomingVelocityFine="0.5" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="3" AxisControlMode="0" VelocityLimit="4.5" AccelerationLimit="0.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0.29999999999999999" PositionLoopMaxError="2" PositionLoopMinError="0" PositionLoopErrorTimeout="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="-7200" UpperPositionLimit="0" LowerPositionLimitClearance="7200" UpperPositionLimitClearance="0" HomingDirection="1" SignalApproachMethod="1" HomingVelocityCoarse="3" HomingVelocityFine="0.20000000000000001" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings>
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.082222000000000003"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="15.779999999999999" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="15.779999999999999" PositionOffset="3063.0080269468381"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -294,7 +294,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 Pétales (Alias:360)" UniqueID="184">
-                <NodeEditorPosition x="391" y="-129"/>
+                <NodeEditorPosition x="1327" y="-672"/>
                 <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
                     <Identification Type="StationAlias" StationAlias="360"/>
                 </NodeSpecificData>
@@ -383,7 +383,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Pétale 1" UniqueID="1219">
-                <NodeEditorPosition x="1544" y="-1148"/>
+                <NodeEditorPosition x="1816" y="-1148"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="7.5" AccelerationLimit="4.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -417,7 +417,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Pétale 2" UniqueID="1235">
-                <NodeEditorPosition x="1544" y="-940"/>
+                <NodeEditorPosition x="1816" y="-940"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="7.5" AccelerationLimit="4.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -451,7 +451,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axis Pétale 3" UniqueID="1250">
-                <NodeEditorPosition x="1544" y="-731"/>
+                <NodeEditorPosition x="1816" y="-731"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="7.5" AccelerationLimit="4.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -485,7 +485,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Pétale 4" UniqueID="1265">
-                <NodeEditorPosition x="1544" y="-522"/>
+                <NodeEditorPosition x="1816" y="-522"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="7.5" AccelerationLimit="4.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -519,7 +519,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Pétale 5" UniqueID="1280">
-                <NodeEditorPosition x="1544" y="-314"/>
+                <NodeEditorPosition x="1816" y="-314"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="2" AxisControlMode="1" VelocityLimit="7.5" AccelerationLimit="4.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -553,7 +553,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Pétale 1" UniqueID="1319">
-                <NodeEditorPosition x="1770" y="-1102"/>
+                <NodeEditorPosition x="2042" y="-1102"/>
                 <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="7.5" MinPositiveVelocity="0" MaxPositiveVelocity="7.5">
                     <ControlWidget UniqueID="11"/>
                 </NodeSpecificData>
@@ -566,7 +566,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Pétale 2" UniqueID="1324">
-                <NodeEditorPosition x="1772" y="-880"/>
+                <NodeEditorPosition x="2044" y="-880"/>
                 <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="7.5" MinPositiveVelocity="0" MaxPositiveVelocity="7.5">
                     <ControlWidget UniqueID="12"/>
                 </NodeSpecificData>
@@ -579,7 +579,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Pétale 3" UniqueID="1328">
-                <NodeEditorPosition x="1778" y="-674"/>
+                <NodeEditorPosition x="2050" y="-674"/>
                 <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="7.5" MinPositiveVelocity="0" MaxPositiveVelocity="7.5">
                     <ControlWidget UniqueID="13"/>
                 </NodeSpecificData>
@@ -592,7 +592,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Pétale 4" UniqueID="1332">
-                <NodeEditorPosition x="1778" y="-468"/>
+                <NodeEditorPosition x="2050" y="-468"/>
                 <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="7.5" MinPositiveVelocity="0" MaxPositiveVelocity="7.5">
                     <ControlWidget UniqueID="14"/>
                 </NodeSpecificData>
@@ -605,7 +605,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="AxisStateMachine" CustomName="Pétale 5" UniqueID="1336">
-                <NodeEditorPosition x="1780" y="-256"/>
+                <NodeEditorPosition x="2052" y="-256"/>
                 <NodeSpecificData ShortName="M" MinNegativeVelocity="0" MaxNegativeVelocity="7.5" MinPositiveVelocity="0" MaxPositiveVelocity="7.5">
                     <ControlWidget UniqueID="15"/>
                 </NodeSpecificData>
