@@ -214,7 +214,8 @@ public:
 	std::shared_ptr<NumberParameter<double>> decelerationRampTime;
 	std::shared_ptr<BooleanParameter> invertDirection;
 	std::shared_ptr<NumberParameter<double>> lowControlFrequencyParameter;
-	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter;
+	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter; //[hsp]
+	std::shared_ptr<NumberParameter<double>> maxFrequencyParameter; //[tfr]
 	NumberParam<double> switchingFrequencyParameter;	//[sfr]
 	
 	//—————— Frequency Reference ————————
@@ -283,5 +284,9 @@ public:
 	void statusGui();
 	
 	void updateActuatorInterface();
+	
+	
+	//temp:
+	float maxVelocitySliderValue = 50.0;
 };
 

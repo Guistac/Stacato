@@ -1,14 +1,14 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.0129623" OffsetX="3.156311" OffsetY="-109.05609" AutoFit="false" DrawGrid="true" LockEdit="true">
-        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.50006" SizeY="387.6922"/>
-        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.60004" SizeY="193.7468"/>
-        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.60004" SizeY="194.13287"/>
-        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.60004" SizeY="193.51834"/>
-        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.49994" SizeY="140.57323"/>
-        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.49994" SizeY="109.45438"/>
-        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.49994" SizeY="140.6794"/>
-        <Widget Name="Pétale 3" UniqueID="13" PositionX="419" PositionY="408" SizeX="180.60004" SizeY="193.92065"/>
-        <Widget Name="Pétale 4" UniqueID="14" PositionX="419" PositionY="605" SizeX="180.60004" SizeY="194.36136"/>
+    <Dashboard Scale="0.72397703" OffsetX="297.57278" OffsetY="-109.07721" AutoFit="false" DrawGrid="true" LockEdit="true">
+        <Widget Name="Tournette" UniqueID="5" PositionX="233" PositionY="309" SizeX="178.50005" SizeY="388.74368"/>
+        <Widget Name="Pétale 1" UniqueID="11" PositionX="233" PositionY="113" SizeX="180.59993" SizeY="191.08478"/>
+        <Widget Name="Pétale 5" UniqueID="15" PositionX="232" PositionY="700" SizeX="180.59993" SizeY="191.12006"/>
+        <Widget Name="Pétale 2" UniqueID="12" PositionX="418" PositionY="208" SizeX="180.59993" SizeY="191.39169"/>
+        <Widget Name="HM Console" UniqueID="2" PositionX="18" PositionY="411" SizeX="178.50005" SizeY="141.71146"/>
+        <Widget Name="Safety" UniqueID="4" PositionX="29" PositionY="297" SizeX="157.50009" SizeY="109.29798"/>
+        <Widget Name="HM Externe" UniqueID="3" PositionX="18" PositionY="557" SizeX="178.50005" SizeY="140.74371"/>
+        <Widget Name="Pétale 3" UniqueID="13" PositionX="419" PositionY="408" SizeX="180.59993" SizeY="191.67429"/>
+        <Widget Name="Pétale 4" UniqueID="14" PositionX="419" PositionY="605" SizeX="180.59993" SizeY="190.8131"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -230,7 +230,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.082222000000000003"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="15.779999999999999" PositionOffset="3063.0080269468381"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="15.779999999999999" PositionOffset="3063.054889907683"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>

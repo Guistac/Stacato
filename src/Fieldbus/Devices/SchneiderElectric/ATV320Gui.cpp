@@ -34,8 +34,8 @@ void ATV320::controlsGui(){
 	ImGui::PopFont();
 	
 	float velocityTarget_rps = 0.0;
-	float maxVel = nominalMotorSpeedParameter->value / 60.0;
-	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVel, maxVel);
+	ImGui::InputFloat("max slider value", &maxVelocitySliderValue);
+	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVelocitySliderValue, maxVelocitySliderValue);
 	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rps);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
 	
@@ -152,6 +152,7 @@ void ATV320::settingsGui(){
 		nominalMotorSpeedParameter,
 		lowControlFrequencyParameter,
 		highControlFrequencyParameter,
+		maxFrequencyParameter,
 		accelerationRampTime,
 		decelerationRampTime,
 		invertDirection

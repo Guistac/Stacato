@@ -63,11 +63,14 @@ void ATV320::initialize() {
 	
 	invertDirection = BooleanParameter::make(false, "Invert Motion Direction", "InvertMotionDirection");
 	
-	lowControlFrequencyParameter = NumberParameter<double>::make(0.0, "Minimum Control Frequency", "MinControlFrequency");
+	lowControlFrequencyParameter = NumberParameter<double>::make(0.0, "Minimum Control Frequency [lsp]", "MinControlFrequency");
 	lowControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
 	
-	highControlFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Control Frequency", "MaxControlFrequency");
+	highControlFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Control Frequency [hsp]", "MaxControlFrequency");
 	highControlFrequencyParameter->setUnit(Units::Frequency::Hertz);
+	
+	maxFrequencyParameter = NumberParameter<double>::make(50.0, "Maximum Frequency [tfr]", "MaxFrequency");
+	maxFrequencyParameter->setUnit(Units::Frequency::Hertz);
 	
 	switchingFrequencyParameter = NumberParameter<double>::make(4.0, "Switching Frequency [sfr]", "SwitchingFrequency");
 	switchingFrequencyParameter->setUnit(Units::Frequency::Kilohertz);
@@ -309,6 +312,7 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	invertDirection->save(motionControlSettingsXML);
 	lowControlFrequencyParameter->save(motionControlSettingsXML);
 	highControlFrequencyParameter->save(motionControlSettingsXML);
+	maxFrequencyParameter->save(motionControlSettingsXML);
 	switchingFrequencyParameter->save(motionControlSettingsXML);
 	
 	//————— Frequency References —————
@@ -367,6 +371,7 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 		invertDirection->load(motionControlSettingsXML);
 		lowControlFrequencyParameter->load(motionControlSettingsXML);
 		highControlFrequencyParameter->load(motionControlSettingsXML);
+		maxFrequencyParameter->load(motionControlSettingsXML);
 		switchingFrequencyParameter->load(motionControlSettingsXML);
 	}
 	
@@ -571,10 +576,10 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		//————————— Motion Control Settings —————————————
 		//[lsp] set minimum control speed in hertz to 0Hz (in .1Hz increments)
 		SDOTask::prepareUpload(0x2001, 0x6, uint16_t(atv320->lowControlFrequencyParameter->value * 10), "Low speed [lsp]"),
-		//[hsp] set maximum control speed to in 0.1Hz increments
+		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments), needs to be set before [hsp]
+		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(atv320->maxFrequencyParameter->value * 10), "Max output frequency"),
+		//[hsp] set maximum control speed to in 0.1Hz increments, needs to be set after [tfr]
 		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
-		//[tfr] max output frequency overspeed error threshold (in 0.1Hz increments)
-		SDOTask::prepareUpload(0x2001, 0x4, uint16_t(maxMotorFrequency * 10), "Max output frequency"),
 		//[sfr] switching frequency (in 0.1KHz increments)
 		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(atv320->switchingFrequencyParameter->value * 10), "Switching Frequency [sfr]"),
 		
