@@ -19,6 +19,8 @@ class AnimationConstraint;
 
 class ManualControlChannel;
 
+namespace tinyxml2{ class XMLElement; }
+
 namespace Motion{
 struct ControlPoint;
 };
@@ -75,6 +77,11 @@ public:
 	virtual void fillControlPointDefaults(std::shared_ptr<Motion::ControlPoint> controlpoint) = 0;
 	
 	void deleteAllAnimations();
+	
+	virtual void settingsGui(){}
+	
+	virtual bool save(tinyxml2::XMLElement*){ return true; }
+	virtual bool load(tinyxml2::XMLElement*){ return true; }
 	
 	//animation currently animating this animatable
 	bool hasAnimation(){ return currentAnimation != nullptr; }

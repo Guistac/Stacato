@@ -54,7 +54,7 @@ public:
 	
 	virtual void onDisconnection() override;
 	
-	std::shared_ptr<ManualControlChannel> leftJoystickControlChannel = std::make_shared<ManualControlChannel>();
-	std::shared_ptr<ManualControlChannel> rightJoystickControlChannel = std::make_shared<ManualControlChannel>();
+	std::shared_ptr<ManualControlChannel> leftJoystickControlChannel = std::make_shared<ManualControlChannel>("Left Joystick");
+	std::shared_ptr<ManualControlChannel> rightJoystickControlChannel = std::make_shared<ManualControlChannel>("Right Joystick");
 	
 };

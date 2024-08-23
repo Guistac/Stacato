@@ -60,6 +60,7 @@ public:
 	
 	virtual void onDisconnection() override;
 	
-	std::shared_ptr<ManualControlChannel> controlChannel = std::make_shared<ManualControlChannel>();
+	std::shared_ptr<ManualControlChannel> controlChannel = std::make_shared<ManualControlChannel>("Joystick");
+	std::shared_ptr<ManualControlChannel> controlChannel2 = std::make_shared<ManualControlChannel>("Test Channel");
 	
 };

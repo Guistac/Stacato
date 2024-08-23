@@ -100,8 +100,8 @@ namespace Environnement {
 		if(isRunning()) stop();
 		Network::init();
 		EtherCatFieldbus::initialize();
-		controlChannel1 = std::make_shared<ManualControlChannel>();
-		controlChannel2 = std::make_shared<ManualControlChannel>();
+		controlChannel1 = std::make_shared<ManualControlChannel>("Environnement Control 1");
+		controlChannel2 = std::make_shared<ManualControlChannel>("Environnement Control 2");
 	}
 
 	void terminate(){

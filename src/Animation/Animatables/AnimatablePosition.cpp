@@ -341,10 +341,21 @@ void AnimatablePosition::onRapidToValue(std::shared_ptr<AnimationValue> animatio
 }
 
 void AnimatablePosition::onSetManualControlTarget(float x, float y, float z){
+	
+	float command = 0.0;
+	ManualControlAxis axisSelection = ManualControlAxis(controlChannelAxis_parameter->value);
+	switch(axisSelection){
+		default:
+		case ManualControlAxis::X: command = x; break;
+		case ManualControlAxis::Y: command = y; break;
+		case ManualControlAxis::Z: command = z; break;
+	}
+	if(controlChannelInvert_parameter->value) command = -command;
+	
 	//if we are in the middle of an animation and the requested velocity is 0, skip the command
-	if(x == 0.0 && hasAnimation()) return;
-	velocitySliderDisplayValue = x;
-	setManualVelocityTarget(velocityLimit * x);
+	if(command == 0.0 && hasAnimation()) return;
+	velocitySliderDisplayValue = command;
+	setManualVelocityTarget(velocityLimit * command);
 }
 
 void AnimatablePosition::onPlaybackStart(std::shared_ptr<Animation> animation){
@@ -752,3 +763,17 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
 	mutex.unlock();
 	return r;
 }
+
+
+bool AnimatablePosition::save(tinyxml2::XMLElement* xml){
+	controlChannelAxis_parameter->save(xml);
+	controlChannelInvert_parameter->save(xml);
+	return true;
+}
+
+bool AnimatablePosition::load(tinyxml2::XMLElement* xml){
+	controlChannelAxis_parameter->load(xml);
+	controlChannelInvert_parameter->load(xml);
+	return true;
+}
+

@@ -29,7 +29,6 @@ void StacatoCompact::gui(float height){
 	
 	if(drawJoystick(joystick)) controlChannel->openMappingList();
 	else if(ImGui::IsItemHovered()) controlChannel->mappingListTooltip();
-	
 	controlChannel->mappingList();
 	
 	ImGui::SameLine();

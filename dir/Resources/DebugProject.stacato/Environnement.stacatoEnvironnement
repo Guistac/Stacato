@@ -1,8 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.4186114" OffsetX="408.6058" OffsetY="-113" AutoFit="false" DrawGrid="true" LockEdit="false">
-        <Widget Name="M1" UniqueID="16" PositionX="-204.88547" PositionY="251.16327" SizeX="149.10005" SizeY="398.52679"/>
-        <Widget Name="M2" UniqueID="17" PositionX="-25.132233" PositionY="253.27802" SizeX="149.1001" SizeY="398.52679"/>
-        <Widget Name="M3" UniqueID="18" PositionX="141.93259" PositionY="254.68785" SizeX="149.09998" SizeY="398.52679"/>
+    <Dashboard Scale="1.3994348" OffsetX="568.87561" OffsetY="-251" AutoFit="false" DrawGrid="true" LockEdit="false">
+        <Widget Name="M1" UniqueID="16" PositionX="-205" PositionY="251" SizeX="149.09996" SizeY="398.98239"/>
+        <Widget Name="M2" UniqueID="17" PositionX="-25" PositionY="253" SizeX="149.10017" SizeY="399.12616"/>
+        <Widget Name="M3" UniqueID="18" PositionX="142" PositionY="255" SizeX="149.10017" SizeY="399.26987"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -11,6 +11,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="16"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -27,6 +28,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="true"/>
                     <ControWidget UniqueID="17"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -43,6 +45,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="18"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -73,7 +76,7 @@
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="1718" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="1719" Visible="false"/>
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1720" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1721" Visible="true"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1721" Visible="false"/>
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="1722" Visible="true"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="1723" Visible="true"/>
                     <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="1724" Visible="true"/>
@@ -104,7 +107,7 @@
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="1733" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="1734" Visible="false"/>
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1735" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1736" Visible="true"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1736" Visible="false"/>
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="1737" Visible="true"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="1738" Visible="true"/>
                     <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="1739" Visible="true"/>
@@ -135,7 +138,7 @@
                     <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="1748" Visible="false"/>
                     <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="1749" Visible="false"/>
                     <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="1750" Visible="false"/>
-                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1751" Visible="true"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="1751" Visible="false"/>
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="1752" Visible="true"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="1753" Visible="true"/>
                     <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="1754" Visible="true"/>

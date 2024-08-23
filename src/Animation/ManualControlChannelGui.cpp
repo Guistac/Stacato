@@ -7,12 +7,16 @@
 
 #include "Animation/Animatable.h"
 
+std::string getPopupName(std::string& channelName){
+	return channelName + "/MappingList";
+}
+
 void ManualControlChannel::openMappingList(){
-	ImGui::OpenPopup("MappingAdder");
+	ImGui::OpenPopup(getPopupName(name).c_str());
 }
 
 void ManualControlChannel::mappingList(){
-	if (ImGui::BeginPopup("MappingAdder")) {
+	if (ImGui::BeginPopup(getPopupName(name).c_str())) {
 		ImGui::BeginDisabled();
 		ImGui::MenuItem("Add Mapping");
 		ImGui::MenuItem("Machine List :");
@@ -51,6 +55,9 @@ void ManualControlChannel::mappingList(){
 void ManualControlChannel::mappingListTooltip(){
 	if(ImGui::BeginTooltip()){
 		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("%s", name.c_str());
+		ImGui::PopFont();
 		if(subscribers.empty()) ImGui::Text("Click to add mappings");
 		else ImGui::Text("Current Mappings: (click to edit)");
 		ImGui::PopStyleColor();

@@ -26,6 +26,10 @@ void Machine::nodeSpecificGui() {
 		ImGui::EndChild();
 		ImGui::EndTabItem();
 	}
+	if(ImGui::BeginTabItem("Animatable")){
+		animatableGui();
+		ImGui::EndTabItem();
+	}
 	if (ImGui::BeginTabItem("Axis")) {
 		ImGui::BeginChild("Axis");
 		axisGui();
@@ -189,4 +193,16 @@ void Machine::machineStateControlGui(float width){
 		if(customRoundedButton("Enable", buttonSize, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)) enable();
 	}
 	ImGui::EndDisabled();
+}
+
+void Machine::animatableGui(){
+	for(int i = 0; i < animatables.size(); i++){
+		ImGui::PushID(i);
+		ImGui::PushFont(Fonts::sansBold20);
+		ImGui::Text("%s", animatables[i]->getName());
+		ImGui::PopFont();
+		animatables[i]->settingsGui();
+		ImGui::Separator();
+		ImGui::PopID();
+	}
 }

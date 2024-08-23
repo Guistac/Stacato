@@ -9,6 +9,8 @@ namespace tinyxml2{ class XMLElement; }
 class ManualControlChannel : public std::enable_shared_from_this<ManualControlChannel>{
 public:
 	
+	ManualControlChannel(std::string name_) : name(name_){}
+	
 	void fullGui();
 	void openMappingList();
 	void mappingList();
@@ -27,6 +29,8 @@ public:
 		float y = 0.0;
 		float z = 0.0;
 	}controlValue;
+
+	std::string name;
 	
 private:
 	

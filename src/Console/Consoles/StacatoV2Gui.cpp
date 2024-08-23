@@ -13,7 +13,7 @@ void StacatoV2::gui(float height){
 	float joystickTipSize = ImGui::GetTextLineHeight() * .7f;
 	
 	auto drawJoystick = [&](std::shared_ptr<Joystick3X> joystick){
-		ImGui::InvisibleButton("joystick1", glm::vec2(height));
+		bool b_pressed = ImGui::InvisibleButton("joystick1", glm::vec2(height));
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
 		glm::vec2 center = (max + min) / 2.0;
@@ -32,10 +32,15 @@ void StacatoV2::gui(float height){
 		
 		drawing->AddLine(r1, r2, joystick->getPosition().z == 0.0 ? ImColor(Colors::gray) : ImColor(Colors::white), 1.0);
 		
-		
+		return b_pressed;
 	};
 	
-	drawJoystick(joystick3x_left);
+	if(drawJoystick(joystick3x_left)) leftJoystickControlChannel->openMappingList();
+	else if(ImGui::IsItemHovered()) leftJoystickControlChannel->mappingListTooltip();
+	leftJoystickControlChannel->mappingList();
+	
 	ImGui::SameLine();
-	drawJoystick(joystick3x_right);
+	if(drawJoystick(joystick3x_right)) rightJoystickControlChannel->openMappingList();
+	else if(ImGui::IsItemHovered()) rightJoystickControlChannel->mappingListTooltip();
+	rightJoystickControlChannel->mappingList();
 }

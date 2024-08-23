@@ -129,6 +129,7 @@ public:
 	virtual void axisGui() = 0;
 	virtual void deviceGui() = 0;
 	virtual void metricsGui() = 0;
+	void animatableGui();
 	
 	virtual bool hasSetupGui(){ return false; }
 	virtual void setupGui(){}

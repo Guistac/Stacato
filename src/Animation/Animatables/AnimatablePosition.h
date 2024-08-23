@@ -6,6 +6,8 @@
 
 #include "Motion/Curve/Profile.h"
 
+#include "Project/Editor/Parameter.h"
+
 struct AnimatablePositionValue : public AnimationValue{
 	virtual AnimatableType getType(){ return AnimatableType::POSITION; }
 	double position;
@@ -175,6 +177,26 @@ public:
 		sprintf(targetstring, "%.3f%s", getTargetValue()->toPosition()->position, getUnit()->abbreviated);
 		return std::string(targetstring);
 	}
+	
+	virtual void settingsGui() override;
+	virtual bool save(tinyxml2::XMLElement*) override;
+	virtual bool load(tinyxml2::XMLElement*) override;
+	
+	enum class ManualControlAxis{
+		X = 0,
+		Y = 1,
+		Z = 2
+	};
+	OptionParameter::Option controlChannelAxisX_option = OptionParameter::Option(int(ManualControlAxis::X), "X Axis", "X");
+	OptionParameter::Option controlChannelAxisY_option = OptionParameter::Option(int(ManualControlAxis::Y), "Y Axis", "Y");
+	OptionParameter::Option controlChannelAxisZ_option = OptionParameter::Option(int(ManualControlAxis::Z), "Z Axis", "Z");
+	std::vector<OptionParameter::Option*> controlChannelAxis_options = {
+		&controlChannelAxisX_option,
+		&controlChannelAxisY_option,
+		&controlChannelAxisZ_option
+	};
+	OptionParam controlChannelAxis_parameter = OptionParameter::make2(controlChannelAxisX_option, controlChannelAxis_options, "Manual Control Axis", "ManualControlChannelAxis");
+	BoolParam controlChannelInvert_parameter = BooleanParameter::make(false, "Invert Manual Control", "InvertManualControlAxis");
 	
 };
 

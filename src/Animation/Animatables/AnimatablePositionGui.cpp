@@ -230,3 +230,9 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 
 	ImGui::EndGroup();
 }
+
+
+void AnimatablePosition::settingsGui(){
+	controlChannelAxis_parameter->gui(Fonts::sansBold15);
+	controlChannelInvert_parameter->gui(Fonts::sansBold15);
+}

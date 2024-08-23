@@ -524,6 +524,9 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	allowModuloPositionShifting->save(userSetupXML);
 	linearWidgetOrientation_parameter->save(userSetupXML);
 	
+	XMLElement* animatableXML = xml->InsertNewChildElement("Animatable");
+	animatablePosition->save(animatableXML);
+	
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	
@@ -551,6 +554,10 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!invertControlGui->load(userSetupXML)) return false;
 	allowModuloPositionShifting->load(userSetupXML);
 	linearWidgetOrientation_parameter->load(userSetupXML);
+	
+	if(XMLElement* animatableXML = xml->FirstChildElement("Animatable")){
+		animatablePosition->load(animatableXML);
+	}
 	 
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
