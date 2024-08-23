@@ -6,52 +6,32 @@
 class Animatable;
 namespace tinyxml2{ class XMLElement; }
 
-class AnimatableMapping{
-public:
-	std::shared_ptr<Animatable> animatable;
-	NumberParam<double> multiplier = NumberParameter<double>::make(1.0, "Multiplier", "Multiplier");
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
-};
-
-class ChannelPreset{
-public:
-	void addAnimatable(std::shared_ptr<Animatable> animatable);
-	bool hasAnimatable(std::shared_ptr<Animatable> animatable);
-	void removeAnimatable(std::shared_ptr<Animatable> animatable);
-	std::vector<std::shared_ptr<AnimatableMapping>> getMappings();
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
-	
-	std::vector<std::shared_ptr<AnimatableMapping>> animatableMappings = {};
-	std::shared_ptr<StringParameter> nameParameter = StringParameter::make("Channel Mapping", "Name", "Name", 128);
-	
-	std::mutex mutex;
-};
-
-class ManualControlChannel{
+class ManualControlChannel : public std::enable_shared_from_this<ManualControlChannel>{
 public:
 	
-	void createChannelPreset();
-	void removeChannelPreset(std::shared_ptr<ChannelPreset> preset);
-	std::vector<std::shared_ptr<ChannelPreset>>& getChannelPresets(){ return channelPresets; }
+	void fullGui();
+	void openMappingList();
+	void mappingList();
+	void mappingListTooltip();
 	
-	std::shared_ptr<ChannelPreset> getActiveChannelPreset(){ return activeChannelPreset; }
-	void setActiveChannelPreset(std::shared_ptr<ChannelPreset> preset);
+	void updateSubscribers();
 	
-	bool save(tinyxml2::XMLElement* xml);
-	bool load(tinyxml2::XMLElement* xml);
+	void setControlValue(float x, float y, float z);
 	
-	void gui();
+	void addSubscriber(std::shared_ptr<Animatable>);
+	bool removeSubscriber(std::shared_ptr<Animatable>);
+	void clearSubscribers();
 	
-	void setControlValue(float controlValue);
+	struct ControlValues{
+		float x = 0.0;
+		float y = 0.0;
+		float z = 0.0;
+	}controlValue;
 	
 private:
-	std::vector<std::shared_ptr<ChannelPreset>> channelPresets = {};
-	std::shared_ptr<ChannelPreset> activeChannelPreset = nullptr;
 	
-	float controlSliderValue = 0.0;
-	bool b_editLocked = true;
+	std::vector<std::shared_ptr<Animatable>> subscribers = {};
+	
 };
 
 class ManualControlsWindow : public Window{
@@ -60,4 +40,3 @@ public:
 	virtual void onDraw() override;
 	SINGLETON_GET_METHOD(ManualControlsWindow)
 };
-

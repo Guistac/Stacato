@@ -2,6 +2,8 @@
 
 #include "Console/ConsoleMapping.h"
 
+#include "Animation/ManualControlChannel.h"
+
 class StacatoCompact : public ConsoleMapping, public std::enable_shared_from_this<StacatoCompact>{
 public:
 	
@@ -57,5 +59,7 @@ public:
 	bool b_playbackSpeedAdjustButtonPressed = false;
 	
 	virtual void onDisconnection() override;
+	
+	std::shared_ptr<ManualControlChannel> controlChannel = std::make_shared<ManualControlChannel>();
 	
 };

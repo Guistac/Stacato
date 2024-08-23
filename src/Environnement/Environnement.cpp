@@ -30,10 +30,7 @@
 
 namespace Environnement {
 
-	std::shared_ptr<ManualControlChannel> manualControlChannel = nullptr;
-
-	std::shared_ptr<ManualControlChannel> getManualControlChannel(){ return manualControlChannel; }
-
+/*
 	void enableManualControlOfMachineIndex(int index){
 		if(index < 0 || index >= getMachines().size()) return;
 		auto machine = getMachines()[index];
@@ -71,7 +68,7 @@ namespace Environnement {
 			return activePreset->hasAnimatable(animatable);
 		}
 	}
-
+*/
 
 
 
@@ -103,7 +100,8 @@ namespace Environnement {
 		if(isRunning()) stop();
 		Network::init();
 		EtherCatFieldbus::initialize();
-		manualControlChannel = std::make_shared<ManualControlChannel>();
+		controlChannel1 = std::make_shared<ManualControlChannel>();
+		controlChannel2 = std::make_shared<ManualControlChannel>();
 	}
 
 	void terminate(){
@@ -547,5 +545,8 @@ namespace Environnement {
 		}
 	}
 
+
+	std::shared_ptr<ManualControlChannel> controlChannel1;
+	std::shared_ptr<ManualControlChannel> controlChannel2;
 
 }

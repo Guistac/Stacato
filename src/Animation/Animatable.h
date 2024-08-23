@@ -17,6 +17,8 @@ class AnimatableReal;
 class AnimationValue;
 class AnimationConstraint;
 
+class ManualControlChannel;
+
 namespace Motion{
 struct ControlPoint;
 };
@@ -161,6 +163,8 @@ private:
 	
 public:
 	std::mutex mutex;
+	
+	std::shared_ptr<ManualControlChannel> subscribedManualControlChannel = nullptr;
 	
 public:
 	std::string name;

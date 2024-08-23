@@ -93,7 +93,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	
 	pushbutton_arrowUp->setInputUpdateCallback([](){});
 	pushbutton_arrowDown->setInputUpdateCallback([](){});
-	joystick3x_left->setInputUpdateCallback([&](){
+	joystick3x_left->setInputUpdateCallback([&,this](){
 		glm::vec3 pos = joystick3x_left->getPosition();
 		//Logger::warn("Joystick Left {} {} {}", pos.x, pos.y, pos.z);
 	});
@@ -308,6 +308,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 
 
 void StacatoV2::onDisconnection(){
-	
+	leftJoystickControlChannel->setControlValue(0.0, 0.0, 0.0);
+	rightJoystickControlChannel->setControlValue(0.0, 0.0, 0.0);
 }
 

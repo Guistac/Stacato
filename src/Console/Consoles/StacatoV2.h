@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Console/ConsoleMapping.h"
+#include "Animation/ManualControlChannel.h"
 
 class StacatoV2 : public ConsoleMapping, public std::enable_shared_from_this<StacatoV2>{
 public:
@@ -52,5 +53,8 @@ public:
 	std::shared_ptr<PushButton> pushbutton_rightJoystickDeadman;
 	
 	virtual void onDisconnection() override;
+	
+	std::shared_ptr<ManualControlChannel> leftJoystickControlChannel = std::make_shared<ManualControlChannel>();
+	std::shared_ptr<ManualControlChannel> rightJoystickControlChannel = std::make_shared<ManualControlChannel>();
 	
 };

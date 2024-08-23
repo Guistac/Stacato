@@ -64,11 +64,11 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	//——— Axis 1 Selection
 	rgbButton1->setInputUpdateCallback([&](){
 		Logger::trace("RGB Button 1 : {}", rgbButton1->isPressed());
-		if(rgbButton1->isPressed()) Environnement::toggleManualControlOfMachineIndex(0);
+		//if(rgbButton1->isPressed()) Environnement::toggleManualControlOfMachineIndex(0);
 	});
 	rgbButton1->setOutputUpdateCallback([&](){
-		if(Environnement::isManualControlEnabledForMachineIndex(0)) rgbButton1->setColor(glm::vec3(1.0, 1.0, 1.0));
-		else rgbButton1->setColor(glm::vec3(0.0, 0.0, 0.0));
+		//if(Environnement::isManualControlEnabledForMachineIndex(0)) rgbButton1->setColor(glm::vec3(1.0, 1.0, 1.0));
+		//else rgbButton1->setColor(glm::vec3(0.0, 0.0, 0.0));
 	});
 	
 	
@@ -76,12 +76,12 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	
 	//——— Axis 2 Selection
 	rgbButton2->setInputUpdateCallback([&](){
-		Logger::trace("RGB Button 2 : {}", rgbButton2->isPressed());
-		if(rgbButton2->isPressed()) Environnement::toggleManualControlOfMachineIndex(1);
+		//Logger::trace("RGB Button 2 : {}", rgbButton2->isPressed());
+		//if(rgbButton2->isPressed()) Environnement::toggleManualControlOfMachineIndex(1);
 	});
 	rgbButton2->setOutputUpdateCallback([&](){
-		if(Environnement::isManualControlEnabledForMachineIndex(1)) rgbButton2->setColor(glm::vec3(1.0, 1.0, 1.0));
-		else rgbButton2->setColor(glm::vec3(0.0, 0.0, 0.0));
+		//if(Environnement::isManualControlEnabledForMachineIndex(1)) rgbButton2->setColor(glm::vec3(1.0, 1.0, 1.0));
+		//else rgbButton2->setColor(glm::vec3(0.0, 0.0, 0.0));
 	});
 	
 	
@@ -89,12 +89,12 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 	
 	//——— Axis 3 Selection
 	rgbButton3->setInputUpdateCallback([&](){
-		Logger::trace("RGB Button 3 : {}", rgbButton3->isPressed());
-		if(rgbButton3->isPressed()) Environnement::toggleManualControlOfMachineIndex(2);
+		//Logger::trace("RGB Button 3 : {}", rgbButton3->isPressed());
+		//if(rgbButton3->isPressed()) Environnement::toggleManualControlOfMachineIndex(2);
 	});
 	rgbButton3->setOutputUpdateCallback([&](){
-		if(Environnement::isManualControlEnabledForMachineIndex(2)) rgbButton3->setColor(glm::vec3(1.0, 1.0, 1.0));
-		else rgbButton3->setColor(glm::vec3(0.0, 0.0, 0.0));
+		//if(Environnement::isManualControlEnabledForMachineIndex(2)) rgbButton3->setColor(glm::vec3(1.0, 1.0, 1.0));
+		//else rgbButton3->setColor(glm::vec3(0.0, 0.0, 0.0));
 	});
 	
 	
@@ -105,7 +105,7 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 		Logger::trace("RGB Button 4 : {}", rgbButton4->isPressed());
 		if(rgbButton4->isPressed()){
 			b_playbackSpeedAdjustButtonPressed = true;
-			Environnement::getManualControlChannel()->setControlValue(0.0);
+			//Environnement::getManualControlChannel()->setControlValue(0.0);
 		}
 		else{
 			b_playbackSpeedAdjustButtonPressed = false;
@@ -270,7 +270,8 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 			double output = ((joystick->getPosition().x * 0.5) + 0.5) * (max - min) + min;
 			PlaybackManager::setPlaybackSpeedMultiplier(output);
 		}else{
-			Environnement::getManualControlChannel()->setControlValue(joystick->getPosition().y);
+			controlChannel->setControlValue(joystick->getPosition().x, joystick->getPosition().y, 0.0);
+			//Environnement::getManualControlChannel()->setControlValue(joystick->getPosition().y);
 		}
 	});
 	
@@ -285,5 +286,6 @@ void StacatoCompact::apply(std::shared_ptr<Console> console){
 
 
 void StacatoCompact::onDisconnection(){
-	Environnement::getManualControlChannel()->setControlValue(0.0);
+	//Environnement::getManualControlChannel()->setControlValue(0.0);
+	controlChannel->setControlValue(0.0, 0.0, 0.0);
 }
