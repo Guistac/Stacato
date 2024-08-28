@@ -24,21 +24,21 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	led_EtherCat = 						devices[0]->toLED_PWM();
 	led_Light = 						devices[1]->toLED_PWM();
 	led_Video = 						devices[2]->toLED_PWM();
-	rgbLed_leftDeadman = 				devices[3]->toLED_RGB();
-	rgbLed_rightDeadman = 				devices[4]->toLED_RGB();
-	rgbButton_goToStart = 				devices[5]->toLED_RGB_Button();
-	rgbButton_PlayPause = 				devices[6]->toLED_RGB_Button();
-	rgbButton_Stop = 					devices[7]->toLED_RGB_Button();
-	rgbButton_goToEnd = 				devices[8]->toLED_RGB_Button();
-	pushbutton_arrowUp = 				devices[9]->toPushButton();
-	pushbutton_arrowDown = 				devices[10]->toPushButton();
-	joystick3x_left = 					devices[11]->toJoystick3X();
-	joystick3x_right = 					devices[12]->toJoystick3X();
-	pushbutton_leftJoystickDeadman = 	devices[13]->toPushButton();
-	pushbutton_rightJoystickDeadman = 	devices[14]->toPushButton();
+	rgbButton_goToStart = 				devices[3]->toLED_RGB_Button();
+	rgbButton_PlayPause = 				devices[4]->toLED_RGB_Button();
+	rgbButton_Stop = 					devices[5]->toLED_RGB_Button();
+	rgbButton_goToEnd = 				devices[6]->toLED_RGB_Button();
+	pushbutton_arrowUp = 				devices[7]->toPushButton();
+	pushbutton_arrowDown = 				devices[8]->toPushButton();
+	joystick3x_left = 					devices[9]->toJoystick3X();
+	joystick3x_right = 					devices[10]->toJoystick3X();
+	pushbutton_leftJoystickDeadman = 	devices[11]->toPushButton();
+	pushbutton_rightJoystickDeadman = 	devices[12]->toPushButton();
+	pushbutton_leftJoystickSelection = 	devices[13]->toPushButton();
+	pushbutton_rightJoystickSelection =	devices[14]->toPushButton();
 	
 	
-	
+	//======= STATUS LEDS ========
 	
 	led_EtherCat->setOutputUpdateCallback([&](){
 		float br = Timing::getSinusWave(1.0, 0.0, 1.0);
@@ -52,18 +52,10 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 		float br = Timing::getSinusWave(1.0, 0.0, 1.0);
 		led_Video->setBrightness(br);
 	});
-	rgbLed_leftDeadman->setOutputUpdateCallback([&](){
-		float br = Timing::getSinusWave(1.0, 0.0, 1.0);
-		rgbLed_leftDeadman->setColor(glm::vec3(br,br,br));
-	});
-	rgbLed_rightDeadman->setOutputUpdateCallback([&](){
-		float br = Timing::getSinusWave(1.0, 0.0, 1.0);
-		rgbLed_rightDeadman->setColor(glm::vec3(br,br,br));
-	});
+
 	
 	
-	
-	
+	//======= RGB LED BUTTONS ========
 	
 	rgbButton_goToStart->setInputUpdateCallback([](){});
 	rgbButton_goToStart->setOutputUpdateCallback([&](){
@@ -91,18 +83,26 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	
 	
 	
+	//======= SCROLL BUTTONS ========
+	
 	pushbutton_arrowUp->setInputUpdateCallback([](){});
 	pushbutton_arrowDown->setInputUpdateCallback([](){});
+	
+	
+	//======= JOYSTICKS ========
+	
 	joystick3x_left->setInputUpdateCallback([&,this](){
 		glm::vec3 pos = joystick3x_left->getPosition();
-		//Logger::warn("Joystick Left {} {} {}", pos.x, pos.y, pos.z);
+		leftJoystickControlChannel->setControlValue(pos.x, pos.y, pos.z);
 	});
 	joystick3x_right->setInputUpdateCallback([&](){
 		glm::vec3 pos = joystick3x_right->getPosition();
-		//Logger::warn("Joystick Right {} {} {}", pos.x, pos.y, pos.z);
+		rightJoystickControlChannel->setControlValue(pos.x, pos.y, pos.z);
 	});
 	pushbutton_leftJoystickDeadman->setInputUpdateCallback([](){});
 	pushbutton_rightJoystickDeadman->setInputUpdateCallback([](){});
+	pushbutton_leftJoystickSelection->setInputUpdateCallback([](){});
+	pushbutton_rightJoystickSelection->setInputUpdateCallback([](){});
 	
 	
 	

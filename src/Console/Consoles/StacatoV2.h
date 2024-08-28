@@ -11,8 +11,6 @@ public:
 			IODevice::Type::LED_PWM,
 			IODevice::Type::LED_PWM,
 			IODevice::Type::LED_PWM,
-			IODevice::Type::LED_RGB,
-			IODevice::Type::LED_RGB,
 			IODevice::Type::LED_RGB_BUTTON,
 			IODevice::Type::LED_RGB_BUTTON,
 			IODevice::Type::LED_RGB_BUTTON,
@@ -21,6 +19,8 @@ public:
 			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::JOYSTICK_3AXIS,
 			IODevice::Type::JOYSTICK_3AXIS,
+			IODevice::Type::PUSHBUTTON,
+			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::PUSHBUTTON,
 			IODevice::Type::PUSHBUTTON
 		};
@@ -39,8 +39,6 @@ public:
 	std::shared_ptr<LED_PWM> led_EtherCat;
 	std::shared_ptr<LED_PWM> led_Light;
 	std::shared_ptr<LED_PWM> led_Video;
-	std::shared_ptr<LED_RGB> rgbLed_leftDeadman;
-	std::shared_ptr<LED_RGB> rgbLed_rightDeadman;
 	std::shared_ptr<LED_RGB_Button> rgbButton_goToStart;
 	std::shared_ptr<LED_RGB_Button> rgbButton_PlayPause;
 	std::shared_ptr<LED_RGB_Button> rgbButton_Stop;
@@ -51,6 +49,8 @@ public:
 	std::shared_ptr<Joystick3X> joystick3x_right;
 	std::shared_ptr<PushButton> pushbutton_leftJoystickDeadman;
 	std::shared_ptr<PushButton> pushbutton_rightJoystickDeadman;
+	std::shared_ptr<PushButton> pushbutton_leftJoystickSelection;
+	std::shared_ptr<PushButton> pushbutton_rightJoystickSelection;
 	
 	virtual void onDisconnection() override;
 	

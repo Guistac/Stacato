@@ -1,8 +1,8 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.3994348" OffsetX="568.87561" OffsetY="-251" AutoFit="false" DrawGrid="true" LockEdit="false">
-        <Widget Name="M1" UniqueID="16" PositionX="-205" PositionY="251" SizeX="149.09996" SizeY="398.98239"/>
-        <Widget Name="M2" UniqueID="17" PositionX="-25" PositionY="253" SizeX="149.10017" SizeY="399.12616"/>
-        <Widget Name="M3" UniqueID="18" PositionX="142" PositionY="255" SizeX="149.10017" SizeY="399.26987"/>
+    <Dashboard Scale="2.7282395" OffsetX="217.55759" OffsetY="-248.95654" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="M1" UniqueID="16" PositionX="-205" PositionY="251" SizeX="149.09999" SizeY="400.66385"/>
+        <Widget Name="M2" UniqueID="17" PositionX="-25" PositionY="253" SizeX="149.10004" SizeY="400.8631"/>
+        <Widget Name="M3" UniqueID="18" PositionX="142" PositionY="255" SizeX="149.10001" SizeY="400.69574"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -11,7 +11,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
-                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
+                    <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="16"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -28,7 +28,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
-                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="true"/>
+                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="17"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -45,7 +45,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
-                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
+                    <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="18"/>
                 </NodeSpecificData>
                 <InputPins>

@@ -185,7 +185,7 @@ Collapsed=0
 Pos=0,29
 Size=1422,1144
 Collapsed=0
-DockId=0x00000015,1
+DockId=0x00000015,0
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -226,7 +226,7 @@ Collapsed=0
 Pos=0,29
 Size=1422,1144
 Collapsed=0
-DockId=0x00000015,0
+DockId=0x00000015,1
 
 [Window][Node Manager]
 ViewportPos=0,25
@@ -435,7 +435,7 @@ DockSpace                 ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,11
             DockNode      ID=0x00000005 Parent=0x00000009 SizeRef=0,0 Split=X Selected=0xEBD2820B
               DockNode    ID=0x00000012 Parent=0x00000005 SizeRef=1213,1022 Split=Y Selected=0xB00214C9
                 DockNode  ID=0x0000000F Parent=0x00000012 SizeRef=1425,391 Selected=0x47C7A3F3
-                DockNode  ID=0x00000015 Parent=0x00000012 SizeRef=1425,751 CentralNode=1 Selected=0xAE98FAB7
+                DockNode  ID=0x00000015 Parent=0x00000012 SizeRef=1425,751 CentralNode=1 Selected=0xB00214C9
               DockNode    ID=0x00000013 Parent=0x00000005 SizeRef=434,1022 Split=Y Selected=0x27459703
                 DockNode  ID=0x00000001 Parent=0x00000013 SizeRef=434,567 Selected=0x27459703
                 DockNode  ID=0x0000000E Parent=0x00000013 SizeRef=434,453 Selected=0xCD2247DB
