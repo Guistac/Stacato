@@ -12,8 +12,10 @@ void StacatoV2::gui(float height){
 	float joystickWidth = ImGui::GetTextLineHeight() * .2f;
 	float joystickTipSize = ImGui::GetTextLineHeight() * .7f;
 	
-	auto drawJoystick = [&](std::shared_ptr<Joystick3X> joystick){
+	auto drawJoystick = [&](std::shared_ptr<Joystick3X> joystick, int id){
+		ImGui::PushID(id);
 		bool b_pressed = ImGui::InvisibleButton("joystick1", glm::vec2(height));
+		ImGui::PopID();
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
 		glm::vec2 center = (max + min) / 2.0;
@@ -31,16 +33,16 @@ void StacatoV2::gui(float height){
 		glm::vec2 r2(joystickEndPosition.x - sin(rotationRad) * joystickTipSize * .5, joystickEndPosition.y - cos(rotationRad) * joystickTipSize * .5);
 		
 		drawing->AddLine(r1, r2, joystick->getPosition().z == 0.0 ? ImColor(Colors::gray) : ImColor(Colors::white), 1.0);
-		
+
 		return b_pressed;
 	};
 	
-	if(drawJoystick(joystick3x_left)) leftJoystickControlChannel->openMappingList();
+	if(drawJoystick(joystick3x_left, 0)) leftJoystickControlChannel->openMappingList();
 	else if(ImGui::IsItemHovered()) leftJoystickControlChannel->mappingListTooltip();
 	leftJoystickControlChannel->mappingList();
 	
 	ImGui::SameLine();
-	if(drawJoystick(joystick3x_right)) rightJoystickControlChannel->openMappingList();
+	if(drawJoystick(joystick3x_right, 1)) rightJoystickControlChannel->openMappingList();
 	else if(ImGui::IsItemHovered()) rightJoystickControlChannel->mappingListTooltip();
 	rightJoystickControlChannel->mappingList();
 }

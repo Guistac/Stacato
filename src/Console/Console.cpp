@@ -39,10 +39,11 @@ void Console::terminate(std::shared_ptr<Console> console){
 
 
 void Console::onDisconnection(){
-	mapping->onDisconnection();
-	Logger::warn("Console {} Disconnected", consoleName);
+	if(mapping) mapping->onDisconnection();
+	//Logger::warn("Console {} Disconnected", consoleName);
 	b_inputHandlerRunning = false;
 	b_outputHandlerRunning = false;
+	serialPort->close();
 	connectionState = ConnectionState::DISCONNECTED;
 }
 
@@ -77,44 +78,44 @@ void Console::receiveDeviceInput(uint8_t* message, int size){
 	device->updateInput(deviceInputData, deviceInputDataSize);
 	
 	
-	/*
-	uint8_t deviceTypeCode = message[0];
-	switch(IODevice::getTypeFromCode(deviceTypeCode)){
-		case IODevice::Type::PUSHBUTTON:
-			Logger::warn("Push Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
-			break;
-		case IODevice::Type::SWITCH:			break;
-		case IODevice::Type::POTENTIOMETER:		break;
-		case IODevice::Type::ENCODER:			break;
-		case IODevice::Type::JOYSTICK_1AXIS:	break;
-		case IODevice::Type::JOYSTICK_2AXIS:{
-			float x = (int8_t)message[2] / 127.f;
-			float y = (int8_t)message[3] / 127.f;
-			Logger::warn("Joystick {} x:{:.2f} y:{:.2f}", message[1], x, y);
-			}break;
-		case IODevice::Type::JOYSTICK_3AXIS:{
-			float x = (int8_t)message[2] / 127.f;
-			float y = (int8_t)message[3] / 127.f;
-			float z = (int8_t)message[4] / 127.f;
-			Logger::warn("Joystick {} x:{:.2f} y:{:.2f} z:{:.2f}", message[1], x, y, z);
-			}break;
-		case IODevice::Type::LED:				break;
-		case IODevice::Type::LED_PWM:			break;
-		case IODevice::Type::LED_RGB:			break;
-		case IODevice::Type::LED_BUTTON:
-			Logger::warn("LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
-			break;
-		case IODevice::Type::LED_PWM_BUTTON:
-			Logger::warn("PWM LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
-			break;
-		case IODevice::Type::LED_RGB_BUTTON:
-			Logger::warn("RGB LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
-			break;
-		case IODevice::Type::UNKNOWN:
-			Logger::warn("Unknown device input received...");
-			break;
+	if(false){
+		uint8_t deviceTypeCode = message[0];
+		switch(IODevice::getTypeFromCode(deviceTypeCode)){
+			case IODevice::Type::PUSHBUTTON:
+				Logger::warn("Push Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
+				break;
+			case IODevice::Type::SWITCH:			break;
+			case IODevice::Type::POTENTIOMETER:		break;
+			case IODevice::Type::ENCODER:			break;
+			case IODevice::Type::JOYSTICK_1AXIS:	break;
+			case IODevice::Type::JOYSTICK_2AXIS:{
+				float x = (int8_t)message[2] / 127.f;
+				float y = (int8_t)message[3] / 127.f;
+				Logger::warn("Joystick {} x:{:.2f} y:{:.2f}", message[1], x, y);
+				}break;
+			case IODevice::Type::JOYSTICK_3AXIS:{
+				float x = (int8_t)message[2] / 127.f;
+				float y = (int8_t)message[3] / 127.f;
+				float z = (int8_t)message[4] / 127.f;
+				Logger::warn("Joystick {} x:{:.2f} y:{:.2f} z:{:.2f}", message[1], x, y, z);
+				}break;
+			case IODevice::Type::LED:				break;
+			case IODevice::Type::LED_PWM:			break;
+			case IODevice::Type::LED_RGB:			break;
+			case IODevice::Type::LED_BUTTON:
+				Logger::warn("LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
+				break;
+			case IODevice::Type::LED_PWM_BUTTON:
+				Logger::warn("PWM LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
+				break;
+			case IODevice::Type::LED_RGB_BUTTON:
+				Logger::warn("RGB LED Button {} {}", message[1], message[2] == 1 ? "Pressed" : "Released");
+				break;
+			case IODevice::Type::UNKNOWN:
+				Logger::warn("Unknown device input received...");
+				break;
+		}
 	}
-	*/
 }
 
 void Console::receiveConnectionConfirmation(uint8_t* message, int size){

@@ -16,10 +16,11 @@ public:
 	void send(uint8_t* buffer, int size);
 	void sendMultiple(std::vector<std::vector<uint8_t>>& messages);
 
+	void close();
+
 	
 private:
 	
-	void onIssue();
 	void readByte(uint8_t byte);
 	
 	std::string portName;

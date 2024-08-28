@@ -8,6 +8,13 @@
 
 std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 	auto serialports = serial::list_ports();
+
+
+	for(auto port : serialports){
+		Logger::critical("{} {}", port.port, port.hardware_id);
+	}
+
+
 	for(auto& port : serialports){
 		#if defined(STACATO_UNIX)
 		if(port.description.find(portMatchingString) != std::string::npos){
@@ -16,6 +23,7 @@ std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 		#endif
 			auto openedPort = std::make_shared<serial::Serial>(port.port);
 			if(openedPort->isOpen()) {
+				Logger::info("Opened serial port {} ({})", port.port, port.description);
 				return std::make_shared<SerialPort>(openedPort, port.port);
 			}
 			else openedPort = nullptr;
@@ -33,14 +41,20 @@ std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 //[3+L] Stop Byte
 
 SerialPort::SerialPort(std::shared_ptr<serial::Serial> port, std::string& name) : serialPort(port), portName(name){
-	Logger::info("Opened serial port {}", name);
-	serialPort->flush();
+	b_portOpen = true;
+}
+
+void SerialPort::close(){
+	serialPort->close();
+	b_portOpen = false;
+	Logger::warn("Serial Port {} Closed", portName);
 }
 
 constexpr uint8_t startByte = 0x33;
 constexpr uint8_t stopByte = 0x99;
 	
 void SerialPort::read(){
+	if(!b_portOpen) return;
 	try{
 		while(int byteCount = serialPort->available()){
 			serialPort->read(incomingBytes, byteCount);
@@ -52,23 +66,24 @@ void SerialPort::read(){
 			Logger::critical("Error while reading from serial port {} :", portName);
 			Logger::critical("Error #{} : {}",  e.getErrorNumber(), e.what());
 		}
-		onIssue();
+		close();
 	}
 	catch(serial::SerialException e){
 		Logger::info("Error while reading from serial port {} :", portName);
 		Logger::info("{}", e.what());
 		b_portOpen = false;
-		onIssue();
+		close();
 	}
 	catch(serial::PortNotOpenedException e){
 		Logger::info("Error not opened Exception while reading from serial port {} :", portName);
 		Logger::info("{}", e.what());
-		onIssue();
+		close();
 	}
 }
 
 void SerialPort::send(uint8_t* message, int messageLength){
-	
+	if(!b_portOpen) return;
+
 	static int outframecount = 0;
 
 	outgoingFrame[0] = startByte;
@@ -86,22 +101,24 @@ void SerialPort::send(uint8_t* message, int messageLength){
 	catch(serial::IOException e){
 		Logger::critical("Error while writing to serial port {} :", portName);
 		Logger::critical("Error #{} : {}",  e.getErrorNumber(), e.what());
-		onIssue();
+		close();
 	}
 	catch(serial::SerialException e){
 		Logger::info("Error while writing to serial port {} :", portName);
 		Logger::info("{}", e.what());
 		b_portOpen = false;
-		onIssue();
+		close();
 	}
 	catch(serial::PortNotOpenedException e){
 		Logger::info("Error while writing to serial port {} :", portName);
 		Logger::info("{}", e.what());
-		onIssue();	
+		close();	
 	}
 }
 
 void SerialPort::sendMultiple(std::vector<std::vector<uint8_t>>& messages){
+	if(!b_portOpen) return;
+
 	uint8_t outBuffer[1024];
 	int byteCount = 0;
 	for(auto& msg : messages){
@@ -122,29 +139,26 @@ void SerialPort::sendMultiple(std::vector<std::vector<uint8_t>>& messages){
 	catch(serial::IOException e){
 		Logger::critical("Error while writing to serial port {} :", portName);
 		Logger::critical("Error #{} : {}",  e.getErrorNumber(), e.what());
-		onIssue();
+		close();
 	}
 	catch(serial::SerialException e){
 		Logger::info("Error while writing to serial port {} :", portName);
 		Logger::info("{}", e.what());
 		b_portOpen = false;
-		onIssue();
+		close();
 	}
 	catch(serial::PortNotOpenedException e){
 		Logger::info("Error while writing to serial port {} :", portName);
 		Logger::info("{}", e.what());
-		onIssue();	
+		close();	
 	}
 
 }
 
-void SerialPort::onIssue(){
-	b_portOpen = false;
-	Logger::warn("Serial Port {} Closed", portName);
-	portClosedCallback();
-}
 
 void SerialPort::readByte(uint8_t newByte){
+	if(!b_portOpen) return;
+
 	switch(incomingMessageState){
 		case IncomingMessageState::EXPECTING_START_BYTE:
 			if(newByte == startByte) incomingMessageState = IncomingMessageState::EXPECTING_LENGTH;
