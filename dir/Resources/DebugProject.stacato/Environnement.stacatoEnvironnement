@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.147873" OffsetX="395.95648" OffsetY="-374.03986" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.49998" SizeY="386.83459"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.50002" SizeY="386.5769"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="47" PositionY="447" SizeX="157.49997" SizeY="109.36572"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="43" PositionY="584" SizeX="157.50003" SizeY="109.14043"/>
+    <Dashboard Scale="1.0337422" OffsetX="352.80048" OffsetY="-353.34467" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="387.75494"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="388.65701"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="47" PositionY="447" SizeX="157.49998" SizeY="109.7401"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="43" PositionY="584" SizeX="157.50002" SizeY="109.13775"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -588,7 +588,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4279999999999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.552245914761272" PositionOffset="8.4703294725430034e-22"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.552245914761272" PositionOffset="-8.4703294725430034e-22"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -625,7 +625,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4259999999999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.124948606694296" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.124948606694296" PositionOffset="-1.0842021724855044e-19"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -660,7 +660,7 @@
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="1.8" AccelerationLimit="5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="3.5" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="5" HomingVelocityFine="1" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="47.29952675592574" PositionOffset="1.3552527156068805e-20"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="47.29952675592574" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>

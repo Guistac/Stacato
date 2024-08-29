@@ -357,6 +357,7 @@ void Lexium32::writeOutputs() {
     if (servoMotor->actuatorProcessData.b_disable) {
 		servoMotor->actuatorProcessData.b_disable = false;
 		requestedPowerState = DS402::PowerState::READY_TO_SWITCH_ON;
+		Logger::info("{} Disable Request", getName());
     }
     if (servoMotor->actuatorProcessData.b_quickstop) {
 		servoMotor->actuatorProcessData.b_quickstop = false;

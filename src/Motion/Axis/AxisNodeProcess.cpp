@@ -78,11 +78,14 @@ void AxisNode::inputProcess(){
 	profileTime_seconds = EtherCatFieldbus::getCycleProgramTime_seconds();
 	profileTimeDelta_seconds = EtherCatFieldbus::getCycleTimeDelta_seconds();
 	
+	std::string lowestInterfaceName;
+
 	//update axis state
 	DeviceState lowestInterfaceState = DeviceState::ENABLED;
 	for(auto interface : connectedDeviceInterfaces){
 		if(interface->getState() < lowestInterfaceState){
 			lowestInterfaceState = interface->getState();
+			lowestInterfaceName = interface->getName();
 		}
 	}
 	bool b_readyStatePinInvalid = false;
@@ -91,6 +94,7 @@ void AxisNode::inputProcess(){
 		if(!*readyStateInputSignal && lowestInterfaceState > DeviceState::NOT_READY) {
 			lowestInterfaceState = DeviceState::NOT_READY;
 			b_readyStatePinInvalid = true;
+			Logger::info("ready state is false");
 		}
 	}
 	DeviceState previousAxisState = axisInterface->getState();
@@ -153,6 +157,7 @@ void AxisNode::inputProcess(){
 	
 	//disable the axis if any connected interface is not enabled anymore
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
+		Logger::info("state: {} ({})", lowestInterfaceState, lowestInterfaceName);
 		for(auto actuatorMapping : actuatorMappings) actuatorMapping->disable();
 		axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis", getName());
