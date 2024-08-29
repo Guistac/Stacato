@@ -19,6 +19,7 @@ ActuatorMapping::ActuatorMapping(std::shared_ptr<AxisNode> axis) : FeedbackMappi
 bool FeedbackMapping::save(tinyxml2::XMLElement* parent){
 	parent->SetAttribute("PinSaveName", feedbackPin->saveString);
 	deviceUnitsPerAxisUnits->save(parent);
+	return true;
 }
 bool FeedbackMapping::load(tinyxml2::XMLElement* parent){
 	const char* pinSaveString;
