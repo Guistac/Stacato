@@ -9,12 +9,6 @@
 std::shared_ptr<SerialPort> findSerialPort(std::string& portMatchingString){
 	auto serialports = serial::list_ports();
 
-
-	for(auto port : serialports){
-		Logger::critical("{} {}", port.port, port.hardware_id);
-	}
-
-
 	for(auto& port : serialports){
 		#if defined(STACATO_UNIX)
 		if(port.description.find(portMatchingString) != std::string::npos){

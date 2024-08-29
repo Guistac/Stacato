@@ -624,7 +624,9 @@ void EtherCatNetworkWindow::onDraw(){
 		ImGui::EndChild();
 	}else{
 		ImGui::SameLine();
-		if(ImGui::Button("Reset Error Counters")) EtherCatFieldbus::resetErrorCounters();
+		if(ImGui::Button("Update")) EtherCatFieldbus::downloadTransmissionErrorCounters();
+		ImGui::SameLine();
+		if(ImGui::Button("Reset")) EtherCatFieldbus::resetTransmissionErrorCounters();
 		
 		ImGui::Separator();
 		ImGui::BeginChild("Topology");

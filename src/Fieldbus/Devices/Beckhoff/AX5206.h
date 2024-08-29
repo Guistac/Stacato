@@ -154,6 +154,7 @@ public:
 		NumberParam<double> velocityLimit_revps = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
 		NumberParam<double> accelerationLimit_revps2 = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit", "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s\xc2\xb2");
 		NumberParam<double> positionFollowingErrorLimit_rev = NumberParameter<double>::make(0.0, "Position Following Error Limit", "PositionFollowingErrorLimit", "%.1f", Units::AngularDistance::Revolution, false);
+		BoolParam invertDirection_param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);
 	private:

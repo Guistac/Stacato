@@ -593,6 +593,8 @@ bool Lexium32i::downloadGeneralParameters() {
     generalParameterDownloadState = DataTransferState::SUCCEEDED;
 	
 	updateEncoderWorkingRange();
+
+	return true;
 }
 
 

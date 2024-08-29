@@ -93,5 +93,8 @@ namespace EtherCatFieldbus {
 
 	double getConfigurationProgramStartTime_seconds();
 
+	void downloadTransmissionErrorCounters();
+	void resetTransmissionErrorCounters();
+
 };
 

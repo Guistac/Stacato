@@ -123,6 +123,17 @@ bool AX5206::startupConfiguration() {
 	writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
 	
 	writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
+
+	writeSercos_U16('P', 350, 0, 0); //set error reaction to torque off
+	writeSercos_U16('P', 350, 0, 1);
+
+	bool b_invert0 = axis0->invertDirection_param->value;
+	bool b_invert1 = axis1->invertDirection_param->value;
+
+	writeSercos_U16('S', 43, b_invert0 ? 0xD : 0x0, 0);
+	writeSercos_U16('S', 55, b_invert0 ? 0xD : 0x0, 0);
+	writeSercos_U16('S', 43, b_invert1 ? 0xD : 0x0, 1);
+	writeSercos_U16('S', 55, b_invert1 ? 0xD : 0x0, 1);
 	
 	//setup cycle times
 	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
@@ -601,6 +612,7 @@ bool AX5206::Axis::save(tinyxml2::XMLElement* xml){
 	velocityLimit_revps->save(xml);
 	accelerationLimit_revps2->save(xml);
 	positionFollowingErrorLimit_rev->save(xml);
+	invertDirection_param->save(xml);
 	return true;
 }
 
@@ -609,6 +621,7 @@ bool AX5206::Axis::load(tinyxml2::XMLElement* xml){
 	velocityLimit_revps->load(xml);
 	accelerationLimit_revps2->load(xml);
 	positionFollowingErrorLimit_rev->load(xml);
+	invertDirection_param->load(xml);
 	return true;
 }
 

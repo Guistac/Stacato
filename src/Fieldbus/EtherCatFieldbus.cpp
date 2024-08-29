@@ -896,7 +896,7 @@ namespace EtherCatFieldbus {
         //cleanup threads and relaunch slave detection handler
 		
 		stopHandlingStateTransitions();
-		stopCountingTransmissionErrors();
+		//stopCountingTransmissionErrors();
 		
 		startPollingDiscoveredDevices();
 		
@@ -1117,7 +1117,8 @@ namespace EtherCatFieldbus {
 				b_networkRunning = true;
 
 				startHandlingStateTransitions();
-				startCountingTransmissionErrors();
+				//startCountingTransmissionErrors();
+				resetTransmissionErrorCounters();
 				
 				startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
 				Logger::info("===== All slaves are operational");
@@ -1275,66 +1276,53 @@ namespace EtherCatFieldbus {
 
 	//============== TRANSMISSION ERROR COUNTER =================
 
-	std::thread transmissionErrorCounterThread;
-	bool b_transmissionErrorCounterRunning = false;
+	//std::thread transmissionErrorCounterThread;
+	//bool b_transmissionErrorCounterRunning = false;
 
-	void updateTransmissionErrorCounters(){
-		for(auto& device : discoveredDevices) device->downloadErrorCounters();
-		for(auto& connection : networkTopology){
-			int largestErrorCount = 0;
-			if(connection->b_parentIsMaster) {
-				auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
-				double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
-				int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
-				largestErrorCount = std::max(largestErrorCount, masterStability_i);
-				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
-				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
-				connection->b_wasDisconnected = childPortErrors.lostLinks > 0;
-			}else{
-				auto& parentPortErrors = connection->parentDevice->errorCounters.portErrors[connection->parentDevicePort];
-				auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
-				connection->b_wasDisconnected = parentPortErrors.lostLinks > 0 || childPortErrors.lostLinks > 0;
-				largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.frameRxErrors);
-				largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.physicalRxErrors);
-				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
-				largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+	bool b_downloadingTransmissionErrors = false;
+	void downloadTransmissionErrorCounters(){
+		if(b_downloadingTransmissionErrors) return;
+		b_downloadingTransmissionErrors = true;
+		std::thread errorDownloader([](){
+			Logger::info("Starting download of transmission error counters");
+			for(auto& device : discoveredDevices) device->downloadErrorCounters();
+			for(auto& connection : networkTopology){
+				int largestErrorCount = 0;
+				if(connection->b_parentIsMaster) {
+					auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+					double masterStability_f = 100.0 * 255.0 * (double)EtherCatFieldbus::getMetrics().droppedFrameCount / (double)EtherCatFieldbus::getMetrics().frameCount;
+					int masterStability_i = std::clamp((int)masterStability_f, 0, 255);
+					largestErrorCount = std::max(largestErrorCount, masterStability_i);
+					largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+					largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+					connection->b_wasDisconnected = childPortErrors.lostLinks > 0;
+				}else{
+					auto& parentPortErrors = connection->parentDevice->errorCounters.portErrors[connection->parentDevicePort];
+					auto& childPortErrors = connection->childDevice->errorCounters.portErrors[connection->childDevicePort];
+					connection->b_wasDisconnected = parentPortErrors.lostLinks > 0 || childPortErrors.lostLinks > 0;
+					largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.frameRxErrors);
+					largestErrorCount = std::max(largestErrorCount, (int)parentPortErrors.physicalRxErrors);
+					largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.frameRxErrors);
+					largestErrorCount = std::max(largestErrorCount, (int)childPortErrors.physicalRxErrors);
+				}
+				connection->instability = (float)largestErrorCount / 255.0;
 			}
-			connection->instability = (float)largestErrorCount / 255.0;
-		}
-	}
-
-	void startCountingTransmissionErrors(){
-		if(!b_transmissionErrors) return;
-
-		if(b_transmissionErrorCounterRunning){
-			Logger::error("Can't start transmission error counter while it is running");
-			return;
-		}
-		transmissionErrorCounterThread = std::thread([]() {
-			b_transmissionErrorCounterRunning = true;
-			//pthread_setname_np("EtherCAT Transmission Error Counter");
-			Logger::debug("Started Transmission Error Counter");
-			while (b_transmissionErrorCounterRunning) {
-				updateTransmissionErrorCounters();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			}
-			Logger::debug("Exited Transmission Error Counter");
+			b_downloadingTransmissionErrors = false;
+			Logger::info("Finished download of transmission error counters");
 		});
+		errorDownloader.detach();
 	}
 
-	void stopCountingTransmissionErrors(){
-		if(b_transmissionErrorCounterRunning){
-			b_transmissionErrorCounterRunning = false;
-			if(transmissionErrorCounterThread.joinable()) transmissionErrorCounterThread.join();
-		}
-	}
-
-	void resetErrorCounters(){
+	bool b_transmissionErrorCounterResetRunning = false;
+	void resetTransmissionErrorCounters(){
+		if(b_transmissionErrorCounterResetRunning) return;
+		b_transmissionErrorCounterResetRunning = true;
 		std::thread errorCounterResetter([](){
 			cyclicFrameTimeoutCounter = 0;
 			cyclicFrameErrorCounter = 0;
 			for(auto& device : discoveredDevices) device->resetErrorCounters();
-			updateTransmissionErrorCounters();
+			downloadTransmissionErrorCounters();
+			b_transmissionErrorCounterResetRunning = false;
 		});
 		errorCounterResetter.detach();
 	}
