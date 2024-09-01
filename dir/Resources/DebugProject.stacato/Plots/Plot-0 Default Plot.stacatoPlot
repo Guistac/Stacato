@@ -1,6 +1,8 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="All Closed" Description="" Type="Target"/>
+        <Manoeuvre Name="All Closed" Description="" Type="Target">
+            <Animation Machine="Tapis Roulant" MachineUniqueID="2303" Parameter="Velocity" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="10" EndAcceleration="10"/>
+        </Manoeuvre>
         <Manoeuvre Name="All Open" Description="" Type="Target"/>
         <Manoeuvre Name="M-2" Description="" Type="Target"/>
     </ManoeuvreList>

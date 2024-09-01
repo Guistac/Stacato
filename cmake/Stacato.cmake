@@ -124,6 +124,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePosition.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatablePositionGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableVelocity.h
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableVelocity.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableVelocityGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.h
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableState.cpp
     ${STACATO_SOURCE_DIRECTORY}/Animation/Animatables/AnimatableReal.h
@@ -347,6 +350,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/PositionControlledMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/VelocityControlledMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/VelocityControlledMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/VelocityControlledMachineGui.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMapping.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMapping.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Basic/AxisMappingGui.cpp

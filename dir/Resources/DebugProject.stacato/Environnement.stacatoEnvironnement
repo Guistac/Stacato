@@ -1,9 +1,9 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.0337422" OffsetX="352.80048" OffsetY="-353.34467" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="387.75494"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="388.65701"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="47" PositionY="447" SizeX="157.49998" SizeY="109.7401"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="43" PositionY="584" SizeX="157.50002" SizeY="109.13775"/>
+    <Dashboard Scale="1.0337422" OffsetX="352.80048" OffsetY="-293.36319" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="387.74976"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="388.65182"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="47" PositionY="447" SizeX="157.49998" SizeY="109.73491"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="43" PositionY="584" SizeX="157.50002" SizeY="109.13249"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -815,6 +815,22 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2285" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Machine" ClassName="VelocityControlledMachine" CustomName="Tapis Roulant" UniqueID="2303">
+                <NodeEditorPosition x="943" y="-1083"/>
+                <NodeSpecificData ShortName="M">
+                    <Limits InvertAxis="false"/>
+                    <UserSetup InvertControlGui="false"/>
+                    <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false"/>
+                    <ControWidget UniqueID="7"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="2304" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Velocity Controlled Axis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="2305" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2306" Visible="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="1812" StartPin="1767" EndPin="1778"/>
@@ -878,6 +894,7 @@
             <Link UniqueID="2296" StartPin="2058" EndPin="2135"/>
             <Link UniqueID="2300" StartPin="2069" EndPin="2299"/>
             <Link UniqueID="2301" StartPin="2072" EndPin="2298"/>
+            <Link UniqueID="2307" StartPin="2180" EndPin="2305"/>
         </Links>
     </NodeGraph>
 </Environnement>
