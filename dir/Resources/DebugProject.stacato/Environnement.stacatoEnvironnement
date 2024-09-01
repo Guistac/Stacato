@@ -1,9 +1,10 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.0337422" OffsetX="352.80048" OffsetY="-293.36319" AutoFit="false" DrawGrid="false" LockEdit="true">
-        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="387.74976"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="388.65182"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="47" PositionY="447" SizeX="157.49998" SizeY="109.73491"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="43" PositionY="584" SizeX="157.50002" SizeY="109.13249"/>
+    <Dashboard Scale="1.097047" OffsetX="353.38635" OffsetY="-312.15424" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50006" SizeY="388.52707"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.50006" SizeY="388.35016"/>
+        <Widget Name="Tapis" UniqueID="8" PositionX="18" PositionY="408" SizeX="136.49988" SizeY="318.24249"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="163" PositionY="561" SizeX="157.49997" SizeY="110.55023"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="162" PositionY="440" SizeX="157.49997" SizeY="111.2272"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -311,7 +312,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Tournette" UniqueID="1971">
-                <NodeEditorPosition x="929" y="-844"/>
+                <NodeEditorPosition x="941" y="-844"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-16057.847265707327" UpperPositionLimit="16057.847265707327"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
@@ -328,7 +329,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Anneau" UniqueID="1976">
-                <NodeEditorPosition x="939" y="-675"/>
+                <NodeEditorPosition x="943" y="-661"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-11458.589095420259" UpperPositionLimit="11458.589095420259"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
@@ -588,7 +589,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4279999999999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.552245914761272" PositionOffset="-8.4703294725430034e-22"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.552245914761272" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -625,7 +626,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4259999999999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.124948606694296" PositionOffset="-1.0842021724855044e-19"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="57.124948606694296" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -690,8 +691,8 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tapis" UniqueID="2169">
-                <NodeEditorPosition x="713" y="-1069"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="1" VelocityLimit="40" AccelerationLimit="10" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeEditorPosition x="720" y="-1069"/>
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="1" VelocityLimit="1" AccelerationLimit="0.20000000000000001" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="31.104299999999999" PositionOffset="0"/>
@@ -815,20 +816,45 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2285" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="VelocityControlledMachine" CustomName="Tapis Roulant" UniqueID="2303">
-                <NodeEditorPosition x="943" y="-1083"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 (Alias:0)" UniqueID="2309">
+                <NodeEditorPosition x="447" y="-1271"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.089999999999999997" RatedMotorVoltage="230" RatedMotorCurrent="1.2" MotorRatedSpeed="1400"/>
+                    <MotionControlSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="120" MaxFrequency="120" SwitchingFrequency="16"/>
+                    <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
+                    <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1" FaultResetPin="0" ExternalFaultPin="0" PresetSlowdownSpeedPin="0"/>
+                    <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="2310" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Gpio" DisplayString="Gpio" DataType="GpioInterface" UniqueID="2311" Visible="false" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="2312" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="2313" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="2314" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="2315" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="2316" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="2317" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="2318" Visible="false" DisableDataField="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2319" Visible="true"/>
+                    <OutputPin SaveString="Load" DisplayString="Load" DataType="Real" UniqueID="2320" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="VelocityControlledMachine" CustomName="Tapis" UniqueID="2323">
+                <NodeEditorPosition x="943" y="-1068"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false"/>
                     <UserSetup InvertControlGui="false"/>
                     <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false"/>
-                    <ControWidget UniqueID="7"/>
+                    <ControWidget UniqueID="8"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="2304" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Velocity Controlled Axis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="2305" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="2324" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Velocity Controlled Axis" DisplayString="Velocity Controlled Axis" DataType="AxisInterface" UniqueID="2325" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2306" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2326" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -855,8 +881,6 @@
             <Link UniqueID="2163" StartPin="2056" EndPin="2134"/>
             <Link UniqueID="2167" StartPin="2070" EndPin="2018"/>
             <Link UniqueID="2168" StartPin="2073" EndPin="2034"/>
-            <Link UniqueID="2185" StartPin="1882" EndPin="2184"/>
-            <Link UniqueID="2186" StartPin="1883" EndPin="2170"/>
             <Link UniqueID="2187" StartPin="1899" EndPin="1946"/>
             <Link UniqueID="2188" StartPin="1900" EndPin="1928"/>
             <Link UniqueID="2207" StartPin="1933" EndPin="1973"/>
@@ -894,7 +918,8 @@
             <Link UniqueID="2296" StartPin="2058" EndPin="2135"/>
             <Link UniqueID="2300" StartPin="2069" EndPin="2299"/>
             <Link UniqueID="2301" StartPin="2072" EndPin="2298"/>
-            <Link UniqueID="2307" StartPin="2180" EndPin="2305"/>
+            <Link UniqueID="2321" StartPin="2310" EndPin="2184"/>
+            <Link UniqueID="2327" StartPin="2180" EndPin="2325"/>
         </Links>
     </NodeGraph>
 </Environnement>

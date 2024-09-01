@@ -77,7 +77,7 @@ void VelocityControlledMachine::enableHardware() {
 void VelocityControlledMachine::disableHardware() {
 	animatableVelocity->stopMovement();
 	animatableVelocity->stopAnimation();
-	if (isAxisConnected()) getAxisInterface()->disable();
+	b_disableRequest = true;
 }
 
 void VelocityControlledMachine::onEnableHardware() {}
@@ -125,9 +125,10 @@ void VelocityControlledMachine::inputProcess() {
 		return;
 	}
 	auto axis = getAxisInterface();
+	state = axis->getState();
 	
 	//update machine state
-	if (isEnabled() && !axis->isEnabled()) disable();
+	if (isEnabled() && !axis->isEnabled()) b_disableRequest = true;
 	else state = axis->getState();
 	
 	//update estop state
@@ -154,6 +155,17 @@ void VelocityControlledMachine::inputProcess() {
 }
 
 void VelocityControlledMachine::outputProcess(){
+	
+	if(b_enableRequest){
+		b_enableRequest = false;
+		if(isAxisConnected()) getAxisInterface()->enable();
+	}
+	
+	if(b_disableRequest){
+		b_disableRequest = false;
+		Logger::info("machine disable request process");
+		if(isAxisConnected()) getAxisInterface()->disable();
+	}
 	
 	if(b_emergencyStopActive){
 		animatableVelocity->stopMovement();

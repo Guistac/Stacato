@@ -121,28 +121,10 @@ bool AnimatableVelocity::generateTargetAnimation(std::shared_ptr<TargetAnimation
 }
 
 bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation){
-	/*
+	
 	using namespace Motion;
 	
 	bool b_animationValid = true;
-	
-	auto validatePosition = [&](std::shared_ptr<BaseNumberParameter> animatablePosition){
-		if(!animatablePosition->validateRange(lowerPositionLimit, upperPositionLimit)){
-			std::string error = std::string(animatablePosition->getName()) + " is out of range. (" + std::to_string(lowerPositionLimit) + " - " + std::to_string(upperPositionLimit) + ")";
-			animation->appendValidationErrorString(error);
-			b_animationValid = false;
-		}
-	};
-	
-	auto validateVelocity = [&](std::shared_ptr<NumberParameter<double>> velocityParameter){
-		if(!velocityParameter->validateRange(0.0, std::abs(velocityLimit), false, true)){
-			std::string error = std::string(velocityParameter->getName()) + " ";
-			if(velocityParameter->getReal() == 0.0) error += "is Zero";
-			else error += "is out of range. (max: " + std::to_string(std::abs(velocityLimit)) + ")";
-			animation->appendValidationErrorString(error);
-			b_animationValid = false;
-		}
-	};
 	
 	auto validateAcceleration = [&](std::shared_ptr<NumberParameter<double>> accelerationParameter){
 		if(!accelerationParameter->validateRange(0.0, std::abs(accelerationLimit), false, true)){
@@ -155,26 +137,68 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 	};
 	
 	
-	if(animation->getType() == ManoeuvreType::KEY){
-		auto key = animation->toKey();
-		validatePosition(key->target->toNumber());
-		
-	}else if(animation->getType() == ManoeuvreType::TARGET){
+	if(animation->getType() == ManoeuvreType::TARGET){
 		auto target = animation->toTarget();
-		validatePosition(target->target->toNumber());
-		if(target->getConstraintType() == TargetAnimation::Constraint::VELOCITY) validateVelocity(target->velocityConstraint);
-		else target->velocityConstraint->setValid(true);
+		
+		target->constraintType->setValid(true);
 		target->timeConstraint->setValid(true);
+		target->velocityConstraint->setValid(true);
+		target->target->setValid(true);
+		target->inAcceleration->setValid(true);
+		target->outAcceleration->setValid(true);
+		
+		if(target->getConstraintType() == TargetAnimation::Constraint::VELOCITY) {
+			target->constraintType->setValid(false);
+			animation->appendValidationErrorString("Velocity constraint is not supported");
+			b_animationValid = false;
+		}
+		else {
+			if(std::abs(target->target->toNumber()->getReal()) > velocityLimit){
+				target->target->setValid(false);
+				b_animationValid = false;
+				char msg[256];
+				snprintf(msg, 256, "Velocity target exceeds limit (Max %.2f%s/s)", velocityLimit, getUnit()->abbreviated);
+				animation->appendValidationErrorString(msg);
+			}
+			if(target->timeConstraint->value == 0.0){
+				target->timeConstraint->setValid(false);
+				b_animationValid = false;
+				animation->appendValidationErrorString("Time constraint is zero");
+			}
+			
+		}
+		
 		validateAcceleration(target->inAcceleration);
 		validateAcceleration(target->outAcceleration);
 		
 	}else if(animation->getType() == ManoeuvreType::SEQUENCE){
 		auto sequence = animation->toSequence();
-		validatePosition(sequence->start->toNumber());
-		validatePosition(sequence->target->toNumber());
+		
+		sequence->start->setValid(true);
+		sequence->target->setValid(true);
+		sequence->inAcceleration->setValid(true);
+		sequence->outAcceleration->setValid(true);
+		
+		if(sequence->start->toNumber()->getReal() != 0.0){
+			sequence->start->setValid(false);
+			b_animationValid = false;
+			animation->appendValidationErrorString("Start Velocity is not zero");
+		}else sequence->start->setValid(true);
+		
+		if(sequence->target->toNumber()->getReal() != 0.0){
+			sequence->target->setValid(false);
+			b_animationValid = false;
+			animation->appendValidationErrorString("End Velocity is not zero");
+		}else sequence->target->setValid(true);
+		
 		validateAcceleration(sequence->inAcceleration);
 		validateAcceleration(sequence->outAcceleration);
-		sequence->duration->setValid(true);
+		
+		if(sequence->duration->value == 0.0){
+			sequence->duration->setValid(false);
+			animation->appendValidationErrorString("Duration is zero");
+			b_animationValid = false;
+		}
 		
 		auto& curves = sequence->getCurves();
 		if(curves.size() != 1) {
@@ -188,6 +212,8 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 		
 		//validate all control points
 		for (auto& controlPoint : curve->getPoints()) {
+			controlPoint->b_valid = true;
+			/*
 			//check all validation conditions and find validaiton error state
 			if (controlPoint->position < lowerPositionLimit || controlPoint->position > upperPositionLimit)
 				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
@@ -208,11 +234,14 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 				controlPoint->b_valid = false;
 				b_curveValid = false;
 			}
+			 */
 		}
 
 		//validate all interpolations of the curve
 		for (auto& interpolation : curve->getInterpolations()) {
+			interpolation->b_valid = true;
 			
+			/*
 			if(interpolation->getType() != InterpolationType::TRAPEZOIDAL){
 				Logger::critical("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
 				animation->appendValidationErrorString("Critical: ParameterTrack Interpolation has wrong type.");
@@ -253,7 +282,9 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 					break;
 				}
 			}
+			 */
 		}
+		
 		
 		//after performing all checks, we assign the curve validation flag
 		//the curve itself doesn't have a validation error value
@@ -266,7 +297,7 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 	
 	//we return the result of the validation
 	return b_animationValid;
-	 */
+	 
 }
 
 
@@ -474,75 +505,36 @@ void AnimatableVelocity::followActualValue(double time_seconds, double deltaTime
 void AnimatableVelocity::updateTargetValue(double time_seconds, double deltaT_seconds){
 	mutex.lock();
 	
-	/*
-	
 	profileTime_seconds = time_seconds;
-	
-	double minPosition, maxPosition;
-	getConstraintPositionLimits(minPosition, maxPosition);
-	
+		
 	//update the setpoints
 	if(hasAnimation() && getAnimation()->isPlaying()){
-		auto target = getAnimationValue()->toPosition();
-		positionSetpoint = target->position;
+		auto target = getAnimationValue()->toVelocity();
 		velocitySetpoint = target->velocity;
 		accelerationSetpoint = target->acceleration;
-		controlMode = POSITION_SETPOINT;
+		controlMode = VELOCITY_SETPOINT;
 	}
-	else if(motionProfile.hasInterpolationTarget()){
-		auto interpolationPoint = motionProfile.getInterpolationPoint(profileTime_seconds);
-		positionSetpoint = interpolationPoint.position;
-		velocitySetpoint = interpolationPoint.velocity;
-		accelerationSetpoint = interpolationPoint.acceleration; //EXPERIMENTAL
-		controlMode = POSITION_SETPOINT;
-		if(motionProfile.isInterpolationFinished(profileTime_seconds)) {
-			velocitySetpoint = 0.0;
-			motionProfile.resetInterpolation();
-		}
-	}else if(controlMode == POSITION_SETPOINT){
-		velocitySetpoint = 0.0;
-		accelerationSetpoint = 0.0;
-	}
-	//else control mode is forced and setpoint is adjuste externally
 	
 	//handle motion interrupt if the setpoint goes outside limits
-	if(controlMode == POSITION_SETPOINT || controlMode == FORCED_POSITION_SETPOINT){
-		if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
-			if(hasAnimation()) getAnimation()->pausePlayback();
-			stopMovement();
-			Logger::info("{} movement aborted, position set point was outside limits", getName());
-		}
+	/*
+	if((positionSetpoint < minPosition && velocitySetpoint < 0.0) || (positionSetpoint > maxPosition && velocitySetpoint > 0.0)){
+		if(hasAnimation()) getAnimation()->pausePlayback();
+		stopMovement();
+		Logger::info("{} movement aborted, position set point was outside limits", getName());
 	}
+	*/
 	
 	//update the motion profiler
 	switch(controlMode){
 		case FORCED_VELOCITY_SETPOINT:
 		case VELOCITY_SETPOINT:
-			motionProfile.matchVelocityAndRespectPositionLimits(deltaT_seconds,
-																velocitySetpoint,
-																accelerationLimit,
-																minPosition,
-																maxPosition,
-																accelerationLimit);
-			break;
-		case FORCED_POSITION_SETPOINT:
-		case POSITION_SETPOINT:
-			motionProfile.matchPositionAndRespectPositionLimits(deltaT_seconds,
-																positionSetpoint,
-																velocitySetpoint,
-																accelerationSetpoint,
-																accelerationLimit,
-																velocityLimit,
-																minPosition,
-																maxPosition);
+			motionProfile.matchVelocity(deltaT_seconds, velocitySetpoint, accelerationLimit);
 			break;
 	}
 	
 		
 	//generate an output target value to be read by the machine
 	copyMotionProfilerValueToTargetValue();
-	
-	*/
 	
 	mutex.unlock();
 }

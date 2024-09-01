@@ -10,6 +10,9 @@
 
 void AnimatableVelocity::manualControlsVerticalGui(float sliderHeight, const char* customName, bool invert){
 		
+	ImGui::InvisibleButton("Spacer", ImVec2(ImGui::GetTextLineHeight()*1.2, 1.0));
+	ImGui::SameLine();
+	
 	ImGui::BeginGroup();
 	
 	float sliderWidth = ImGui::GetTextLineHeight() * 1.75;
@@ -79,6 +82,9 @@ void AnimatableVelocity::manualControlsVerticalGui(float sliderHeight, const cha
 	ImGui::PopID();
 	
 	ImGui::EndGroup();
+	
+	ImGui::SameLine();
+	ImGui::InvisibleButton("Spacer", ImVec2(ImGui::GetTextLineHeight()*1.0, 1.0));
 };
 
 void AnimatableVelocity::settingsGui(){
