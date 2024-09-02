@@ -288,5 +288,9 @@ public:
 	
 	//temp:
 	float maxVelocitySliderValue = 50.0;
+	
+	int getPolePairCount();
+	float HzToRps(float Hz);
+	float RpsToHz(float rps);
 };
 

@@ -34,8 +34,7 @@ void ATV320::controlsGui(){
 	ImGui::PopFont();
 	
 	float velocityTarget_rps = 0.0;
-	float maxVelValue = highControlFrequencyParameter->getReal() / 2.0;
-	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVelValue, maxVelValue, "%.2fRev/s");
+	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -actuator->getVelocityLimit(), actuator->getVelocityLimit(), "%.2fRev/s");
 	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rps);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
 	
@@ -61,7 +60,7 @@ void ATV320::controlsGui(){
 	glm::vec2 maxCenter = glm::vec2(minIndicator.x + sizeIndicatorWidthHalf, maxIndicator.y);
 	ImColor centerColor = b_referenceReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
 	drawing->AddRectFilled(minCenter, maxCenter, centerColor, 2.0);
-	ImGui::Text("Actual Frequency: %.1f Hz", actuator->getVelocity()*2.0);
+	ImGui::Text("Actual Frequency: %.1f Hz", RpsToHz(actuator->getVelocity()));
 	ImGui::Text("Actual Velocity: %.1f Rev/s", actuator->getVelocity());
 	
 	ImGui::EndDisabled();

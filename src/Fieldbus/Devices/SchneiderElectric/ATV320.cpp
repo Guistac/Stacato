@@ -6,7 +6,26 @@
 //Motor standart changes the ramp times
 //1 sec ramp is 1 sec to go to the nominal frequency (50 or 60Hz)
 
+int ATV320::getPolePairCount(){
+	float nomSpeed = nominalMotorSpeedParameter->getReal();
+	switch(standartMotorFrequencyParameter->value){
+		default:
+		case HZ_50:
+			if(nomSpeed > 3000.0) return 1.0;
+			else return std::round(3000.0 / nomSpeed);
+		case HZ_60:
+			if(nomSpeed > 3600.0) return 1.0;
+			else return std::round(3600.0 / nomSpeed);
+	}
+}
 
+float ATV320::HzToRps(float Hz){
+	return Hz / getPolePairCount();
+}
+
+float ATV320::RpsToHz(float rps){
+	return rps * getPolePairCount();
+}
 
 void ATV320::onConnection() {
 	
@@ -19,12 +38,10 @@ void ATV320::onDisconnection() {
 }
 
 void ATV320::updateActuatorInterface(){
-	//1.0Hz = 0.5rps
-	//1.0rps = 2.0Hz
-	actuator->actuatorConfig.velocityLimit = highControlFrequencyParameter->getReal() / 2.0;
-	double accRefVel = 25.0;
-	if(standartMotorFrequencyParameter->value == HZ_50) accRefVel = 25.0;
-	else if(standartMotorFrequencyParameter->value == HZ_60) accRefVel = 30.0;
+	actuator->actuatorConfig.velocityLimit = HzToRps(highControlFrequencyParameter->getReal());
+	double accRefVel;
+	if(standartMotorFrequencyParameter->value == HZ_50) accRefVel = HzToRps(50.0);
+	else if(standartMotorFrequencyParameter->value == HZ_60) accRefVel = HzToRps(60.0);
 	actuator->actuatorConfig.accelerationLimit = accRefVel / accelerationRampTime->value;
 	actuator->actuatorConfig.decelerationLimit = accRefVel / decelerationRampTime->value;
 }
