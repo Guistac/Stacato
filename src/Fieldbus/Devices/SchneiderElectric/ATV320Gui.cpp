@@ -34,8 +34,8 @@ void ATV320::controlsGui(){
 	ImGui::PopFont();
 	
 	float velocityTarget_rps = 0.0;
-	ImGui::InputFloat("max slider value", &maxVelocitySliderValue);
-	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVelocitySliderValue, maxVelocitySliderValue);
+	float maxVelValue = highControlFrequencyParameter->getReal() / 2.0;
+	ImGui::SliderFloat("##VelocityTarget", &velocityTarget_rps, -maxVelValue, maxVelValue, "%.2fRev/s");
 	if(ImGui::IsItemActive()) actuator->setVelocityTarget(velocityTarget_rps);
 	else if(ImGui::IsItemDeactivatedAfterEdit()) actuator->setVelocityTarget(0.0);
 	
@@ -45,7 +45,7 @@ void ATV320::controlsGui(){
 	glm::vec2 sizeIndicator = ImGui::GetItemRectSize();
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	drawing->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGuiCol_Button), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	float velocityNormalized = (float)velocityActual_rpm / nominalMotorSpeedParameter->value;
+	float velocityNormalized = actuator->getVelocityNormalized();
 	float sizeIndicatorWidthHalf = sizeIndicator.x / 2.0;
 	float velocityWidth = velocityNormalized * sizeIndicatorWidthHalf;
 	if(velocityNormalized > 0.0f){
@@ -61,6 +61,8 @@ void ATV320::controlsGui(){
 	glm::vec2 maxCenter = glm::vec2(minIndicator.x + sizeIndicatorWidthHalf, maxIndicator.y);
 	ImColor centerColor = b_referenceReached ? ImColor(.0f, 1.0f, .0f, 1.f) : ImColor(1.f, 1.f, 1.f, 1.f);
 	drawing->AddRectFilled(minCenter, maxCenter, centerColor, 2.0);
+	ImGui::Text("Actual Frequency: %.1f Hz", actuator->getVelocity()*2.0);
+	ImGui::Text("Actual Velocity: %.1f Rev/s", actuator->getVelocity());
 	
 	ImGui::EndDisabled();
 	

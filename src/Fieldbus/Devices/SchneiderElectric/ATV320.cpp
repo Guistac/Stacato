@@ -3,6 +3,11 @@
 #include "Fieldbus/EtherCatFieldbus.h"
 #include "Fieldbus/Utilities/SDOTask.h"
 
+//Motor standart changes the ramp times
+//1 sec ramp is 1 sec to go to the nominal frequency (50 or 60Hz)
+
+
+
 void ATV320::onConnection() {
 	
 }
@@ -14,9 +19,14 @@ void ATV320::onDisconnection() {
 }
 
 void ATV320::updateActuatorInterface(){
-	actuator->actuatorConfig.velocityLimit = nominalMotorSpeedParameter->value / 60.0;
-	actuator->actuatorConfig.accelerationLimit = actuator->getVelocityLimit() / accelerationRampTime->value;
-	actuator->actuatorConfig.decelerationLimit = actuator->getVelocityLimit() / decelerationRampTime->value;
+	//1.0Hz = 0.5rps
+	//1.0rps = 2.0Hz
+	actuator->actuatorConfig.velocityLimit = highControlFrequencyParameter->getReal() / 2.0;
+	double accRefVel = 25.0;
+	if(standartMotorFrequencyParameter->value == HZ_50) accRefVel = 25.0;
+	else if(standartMotorFrequencyParameter->value == HZ_60) accRefVel = 30.0;
+	actuator->actuatorConfig.accelerationLimit = accRefVel / accelerationRampTime->value;
+	actuator->actuatorConfig.decelerationLimit = accRefVel / decelerationRampTime->value;
 }
 
 void ATV320::initialize() {
