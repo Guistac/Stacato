@@ -32,8 +32,7 @@ namespace Workspace{
 	std::function<std::shared_ptr<File>(std::filesystem::path)> openFileCallback;
 
 	bool openFile(std::filesystem::path path){
-		std::shared_ptr<File> openedFile = openFileCallback(path);
-		if(openedFile != nullptr){
+		if(std::shared_ptr<File> openedFile = openFileCallback(path)){
 			if(hasFile(openedFile)){
 				//decide how we handle files that are already open
 				Logger::warn("File is already open");
@@ -43,6 +42,7 @@ namespace Workspace{
 				return true;
 			}
 		}
+		return false;
 	}
 
 	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback){

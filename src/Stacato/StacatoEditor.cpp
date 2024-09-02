@@ -94,6 +94,14 @@ std::shared_ptr<File> openFile(std::filesystem::path path){
 	std::string fileName = path.filename().string();
 	std::string fileExtension = path.extension().string();
 	
+	if(fileExtension == ".stacatoEnvironnement"){
+		Logger::info("[Stacato] user requested reading of environnement file");
+		path = path.parent_path();
+		fileName = path.filename().string();
+		fileExtension = path.extension().string();
+		Logger::info("Project folder is {}", path.string());
+	}
+
 	if(fileExtension == ".stacato"){
 		auto loadedProject = StacatoProject::createInstance();
 		loadedProject->setFilePath(path);

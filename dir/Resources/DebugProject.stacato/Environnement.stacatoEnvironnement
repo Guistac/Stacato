@@ -1,10 +1,10 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.85489935" OffsetX="353.38635" OffsetY="-235.38245" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="387.17987"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="387.51935"/>
-        <Widget Name="Tapis" UniqueID="8" PositionX="18" PositionY="408" SizeX="145.03493" SizeY="63.917618"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="163" PositionY="561" SizeX="157.49998" SizeY="110.94106"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="162" PositionY="440" SizeX="157.50003" SizeY="110.28938"/>
+    <Dashboard Scale="0.85489935" OffsetX="353.38635" OffsetY="-307.55969" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.50002" SizeY="388.00375"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.5" SizeY="387.17352"/>
+        <Widget Name="Tapis" UniqueID="8" PositionX="18" PositionY="408" SizeX="145.03493" SizeY="63.571712"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="163" PositionY="561" SizeX="157.49998" SizeY="110.59523"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="162" PositionY="440" SizeX="157.50003" SizeY="109.94347"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -786,8 +786,8 @@
                 <NodeEditorPosition x="447" y="-1271"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
-                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.089999999999999997" RatedMotorVoltage="230" RatedMotorCurrent="1.2" MotorRatedSpeed="1500"/>
-                    <MotionControlSettings AccelerationRamp="1" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="100" MaxFrequency="100" SwitchingFrequency="16"/>
+                    <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="0.089999999999999997" RatedMotorVoltage="230" RatedMotorCurrent="1.2" MotorRatedSpeed="1400"/>
+                    <MotionControlSettings AccelerationRamp="0.10000000000000001" DecelerationRamp="0.10000000000000001" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="120" MaxFrequency="120" SwitchingFrequency="16"/>
                     <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
                     <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1" FaultResetPin="0" ExternalFaultPin="0" PresetSlowdownSpeedPin="0"/>
                     <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
