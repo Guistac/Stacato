@@ -19,7 +19,8 @@ namespace Motion {
 		INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,
 		INTERPOLATION_POSITION_OUT_OF_RANGE,
 		INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,
-		INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO
+		INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,
+		INTERPOLATION_ACCELERATION_LIMIT_EXCEEDED
 	};
 
 	struct Point{
@@ -251,6 +252,7 @@ namespace Motion {
 	{Motion::ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED,			"Interpolation Velocity Limit Exceeded"},\
 	{Motion::ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE,				"Interpolation Position Out of Range"},\
 	{Motion::ValidationError::INTERPOLATION_INPUT_ACCELERATION_IS_ZERO,			"Interpolation Input Acceleration is Zero"},\
-	{Motion::ValidationError::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,		"Interpolation Output Acceleration Is Zero"}\
+	{Motion::ValidationError::INTERPOLATION_OUTPUT_ACCELERATION_IS_ZERO,		"Interpolation Output Acceleration Is Zero"},\
+	{Motion::ValidationError::INTERPOLATION_ACCELERATION_LIMIT_EXCEEDED,		"Interpolation Acceleration Limit Exceeded"}\
 
 DEFINE_ENUMERATOR(Motion::ValidationError, CurveValidationErrorTypeStrings)

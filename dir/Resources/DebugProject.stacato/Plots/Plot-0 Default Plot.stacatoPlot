@@ -1,10 +1,15 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Linear" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001">
+            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Linear" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001">
                 <Curves>
                     <Curve Name="Velocity">
-                        <ControlPoint Position="0.35399999999999998" Time="14.635493372606774" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.20000000000000001"/>
+                        <ControlPoint Position="0.54016656660391893" Time="1.5970609473806388" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.20000000000000001"/>
+                        <ControlPoint Position="0.15554386377334595" Time="5.564673900604248" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="0.4506397545337677" Time="9.7150478363037109" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="0.12132984399795532" Time="12.620309829711914" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="0.88259172439575195" Time="16.615043640136719" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="0.85693120956420898" Time="21.024816513061523" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
                     </Curve>
                 </Curves>
             </Animation>

@@ -45,8 +45,8 @@ bool AnimatableVelocity::isParameterValueEqual(std::shared_ptr<AnimationValue> v
 std::shared_ptr<AnimationValue> AnimatableVelocity::getValueAtAnimationTime(std::shared_ptr<Animation> animation, double time_seconds){
 	auto output = AnimationValue::makeVelocity();
 	Motion::Point point = animation->getCurves().front()->getPointAtTime(time_seconds);
-	output->velocity = point.velocity;
-	output->acceleration = point.acceleration;
+	output->velocity = point.position;
+	output->acceleration = point.velocity;
 	return output;
 }
 
@@ -212,38 +212,22 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 		
 		//validate all control points
 		for (auto& controlPoint : curve->getPoints()) {
-			controlPoint->b_valid = true;
-			/*
-			//check all validation conditions and find validaiton error state
-			if (controlPoint->position < lowerPositionLimit || controlPoint->position > upperPositionLimit)
-				controlPoint->validationError = ValidationError::CONTROL_POINT_POSITION_OUT_OF_RANGE;
-			else if (std::abs(controlPoint->velocity) > velocityLimit)
+			if(controlPoint->position < -velocityLimit || controlPoint->position > velocityLimit){
 				controlPoint->validationError = ValidationError::CONTROL_POINT_VELOCITY_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->inAcceleration) > accelerationLimit)
-				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (std::abs(controlPoint->outAcceleration) > accelerationLimit)
-				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_LIMIT_EXCEEDED;
-			else if (controlPoint->inAcceleration == 0.0)
-				controlPoint->validationError = ValidationError::CONTROL_POINT_INPUT_ACCELERATION_IS_ZERO;
-			else if (controlPoint->outAcceleration == 0.0)
-				controlPoint->validationError = ValidationError::CONTROL_POINT_OUTPUT_ACCELERATION_IS_ZERO;
-			else controlPoint->validationError = ValidationError::NONE; //All Checks Passed: No Validation Error !
-			//set valid flag for point, if invalid, set flag for whole curve
-			if(controlPoint->validationError == Motion::ValidationError::NONE) controlPoint->b_valid = true;
-			else {
 				controlPoint->b_valid = false;
-				b_curveValid = false;
+			}else{
+				controlPoint->validationError = ValidationError::NONE;
+				controlPoint->b_valid = true;
 			}
-			 */
 		}
 
 		//validate all interpolations of the curve
 		for (auto& interpolation : curve->getInterpolations()) {
 			interpolation->b_valid = true;
 			
-			/*
-			if(interpolation->getType() != InterpolationType::TRAPEZOIDAL){
-				Logger::critical("Sequence Track Curve Interpolation is wrong type. Is {}, expected Trapezoidal", Enumerator::getDisplayString(interpolation->getType()));
+			
+			if(interpolation->getType() != InterpolationType::LINEAR){
+				Logger::critical("Sequence Track Curve Interpolation is wrong type. Is {}, expected Lineaer", Enumerator::getDisplayString(interpolation->getType()));
 				animation->appendValidationErrorString("Critical: ParameterTrack Interpolation has wrong type.");
 				return false;
 			}
@@ -252,37 +236,18 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 			//in this case we don't overwrite the validation error value
 			if (!interpolation->b_valid) {
 				b_curveValid = false;
-				if(sequence->isSimple() && interpolation->validationError == Motion::ValidationError::INTERPOLATION_UNDEFINED){
-					sequence->duration->setValid(false);
-					animation->appendValidationErrorString("Requested movement duration is too short");
-				}
-				continue;
 			}
 			
-			auto trapezoidalInteroplation = interpolation->castToTrapezoidal();
+			auto linearInterpolation = interpolation->castToLinear();
 			
 			//check if the velocity of the interpolation exceeds the limit
-			if (std::abs(trapezoidalInteroplation->coastVelocity) > velocityLimit) {
-				interpolation->validationError = ValidationError::INTERPOLATION_VELOCITY_LIMIT_EXCEEDED;
+			if (std::abs(linearInterpolation->interpolationVelocity) > accelerationLimit) {
+				interpolation->validationError = ValidationError::INTERPOLATION_ACCELERATION_LIMIT_EXCEEDED;
 				interpolation->b_valid = false;
-				if(sequence->isSimple()) {
-					sequence->duration->setValid(false);
-					animation->appendValidationErrorString("Requested movement duration is too short");
-				}
 				b_curveValid = false;
 				continue;
 			}
-			//if all interpolation checks passed, we check all interpolation preview points for their range
-			for (auto& point : interpolation->displayPoints) {
-				if (point.position > upperPositionLimit || point.position < lowerPositionLimit) {
-					interpolation->validationError = ValidationError::INTERPOLATION_POSITION_OUT_OF_RANGE;
-					interpolation->b_valid = false;
-					animation->appendValidationErrorString("Interpolation is out of range: check the curve editor for details.");
-					b_curveValid = false;
-					break;
-				}
-			}
-			 */
+		
 		}
 		
 		

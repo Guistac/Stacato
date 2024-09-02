@@ -579,6 +579,12 @@ void Animation::drawCurves(){
 					ImPlot::Annotation(averagePosition.x, averagePosition.y, Colors::darkYellow, glm::vec2(0,0), false, "%.2f%s/s", vel, curve->unit->abbreviated);
 					//ImPlot::Annotate(averagePosition.x, averagePosition.y, glm::vec2(0,0), Colors::darkYellow, "%.2f%s/s", vel, curve->unit->abbreviated);
 				}
+				else if(b_selected && interpolation->getType() == InterpolationType::LINEAR){
+					glm::vec2 averagePosition = glm::vec2(interpolation->inPoint->time, interpolation->inPoint->position) + glm::vec2(interpolation->outPoint->time, interpolation->outPoint->position);
+					averagePosition /= 2.0;
+					float vel = interpolation->castToLinear()->interpolationVelocity;
+					ImPlot::Annotation(averagePosition.x, averagePosition.y, Colors::darkYellow, glm::vec2(0,0), false, "%.2f%s/s2", vel, curve->unit->abbreviated);
+				}
 			}
 			else {
 				std::vector<Motion::Point> errorPoints;
