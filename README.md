@@ -97,3 +97,38 @@ Terminal=true
 Categories=CoolStuff
 ```
 
+## Startup shortcut and root launch permissions
+
+edit sudoers file to allow launching of the app without a password prompt:
+`sudo visudo`
+append the following to the end of the file and save:
+`<username> ALL=(ALL) NOPASSWD: <path_to_executable>`
+this gives the user permission to run this command as root without a password prompt
+
+
+create the file ~/.local/share/applications/stacato.desktop file containing the following :
+
+```
+[Desktop Entry]
+Version=1.0
+Name=Stacato
+Comment=Stage Control Automation Toolbox
+Exec=sudo build/Stacato
+Path=/home/<user>/Stacato/ %f
+Icon=/home/<user>/Stacato/dir/Stacato_AppIcon.png
+Type=Application
+Terminal=true
+MimeType=stacato/project
+```
+
+create the file stacato-project.xml
+```
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="stacato/project">
+    <comment>Stacato Project File</comment>
+    <glob pattern="*.stacato/"/>
+    <glob pattern="*.Stacato/"/>
+    </mime-type>
+</mime-info>
+```

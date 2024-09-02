@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 
 #include <clocale>
+#include <iostream>
 
 namespace Application{
 	
@@ -70,22 +71,32 @@ namespace Application{
 
 		#elif defined(STACATO_UNIX)
 
+			std::cout << "launch arguments: " << argcount << std::endl;
+			for(int i = 0; i < argcount; i++){
+				std::cout << i << ":  " << args[i] << std::endl;
+			}
+
 			//arg[0] can be an absolute or relative path
 			//if arg[0] contains the current path, then it is an absolute path
 			//else arg[0] is a relative path and we append it to the current path to get the absolute executable path
 			std::string executableLaunchPath = args[0];
+			std::cout << "relative executable launch path: " << executableLaunchPath << std::endl;
+			if(executableLaunchPath.substr(0, 2) == "./") executableLaunchPath.erase(0, 2);
+			std::cout << "absolute default path: " << std::filesystem::current_path().string() << std::endl;
 			size_t currentPathInLaunchPath = executableLaunchPath.find(std::filesystem::current_path().string());
 			std::filesystem::path absolutePathToExecutable;
 			if(currentPathInLaunchPath != std::string::npos) absolutePathToExecutable = args[0];
 			else absolutePathToExecutable = std::filesystem::current_path().string() + "/" + executableLaunchPath;
+			std::cout << "absolute path to executable: " << absolutePathToExecutable << std::endl;
 			std::string workingDirectory;
 			#if defined(STACATO_DEBUG)
 				//for debug builds, set the working directory to the dir/ folder in the source tree
 				workingDirectory = absolutePathToExecutable.parent_path().parent_path().string() + "/dir/Resources";
 			#else
 				//for release builds, set the working directory to the Resources folder in the same directory as the executable
-				workingDirectory = absolutePathToExecutable.parent_path().string() + "/Resources";
+				workingDirectory = absolutePathToExecutable.parent_path().parent_path().string() + "/dir/Resources";
 			#endif
+			std::cout << "absolute working directory: " << workingDirectory << std::endl;
 			std::filesystem::current_path(workingDirectory);
 
 		#endif
@@ -121,6 +132,11 @@ namespace Application{
 		std::filesystem::path applicationLaunchFilePath;
 		#if defined(STACATO_MACOS)
 			if(const char* path = glfwGetOpenedFilePath()) applicationLaunchFilePath = path;
+		#elif defined(STACATO_UNIX)
+			if(argcount >= 2) {
+				//std::string savefileArgument = args[1];
+				applicationLaunchFilePath = args[1];
+			}
 		#endif
 		//open the file path in the workspace
 		if(!applicationLaunchFilePath.empty()){
