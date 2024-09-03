@@ -1,10 +1,10 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.0114093" OffsetX="353.38638" OffsetY="-289.22733" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.49998" SizeY="386.08521"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.49998" SizeY="386.06265"/>
-        <Widget Name="Tapis" UniqueID="8" PositionX="18" PositionY="408" SizeX="136.50005" SizeY="317.50259"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="163" PositionY="561" SizeX="157.49995" SizeY="109.13429"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="162" PositionY="440" SizeX="157.49995" SizeY="109.51053"/>
+    <Dashboard Scale="1.0114093" OffsetX="353.38638" OffsetY="-289.03506" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Anneau" UniqueID="2" PositionX="-169" PositionY="376" SizeX="178.49998" SizeY="385.89294"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-350" PositionY="378" SizeX="178.49998" SizeY="385.87039"/>
+        <Widget Name="Tapis" UniqueID="8" PositionX="18" PositionY="408" SizeX="136.50005" SizeY="318.29904"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="163" PositionY="561" SizeX="157.49995" SizeY="108.94203"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="162" PositionY="440" SizeX="157.49995" SizeY="109.31828"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -812,7 +812,7 @@
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false"/>
                     <UserSetup InvertControlGui="false"/>
-                    <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false"/>
+                    <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="8"/>
                 </NodeSpecificData>
                 <InputPins>

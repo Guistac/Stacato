@@ -1,7 +1,7 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Linear" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001">
+            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Linear" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001">
                 <Curves>
                     <Curve Name="Velocity">
                         <ControlPoint Position="0.54016656660391893" Time="1.5970609473806388" Velocity="0" InAcceleration="0.20000000000000001" OutAcceleration="0.20000000000000001"/>
@@ -15,7 +15,7 @@
             </Animation>
         </Manoeuvre>
         <Manoeuvre Name="M-1" Description="" Type="Target">
-            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.29999999999999999" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Tapis" MachineUniqueID="2323" Parameter="Velocity" IsComposite="false" Type="Target" Target="1" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="0.10000000000000001" EndAcceleration="0.050000000000000003"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

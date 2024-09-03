@@ -152,7 +152,12 @@ void TargetAnimation::getCurvePositionRange(double& min, double& max){
 bool TargetAnimation::isAtTarget(){
 	if(!target->isValid()) return false;
 	auto animatable = getAnimatable();
-	return animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getTargetValue());
+	if(animatable->getType() == AnimatableType::VELOCITY) {
+		//for velocity animatables, the end target is always 0 velocity
+		return animatable->getCurvePositionsFromAnimationValue(animatable->getTargetValue()).front() == 0.0;
+	}
+	bool equal = animatable->isParameterValueEqual(animatable->parameterValueToAnimationValue(target), animatable->getTargetValue());
+	return equal;
 }
 
 bool TargetAnimation::canRapidToTarget(){

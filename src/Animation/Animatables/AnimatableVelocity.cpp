@@ -68,55 +68,74 @@ void AnimatableVelocity::fillControlPointDefaults(std::shared_ptr<Motion::Contro
 }
 
 bool AnimatableVelocity::generateTargetAnimation(std::shared_ptr<TargetAnimation> animation){
-	/*
-	auto target = parameterValueToAnimationValue(animation->target)->toPosition();
-	double inAcceleration = animation->inAcceleration->value;
-	double outAcceleration = animation->outAcceleration->value;
-	TargetAnimation::Constraint constraint = animation->getConstraintType();
 	
-	if(motionProfile.getPosition() == target->position && motionProfile.getVelocity() == 0.0) return false;
-	
+	if(animation->getConstraintType() == TargetAnimation::Constraint::VELOCITY) return false;
+
+	double Vt = parameterValueToAnimationValue(animation->target)->toVelocity()->velocity;
+	double T = animation->timeConstraint->value;
+	double Ai = animation->inAcceleration->value;
+	double Ao = animation->outAcceleration->value;
+	double Vi = motionProfile.getVelocity();
+	if(Ai > accelerationLimit || Ao > accelerationLimit) return false;
+	if(Ai <= 0.0 || Ao <= 0.0) return false;
+
+	if(Vt > Vi) Ai = std::abs(Ai);
+	else Ai = -std::abs(Ai);
+
+	if(Vt < 0.0) Ao = std::abs(Ao);
+	else Ao = -std::abs(Ao);
+
+	double Tin = std::abs((Vt - Vi) / Ai);
+	double Tout = std::abs(Vt / Ao);
+	bool b_coastPhase = true;
+	if(Tin + Tout > T){
+		//if we cant reach the target velocity in the specified time
+		//limit find the peak velocity we can reach in that time
+		bool b_positiveVelocity = Vt > 0.0;
+		Vt = -std::abs(Ao) * (Vi + T * std::abs(Ai)) / (std::abs(Ai) + std::abs(Ao));
+		if(b_positiveVelocity) Vt = std::abs(Vt);
+		Tin = std::abs((Vt - Vi) / Ai);
+		Tout = std::abs(Vt / Ao);
+		b_coastPhase = false;
+	}
+
+
+
+
 	auto startPoint = std::make_shared<Motion::ControlPoint>();
 	startPoint->time = 0.0;
-	startPoint->position = motionProfile.getPosition();
-	startPoint->velocity = motionProfile.getVelocity();
-	startPoint->outAcceleration = inAcceleration;
+	startPoint->position = Vi;
 	startPoint->b_valid = true;
+
+	auto rampInEndPoint = std::make_shared<Motion::ControlPoint>();
+	rampInEndPoint->time = Tin;
+	rampInEndPoint->position = Vt;
+	rampInEndPoint->b_valid = true;
+
+	auto rampOutStartPoint = std::make_shared<Motion::ControlPoint>();
+	rampOutStartPoint->time = T - Tout;
+	rampOutStartPoint->position = Vt;
+	rampOutStartPoint->b_valid = true;
 	
 	auto endPoint = std::make_shared<Motion::ControlPoint>();
-	endPoint->position = target->position;
-	endPoint->velocity = 0.0;
-	endPoint->inAcceleration = outAcceleration;
+	endPoint->time = T;
+	endPoint->position = 0.0;
 	endPoint->b_valid = true;
-	
-	std::shared_ptr<Motion::TrapezoidalInterpolation> interpolation;
-	
-	if(constraint == TargetAnimation::Constraint::TIME){
-		endPoint->time = animation->timeConstraint->value;
-		interpolation = Motion::TrapezoidalInterpolation::getTimeConstrainedOrSlower(startPoint, endPoint, velocityLimit);
-	}else if(constraint == TargetAnimation::Constraint::VELOCITY){
-		double velocityConstraint = animation->velocityConstraint->value;
-		interpolation = Motion::TrapezoidalInterpolation::getVelocityConstrained(startPoint, endPoint, velocityConstraint);
-	}
-	
-	if(!interpolation->b_valid) return false;
 	
 	auto& curve = animation->getCurves().front();
 	auto& points = curve->getPoints();
 	auto& interpolations = curve->getInterpolations();
 	
-	
-	
 	points.clear();
-	points.push_back(interpolation->inPoint);
-	points.push_back(interpolation->outPoint);
-	
-	interpolations.clear();
-	interpolation->updateDisplayCurvePoints();
-	interpolations.push_back(interpolation);
+	points.push_back(startPoint);
+	points.push_back(rampInEndPoint);
+	if(b_coastPhase) points.push_back(rampOutStartPoint);
+	points.push_back(endPoint);
+	curve->interpolationType = InterpolationType::LINEAR;
+	curve->refresh();
 	
 	curve->b_valid = true;
-	*/
+	
 	return true;
 }
 
