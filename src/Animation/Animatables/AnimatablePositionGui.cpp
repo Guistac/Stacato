@@ -7,6 +7,7 @@
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
 #include "Gui/Utilities/CustomWidgets.h"
+#include "Machine/Machine.h"
 
 void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const char* customName, bool invert){
 		
@@ -29,20 +30,34 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	}
 	
 	//--- Velocity Slider & Feedback
-	static const double min = -1.0;
-	static const double max = 1.0;
-	ImGui::BeginDisabled(masterAnimatable != nullptr); //TODO: MASTERANIMATABLE
-	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
-	if (ImGui::IsItemActive()) {
-		float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
-		if(invert) requestedVelocity *= -1.0;
-		setManualVelocityTarget(requestedVelocity);
+	
+	if(masterAnimatable){
+		bool b_pressed = ImGui::InvisibleButton("##masterdisplay", verticalSliderSize);
+		ImVec2 min = ImGui::GetItemRectMin();
+		ImVec2 max = ImGui::GetItemRectMax();
+		ImDrawList* drawing =  ImGui::GetWindowDrawList();
+		ImDrawList* foreground = ImGui::GetForegroundDrawList();
+		drawing->AddRectFilled(min, max, ImColor(Colors::darkRed));
+		ImGui::PushFont(Fonts::sansBold20);
+		std::string txt = "Master:\n" + std::string(masterAnimatable->getMachine()->getName());
+		foreground->AddText(min, ImColor(Colors::white), txt.c_str());
+		ImGui::PopFont();
+		if(b_pressed) masterAnimatable = nullptr;
+	}else{
+		static const double min = -1.0;
+		static const double max = 1.0;
+		ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
+		if (ImGui::IsItemActive()) {
+			float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
+			if(invert) requestedVelocity *= -1.0;
+			setManualVelocityTarget(requestedVelocity);
+		}
+		else if (ImGui::IsItemDeactivatedAfterEdit()) {
+			setManualVelocityTarget(0.0);
+			velocitySliderDisplayValue = 0.0;
+		}
 	}
-	else if (ImGui::IsItemDeactivatedAfterEdit()) {
-		setManualVelocityTarget(0.0);
-		velocitySliderDisplayValue = 0.0;
-	}
-	ImGui::EndDisabled();
+	
 	ImGui::SameLine();
 	verticalProgressBar(std::abs(getActualVelocityNormalized()), velocityDisplaySize);
 	if(ImGui::IsItemHovered()){
