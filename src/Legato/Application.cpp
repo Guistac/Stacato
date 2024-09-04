@@ -72,32 +72,36 @@ namespace Application{
 		#elif defined(STACATO_UNIX)
 
 			std::cout << "launch arguments: " << argcount << std::endl;
-			for(int i = 0; i < argcount; i++){
-				std::cout << i << ":  " << args[i] << std::endl;
+			for(int i = 0; i < argcount; i++) std::cout << i << ":  " << args[i] << std::endl;
+			
+			std::filesystem::path launchPath = args[0];
+			std::filesystem::path absoluteExecutablePath;
+			if(launchPath.is_relative()) {
+				std::string relativeLaunchPath = launchPath.string();
+				if(relativeLaunchPath.substr(0, 2) == "./") relativeLaunchPath.erase(0, 2);
+				absoluteExecutablePath = std::filesystem::current_path() / relativeLaunchPath;
+			}
+			else{
+				absoluteExecutablePath = launchPath;
 			}
 
-			//arg[0] can be an absolute or relative path
-			//if arg[0] contains the current path, then it is an absolute path
-			//else arg[0] is a relative path and we append it to the current path to get the absolute executable path
-			std::string executableLaunchPath = args[0];
-			std::cout << "relative executable launch path: " << executableLaunchPath << std::endl;
-			if(executableLaunchPath.substr(0, 2) == "./") executableLaunchPath.erase(0, 2);
-			std::cout << "absolute default path: " << std::filesystem::current_path().string() << std::endl;
-			size_t currentPathInLaunchPath = executableLaunchPath.find(std::filesystem::current_path().string());
-			std::filesystem::path absolutePathToExecutable;
-			if(currentPathInLaunchPath != std::string::npos) absolutePathToExecutable = args[0];
-			else absolutePathToExecutable = std::filesystem::current_path().string() + "/" + executableLaunchPath;
-			std::cout << "absolute path to executable: " << absolutePathToExecutable << std::endl;
-			std::string workingDirectory;
-			#if defined(STACATO_DEBUG)
-				//for debug builds, set the working directory to the dir/ folder in the source tree
-				workingDirectory = absolutePathToExecutable.parent_path().parent_path().string() + "/dir/Resources";
-			#else
-				//for release builds, set the working directory to the Resources folder in the same directory as the executable
-				workingDirectory = absolutePathToExecutable.parent_path().parent_path().string() + "/dir/Resources";
-			#endif
-			std::cout << "absolute working directory: " << workingDirectory << std::endl;
-			std::filesystem::current_path(workingDirectory);
+			std::cout << "Executable Path: 	" << absoluteExecutablePath.string() << std::endl;
+
+			std::filesystem::path executableDirectory = absoluteExecutablePath.parent_path();
+			std::filesystem::path debugResourceFolder = executableDirectory.parent_path() / "dir/Resources";
+			std::filesystem::path releaseResourcesFolder = executableDirectory / "Resources";
+
+			if(std::filesystem::exists(debugResourceFolder)){
+				std::filesystem::current_path(debugResourceFolder);
+			}else if(std::filesystem::exists(releaseResourcesFolder)){
+				std::filesystem::current_path(releaseResourcesFolder);
+			}else{
+				std::cout << "[ERROR] Resources folder is missing." << std::endl;
+				std::cout << "[ERROR] Application cannot start." << std::endl;
+				std::cin.get();
+				return;
+			}
+			std::cout << "Working directory: " << std::filesystem::current_path().string() << std::endl;
 
 		#endif
 

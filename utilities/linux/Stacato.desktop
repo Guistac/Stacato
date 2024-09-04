@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Stacato
+Icon=/opt/Stacato/Stacato_AppIcon.png
+Exec=sudo /opt/Stacato/Stacato %f
+Comment=Stage Control Automation Toolbox
+Categories=Automation
+Terminal=false
+MimeType=stacato/projectfile
