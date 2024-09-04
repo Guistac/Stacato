@@ -618,9 +618,15 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	
 	//update the setpoints
 	//TODO: MASTERANIMATABLE
+	
 	if(masterAnimatable){
-		velocitySetpoint = masterAnimatable->toPosition()->getVelocitySetpoint();
-		controlMode = FORCED_VELOCITY_SETPOINT;
+		if(masterAnimatable->getType() == AnimatableType::POSITION){
+			controlMode = VELOCITY_SETPOINT;	
+			auto animatablePosition = masterAnimatable->toPosition();
+			auto masterTarget = animatablePosition->getTargetValue()->toPosition();
+			velocitySetpoint = masterTarget->velocity;
+			Logger::info("{} {}", getMachine()->getName(), velocitySetpoint);
+		}
 	}
 	else if(hasAnimation() && getAnimation()->isPlaying()){
 		auto target = getAnimationValue()->toPosition();

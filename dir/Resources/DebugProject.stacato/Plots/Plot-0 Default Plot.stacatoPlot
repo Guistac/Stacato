@@ -1,16 +1,18 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Sequence">
-            <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+            <Animation Machine="VOL" MachineUniqueID="2318" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0.29999999999999999" End="0.29999999999999999" Duration="10" TimeOffset="0" StartAcceleration="1" EndAcceleration="1">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="84.331289105938367" Time="15.121502209131076" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="0.5" Time="4.3827471733093262" Velocity="0" InAcceleration="1" OutAcceleration="1"/>
                     </Curve>
                 </Curves>
             </Animation>
-            <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+            <Animation Machine="PISTOLET" MachineUniqueID="2331" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0.20000000000000001" End="0.20000000000000001" Duration="10" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
                 <Curves>
-                    <Curve Name="Position"/>
+                    <Curve Name="Position">
+                        <ControlPoint Position="0.13455999606847763" Time="4.6038525963149075" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
+                    </Curve>
                 </Curves>
             </Animation>
         </Manoeuvre>
