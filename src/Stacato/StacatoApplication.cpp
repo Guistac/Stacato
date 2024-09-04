@@ -19,7 +19,7 @@ namespace Stacato::Application{
 
 
 
-bool initialize(){
+bool initialize(std::filesystem::path launchPath){
 	
 	#ifdef STACATO_MACOS
 	//we delete this file on each startup since we don't use it and it sometimes causes loading problems with imguinodeeditor
@@ -45,15 +45,26 @@ bool initialize(){
 	Stacato::Editor::unlock();
 	
 	#endif
+
+	bool b_launchPathLoaded;
+
+	if(launchPath.empty()) b_launchPathLoaded = false;
+	else b_launchPathLoaded = ::Workspace::openFile(launchPath);
 	
-	Stacato::Editor::createNewProject();
-	
-	//for debug builds, always try to load the debug project in the debug directory
-	#ifdef STACATO_DEBUG
-	std::filesystem::path debugFilePath = "DebugProject.stacato";
-	::Workspace::openFile(debugFilePath);
-	#endif
-	
+	if(!b_launchPathLoaded){
+		#ifdef STACATO_DEBUG
+			Logger::info("Loading debug project");
+			std::filesystem::path debugFilePath = "DebugProject.stacato";
+			if(!::Workspace::openFile(debugFilePath)) {
+				Logger::info("Could not load debug project, loading empty project");
+				Stacato::Editor::createNewProject();
+			}
+		#else
+			Logger::info("Loading empty project");
+			Stacato::Editor::createNewProject();
+		#endif
+	}
+
 	return true;
 }
 

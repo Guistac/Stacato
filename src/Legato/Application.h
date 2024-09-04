@@ -5,7 +5,7 @@
 
 namespace Application{
 
-void setInitializationFunction(std::function<bool()> fn);
+void setInitializationFunction(std::function<bool(std::filesystem::path)> fn);
 void setTerminationFunction(std::function<bool()> fn);
 void setQuitRequestFunction(std::function<bool()> fn);
 

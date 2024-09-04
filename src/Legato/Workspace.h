@@ -29,5 +29,8 @@ namespace Workspace{
 	std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
 	void pushToClipboard(std::shared_ptr<PrototypeBase> object);
 	void pushToClipboard(std::vector<std::shared_ptr<PrototypeBase>> objects);
+
+	void saveLastLoadedFilePath(std::filesystem::path loadedFilePath);
+	bool getLastLoadedFilePath(std::filesystem::path& output);
 };
 

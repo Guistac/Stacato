@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Stacato::Application{
-	bool initialize();
+	bool initialize(std::filesystem::path);
 	bool terminate();
 	bool requestQuit();
 };

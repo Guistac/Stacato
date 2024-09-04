@@ -16,10 +16,10 @@
 
 namespace Application{
 	
-	std::function<bool()> userInitializationFunction;
+	std::function<bool(std::filesystem::path)> userInitializationFunction;
 	std::function<bool()> userTerminationFunction;
 	std::function<bool()> quitRequestFunction;
-	void setInitializationFunction(std::function<bool()> fn){ userInitializationFunction = fn; }
+	void setInitializationFunction(std::function<bool(std::filesystem::path)> fn){ userInitializationFunction = fn; }
 	void setTerminationFunction(std::function<bool()> fn){ userTerminationFunction = fn; }
 	void setQuitRequestFunction(std::function<bool()> fn){ quitRequestFunction = fn; }
 
@@ -127,9 +127,6 @@ namespace Application{
 		//——— Gui Initialization
 		Legato::Gui::initialize();
 		
-		//——— User Initialization
-		userInitializationFunction();		
-		
 		//====== APP IS FULLY INITIALIZED
 		
 		//——— il the app launched with a file path, open that file in the workspace after the app is initialized
@@ -137,16 +134,20 @@ namespace Application{
 		#if defined(STACATO_MACOS)
 			if(const char* path = glfwGetOpenedFilePath()) applicationLaunchFilePath = path;
 		#elif defined(STACATO_UNIX)
-			if(argcount >= 2) {
-				//std::string savefileArgument = args[1];
-				applicationLaunchFilePath = args[1];
-			}
+			if(argcount >= 2) applicationLaunchFilePath = args[1];
 		#endif
+
 		//open the file path in the workspace
 		if(!applicationLaunchFilePath.empty()){
 			Logger::info("[Application] Application was launched with file path {}", applicationLaunchFilePath.string());
-			Workspace::openFile(applicationLaunchFilePath);
+		}else{
+			if(Workspace::getLastLoadedFilePath(applicationLaunchFilePath)){
+				Logger::info("Found last loaded file: {}", applicationLaunchFilePath.string());
+			}else Logger::info("Could not find last opened file");
 		}
+
+		//——— User Initialization
+		userInitializationFunction(applicationLaunchFilePath);		
 		
 		//====== RUN APPLICATION
 		

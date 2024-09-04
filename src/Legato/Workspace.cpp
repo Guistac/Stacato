@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Workspace.h"
+#include <tinyxml2.h>
 
 namespace Workspace{
 
@@ -39,6 +40,7 @@ namespace Workspace{
 				return false;
 			}else{
 				addFile(openedFile);
+				saveLastLoadedFilePath(path);
 				return true;
 			}
 		}
@@ -47,6 +49,30 @@ namespace Workspace{
 
 	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback){
 		openFileCallback = callback;
+	}
+
+	void saveLastLoadedFilePath(std::filesystem::path loadedFilePath){
+		using namespace tinyxml2;
+		XMLDocument loadedFileDocument;
+		XMLElement* lastLoadedFileXML = loadedFileDocument.NewElement("LastLoadedFile");
+		loadedFileDocument.InsertFirstChild(lastLoadedFileXML);
+
+		if(loadedFilePath.is_relative()) loadedFilePath = std::filesystem::current_path() / loadedFilePath.string();
+
+		lastLoadedFileXML->SetText(loadedFilePath.string().c_str());
+		loadedFileDocument.SaveFile("LoadedFileMemory.xml");
+	}
+
+	bool getLastLoadedFilePath(std::filesystem::path& output){
+		using namespace tinyxml2;
+		XMLDocument loadedFileDocument;
+		if(loadedFileDocument.LoadFile("LoadedFileMemory.xml") != XML_SUCCESS) return false;
+		if(XMLElement* lastLoadedFileXML = loadedFileDocument.FirstChildElement("LastLoadedFile")){
+			const char* path = lastLoadedFileXML->GetText();
+			output = path;
+			return true;
+		}
+		return false;
 	}
    
 

@@ -109,6 +109,7 @@ std::shared_ptr<File> openFile(std::filesystem::path path){
 			Logger::error("[Stacato] Failed to open stacato project {}", fileName);
 			return nullptr;
 		}
+		
 		openProject(loadedProject);
 		return loadedProject;
 	}
