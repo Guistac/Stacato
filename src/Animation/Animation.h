@@ -44,6 +44,7 @@ public:
 public:
 
 	std::shared_ptr<Animatable> getAnimatable(){ return animatable; }
+	std::string getFullName();
 	
 	bool hasManoeuvre(){ return manoeuvre != nullptr; }
 	std::shared_ptr<Manoeuvre> getManoeuvre(){ return manoeuvre; }
@@ -183,6 +184,11 @@ public:
 private:
 	
 	bool b_shouldRefocusCurves = false;
+	
+private:
+	
+public:
+	std::shared_ptr<Animation> masterAnimation = nullptr;
 	
 };
 

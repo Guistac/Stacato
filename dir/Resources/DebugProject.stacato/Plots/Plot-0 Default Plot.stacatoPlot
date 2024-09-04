@@ -1,7 +1,18 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="All Closed" Description="" Type="Target"/>
-        <Manoeuvre Name="All Open" Description="" Type="Target"/>
-        <Manoeuvre Name="M-2" Description="" Type="Target"/>
+        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+            <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="84.331289105938367" Time="15.121502209131076" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="30" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position"/>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
     </ManoeuvreList>
 </Plot>

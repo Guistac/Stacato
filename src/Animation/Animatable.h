@@ -176,6 +176,10 @@ public:
 public:
 	std::string name;
 	std::shared_ptr<Animation> currentAnimation;
+	
+public:
+	
+	std::shared_ptr<Animatable> masterAnimatable = nullptr;
 };
 
 

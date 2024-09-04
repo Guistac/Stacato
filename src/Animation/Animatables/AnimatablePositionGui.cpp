@@ -31,6 +31,7 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 	//--- Velocity Slider & Feedback
 	static const double min = -1.0;
 	static const double max = 1.0;
+	ImGui::BeginDisabled(masterAnimatable != nullptr); //TODO: MASTERANIMATABLE
 	ImGui::VSliderScalar("##ManualVelocity", verticalSliderSize, ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
 	if (ImGui::IsItemActive()) {
 		float requestedVelocity = velocitySliderDisplayValue * velocityLimit;
@@ -41,6 +42,7 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 		setManualVelocityTarget(0.0);
 		velocitySliderDisplayValue = 0.0;
 	}
+	ImGui::EndDisabled();
 	ImGui::SameLine();
 	verticalProgressBar(std::abs(getActualVelocityNormalized()), velocityDisplaySize);
 	if(ImGui::IsItemHovered()){

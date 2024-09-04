@@ -143,6 +143,10 @@ void Animation::baseTrackSheetRowGui(){
 		backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 		if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 		
+		ImGui::SameLine();
+		std::string masterAnimationName = masterAnimation ? getFullName() : "None";
+		if(ImGui::BeginCombo("##MasterAnimation", masterAnimationName.c_str())) ImGui::EndCombo();
+		
 		//[3] "Current"
 		ImGui::TableSetColumnIndex(3);
 		backgroundText(getAnimatable()->getTargetValueString().c_str(),
@@ -170,6 +174,24 @@ void Animation::baseTrackSheetRowGui(){
 		ImGui::TableSetColumnIndex(3);
 		backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 		if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
+		
+		ImGui::SameLine();
+		std::string masterAnimationName = masterAnimation ? getFullName() : "None";
+		if(ImGui::BeginCombo("##MasterAnimation", masterAnimationName.c_str())){
+			if(manoeuvre){
+				ImGui::BeginDisabled();
+				ImGui::Selectable("Master Animation:  ");
+				ImGui::EndDisabled();
+				auto& manoeuvreAnimations = manoeuvre->getAnimations();
+				if(ImGui::Selectable("None", masterAnimation == nullptr)) masterAnimation = nullptr;
+				for(int i = 0; i < manoeuvreAnimations.size(); i++){
+					auto animation = manoeuvreAnimations[i];
+					if(animation == shared_from_this()) continue;
+					if(ImGui::Selectable(animation->getFullName().c_str(), masterAnimation == animation)) masterAnimation = animation;
+				}
+			}
+			ImGui::EndCombo();
+		}
 		
 		//[4] "Current"
 		ImGui::TableSetColumnIndex(4);
@@ -272,6 +294,7 @@ void AnimationKey::trackSheetRowGui(){
 
 void TargetAnimation::trackSheetRowGui(){
 	
+	ImGui::BeginDisabled(masterAnimation != nullptr);
 	
 	if(Stacato::Editor::getCurrentProject()->isPlotEditLocked()){
 		
@@ -352,9 +375,13 @@ void TargetAnimation::trackSheetRowGui(){
 		
 		
 	}
+	
+	ImGui::EndDisabled();
 }
 
 void SequenceAnimation::trackSheetRowGui(){
+	
+	ImGui::BeginDisabled(masterAnimation != nullptr);
 	
 	if(Stacato::Editor::getCurrentProject()->isPlotEditLocked()){
 		
@@ -463,6 +490,7 @@ void SequenceAnimation::trackSheetRowGui(){
 		if(!outAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	}
 	
+	ImGui::EndDisabled();
 	
 }
 

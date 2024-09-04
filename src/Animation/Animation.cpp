@@ -27,6 +27,8 @@ std::shared_ptr<Animation> Animation::create(std::shared_ptr<Animatable> animata
 	return newAnimation;
 }
 
+std::string Animation::getFullName(){ return std::string(getAnimatable()->getMachine()->getName()) + " : " + getAnimatable()->name; }
+
 std::shared_ptr<Animation> Animation::copy(){
 	std::shared_ptr<Animation> copy;
 	if(isComposite()) copy = toComposite()->copy();
@@ -272,6 +274,10 @@ void Animation::startPlayback(){
 		
 		PlaybackManager::push(thisAnimation);
 		if(manoeuvre) PlaybackManager::push(manoeuvre);
+		
+		//TODO: MASTERANIMATABLE
+		if(masterAnimation) animatable->masterAnimatable = masterAnimation->getAnimatable();
+		else animatable->masterAnimatable = nullptr;
 		
 		requestCurveRefocus();
 	}

@@ -617,7 +617,12 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 	getConstraintPositionLimits(minPosition, maxPosition);
 	
 	//update the setpoints
-	if(hasAnimation() && getAnimation()->isPlaying()){
+	//TODO: MASTERANIMATABLE
+	if(masterAnimatable){
+		velocitySetpoint = masterAnimatable->toPosition()->getVelocitySetpoint();
+		controlMode = FORCED_VELOCITY_SETPOINT;
+	}
+	else if(hasAnimation() && getAnimation()->isPlaying()){
 		auto target = getAnimationValue()->toPosition();
 		positionSetpoint = target->position;
 		velocitySetpoint = target->velocity;

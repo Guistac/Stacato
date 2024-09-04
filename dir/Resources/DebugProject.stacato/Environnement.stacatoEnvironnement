@@ -1,13 +1,13 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.50146753" OffsetX="345.51263" OffsetY="32.235779" AutoFit="false" DrawGrid="false" LockEdit="false">
-        <Widget Name="VOL" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10004" SizeY="393.66141"/>
-        <Widget Name="SAC" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10004" SizeY="393.66727"/>
-        <Widget Name="PISTOLET" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.09991" SizeY="394.64383"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-162" PositionY="784" SizeX="178.50002" SizeY="382.49667"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="18" PositionY="812" SizeX="136.49982" SizeY="316.60791"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-343" PositionY="787" SizeX="178.50002" SizeY="383.48499"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50002" SizeY="109.84367"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.50008" SizeY="109.83783"/>
+    <Dashboard Scale="0.61662656" OffsetX="696.7215" OffsetY="-252.39429" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="VOL" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10025" SizeY="395.59695"/>
+        <Widget Name="SAC" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10025" SizeY="395.97525"/>
+        <Widget Name="PISTOLET" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10025" SizeY="395.46216"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-162" PositionY="784" SizeX="178.5" SizeY="381.67664"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="18" PositionY="812" SizeX="136.5002" SizeY="316.37689"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-343" PositionY="787" SizeX="178.5" SizeY="381.92014"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.49989" SizeY="109.16519"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.50009" SizeY="108.78692"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -889,7 +889,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Romaine" UniqueID="2440">
                 <NodeEditorPosition x="-45" y="407"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="16"/>
+                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0.02" UpperPositionLimit="16"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false"/>
                     <ControWidget UniqueID="12"/>
