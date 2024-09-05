@@ -507,6 +507,12 @@ bool Lexium32::uploadGeneralParameters() {
 	uint16_t ShiftEncWorkRange = b_encoderRangeShifted ? 1 : 0;
 	if(!writeSDO_U16(0x3005, 0x21, ShiftEncWorkRange)) return onFailure();
 
+	if(!writeSDO_U16(0x3005, 0x9, brakingResistorType->value)) return onFailure();
+
+	if(!writeSDO_U16(0x3005, 0x12, externalBrakingResistorPower->value)) return onFailure();
+
+	if(!writeSDO_U16(0x3005, 0x13, externalBrakingResistorResistance->value * 100)) return onFailure();
+
     generalParameterUploadState = DataTransferState::SAVING;
 	if (!saveToEEPROM()) return onFailure();
     generalParameterUploadState = DataTransferState::SAVED;
@@ -592,6 +598,22 @@ bool Lexium32::downloadGeneralParameters() {
 		case 1: b_encoderRangeShifted = true; break;
 		default: return onFailure();
 	}
+
+	uint16_t RESint_ext;
+	if(!readSDO_U16(0x3005, 0x9, RESint_ext)) return onFailure();
+	switch(RESint_ext){
+		default:
+		case 0: brakingResistorType->overwrite(&brakingResistorType_internal_option); break;
+		case 1: brakingResistorType->overwrite(&brakingResistorType_external_option); break;
+	}
+
+	uint16_t RESext_P;
+	if(!readSDO_U16(0x3005, 0x12, RESext_P)) return onFailure();
+	externalBrakingResistorPower->overwrite(RESext_P);
+
+	uint16_t RESext_R;
+	if(!readSDO_U16(0x3005, 0x13, RESext_R)) return onFailure();
+	externalBrakingResistorResistance->overwrite(double(RESext_R)*0.01);
 	
     generalParameterDownloadState = DataTransferState::SUCCEEDED;
 	
@@ -982,6 +1004,11 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
     pinInversionXML->SetAttribute("DI4", b_invertDI4);
     pinInversionXML->SetAttribute("DI5", b_invertDI5);
 
+	XMLElement* brakingResistorXML = xml->InsertNewChildElement("BrakingResistor");
+	brakingResistorType->save(brakingResistorXML);
+	externalBrakingResistorPower->save(brakingResistorXML);
+	externalBrakingResistorResistance->save(brakingResistorXML);
+
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
     encoderSettingsXML->SetAttribute("PositionOffset", servoMotor->positionOffset_revolutions);
@@ -1068,6 +1095,12 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
     if (pinInversionXML->QueryBoolAttribute("DI3", &b_invertDI3) != XML_SUCCESS) return Logger::warn("Could not find inver DI3 attribute");
     if (pinInversionXML->QueryBoolAttribute("DI4", &b_invertDI4) != XML_SUCCESS) return Logger::warn("Could not find inver DI4 attribute");
     if (pinInversionXML->QueryBoolAttribute("DI5", &b_invertDI5) != XML_SUCCESS) return Logger::warn("Could not find inver DI5 attribute");
+
+	if(XMLElement* brakingResistorXML = xml->FirstChildElement("BrakingResistor")){
+		brakingResistorType->load(brakingResistorXML);
+		externalBrakingResistorPower->load(brakingResistorXML);
+		externalBrakingResistorResistance->load(brakingResistorXML);
+	}
 
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
     if (encoderSettingsXML == nullptr) return Logger::warn("Could not find Encoder Settings Attribute");

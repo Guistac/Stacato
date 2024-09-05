@@ -7,6 +7,8 @@
 
 #include "Gui/Assets/Colors.h"
 
+#include "Project/Editor/Parameter.h"
+
 class Lexium32 : public EtherCatDevice {
 public:
 	
@@ -145,7 +147,7 @@ private:
 			case 0x1A01: return "1A01 : Detected motor type is different from previously detected motor.";
 			case 0x7607: return "7607 : Encoder module cannot be identified";
 			case 0x734E: return "734E : Error in analog signals from encoder detected.";
-			case 0x3200: return "3200 : DC Bus Overvoltage : excessive regeneration during deceleration."
+			case 0x3200: return "3200 : DC Bus Overvoltage : excessive regeneration during deceleration.";
 			default: {
 				static char hexString[16];
 				sprintf(hexString, "%X", errorCode);
@@ -231,6 +233,22 @@ public:
 	//===== Drive Properties
     double maxMotorVelocity = 0.0;
 	double maxMotorCurrent_amps = 0.0;
+
+	//====== braking resistor
+	OptionParameter::Option brakingResistorType_internal_option = OptionParameter::Option(0, "Internal Braking Resistor", "InternalBrakingResistor");
+	OptionParameter::Option brakingResistorType_external_option = OptionParameter::Option(1, "External Braking Resistor", "ExternalBrakingResistor");
+	OptionParam brakingResistorType = OptionParameter::make2(brakingResistorType_internal_option,
+	{
+		&brakingResistorType_internal_option,
+		&brakingResistorType_external_option
+	},
+		"Braking Resistor Type", "BrakingResistorType");
+	NumberParam<int> externalBrakingResistorPower = NumberParameter<int>::make(
+		0.0, "External braking resistor rated power", "ExternalBrakingResistorPower",
+		"%i", Units::Power::Watt, false);
+	NumberParam<double> externalBrakingResistorResistance = NumberParameter<double>::make(
+		0.0, "External braking resistor resistance", "ExternalBrakingResistorResistance",
+		"%.2f", Units::Resistance::Ohm, false);
 
     bool uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;

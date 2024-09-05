@@ -1,13 +1,13 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.93734384" OffsetX="1108.1788" OffsetY="-257" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.09998" SizeY="396.53586"/>
-        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.09998" SizeY="396.40216"/>
-        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10017" SizeY="396.87006"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-162" PositionY="784" SizeX="178.50006" SizeY="387.53564"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="18" PositionY="812" SizeX="136.50029" SizeY="317.92868"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-343" PositionY="787" SizeX="178.5" SizeY="387.73621"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50002" SizeY="110.13497"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.50002" SizeY="110.26865"/>
+    <Dashboard Scale="0.93767327" OffsetX="1107.8226" OffsetY="-257" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10004" SizeY="397.42126"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10004" SizeY="397.28836"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10004" SizeY="397.75363"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-162" PositionY="784" SizeX="178.49994" SizeY="388.28091"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="18" PositionY="812" SizeX="136.50002" SizeY="317.6221"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-343" PositionY="787" SizeX="178.5" SizeY="387.41382"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50005" SizeY="110.09635"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49997" SizeY="110.2293"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -361,6 +361,7 @@
                     <NegativeLimitSwitch Pin="DI1" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
+                    <BrakingResistor BrakingResistorType="0" ExternalBrakingResistorPower="0" ExternalBrakingResistorResistance="0"/>
                     <EncoderSettings RangeShifted="false" PositionOffset="-2402.4049987792969"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
@@ -393,11 +394,12 @@
                     <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
-                    <CurrentLimit amps="20"/>
+                    <CurrentLimit amps="10"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="false"/>
+                    <BrakingResistor BrakingResistorType="1" ExternalBrakingResistorPower="11" ExternalBrakingResistorResistance="101.12"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="12.715774536132812"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
@@ -435,6 +437,7 @@
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="false"/>
+                    <BrakingResistor BrakingResistorType="0" ExternalBrakingResistorPower="0" ExternalBrakingResistorResistance="0"/>
                     <EncoderSettings RangeShifted="true" PositionOffset="0.040008544921875"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>

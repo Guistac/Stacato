@@ -467,6 +467,23 @@ void Lexium32::generalSettingsGui() {
 
 	ImGui::Separator();
 
+    //=========== Braking Resistor =============
+
+    ImGui::PushFont(Fonts::sansBold20);
+	ImGui::Text("Braking Resistor Settings");
+	ImGui::PopFont();
+
+    brakingResistorType->gui(Fonts::sansBold15);
+
+    ImGui::BeginDisabled(brakingResistorType->value != brakingResistorType_external_option.getInt());
+
+    externalBrakingResistorPower->gui(Fonts::sansBold15);
+    externalBrakingResistorResistance->gui(Fonts::sansBold15);
+
+    ImGui::EndDisabled();
+
+    ImGui::Separator();
+
 	//=========== Encoder Settings =============
 	
 	ImGui::PushFont(Fonts::sansBold20);
