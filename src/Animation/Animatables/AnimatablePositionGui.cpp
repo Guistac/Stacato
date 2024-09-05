@@ -137,6 +137,7 @@ void AnimatablePosition::manualControlsVerticalGui(float sliderHeight, const cha
 
 
 void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const char* customName){
+
 	ImGui::BeginGroup();
 
 	float sliderHeight = ImGui::GetTextLineHeight() * 1.75;
@@ -151,7 +152,14 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 
 	ImGui::BeginGroup();
 	if(masterAnimatable){
+	
 		bool b_pressed = ImGui::InvisibleButton("##masterdisplay", ImVec2(sliderWidth, ImGui::GetFrameHeight()));
+		if(ImGui::IsItemHovered()){
+			if(ImGui::BeginTooltip()){
+				ImGui::Text("Click to clear master constraint");
+				ImGui::EndTooltip();
+			}
+		}
 
 		//TODO: MASTERANIMATABLE
 		ImVec2 min = ImGui::GetItemRectMin();
@@ -166,7 +174,10 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 			min.y + ((max.y - min.y) - txtSize.y) / 2.0);
 		drawing->AddText(txtPos, ImColor(Timing::getBlink(.25) ? Colors::white : Colors::yellow), txt.c_str());
 		ImGui::PopFont();
-		if(b_pressed) masterAnimatable = nullptr;
+		if(b_pressed) {
+			masterAnimatable = nullptr;
+			setManualVelocityTarget(0.0);
+		}
 
 	}else{
 		//--- Velocity Slider & Feedback
@@ -174,6 +185,9 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 		static const double max = 1.0;
 		ImGui::SetNextItemWidth(sliderWidth);
 		ImGui::SliderScalar("##ManualVelocity", ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
+
+		std::string slavePopupName = std::string(getMachine()->getName()) + "/" + getName() + "-MasterSelectionPopup";
+
 		if (ImGui::IsItemActive()) {
 			float requesterVelocity = velocitySliderDisplayValue * velocityLimit;
 			setManualVelocityTarget(requesterVelocity);
@@ -181,6 +195,33 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 		else if (ImGui::IsItemDeactivatedAfterEdit()) {
 			setManualVelocityTarget(0.0);
 			velocitySliderDisplayValue = 0.0;
+		}
+		else if(canHaveMasterAnimatable->value && ImGui::IsItemClicked(ImGuiMouseButton_Right)){
+			ImGui::OpenPopup(slavePopupName.c_str());
+		}
+
+		if(ImGui::IsPopupOpen(slavePopupName.c_str())){
+			if(ImGui::BeginPopup(slavePopupName.c_str())){
+				
+				ImGui::BeginDisabled();
+				ImGui::Selectable("Select Master:");
+				ImGui::EndDisabled();
+
+				for (auto& envMachine : Environnement::getMachines()) {
+					if(envMachine->getAnimatables().empty()) continue;
+					if(envMachine->getAnimatables().size() != 1) continue;
+					auto otherAnimatable = envMachine->getAnimatables().front();
+					if(otherAnimatable == shared_from_this()) continue;
+					if(otherAnimatable->hasParentComposite()) continue;
+					if(otherAnimatable->getType() != AnimatableType::POSITION) continue;
+					if(otherAnimatable->toPosition()->getUnit() != getUnit()) continue;
+					if(ImGui::Selectable(otherAnimatable->getMachine()->getName(), otherAnimatable == masterAnimatable)) {
+						masterAnimatable = otherAnimatable;
+					}
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 	}
 	
@@ -223,6 +264,8 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::BeginGroup();
 	
 	ImGui::PopStyleVar();
+
+	ImGui::BeginDisabled(!getMachine()->isEnabled());
 	 
 	//--- Rapid Target Position Entry Box
 	ImGui::PushFont(Fonts::sansRegular12);
@@ -268,6 +311,8 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::PopID();
 
 	ImGui::EndGroup();
+
+	ImGui::EndDisabled();
 }
 
 

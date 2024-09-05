@@ -508,7 +508,6 @@ void PositionControlledMachine::horizontalWidgetGui(){
 void PositionControlledMachine::angularWidgetGui(){
 	float displayDiameter = ImGui::GetTextLineHeight() * 8.0;
 	
-	
 	ImGui::InvisibleButton("rotatingAxisDisplay", glm::vec2(displayDiameter));
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 max = ImGui::GetItemRectMax();
@@ -617,7 +616,7 @@ void PositionControlledMachine::angularWidgetGui(){
 	}
 	
 	animatablePosition->manualControlsHorizontalGui(displayDiameter, nullptr);
-	
+
 }
 
 

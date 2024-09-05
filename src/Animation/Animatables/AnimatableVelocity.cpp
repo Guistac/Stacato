@@ -179,11 +179,6 @@ bool AnimatableVelocity::validateAnimation(std::shared_ptr<Animation> animation)
 				snprintf(msg, 256, "Velocity target exceeds limit (Max %.2f%s/s)", velocityLimit, getUnit()->abbreviated);
 				animation->appendValidationErrorString(msg);
 			}
-			if(target->timeConstraint->value == 0.0){
-				target->timeConstraint->setValid(false);
-				b_animationValid = false;
-				animation->appendValidationErrorString("Time constraint is zero");
-			}
 			
 		}
 		

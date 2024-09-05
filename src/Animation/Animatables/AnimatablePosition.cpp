@@ -625,7 +625,6 @@ void AnimatablePosition::updateTargetValue(double time_seconds, double deltaT_se
 			auto animatablePosition = masterAnimatable->toPosition();
 			auto masterTarget = animatablePosition->getTargetValue()->toPosition();
 			velocitySetpoint = masterTarget->velocity;
-			Logger::info("{} {}", getMachine()->getName(), velocitySetpoint);
 		}
 	}
 	else if(hasAnimation() && getAnimation()->isPlaying()){

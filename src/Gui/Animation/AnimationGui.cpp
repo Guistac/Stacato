@@ -145,11 +145,13 @@ void Animation::baseTrackSheetRowGui(){
 		backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 		if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 		
-		/*
-		ImGui::SameLine();
-		std::string masterAnimationName = masterAnimation ? "some" : "None";
-		if(ImGui::BeginCombo("##MasterAnimation", masterAnimationName.c_str())) ImGui::EndCombo();
-		*/
+		if(animatable->getType() == AnimatableType::POSITION && animatable->toPosition()->canHaveMasterAnimatable->value){
+			ImGui::SameLine();
+			std::string selectionName = targetMasterAnimatable ? targetMasterAnimatable->getMachine()->getName() : "No Master";
+			ImGui::BeginDisabled();
+			if(ImGui::BeginCombo("##MasterAnimation", selectionName.c_str())) ImGui::EndCombo();
+			ImGui::EndDisabled();
+		}
 
 		//[3] "Current"
 		ImGui::TableSetColumnIndex(3);
@@ -179,28 +181,7 @@ void Animation::baseTrackSheetRowGui(){
 		backgroundText(animatable->getName(), b_valid ? Colors::darkGreen : Colors::red, b_valid ? Colors::white : Colors::white);
 		if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 		
-		/*
-		ImGui::SameLine();
-		std::string masterAnimationName = masterAnimation ? getFullName() : "None";
-		if(ImGui::BeginCombo("##MasterAnimation", masterAnimationName.c_str())){
-			if(manoeuvre){
-				ImGui::BeginDisabled();
-				ImGui::Selectable("Master Animation:  ");
-				ImGui::EndDisabled();
-				auto& manoeuvreAnimations = manoeuvre->getAnimations();
-				if(ImGui::Selectable("None", masterAnimation == nullptr)) masterAnimation = nullptr;
-				for(int i = 0; i < manoeuvreAnimations.size(); i++){
-					auto animation = manoeuvreAnimations[i];
-					if(animation == shared_from_this()) continue;
-					if(ImGui::Selectable(animation->getFullName().c_str(), masterAnimation == animation)) masterAnimation = animation;
-				}
-			}
-			ImGui::EndCombo();
-		}
-		*/
-
-		
-		//if(animatable->getType() == AnimatableType::POSITION && animatable->toPosition()->canHaveMasterAnimatable->value){
+		if(animatable->getType() == AnimatableType::POSITION && animatable->toPosition()->canHaveMasterAnimatable->value){
 			ImGui::SameLine();
 			std::string selectionDisplay = targetMasterAnimatable ? targetMasterAnimatable->getMachine()->getName() : "No Master";
 			if(ImGui::BeginCombo("##MasterAnimation", selectionDisplay.c_str())){
@@ -226,7 +207,7 @@ void Animation::baseTrackSheetRowGui(){
 
 				ImGui::EndCombo();
 			}
-		//}
+		}
 
 
 
@@ -331,7 +312,7 @@ void AnimationKey::trackSheetRowGui(){
 
 void TargetAnimation::trackSheetRowGui(){
 	
-	//ImGui::BeginDisabled(masterAnimation != nullptr);
+	if(targetMasterAnimatable) return;
 	
 	if(Stacato::Editor::getCurrentProject()->isPlotEditLocked()){
 		
@@ -413,12 +394,11 @@ void TargetAnimation::trackSheetRowGui(){
 		
 	}
 	
-	//ImGui::EndDisabled();
 }
 
 void SequenceAnimation::trackSheetRowGui(){
 	
-	//ImGui::BeginDisabled(masterAnimation != nullptr);
+	if(targetMasterAnimatable) return;
 	
 	if(Stacato::Editor::getCurrentProject()->isPlotEditLocked()){
 		
@@ -526,8 +506,6 @@ void SequenceAnimation::trackSheetRowGui(){
 		outAcceleration->gui();
 		if(!outAcceleration->isValid() && ImGui::IsItemHovered()) validationErrorPopup();
 	}
-	
-	//ImGui::EndDisabled();
 	
 }
 
