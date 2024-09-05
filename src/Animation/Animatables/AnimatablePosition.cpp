@@ -779,12 +779,14 @@ std::shared_ptr<AnimationValue> AnimatablePosition::getTargetValue(){
 bool AnimatablePosition::save(tinyxml2::XMLElement* xml){
 	controlChannelAxis_parameter->save(xml);
 	controlChannelInvert_parameter->save(xml);
+	canHaveMasterAnimatable->save(xml);
 	return true;
 }
 
 bool AnimatablePosition::load(tinyxml2::XMLElement* xml){
 	controlChannelAxis_parameter->load(xml);
 	controlChannelInvert_parameter->load(xml);
+	canHaveMasterAnimatable->load(xml);
 	return true;
 }
 

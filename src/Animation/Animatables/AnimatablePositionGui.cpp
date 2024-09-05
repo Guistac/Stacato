@@ -274,4 +274,6 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 void AnimatablePosition::settingsGui(){
 	controlChannelAxis_parameter->gui(Fonts::sansBold15);
 	controlChannelInvert_parameter->gui(Fonts::sansBold15);
+	ImGui::Separator();
+	canHaveMasterAnimatable->gui(Fonts::sansBold15);
 }

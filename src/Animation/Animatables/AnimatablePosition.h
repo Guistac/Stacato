@@ -197,7 +197,8 @@ public:
 	};
 	OptionParam controlChannelAxis_parameter = OptionParameter::make2(controlChannelAxisX_option, controlChannelAxis_options, "Manual Control Axis", "ManualControlChannelAxis");
 	BoolParam controlChannelInvert_parameter = BooleanParameter::make(false, "Invert Manual Control", "InvertManualControlAxis");
-	
+	BoolParam canHaveMasterAnimatable = BooleanParameter::make(false, "Can have master animatable", "CanHaveMasterAnimatable");
+
 };
 
 
