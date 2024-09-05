@@ -148,19 +148,42 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 	ImGui::PushID(getName());
 
 	//--- Velocity Slider & Feedback
-	static const double min = -1.0;
-	static const double max = 1.0;
+
 	ImGui::BeginGroup();
-	ImGui::SetNextItemWidth(sliderWidth);
-	ImGui::SliderScalar("##ManualVelocity", ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
-	if (ImGui::IsItemActive()) {
-		float requesterVelocity = velocitySliderDisplayValue * velocityLimit;
-		setManualVelocityTarget(requesterVelocity);
+	if(masterAnimatable){
+		bool b_pressed = ImGui::InvisibleButton("##masterdisplay", ImVec2(sliderWidth, ImGui::GetFrameHeight()));
+
+		//TODO: MASTERANIMATABLE
+		ImVec2 min = ImGui::GetItemRectMin();
+		ImVec2 max = ImGui::GetItemRectMax();
+		ImDrawList* drawing =  ImGui::GetWindowDrawList();
+		drawing->AddRectFilled(min, max, ImColor(Colors::darkRed));
+		ImGui::PushFont(Fonts::sansBold15);
+		std::string txt = "Master: " + std::string(masterAnimatable->getMachine()->getName());
+		ImVec2 txtSize = ImGui::CalcTextSize(txt.c_str());
+		ImVec2 txtPos(
+			min.x + ((max.x - min.x) - txtSize.x) / 2.0,
+			min.y + ((max.y - min.y) - txtSize.y) / 2.0);
+		drawing->AddText(txtPos, ImColor(Timing::getBlink(.25) ? Colors::white : Colors::yellow), txt.c_str());
+		ImGui::PopFont();
+		if(b_pressed) masterAnimatable = nullptr;
+
+	}else{
+		//--- Velocity Slider & Feedback
+		static const double min = -1.0;
+		static const double max = 1.0;
+		ImGui::SetNextItemWidth(sliderWidth);
+		ImGui::SliderScalar("##ManualVelocity", ImGuiDataType_Double, &velocitySliderDisplayValue, &min, &max, "");
+		if (ImGui::IsItemActive()) {
+			float requesterVelocity = velocitySliderDisplayValue * velocityLimit;
+			setManualVelocityTarget(requesterVelocity);
+		}
+		else if (ImGui::IsItemDeactivatedAfterEdit()) {
+			setManualVelocityTarget(0.0);
+			velocitySliderDisplayValue = 0.0;
+		}
 	}
-	else if (ImGui::IsItemDeactivatedAfterEdit()) {
-		setManualVelocityTarget(0.0);
-		velocitySliderDisplayValue = 0.0;
-	}
+	
 	ImGui::ProgressBar(std::abs(getActualVelocityNormalized()), velocityDisplaySize, "");
 	if(ImGui::IsItemHovered()){
 		ImGui::BeginTooltip();
@@ -168,9 +191,8 @@ void AnimatablePosition::manualControlsHorizontalGui(float sliderWidth, const ch
 		ImGui::EndTooltip();
 	}
 	ImGui::EndGroup();
-	
-	
-	
+
+
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.y, 0.0));
 	
 	float controlsHeight = ImGui::GetTextLineHeight() * 2.0;
