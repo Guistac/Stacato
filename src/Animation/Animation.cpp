@@ -257,6 +257,25 @@ float Animation::getPlaybackProgress(){
 
 void Animation::startPlayback(){
 	if(!b_isPaused) animatable->stopAnimation(); //TODO: verify if this interferes with the next line
+
+	//TODO: MASTERANIMATABLE
+	if(animatable->getType() == AnimatableType::POSITION){
+		/*
+		if(masterAnimatable && masterAnimatable->getType() == AnimatableType::POSITION){
+			auto animatablePosition = animatable->toPosition();
+			animatablePosition->masterAnimatable = masterAnimatable->toPosition();
+			Logger::info("{} : set animatable master to {}", animatable->getFullName(), masterAnimatable->getFullName());
+			return;
+		}else if(animatable->toPosition()->masterAnimatable){
+			animatable->toPosition()->masterAnimatable = nullptr;
+			Logger::info("{} : cleared master animatable", animatable->getFullName());
+		}
+		*/
+		if(masterAnimation){
+			animatable->masterAnimatable = masterAnimation->getAnimatable();
+			return;
+		}else animatable->masterAnimatable = nullptr;
+	}
 	//animatable->stopAnimation();
 	if(onStartPlayback()){
 		updateDuration();
@@ -274,10 +293,6 @@ void Animation::startPlayback(){
 		
 		PlaybackManager::push(thisAnimation);
 		if(manoeuvre) PlaybackManager::push(manoeuvre);
-		
-		//TODO: MASTERANIMATABLE
-		if(masterAnimation) animatable->masterAnimatable = masterAnimation->getAnimatable();
-		else animatable->masterAnimatable = nullptr;
 		
 		requestCurveRefocus();
 	}

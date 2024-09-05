@@ -144,7 +144,7 @@ void Animation::baseTrackSheetRowGui(){
 		if(ImGui::IsItemHovered() && !b_valid) validationErrorPopup();
 		
 		ImGui::SameLine();
-		std::string masterAnimationName = masterAnimation ? getFullName() : "None";
+		std::string masterAnimationName = masterAnimation ? "some" : "None";
 		if(ImGui::BeginCombo("##MasterAnimation", masterAnimationName.c_str())) ImGui::EndCombo();
 		
 		//[3] "Current"

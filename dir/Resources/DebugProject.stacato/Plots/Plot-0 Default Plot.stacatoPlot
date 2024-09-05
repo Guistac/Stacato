@@ -2,7 +2,7 @@
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
             <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Target" Target="124.07523794151577" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Target" Target="330" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Target" Target="325" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
