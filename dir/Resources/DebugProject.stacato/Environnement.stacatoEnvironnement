@@ -1,13 +1,15 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.93767327" OffsetX="1107.8226" OffsetY="-257" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10004" SizeY="397.42126"/>
-        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10004" SizeY="397.28836"/>
-        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10004" SizeY="397.75363"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-162" PositionY="784" SizeX="178.49994" SizeY="388.28091"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="18" PositionY="812" SizeX="136.50002" SizeY="317.6221"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-343" PositionY="787" SizeX="178.5" SizeY="387.41382"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50005" SizeY="110.09635"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49997" SizeY="110.2293"/>
+    <Dashboard Scale="0.81095862" OffsetX="355.43494" OffsetY="-252.38812" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.09999" SizeY="395.77682"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10001" SizeY="395.31061"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10008" SizeY="395.70923"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.5" SizeY="109.08413"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49998" SizeY="109.55032"/>
+        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10008" SizeY="395.47614"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50005" SizeY="318.37827"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49997" SizeY="387.07083"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49998" SizeY="387.07083"/>
+        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.49998" SizeY="109.24965"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -144,11 +146,11 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Tapis Roulant (Alias:300)" UniqueID="1881">
-                <NodeEditorPosition x="369" y="-1083"/>
+                <NodeEditorPosition x="368" y="-1083"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="300"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="4.4000000000000004" RatedMotorVoltage="400" RatedMotorCurrent="10" MotorRatedSpeed="2900"/>
-                    <MotionControlSettings AccelerationRamp="3" DecelerationRamp="1" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="400" MaxFrequency="400" SwitchingFrequency="16"/>
+                    <MotionControlSettings AccelerationRamp="2" DecelerationRamp="2" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="100" MaxFrequency="100" SwitchingFrequency="16"/>
                     <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
                     <IOConfiguration TwoOrThreeWireControl="0" ForwardStopSignal="0" ReverseStopSignal="0" StopLimitConfiguration="1" FaultResetPin="0" ExternalFaultPin="0" PresetSlowdownSpeedPin="0"/>
                     <LogicInputSettings LI1OnDelay="0" LI2OnDelay="0" LI3OnDelay="0" LI4OnDelay="0" LI5OnDelay="0" LI6OnDelay="0" InvertLogicInput1="false" InvertLogicInput2="false" InvertLogicInput3="false" InvertLogicInput4="false" InvertLogicInput5="false" InvertLogicInput6="false"/>
@@ -173,8 +175,8 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="301"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="true" InvertDigitalIn1="true" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="2" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" InvertDirection="true"/>
-                    <Axis1 MotorType="1" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" InvertDirection="true"/>
+                    <Axis0 MotorType="2" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="3" InvertDirection="true"/>
+                    <Axis1 MotorType="1" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="3" InvertDirection="true"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="1894" Visible="false"/>
@@ -247,7 +249,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.12753888899999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="487.86374688466026"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -284,7 +286,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.17873055600000001"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="0"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="-1300.4720253522369"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -315,7 +317,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Tournette" UniqueID="1971">
-                <NodeEditorPosition x="929" y="-844"/>
+                <NodeEditorPosition x="921" y="-837"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-16057.847265707327" UpperPositionLimit="16057.847265707327"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
@@ -335,7 +337,7 @@
                 <NodeEditorPosition x="939" y="-675"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="-11458.589095420259" UpperPositionLimit="11458.589095420259"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="true"/>
                     <ControWidget UniqueID="2"/>
                 </NodeSpecificData>
@@ -361,7 +363,7 @@
                     <NegativeLimitSwitch Pin="DI1" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
                     <DigitalPinInversion DI0="true" DI1="false" DI2="false" DI3="false" DI4="false" DI5="false"/>
-                    <BrakingResistor BrakingResistorType="0" ExternalBrakingResistorPower="0" ExternalBrakingResistorResistance="0"/>
+                    <BrakingResistor BrakingResistorType="0" ExternalBrakingResistorPower="10" ExternalBrakingResistorResistance="100"/>
                     <EncoderSettings RangeShifted="false" PositionOffset="-2402.4049987792969"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
@@ -391,7 +393,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="200"/>
                     <MotorProperties MaxVelocity="100" MaxCurrent="26.710000000000001" EncoderIsMultiturn="true"/>
-                    <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
+                    <KinematicLimits velocityLimit_rps="60" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
                     <CurrentLimit amps="10"/>
@@ -399,8 +401,8 @@
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="false"/>
-                    <BrakingResistor BrakingResistorType="1" ExternalBrakingResistorPower="11" ExternalBrakingResistorResistance="101.12"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset="12.715774536132812"/>
+                    <BrakingResistor BrakingResistorType="1" ExternalBrakingResistorPower="400" ExternalBrakingResistorResistance="27"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset="12.773536682128906"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -432,13 +434,13 @@
                     <KinematicLimits velocityLimit_rps="50" accelerationLimit_rpsps="50" manualAcceleration_rpsps="0"/>
                     <InvertDirectionOfMovement Invert="false"/>
                     <MaxFollowingError revolutions="1"/>
-                    <CurrentLimit amps="10"/>
+                    <CurrentLimit amps="5"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
                     <NegativeLimitSwitch Pin="DI2" NormallyClosed="true"/>
                     <PositiveLimitSwitch Pin="DI3" NormallyClosed="true"/>
                     <DigitalPinInversion DI0="true" DI1="true" DI2="true" DI3="true" DI4="false" DI5="false"/>
-                    <BrakingResistor BrakingResistorType="0" ExternalBrakingResistorPower="0" ExternalBrakingResistorResistance="0"/>
-                    <EncoderSettings RangeShifted="true" PositionOffset="0.040008544921875"/>
+                    <BrakingResistor BrakingResistorType="1" ExternalBrakingResistorPower="400" ExternalBrakingResistorResistance="27"/>
+                    <EncoderSettings RangeShifted="true" PositionOffset="26.996910095214844"/>
                     <HoldingBrake HasHoldingBrake="true"/>
                 </NodeSpecificData>
                 <InputPins>
@@ -469,7 +471,7 @@
                     <KinematicLimits velocityLimit_rps="100" accelerationLimit_rpsps="100" manualAcceleration_rpsps="0"/>
                     <InvertDirectionOfMovement Invert="true"/>
                     <MaxFollowingError revolutions="1"/>
-                    <CurrentLimit amps="10.5"/>
+                    <CurrentLimit amps="3"/>
                     <Quickstop Reaction="DecelerationRamp" Deceleration_RevolutionsPerSecondSquared="100"/>
                     <NegativeLimitSwitch Pin="Unassigned"/>
                     <PositiveLimitSwitch Pin="Unassigned"/>
@@ -556,7 +558,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Sacs" UniqueID="2103">
                 <NodeEditorPosition x="648" y="-234"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.80000000000000004" AccelerationLimit="0.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="8" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.10000000000000001" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="1" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="0.90000000000000002" AccelerationLimit="0.29999999999999999" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="7.1500000000000004" LowerPositionLimitClearance="0.050000000000000003" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.10000000000000001" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="1" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings>
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4279999999999999"/>
                     </FeedbackMappings>
@@ -593,7 +595,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Vol" UniqueID="2118">
                 <NodeEditorPosition x="633" y="217"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="1" AccelerationLimit="1" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="8" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.10000000000000001" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="1" AccelerationLimit="1" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="10" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="9" LowerPositionLimitClearance="0.050000000000000003" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.10000000000000001" HomingVelocityFine="0.01" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings>
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="1.4259999999999999"/>
                     </FeedbackMappings>
@@ -664,7 +666,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Tapis" UniqueID="2169">
                 <NodeEditorPosition x="713" y="-1069"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="1" VelocityLimit="40" AccelerationLimit="10" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="1" VelocityLimit="3" AccelerationLimit="0.5" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="31.104299999999999" PositionOffset="0"/>
@@ -707,7 +709,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Or" CustomName="Or" UniqueID="2224">
-                <NodeEditorPosition x="905" y="27"/>
+                <NodeEditorPosition x="893" y="32"/>
                 <NodeSpecificData/>
                 <InputPins>
                     <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2225" Visible="true" AcceptsMultipleInputs="true"/>
@@ -791,8 +793,8 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Vol" UniqueID="2318">
                 <NodeEditorPosition x="1022" y="538"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="8"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
+                    <Limits InvertAxis="false" AxisOffset="0.050000000000000003" LowerPositionLimit="0" UpperPositionLimit="8.6500000000000004"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="7"/>
                 </NodeSpecificData>
@@ -808,7 +810,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Sacs" UniqueID="2325">
                 <NodeEditorPosition x="990" y="-210"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="8"/>
+                    <Limits InvertAxis="false" AxisOffset="0.050000000000000003" LowerPositionLimit="0" UpperPositionLimit="7.1000000000000005"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="8"/>
@@ -841,7 +843,7 @@
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Romaine" UniqueID="2411">
                 <NodeEditorPosition x="-264" y="327"/>
-                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="1.3" AccelerationLimit="0.29999999999999999" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0" PositionLoopErrorTimeout="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="16" LowerPositionLimitClearance="0.02" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.080000000000000002" HomingVelocityFine="0.029999999999999999" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="1" AxisControlMode="0" VelocityLimit="1.3" AccelerationLimit="0.29999999999999999" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0.10000000000000001" PositionLoopMinError="0" PositionLoopErrorTimeout="100" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="8.4450000000000003" LowerPositionLimitClearance="0.02" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0.080000000000000002" HomingVelocityFine="0.029999999999999999" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="47.241999999999997" PositionOffset="0"/>
@@ -892,7 +894,7 @@
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Romaine" UniqueID="2440">
                 <NodeEditorPosition x="-45" y="407"/>
                 <NodeSpecificData ShortName="M">
-                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0.02" UpperPositionLimit="16"/>
+                    <Limits InvertAxis="false" AxisOffset="0.02" LowerPositionLimit="0" UpperPositionLimit="8.4250000000000007"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0"/>
                     <Animatable ManualControlChannelAxis="1" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="12"/>
@@ -906,8 +908,34 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="2444" Visible="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN Server" UniqueID="2448">
-                <NodeEditorPosition x="1312" y="-317"/>
+            <Node NodeType="Processor" ClassName="SafetySignal" CustomName="AU Romaine" UniqueID="2458">
+                <NodeEditorPosition x="-648" y="142"/>
+                <NodeSpecificData>
+                    <Settings FaultResetPulseTime="0.5" UnclearedFaultLedBlinkFrequency="2"/>
+                    <ControlWidget UniqueID="13"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GpioDevice" DisplayString="Gpio Device" DataType="GpioInterface" UniqueID="2459" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="SafetyLineValid" DisplayString="Safety Line Valid" DataType="Boolean" UniqueID="2460" Visible="true"/>
+                    <InputPin SaveString="SafetyStateValid" DisplayString="Safety State Valid" DataType="Boolean" UniqueID="2461" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="ResetSafetyFault" DisplayString="Reset Safety Fault" DataType="Boolean" UniqueID="2462" Visible="true"/>
+                    <OutputPin SaveString="StateLEDSignal" DisplayString="State LED Signal" DataType="Boolean" UniqueID="2463" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="2469">
+                <NodeEditorPosition x="-839" y="383"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="2470" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2471" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2485">
+                <NodeEditorPosition x="1408" y="-672"/>
                 <NodeSpecificData>
                     <Network ServerName="Stacato PSN Server" DestinationIpOctet0="236" DestinationIpOctet1="10" DestinationIpOctet2="10" DestinationIpOctet3="10" Port="56565" LocalIpOctet0="192" LocalIpOctet1="168" LocalIpOctet2="2" LocalIpOctet3="105" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60"/>
                     <Script>
@@ -965,28 +993,39 @@ function update()
 	count = count + 0.01
 
 end
+
 </Script>
                 </NodeSpecificData>
                 <InputPins/>
                 <OutputPins/>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="Osc Connection" UniqueID="2450">
-                <NodeEditorPosition x="1318" y="-187"/>
+            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="OSC" UniqueID="2486">
+                <NodeEditorPosition x="1352" y="-892"/>
                 <NodeSpecificData>
-                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="5" ipv4-3="255"/>
-                    <Ports send="12345" receive="0"/>
+                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="5" ipv4-3="200"/>
+                    <Ports send="13000" receive="12345"/>
                     <Broadcast SendBroadcast="true" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="5" NetworkIpOctet3="0" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
                     <OutgoingMessages>
-                        <OSCMessage Path="/Stacato/test" SendingFrequency="50" IncludeTimestamp="false">
+                        <OSCMessage Path="/LaHaine/Tournette" SendingFrequency="100" IncludeTimestamp="true">
                             <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument0"/>
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument2"/>
+                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>
+                        </OSCMessage>
+                        <OSCMessage Path="/LaHaine/Anneau" SendingFrequency="100" IncludeTimestamp="false">
+                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage1Argument0"/>
+                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage1Argument1"/>
+                        </OSCMessage>
+                        <OSCMessage Path="/LaHaine/Tapis" SendingFrequency="100" IncludeTimestamp="false">
+                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage2Argument1"/>
                         </OSCMessage>
                     </OutgoingMessages>
                     <IncomingMessages/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="OutgoingMessage0Argument0" DisplayString="Outgoing Message 0 Argument 0" DataType="Real" UniqueID="2451" Visible="true"/>
-                    <InputPin SaveString="OutgoingMessage0Argument2" DisplayString="Outgoing Message 0 Argument 1" DataType="Real" UniqueID="2452" Visible="true"/>
+                    <InputPin SaveString="OutgoingMessage0Argument0" DisplayString="Tournette Position" DataType="Real" UniqueID="2487" Visible="true"/>
+                    <InputPin SaveString="OutgoingMessage0Argument1" DisplayString="Tournette Vitesse" DataType="Real" UniqueID="2488" Visible="true"/>
+                    <InputPin SaveString="OutgoingMessage1Argument0" DisplayString="Tournette Position" DataType="Real" UniqueID="2492" Visible="true"/>
+                    <InputPin SaveString="OutgoingMessage1Argument1" DisplayString="Tournette Vitesse" DataType="Real" UniqueID="2493" Visible="true"/>
+                    <InputPin SaveString="OutgoingMessage2Argument1" DisplayString="Tapis Vitesse" DataType="Real" UniqueID="2494" Visible="true"/>
                 </InputPins>
                 <OutputPins/>
             </Node>
@@ -1015,8 +1054,6 @@ end
             <Link UniqueID="2186" StartPin="1883" EndPin="2170"/>
             <Link UniqueID="2187" StartPin="1899" EndPin="1946"/>
             <Link UniqueID="2188" StartPin="1900" EndPin="1928"/>
-            <Link UniqueID="2207" StartPin="1933" EndPin="1973"/>
-            <Link UniqueID="2208" StartPin="1951" EndPin="1978"/>
             <Link UniqueID="2220" StartPin="2116" EndPin="2218"/>
             <Link UniqueID="2221" StartPin="2131" EndPin="2218"/>
             <Link UniqueID="2222" StartPin="2219" EndPin="2064"/>
@@ -1030,7 +1067,6 @@ end
             <Link UniqueID="2242" StartPin="2239" EndPin="2112"/>
             <Link UniqueID="2257" StartPin="2025" EndPin="2245"/>
             <Link UniqueID="2258" StartPin="2041" EndPin="2245"/>
-            <Link UniqueID="2259" StartPin="2248" EndPin="2225"/>
             <Link UniqueID="2261" StartPin="2079" EndPin="2126"/>
             <Link UniqueID="2266" StartPin="2047" EndPin="2264"/>
             <Link UniqueID="2267" StartPin="2239" EndPin="2264"/>
@@ -1056,9 +1092,23 @@ end
             <Link UniqueID="2428" StartPin="2004" EndPin="2426"/>
             <Link UniqueID="2429" StartPin="2010" EndPin="2413"/>
             <Link UniqueID="2431" StartPin="2114" EndPin="2327"/>
-            <Link UniqueID="2439" StartPin="2180" EndPin="2437"/>
             <Link UniqueID="2445" StartPin="2422" EndPin="2442"/>
             <Link UniqueID="2446" StartPin="2078" EndPin="2111"/>
+            <Link UniqueID="2464" StartPin="2462" EndPin="2001"/>
+            <Link UniqueID="2465" StartPin="1795" EndPin="2460"/>
+            <Link UniqueID="2467" StartPin="2008" EndPin="2459"/>
+            <Link UniqueID="2472" StartPin="2471" EndPin="2461"/>
+            <Link UniqueID="2473" StartPin="2009" EndPin="2470"/>
+            <Link UniqueID="2481" StartPin="1933" EndPin="1973"/>
+            <Link UniqueID="2482" StartPin="1951" EndPin="1978"/>
+            <Link UniqueID="2484" StartPin="1795" EndPin="2246"/>
+            <Link UniqueID="2495" StartPin="1974" EndPin="2487"/>
+            <Link UniqueID="2496" StartPin="1975" EndPin="2488"/>
+            <Link UniqueID="2497" StartPin="1979" EndPin="2492"/>
+            <Link UniqueID="2498" StartPin="1980" EndPin="2493"/>
+            <Link UniqueID="2499" StartPin="2438" EndPin="2494"/>
+            <Link UniqueID="2504" StartPin="2248" EndPin="2225"/>
+            <Link UniqueID="2506" StartPin="2180" EndPin="2437"/>
         </Links>
     </NodeGraph>
 </Environnement>

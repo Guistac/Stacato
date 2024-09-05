@@ -134,6 +134,12 @@ bool AX5206::startupConfiguration() {
 	writeSercos_U16('S', 55, b_invert0 ? 0xD : 0x0, 0);
 	writeSercos_U16('S', 43, b_invert1 ? 0xD : 0x0, 1);
 	writeSercos_U16('S', 55, b_invert1 ? 0xD : 0x0, 1);
+
+	writeSercos_U32('P', 92, axis0->currentLimit_amps->value * 1000, 0);
+	writeSercos_U32('P', 92, axis1->currentLimit_amps->value * 1000, 1);
+
+	writeSercos_U32('S', 159, axis0->positionFollowingErrorLimit_rev->value * axis0->unitsPerRev, 0);
+	writeSercos_U32('S', 159, axis1->positionFollowingErrorLimit_rev->value * axis1->unitsPerRev, 1);
 	
 	//setup cycle times
 	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
@@ -612,6 +618,7 @@ bool AX5206::Axis::save(tinyxml2::XMLElement* xml){
 	velocityLimit_revps->save(xml);
 	accelerationLimit_revps2->save(xml);
 	positionFollowingErrorLimit_rev->save(xml);
+	currentLimit_amps->save(xml);
 	invertDirection_param->save(xml);
 	return true;
 }
@@ -621,6 +628,7 @@ bool AX5206::Axis::load(tinyxml2::XMLElement* xml){
 	velocityLimit_revps->load(xml);
 	accelerationLimit_revps2->load(xml);
 	positionFollowingErrorLimit_rev->load(xml);
+	currentLimit_amps->load(xml);
 	invertDirection_param->load(xml);
 	return true;
 }

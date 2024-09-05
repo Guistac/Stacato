@@ -828,8 +828,10 @@ namespace EtherCatFieldbus {
 
 	bool b_cyclicExchangeThreadRunning = false;
 	bool b_cyclicExchangeTimedOut;
+	bool b_osalThreadIsRunning = false;
 
     void cyclicExchange(void* data) {
+		b_osalThreadIsRunning = true;
 		
 		b_cyclicExchangeThreadRunning = true;
 		b_cyclicExchangeTimedOut = false;
@@ -905,6 +907,7 @@ namespace EtherCatFieldbus {
 		b_cyclicExchangeThreadRunning = false;
 		b_networkRunning = false;
 		b_networkStarting = false; //we set this in case we canceled network starting during clock stabilisation
+		b_osalThreadIsRunning = false;
     }
 
 	void cycle(){
@@ -1146,11 +1149,12 @@ namespace EtherCatFieldbus {
 	int stackSize = 65536;
 
 	void startCyclicExchange() {
-		
-		//if the cyclic exchange thread was not terminate manually (because of fieldbus timeout)
-		//it still needs to be joined (or maybe we should just detach it)
-		pthread_join(cyclicExchangeThread, nullptr);
-		
+
+		if(b_osalThreadIsRunning) {
+			b_cyclicExchangeThreadRunning = false;
+			pthread_join(cyclicExchangeThread, nullptr);
+		}
+
 		if (b_cyclicExchangeThreadRunning){
 			Logger::error("Can't start Cyclic exchange while it is running");
 			return;
@@ -1161,13 +1165,15 @@ namespace EtherCatFieldbus {
 			
 		osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
 
+		pthread_detach(cyclicExchangeThread);
+
 	}
 
 	void stopCyclicExchange(){
 		if(b_cyclicExchangeThreadRunning){
 			b_cyclicExchangeThreadRunning = false;
+			pthread_join(cyclicExchangeThread, nullptr);
 		}
-		pthread_join(cyclicExchangeThread, nullptr);
 	}
 
 
