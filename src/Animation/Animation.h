@@ -188,8 +188,7 @@ private:
 private:
 	
 public:
-	std::shared_ptr<Animation> masterAnimation = nullptr;
-	
+	std::shared_ptr<Animatable> targetMasterAnimatable = nullptr;
 };
 
 

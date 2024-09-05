@@ -260,21 +260,21 @@ void Animation::startPlayback(){
 
 	//TODO: MASTERANIMATABLE
 	if(animatable->getType() == AnimatableType::POSITION){
-		/*
-		if(masterAnimatable && masterAnimatable->getType() == AnimatableType::POSITION){
-			auto animatablePosition = animatable->toPosition();
-			animatablePosition->masterAnimatable = masterAnimatable->toPosition();
-			Logger::info("{} : set animatable master to {}", animatable->getFullName(), masterAnimatable->getFullName());
+		
+		if(targetMasterAnimatable){
+			animatable->masterAnimatable = targetMasterAnimatable;
+			Logger::info("{} : set animatable master to {}", animatable->getMachine()->getName(), targetMasterAnimatable->getMachine()->getName());
 			return;
-		}else if(animatable->toPosition()->masterAnimatable){
-			animatable->toPosition()->masterAnimatable = nullptr;
-			Logger::info("{} : cleared master animatable", animatable->getFullName());
+		}else if(animatable->masterAnimatable){
+			animatable->masterAnimatable = nullptr;
+			Logger::info("{} : cleared master animatable", animatable->getMachine()->getName());
 		}
-		*/
+		/*
 		if(masterAnimation){
 			animatable->masterAnimatable = masterAnimation->getAnimatable();
 			return;
 		}else animatable->masterAnimatable = nullptr;
+		*/
 	}
 	//animatable->stopAnimation();
 	if(onStartPlayback()){
