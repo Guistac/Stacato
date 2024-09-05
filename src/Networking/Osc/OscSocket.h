@@ -11,6 +11,7 @@ public:
 	~OscSocket();
 
 	void open(int listeningPort, std::vector<int>, int remotePort);
+	void openBroadcast(uint32_t network, uint32_t mask, uint16_t port);
 	void close();
 	bool isOpen();
 
@@ -22,7 +23,10 @@ public:
 private:
 
 	bool b_isOpen = false;
+	bool b_broadcast = false;
 	std::unique_ptr<asio::ip::udp::socket> udpSocket;
+
+	asio::ip::udp::endpoint broadcastEndpoint;
 
 	void asyncReceive();
 	std::vector<char> inBuffer;

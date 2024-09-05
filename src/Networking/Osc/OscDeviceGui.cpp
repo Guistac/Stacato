@@ -53,24 +53,82 @@ void OscDevice::networkGui(){
 		
 		endHelpMarker();
 	}
+
+	sendBroadcast_param->gui(Fonts::sansBold15);
 	
-	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::Text("Remote IP");
-	ImGui::PopFont();
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0, ImGui::GetStyle().ItemSpacing.y));
-	for(int i = 0; i < 4; i++){
-		if(i != 0) ImGui::SameLine();
-		ImGui::PushID(i);
-		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
-		ImGui::InputScalar("##ipv4", ImGuiDataType_U8, &remoteIP[i]);
-		ImGui::PopID();
-		if(i == 3) continue;
-		ImGui::SameLine();
+    float octetFieldWidth = ImGui::CalcTextSize("000").x + ImGui::GetStyle().FramePadding.x * 2.f;
+    
+	if(sendBroadcast_param->value){
+        
+        ImGui::PushFont(Fonts::sansBold15);
+        ImGui::Text("Network");
+        ImGui::PopFont();
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress0->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress1->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress2->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkIpAddress3->gui();
+        ImGui::PopStyleVar();
+        
+        ImGui::PushFont(Fonts::sansBold15);
+        ImGui::Text("Network Mask");
+        ImGui::PopFont();
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(ImGui::GetTextLineHeight() * .05f));
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask0->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask1->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask2->gui();
+        ImGui::SameLine();
+        ImGui::Text(".");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(octetFieldWidth);
+        networkMask3->gui();
+        ImGui::PopStyleVar();
+        
+	}else{
+	
 		ImGui::PushFont(Fonts::sansBold15);
-		ImGui::Text(".");
+		ImGui::Text("Remote IP");
 		ImGui::PopFont();
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0.0, ImGui::GetStyle().ItemSpacing.y));
+		for(int i = 0; i < 4; i++){
+			if(i != 0) ImGui::SameLine();
+			ImGui::PushID(i);
+			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 2.0);
+			ImGui::InputScalar("##ipv4", ImGuiDataType_U8, &remoteIP[i]);
+			ImGui::PopID();
+			if(i == 3) continue;
+			ImGui::SameLine();
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text(".");
+			ImGui::PopFont();
+		}
+		ImGui::PopStyleVar();
+
 	}
-	ImGui::PopStyleVar();
 	
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Remote Port");

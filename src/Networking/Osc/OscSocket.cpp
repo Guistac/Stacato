@@ -16,6 +16,18 @@ void OscSocket::open(int receivingPort, std::vector<int> destinationIp, int dest
 	asyncReceive();
 }
 
+void OscSocket::openBroadcast(uint32_t network_u32, uint32_t mask_u32, uint16_t port){
+	b_isOpen = false;
+	b_broadcast = true;
+	udpSocket = Network::getUdpBroadcastSocket();
+	b_isOpen = udpSocket != nullptr;
+
+	asio::ip::address_v4 address = asio::ip::make_address_v4(network_u32);
+	asio::ip::address_v4 mask = asio::ip::make_address_v4(mask_u32);
+	asio::ip::network_v4 network(address, mask);
+	broadcastEndpoint = asio::ip::udp::endpoint(network.broadcast(), port);
+}
+
 void OscSocket::close() {
 	if (isOpen()) {
 		try {
@@ -63,9 +75,16 @@ void OscSocket::send(std::shared_ptr<OscMessage> message) {
 	int size = 1024;
 	int bufferSize = message->getBuffer(outBuffer, size);
 	try {
-		udpSocket->async_send(asio::buffer(outBuffer, bufferSize), [](asio::error_code error, size_t byteCount) {
-			if (error) Logger::debug("Failed to send OSC Message: {}", error.message());
-		});
+		if(b_broadcast){
+			udpSocket->async_send_to(asio::buffer(outBuffer, bufferSize), broadcastEndpoint, [this](asio::error_code error, size_t byteCount){
+				if (error) Logger::debug("Failed to send broadcast OSC Message: {}", error.message());
+			});
+		}
+		else{
+			udpSocket->async_send(asio::buffer(outBuffer, bufferSize), [](asio::error_code error, size_t byteCount) {
+				if (error) Logger::debug("Failed to send OSC Message: {}", error.message());
+			});
+		}
 	}
 	catch (std::exception e) {
 		Logger::error("Failed to start async_send: {}", e.what());

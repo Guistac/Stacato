@@ -178,7 +178,10 @@ bool PsnServer::startServer(){
                 
                 try {
                     udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
-						if (error) b_isSending = false;
+						if (error) {
+							b_isSending = false;
+							Logger::warn("PSN info send error: {}", error.message());
+						}
 						else b_isSending = true;
                     });
                      
@@ -222,7 +225,10 @@ bool PsnServer::startServer(){
                 
                 try {
                     udpSocket->async_send(asio::buffer(buffer, size), [this](asio::error_code error, size_t byteCount) {
-						if (error) b_isSending = false;
+						if (error) {
+							b_isSending = false;
+							Logger::warn("PSN data send error: {}", error.message());
+						}
 						else b_isSending = true;
                     });
                 }

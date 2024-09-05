@@ -21,7 +21,12 @@ void OscDevice::connect(){
 	}
 	
 	oscSocket = std::make_shared<OscSocket>(4096);
-	oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
+	if(sendBroadcast_param->value){
+        uint32_t address_u32 = networkIpAddress0->value << 24 | networkIpAddress1->value << 16 | networkIpAddress2->value << 8 | networkIpAddress3->value;
+        uint32_t mask_u32 = networkMask0->value << 24 | networkMask1->value << 16 | networkMask2->value << 8 | networkMask3->value;
+		oscSocket->openBroadcast(address_u32, mask_u32, remotePort);
+	}
+	else oscSocket->open(listeningPort, std::vector<int>({remoteIP[0], remoteIP[1], remoteIP[2], remoteIP[3]}), remotePort);
 	
 	if(!oscSocket->isOpen()) {
 		b_enabled = false;
@@ -430,6 +435,17 @@ bool OscDevice::save(tinyxml2::XMLElement* xml){
 	XMLElement* portsXML = xml->InsertNewChildElement("Ports");
 	portsXML->SetAttribute("send", remotePort);
 	portsXML->SetAttribute("receive", listeningPort);
+
+	XMLElement* broadcastXML = xml->InsertNewChildElement("Broadcast");
+	sendBroadcast_param->save(broadcastXML);
+    networkIpAddress0->save(broadcastXML);
+    networkIpAddress1->save(broadcastXML);
+    networkIpAddress2->save(broadcastXML);
+    networkIpAddress3->save(broadcastXML);
+    networkMask0->save(broadcastXML);
+    networkMask1->save(broadcastXML);
+    networkMask2->save(broadcastXML);
+    networkMask3->save(broadcastXML);
 	
 	XMLElement* outgoingMessagesXML = xml->InsertNewChildElement("OutgoingMessages");
 	for(auto& message : outgoingMessages){
@@ -478,6 +494,18 @@ bool OscDevice::load(tinyxml2::XMLElement* xml){
 	if(portsXML->QueryAttribute("receive", &receivePort) != XML_SUCCESS) return Logger::warn("Could not find receive port attribute");
 	remotePort = sendPort;
 	listeningPort = receivePort;
+
+	if(XMLElement* broadcastXML = xml->FirstChildElement("Broadcast")){
+		sendBroadcast_param->load(broadcastXML);
+		networkIpAddress0->load(broadcastXML);
+		networkIpAddress1->load(broadcastXML);
+		networkIpAddress2->load(broadcastXML);
+		networkIpAddress3->load(broadcastXML);
+		networkMask0->load(broadcastXML);
+		networkMask1->load(broadcastXML);
+		networkMask2->load(broadcastXML);
+		networkMask3->load(broadcastXML);
+	}
 	
 	XMLElement* outgoingMessagesXML = xml->FirstChildElement("OutgoingMessages");
 	if(outgoingMessagesXML == nullptr) return Logger::warn("Could not find Outgoing Messages Attribute");

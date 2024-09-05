@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Networking/NetworkDevice.h"
+#include "Project/Editor/Parameter.h"
 
 class OscSocket;
 class OscDevice;
@@ -80,12 +81,25 @@ class OscDevice : public NetworkDevice{
 	void messageGui(std::shared_ptr<OSC::Message> msg);
 	
 	bool b_enabled = false;
+
+	bool b_sendbroadcast = false;
 	
 	std::shared_ptr<OscSocket> oscSocket;
 	
 	uint8_t remoteIP[4] = {0, 0, 0, 0};
 	uint16_t remotePort = 0;
 	uint16_t listeningPort = 0;
+
+	BoolParam sendBroadcast_param = BooleanParameter::make(false, "Send Broadcast", "SendBroadcast");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress0 = NumberParameter<uint8_t>::make(192, "ArtNet Network IP Octet 0", "NetworkIpOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress1 = NumberParameter<uint8_t>::make(168, "ArtNet Network IP Octet 1", "NetworkIpOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress2 = NumberParameter<uint8_t>::make(0, "ArtNet Network IP Octet 2", "NetworkIpOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> networkIpAddress3 = NumberParameter<uint8_t>::make(0, "ArtNet Network IP Octet 3", "NetworkIpOctet3");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask0 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 0", "NetworkMaskOctet0");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask1 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 1", "NetworkMaskOctet1");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask2 = NumberParameter<uint8_t>::make(255, "ArtNet Network Mask Octet 2", "NetworkMaskOctet2");
+	std::shared_ptr<NumberParameter<uint8_t>> networkMask3 = NumberParameter<uint8_t>::make(0, "ArtNet Network Mask Octet 3", "NetworkMaskOctet3");
+	
 	
 	std::vector<std::shared_ptr<OSC::Message>> outgoingMessages;
 	std::vector<std::shared_ptr<OSC::Message>> incomingMessages;
