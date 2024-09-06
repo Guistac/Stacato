@@ -87,7 +87,7 @@ public:
 		XMLError result = xmlDocument.SaveFile(filePath.c_str());
 		switch(result){
 			case XMLError::XML_SUCCESS:
-				Logger::trace("Successfully saved document '{}'", filePath.string());
+				Logger::info("Successfully saved document '{}'", filePath.string());
 				return true;
 			case XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
 				Logger::warn("Failed to write document '{}' : Invalid file path", filePath.string());

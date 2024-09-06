@@ -1,15 +1,15 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.56924319" OffsetX="466.61545" OffsetY="-252.41492" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10001" SizeY="394.89688"/>
-        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10001" SizeY="393.38345"/>
-        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.09998" SizeY="393.41037"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.49998" SizeY="108.09496"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.50002" SizeY="107.85168"/>
-        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.09998" SizeY="394.41031"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.49988" SizeY="314.754"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.50003" SizeY="381.40176"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.5" SizeY="381.40176"/>
-        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.49998" SizeY="107.3651"/>
+    <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-246.31033" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.69614"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.61685"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10022" SizeY="398.89432"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50006" SizeY="111.19791"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49994" SizeY="110.23755"/>
+        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10022" SizeY="398.85468"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50032" SizeY="318.21243"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="386.75833"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="386.75833"/>
+        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="110.3961"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

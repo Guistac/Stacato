@@ -49,6 +49,14 @@ bool Animation::save(tinyxml2::XMLElement* xml){
 	xml->SetAttribute("Parameter", animatable->getName());
 	xml->SetAttribute("IsComposite", isComposite());
 	if(!isComposite()) xml->SetAttribute("Type", Enumerator::getSaveString(getType()));
+
+	using namespace tinyxml2;
+	if(targetMasterAnimatable){
+		XMLElement* targetMasterXML = xml->InsertNewChildElement("TargetMasterAnimatable");
+		targetMasterXML->SetAttribute("MachineUniqueID", targetMasterAnimatable->getMachine()->getUniqueID());
+		targetMasterXML->SetAttribute("AnimatableName", targetMasterAnimatable->getName());
+	}
+
 	return onSave(xml);
 }
 
@@ -109,7 +117,29 @@ std::shared_ptr<Animation> Animation::load(tinyxml2::XMLElement* xml){
 		return nullptr;
 	}
 	loadedTrack->subscribeToMachineParameter();
-	
+
+
+	if(XMLElement* targetMasterXML = xml->FirstChildElement("TargetMasterAnimatable")){
+		int targetMachineID;
+		const char* targetAnimatableName;
+		targetMasterXML->QueryIntAttribute("MachineUniqueID", &targetMachineID);
+		targetMasterXML->QueryStringAttribute("AnimatableName", &targetAnimatableName);
+
+		for (auto& m : Environnement::getMachines()) {
+			if(targetMachineID == m->getUniqueID()) {
+				for (auto& a : m->getAnimatables()) {
+					if (strcmp(targetAnimatableName, a->getName()) == 0) {
+						loadedTrack->targetMasterAnimatable = a;
+						break;
+					}
+				}
+				break;
+			}
+		}
+		if(loadedTrack->targetMasterAnimatable == nullptr) Logger::critical("Failed to load master animatable");
+		
+	}
+
 	return loadedTrack;
 }
 
