@@ -71,6 +71,7 @@ void Lexium32::initialize() {
 	txPdoAssignement.addEntry(0x301C, 0x4, 16, "_actionStatus", &_actionStatus);			//error class / additional drive info
     txPdoAssignement.addEntry(0x3008, 0x1, 16, "_IO_act", &_IO_act);						//Digital Inputs
     txPdoAssignement.addEntry(0x3008, 0x26, 16, "_IO_STO_act", &_IO_STO_act);				//STO Status
+	//txPdoAssignement.addEntry(0x301C, 0x14, 16, "_RES_load", &_RES_load);					//Load of braking resistor
 	
 	auto& fbcfg = servoMotor->feedbackConfig;
 	fbcfg.b_supportsForceFeedback = true;

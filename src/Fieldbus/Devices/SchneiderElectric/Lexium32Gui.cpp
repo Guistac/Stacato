@@ -281,6 +281,8 @@ void Lexium32::controlsGui() {
 	ImGui::PopStyleColor();
 	
 	ImGui::EndDisabled();
+
+    ImGui::Text("Braking resistor load: %i%%", _RES_load);
 	
 	ImGui::Separator();
 	

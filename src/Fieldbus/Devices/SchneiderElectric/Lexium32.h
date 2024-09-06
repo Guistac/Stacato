@@ -113,6 +113,7 @@ private:
 	uint16_t _IO_act = 0;
 	uint16_t _IO_STO_act = 0;
 	uint16_t BRK_release = 0;
+	int16_t _RES_load = 0;
 	
 	long long enableRequestTime_nanoseconds;
 	long long enableRequestTimeout_nanoseconds = 250'000'000; //250ms enable timeout

@@ -249,7 +249,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.12753888899999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="487.86909268893123"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="-1348.6528180082087"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -286,7 +286,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.17873055600000001"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="-1300.4763861310948"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="1118.6173755061843"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
