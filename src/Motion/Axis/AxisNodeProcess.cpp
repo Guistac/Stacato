@@ -157,7 +157,6 @@ void AxisNode::inputProcess(){
 	
 	//disable the axis if any connected interface is not enabled anymore
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
-		Logger::info("state: {} ({})", lowestInterfaceState, lowestInterfaceName);
 		for(auto actuatorMapping : actuatorMappings) actuatorMapping->disable();
 		axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis", getName());
@@ -167,7 +166,9 @@ void AxisNode::inputProcess(){
 		for(auto gpio : connectedGpioInterfaces){
 			if(!gpio->isEnabled()) Logger::warn("[{}] {} was not enabled", getName(), gpio->getName());
 		}
-		
+		for(auto feedbackMapping : feedbackMappings){
+			if(!feedbackMapping->isReady()) Logger::warn("[{}] {} was not enabled", getName(), feedbackMapping->getName());
+		}
 		if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected() && !selectedPositionFeedbackMapping->isEnabled())
 			Logger::warn("[{}] {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
 		

@@ -33,7 +33,6 @@ void AX5206::deviceSpecificGui() {
 					ImGui::Text("Velocity: %.3frev/s", servo->feedbackProcessData.velocityActual);
 					ImGui::Text("Position: %.3frev", servo->feedbackProcessData.positionActual);
 					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual * 100.0);
-					//ImGui::Text("Error: %i", processData.ax0_driveStatus.shutdownError);
 					ImGui::PopID();
 				};
 				

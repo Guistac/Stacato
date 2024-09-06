@@ -493,26 +493,45 @@ void AX5206::writeOutputs(){
 }
 
 void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto){
-	
-	//TODO: Error Reaction and Logging
+
+	bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
+	actuatorProcessData.b_isEmergencyStopActive = sto;
+	if(previousEstop != sto){
+		if(sto) Logger::warn("[{}] Axis {} : STO Active", drive->getName(), channel);
+		else Logger::info("[{}] Axis {} : STO Cleared", drive->getName(), channel);
+	}
+
+	bool previousFault = b_hasFault;
+	b_hasFault = statusWord.shutdownError;
+	if(b_hasFault != previousFault){
+		if(!b_hasFault) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
+	}
+
+	uint16_t previousErrors = class1Errors;
 	class1Errors = err;
-	
+	if(previousErrors != class1Errors){
+		if(class1Errors != 0x0){
+			Logger::warn("[{}] Axis {} Errors:", drive->getName(), channel);
+			Logger::warn("{}", drive->getClass1Errors(class1Errors));
+		}
+	}
+
 	statusWord.decode(statusw);
 	if(actuatorProcessData.b_enabling){
 		if(statusWord.isEnabled()){
 			actuatorProcessData.b_enabling = false;
-			Logger::info("Axis {} Enabled", channel);
+			Logger::info("[{}] Axis {} Enabled", drive->getName(), channel);
 		}
 		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - actuatorProcessData.enableRequest_nanos > enableTimeout_nanos){
 			actuatorProcessData.b_enabling = false;
 			controlWord.disable();
-			Logger::warn("Axis {} Enable timeout", channel);
+			Logger::warn("[{}] Axis {} Enable timeout", drive->getName(), channel);
 		}
 	}
 	else if(isEnabled() && !statusWord.isEnabled()){
 		actuatorProcessData.b_enabling = false;
 		controlWord.disable();
-		Logger::warn("Axis {} Disabled", channel);
+		Logger::warn("[{}] Axis {} Disabled", drive->getName(), channel);
 	}
 	if(statusWord.isEnabled()) {
 		if(controlWord.isRequestingEnable()) state = DeviceState::ENABLED;
@@ -521,14 +540,13 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 	else{
 		if(actuatorProcessData.b_enabling) state = DeviceState::ENABLING;
 		else if(sto || !statusWord.isReady()) state = DeviceState::NOT_READY;
+		else if(!drive->isStateOperational()) state = DeviceState::NOT_READY;
 		else state = DeviceState::READY;
 	}
 	
 	feedbackProcessData.positionActual = double(pos) / unitsPerRev;
 	feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
 	actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
-	actuatorProcessData.b_isEmergencyStopActive = sto;
-	b_hasFault = statusWord.shutdownError;
 }
 
 void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos){
@@ -640,6 +658,7 @@ std::string AX5206::Axis::getStatusString(){
 	else if(isReady()) return "Actuator Ready";
 	else{
 		if(isEmergencyStopActive()) return "STO is active";
+		if(!drive->isStateOperational()) return "Drive is not in operational state";
 		if(hasFault()) {
 			std::string output = "Axis has errors:\n";
 			return output + drive->getClass1Errors(class1Errors);
@@ -747,7 +766,7 @@ void AX5206::getErrorHistory(){
 		bool ret2 = readSercos_Array('P', 301, (uint8_t*)&errorTimeList, errorTimeListSize, axis);
 		if(ret1 && ret2){
 			int errorCount = errorList.actualSize / 4;
-			Logger::warn("Error History Axis [{}]", axis);
+			Logger::warn("Error History Axis [{}] : {} Errors", axis, errorCount);
 			for(int i = 0; i < errorCount; i++){
 				uint32_t errorCode = errorList.errors[i];
 				std::string errorString = getErrorString(errorCode);
