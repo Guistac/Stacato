@@ -1121,7 +1121,6 @@ namespace EtherCatFieldbus {
 
 				startHandlingStateTransitions();
 				//startCountingTransmissionErrors();
-				resetTransmissionErrorCounters();
 				
 				startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
 				Logger::info("===== All slaves are operational");

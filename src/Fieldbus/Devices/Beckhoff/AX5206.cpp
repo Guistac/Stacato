@@ -111,8 +111,8 @@ bool AX5206::startupConfiguration() {
 	writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
 	writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
 	
-	writeSercos_U64('P', 10, 0x1fb9, 0);
-	writeSercos_U64('P', 10, 0x1fb9, 1);
+	writeSercos_U64('P', 10, 0x1FBD, 0);
+	writeSercos_U64('P', 10, 0x1FBD, 1);
 	
 	uploadMotorConfiguration(0, axis0->getMotorType());
 	uploadMotorConfiguration(1, axis1->getMotorType());
@@ -742,15 +742,15 @@ void AX5206::getErrorHistory(){
 	struct ErrorList{
 		uint16_t actualSize;
 		uint16_t maxSize;
-		uint32_t errors[100];
+		uint32_t errors[110];
 	}errorList;
-	int errorListSize;
+	int errorListSize = sizeof(ErrorList);
 	struct ErrorTimeList{
 		uint16_t actualSize;
 		uint16_t maxSize;
-		uint32_t errorTimes[100];
+		uint32_t errorTimes[110];
 	}errorTimeList;
-	int errorTimeListSize;
+	int errorTimeListSize = sizeof(ErrorTimeList);
 	
 	auto secondsToTimeString = [](int total_seconds) -> std::string {
 		int hours = total_seconds / 3600;
@@ -764,6 +764,7 @@ void AX5206::getErrorHistory(){
 	auto showErrorHistory = [&](uint8_t axis){
 		bool ret1 = readSercos_Array('P', 300, (uint8_t*)&errorList, errorListSize, axis);
 		bool ret2 = readSercos_Array('P', 301, (uint8_t*)&errorTimeList, errorTimeListSize, axis);
+		Logger::info("{} {}", errorListSize, errorTimeListSize);
 		if(ret1 && ret2){
 			int errorCount = errorList.actualSize / 4;
 			Logger::warn("Error History Axis [{}] : {} Errors", axis, errorCount);
@@ -772,7 +773,7 @@ void AX5206::getErrorHistory(){
 				std::string errorString = getErrorString(errorCode);
 				std::string timeString = secondsToTimeString(errorTimeList.errorTimes[i]);
 				if(errorString == "") Logger::error("    {:X} ({})", errorCode, timeString);
-				else Logger::warn("    {:X} : {} ({})", errorCode, errorString, timeString);
+				else Logger::warn("    [Axis{}] {:X} : {} ({})", axis, errorCode, errorString, timeString);
 			}
 		}
 	};
@@ -796,6 +797,7 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xF152: return "Initialization of the feedback: Command failed";
 		case 0xF166: return "Process data mapping: MDT - S-0-0024";
 		case 0xF2A7: return "Torque off triggered from \"shorted coils brake\" or \"DC brake\"";
+		case 0xF414: return "Distributed clocks: hardware sync";
 		case 0xF415: return "Distributed clocks: Process data synchronization lost";
 		case 0xF4A1: return "SoE Communication: Internal error";
 		case 0xF4A3: return "SoE Communication: Internal error";

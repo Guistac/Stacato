@@ -101,8 +101,12 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	pushbutton_leftJoystickDeadman->setInputUpdateCallback([](){});
 	pushbutton_rightJoystickDeadman->setInputUpdateCallback([](){});
-	pushbutton_leftJoystickSelection->setInputUpdateCallback([](){});
-	pushbutton_rightJoystickSelection->setInputUpdateCallback([](){});
+	pushbutton_leftJoystickSelection->setInputUpdateCallback([&,this](){
+		if(pushbutton_leftJoystickSelection->isPressed()) leftJoystickControlChannel->requestAxisSelectionPopupOpen(true);
+	});
+	pushbutton_rightJoystickSelection->setInputUpdateCallback([&,this](){
+		if(pushbutton_rightJoystickSelection->isPressed()) rightJoystickControlChannel->requestAxisSelectionPopupOpen(true);
+	});
 }
 
 

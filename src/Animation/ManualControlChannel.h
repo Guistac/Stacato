@@ -12,7 +12,7 @@ public:
 	ManualControlChannel(std::string name_) : name(name_){}
 	
 	void fullGui();
-	void openMappingList();
+
 	void mappingList();
 	void mappingListTooltip();
 	
@@ -31,11 +31,22 @@ public:
 	}controlValue;
 
 	std::string name;
+
+	void requestAxisSelectionPopupOpen(bool openAtPrefferedPosition = false){
+		b_axisSelectionPopupOpenRequest = true;
+		b_openAtPrefferedPosition = openAtPrefferedPosition;
+	}
+
+	void setPrefferedPopupPosition(ImVec2 pos){ prefferedPopupPosition = pos; }
 	
 private:
 	
 	std::vector<std::shared_ptr<Animatable>> subscribers = {};
-	
+
+	bool b_axisSelectionPopupOpenRequest = false;
+	bool b_openAtPrefferedPosition = false;
+	ImVec2 prefferedPopupPosition;
+
 };
 
 class ManualControlsWindow : public Window{

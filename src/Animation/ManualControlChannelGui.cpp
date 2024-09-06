@@ -11,17 +11,28 @@ std::string getPopupName(std::string& channelName){
 	return channelName + "/MappingList";
 }
 
-void ManualControlChannel::openMappingList(){
-	ImGui::OpenPopup(getPopupName(name).c_str());
-}
-
 void ManualControlChannel::mappingList(){
+
+	bool b_popupCloseRequest = false;
+
+	if(b_axisSelectionPopupOpenRequest){
+		b_axisSelectionPopupOpenRequest = false;
+		if(ImGui::IsPopupOpen(getPopupName(name).c_str())) b_popupCloseRequest = true;
+		else{
+			if(b_openAtPrefferedPosition) ImGui::SetNextWindowPos(prefferedPopupPosition);
+			ImGui::OpenPopup(getPopupName(name).c_str());
+		}
+	}
+
 	if (ImGui::BeginPopup(getPopupName(name).c_str())) {
+		if(b_popupCloseRequest) ImGui::CloseCurrentPopup();
+		
+		ImGui::PushFont(Fonts::sansRegular20);
 		ImGui::BeginDisabled();
-		ImGui::MenuItem("Add Mapping");
-		ImGui::MenuItem("Machine List :");
+		ImGui::MenuItem(name.c_str());
 		ImGui::EndDisabled();
 		ImGui::Separator();
+
 		for (auto& machine : Environnement::getMachines()) {
 			if(machine->getAnimatables().empty()) continue;
 			
@@ -29,25 +40,31 @@ void ManualControlChannel::mappingList(){
 				auto animatable = machine->getAnimatables().front();
 				if (animatable->hasParentComposite()) continue;
 				bool b_selected = animatable->subscribedManualControlChannel == shared_from_this();
-				if(ImGui::MenuItem(machine->getName(), nullptr, b_selected)){
+				if(b_selected) ImGui::PushFont(Fonts::sansBold20);
+				if(ImGui::Selectable(machine->getName(), b_selected, ImGuiSelectableFlags_DontClosePopups)){
 					if(b_selected) removeSubscriber(animatable);
 					else addSubscriber(animatable);
 				}
-			}else if (ImGui::BeginMenu(machine->getName())) {
+				if(b_selected) ImGui::PopFont();
+			}
+			/*
+			else if (ImGui::BeginMenu(machine->getName())) {
 				for (auto& animatable : machine->getAnimatables()) {
 					if (animatable->hasParentComposite()) continue;
 					bool b_selected = animatable->subscribedManualControlChannel == shared_from_this();
-					if (ImGui::MenuItem(animatable->getName(), nullptr)) {
+					if (ImGui::Selectable(animatable->getName(), nullptr)) {
 						if(b_selected) removeSubscriber(animatable);
 						else addSubscriber(animatable);
 					}
 				}
 				ImGui::EndMenu();
 			}
+			*/
 
 		}
 		ImGui::Separator();
 		if(ImGui::MenuItem("Clear All")) clearSubscribers();
+		ImGui::PopFont();
 		ImGui::EndPopup();
 	}
 }
@@ -111,7 +128,7 @@ void ManualControlChannel::fullGui(){
 	if(removedSubscriber) removeSubscriber(removedSubscriber);
 	
 	
-	if (ImGui::Button("Add Mapping")) openMappingList();
+	if (ImGui::Button("Add Mapping")) requestAxisSelectionPopupOpen();
 	mappingList();
 	
 	if(b_updated) updateSubscribers();
