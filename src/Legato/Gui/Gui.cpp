@@ -64,7 +64,7 @@ namespace Legato::Gui{
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(mainWindow);
 
-		if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) Logger::error("Mouse Down {}", Timing::getProgramTime_seconds());
+		//if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) Logger::error("Mouse Down {}", Timing::getProgramTime_seconds());
 		
 		//Update and Render additional Platform Windows
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {

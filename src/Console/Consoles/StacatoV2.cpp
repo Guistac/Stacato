@@ -145,7 +145,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 		if(pushbutton_arrowUp->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
 	});
 	pushbutton_arrowDown->setInputUpdateCallback([this](){
-		if(pushbutton_arrowDown->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
+		if(pushbutton_arrowDown->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
 	});
 	
 	
