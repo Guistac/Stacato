@@ -47,6 +47,12 @@ void Manoeuvre::listGui(){
 	if(b_selected) backgroundColor = ImColor(Colors::blue);
 	else backgroundColor = ImColor(Colors::veryDarkGray);
 	drawing->AddRectFilled(min, max, backgroundColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	if(!b_valid){
+		ImColor blinkColor;
+		if(Timing::getBlink(1.0)) blinkColor = ImColor(1.f, 0.f, 0.f, .8f);
+		else blinkColor = ImColor(1.f, 0.f, 0.f, .2f);
+		ImGui::GetWindowDrawList()->AddRectFilled(min, max, blinkColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+	}
 	
 	glm::vec2 minColorLabel(max.x - ImGui::GetTextLineHeight() * 1.0, min.y);
 	glm::vec2 maxColorLabel(max.x, max.y);
