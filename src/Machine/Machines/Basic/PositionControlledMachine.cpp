@@ -523,6 +523,7 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	invertControlGui->save(userSetupXML);
 	allowModuloPositionShifting->save(userSetupXML);
 	linearWidgetOrientation_parameter->save(userSetupXML);
+	displayModuloturns_param->save(userSetupXML);
 	
 	XMLElement* animatableXML = xml->InsertNewChildElement("Animatable");
 	animatablePosition->save(animatableXML);
@@ -554,6 +555,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!invertControlGui->load(userSetupXML)) return false;
 	allowModuloPositionShifting->load(userSetupXML);
 	linearWidgetOrientation_parameter->load(userSetupXML);
+	displayModuloturns_param->load(userSetupXML);
 	
 	if(XMLElement* animatableXML = xml->FirstChildElement("Animatable")){
 		animatablePosition->load(animatableXML);
