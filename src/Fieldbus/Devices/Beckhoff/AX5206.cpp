@@ -796,6 +796,7 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xF107: return "Axis state machine: Current control not ready to enable";
 		case 0xF152: return "Initialization of the feedback: Command failed";
 		case 0xF166: return "Process data mapping: MDT - S-0-0024";
+		case 0xF2A0: return "COMMUTATION ERROR (very rare)";
 		case 0xF2A7: return "Torque off triggered from \"shorted coils brake\" or \"DC brake\"";
 		case 0xF414: return "Distributed clocks: hardware sync";
 		case 0xF415: return "Distributed clocks: Process data synchronization lost";

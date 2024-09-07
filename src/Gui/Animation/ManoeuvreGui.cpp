@@ -47,12 +47,10 @@ void Manoeuvre::listGui(){
 	if(b_selected) backgroundColor = ImColor(Colors::blue);
 	else backgroundColor = ImColor(Colors::veryDarkGray);
 	drawing->AddRectFilled(min, max, backgroundColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	if(!b_valid){
-		ImColor blinkColor;
-		if(Timing::getBlink(1.0)) blinkColor = ImColor(1.f, 0.f, 0.f, .8f);
-		else blinkColor = ImColor(1.f, 0.f, 0.f, .2f);
-		ImGui::GetWindowDrawList()->AddRectFilled(min, max, blinkColor, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
-	}
+	
+	glm::vec2 minColorLabel(max.x - ImGui::GetTextLineHeight() * 1.0, min.y);
+	glm::vec2 maxColorLabel(max.x, max.y);
+	drawing->AddRectFilled(minColorLabel, maxColorLabel, ImColor(labelColor.r, labelColor.g, labelColor.b, labelColor.a), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight);
 	
 	//show header strip with icon
 	float headerStripWidth = ImGui::GetTextLineHeight() * 2.3;
@@ -225,7 +223,7 @@ void Manoeuvre::listGui(){
 		ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(color), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
 	}
 	if(b_selected){
-		float thickness = ImGui::GetTextLineHeight() * 0.1;
+		float thickness = ImGui::GetTextLineHeight() * 0.15;
 		float rounding = ImGui::GetStyle().FrameRounding - thickness / 2.0;
 		glm::vec2 minSelection = min + glm::vec2(thickness * .5f);
 		glm::vec2 maxSelection = max - glm::vec2(thickness * .5f);
@@ -303,7 +301,6 @@ void Manoeuvre::playbackGui(float height){
 
 void Manoeuvre::sheetEditor(){
 	
-	
 	auto currentProject = Stacato::Editor::getCurrentProject();
 	
 	if(currentProject->isPlotEditLocked()){
@@ -369,6 +366,45 @@ void Manoeuvre::sheetEditor(){
 		ImGui::PopFont();
 		ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 15.0);
 		name->gui();
+		ImGui::EndGroup();
+		
+		cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;
+		ImGui::SetCursorPos(cursorPos);
+		
+		ImGui::BeginGroup();
+		ImGui::PushFont(Fonts::sansBold15);
+		ImGui::Text("Color");
+		ImGui::PopFont();
+		ImGui::SetNextItemWidth(ImGui::GetFrameHeight()*2.0);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImU32(ImColor(labelColor.r, labelColor.g, labelColor.b, labelColor.a)));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImU32(ImColor(labelColor.r, labelColor.g, labelColor.b, labelColor.a)));
+		ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 2.0);
+		ImGui::PushFont(Fonts::sansBold15);
+		if(ImGui::BeginCombo("##Color", "")){
+			ImDrawList* drawing = ImGui::GetWindowDrawList();
+			float rounding = ImGui::GetStyle().FrameRounding;
+			for(int i = 0; i < colorLabelOptions.size(); i++){
+				ImGui::PushID(i);
+				LabelColor& c = colorLabelOptions[i];
+				bool b_pressed = ImGui::InvisibleButton("color", ImVec2(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ScrollbarSize, ImGui::GetTextLineHeightWithSpacing()));
+				ImVec2 min = ImGui::GetItemRectMin();
+				ImVec2 max = ImGui::GetItemRectMax();
+				drawing->AddRectFilled(min, max, ImColor(c.r, c.g, c.b, c.a), rounding, ImDrawFlags_RoundCornersAll);
+				if(labelColor.r == c.r && labelColor.g == c.g && labelColor.b == c.b && labelColor.a == c.a)
+					drawing->AddRect(min, max, ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersAll, 3.0);
+				if(ImGui::IsItemHovered())
+					drawing->AddRect(min, max, ImColor(1.0f,1.0f,1.0f,1.f), rounding, ImDrawFlags_RoundCornersAll, 1.0);
+				if(b_pressed){
+					labelColor = c;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::PopStyleColor(2);
+		ImGui::PopStyleVar();
+		ImGui::PopFont();
 		ImGui::EndGroup();
 		
 		cursorPos.x += ImGui::GetItemRectSize().x + ImGui::GetStyle().ItemSpacing.x;

@@ -1,10 +1,20 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
         <Manoeuvre Name="M-0" Description="" Type="Target">
+            <LabelColo r="200" g="200" b="0" a="255"/>
             <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2">
                 <TargetMasterAnimatable MachineUniqueID="1971" AnimatableName="Position"/>
             </Animation>
             <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-1" Description="" Type="Target">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-2" Description="" Type="Sequence">
+            <LabelColo r="0" g="0" b="0" a="0"/>
+        </Manoeuvre>
+        <Manoeuvre Name="M-3" Description="" Type="Target">
+            <LabelColo r="0" g="0" b="0" a="0"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

@@ -166,4 +166,11 @@ public:
 	
 	void requestCurveRefocus();
 	bool shouldRefocusCurves();
+	
+	struct LabelColor{
+		int r, g, b, a;
+	};
+	static std::vector<LabelColor> colorLabelOptions;
+	LabelColor labelColor = colorLabelOptions[0];
+	
 };

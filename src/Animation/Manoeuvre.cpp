@@ -11,6 +11,20 @@
 
 #include <tinyxml2.h>
 
+std::vector<Manoeuvre::LabelColor> Manoeuvre::colorLabelOptions = {
+	Manoeuvre::LabelColor{.r = 0, 	.g = 0, 	.b = 0,		.a=0}, 		//NOTHING
+	Manoeuvre::LabelColor{.r = 0, 	.g = 127, 	.b = 0,		.a=255}, 	//Green
+	Manoeuvre::LabelColor{.r = 200, .g = 200, 	.b = 0,		.a=255}, 	//Yellow
+	Manoeuvre::LabelColor{.r = 255, .g = 127, 	.b = 0,		.a=255}, 	//Orange
+	Manoeuvre::LabelColor{.r = 220, .g = 0, 	.b = 0,		.a=255}, 	//Red
+	Manoeuvre::LabelColor{.r = 200, .g = 0, 	.b = 200,	.a=255}, 	//Violet
+	Manoeuvre::LabelColor{.r = 0, 	.g = 0, 	.b = 200,	.a=255}, 	//Blue
+	Manoeuvre::LabelColor{.r = 100, .g = 200, 	.b = 255,	.a=255}, 	//Turquoise
+	Manoeuvre::LabelColor{.r = 0, 	.g = 255, 	.b = 255,	.a=255}, 	//Cyan
+	Manoeuvre::LabelColor{.r = 0, 	.g = 0, 	.b = 0,		.a=255}, 	//Black
+	Manoeuvre::LabelColor{.r = 255, .g = 100, 	.b = 100,	.a=255} 	//Pink
+};
+
 
 bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 	
@@ -19,6 +33,12 @@ bool Manoeuvre::save(tinyxml2::XMLElement* manoeuvreXML) {
 	name->save(manoeuvreXML);
 	description->save(manoeuvreXML);
 	type->save(manoeuvreXML);
+	
+	XMLElement* colorXML = manoeuvreXML->InsertNewChildElement("LabelColo");
+	colorXML->SetAttribute("r", labelColor.r);
+	colorXML->SetAttribute("g", labelColor.g);
+	colorXML->SetAttribute("b", labelColor.b);
+	colorXML->SetAttribute("a", labelColor.a);
 	
 	for (auto& animation : animations) {
 		//tracks which have a group parent are listed in the manoeuvres track vector
@@ -40,6 +60,13 @@ std::shared_ptr<Manoeuvre> Manoeuvre::load(tinyxml2::XMLElement* xml){
 	manoeuvre->name->load(xml);
 	manoeuvre->description->load(xml);
 	manoeuvre->type->load(xml);
+	
+	if(XMLElement* colorXML = xml->FirstChildElement("LabelColo")){
+		colorXML->QueryIntAttribute("r", &manoeuvre->labelColor.r);
+		colorXML->QueryIntAttribute("g", &manoeuvre->labelColor.g);
+		colorXML->QueryIntAttribute("b", &manoeuvre->labelColor.b);
+		colorXML->QueryIntAttribute("a", &manoeuvre->labelColor.a);
+	}else manoeuvre->labelColor = Manoeuvre::colorLabelOptions[0];
 	
 	XMLElement* animationXML = xml->FirstChildElement("Animation");
 	while (animationXML != nullptr) {

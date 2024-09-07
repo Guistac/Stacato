@@ -407,7 +407,7 @@ namespace Stacato::Gui {
 		static bool imguiMetricsWindowOpen = false;
 		static bool implotDemoWindowOpen = false;
 		
-		if (ImGui::IsKeyDown(ImGuiKey_LeftAlt) && ImGui::IsKeyDown(ImGuiKey_LeftSuper)) {
+		if (ImGui::IsKeyDown(ImGuiKey_LeftAlt)) {
 			if (ImGui::BeginMenu("Utilities")) {
 				if (ImGui::MenuItem("ImGui Demo Window", nullptr, &imguiDemoWindowOpen))		imguiDemoWindowOpen = true;
 				if (ImGui::MenuItem("ImGui Metrics Window", nullptr, &imguiMetricsWindowOpen))	imguiMetricsWindowOpen = true;

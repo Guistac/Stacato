@@ -1,5 +1,5 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="New Layout"/>
+    <DefaultLayout Name="Conduite"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>
@@ -507,13 +507,13 @@ Collapsed=0
 
 [Window][Track Sheet Editor]
 Pos=295,599
-Size=1004,328
+Size=1140,574
 Collapsed=0
 DockId=0x0000000C,0
 
 [Window][Curve Editor]
 Pos=295,29
-Size=1004,568
+Size=1140,568
 Collapsed=0
 DockId=0x00000005,0
 
@@ -534,7 +534,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=1920,927
+Size=2056,1173
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -578,7 +578,7 @@ Collapsed=0
 
 [Window][Manoeuvre List]
 Pos=0,29
-Size=293,898
+Size=293,1144
 Collapsed=0
 DockId=0x00000001,0
 
@@ -629,8 +629,8 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=1301,29
-Size=619,898
+Pos=1437,29
+Size=619,1144
 Collapsed=0
 DockId=0x00000010,0
 
@@ -640,8 +640,8 @@ Size=515,508
 Collapsed=0
 
 [Window][Toolbar]
-Pos=0,927
-Size=1920,84
+Pos=0,1173
+Size=2056,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -866,7 +866,7 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace                   ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,98 Size=1920,898 Split=X Selected=0xAE98FAB7
+DockSpace                   ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Split=X Selected=0xAE98FAB7
   DockNode                  ID=0x0000000E Parent=0xD5272B65 SizeRef=1299,898 Split=X
     DockNode                ID=0x00000015 Parent=0x0000000E SizeRef=293,1144 Split=Y Selected=0xEBD2820B
       DockNode              ID=0x00000001 Parent=0x00000015 SizeRef=293,573 HiddenTabBar=1 Selected=0xEBD2820B
