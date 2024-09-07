@@ -149,6 +149,10 @@ void PositionControlledMachine::settingsGui() {
 	
 	ImGui::Separator();
 	
+	displayModuloturns_param->gui(Fonts::sansBold15);
+	
+	ImGui::Separator();
+	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Control Widget");
 	ImGui::PopFont();
@@ -509,6 +513,11 @@ void PositionControlledMachine::angularWidgetGui(){
 	float displayDiameter = ImGui::GetTextLineHeight() * 8.0;
 	
 	ImGui::InvisibleButton("rotatingAxisDisplay", glm::vec2(displayDiameter));
+	
+	ImRect rect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+	if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && rect.Contains(ImGui::GetMousePos())) {
+		displayModuloturns_param->overwrite(!displayModuloturns_param->value);
+	}
 	glm::vec2 min = ImGui::GetItemRectMin();
 	glm::vec2 max = ImGui::GetItemRectMax();
 	glm::vec2 size = max - min;
@@ -550,7 +559,7 @@ void PositionControlledMachine::angularWidgetGui(){
 		
 		ImColor borderColor = ImColor(Colors::black);
 		float borderWidth = ImGui::GetTextLineHeight() * .05f;
-
+		
 		//get visualizer angles
 		double positionAngle = animatablePosition->getActualPosition();
 		double breakingPositionAngle = animatablePosition->getBrakingPosition();
@@ -561,18 +570,22 @@ void PositionControlledMachine::angularWidgetGui(){
 		drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
 		float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
 		drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
-
+		
 		//draw visualizer arrows
 		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle, Colors::gray);
 		drawArrowRotated(middle, 0.0, radius, displayPositionAngle, Colors::white);
 		
 		//display position string on turntables
-		double positionDegrees = Units::convert(animatablePosition->getActualPosition(), animatablePosition->getUnit(), Units::AngularDistance::Degree);
 		
-		int fullTurns = std::floor(positionDegrees / 360.0);
-		double singleTurnPosition = positionDegrees - fullTurns * 360.0;
 		char positiveAngleString[64];
-		snprintf(positiveAngleString, 64, "%iR+%.1f°", fullTurns, singleTurnPosition);
+		if(displayModuloturns_param->value){
+			double positionDegrees = Units::convert(animatablePosition->getActualPosition(), animatablePosition->getUnit(), Units::AngularDistance::Degree);
+			int fullTurns = std::floor(positionDegrees / 360.0);
+			double singleTurnPosition = positionDegrees - fullTurns * 360.0;
+			snprintf(positiveAngleString, 64, "%iR+%.1f°", fullTurns, singleTurnPosition);
+		}else{
+			snprintf(positiveAngleString, 64, "%.2f%s", animatablePosition->getActualPosition(), animatablePosition->getUnit()->abbreviated);
+		}
 		
 		drawing->AddCircleFilled(middle, radius * .5, ImColor(Colors::veryDarkGray), 64);
 		drawing->AddLine(middle + glm::vec2(0, -radius * .5f), middle + glm::vec2(0, -radius * .5f + zeroTickLength), ImColor(Colors::white), borderWidth);

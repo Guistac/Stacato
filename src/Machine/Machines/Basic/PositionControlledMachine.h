@@ -60,6 +60,8 @@ class PositionControlledMachine : public Machine{
 	};
 	std::shared_ptr<OptionParameter> linearWidgetOrientation_parameter = OptionParameter::make2(linearWidgetOrientation_vertical, linearWidgetOrientation_options, "Widget Orientation", "WidgetOrientation");
 	
+	BoolParam displayModuloturns_param = BooleanParameter::make(false, "Display Modulo Turns", "DisplayModuleTurns");
+	
 	//————————— Unit Conversion & Limits ——————————
 	
 	double getMinPosition();
