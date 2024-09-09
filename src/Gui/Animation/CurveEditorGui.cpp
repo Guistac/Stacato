@@ -186,6 +186,7 @@ void Manoeuvre::curveEditor(){
 		ImGui::PopID();
 	}
 	
+	/*
 	static double speedFactor = 1.0;
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 4.0);
 	ImGui::InputDouble("##speedFactor", &speedFactor);
@@ -213,7 +214,7 @@ void Manoeuvre::curveEditor(){
 			}
 		}
 	}
-	
+	*/
 	
 	ImGui::PopStyleVar();
 	
@@ -276,14 +277,16 @@ void Manoeuvre::curveEditor(){
 			if(auto selectedAnimation = getSelectedEditorAnimation()) selectedAnimation->drawCurveControls();
 		}
         
+		/*
 		//draw curve editor controls
 		for (auto& animation : getAnimations()) {
 			ImGui::PushID(animation->getAnimatable()->getMachine()->getName());
 			ImGui::PushID(animation->getAnimatable()->getName());
-			animation->drawCurveControls();
+			//animation->drawCurveControls();
 			ImGui::PopID();
 			ImGui::PopID();
 		}
+		*/
 		
 		if(getType() != ManoeuvreType::KEY){
 			double playbackTime = getSychronizedPlaybackPosition();

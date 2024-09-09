@@ -494,29 +494,29 @@ void AX5206::writeOutputs(){
 
 void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto){
 
+	statusWord.decode(statusw);
+
 	bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
-	actuatorProcessData.b_isEmergencyStopActive = sto;
 	if(previousEstop != sto){
 		if(sto) Logger::warn("[{}] Axis {} : STO Active", drive->getName(), channel);
 		else Logger::info("[{}] Axis {} : STO Cleared", drive->getName(), channel);
 	}
 
 	bool previousFault = b_hasFault;
-	b_hasFault = statusWord.shutdownError;
-	if(b_hasFault != previousFault){
-		if(!b_hasFault) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
+	if(statusWord.shutdownError != previousFault){
+		if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
+		else Logger::error("[{}] Axis {} : Fault !", drive->getName(), channel);
 	}
 
-	uint16_t previousErrors = class1Errors;
-	class1Errors = err;
-	if(previousErrors != class1Errors){
+	if(class1Errors != err){
 		if(class1Errors != 0x0){
-			Logger::warn("[{}] Axis {} Errors:", drive->getName(), channel);
-			Logger::warn("{}", drive->getClass1Errors(class1Errors));
+			Logger::error("[{}] Axis {} Errors:", drive->getName(), channel);
+			Logger::error("{}", drive->getClass1Errors(err));
 		}
+		else Logger::error("[{}] Axis {} : Error cleared !", drive->getName(), channel);
 	}
+	class1Errors = err;
 
-	statusWord.decode(statusw);
 	if(actuatorProcessData.b_enabling){
 		if(statusWord.isEnabled()){
 			actuatorProcessData.b_enabling = false;
@@ -529,10 +529,14 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 		}
 	}
 	else if(isEnabled() && !statusWord.isEnabled()){
+		Logger::error("[{} Axis {}] isEnabled: {}", drive->getName(), channel, isEnabled());
 		actuatorProcessData.b_enabling = false;
 		controlWord.disable();
-		Logger::warn("[{}] Axis {} Disabled", drive->getName(), channel);
+		Logger::error("[{} Axis {}] Disabled (st:{} fl:{})", drive->getName(), channel, statusWord.status, statusWord.followsCommand);
 	}
+
+
+	//update interface state
 	if(statusWord.isEnabled()) {
 		if(controlWord.isRequestingEnable()) state = DeviceState::ENABLED;
 		else state = DeviceState::DISABLING;
@@ -543,11 +547,14 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 		else if(!drive->isStateOperational()) state = DeviceState::NOT_READY;
 		else state = DeviceState::READY;
 	}
-	
 	feedbackProcessData.positionActual = double(pos) / unitsPerRev;
 	feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
 	actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
+	actuatorProcessData.b_isEmergencyStopActive = sto;
+	b_hasFault = statusWord.shutdownError;
 }
+
+
 
 void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos){
 	controlWord.toggleSyncBit();
@@ -564,11 +571,12 @@ void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos
 		actuatorProcessData.b_disable = false;
 		actuatorProcessData.b_enabling = false;
 		controlWord.disable();
+		Logger::error("[{} Axis {}] Disable request", drive->getName(), channel);
 	}
-	controlWord.encode(controlw);
 	
 	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
 	pos = actuatorProcessData.positionTarget * unitsPerRev;
+	controlWord.encode(controlw);
 }
 
 void AX5206::requestFaultReset(uint8_t axis){
