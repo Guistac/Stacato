@@ -18,7 +18,6 @@ std::shared_ptr<AnimatablePosition> Animatable::toPosition(){ return std::static
 
 std::string Animatable::getStatusString(){ return machineStatusReturnMethod(); }
 
-
 //——————————————————— Animations ————————————————————
 
 std::shared_ptr<Animation> Animatable::makeAnimation(ManoeuvreType manoeuvreType){

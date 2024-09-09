@@ -1,6 +1,6 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Target">
+        <Manoeuvre Name="M-0 zerg zrze hzet je jtzgyej seth ey krytuk ru" Description="" Type="Target">
             <LabelColo r="200" g="200" b="0" a="255"/>
             <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2">
                 <TargetMasterAnimatable MachineUniqueID="1971" AnimatableName="Position"/>

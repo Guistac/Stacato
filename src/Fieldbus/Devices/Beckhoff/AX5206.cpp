@@ -510,11 +510,18 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 		else Logger::info("[{}] Axis {} : STO Cleared", drive->getName(), channel);
 	}
 
-	bool previousFault = b_hasFault;
-	if(statusWord.shutdownError != previousFault){
+	if(statusWord.shutdownError != b_hasFault){
 		if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
 		else Logger::error("[{}] Axis {} : Fault !", drive->getName(), channel);
 	}
+	if(statusWord.warningChange != b_warning){
+		Logger::critical("[{}] Axis {} : Warning {}", drive->getName(), channel, statusWord.warningChange);
+	}
+	if(statusWord.infoChange != b_info){
+		Logger::critical("[{}] Axis {} : Info {}", drive->getName(), channel, statusWord.infoChange);
+	}
+
+
 
 	if(class1Errors != err){
 		if(err != 0x0){
@@ -560,6 +567,8 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 	actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
 	actuatorProcessData.b_isEmergencyStopActive = sto;
 	b_hasFault = statusWord.shutdownError;
+	b_warning = statusWord.warningChange;
+	b_info = statusWord.infoChange;
 }
 
 

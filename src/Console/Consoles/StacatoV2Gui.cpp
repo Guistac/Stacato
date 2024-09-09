@@ -5,6 +5,8 @@
 
 #include "Gui/Assets/Colors.h"
 #include "Gui/Assets/Fonts.h"
+#include "Machine/Machine.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 void StacatoV2::gui(float height)
 {
@@ -15,8 +17,9 @@ void StacatoV2::gui(float height)
 
 	auto drawJoystick = [&](std::shared_ptr<Joystick3X> joystick, std::shared_ptr<PushButton> deadmanButton, int id)
 	{
+
 		ImGui::PushID(id);
-		bool b_pressed = ImGui::InvisibleButton("joystick1", glm::vec2(height));
+		bool b_pressed = ImGui::InvisibleButton("joystick", glm::vec2(height));
 		ImGui::PopID();
 		glm::vec2 min = ImGui::GetItemRectMin();
 		glm::vec2 max = ImGui::GetItemRectMax();
@@ -41,10 +44,37 @@ void StacatoV2::gui(float height)
 		return b_pressed;
 	};
 
+	auto drawControlChannelMappings = [&](std::shared_ptr<ManualControlChannel> controlChannel){
+
+		std::string mappingString;
+		if(controlChannel->getSubscribers().empty()) {
+			ImGui::PushFont(Fonts::sansLight20);
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			backgroundText("No Mapping", ImVec2(ImGui::GetTextLineHeight() * 5.0, height), Colors::darkGray);
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+		}
+		else{
+			for(auto animatable : controlChannel->getSubscribers()){
+				mappingString += std::string(animatable->getMachine()->getName()) + ", ";
+			}
+			mappingString.pop_back();
+			mappingString.pop_back();
+
+			ImGui::PushFont(Fonts::sansBold20);
+			scrollingTextWithBackground("mappingdisplay", mappingString.c_str(), ImVec2(ImGui::GetTextLineHeight() * 5.0, height), Colors::darkGray, false, 0.0);
+			ImGui::PopFont();
+		}
+
+	};
+
+	drawControlChannelMappings(leftJoystickControlChannel);
+	ImGui::SameLine();
 	bool b_leftPressed = drawJoystick(joystick3x_left, pushbutton_leftJoystickDeadman, 0);
 	leftJoystickControlChannel->setPrefferedPopupPosition(ImGui::GetItemRectMin());
 	if(b_leftPressed) leftJoystickControlChannel->requestAxisSelectionPopupOpen(true);
 	else if (ImGui::IsItemHovered()) leftJoystickControlChannel->mappingListTooltip();
+	ImGui::SameLine();
 	leftJoystickControlChannel->mappingList();
 
 	ImGui::SameLine();
@@ -53,4 +83,6 @@ void StacatoV2::gui(float height)
 	if(b_rightPressed) rightJoystickControlChannel->requestAxisSelectionPopupOpen(true);
 	else if (ImGui::IsItemHovered()) rightJoystickControlChannel->mappingListTooltip();
 	rightJoystickControlChannel->mappingList();
+	ImGui::SameLine();
+	drawControlChannelMappings(rightJoystickControlChannel);
 }

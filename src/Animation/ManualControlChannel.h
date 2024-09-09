@@ -39,6 +39,8 @@ public:
 
 	void setPrefferedPopupPosition(ImVec2 pos){ prefferedPopupPosition = pos; }
 	
+	std::vector<std::shared_ptr<Animatable>>& getSubscribers(){ return subscribers; }
+
 private:
 	
 	std::vector<std::shared_ptr<Animatable>> subscribers = {};

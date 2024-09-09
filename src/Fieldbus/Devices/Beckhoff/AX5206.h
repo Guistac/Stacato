@@ -159,6 +159,9 @@ public:
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);
 
+		bool b_warning = false;
+		bool b_info = false;
+
 		std::string name;
 		std::shared_ptr<AX5206> drive;
 		uint8_t channel;
