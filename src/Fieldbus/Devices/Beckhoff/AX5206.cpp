@@ -481,6 +481,9 @@ void AX5206::writeOutputs(){
 	if(invertDigitalOut7_param->value) processData.digitalOutput7 = ! processData.digitalOutput7;
 	masterDataTelegram.digitalOutput = processData.digitalOutput7 ? 0x80 : 0x0;
 
+	uint16_t previousControlWord0 = masterDataTelegram.ax0_masterControlWord;
+	uint16_t previousControlWord1 = masterDataTelegram.ax1_masterControlWord;
+
 	//Axis Data
 	axis0->updateOutputs(masterDataTelegram.ax0_masterControlWord,
 						 masterDataTelegram.ax0_velocityCommandValue,
@@ -489,6 +492,11 @@ void AX5206::writeOutputs(){
 						 masterDataTelegram.ax1_velocityCommandValue,
 						 masterDataTelegram.ax1_positionCommandValue);
 	
+	if(previousControlWord0 != masterDataTelegram.ax0_masterControlWord)
+		Logger::info("Axis 0 ctrlwrd {:x}", masterDataTelegram.ax0_masterControlWord);
+	if(previousControlWord1 != masterDataTelegram.ax1_masterControlWord)
+		Logger::info("Axis 1 ctrlwrd {:x}", masterDataTelegram.ax1_masterControlWord);
+
 	memcpy(identity->outputs, &masterDataTelegram, identity->Obytes);
 }
 
@@ -509,7 +517,7 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 	}
 
 	if(class1Errors != err){
-		if(class1Errors != 0x0){
+		if(err != 0x0){
 			Logger::error("[{}] Axis {} Errors:", drive->getName(), channel);
 			Logger::error("{}", drive->getClass1Errors(err));
 		}
@@ -557,7 +565,7 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 
 
 void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos){
-	controlWord.toggleSyncBit();
+	//controlWord.toggleSyncBit();
 	if(actuatorProcessData.b_enable){
 		actuatorProcessData.b_enable = false;
 		actuatorProcessData.b_enabling = true;
@@ -576,6 +584,7 @@ void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos
 	
 	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
 	pos = actuatorProcessData.positionTarget * unitsPerRev;
+
 	controlWord.encode(controlw);
 }
 
