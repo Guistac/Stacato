@@ -160,6 +160,7 @@ std::shared_ptr<Manoeuvre> Manoeuvre::copy(){
 	copy->name->overwrite(copyName);
 	copy->description->overwrite(getDescription());
 	copy->type->overwrite(getType());
+	copy->labelColor = labelColor;
 	copy->manoeuvreList = manoeuvreList;
 	for(auto animation : getAnimations()){
 		auto animationCopy = animation->copy();

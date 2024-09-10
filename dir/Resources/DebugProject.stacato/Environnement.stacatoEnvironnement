@@ -1,4 +1,5 @@
 <Environnement name="LA HAINE" notes="">
+<<<<<<< HEAD
     <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-246.42715" AutoFit="true" DrawGrid="false" LockEdit="true">
         <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.81296"/>
         <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.73367"/>
@@ -10,6 +11,19 @@
         <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="385.83551"/>
         <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="385.83551"/>
         <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="110.51292"/>
+=======
+    <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-118.49609" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.75732"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.67804"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10022" SizeY="398.95547"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50006" SizeY="111.25909"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49994" SizeY="110.29874"/>
+        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10022" SizeY="398.91586"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50032" SizeY="318.27374"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="385.77994"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="385.77994"/>
+        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="110.45728"/>
+>>>>>>> 5a9a32d2 (added manoeuvre context menu for copying, fixed manoeuvre copying colors and aniamtion masters)
     </Dashboard>
     <NodeGraph>
         <Nodes>

@@ -96,6 +96,8 @@ namespace PlotGui{
 		std::shared_ptr<ManoeuvreList> manoeuvreList = plot->getManoeuvreList();
 		std::vector<std::shared_ptr<Manoeuvre>>& manoeuvres = manoeuvreList->getManoeuvres();
 		std::shared_ptr<Manoeuvre> clickedManoeuvre = nullptr;
+		static std::shared_ptr<Manoeuvre> contextMenuManoeuvre = nullptr;
+		bool b_openManoeuvreContextMenu = false;
 		
 		if(ReorderableList::begin("CueList", manoeuvreListSize, !currentProject->isPlotEditLocked())){
 		
@@ -120,6 +122,13 @@ namespace PlotGui{
 			for (auto& manoeuvre : manoeuvres) {
 				ImGui::SetNextItemAllowOverlap();
 				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
+					
+					if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)){
+						Logger::warn("Item Pressed : {}", manoeuvre->getName());
+						b_openManoeuvreContextMenu = true;
+						contextMenuManoeuvre = manoeuvre;
+					}
+					
 					if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 						ImGui::SetScrollHereY(.5f);
 						plot->b_scrollToSelectedManoeuvre = false;
@@ -128,6 +137,7 @@ namespace PlotGui{
 					if(ReorderableList::isItemSelected()) clickedManoeuvre = manoeuvre;
 					manoeuvre->listGui();
 					ReorderableList::endItem();
+					
 				}else if(plot->b_scrollToSelectedManoeuvre && manoeuvre->isSelected()){
 					ImGui::SetScrollHereY(.5f);
 					plot->b_scrollToSelectedManoeuvre = false;
@@ -155,6 +165,37 @@ namespace PlotGui{
 		if (ReorderableList::wasReordered(fromIndex, toIndex)) {
 			manoeuvreList->moveManoeuvre(manoeuvres[fromIndex], toIndex);
 		}
+		
+		if(b_openManoeuvreContextMenu){
+			b_openManoeuvreContextMenu = false;
+			ImGui::OpenPopup("ManoeuvreContextMenu");
+		}
+		if(ImGui::BeginPopup("ManoeuvreContextMenu")){
+			
+			ImGui::BeginDisabled();
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("%s", contextMenuManoeuvre->getName());
+			ImGui::PopFont();
+			ImGui::Text("Copy to:");
+			ImGui::EndDisabled();
+			
+			auto& plots = currentProject->getPlots();
+			auto currentPlot = currentProject->getCurrentPlot();
+			for(int i = 0; i < plots.size(); i++){
+				if(plots[i] == currentPlot) continue;
+				ImGui::PushID(i);
+				
+				if(ImGui::Selectable(plots[i]->getName())){
+					Logger::info("copying {} to {}", contextMenuManoeuvre->getName(), plots[i]->getName());
+					plots[i]->getManoeuvreList()->pasteManoeuvre(currentPlot->getSelectedManoeuvre());
+				}
+				
+				ImGui::PopID();
+			}
+			
+			ImGui::EndPopup();
+		}
+		
 
         
         if(!currentProject->isPlotEditLocked()){

@@ -15,9 +15,15 @@
             <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="360" Duration="60" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
                 <Curves>
                     <Curve Name="Position">
-                        <ControlPoint Position="43.776000000000003" Time="9.8635682158920552" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
-                        <ControlPoint Position="89.712000000000003" Time="22.529235382308848" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="133.27200000000002" Time="20.424657534246577" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="99.216000000000008" Time="28.890410958904113" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
                     </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="0" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <TargetMasterAnimatable MachineUniqueID="1971" AnimatableName="Position"/>
+                <Curves>
+                    <Curve Name="Position"/>
                 </Curves>
             </Animation>
         </Manoeuvre>

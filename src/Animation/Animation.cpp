@@ -39,6 +39,7 @@ std::shared_ptr<Animation> Animation::copy(){
 			case ManoeuvreType::SEQUENCE: 	copy = toSequence()->copy(); break;
 		}
 	}
+	copy->targetMasterAnimatable = targetMasterAnimatable;
 	copy->subscribeToMachineParameter();
 	return copy;
 }

@@ -1,0 +1,15 @@
+<Plot Name="New Plot">
+    <ManoeuvreList>
+        <Manoeuvre Name="M-2 (copy)" Description="" Type="Sequence">
+            <LabelColo r="0" g="0" b="0" a="0"/>
+            <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="360" Duration="60" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="43.776000000000003" Time="9.8635682158920552" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="89.712000000000003" Time="22.529235382308848" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+    </ManoeuvreList>
+</Plot>
