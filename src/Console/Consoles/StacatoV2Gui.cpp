@@ -65,7 +65,6 @@ void StacatoV2::gui(float height)
 			scrollingTextWithBackground("mappingdisplay", mappingString.c_str(), ImVec2(ImGui::GetTextLineHeight() * 5.0, height), Colors::darkGray, false, 0.0);
 			ImGui::PopFont();
 		}
-
 	};
 
 	drawControlChannelMappings(leftJoystickControlChannel);
