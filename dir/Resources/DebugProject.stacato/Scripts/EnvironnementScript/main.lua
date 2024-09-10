@@ -171,9 +171,3 @@ end
 
 
 
-
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 5a9a32d2 (added manoeuvre context menu for copying, fixed manoeuvre copying colors and aniamtion masters)
