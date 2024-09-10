@@ -830,7 +830,7 @@ namespace EtherCatFieldbus {
 	bool b_cyclicExchangeTimedOut;
 	bool b_osalThreadIsRunning = false;
 
-    void cyclicExchange(void* data) {
+    void* cyclicExchange(void* data) {
 		b_osalThreadIsRunning = true;
 		
 		b_cyclicExchangeThreadRunning = true;
@@ -908,6 +908,8 @@ namespace EtherCatFieldbus {
 		b_networkRunning = false;
 		b_networkStarting = false; //we set this in case we canceled network starting during clock stabilisation
 		b_osalThreadIsRunning = false;
+
+		return nullptr;
     }
 
 	void cycle(){
@@ -1162,9 +1164,43 @@ namespace EtherCatFieldbus {
 		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
 		Logger::debug("===== Starting Cyclic Process Data Exchange");
 			
-		osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
+		#ifdef STACATO_UNIX
 
-		pthread_detach(cyclicExchangeThread);
+			pthread_attr_t threadAttribute;
+			struct sched_param schedulingParameter;
+			cpu_set_t cpu_set;
+
+			pthread_attr_init(&threadAttribute);               /* Init thread's attributes */
+			pthread_attr_setschedpolicy(&threadAttribute, SCHED_FIFO);
+
+										/* Save scheduler-specific attributes */
+			memset(&schedulingParameter, 0, sizeof(schedulingParameter));
+			pthread_attr_getschedparam(&threadAttribute, &schedulingParameter);
+			schedulingParameter.sched_priority = std::min(89, sched_get_priority_max(SCHED_FIFO));
+			printf("thread1 priority: %d\n", schedulingParameter.sched_priority);
+			Logger::critical("SCHED PRIORITY {}", schedulingParameter.sched_priority);
+
+			if (0 != pthread_create(&cyclicExchangeThread,
+			&threadAttribute,
+			cyclicExchange,
+			nullptr)) {
+					printf("Failed to create thread1\n");
+					exit(EXIT_FAILURE);
+			}
+			pthread_setschedparam(cyclicExchangeThread, SCHED_FIFO, &schedulingParameter);
+			CPU_ZERO(&cpu_set);
+			CPU_SET(0, &cpu_set); //Core 0
+			if(0 == pthread_setaffinity_np(cyclicExchangeThread, sizeof(cpu_set), &cpu_set)){
+				Logger::critical("Set CPU Affinity of RT thread on core 0");
+			}
+
+			pthread_detach(cyclicExchangeThread);
+
+		#else 
+			osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
+			pthread_detach(cyclicExchangeThread);
+		#endif
+
 
 	}
 
