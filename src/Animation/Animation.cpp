@@ -219,6 +219,26 @@ bool Animation::canRapid(){
 }
 
 void Animation::rapidToStart(){
+
+	//TODO: MASTERANIMATABLE
+	if(animatable->getType() == AnimatableType::POSITION){
+		
+		if(targetMasterAnimatable){
+			animatable->masterAnimatable = targetMasterAnimatable;
+			Logger::info("{} : set animatable master to {}", animatable->getMachine()->getName(), targetMasterAnimatable->getMachine()->getName());
+			return;
+		}else if(animatable->masterAnimatable){
+			animatable->masterAnimatable = nullptr;
+			Logger::info("{} : cleared master animatable", animatable->getMachine()->getName());
+		}
+		/*
+		if(masterAnimation){
+			animatable->masterAnimatable = masterAnimation->getAnimatable();
+			return;
+		}else animatable->masterAnimatable = nullptr;
+		*/
+	}
+
 	if(!canRapidToStart()) return;
 	animatable->stopAnimation();
 	if(onRapidToStart()){
@@ -236,6 +256,26 @@ void Animation::rapidToStart(){
 }
 
 void Animation::rapidToTarget(){
+
+	//TODO: MASTERANIMATABLE
+	if(animatable->getType() == AnimatableType::POSITION){
+		
+		if(targetMasterAnimatable){
+			animatable->masterAnimatable = targetMasterAnimatable;
+			Logger::info("{} : set animatable master to {}", animatable->getMachine()->getName(), targetMasterAnimatable->getMachine()->getName());
+			return;
+		}else if(animatable->masterAnimatable){
+			animatable->masterAnimatable = nullptr;
+			Logger::info("{} : cleared master animatable", animatable->getMachine()->getName());
+		}
+		/*
+		if(masterAnimation){
+			animatable->masterAnimatable = masterAnimation->getAnimatable();
+			return;
+		}else animatable->masterAnimatable = nullptr;
+		*/
+	}
+
 	if(!canRapidToTarget()) return;
 	animatable->stopAnimation();
 	if(onRapidToTarget()){
@@ -253,6 +293,26 @@ void Animation::rapidToTarget(){
 }
 
 void Animation::rapidToPlaybackPosition(){
+
+	//TODO: MASTERANIMATABLE
+	if(animatable->getType() == AnimatableType::POSITION){
+		
+		if(targetMasterAnimatable){
+			animatable->masterAnimatable = targetMasterAnimatable;
+			Logger::info("{} : set animatable master to {}", animatable->getMachine()->getName(), targetMasterAnimatable->getMachine()->getName());
+			return;
+		}else if(animatable->masterAnimatable){
+			animatable->masterAnimatable = nullptr;
+			Logger::info("{} : cleared master animatable", animatable->getMachine()->getName());
+		}
+		/*
+		if(masterAnimation){
+			animatable->masterAnimatable = masterAnimation->getAnimatable();
+			return;
+		}else animatable->masterAnimatable = nullptr;
+		*/
+	}
+
 	if(!canRapidToPlaybackPosition()) return;
     double pos = playbackPosition_seconds;
 	animatable->stopAnimation();
