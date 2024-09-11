@@ -188,6 +188,18 @@ void PositionControlledMachine::inputProcess() {
 		return;
 	}
 	auto axis = getAxisInterface();
+
+	if(auto masterAnimatable = animatablePosition->masterAnimatable){
+		auto masterMachine = masterAnimatable->getMachine();
+		if(isEnabled() && !masterMachine->isEnabled()){
+			Logger::warn("[{}] Disabling because Master ({}) was disabled", getName(), masterMachine->getName());
+			disable();
+		}
+		if(!isEnabled() && masterMachine->isEnabled()) {
+			Logger::warn("[{}] Disabling master ({}) because slave was disabled", getName(), masterMachine->getName());
+			masterMachine->disable();
+		}
+	}
 	
 	//update machine state
 	if (isEnabled() && !axis->isEnabled()) disable();

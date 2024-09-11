@@ -512,7 +512,7 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 
 	if(statusWord.shutdownError != b_hasFault){
 		if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
-		else Logger::error("[{}] Axis {} : Fault !", drive->getName(), channel);
+		else Logger::warn("[{}] Axis {} : Fault !", drive->getName(), channel);
 	}
 	if(statusWord.warningChange != b_warning){
 		Logger::critical("[{}] Axis {} : Warning {}", drive->getName(), channel, statusWord.warningChange);
@@ -525,10 +525,10 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 
 	if(class1Errors != err){
 		if(err != 0x0){
-			Logger::error("[{}] Axis {} Errors:", drive->getName(), channel);
-			Logger::error("{}", drive->getClass1Errors(err));
+			Logger::warn("[{}] Axis {} Errors:", drive->getName(), channel);
+			Logger::warn("{}", drive->getClass1Errors(err));
 		}
-		else Logger::error("[{}] Axis {} : Error cleared !", drive->getName(), channel);
+		else Logger::warn("[{}] Axis {} : Error cleared !", drive->getName(), channel);
 	}
 	class1Errors = err;
 
@@ -542,6 +542,9 @@ void AX5206::Axis::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int1
 			controlWord.disable();
 			Logger::warn("[{}] Axis {} Enable timeout", drive->getName(), channel);
 		}
+	}
+	else if(isEnabled() && !statusWord.isEnabled()){
+		
 	}
 	else if(isEnabled() && !statusWord.isEnabled()){
 		Logger::error("[{} Axis {}] isEnabled: {}", drive->getName(), channel, isEnabled());
@@ -588,7 +591,7 @@ void AX5206::Axis::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos
 		actuatorProcessData.b_disable = false;
 		actuatorProcessData.b_enabling = false;
 		controlWord.disable();
-		Logger::error("[{} Axis {}] Disable request", drive->getName(), channel);
+		Logger::info("[{} Axis {}] Disable request", drive->getName(), channel);
 	}
 	
 	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;

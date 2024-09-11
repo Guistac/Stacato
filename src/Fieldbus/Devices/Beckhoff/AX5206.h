@@ -167,7 +167,7 @@ public:
 		uint8_t channel;
 		const double unitsPerRPM = 17895.697;
 		const double unitsPerRev = 1048576.0;
-		const uint64_t enableTimeout_nanos = 500'000'000; //300ms
+		const uint64_t enableTimeout_nanos = 600'000'000;
 	};
 	
 	class Gpio : public GpioInterface{
