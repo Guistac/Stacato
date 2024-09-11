@@ -64,11 +64,13 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	//======= RGB LED BUTTONS ========
 	
 	rgbButton_goToStart->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToStart()) return;
         if(!rgbButton_goToStart->isPressed()) manoeuvre->rapidToStart();
 	});
 	rgbButton_goToStart->setOutputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_goToStart->setColor(glm::vec3(0.f, 0.f, 0.f));
         else if(manoeuvre->isAtStart()) rgbButton_goToStart->setColor(glm::vec3(.0f, 1.f, .0f));
@@ -77,6 +79,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_PlayPause->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre) return;
         if(!rgbButton_PlayPause->isPressed()) {
@@ -86,6 +89,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         }
 	});
 	rgbButton_PlayPause->setOutputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_PlayPause->setColor(glm::vec3(0.f, 0.f, 0.1f));
         else if(manoeuvre->isPlaying()){
@@ -105,6 +109,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_Stop->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(rgbButton_Stop->isPressed()){
             if(manoeuvre && manoeuvre->canStop()) {
@@ -114,6 +119,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         }
 	});
 	rgbButton_Stop->setOutputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
         auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(manoeuvre != nullptr && manoeuvre->canStop()){
             glm::vec3 black = glm::vec3(0.f, 0.f, 0.f);
@@ -125,11 +131,13 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_goToEnd->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
         if(!rgbButton_goToEnd->isPressed()) manoeuvre->rapidToTarget();
 	});
 	rgbButton_goToEnd->setOutputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_goToEnd->setColor(glm::vec3(0.f, 0.f, 0.f));
         else if(manoeuvre->isAtTarget()) rgbButton_goToEnd->setColor(glm::vec3(.0f, 1.f, .0f));
@@ -142,9 +150,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	//======= SCROLL BUTTONS ========
 	
 	pushbutton_arrowUp->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		if(pushbutton_arrowUp->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
 	});
 	pushbutton_arrowDown->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		if(pushbutton_arrowDown->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
 	});
 	

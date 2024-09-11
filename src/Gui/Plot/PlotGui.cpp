@@ -124,7 +124,6 @@ namespace PlotGui{
 				if(ReorderableList::beginItem(manoeuvre->isSelected() ? cueSizeSelectedY : cueSizeY)){
 					
 					if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right)){
-						Logger::warn("Item Pressed : {}", manoeuvre->getName());
 						b_openManoeuvreContextMenu = true;
 						contextMenuManoeuvre = manoeuvre;
 					}

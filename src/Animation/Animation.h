@@ -323,6 +323,8 @@ public:
 	virtual bool canRapidToTarget() override;
 	virtual bool isAtTarget() override;
 	virtual bool canStartPlayback() override;
+
+	//virtual bool canPausePlayback() override { return isPlaying(); }
 	
 private:
 	

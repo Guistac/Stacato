@@ -2,6 +2,7 @@
 #include "Machine/Machine.h"
 #include "Animation/Manoeuvre.h"
 
+
 TargetAnimation::TargetAnimation(std::shared_ptr<Animatable> animatable) : Animation(animatable){
 	target = animatable->makeParameter();
 	target->setSaveString("Target");
