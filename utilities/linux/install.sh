@@ -18,3 +18,7 @@ echo "installed stacato project file type"
 
 sudo cp Stacato_Permissions /etc/sudoers.d/Stacato_Permissions
 echo "installed launch permissions"
+
+sudo cp Startup.sh /opt/Stacato/Startup.sh
+sudo chmod +x /opt/Stacato/Startup.sh
+echo "installed Autostart script to /opt/Stacato/Startup.h, add it to launch applications"
