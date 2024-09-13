@@ -102,6 +102,12 @@ namespace Legato::Gui{
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 		
+		#if defined (STACATO_UNIX)
+			//on ubuntu xorg desktop, touchscreen do not work with glfw decorated windows
+			//too tired to understand why, an
+			glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+		#endif
+
 		#if defined(STACATO_MACOS)
 			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
