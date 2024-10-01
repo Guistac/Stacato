@@ -250,6 +250,9 @@ public:
 	NumberParam<double> externalBrakingResistorResistance = NumberParameter<double>::make(
 		0.0, "External braking resistor resistance", "ExternalBrakingResistorResistance",
 		"%.2f", Units::Resistance::Ohm, false);
+	NumberParam<int> externalBrakingResistorSwitchOnTime = NumberParameter<int>::make(
+		1, "External braking resistor Max Switch-on Time", "ExternalBrakingResistorSwitchOnTime",
+		"%i", Units::Time::Millisecond, false);
 
     bool uploadGeneralParameters();
     DataTransferState generalParameterUploadState = DataTransferState::NO_TRANSFER;
