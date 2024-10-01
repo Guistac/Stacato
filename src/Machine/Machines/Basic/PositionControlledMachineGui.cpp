@@ -798,28 +798,33 @@ void PositionControlledMachine::setupGui(){
 	
 	if(allowUserHoming->value){
 
-		glm::vec2 homingButtonSize(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight());
+
+		ImVec2 homingButtonSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
+		
+		ImVec2 buttonCursorPos = ImGui::GetCursorPos();
+
 		ImGui::BeginDisabled(!canStartHoming());
 		if(isHoming()){
 			ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-			if(ImGui::Button("Stop Homing", homingButtonSize)) stopHoming();
+			if(customButton("Stop Homing", homingButtonSize, ImGui::GetStyle().Colors[ImGuiCol_FrameBg], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTop))
+				stopHoming();
 			ImGui::PopStyleColor();
 		}else{
-			if(ImGui::Button("Start Homing", homingButtonSize)) startHoming();
+			if(customButton("Start Homing", homingButtonSize, ImGui::GetStyle().Colors[ImGuiCol_FrameBg], ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersTop))
+				startHoming();
 		}
 		ImGui::EndDisabled();
-
-
-		ImGui::SameLine();
 
 		ImVec4 progressIndicatorColor = Colors::darkGray;
 		if(isHoming()) progressIndicatorColor = Colors::orange;
 		else if(didHomingSucceed()) progressIndicatorColor = Colors::green;
 		else if(didHomingFail()) progressIndicatorColor = Colors::red;
+		
+		ImGui::SetCursorPos(ImVec2(buttonCursorPos.x, buttonCursorPos.y + ImGui::GetItemRectSize().y));
 
 		glm::vec2 homingProgressSize(ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight());
 		std::string homingString = getHomingString();
-		backgroundText(homingString.c_str(), homingProgressSize, Colors::darkGray);
+		backgroundText(homingString.c_str(), homingButtonSize, progressIndicatorColor, Colors::white, ImDrawFlags_RoundCornersBottom);
 	}
 		
 		
