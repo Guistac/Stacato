@@ -926,6 +926,7 @@ namespace EtherCatFieldbus {
 			systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 			if(cycleStartTime_nanoseconds > systemTime_nanoseconds){
 				uint32_t sleepTimeMicroseconds = (cycleStartTime_nanoseconds - systemTime_nanoseconds) / 1000;
+				//osal_usleep(sleepTimeMicroseconds);
 				osal_usleep(sleepTimeMicroseconds - 100);
 				while(Timing::getProgramTime_nanoseconds() < cycleStartTime_nanoseconds){} 
 				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
@@ -1190,9 +1191,10 @@ namespace EtherCatFieldbus {
 			}
 			pthread_setschedparam(cyclicExchangeThread, SCHED_FIFO, &schedulingParameter);
 			CPU_ZERO(&cpu_set);
-			CPU_SET(0, &cpu_set); //Core 0
+			int core = 2;
+			CPU_SET(core, &cpu_set);
 			if(0 == pthread_setaffinity_np(cyclicExchangeThread, sizeof(cpu_set), &cpu_set)){
-				Logger::critical("Set CPU Affinity of RT thread on core 0");
+				Logger::critical("Set CPU Affinity of RT thread on core {}", core);
 			}
 
 			pthread_detach(cyclicExchangeThread);

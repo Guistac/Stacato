@@ -110,7 +110,7 @@ namespace Legato::Gui{
 		//open window on main monitor, max window size
 		glm::ivec2 workPos, workSize;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &workPos.x, &workPos.y, &workSize.x, &workSize.y);
-		mainWindow = glfwCreateWindow(workSize.x, workSize.y, "Stacato", nullptr, nullptr);
+		mainWindow = glfwCreateWindow(workSize.x, workSize.y, "Stacato", glfwGetPrimaryMonitor(), nullptr);
 		glfwSetWindowPos(mainWindow, workPos.x, workPos.y);
 
 		//set window callbacks that are not handled by imgui glfw backend

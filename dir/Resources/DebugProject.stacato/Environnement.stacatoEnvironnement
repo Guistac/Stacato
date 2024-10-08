@@ -1,15 +1,15 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-246.42715" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.81296"/>
-        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.73367"/>
-        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10022" SizeY="399.01114"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50006" SizeY="110.2751"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49994" SizeY="110.35437"/>
-        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10022" SizeY="398.97153"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50032" SizeY="318.32925"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="385.83551"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="385.83551"/>
-        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="110.51292"/>
+    <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-246.08853" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.47433"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.39505"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10022" SizeY="398.67255"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50006" SizeY="110.97611"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49994" SizeY="111.05538"/>
+        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10022" SizeY="398.63287"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50032" SizeY="319.0303"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="386.5365"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="386.5365"/>
+        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="111.21394"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -148,7 +148,7 @@
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ATV320" Split="false" CustomName="ATV320 Tapis Roulant (Alias:300)" UniqueID="1881">
                 <NodeEditorPosition x="368" y="-1083"/>
                 <NodeSpecificData>
-                    <Identification Type="StationAlias" StationAlias="300"/>
+                    <Identification Type="StationAlias" StationAlias="0"/>
                     <MotorParameters StandartMotorFrequency="0" MotorControlType="3" RatedMotorPower="4.4000000000000004" RatedMotorVoltage="400" RatedMotorCurrent="10" MotorRatedSpeed="2900"/>
                     <MotionControlSettings AccelerationRamp="2" DecelerationRamp="2" InvertMotionDirection="false" MinControlFrequency="0" MaxControlFrequency="100" MaxFrequency="100" SwitchingFrequency="16"/>
                     <FrequencyReference FrequencyReference1="169" FrequencyReference2="0" ReferenceSwitchingMethod="96"/>
@@ -249,7 +249,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.12753888899999999"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="-1348.6528180082087"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="2.5508099450005424" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -286,7 +286,7 @@
                         <FeedbackMapping PinSaveName="FeedbackDevice0" UnitConversion="0.17873055600000001"/>
                     </FeedbackMappings>
                     <ActuatorMappings>
-                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="1118.6173755061843"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="3.5747898525661892" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="FeedbackDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -934,101 +934,6 @@
                     <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="2471" Visible="true" DisableDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="PsnServer" Split="false" CustomName="PSN" UniqueID="2485">
-                <NodeEditorPosition x="1536" y="-708"/>
-                <NodeSpecificData>
-                    <Network ServerName="Stacato PSN Server" DestinationIpOctet0="236" DestinationIpOctet1="10" DestinationIpOctet2="10" DestinationIpOctet3="10" Port="56565" LocalIpOctet0="192" LocalIpOctet1="168" LocalIpOctet2="2" LocalIpOctet3="105" InfoPacketSendingFrequency="1" DataPacketSendingFrequency="60"/>
-                    <Script>
-local tracker_romaine
-local tracker_pistolet
-local tracker_vol
-local tracker_sacs
-local tracker_tournette
-local tracker_anneau
-
-local anim_romaine
-local anim_pistolet
-local anim_vol
-local anim_sacs
-local anim_tournette
-local anim_anneau
-
-function setup()
-
-	tracker_romaine = PsnServer:createNewTracker("Romaine")
-	tracker_pistolet = PsnServer:createNewTracker("Pistolet")
-	tracker_vol = PsnServer:createNewTracker("Vol")
-	tracker_sacs = PsnServer:createNewTracker("Sacs");
-	tracker_tournette = PsnServer:createNewTracker("Tournette")
-	tracker_anneau = PsnServer:createNewTracker("Anneau")
-	PsnServer:createNewTracker("&lt;3 Bisou &lt;3"):setPosition(333, 333, 333)
-
-	anim_romaine = Environnement.getMachine("Romaine"):getAnimatable("Position")
-	anim_pistolet = Environnement.getMachine("Pistolet"):getAnimatable("Position")
-	anim_vol = Environnement.getMachine("Vol"):getAnimatable("Position")
-	anim_sacs = Environnement.getMachine("Sacs"):getAnimatable("Position")
-	anim_tournette = Environnement.getMachine("Tournette"):getAnimatable("Position")
-	anim_anneau = Environnement.getMachine("Anneau"):getAnimatable("Position")
-
-end
-
-local count = 0.0
-
-function update()
-
-	local pos_romaine = anim_romaine:getActualValue().Position
-	local pos_pistolet = anim_pistolet:getActualValue().Position
-	local pos_vol = anim_vol:getActualValue().Position
-	local pos_sacs = anim_sacs:getActualValue().Position
-	local pos_tournette = anim_tournette:getActualValue().Position
-	local pos_anneau = anim_anneau:getActualValue().Position
-
-	tracker_romaine:setPosition(0.0, pos_romaine, 0.0)
-	tracker_pistolet:setPosition(0.0, pos_pistolet, 0.0)
-	tracker_vol:setPosition(0.0, pos_vol, 0.0)
-	tracker_sacs:setPosition(0.0, pos_sacs, 0.0)
-	tracker_tournette:setOrigin(0.0, 0.0, 2.0 * math.pi * count / 360.0)
-	tracker_anneau:setOrigin(0.0, 0.0, 2.0 * math.pi * count / 360.0)
-
-	count = count + 0.01
-
-end
-
-</Script>
-                </NodeSpecificData>
-                <InputPins/>
-                <OutputPins/>
-            </Node>
-            <Node NodeType="IODevice" DeviceType="NetworkDevice" ClassName="OscConnection" Split="false" CustomName="OSC" UniqueID="2486">
-                <NodeEditorPosition x="1480" y="-928"/>
-                <NodeSpecificData>
-                    <RemoteIP ipv4-0="192" ipv4-1="168" ipv4-2="5" ipv4-3="200"/>
-                    <Ports send="13000" receive="12345"/>
-                    <Broadcast SendBroadcast="true" NetworkIpOctet0="192" NetworkIpOctet1="168" NetworkIpOctet2="5" NetworkIpOctet3="0" NetworkMaskOctet0="255" NetworkMaskOctet1="255" NetworkMaskOctet2="255" NetworkMaskOctet3="0"/>
-                    <OutgoingMessages>
-                        <OSCMessage Path="/LaHaine/Tournette" SendingFrequency="100" IncludeTimestamp="true">
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument0"/>
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage0Argument1"/>
-                        </OSCMessage>
-                        <OSCMessage Path="/LaHaine/Anneau" SendingFrequency="100" IncludeTimestamp="false">
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage1Argument0"/>
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage1Argument1"/>
-                        </OSCMessage>
-                        <OSCMessage Path="/LaHaine/Tapis" SendingFrequency="100" IncludeTimestamp="false">
-                            <OSCArgument DataType="Float" PinSaveName="OutgoingMessage2Argument1"/>
-                        </OSCMessage>
-                    </OutgoingMessages>
-                    <IncomingMessages/>
-                </NodeSpecificData>
-                <InputPins>
-                    <InputPin SaveString="OutgoingMessage0Argument0" DisplayString="Tournette Position" DataType="Real" UniqueID="2487" Visible="true"/>
-                    <InputPin SaveString="OutgoingMessage0Argument1" DisplayString="Tournette Vitesse" DataType="Real" UniqueID="2488" Visible="true"/>
-                    <InputPin SaveString="OutgoingMessage1Argument0" DisplayString="Tournette Position" DataType="Real" UniqueID="2492" Visible="true"/>
-                    <InputPin SaveString="OutgoingMessage1Argument1" DisplayString="Tournette Vitesse" DataType="Real" UniqueID="2493" Visible="true"/>
-                    <InputPin SaveString="OutgoingMessage2Argument1" DisplayString="Tapis Vitesse" DataType="Real" UniqueID="2494" Visible="true"/>
-                </InputPins>
-                <OutputPins/>
-            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="1812" StartPin="1767" EndPin="1778"/>
@@ -1102,11 +1007,6 @@ end
             <Link UniqueID="2481" StartPin="1933" EndPin="1973"/>
             <Link UniqueID="2482" StartPin="1951" EndPin="1978"/>
             <Link UniqueID="2484" StartPin="1795" EndPin="2246"/>
-            <Link UniqueID="2495" StartPin="1974" EndPin="2487"/>
-            <Link UniqueID="2496" StartPin="1975" EndPin="2488"/>
-            <Link UniqueID="2497" StartPin="1979" EndPin="2492"/>
-            <Link UniqueID="2498" StartPin="1980" EndPin="2493"/>
-            <Link UniqueID="2499" StartPin="2438" EndPin="2494"/>
             <Link UniqueID="2506" StartPin="2180" EndPin="2437"/>
             <Link UniqueID="2508" StartPin="2248" EndPin="2113"/>
             <Link UniqueID="2509" StartPin="2248" EndPin="2128"/>
@@ -1115,5 +1015,5 @@ end
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="2" ProcessDataTimeoutMilliseconds="1.7999999523162842" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="500"/>
+    <Timing ProcessIntervalMilliseconds="1" ProcessDataTimeoutMilliseconds="0.10000000149011612" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="500"/>
 </FieldbusSettings>
