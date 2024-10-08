@@ -927,7 +927,7 @@ namespace EtherCatFieldbus {
 			if(cycleStartTime_nanoseconds > systemTime_nanoseconds){
 				uint32_t sleepTimeMicroseconds = (cycleStartTime_nanoseconds - systemTime_nanoseconds) / 1000;
 				//osal_usleep(sleepTimeMicroseconds);
-				osal_usleep(sleepTimeMicroseconds - 100);
+				osal_usleep(sleepTimeMicroseconds * 0.9);
 				while(Timing::getProgramTime_nanoseconds() < cycleStartTime_nanoseconds){} 
 				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 			}

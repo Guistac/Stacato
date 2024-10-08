@@ -1,15 +1,15 @@
 <Environnement name="LA HAINE" notes="">
-    <Dashboard Scale="0.96187377" OffsetX="320.21768" OffsetY="-246.08853" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.10022" SizeY="398.47433"/>
-        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.10022" SizeY="398.39505"/>
-        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.10022" SizeY="398.67255"/>
-        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50006" SizeY="110.97611"/>
-        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.49994" SizeY="111.05538"/>
-        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.10022" SizeY="398.63287"/>
-        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50032" SizeY="319.0303"/>
-        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.49992" SizeY="386.5365"/>
-        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.49992" SizeY="386.5365"/>
-        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50006" SizeY="111.21394"/>
+    <Dashboard Scale="0.96187389" OffsetX="320.21768" OffsetY="-210.55292" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Vol" UniqueID="7" PositionX="-161" PositionY="376" SizeX="149.1002" SizeY="398.28635"/>
+        <Widget Name="Sacs" UniqueID="8" PositionX="-317" PositionY="374" SizeX="149.1002" SizeY="399.24667"/>
+        <Widget Name="Pistolet" UniqueID="9" PositionX="-5" PositionY="381" SizeX="149.1002" SizeY="398.48453"/>
+        <Widget Name="Safety Master" UniqueID="6" PositionX="-262" PositionY="257" SizeX="157.50005" SizeY="110.78815"/>
+        <Widget Name="Vol &amp; Sacs" UniqueID="5" PositionX="-99" PositionY="259" SizeX="157.50005" SizeY="110.86742"/>
+        <Widget Name="Romaine" UniqueID="12" PositionX="171" PositionY="380" SizeX="149.1002" SizeY="398.44489"/>
+        <Widget Name="Tapis" UniqueID="11" PositionX="133" PositionY="811" SizeX="136.50031" SizeY="318.84225"/>
+        <Widget Name="Anneau" UniqueID="2" PositionX="-52" PositionY="783" SizeX="178.50003" SizeY="386.34851"/>
+        <Widget Name="Tournette" UniqueID="1" PositionX="-238" PositionY="783" SizeX="178.50003" SizeY="386.34851"/>
+        <Widget Name="AU Romaine" UniqueID="13" PositionX="115" PositionY="263" SizeX="157.50005" SizeY="111.02598"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -1015,5 +1015,5 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="1" ProcessDataTimeoutMilliseconds="0.10000000149011612" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="500"/>
+    <Timing ProcessIntervalMilliseconds="1" ProcessDataTimeoutMilliseconds="0.10000000149011612" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="2000"/>
 </FieldbusSettings>
