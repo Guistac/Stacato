@@ -8,6 +8,8 @@ namespace Legato::Gui{
 
 	float getScale();
 
+	void makeMainWindowFullscreen();
+
 };
 
 class Window;

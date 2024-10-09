@@ -1,1 +1,2 @@
 stacato ALL=(ALL) NOPASSWD: /opt/Stacato/Stacato
+stacato ALL=(ALL) NOPASSWD: /usr/bin/gdb

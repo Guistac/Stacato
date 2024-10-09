@@ -1,14 +1,22 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
+        <Manoeuvre Name="M-4" Description="" Type="Sequence">
+            <LabelColo r="0" g="0" b="0" a="0"/>
+            <Animation Machine="Tapis" MachineUniqueID="2435" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Linear" Start="0" End="0" Duration="12" TimeOffset="0" StartAcceleration="0.5" EndAcceleration="0.5">
+                <Curves>
+                    <Curve Name="Velocity">
+                        <ControlPoint Position="1" Time="3" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                        <ControlPoint Position="-1" Time="9" Velocity="0" InAcceleration="0.5" OutAcceleration="0.5"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
         <Manoeuvre Name="M-0 zerg zrze hzet je jtzgyej seth ey krytuk ru" Description="" Type="Target">
             <LabelColo r="200" g="200" b="0" a="255"/>
             <Animation Machine="Anneau" MachineUniqueID="1976" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2">
                 <TargetMasterAnimatable MachineUniqueID="1971" AnimatableName="Position"/>
             </Animation>
             <Animation Machine="Tournette" MachineUniqueID="1971" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-1" Description="" Type="Target">
-            <LabelColo r="0" g="0" b="200" a="255"/>
         </Manoeuvre>
         <Manoeuvre Name="M-2" Description="" Type="Sequence">
             <LabelColo r="0" g="0" b="0" a="0"/>
@@ -20,9 +28,6 @@
                     </Curve>
                 </Curves>
             </Animation>
-        </Manoeuvre>
-        <Manoeuvre Name="M-3" Description="" Type="Target">
-            <LabelColo r="0" g="0" b="0" a="0"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>

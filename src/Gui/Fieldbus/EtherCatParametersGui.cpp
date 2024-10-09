@@ -183,7 +183,7 @@ void etherCatParameters() {
 
 		bool intervalEdited = false;
 		bool frequencyEdited = false;
-		int processInterval_milliseconds = EtherCatFieldbus::processInterval_milliseconds;
+		double processInterval_milliseconds = EtherCatFieldbus::processInterval_milliseconds;
 		float processFrequency_Hertz = 1000.0 / processInterval_milliseconds;
 		float processDataTimeoutDelay_milliseconds = EtherCatFieldbus::processDataTimeout_milliseconds;
 		float stableClockThreshold_milliseconds = EtherCatFieldbus::clockStableThreshold_milliseconds;
@@ -200,8 +200,9 @@ void etherCatParameters() {
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(widgetWidth);
-            if(ImGui::InputScalar("##Process Interval", ImGuiDataType_S32, (void*)&processInterval_milliseconds, nullptr, nullptr, "%ims")) {
-                processInterval_milliseconds = std::abs(processInterval_milliseconds);
+            if(ImGui::InputScalar("##Process Interval", ImGuiDataType_Double, (void*)&processInterval_milliseconds, nullptr, nullptr, "%.1fms")) {
+                //processInterval_milliseconds = std::abs(processInterval_milliseconds);
+				Logger::info("{}", processInterval_milliseconds);
                 intervalEdited = true;
             }
 			ImGui::TableNextColumn();
