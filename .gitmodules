@@ -50,3 +50,6 @@
 [submodule "deps/imguinodeeditor"]
 	path = deps/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor.git
+[submodule "deps/fsoe"]
+	path = deps/fsoe
+	url = https://github.com/rtlabs-com/fsoe-soem-demo.git
