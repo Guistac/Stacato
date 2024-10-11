@@ -14,6 +14,8 @@
 #include "Nodes/NodeFactory.h"
 #include "config.h"
 
+#include "fsoemaster.h"
+
 #define MAX_IO_MAP_SIZE 4096
 
 namespace EtherCatFieldbus {
@@ -333,6 +335,7 @@ namespace EtherCatFieldbus {
     //============== Search all NICs for slaves, initialize network and identify slaves
 
 	bool initializeNetwork(){
+
 		if(b_networkInitializing){
 			Logger::error("Can't initialize the network while it is initializing");
 			return false;

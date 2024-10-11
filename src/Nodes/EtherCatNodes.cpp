@@ -45,6 +45,7 @@ namespace NodeFactory{
 			new EL1008(),
 			new EL2008(),
 			new EL2912(),
+			new EL1904(),
 			new EL2624(),
 			new EL7221_9014(),
 			new EL7222_0010(),

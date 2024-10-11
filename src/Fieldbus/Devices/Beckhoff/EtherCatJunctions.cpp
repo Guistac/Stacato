@@ -438,3 +438,12 @@ void EL2912::readInputs() {}
 void EL2912::writeOutputs(){}
 bool EL2912::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL2912::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+
+void EL1904::onDisconnection() {}
+void EL1904::onConnection() {}
+void EL1904::initialize() {}
+bool EL1904::startupConfiguration() { return true; }
+void EL1904::readInputs() {}
+void EL1904::writeOutputs(){}
+bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

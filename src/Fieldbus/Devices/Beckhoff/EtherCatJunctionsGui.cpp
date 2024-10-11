@@ -188,3 +188,10 @@ void EL2912::deviceSpecificGui() {
 		ImGui::EndTabItem();
 	}
 }
+
+void EL1904::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL1904")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
