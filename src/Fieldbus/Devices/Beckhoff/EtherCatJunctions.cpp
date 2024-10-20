@@ -433,17 +433,276 @@ void EL5001::updateEncoderWorkingRange(){
 void EL2912::onDisconnection() {}
 void EL2912::onConnection() {}
 void EL2912::initialize() {}
-bool EL2912::startupConfiguration() { return true; }
-void EL2912::readInputs() {}
-void EL2912::writeOutputs(){}
+bool EL2912::startupConfiguration() {
+
+	//actual parameters
+	uint8_t moduloDiagTestPulse_ch0 = 0;
+	uint8_t multiplierDiagTestPulse_ch0 = 0;
+	bool standardOutputsActive_ch0 = false;
+	bool diagTestPulseActive_ch0 = false;
+	bool moduleFaultLinkActive_ch0 = false;
+	uint8_t moduloDiagTestPulse_ch1 = 0;
+	uint8_t multiplierDiagTestPulse_ch1 = 0;
+	bool standardOutputsActive_ch1 = false;
+	bool diagTestPulseActive_ch1 = false;
+	bool moduleFaultLinkActive_ch1 = false;
+
+	//format safety parameter list to be uploaded
+	uint8_t safetyParameters[20] = {
+		0x2, 0x0, 0x0, 0x0,				//vendorID [fixed: Beckhoff == 0x2]
+		0x60, 0xB, 0x0, 0x0,			//Module Ident [fixed Module == 2912]
+		moduloDiagTestPulse_ch0,		//moduloDiagTestPulse_ch0
+		multiplierDiagTestPulse_ch0,	//multiplierDiagTestPulse_ch0
+		0x0,							//standardOutputsActive_ch0, diagTestPulseActive_ch0, moduleFaultLinkActive_ch0
+		0x0, 							//spacer
+		moduloDiagTestPulse_ch1,		//moduloDiagTestPulse_ch1
+		multiplierDiagTestPulse_ch1,	//multiplierDiagTestPulse_ch1
+		0x0,							//standardOutputsActive_ch1, diagTestPulseActive_ch1, moduleFaultLinkActive_ch1
+		0x0, 							//spacer
+		0x0, 0x0,						//storeCode [fixed to 0x0]
+		0x0, 0x0						//projectCRC [fixed to 0x0]
+	};
+	if(standardOutputsActive_ch0) safetyParameters[10] |= 0x1;
+	if(diagTestPulseActive_ch0) safetyParameters[10] |= 0x2;
+	if(moduleFaultLinkActive_ch0) safetyParameters[10] |= 0x10;
+	if(standardOutputsActive_ch1) safetyParameters[14] |= 0x1;
+	if(diagTestPulseActive_ch1) safetyParameters[14] |= 0x2;
+	if(moduleFaultLinkActive_ch1) safetyParameters[14] |= 0x10;
+
+	//setup fsoe lib configuration object
+	fsoe_conf.slave_address = fsoeAddress;
+	fsoe_conf.connection_id = 10;
+	fsoe_conf.watchdog_timeout_ms = 100;
+	fsoe_conf.application_parameters = safetyParameters;
+	fsoe_conf.application_parameters_size = sizeof(safetyParameters);
+	fsoe_conf.outputs_size = 1;
+	fsoe_conf.inputs_size = 1;
+
+	if(fsoemaster_init(&fsoe_master, &fsoe_conf, this) == FSOEMASTER_STATUS_OK){
+		Logger::error("init ok");
+	}
+	else Logger::error("init failed");
+	return true;
+}
+void EL2912::readInputs(){
+
+	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
+		Logger::critical("Sync Failed");
+	}else{
+		if(false){
+			switch(fsoe_status.current_state){
+				case FSOEMASTER_STATE_RESET:
+					break;
+				case FSOEMASTER_STATE_SESSION:
+					Logger::info("FSOEMASTER_STATE_SESSION"); break;
+				case FSOEMASTER_STATE_CONNECTION:
+					Logger::info("FSOEMASTER_STATE_CONNECTION"); break;
+				case FSOEMASTER_STATE_PARAMETER:
+					Logger::info("FSOEMASTER_STATE_PARAMETER"); break;
+				case FSOEMASTER_STATE_DATA:
+					auto& test = fsoe_master.watchdog;
+					Logger::info("FSOEMASTER_STATE_DATA start {}", float(fsoe_master.watchdog.start_time_us) / 1000.0); break;
+			}
+		}
+
+		if(fsoe_status.current_state == FSOEMASTER_STATE_PARAMETER){
+			if(fsoemaster_set_process_data_sending_enable_flag(&fsoe_master) != FSOEMASTER_STATUS_OK){
+				Logger::critical("Failed to set PD sent enable flag");
+			}
+		}
+		if(fsoe_status.reset_event != FSOEMASTER_RESETEVENT_NONE){
+			const char* reason = fsoemaster_reset_reason_description(fsoe_status.reset_reason);
+			if(fsoe_status.reset_event == FSOEMASTER_RESETEVENT_BY_MASTER){
+				Logger::critical("Reset by Master : {}", reason);
+			}
+			else{
+				Logger::critical("Reset by Slave : {}", reason);
+			}
+		}
+	}
+
+	safeOutput1Fault = safe_inputs & 0x1;
+	safeOutput2Fault = safe_inputs & 0x2;
+
+}
+void EL2912::writeOutputs(){
+	safeOutput1 = Timing::getBlink(0.5);
+	safeOutput1ErrAck = false;
+	safeOutput2 = !Timing::getBlink(0.5);
+	safeOutput2ErrAck = false;
+
+	safe_outputs = 0x0;
+	if(safeOutput1) safe_outputs |= 0x1;
+	if(safeOutput1ErrAck) safe_outputs |= 0x2;
+	if(safeOutput2) safe_outputs |= 0x4;
+	if(safeOutput2ErrAck) safe_outputs |= 0x8;
+}
 bool EL2912::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL2912::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+void EL2912::downladSafetyParameters(){
+
+	uint32_t vendorID;
+	readSDO_U32(0x1018, 0x1, vendorID);
+
+	uint32_t moduleIdent;
+	readSDO_U32(0xf050, 0x1, moduleIdent);
+
+	Logger::info("Vendor ID: {}", vendorID);
+	Logger::info("module ident: {}", moduleIdent);
+
+	auto downloadChannel = [this](uint16_t channelIndex){
+
+		int channel = channelIndex == 0x8000 ? 0 : 1;
+
+		uint8_t moduloDiagTestPulse;
+		readSDO_U8(channelIndex, 0x1, moduloDiagTestPulse);
+
+		uint8_t multiplierDiagTestPulse;
+		readSDO_U8(channelIndex, 0x2, multiplierDiagTestPulse);
+
+		uint8_t standardOutputsActive;
+		readSDO_U8(channelIndex, 0x3, standardOutputsActive);
+
+		uint8_t diagTestPulseActive;
+		readSDO_U8(channelIndex, 0x4, diagTestPulseActive);
+
+		uint8_t moduleFaultLinkActive;
+		readSDO_U8(channelIndex, 0x7, moduleFaultLinkActive);
+
+		Logger::info("[Ch{}] modulo diag test pulse: {}", channel, moduloDiagTestPulse);
+		Logger::info("[Ch{}] multiplier diag test pulse: {}", channel, multiplierDiagTestPulse);
+		Logger::info("[Ch{}] standard outputs active: {}", channel, standardOutputsActive);
+		Logger::info("[Ch{}] diag test pulse active: {}", channel, diagTestPulseActive);
+		Logger::info("[Ch{}] module fault link active: {}", channel, moduleFaultLinkActive);
+
+
+	};
+
+	downloadChannel(0x8000);
+	downloadChannel(0x8010);
+
+	uint16_t storeCode;
+	readSDO_U16(0x10e0, 0x1, storeCode);
+
+	uint16_t projectCRC;
+	readSDO_U16(0x10e0, 0x2, projectCRC);
+
+	Logger::info("store code: {}", storeCode);
+	Logger::info("project crc: {}", projectCRC);
+}
 
 void EL1904::onDisconnection() {}
 void EL1904::onConnection() {}
 void EL1904::initialize() {}
-bool EL1904::startupConfiguration() { return true; }
-void EL1904::readInputs() {}
+bool EL1904::startupConfiguration() {
+
+	//actual parameters
+	uint8_t opMode = 0x0;
+	bool sensorTestChannel1Active = false;
+	bool sensorTestChannel2Active = false;
+	bool sensorTestChannel3Active = false;
+	bool sensorTestChannel4Active = false;
+	uint8_t logicChannel12 = 0x0;
+	uint8_t logicChannel34 = 0x0;
+
+	//format safety parameter list to be uploaded
+	uint8_t safetyParameters[] = {
+		opMode,		//Opmode
+		0x0,		//Sensor Test Channel 1-4 Active
+		0x0, 0x0,	//Logic Channel 1&2 3&4
+		0x0, 0x0,	//Store Code
+		0x0, 0x0	//Project CRC
+	};	
+	if(sensorTestChannel1Active) safetyParameters[1] |= 0x1;
+	if(sensorTestChannel2Active) safetyParameters[1] |= 0x2;
+	if(sensorTestChannel3Active) safetyParameters[1] |= 0x4;
+	if(sensorTestChannel4Active) safetyParameters[1] |= 0x8;
+	safetyParameters[2] |= logicChannel12;
+	safetyParameters[2] |= (logicChannel34 << 2);
+
+	//setup fsoe lib configuration object
+	fsoe_conf.slave_address = fsoeAddress;
+	fsoe_conf.connection_id = 10;
+	fsoe_conf.watchdog_timeout_ms = 100;
+	fsoe_conf.application_parameters = safetyParameters;
+	fsoe_conf.application_parameters_size = sizeof(safetyParameters);
+	fsoe_conf.outputs_size = 1;
+	fsoe_conf.inputs_size = 1;
+
+	if(fsoemaster_init(&fsoe_master, &fsoe_conf, this) != FSOEMASTER_STATUS_OK) Logger::error("init failed");
+
+	return true;
+}
+void EL1904::readInputs() {
+
+	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
+		Logger::critical("Sync Failed");
+	}else{
+		if(false){
+			switch(fsoe_status.current_state){
+				case FSOEMASTER_STATE_RESET:
+					break;
+				case FSOEMASTER_STATE_SESSION:
+					Logger::info("FSOEMASTER_STATE_SESSION"); break;
+				case FSOEMASTER_STATE_CONNECTION:
+					Logger::info("FSOEMASTER_STATE_CONNECTION"); break;
+				case FSOEMASTER_STATE_PARAMETER:
+					Logger::info("FSOEMASTER_STATE_PARAMETER"); break;
+				case FSOEMASTER_STATE_DATA:
+					auto& test = fsoe_master.watchdog;
+					Logger::info("FSOEMASTER_STATE_DATA start {}", float(fsoe_master.watchdog.start_time_us) / 1000.0); break;
+			}
+		}
+
+		//Logger::info("{} {}", safe_inputs, safe_outputs);
+
+		if(fsoe_status.current_state == FSOEMASTER_STATE_PARAMETER){
+			if(fsoemaster_set_process_data_sending_enable_flag(&fsoe_master) != FSOEMASTER_STATUS_OK){
+				Logger::critical("Failed to set PD sent enable flag");
+			}
+		}
+		if(fsoe_status.reset_event != FSOEMASTER_RESETEVENT_NONE){
+			const char* reason = fsoemaster_reset_reason_description(fsoe_status.reset_reason);
+			if(fsoe_status.reset_event == FSOEMASTER_RESETEVENT_BY_MASTER){
+				Logger::critical("Reset by Master : {}", reason);
+			}
+			else{
+				Logger::critical("Reset by Slave : {}", reason);
+			}
+		}
+
+	}
+
+	safeInput1 = safe_inputs & 0x1;
+	safeInput2 = safe_inputs & 0x2;
+	safeInput3 = safe_inputs & 0x4;
+	safeInput4 = safe_inputs & 0x8;
+
+}
 void EL1904::writeOutputs(){}
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+
+void EL1904::downladSafetyParameters(){
+
+	uint16_t operatingMode;
+	readSDO_U16(0x8000, 0x1, operatingMode);
+
+	uint8_t sensorTestChannel1Active;
+	uint8_t sensorTestChannel2Active;
+	uint8_t sensorTestChannel3Active;
+	uint8_t sensorTestChannel4Active;
+	readSDO_U8(0x8001, 0x1, sensorTestChannel1Active);
+	readSDO_U8(0x8001, 0x2, sensorTestChannel2Active);
+	readSDO_U8(0x8001, 0x3, sensorTestChannel3Active);
+	readSDO_U8(0x8001, 0x4, sensorTestChannel4Active);
+	
+	uint8_t logicChannel12;
+	uint8_t logicChannel34;
+	readSDO_U8(0x8002, 0x1, logicChannel12);
+	readSDO_U8(0x8002, 0x3, logicChannel34);
+
+	Logger::info("opmode {}", operatingMode);
+	Logger::info("testChannel 1: {}  2: {}  3: {}  4: {}", sensorTestChannel1Active, sensorTestChannel2Active, sensorTestChannel3Active, sensorTestChannel4Active);
+	Logger::info("logicChannel 1&2: {}   3&4: {}", logicChannel12, logicChannel34);
+}

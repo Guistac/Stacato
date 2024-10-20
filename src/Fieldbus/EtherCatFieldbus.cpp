@@ -14,8 +14,6 @@
 #include "Nodes/NodeFactory.h"
 #include "config.h"
 
-#include "fsoemaster.h"
-
 #define MAX_IO_MAP_SIZE 4096
 
 namespace EtherCatFieldbus {

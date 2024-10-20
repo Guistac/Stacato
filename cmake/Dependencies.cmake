@@ -47,7 +47,7 @@ set(STACATO_DEPENDENCIES
     implot
 # Networking
     soem
-    fsoe
+    fsoe_demo
     asio
     tinyosc
     psncpp

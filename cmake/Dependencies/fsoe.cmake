@@ -12,12 +12,10 @@ set(FSOE_SOURCE_FILES
     ${FSOE_DIRECTORY}/fsoetypes.h
 )
 
-add_library(fsoe ${FSOE_SOURCE_FILES})
+add_library(fsoe_demo ${FSOE_SOURCE_FILES})
 
-set_target_properties(fsoe PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(fsoe_demo PROPERTIES LINKER_LANGUAGE C)
 
-target_include_directories(fsoe PUBLIC
-    ${FSOE_DIRECTORY}
-)
+target_include_directories(fsoe_demo PUBLIC ${FSOE_DIRECTORY})
 
-link_directories(${FSOE_SOURCE_FILES}/lib/linux)
+target_link_libraries(fsoe_demo PUBLIC ${FSOE_DIRECTORY}/lib/linux/libfsoe.a)

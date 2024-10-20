@@ -385,3 +385,30 @@ void EtherCatDevice::resetErrorCounters(){
 	errorCounters.processingUnitErrors = 0;
 	errorCounters.processDataInterfaceErrors = 0;
 }
+
+void EtherCatDevice::printPdoMap(){
+
+	auto printmapping = [this](uint16_t sm){
+		Logger::info("SM 0x{:X}", sm);
+		uint8_t modulecount;
+		if(!readSDO_U8(sm, 0x0, modulecount)) return;
+		for(int i = 1; i <= modulecount; i++){
+			uint16_t module;
+			if(!readSDO_U16(sm, i, module)) return;
+			Logger::info("   PDO {} : 0x{:X}", i, module);\
+			uint8_t objectCount;
+			if(!readSDO_U8(module, 0x0, objectCount)) return;
+			for(int j = 1; j <= objectCount; j++){
+				uint32_t object;
+				if(!readSDO_U32(module, j, object)) return;
+				uint16_t index = (object >> 16) & 0xFFFF;
+				uint8_t subindex = (object >> 8) & 0xFF;
+				uint8_t bitSize = object & 0xFF;
+				Logger::info("      Object {} : 0x{:X}.{:X} bits: {}", j, index, subindex, bitSize);
+			}
+		}
+	};
+
+	printmapping(0x1c12);
+	printmapping(0x1c13);
+}

@@ -337,6 +337,8 @@ void EtherCatDevice::genericInfoGui() {
 
 void EtherCatDevice::pdoDataGui() {
 
+    if(ImGui::Button("Show Mapping")) printPdoMap();
+
     static auto displayPDO = [](EtherCatPdoAssignement& pdo, const char* pdoName) {
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX;
         if (ImGui::BeginTable(pdoName, 5, tableFlags)) {
