@@ -484,6 +484,7 @@ void IB_IL_SSI_IN::writeOutputs(){
 	if(encoder->feedbackProcessData.b_positionOverrideBusy){
 		encoder->feedbackProcessData.velocityActual = 0.0;
 		*resetPinValue = EtherCatFieldbus::getCycleProgramTime_nanoseconds() - resetStartTime_nanoseconds < resetSignalTimeParameter->value * 1000000;
+		
 		if(rawPositionData == 0x0){
 			encoder->feedbackProcessData.b_positionOverrideBusy = false;
 			encoder->feedbackProcessData.b_positionOverrideSucceeded = true;
