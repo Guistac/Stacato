@@ -10,8 +10,6 @@
 
 #include "Motion/Interfaces.h"
 
-#include "fsoemaster.h"
-
 //classDeviceName is a static string used to identify the device class when creating a new instance for a specific device
 //the static method is for use by the identifying method which will check all available device classes for a match
 //the non static method is an override to see what the subclass name is from a base class reference or pointer
@@ -55,13 +53,6 @@ public:
 	virtual bool saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual bool loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 	virtual void deviceSpecificGui() {}
-
-   fsoemaster_t fsoe_master;
-   fsoemaster_syncstatus_t fsoe_status;
-   fsoemaster_cfg_t fsoe_conf;
-   uint32_t fsoe_offset_outputs;
-   uint32_t fsoe_offset_inputs;
-   bool fsoe_in_use;
 	
 	enum class IdentificationType{
 		STATION_ALIAS,

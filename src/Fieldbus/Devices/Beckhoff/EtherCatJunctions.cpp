@@ -469,6 +469,7 @@ bool EL2912::startupConfiguration() {
 	if(diagTestPulseActive_ch1) safetyParameters[14] |= 0x2;
 	if(moduleFaultLinkActive_ch1) safetyParameters[14] |= 0x10;
 
+	/*
 	//setup fsoe lib configuration object
 	fsoe_conf.slave_address = fsoeAddress;
 	fsoe_conf.connection_id = 10;
@@ -482,10 +483,11 @@ bool EL2912::startupConfiguration() {
 		Logger::error("init ok");
 	}
 	else Logger::error("init failed");
+	*/
 	return true;
 }
 void EL2912::readInputs(){
-
+/*
 	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
 		Logger::critical("Sync Failed");
 	}else{
@@ -523,7 +525,7 @@ void EL2912::readInputs(){
 
 	safeOutput1Fault = safe_inputs & 0x1;
 	safeOutput2Fault = safe_inputs & 0x2;
-
+*/
 }
 void EL2912::writeOutputs(){
 	safeOutput1 = Timing::getBlink(0.5);
@@ -620,6 +622,7 @@ bool EL1904::startupConfiguration() {
 	safetyParameters[2] |= logicChannel12;
 	safetyParameters[2] |= (logicChannel34 << 2);
 
+	/*
 	//setup fsoe lib configuration object
 	fsoe_conf.slave_address = fsoeAddress;
 	fsoe_conf.connection_id = 10;
@@ -630,11 +633,11 @@ bool EL1904::startupConfiguration() {
 	fsoe_conf.inputs_size = 1;
 
 	if(fsoemaster_init(&fsoe_master, &fsoe_conf, this) != FSOEMASTER_STATUS_OK) Logger::error("init failed");
-
+*/
 	return true;
 }
 void EL1904::readInputs() {
-
+/*
 	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
 		Logger::critical("Sync Failed");
 	}else{
@@ -677,7 +680,7 @@ void EL1904::readInputs() {
 	safeInput2 = safe_inputs & 0x2;
 	safeInput3 = safe_inputs & 0x4;
 	safeInput4 = safe_inputs & 0x8;
-
+*/
 }
 void EL1904::writeOutputs(){}
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }

@@ -166,9 +166,6 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EL5001 SSI Input", "EL5001", "Beckhoff", "I/O", 
 };
 
 
-#include "fsoemaster.h"
-
-
 class EL2912 : public EtherCatDevice {
 public:
 	DEFINE_ETHERCAT_DEVICE(EL2912, "EL2912 2x FsoE Digital Output", "EL2912", "Beckhoff", "Utilities", 0x2, 0xb603052)

@@ -17,7 +17,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/imguicolortextedit.cmake)
 
 # Networking
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/soem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/fsoe.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/asio.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/tinyosc.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Dependencies/psncpp.cmake)
@@ -47,7 +46,6 @@ set(STACATO_DEPENDENCIES
     implot
 # Networking
     soem
-    fsoe_demo
     asio
     tinyosc
     psncpp
