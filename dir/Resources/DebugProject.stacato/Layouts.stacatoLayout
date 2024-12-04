@@ -1,13 +1,10 @@
 <LayoutList HELLo="1234">
-    <DefaultLayout Name="Conduite"/>
+    <DefaultLayout Name="Maintenance"/>
     <Layouts>
         <Layout>
             <ComponentName Value="Maintenance"/>
             <OpenWindows>
                 <Window Name="Node Editor"/>
-                <Window Name="Dashboard"/>
-                <Window Name="Manual Controls"/>
-                <Window Name="Setup"/>
                 <Window Name="Log"/>
             </OpenWindows>
             <ImGuiIniString>
@@ -48,8 +45,8 @@ Size=2056,961
 Collapsed=0
 
 [Window][Setup]
-Pos=0,826
-Size=369,347
+Pos=0,29
+Size=369,1144
 Collapsed=0
 DockId=0x00000012,0
 
@@ -223,8 +220,8 @@ Size=489,359
 Collapsed=0
 
 [Window][Node Editor]
-Pos=371,29
-Size=1337,1144
+Pos=0,29
+Size=1708,1144
 Collapsed=0
 DockId=0x0000000C,0
 
@@ -423,10 +420,10 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144
   DockNode              ID=0x00000015 Parent=0xD5272B65 SizeRef=369,1144 Split=Y Selected=0xEBD2820B
     DockNode            ID=0x00000001 Parent=0x00000015 SizeRef=293,573 Split=Y Selected=0xEBD2820B
       DockNode          ID=0x0000000E Parent=0x00000001 SizeRef=293,688 HiddenTabBar=1 Selected=0xEBD2820B
-      DockNode          ID=0x00000010 Parent=0x00000001 SizeRef=293,44 HiddenTabBar=1 Selected=0xB00214C9
+      DockNode          ID=0x00000010 Parent=0x00000001 SizeRef=293,44 Selected=0xB00214C9
     DockNode            ID=0x00000017 Parent=0x00000015 SizeRef=293,569 Split=Y Selected=0xCD2247DB
-      DockNode          ID=0x0000000F Parent=0x00000017 SizeRef=369,151 HiddenTabBar=1 Selected=0xCD2247DB
-      DockNode          ID=0x00000012 Parent=0x00000017 SizeRef=369,238 HiddenTabBar=1 Selected=0x27459703
+      DockNode          ID=0x0000000F Parent=0x00000017 SizeRef=369,151 Selected=0xCD2247DB
+      DockNode          ID=0x00000012 Parent=0x00000017 SizeRef=369,238 Selected=0x27459703
   DockNode              ID=0x00000016 Parent=0xD5272B65 SizeRef=1069,1144 Split=X
     DockNode            ID=0x00000002 Parent=0x00000016 SizeRef=1092,914 Split=X
       DockNode          ID=0x00000003 Parent=0x00000002 SizeRef=271,1144 HiddenTabBar=1 Selected=0x8E074A3E
