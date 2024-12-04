@@ -31,6 +31,11 @@ namespace Legato::Gui{
 	void setTerminationFunction(std::function<void()> fn){ userTerminationFunction = fn; }
 
 	GLFWwindow* mainWindow;
+	bool b_goFullscreen;
+
+	void makeMainWindowFullscreen(){
+		b_goFullscreen = true;
+	}
 
 	float guiScale;
 	float getScale(){ return guiScale; }
@@ -90,6 +95,28 @@ namespace Legato::Gui{
 					viewport->PlatformRequestMove = true;
 					Logger::trace("Corrected viewport position to {} {}", platformPosX, platformPosY);
 				}
+			}
+		}
+
+		if(b_goFullscreen){
+			b_goFullscreen = false;
+
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			int xpos, ypos, width, height;
+			glfwGetMonitorWorkarea(monitor, &xpos, &ypos, &width, &height);
+
+			GLFWmonitor* currentMonitor = glfwGetWindowMonitor(mainWindow);
+			if(currentMonitor){
+				glfwSetWindowMonitor(mainWindow, nullptr, 100, 100, width/3, height/3, GLFW_DONT_CARE);
+				glfwMaximizeWindow(mainWindow);
+				//glfwSetWindowAttrib(mainWindow, GLFW_DECORATED, GLFW_TRUE);
+				//glfwSetWindowPos(mainWindow, 1, 1);
+				Logger::info("Leaving Fullscreen");
+			}
+			else{
+				glfwMaximizeWindow(mainWindow);
+				glfwSetWindowMonitor(mainWindow, monitor, 0, 0, width, height, GLFW_DONT_CARE);
+				Logger::info("Entering Fullscreen");
 			}
 		}
 

@@ -59,7 +59,8 @@ namespace EtherCatFieldbus {
 	long long getCycleTimeDelta_nanoseconds();
 
 	//Cyclic Echange Timing Settings
-	extern int processInterval_milliseconds;
+	//extern int processInterval_milliseconds;
+	extern double processInterval_milliseconds;
 	extern double processDataTimeout_milliseconds;
 	extern double clockStableThreshold_milliseconds;
 	extern double fieldbusTimeout_milliseconds;

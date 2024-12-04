@@ -5,11 +5,18 @@
 #include "Stacato/StacatoEditor.h"
 #include "Stacato/StacatoGui.h"
 
+#include <sys/mman.h>
+#include <iostream>
+
 #if defined(STACATO_WIN32_APPLICATION)
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
 #else
 int main(int argcount, const char ** args){
 #endif
+
+	if(mlockall(MCL_CURRENT | MCL_FUTURE) == 0){
+		std::cout << "Locked Application Memory" << std::endl;
+	}
 	
 	//configure application
 	Application::setInitializationFunction(Stacato::Application::initialize);

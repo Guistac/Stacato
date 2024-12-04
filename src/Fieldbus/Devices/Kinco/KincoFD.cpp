@@ -117,7 +117,7 @@ bool KincoFD::startupConfiguration() {
 	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex())) return false;
 	
 	//Configure Synchronisation
-	switch(EtherCatFieldbus::processInterval_milliseconds){
+	switch(int(EtherCatFieldbus::processInterval_milliseconds)){
 		case 1:
 			if(!writeSDO_U8(0x3011, 0x1, 0, "ECAN_Sync_Cycle")) return false;
 			break;
@@ -363,7 +363,7 @@ bool KincoFD::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 bool KincoFD::uploadConfiguration(){
 	
-	switch(EtherCatFieldbus::processInterval_milliseconds){
+	switch(int(EtherCatFieldbus::processInterval_milliseconds)){
 		case 1:
 			if(!writeSDO_U8(0x3011, 0x1, 0, "ECAN_Sync_Cycle")) return false;
 			break;

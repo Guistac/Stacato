@@ -272,6 +272,11 @@ namespace Stacato::Gui {
 		
 		if(ImGui::BeginMenu("View")){
 			
+			if(ImGui::MenuItem("Fullscreen")){
+				Legato::Gui::makeMainWindowFullscreen();
+			}
+
+/*
 			if(ImGui::MenuItem("Lock Window Positions", nullptr, Legato::Gui::WindowManager::areWindowsLocked())){
 				if(Legato::Gui::WindowManager::areWindowsLocked()){
 					Legato::Gui::WindowManager::unlockWindows();
@@ -279,7 +284,7 @@ namespace Stacato::Gui {
 					Legato::Gui::WindowManager::lockWindows();
 				}
 			}
-			
+*/			
 			
 			
 			if(Stacato::Editor::hasCurrentProject()){
@@ -402,7 +407,7 @@ namespace Stacato::Gui {
 			
 			ImGui::EndMenu();
 		}
-		
+
 		static bool imguiDemoWindowOpen = false;
 		static bool imguiMetricsWindowOpen = false;
 		static bool implotDemoWindowOpen = false;

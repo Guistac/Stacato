@@ -56,7 +56,8 @@ namespace EtherCatFieldbus {
 	EtherCatMetrics& getMetrics(){ return metrics; }
 
 	//parameters
-    int processInterval_milliseconds = 4.0;
+    //int processInterval_milliseconds = 4.0;
+	double processInterval_milliseconds = .5;
     double processDataTimeout_milliseconds = 1.5;
     double clockStableThreshold_milliseconds = 0.1;
     double fieldbusTimeout_milliseconds = 100.0;
@@ -830,7 +831,7 @@ namespace EtherCatFieldbus {
 	bool b_cyclicExchangeTimedOut;
 	bool b_osalThreadIsRunning = false;
 
-    void cyclicExchange(void* data) {
+    void* cyclicExchange(void* data) {
 		b_osalThreadIsRunning = true;
 		
 		b_cyclicExchangeThreadRunning = true;
@@ -908,6 +909,8 @@ namespace EtherCatFieldbus {
 		b_networkRunning = false;
 		b_networkStarting = false; //we set this in case we canceled network starting during clock stabilisation
 		b_osalThreadIsRunning = false;
+
+		return nullptr;
     }
 
 	void cycle(){
@@ -924,7 +927,8 @@ namespace EtherCatFieldbus {
 			systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 			if(cycleStartTime_nanoseconds > systemTime_nanoseconds){
 				uint32_t sleepTimeMicroseconds = (cycleStartTime_nanoseconds - systemTime_nanoseconds) / 1000;
-				osal_usleep(sleepTimeMicroseconds);
+				osal_usleep(sleepTimeMicroseconds * 0.9);
+				while(Timing::getProgramTime_nanoseconds() < cycleStartTime_nanoseconds){ } 
 				systemTime_nanoseconds = Timing::getProgramTime_nanoseconds();
 			}
 		#endif
@@ -1161,10 +1165,62 @@ namespace EtherCatFieldbus {
 		
 		startupProgress.setProgress(0.6, "Starting Cyclic Exchange");
 		Logger::debug("===== Starting Cyclic Process Data Exchange");
-			
-		osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
 
-		pthread_detach(cyclicExchangeThread);
+		#ifdef STACATO_UNIX
+
+			int core = 2;
+
+			//bind system irq of network interface to the a cpu core
+
+			std::stringstream scriptSS;
+			scriptSS << "irqNumber=$(grep \"" << activeNetworkInterfaceCard->description << "\" \"/proc/interrupts\" | awk '{print $1}' | cut -d':' -f1)" << std::endl;
+			scriptSS << "echo " << core << " | sudo tee /proc/irq/$irqNumber/smp_affinity_list > /dev/null" << std::endl;
+			scriptSS << "cat /proc/irq/$irqNumber/smp_affinity_list";
+			FILE* pipe = popen(scriptSS.str().c_str(), "r");
+			if(!pipe) Logger::critical("Failed to execute bash script");
+			char buffer[64];
+			fgets(buffer, sizeof(buffer), pipe);
+			if(std::stoi(buffer) == core) Logger::critical("Set irq of {} set to CPU core {}", activeNetworkInterfaceCard->description, core);
+			else Logger::critical("Could not set IRQ");
+			pclose(pipe);
+
+
+
+			pthread_attr_t threadAttribute;
+			struct sched_param schedulingParameter;
+			cpu_set_t cpu_set;
+
+			pthread_attr_init(&threadAttribute);               /* Init thread's attributes */
+			pthread_attr_setschedpolicy(&threadAttribute, SCHED_FIFO);
+
+										/* Save scheduler-specific attributes */
+			memset(&schedulingParameter, 0, sizeof(schedulingParameter));
+			pthread_attr_getschedparam(&threadAttribute, &schedulingParameter);
+			schedulingParameter.sched_priority = std::min(89, sched_get_priority_max(SCHED_FIFO));
+			printf("thread1 priority: %d\n", schedulingParameter.sched_priority);
+			Logger::critical("Set RT thread scheduler priority to {}", schedulingParameter.sched_priority);
+
+			if (0 != pthread_create(&cyclicExchangeThread,
+			&threadAttribute,
+			cyclicExchange,
+			nullptr)) {
+					printf("Failed to create thread1\n");
+					exit(EXIT_FAILURE);
+			}
+			pthread_setschedparam(cyclicExchangeThread, SCHED_FIFO, &schedulingParameter);
+			CPU_ZERO(&cpu_set);
+			CPU_SET(core, &cpu_set);
+			if(0 == pthread_setaffinity_np(cyclicExchangeThread, sizeof(cpu_set), &cpu_set)){
+				Logger::critical("Set RT thread to run on CPU core {}", core);
+			}
+
+			pthread_detach(cyclicExchangeThread);
+
+		#else 
+			osal_thread_create_rt(&cyclicExchangeThread, stackSize, (void*)&cyclicExchange, nullptr);
+			pthread_detach(cyclicExchangeThread);
+		#endif
+
 
 	}
 
