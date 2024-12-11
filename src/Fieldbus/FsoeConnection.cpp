@@ -59,8 +59,11 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 	if(outputsSize != safeOutputsSize) return false;
 	
 	if(masterState == MasterState::DATA){
-		if(b_sendFailsafeData){ /*safeoutputs should be all zeroes*/ }
-		else{ /*encode safeOutputs into masterFrame.safeData*/ }
+		std::vector<uint8_t> safeData(outputsSize, 0x0);
+		if(!b_sendFailsafeData){
+			for(int i = 0; i < outputsSize; i++) safeData[i] = safeOutputs[i];
+		}
+		masterFrame.setSafeData(safeData);
 	}
 	
 	uint16_t seq = masterSequenceNumber;
@@ -69,6 +72,7 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 	
 	masterFrame.writeTo(fsoeMasterFrame, frameSize);
 	
+	/*
 	Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", seq,
 		fsoeMasterFrame[0],
 		fsoeMasterFrame[1],
@@ -76,6 +80,7 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 		fsoeMasterFrame[3],
 		fsoeMasterFrame[4],
 		fsoeMasterFrame[5]);
+	 */
 }
 
 
@@ -118,6 +123,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 		previousSlaveFrame = slaveFrame;
 	}
 	
+	/*
 	Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
 		fsoeSlaveFrame[0],
 		fsoeSlaveFrame[1],
@@ -125,10 +131,13 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 		fsoeSlaveFrame[3],
 		fsoeSlaveFrame[4],
 		fsoeSlaveFrame[5]);
+	*/
 	
 	lastSlaveCRC_0 = slaveFrame.getCrc(0);
 	slaveFrame.crc_ok = calcCrC(slaveFrame, slaveSequenceNumber, lastMasterCRC_0, FrameDirection::RECEIVE);
 	if(!slaveFrame.crc_ok) Logger::critical("Received CRC not ok [{}]", slaveSequenceNumber);
+	
+	bool logState = false;
 	
 	switch(masterState){
 			
@@ -136,7 +145,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::RESET:
 					//RESET_OK
-					Logger::error("RESET_OK");
+					if(logState) Logger::error("RESET_OK");
 					masterState = MasterState::SESSION;
 					generateSessionId();
 					masterFrame.setCommandType(FsoeCommand::SESSION);
@@ -158,7 +167,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					break;
 				default:
 					//RESET_STAY_1
-					Logger::error("RESET_STAY_1");
+					if(logState) Logger::error("RESET_STAY_1");
 					reset();
 					masterFrame.setCommandType(FsoeCommand::RESET);
 					masterState = MasterState::RESET;
@@ -173,7 +182,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					if(!slaveFrame.crc_ok){
 						//SESSION_FAIL1 ???
 						//SESSION_STAY2 ???
-						Logger::error("SESSION_FAIL1");
+						if(logState) Logger::error("SESSION_FAIL1");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterSequenceNumber = 1;
 						slaveSequenceNumber = 1;
@@ -184,7 +193,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					}
 					else if(bytesToBeSent == 0){
 						//SESSION_OK
-						Logger::error("SESSION_OK");
+						if(logState) Logger::error("SESSION_OK");
 						
 						int connDataByteCount = std::min(configurationSafeDataSize, 4);
 						std::vector<uint8_t> firstConnData(connDataByteCount, 0x0);
@@ -197,7 +206,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 						masterState = MasterState::CONNECTION;
 					}else{
 						//SESSION_STAY1
-						Logger::error("SESSION_STAY1");
+						if(logState) Logger::error("SESSION_STAY1");
 						//send remaining session ID byte (high byte)
 						masterFrame.setCommandType(FsoeCommand::SESSION);
 						uint8_t sessionIDHighByte = (masterSessionId >> 8) & 0xFF;
@@ -237,7 +246,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 				case FsoeCommand::CONNECTION:
 					if(!slaveFrame.crc_ok){
 						//CONN_FAIL1
-						Logger::error("CONN_FAIL1");
+						if(logState) Logger::error("CONN_FAIL1");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
@@ -251,13 +260,13 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					*/
 					else if(slaveFrame.getConnnectionID() != connectionID){
 						//CONN_FAIL3
-						Logger::error("CONN_FAIL3");
+						if(logState) Logger::error("CONN_FAIL3");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
 					else if(bytesToBeSent == 0){
 						//CONN_OK
-						Logger::error("CONN_OK");
+						if(logState) Logger::error("CONN_OK");
 						
 						bytesToBeSent = int(safeParameters.size());
 						int currentBytesToBeSent = std::min(configurationSafeDataSize, bytesToBeSent);
@@ -274,7 +283,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					else{
 						//CONN_STAY
 						
-						Logger::error("CONN_STAY");
+						if(logState) Logger::error("CONN_STAY");
 						
 						int currentConnectionDataByteCount = std::min(configurationSafeDataSize, bytesToBeSent);
 						int startIndex = 4 - bytesToBeSent;
@@ -316,7 +325,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 				case FsoeCommand::PARAMETER:
 					if(!slaveFrame.crc_ok){
 						//PARA_FAIL1
-						Logger::error("PARA_FAIL1");
+						if(logState) Logger::error("PARA_FAIL1");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
@@ -330,19 +339,19 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					*/
 					else if(slaveFrame.getConnnectionID() != connectionID){
 						//PARA_FAIL3
-						Logger::error("PARA_FAIL3");
+						if(logState) Logger::error("PARA_FAIL3");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
 					else if(bytesToBeSent == 0){
 						//PARA_OK
-						Logger::error("PARA_OK");
+						if(logState) Logger::error("PARA_OK");
 						masterFrame.setCommandType(FsoeCommand::PROCESSDATA);
 						masterState = MasterState::DATA;
 					}
 					else{
 						//PARA_STAY
-						Logger::error("PARA_STAY");
+						if(logState) Logger::error("PARA_STAY");
 						
 						int currentParameterDataByteCount = std::min(configurationSafeDataSize, bytesToBeSent);
 						int startIndex = int(safeParameters.size()) - bytesToBeSent;
@@ -386,25 +395,29 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 				case FsoeCommand::FAILSAFEDATA:
 					if(!slaveFrame.crc_ok){
 						//DATA_FAIL1
-						Logger::error("DATA_FAIL1");
+						if(logState) Logger::error("DATA_FAIL1");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
 					else if(slaveFrame.getConnnectionID() != connectionID){
 						//DATA_FAIL2
-						Logger::error("DATA_FAIL2");
+						if(logState) Logger::error("DATA_FAIL2");
 						masterFrame.setCommandType(FsoeCommand::RESET);
 						masterState = MasterState::RESET;
 					}
 					else{
+						
+						std::vector<uint8_t> safeData = slaveFrame.getSafeData();
+						for(int i = 0; i < inputsSize; i++) safeInputs[i] = safeData[i];
+						
 						//DATA_OK2
 						if(b_sendFailsafeData) {
-							Logger::error("DATA_OK2");
+							if(logState) Logger::error("DATA_OK2");
 							masterFrame.setCommandType(FsoeCommand::FAILSAFEDATA);
 						}
 						//DATA_OK1
 						else{
-							Logger::error("DATA_OK1");
+							if(logState) Logger::error("DATA_OK1");
 							masterFrame.setCommandType(FsoeCommand::PROCESSDATA);
 						}
 						masterState = MasterState::DATA;
@@ -498,6 +511,8 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 	int safeDataSize = frame.safeDataSize;
 	uint16_t connectionID = frame.getConnnectionID();
 	
+	int repeatedCrcs = 0;
+	
 	//Compute CRC_0, using 1 or 2 data bytes
 	do{
 		
@@ -530,8 +545,11 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		//increment sequence number
 		sequenceNumber++;
 		if(sequenceNumber == 0) sequenceNumber++;
+		
+		if(repeatedCrcs > 0) Logger::warn("Repeated crc [{}]", repeatedCrcs);
+		repeatedCrcs++;
 	}
-	while(crc_0 == oldCrc && direction == FrameDirection::RECEIVE);
+	while(crc_0 == oldCrc);
 	
 	//if receiving, match computed crc_0 against received
 	//if sending, store computed crc_0 in frame

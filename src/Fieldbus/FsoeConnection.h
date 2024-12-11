@@ -125,7 +125,7 @@ public:
 	bool initialize(Config& config_);
 	bool sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t* safeOutputs, int safeOutputsSize);
 	bool receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_t* safeInputs, int safeInputsSize);
-	bool b_sendFailsafeData = true;
+	bool b_sendFailsafeData = false;
 	
 	enum class MasterState{
 		RESET,

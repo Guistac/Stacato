@@ -590,15 +590,6 @@ bool EL1904::startupConfiguration() {
 	return true;
 }
 void EL1904::readInputs() {
-	/*
-	Logger::error("	REC  {:X} {:X} {:X} {:X} {:X} {:X}",
-		 identity->inputs[0],
-		 identity->inputs[1],
-		 identity->inputs[2],
-		 identity->inputs[3],
-		 identity->inputs[4],
-		 identity->inputs[5]);
-	 */
 	fsoeConnection.receiveFrame(identity->inputs, 6, &safe_inputs, 1);
 	
 	safeInput1 = safe_inputs & 0x1;
@@ -608,15 +599,6 @@ void EL1904::readInputs() {
 }
 void EL1904::writeOutputs(){
 	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
-	/*
-	Logger::warn("SEND {:X} {:X} {:X} {:X} {:X} {:X}",
-		 identity->outputs[0],
-		 identity->outputs[1],
-		 identity->outputs[2],
-		 identity->outputs[3],
-		 identity->outputs[4],
-		 identity->outputs[5]);
-	 */
 }
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
