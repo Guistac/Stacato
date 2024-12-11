@@ -447,8 +447,11 @@ bool EL2912::startupConfiguration() {
 	bool diagTestPulseActive_ch1 = false;
 	bool moduleFaultLinkActive_ch1 = false;
 
-	//format safety parameter list to be uploaded
-	uint8_t safetyParameters[20] = {
+	FsoeConnection::Config fsoeConfig;
+	fsoeConfig.fsoeAddress = fsoeAddress;
+	fsoeConfig.connectionID = 10;
+	fsoeConfig.watchdogTimeout_ms = 100;
+	fsoeConfig.applicationParameters = {
 		0x2, 0x0, 0x0, 0x0,				//vendorID [fixed: Beckhoff == 0x2]
 		0x60, 0xB, 0x0, 0x0,			//Module Ident [fixed Module == 2912]
 		moduloDiagTestPulse_ch0,		//moduloDiagTestPulse_ch0
@@ -462,70 +465,23 @@ bool EL2912::startupConfiguration() {
 		0x0, 0x0,						//storeCode [fixed to 0x0]
 		0x0, 0x0						//projectCRC [fixed to 0x0]
 	};
-	if(standardOutputsActive_ch0) safetyParameters[10] |= 0x1;
-	if(diagTestPulseActive_ch0) safetyParameters[10] |= 0x2;
-	if(moduleFaultLinkActive_ch0) safetyParameters[10] |= 0x10;
-	if(standardOutputsActive_ch1) safetyParameters[14] |= 0x1;
-	if(diagTestPulseActive_ch1) safetyParameters[14] |= 0x2;
-	if(moduleFaultLinkActive_ch1) safetyParameters[14] |= 0x10;
-
-	/*
-	//setup fsoe lib configuration object
-	fsoe_conf.slave_address = fsoeAddress;
-	fsoe_conf.connection_id = 10;
-	fsoe_conf.watchdog_timeout_ms = 100;
-	fsoe_conf.application_parameters = safetyParameters;
-	fsoe_conf.application_parameters_size = sizeof(safetyParameters);
-	fsoe_conf.outputs_size = 1;
-	fsoe_conf.inputs_size = 1;
-
-	if(fsoemaster_init(&fsoe_master, &fsoe_conf, this) == FSOEMASTER_STATUS_OK){
-		Logger::error("init ok");
-	}
-	else Logger::error("init failed");
-	*/
+	if(standardOutputsActive_ch0) 	fsoeConfig.applicationParameters[10] |= 0x1;
+	if(diagTestPulseActive_ch0) 	fsoeConfig.applicationParameters[10] |= 0x2;
+	if(moduleFaultLinkActive_ch0) 	fsoeConfig.applicationParameters[10] |= 0x10;
+	if(standardOutputsActive_ch1) 	fsoeConfig.applicationParameters[14] |= 0x1;
+	if(diagTestPulseActive_ch1) 	fsoeConfig.applicationParameters[14] |= 0x2;
+	if(moduleFaultLinkActive_ch1) 	fsoeConfig.applicationParameters[14] |= 0x10;
+	fsoeConfig.safeOutputsSize = 1;
+	fsoeConfig.safeInputsSize = 1;
+	
+	if(!fsoeConnection.initialize(fsoeConfig)) return false;
+	
 	return true;
 }
 void EL2912::readInputs(){
-/*
-	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
-		Logger::critical("Sync Failed");
-	}else{
-		if(false){
-			switch(fsoe_status.current_state){
-				case FSOEMASTER_STATE_RESET:
-					break;
-				case FSOEMASTER_STATE_SESSION:
-					Logger::info("FSOEMASTER_STATE_SESSION"); break;
-				case FSOEMASTER_STATE_CONNECTION:
-					Logger::info("FSOEMASTER_STATE_CONNECTION"); break;
-				case FSOEMASTER_STATE_PARAMETER:
-					Logger::info("FSOEMASTER_STATE_PARAMETER"); break;
-				case FSOEMASTER_STATE_DATA:
-					auto& test = fsoe_master.watchdog;
-					Logger::info("FSOEMASTER_STATE_DATA start {}", float(fsoe_master.watchdog.start_time_us) / 1000.0); break;
-			}
-		}
-
-		if(fsoe_status.current_state == FSOEMASTER_STATE_PARAMETER){
-			if(fsoemaster_set_process_data_sending_enable_flag(&fsoe_master) != FSOEMASTER_STATUS_OK){
-				Logger::critical("Failed to set PD sent enable flag");
-			}
-		}
-		if(fsoe_status.reset_event != FSOEMASTER_RESETEVENT_NONE){
-			const char* reason = fsoemaster_reset_reason_description(fsoe_status.reset_reason);
-			if(fsoe_status.reset_event == FSOEMASTER_RESETEVENT_BY_MASTER){
-				Logger::critical("Reset by Master : {}", reason);
-			}
-			else{
-				Logger::critical("Reset by Slave : {}", reason);
-			}
-		}
-	}
-
+	fsoeConnection.receiveFrame(identity->inputs, 6, &safe_inputs, 1);
 	safeOutput1Fault = safe_inputs & 0x1;
 	safeOutput2Fault = safe_inputs & 0x2;
-*/
 }
 void EL2912::writeOutputs(){
 	safeOutput1 = Timing::getBlink(0.5);
@@ -538,6 +494,8 @@ void EL2912::writeOutputs(){
 	if(safeOutput1ErrAck) safe_outputs |= 0x2;
 	if(safeOutput2) safe_outputs |= 0x4;
 	if(safeOutput2ErrAck) safe_outputs |= 0x8;
+	
+	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
 }
 bool EL2912::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL2912::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
@@ -606,83 +564,60 @@ bool EL1904::startupConfiguration() {
 	bool sensorTestChannel4Active = false;
 	uint8_t logicChannel12 = 0x0;
 	uint8_t logicChannel34 = 0x0;
-
-	//format safety parameter list to be uploaded
-	uint8_t safetyParameters[] = {
+	
+	FsoeConnection::Config fsoeConfig;
+	fsoeConfig.fsoeAddress = fsoeAddress;
+	fsoeConfig.connectionID = 0xABCD;
+	fsoeConfig.watchdogTimeout_ms = 100;
+	fsoeConfig.applicationParameters = {
 		opMode,		//Opmode
 		0x0,		//Sensor Test Channel 1-4 Active
 		0x0, 0x0,	//Logic Channel 1&2 3&4
 		0x0, 0x0,	//Store Code
 		0x0, 0x0	//Project CRC
-	};	
-	if(sensorTestChannel1Active) safetyParameters[1] |= 0x1;
-	if(sensorTestChannel2Active) safetyParameters[1] |= 0x2;
-	if(sensorTestChannel3Active) safetyParameters[1] |= 0x4;
-	if(sensorTestChannel4Active) safetyParameters[1] |= 0x8;
-	safetyParameters[2] |= logicChannel12;
-	safetyParameters[2] |= (logicChannel34 << 2);
+	};
+	if(sensorTestChannel1Active) fsoeConfig.applicationParameters[1] |= 0x1;
+	if(sensorTestChannel2Active) fsoeConfig.applicationParameters[1] |= 0x2;
+	if(sensorTestChannel3Active) fsoeConfig.applicationParameters[1] |= 0x4;
+	if(sensorTestChannel4Active) fsoeConfig.applicationParameters[1] |= 0x8;
+	fsoeConfig.applicationParameters[2] |= logicChannel12;
+	fsoeConfig.applicationParameters[2] |= (logicChannel34 << 2);
+	fsoeConfig.safeOutputsSize = 1;
+	fsoeConfig.safeInputsSize = 1;
+	
+	if(!fsoeConnection.initialize(fsoeConfig)) return false;
 
-	/*
-	//setup fsoe lib configuration object
-	fsoe_conf.slave_address = fsoeAddress;
-	fsoe_conf.connection_id = 10;
-	fsoe_conf.watchdog_timeout_ms = 100;
-	fsoe_conf.application_parameters = safetyParameters;
-	fsoe_conf.application_parameters_size = sizeof(safetyParameters);
-	fsoe_conf.outputs_size = 1;
-	fsoe_conf.inputs_size = 1;
-
-	if(fsoemaster_init(&fsoe_master, &fsoe_conf, this) != FSOEMASTER_STATUS_OK) Logger::error("init failed");
-*/
 	return true;
 }
 void EL1904::readInputs() {
-/*
-	if(fsoemaster_sync_with_slave(&fsoe_master, &safe_outputs, &safe_inputs, &fsoe_status) != FSOEMASTER_STATUS_OK){
-		Logger::critical("Sync Failed");
-	}else{
-		if(false){
-			switch(fsoe_status.current_state){
-				case FSOEMASTER_STATE_RESET:
-					break;
-				case FSOEMASTER_STATE_SESSION:
-					Logger::info("FSOEMASTER_STATE_SESSION"); break;
-				case FSOEMASTER_STATE_CONNECTION:
-					Logger::info("FSOEMASTER_STATE_CONNECTION"); break;
-				case FSOEMASTER_STATE_PARAMETER:
-					Logger::info("FSOEMASTER_STATE_PARAMETER"); break;
-				case FSOEMASTER_STATE_DATA:
-					auto& test = fsoe_master.watchdog;
-					Logger::info("FSOEMASTER_STATE_DATA start {}", float(fsoe_master.watchdog.start_time_us) / 1000.0); break;
-			}
-		}
-
-		//Logger::info("{} {}", safe_inputs, safe_outputs);
-
-		if(fsoe_status.current_state == FSOEMASTER_STATE_PARAMETER){
-			if(fsoemaster_set_process_data_sending_enable_flag(&fsoe_master) != FSOEMASTER_STATUS_OK){
-				Logger::critical("Failed to set PD sent enable flag");
-			}
-		}
-		if(fsoe_status.reset_event != FSOEMASTER_RESETEVENT_NONE){
-			const char* reason = fsoemaster_reset_reason_description(fsoe_status.reset_reason);
-			if(fsoe_status.reset_event == FSOEMASTER_RESETEVENT_BY_MASTER){
-				Logger::critical("Reset by Master : {}", reason);
-			}
-			else{
-				Logger::critical("Reset by Slave : {}", reason);
-			}
-		}
-
-	}
-
+	/*
+	Logger::error("	REC  {:X} {:X} {:X} {:X} {:X} {:X}",
+		 identity->inputs[0],
+		 identity->inputs[1],
+		 identity->inputs[2],
+		 identity->inputs[3],
+		 identity->inputs[4],
+		 identity->inputs[5]);
+	 */
+	fsoeConnection.receiveFrame(identity->inputs, 6, &safe_inputs, 1);
+	
 	safeInput1 = safe_inputs & 0x1;
 	safeInput2 = safe_inputs & 0x2;
 	safeInput3 = safe_inputs & 0x4;
 	safeInput4 = safe_inputs & 0x8;
-*/
 }
-void EL1904::writeOutputs(){}
+void EL1904::writeOutputs(){
+	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
+	/*
+	Logger::warn("SEND {:X} {:X} {:X} {:X} {:X} {:X}",
+		 identity->outputs[0],
+		 identity->outputs[1],
+		 identity->outputs[2],
+		 identity->outputs[3],
+		 identity->outputs[4],
+		 identity->outputs[5]);
+	 */
+}
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 

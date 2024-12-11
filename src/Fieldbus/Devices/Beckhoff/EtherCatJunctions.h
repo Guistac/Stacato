@@ -165,6 +165,7 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EL5001 SSI Input", "EL5001", "Beckhoff", "I/O", 
 	
 };
 
+#include "Fieldbus/FsoeConnection.h"
 
 class EL2912 : public EtherCatDevice {
 public:
@@ -183,6 +184,8 @@ public:
 	bool safeOutput2Fault = false;
 
 	void downladSafetyParameters();
+	
+	FsoeConnection fsoeConnection;
 };
 
 class EL1904 : public EtherCatDevice {
@@ -199,5 +202,6 @@ public:
 	bool safeInput4 = false;
 
 	void downladSafetyParameters();
-
+	
+	FsoeConnection fsoeConnection;
 };
