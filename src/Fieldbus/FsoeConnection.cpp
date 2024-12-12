@@ -655,16 +655,16 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 			sequenceNumber++;
 			if(sequenceNumber == 0) sequenceNumber++;
 			sequenceIncremented = true;
-			Logger::info("Repeated CRC {:X} on send, incrementing sequence to {}", crc_0, sequenceNumber);
+			Logger::trace("Repeated CRC {:X} on send, incrementing sequence to {}", crc_0, sequenceNumber);
 		}
 		else if(direction == FrameDirection::RECEIVE && crc_0 != frame.getCrc(0)){
 			receiveTries++;
-			if(receiveTries > 4) sequenceIncremented = false;
+			if(receiveTries > 2) sequenceIncremented = false;
 			else{
 				sequenceNumber++;
 				if(sequenceNumber == 0) sequenceNumber++;
 				sequenceIncremented = true;
-				Logger::info("no crc match on receive, incrementing sequence to {}", sequenceNumber);
+				Logger::trace("no crc match on receive, incrementing sequence [{}] to {}", receiveTries, sequenceNumber);
 			}
 		}
 		else sequenceIncremented = false;

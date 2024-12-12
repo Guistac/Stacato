@@ -1,13 +1,3 @@
 <Plot Name="Default Plot">
-    <ManoeuvreList>
-        <Manoeuvre Name="M-4" Description="" Type="Sequence">
-            <LabelColo r="0" g="0" b="0" a="0"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-0 zerg zrze hzet je jtzgyej seth ey krytuk ru" Description="" Type="Target">
-            <LabelColo r="200" g="200" b="0" a="255"/>
-        </Manoeuvre>
-        <Manoeuvre Name="M-2" Description="" Type="Sequence">
-            <LabelColo r="0" g="0" b="0" a="0"/>
-        </Manoeuvre>
-    </ManoeuvreList>
+    <ManoeuvreList/>
 </Plot>

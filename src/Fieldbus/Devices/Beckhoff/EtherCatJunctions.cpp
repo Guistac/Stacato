@@ -484,9 +484,9 @@ void EL2912::readInputs(){
 	safeOutput2Fault = safe_inputs & 0x2;
 }
 void EL2912::writeOutputs(){
-	safeOutput1 = false;//Timing::getBlink(0.5);
+	safeOutput1 = Timing::getBlink(0.5);
 	safeOutput1ErrAck = false;
-	safeOutput2 = false;//!Timing::getBlink(0.5);
+	safeOutput2 = !Timing::getBlink(0.5);
 	safeOutput2ErrAck = false;
 
 	safe_outputs = 0x0;

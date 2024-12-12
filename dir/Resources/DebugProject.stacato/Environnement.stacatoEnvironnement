@@ -3,7 +3,7 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 Bus Coupler (Alias:1)" UniqueID="2511">
-                <NodeEditorPosition x="470" y="-205"/>
+                <NodeEditorPosition x="492" y="-197"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="1"/>
                 </NodeSpecificData>
@@ -19,7 +19,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2912" Split="false" CustomName="EL2912 2x FsoE Digital Output (Alias:3)" UniqueID="2514">
-                <NodeEditorPosition x="486" y="-73"/>
+                <NodeEditorPosition x="494" y="-96"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="3"/>
                 </NodeSpecificData>
@@ -32,5 +32,5 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="0.20000000000000001" ProcessDataTimeoutMilliseconds="0.18000000715255737" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="200"/>
+    <Timing ProcessIntervalMilliseconds="0.10000000000000001" ProcessDataTimeoutMilliseconds="0.079999998211860657" ClockStableThresholdMilliseconds="0.05000000074505806" FieldbusTimeoutDelayMilliseconds="1"/>
 </FieldbusSettings>
