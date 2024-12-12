@@ -13,6 +13,22 @@ enum class FsoeCommand{
 	FAILSAFEDATA = 0x08
 };
 
+enum class FsoeError{
+	RESET = 0,
+	INVALID_CMD = 1,
+	UNKNOWN_CMD = 2,
+	INVALID_CONNID = 3,
+	INVALID_CRC = 4,
+	WD_EXPIRED = 5,
+	INVALID_ADDRESS = 6,
+	INVALID_DATA = 7,
+	INVALID_COMMPARALEN = 8,
+	INVALID_COMPARA = 9,
+	INVALID_USERPARALEN = 10,
+	INVALID_USERPARA = 11,
+	DEVICE_SPECIFIC_ERROR = 0x80
+};
+
 struct FsoeFrame{
 	
 	std::vector<uint8_t> frame;
@@ -58,18 +74,35 @@ struct FsoeFrame{
 			else frame[i*2] = data[i];
 		}
 	}
-	std::vector<uint8_t> getSafeData(){
-		std::vector<uint8_t> output(safeDataSize, 0x0);
-		for(int i = 0; i < safeDataSize; i++){
-			if(i % 2 == 0) output[i] = frame[i*2+1];
-			else output[i] = frame[i*2];
-		}
-		return output;
-	}
 	uint8_t getSafeData(int index){
 		if(index % 2 == 0) return frame[index*2+1];
 		else return frame[index*2];
 	}
+	std::vector<uint8_t> getSafeData(){
+		std::vector<uint8_t> output(safeDataSize, 0x0);
+		for(int i = 0; i < safeDataSize; i++) output[i] = getSafeData(i);
+		return output;
+	}
+	
+	void setErrorType(FsoeError error){ frame[1] = uint8_t(error); }
+	FsoeError getErrorType(){
+		switch(frame[1]){
+			case uint8_t(FsoeError::RESET): return FsoeError::RESET;
+			case uint8_t(FsoeError::INVALID_CMD): return FsoeError::INVALID_CMD;
+			case uint8_t(FsoeError::UNKNOWN_CMD): return FsoeError::UNKNOWN_CMD;
+			case uint8_t(FsoeError::INVALID_CONNID): return FsoeError::INVALID_CONNID;
+			case uint8_t(FsoeError::INVALID_CRC): return FsoeError::INVALID_CRC;
+			case uint8_t(FsoeError::WD_EXPIRED): return FsoeError::WD_EXPIRED;
+			case uint8_t(FsoeError::INVALID_ADDRESS): return FsoeError::INVALID_ADDRESS;
+			case uint8_t(FsoeError::INVALID_DATA): return FsoeError::INVALID_DATA;
+			case uint8_t(FsoeError::INVALID_COMMPARALEN): return FsoeError::INVALID_COMMPARALEN;
+			case uint8_t(FsoeError::INVALID_COMPARA): return FsoeError::INVALID_COMPARA;
+			case uint8_t(FsoeError::INVALID_USERPARALEN): return FsoeError::INVALID_USERPARALEN;
+			case uint8_t(FsoeError::INVALID_USERPARA): return FsoeError::INVALID_USERPARA;
+			default: return FsoeError::DEVICE_SPECIFIC_ERROR;
+		};
+	}
+	uint8_t getErrorCode(){ return frame[1]; }
 	
 	void setCrc(int index, uint16_t crc_i){
 		if(safeDataSize == 1){
@@ -102,10 +135,18 @@ struct FsoeFrame{
 		return connID;
 	}
 	
-	bool equals(FsoeFrame& otherFrame){
-		if(frameSize != otherFrame.frameSize) return false;
+	bool equals(uint8_t* otherFrame, int otherFrameSize){
+		if(frameSize != otherFrameSize) return false;
 		for(int i = 0; i < frameSize; i++){
-			if(frame[i] != otherFrame.frame[i]) return false;
+			if(frame[i] != otherFrame[i]) return false;
+		}
+		return true;
+	}
+	
+	bool isSafeDataEqual(FsoeFrame& otherFrame){
+		if(safeDataSize != otherFrame.safeDataSize) return false;
+		for(int i = 0; i < safeDataSize; i++){
+			if(getSafeData(i) != otherFrame.getSafeData(i)) return false;
 		}
 		return true;
 	}
@@ -118,7 +159,6 @@ public:
 	
 	struct Config{
 		uint16_t fsoeAddress;
-		uint16_t connectionID;
 		uint16_t watchdogTimeout_ms;
 		std::vector<uint8_t> applicationParameters;
 		uint8_t safeOutputsSize;
@@ -138,7 +178,7 @@ public:
 		DATA
 	}masterState = MasterState::RESET;
 	
-	std::string errorCodeToString(uint8_t errorCode);
+	std::string errorToString(FsoeError error);
 	
 private:
 	int configurationSafeDataSize;
@@ -146,60 +186,38 @@ private:
 	int safeInputsSize = 0;
 	int masterFrameSize = 0;
 	int slaveFrameSize = 0;
-	
-	uint16_t watchdogTimeout_ms = 0;
-	uint16_t fsoeAddress = 0;
-	uint16_t connectionID = 0;
-	std::vector<uint8_t> safeParameters;
-	
-	double lastReceiveTime_s = 0.0;
-	bool b_refreshOutputFrame = true;
-	uint8_t connectionData[4] = {0,0,0,0};
-	
-	/*
-	uint16_t lastCrc = 0;
-	uint16_t oldMasterCrc = 0;
-	uint16_t oldSlaveCrc = 0;
-	uint16_t masterSeqNo = 0;
-	uint16_t slaveSeqNo = 0;
-	uint16_t sessionId = 0;
-	uint16_t bytesToBeSent = 0;
-	uint32_t connData;
-	uint16_t safeParaSize = 0;
-	uint16_t commFaultReason;
-	bool secondSessionFrameSent;
-	*/
-	 
-	FsoeFrame previousSlaveFrame;
+		 
 	FsoeFrame slaveFrame;
 	FsoeFrame masterFrame;
 
 	uint16_t masterSessionId = 0;
+	uint16_t fsoeAddress = 0;
+	uint8_t connectionData[4];
+	std::vector<uint8_t> safeParameters;
+	std::vector<uint8_t> safeDataToVerify;
+	int bytesToBeSent = 0;
+	
+	uint64_t lastReceiveTime_nanos = 0;
+	bool b_refreshOutputFrame = true;
+	
+	uint16_t watchdogTimeout_ms = 0;
+	uint16_t connectionID = 0;
 	uint16_t masterSequenceNumber = 1;
 	uint16_t slaveSequenceNumber = 1;
 	uint16_t lastMasterCRC_0 = 0x0;
 	uint16_t lastSlaveCRC_0 = 0x0;
-	int bytesToBeSent = 0;
+	uint8_t lastErrorCode = 0;
+	bool b_watchdogExpired = false;
+	bool b_connectionUp = false;
 	
-	bool decodeSlaveFrame(uint8_t* frameRaw, int frameSize);
-	bool encodeMasterFrame(uint8_t* output, int frameSize);
+	void updateMasterStateMachine();
+	void setResetState(FsoeError error);
+	void setSessionState();
 	
-	enum class FrameDirection{
-		RECEIVE,
-		SEND
-	};
-	
-	
-	
-	bool calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, FrameDirection direction);
+	bool calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc);
 	void encodeCrc(uint16_t& crc, uint8_t data);
 	
-	void reset();
-	bool b_startup = true;
-	
-	bool isSafeDataCorrect();
-	
-	void generateSessionId();
+	void generateConnectionId();
 	
 	static uint16_t aCrcTab1[256];
 	static uint16_t aCrcTab2[256];

@@ -32,5 +32,5 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="0.10000000000000001" ProcessDataTimeoutMilliseconds="0.079999998211860657" ClockStableThresholdMilliseconds="0.05000000074505806" FieldbusTimeoutDelayMilliseconds="1"/>
+    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="4" ClockStableThresholdMilliseconds="1" FieldbusTimeoutDelayMilliseconds="20"/>
 </FieldbusSettings>

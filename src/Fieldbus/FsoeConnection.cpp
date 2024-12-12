@@ -5,7 +5,6 @@ bool FsoeConnection::initialize(Config& config){
 	//check if configuration parameters actually make sense
 	if(config.fsoeAddress == 0x0) return false;
 	if(config.watchdogTimeout_ms < 1) return false;
-	if(config.connectionID == 0x0) return false;
 	if(config.safeInputsSize < 1 || config.safeOutputsSize < 1) return false;
 	if(config.safeOutputsSize != 1 && config.safeOutputsSize % 2 != 0) return false;
 	if(config.safeInputsSize != 1 && config.safeInputsSize % 2 != 0) return false;
@@ -14,7 +13,6 @@ bool FsoeConnection::initialize(Config& config){
 	configurationSafeDataSize = std::min(config.safeInputsSize, config.safeOutputsSize);
 	watchdogTimeout_ms = config.watchdogTimeout_ms;
 	fsoeAddress = config.fsoeAddress;
-	connectionID = config.connectionID;
 	safeParameters = config.applicationParameters;
 	safeInputsSize = config.safeInputsSize;
 	safeOutputsSize = config.safeOutputsSize;
@@ -24,6 +22,7 @@ bool FsoeConnection::initialize(Config& config){
 	masterFrame.reset(masterFrameSize);
 	slaveFrame.reset(slaveFrameSize);
 	
+	generateConnectionId();
 	connectionData[0] = connectionID & 0xFF;
 	connectionData[1] = (connectionID >> 8) & 0xFF;
 	connectionData[2] = fsoeAddress & 0xFF;
@@ -40,55 +39,49 @@ bool FsoeConnection::initialize(Config& config){
 	safeParameters[5] = (applicationParameterSize >> 8) & 0xFF;
 	for(int i = 0; i < applicationParameterSize; i++) safeParameters[i+6] = config.applicationParameters[i];
 	
-	reset();
+	setResetState(FsoeError::RESET);
 	
 	return true;
 }
 
 
-
-
-
 bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t* safeOutputs, int outputsSize){
-	
-	if(!b_refreshOutputFrame) return false;
 	
 	if(fsoeMasterFrame == nullptr) return false;
 	if(frameSize != masterFrameSize) return false;
 	if(safeOutputs == nullptr) return false;
 	if(outputsSize != safeOutputsSize) return false;
 	
-	if(masterState == MasterState::DATA){
-		std::vector<uint8_t> safeData(outputsSize, 0x0);
-		if(!b_sendFailsafeData){
-			for(int i = 0; i < outputsSize; i++) safeData[i] = safeOutputs[i];
+	if(b_refreshOutputFrame){
+		//in ProcessData state, copy safeOutputs to safeData
+		//in FailSafeData state, copy all zeroes to safeData
+		if(masterState == MasterState::DATA){
+			std::vector<uint8_t> safeData(outputsSize, 0x0);
+			if(!b_sendFailsafeData) for(int i = 0; i < outputsSize; i++) safeData[i] = safeOutputs[i];
+			masterFrame.setSafeData(safeData);
 		}
-		masterFrame.setSafeData(safeData);
+		//compute crc, increment sequence number
+		calcCrC(masterFrame, masterSequenceNumber, lastSlaveCRC_0, lastMasterCRC_0, true);
+		lastMasterCRC_0 = masterFrame.getCrc(0);
+		masterSequenceNumber++;
+		if(masterSequenceNumber == 0) masterSequenceNumber++;
 	}
 	
-	calcCrC(masterFrame, masterSequenceNumber, lastSlaveCRC_0, lastMasterCRC_0, FrameDirection::SEND);
-	lastMasterCRC_0 = masterFrame.getCrc(0);
-	
+	//write frame to buffer
 	masterFrame.writeTo(fsoeMasterFrame, frameSize);
 	
 	if(false){
-		Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber,
-			fsoeMasterFrame[0],
-			fsoeMasterFrame[1],
-			fsoeMasterFrame[2],
-			fsoeMasterFrame[3],
-			fsoeMasterFrame[4],
-			fsoeMasterFrame[5]);
+		Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber == 0 ? masterSequenceNumber - 2 : masterSequenceNumber - 1,
+					 fsoeMasterFrame[0],
+					 fsoeMasterFrame[1],
+					 fsoeMasterFrame[2],
+					 fsoeMasterFrame[3],
+					 fsoeMasterFrame[4],
+					 fsoeMasterFrame[5]);
 	}
-
-	masterSequenceNumber++;
-	if(masterSequenceNumber == 0) masterSequenceNumber++;
-
+	
 	return true;
 }
-
-
-
 
 
 bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_t* safeInputs, int inputsSize){
@@ -98,29 +91,39 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 	if(safeInputs == nullptr) return false;
 	if(inputsSize != safeInputsSize) return false;
 	
-	slaveFrame.readFrom(fsoeSlaveFrame, frameSize);
-	
-	if(previousSlaveFrame.equals(slaveFrame)){
-		if(Timing::getProgramTime_seconds() - lastReceiveTime_s > 0.2){
-			lastReceiveTime_s = Timing::getProgramTime_seconds();
-			Logger::critical("WD expired");
+	//handle frame repetition and watchdog state
+	uint64_t now_nanos = Timing::getProgramTime_nanoseconds();
+	if(slaveFrame.equals(fsoeSlaveFrame, frameSize)){
+		if(now_nanos - lastReceiveTime_nanos > watchdogTimeout_ms * 1000'000){
+			b_watchdogExpired = true;
+			if(b_connectionUp){
+				b_connectionUp = false;
+				Logger::warn("Fsoe Watchdog Expired");
+			}
+			lastReceiveTime_nanos = now_nanos;
 			b_refreshOutputFrame = true;
-			lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-			masterFrame.setCommandType(FsoeCommand::RESET);
-			masterFrame.setSafeData({0x5});
-			masterFrame.setConnectionID(0);
+			setResetState(FsoeError::WD_EXPIRED);
 			return false;
-		}else{
-			//if the same frame was previously received we exit out of the reception logic
-			//we also just send the same frame again until we get a response or the watchdog triggers
+		}
+		else if(b_watchdogExpired){
+			setResetState(FsoeError::RESET);
+			b_refreshOutputFrame = true;
+			return false;
+		}
+		else{
+			//if the same frame was previously received we just send the same frame again
+			//until we get a different response or the until watchdog triggers
 			b_refreshOutputFrame = false;
 			return false;
 		}
 	}
-
+	else{
+		b_watchdogExpired = false;
+		b_connectionUp = true;
+		lastReceiveTime_nanos = now_nanos;
+		b_refreshOutputFrame = true;
+	}
+		
 	if(false){
 		Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
 			fsoeSlaveFrame[0],
@@ -130,290 +133,181 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 			fsoeSlaveFrame[4],
 		fsoeSlaveFrame[5]);
 	}
-
-	lastReceiveTime_s = Timing::getProgramTime_seconds();
-	b_refreshOutputFrame = true;
-	previousSlaveFrame = slaveFrame;
-
+	
+	//read new frame, validate crcs, increment counters
+	slaveFrame.readFrom(fsoeSlaveFrame, frameSize);
 	lastSlaveCRC_0 = slaveFrame.getCrc(0);
-	slaveFrame.crc_ok = calcCrC(slaveFrame, slaveSequenceNumber, lastMasterCRC_0, 0x0, FrameDirection::RECEIVE);
-
+	slaveFrame.crc_ok = calcCrC(slaveFrame, slaveSequenceNumber, lastMasterCRC_0, 0x0, false);
 	slaveSequenceNumber++;
 	if(slaveSequenceNumber == 0) slaveSequenceNumber++;
-
 	
+	//prepare next Master PDU
+	updateMasterStateMachine();
+	
+	if(masterState == MasterState::DATA){
+		//copy received safeData to SafeInputs
+		std::vector<uint8_t> safeData = slaveFrame.getSafeData();
+		for(int i = 0; i < inputsSize; i++) safeInputs[i] = safeData[i];
+	}
+	
+	return true;
+}
+
+
+void FsoeConnection::updateMasterStateMachine(){
 	bool logState = false;
 	bool logStateError = true;
-	
 	switch(masterState){
-			
 		case MasterState::RESET:
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::RESET:
-					//RESET_OK
-					if(logStateError) Logger::error("RESET_OK");
-					masterState = MasterState::SESSION;
-					generateSessionId();
-					masterFrame.setCommandType(FsoeCommand::SESSION);
-					if(configurationSafeDataSize == 1){
-						uint8_t sessionIDLowByte = masterSessionId & 0xFF;
-						masterFrame.setSafeData({sessionIDLowByte});
-						bytesToBeSent = 1;
-					}
-					else{
-						uint8_t sessionIDLowByte = masterSessionId & 0xFF;
-						uint8_t sessionIDHighByte = (masterSessionId >> 8) & 0xFF;
-						masterFrame.setSafeData({sessionIDLowByte, sessionIDHighByte});
-						bytesToBeSent = 0;
-					}
-					masterFrame.setConnectionID(0);
-					masterSequenceNumber = 1;
-					slaveSequenceNumber = 1;
-					lastSlaveCRC_0 = 0x0;
+					if(logState) Logger::error("RESET_OK");
+					setSessionState();
 					break;
 				default:
-					//RESET_STAY_1
-					if(logStateError) Logger::error("RESET_STAY_1");
-					reset();
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
-					masterFrame.setConnectionID(0);
+					if(logState) Logger::error("RESET_STAY_1");
+					setResetState(FsoeError::RESET);
 					break;
 			}
 			break;
-			
-
 		case MasterState::SESSION:
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::SESSION:
 					if(!slaveFrame.crc_ok){
-						//SESSION_FAIL1 ???
-						//SESSION_STAY2 ???
-						Logger::critical("Received CRC not ok [{}]", slaveSequenceNumber);
-						if(logStateError) Logger::error("SESSION_FAIL1");
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterSequenceNumber = 1;
-						slaveSequenceNumber = 1;
-						lastSlaveCRC_0 = 0x0;
-						lastMasterCRC_0 = 0x0;
-						masterFrame.setSafeData({0x4});
-						masterState = MasterState::RESET;
+						if(logStateError) Logger::error("SESSION_FAIL1/STAY2");
+						setResetState(FsoeError::INVALID_CRC);
 					}
 					else if(bytesToBeSent == 0){
-						//SESSION_OK
-						if(logState) Logger::error("SESSION_OK");
-						
+						if(logState) Logger::error("SESSION_OK"); //send and receive sessionIDs
 						int connDataByteCount = std::min(configurationSafeDataSize, 4);
 						std::vector<uint8_t> firstConnData(connDataByteCount, 0x0);
 						for(int i = 0; i < connDataByteCount; i++) firstConnData[i] = connectionData[i];
+						safeDataToVerify = firstConnData;
 						masterFrame.setSafeData(firstConnData);
 						bytesToBeSent = 4 - connDataByteCount;
-						
 						masterFrame.setCommandType(FsoeCommand::CONNECTION);
 						masterFrame.setConnectionID(connectionID);
 						masterState = MasterState::CONNECTION;
 					}else{
-						//SESSION_STAY1
-						if(logState) Logger::error("SESSION_STAY1");
-						//send remaining session ID byte (high byte)
+						if(logState) Logger::error("SESSION_STAY1"); //send remaining sessionID byte (high byte)
 						masterFrame.setCommandType(FsoeCommand::SESSION);
 						uint8_t sessionIDHighByte = (masterSessionId >> 8) & 0xFF;
-						masterFrame.setSafeData({sessionIDHighByte});
+						safeDataToVerify = {sessionIDHighByte};
+						masterFrame.setSafeData(safeDataToVerify);
 						bytesToBeSent = 0;
 						masterState = MasterState::SESSION;
 					}
 					break;
 				case FsoeCommand::RESET:
-					//SESSION_RESET1
 					if(logStateError) Logger::error("SESSION_RESET1");
-					lastSlaveCRC_0 = 0x0;
-					lastMasterCRC_0 = 0x0;
-					masterSequenceNumber = 1;
-					slaveSequenceNumber = 1;
-					generateSessionId();
-					masterFrame.setCommandType(FsoeCommand::SESSION);
-					masterState = MasterState::SESSION;
+					lastErrorCode = slaveFrame.getErrorCode();
+					Logger::error("FSOE Reset by Slave during Session State : {}", errorToString(slaveFrame.getErrorType()));
+					setSessionState();
 					break;
 				case FsoeCommand::CONNECTION:
 				case FsoeCommand::PARAMETER:
 				case FsoeCommand::PROCESSDATA:
 				case FsoeCommand::FAILSAFEDATA:
-					//SESSION_FAIL3
 					if(logStateError) Logger::error("SESSION_FAIL3");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::INVALID_CMD);
 					break;
 				default:
-					//SESSION_FAIL4
 					if(logStateError) Logger::error("SESSION_FAIL4");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::UNKNOWN_CMD);
 					break;
 			}
 			break;
-			
-
 		case MasterState::CONNECTION:
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::CONNECTION:
 					if(!slaveFrame.crc_ok){
-						//CONN_FAIL1
-						Logger::critical("Received CRC not ok [{}]", slaveSequenceNumber);
 						if(logStateError) Logger::error("CONN_FAIL1");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CRC);
 					}
-					/*
-					else if(!isSafeDataCorrect()){
-						//CONN_FAIL2
-						Logger::error("CONN_FAIL2");
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+					else if(!slaveFrame.isSafeDataEqual(masterFrame)){
+						if(logStateError) Logger::error("CONN_FAIL2");
+						setResetState(FsoeError::INVALID_DATA);
 					}
-					*/
 					else if(slaveFrame.getConnnectionID() != connectionID){
-						//CONN_FAIL3
 						if(logStateError) Logger::error("CONN_FAIL3");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CONNID);
 					}
 					else if(bytesToBeSent == 0){
-						//CONN_OK
-						if(logState) Logger::error("CONN_OK");
-						
+						if(logState) Logger::error("CONN_OK"); //Start uploading application parameters
 						bytesToBeSent = int(safeParameters.size());
 						int currentBytesToBeSent = std::min(configurationSafeDataSize, bytesToBeSent);
-						
 						std::vector<uint8_t> currentParameterBytes(currentBytesToBeSent, 0x0);
 						for(int i = 0; i < currentBytesToBeSent; i++) currentParameterBytes[i] = safeParameters[i];
 						bytesToBeSent -= currentBytesToBeSent;
-						
+						safeDataToVerify = currentParameterBytes;
 						masterFrame.setSafeData(currentParameterBytes);
 						masterFrame.setConnectionID(connectionID);
 						masterFrame.setCommandType(FsoeCommand::PARAMETER);
 						masterState = MasterState::PARAMETER;
 					}
 					else{
-						//CONN_STAY
-						
-						if(logState) Logger::error("CONN_STAY");
-						
+						if(logState) Logger::error("CONN_STAY"); //Keep uploading connectionData
 						int currentConnectionDataByteCount = std::min(configurationSafeDataSize, bytesToBeSent);
 						int startIndex = 4 - bytesToBeSent;
 						int endIndex = startIndex + currentConnectionDataByteCount;
 						std::vector<uint8_t> currentConnectionData(currentConnectionDataByteCount, 0x0);
 						for(int i = 0; i < currentConnectionDataByteCount; i++) currentConnectionData[i] = connectionData[startIndex+i];
+						safeDataToVerify = currentConnectionData;
 						masterFrame.setSafeData(currentConnectionData);
 						bytesToBeSent -= currentConnectionDataByteCount;
-						
 						masterFrame.setConnectionID(connectionID);
 						masterFrame.setCommandType(FsoeCommand::CONNECTION);
 						masterState = MasterState::CONNECTION;
 					}
 					break;
 				case FsoeCommand::RESET:
-					//CONN_RESET1
 					if(logStateError) Logger::error("CONN_RESET1");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::SESSION);
-					masterState = MasterState::SESSION;
+					lastErrorCode = slaveFrame.getErrorCode();
+					Logger::error("FSOE Reset by Slave during Connection State : {}", errorToString(slaveFrame.getErrorType()));
+					setSessionState();
 					break;
 				case FsoeCommand::SESSION:
 				case FsoeCommand::PARAMETER:
 				case FsoeCommand::PROCESSDATA:
 				case FsoeCommand::FAILSAFEDATA:
-					//CONN_FAIL4
 					if(logStateError) Logger::error("CONN_FAIL4");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::INVALID_CMD);
 					break;
 				default:
-					//CONN_FAIL5
 					if(logStateError) Logger::error("CONN_FAIL5");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::UNKNOWN_CMD);
 					break;
 			}
 			break;
-			
-			
 		case MasterState::PARAMETER:
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::PARAMETER:
 					if(!slaveFrame.crc_ok){
-						//PARA_FAIL1
-						Logger::critical("Received CRC not ok [{}]", slaveSequenceNumber);
 						if(logStateError) Logger::error("PARA_FAIL1");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CRC);
 					}
-					/*
-					else if(!isSafeDataCorrect()){
-						//PARA_FAIL2
-						Logger::error("PARA_FAIL2");
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+					else if(!slaveFrame.isSafeDataEqual(masterFrame)){
+						if(logStateError) Logger::error("PARA_FAIL2");
+						setResetState(FsoeError::INVALID_DATA);
 					}
-					*/
 					else if(slaveFrame.getConnnectionID() != connectionID){
-						//PARA_FAIL3
 						if(logStateError) Logger::error("PARA_FAIL3");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CONNID);
 					}
 					else if(bytesToBeSent == 0){
-						//PARA_OK
-						if(logState) Logger::error("PARA_OK");
-						masterFrame.setCommandType(FsoeCommand::PROCESSDATA);
+						if(logState) Logger::error("PARA_OK"); //start processData transmission
 						masterState = MasterState::DATA;
+						masterFrame.setCommandType(FsoeCommand::PROCESSDATA);
 					}
 					else{
-						//PARA_STAY
-						if(logState) Logger::error("PARA_STAY");
-						
+						if(logState) Logger::error("PARA_STAY"); //Keep transmitting application data
 						int currentParameterDataByteCount = std::min(configurationSafeDataSize, bytesToBeSent);
 						int startIndex = int(safeParameters.size()) - bytesToBeSent;
 						int endIndex = startIndex + currentParameterDataByteCount;
 						std::vector<uint8_t> currentParameterData(currentParameterDataByteCount, 0x0);
 						for(int i = 0; i < currentParameterDataByteCount; i++) currentParameterData[i] = safeParameters[startIndex+i];
-						masterFrame.setSafeData(currentParameterData);
 						bytesToBeSent -= currentParameterDataByteCount;
-						
+						safeDataToVerify = currentParameterData;
 						masterFrame.setSafeData(currentParameterData);
 						masterFrame.setConnectionID(connectionID);
 						masterFrame.setCommandType(FsoeCommand::PARAMETER);
@@ -421,14 +315,10 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 					}
 					break;
 				case FsoeCommand::RESET:
-					//PARA_RESET1
 					if(logStateError) Logger::error("PARA_RESET1");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::SESSION);
-					masterState = MasterState::SESSION;
+					lastErrorCode = slaveFrame.getErrorCode();
+					Logger::error("FSOE Reset by Slave during Parameter State : {}", errorToString(slaveFrame.getErrorType()));
+					setSessionState();
 					break;
 				case FsoeCommand::SESSION:
 				case FsoeCommand::CONNECTION:
@@ -436,179 +326,126 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 				case FsoeCommand::FAILSAFEDATA:
 					//PARA_FAIL4
 					if(logStateError) Logger::error("PARA_FAIL4");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::INVALID_CMD);
 					break;
 				default:
 					//PARA_FAIL5
 					if(logStateError) Logger::error("PARA_FAIL5");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::UNKNOWN_CMD);
 					break;
 			}
 			break;
-			
-			
 		case MasterState::DATA:
 			switch(slaveFrame.getCommandType()){
 				case FsoeCommand::PROCESSDATA:
 				case FsoeCommand::FAILSAFEDATA:
 					if(!slaveFrame.crc_ok){
-						//DATA_FAIL1
-						Logger::critical("Received CRC not ok [{}]", slaveSequenceNumber);
 						if(logStateError) Logger::error("DATA_FAIL1");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CRC);
 					}
 					else if(slaveFrame.getConnnectionID() != connectionID){
-						//DATA_FAIL2
 						if(logStateError) Logger::error("DATA_FAIL2");
-						lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-						masterFrame.setCommandType(FsoeCommand::RESET);
-						masterState = MasterState::RESET;
+						setResetState(FsoeError::INVALID_CONNID);
 					}
 					else{
-						
-						std::vector<uint8_t> safeData = slaveFrame.getSafeData();
-						for(int i = 0; i < inputsSize; i++) safeInputs[i] = safeData[i];
-						
-						//DATA_OK2
+						masterState = MasterState::DATA;
 						if(b_sendFailsafeData) {
 							if(logState) Logger::error("DATA_OK2");
 							masterFrame.setCommandType(FsoeCommand::FAILSAFEDATA);
 						}
-						//DATA_OK1
 						else{
 							if(logState) Logger::error("DATA_OK1");
 							masterFrame.setCommandType(FsoeCommand::PROCESSDATA);
 						}
-						masterState = MasterState::DATA;
 					}
 					break;
 				case FsoeCommand::RESET:
-					//DATA_RESET1
 					if(logStateError) Logger::error("DATA_RESET1");
-					Logger::warn("Error: {}", errorCodeToString(slaveFrame.getSafeData()[0]));
-					masterState = MasterState::SESSION;
-					generateSessionId();
-					masterFrame.setCommandType(FsoeCommand::SESSION);
-					if(configurationSafeDataSize == 1){
-						uint8_t sessionIDLowByte = masterSessionId & 0xFF;
-						masterFrame.setSafeData({sessionIDLowByte});
-						bytesToBeSent = 1;
-					}
-					else{
-						uint8_t sessionIDLowByte = masterSessionId & 0xFF;
-						uint8_t sessionIDHighByte = (masterSessionId >> 8) & 0xFF;
-						masterFrame.setSafeData({sessionIDLowByte, sessionIDHighByte});
-						bytesToBeSent = 0;
-					}
-					masterFrame.setConnectionID(0);
-					masterSequenceNumber = 1;
-					slaveSequenceNumber = 1;
-					lastSlaveCRC_0 = 0x0;
+					lastErrorCode = slaveFrame.getErrorCode();
+					Logger::error("FSOE Reset by Slave during Data State : {}", errorToString(slaveFrame.getErrorType()));
+					setSessionState();
 					break;
 				case FsoeCommand::SESSION:
 				case FsoeCommand::CONNECTION:
 				case FsoeCommand::PARAMETER:
-					//DATA_FAIL3
 					if(logStateError) Logger::error("DATA_FAIL3");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::INVALID_CMD);
 					break;
 				default:
-					//DATA_FAIL4
 					if(logStateError) Logger::error("DATA_FAIL4");
-					lastSlaveCRC_0 = 0;
-			lastMasterCRC_0 = 0;
-			masterSequenceNumber = 1;
-			slaveSequenceNumber = 1;
-					masterFrame.setCommandType(FsoeCommand::RESET);
-					masterState = MasterState::RESET;
+					setResetState(FsoeError::UNKNOWN_CMD);
 					break;
 			}
 			break;
-			
 	}
-
-	return true;
 }
 
 
-void FsoeConnection::reset(){
-	masterFrame.setCommandType(FsoeCommand::RESET);
+void FsoeConnection::setResetState(FsoeError error){
 	masterState = MasterState::RESET;
-	lastSlaveCRC_0 = 0x0;
-	lastMasterCRC_0 = 0x0;
+	masterFrame.setCommandType(FsoeCommand::RESET);
+	masterFrame.setErrorType(error);
+	masterFrame.setConnectionID(0);
 	masterSequenceNumber = 1;
 	slaveSequenceNumber = 1;
-	b_startup = true;
+	lastSlaveCRC_0 = 0x0;
+	lastMasterCRC_0 = 0x0;
+	b_sendFailsafeData = true;
 }
 
 
-
-
-
-//compare slaveFrame.safeData with lastMasterFrame.safeData
-//if they are identical return true
-bool FsoeConnection::isSafeDataCorrect(){
-	return false;
+void FsoeConnection::setSessionState(){
+	masterState = MasterState::SESSION;
+	masterFrame.setCommandType(FsoeCommand::SESSION);
+	masterSessionId = rand();
+	uint8_t sessionIDLowByte = masterSessionId & 0xFF;
+	uint8_t sessionIDHighByte = (masterSessionId >> 8) & 0xFF;
+	if(configurationSafeDataSize == 1){
+		safeDataToVerify = {sessionIDLowByte};
+		bytesToBeSent = 1;
+	}
+	else{
+		safeDataToVerify = {sessionIDLowByte, sessionIDHighByte};
+		bytesToBeSent = 0;
+	}
+	masterFrame.setSafeData(safeDataToVerify);
+	masterFrame.setConnectionID(0);
+	masterSequenceNumber = 1;
+	slaveSequenceNumber = 1;
+	lastSlaveCRC_0 = 0x0;
+	lastMasterCRC_0 = 0x0;
+	b_sendFailsafeData = true;
 }
 
 
-
-
-
-std::string FsoeConnection::errorCodeToString(uint8_t errorCode){
-	switch(errorCode){
-		case 0:		return "Local reset or acknowledgement of a RESET command";
-		case 1:		return "Unexpected command (INVALID_CMD)";
-		case 2:		return "Unknown command (UNKNOWN_CMD)";
-		case 3:		return "Invalid connection ID (INVALID_CONNID)";
-		case 4:		return "CRC error (INVALID_CRC)";
-		case 5:		return "Watchdog has expired (WD_EXPIRED)";
-		case 6:		return "Invalid FSoE Slave Address (INVALID_ADDRESS)";
-		case 7:		return "Invalid safety data (INVALID_DATA)";
-		case 8:		return "Invalid communication parameter length (INVALID_COMMPARALEN)";
-		case 9:		return "Invalid communication parameter data (INVALID_COMPARA)";
-		case 10:	return "Invalid application parameter length (INVALID_USERPARALEN)";
-		case 11:	return "Invalid application parameter data (INVALID_USERPARA)";
-		default:	return "Invalid SafePara (device-specific)";
+std::string FsoeConnection::errorToString(FsoeError error){
+	switch(error){
+		case FsoeError::RESET:					return "Local reset or acknowledgement of a RESET command";
+		case FsoeError::INVALID_CMD:			return "Unexpected command (INVALID_CMD)";
+		case FsoeError::UNKNOWN_CMD:			return "Unknown command (UNKNOWN_CMD)";
+		case FsoeError::INVALID_CONNID:			return "Invalid connection ID (INVALID_CONNID)";
+		case FsoeError::INVALID_CRC:			return "CRC error (INVALID_CRC)";
+		case FsoeError::WD_EXPIRED:				return "Watchdog has expired (WD_EXPIRED)";
+		case FsoeError::INVALID_ADDRESS:		return "Invalid FSoE Slave Address (INVALID_ADDRESS)";
+		case FsoeError::INVALID_DATA:			return "Invalid safety data (INVALID_DATA)";
+		case FsoeError::INVALID_COMMPARALEN:	return "Invalid communication parameter length (INVALID_COMMPARALEN)";
+		case FsoeError::INVALID_COMPARA:		return "Invalid communication parameter data (INVALID_COMPARA)";
+		case FsoeError::INVALID_USERPARALEN:	return "Invalid application parameter length (INVALID_USERPARALEN)";
+		case FsoeError::INVALID_USERPARA:		return "Invalid application parameter data (INVALID_USERPARA)";
+		default: 								return "Invalid SafePara (device-specific)";
 	}
 }
 
 
-
-
-
-void FsoeConnection::generateSessionId(){
-	//secondSessionFrameSent = false;
-	masterSessionId = rand();
+void FsoeConnection::generateConnectionId(){
+	static uint16_t connectionIdCounter = 0;
+	connectionIdCounter++;
+	if(connectionIdCounter == 0) connectionIdCounter++;
+	connectionID = connectionIdCounter;
 }
 
 
-
-
-bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, FrameDirection direction){
+bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc){
 	
 	uint16_t crc_0;
 	uint16_t crcCommon;
@@ -618,12 +455,12 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 	int safeDataSize = frame.safeDataSize;
 	uint16_t connectionID = frame.getConnnectionID();
 	
-	bool sequenceIncremented = false;
+	bool sequenceIncremented;
 	int receiveTries = 0;
-
+	
 	//Compute CRC_0, using 1 or 2 data bytes
 	do{
-
+		
 		crc_0 = 0x0;
 		uint8_t startCrc_L = startCrc & 0xFF;
 		uint8_t startCrc_H = (startCrc >> 8) & 0xFF;
@@ -643,44 +480,41 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		encodeCrc(crc_0, command);
 		crcCommon = crc_0;
 		
-		//encode safeData
+		//encode crc_0
 		encodeCrc(crc_0, data_0_L);
 		if(safeDataSize > 1){
 			uint8_t data_0_H = safeData[1];
 			encodeCrc(crc_0, data_0_H);
 		}
-
-		//increment sequence number
-		if(direction == FrameDirection::SEND && crc_0 == oldCrc){
+		
+		//if we're sending and the new crc equals the old one:
+		//we need to increment the sequence number until the new crc is different.
+		if(b_writeCrc && crc_0 == oldCrc){
 			sequenceNumber++;
 			if(sequenceNumber == 0) sequenceNumber++;
 			sequenceIncremented = true;
-			Logger::trace("Repeated CRC {:X} on send, incrementing sequence to {}", crc_0, sequenceNumber);
+			//Logger::trace("Repeated CRC {:X} on send, incrementing sequence to {}", crc_0, sequenceNumber);
 		}
-		else if(direction == FrameDirection::RECEIVE && crc_0 != frame.getCrc(0)){
+		//if we're receiving and the computed crc doesn't match the received one:
+		//we need to increment the slave sequence number until the crcs match.
+		//we only do this two times until abandoning (1 should be enough but you never know)
+		else if(!b_writeCrc && crc_0 != frame.getCrc(0)){
 			receiveTries++;
-			if(receiveTries > 2) sequenceIncremented = false;
-			else{
-				sequenceNumber++;
-				if(sequenceNumber == 0) sequenceNumber++;
-				sequenceIncremented = true;
-				Logger::trace("no crc match on receive, incrementing sequence [{}] to {}", receiveTries, sequenceNumber);
-			}
+			if(receiveTries > 2) return false;
+			sequenceNumber++;
+			if(sequenceNumber == 0) sequenceNumber++;
+			sequenceIncremented = true;
+			//Logger::trace("no crc match on receive, incrementing sequence [{}] to {}", receiveTries, sequenceNumber);
 		}
+		//if none of these apply, we don't increment the sequence number
+		//it will be done outside of this function
 		else sequenceIncremented = false;
+		
 	}
 	while(sequenceIncremented);
 	
-	//if receiving, match computed crc_0 against received
 	//if sending, store computed crc_0 in frame
-	switch(direction){
-		case FrameDirection::RECEIVE:
-			if(crc_0 != frame.getCrc(0)) return false;
-			break;
-		case FrameDirection::SEND:
-			frame.setCrc(0, crc_0);
-			break;
-	}
+	if(b_writeCrc) frame.setCrc(0, crc_0);
 	
 	//check if additional CRC_i need to be computed
 	//this is not the case for fsoe frames which have 2 or less safedata bytes
@@ -701,24 +535,19 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		encodeCrc(crc_i, data_i_L);
 		encodeCrc(crc_i, data_i_H);
 		
-		//if receiving, match computed crc_i against received
 		//if sending, store computed crc_i in frame
-		switch(direction){
-			case FrameDirection::RECEIVE:
-				if(crc_i != frame.getCrc(i)) return false;
-				break;
-			case FrameDirection::SEND:
-				frame.setCrc(i, crc_i);
-				break;
-		}
+		//if receiving, match computed crc_i against received
+		if(b_writeCrc) frame.setCrc(i, crc_i);
+		else if(crc_i != frame.getCrc(i)) return false;
 	}
 	
-	//if receiving, returns crc match
+	//if receiving, returns positive crc match
 	//else it always returns true
 	return true;
 }
 
 
+//encode one byte into the crc
 void FsoeConnection::encodeCrc(uint16_t& crc, uint8_t data){
 	uint8_t crc_H = (crc >> 8) & 0xFF;
 	uint8_t crc_L = crc & 0xFF;
@@ -733,6 +562,7 @@ void FsoeConnection::encodeCrc(uint16_t& crc, uint8_t data){
 	w1_H ^= crc_L;
 	crc = (w1_H << 8) | w1_L;
 }
+
 
 uint16_t FsoeConnection::aCrcTab1[256] = {
 	0x0000, 0x39B7, 0x736E, 0x4AD9, 0xE6DC, 0xDF6B, 0x95B2, 0xAC05, 0xF40F, 0xCDB8,
@@ -762,6 +592,7 @@ uint16_t FsoeConnection::aCrcTab1[256] = {
 	0x5FCB, 0x667C, 0x2CA5, 0x1512, 0xB917, 0x80A0, 0xCA79, 0xF3CE, 0xABC4, 0x9273,
 	0xD8AA, 0xE11D, 0x4D18, 0x74AF, 0x3E76, 0x07C1
 };
+
 
 uint16_t FsoeConnection::aCrcTab2[256] = {
 	0x0000, 0x7648, 0xEC90, 0x9AD8, 0xE097, 0x96DF, 0x0C07, 0x7A4F, 0xF899, 0x8ED1,

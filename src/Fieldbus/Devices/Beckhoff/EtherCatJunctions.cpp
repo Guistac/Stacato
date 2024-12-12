@@ -449,8 +449,7 @@ bool EL2912::startupConfiguration() {
 
 	FsoeConnection::Config fsoeConfig;
 	fsoeConfig.fsoeAddress = fsoeAddress;
-	fsoeConfig.connectionID = 10;
-	fsoeConfig.watchdogTimeout_ms = 2;
+	fsoeConfig.watchdogTimeout_ms = 500;
 	fsoeConfig.applicationParameters = {
 		0x2, 0x0, 0x0, 0x0,				//vendorID [fixed: Beckhoff == 0x2]
 		0x60, 0xB, 0x0, 0x0,			//Module Ident [fixed Module == 2912]
@@ -495,6 +494,7 @@ void EL2912::writeOutputs(){
 	if(safeOutput2) safe_outputs |= 0x4;
 	if(safeOutput2ErrAck) safe_outputs |= 0x8;
 	
+	fsoeConnection.b_sendFailsafeData = false;
 	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
 }
 bool EL2912::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
@@ -567,8 +567,7 @@ bool EL1904::startupConfiguration() {
 	
 	FsoeConnection::Config fsoeConfig;
 	fsoeConfig.fsoeAddress = fsoeAddress;
-	fsoeConfig.connectionID = 0xABCD;
-	fsoeConfig.watchdogTimeout_ms = 2;
+	fsoeConfig.watchdogTimeout_ms = 500;
 	fsoeConfig.applicationParameters = {
 		opMode,		//Opmode
 		0x0,		//Sensor Test Channel 1-4 Active
@@ -598,6 +597,7 @@ void EL1904::readInputs() {
 	safeInput4 = safe_inputs & 0x8;
 }
 void EL1904::writeOutputs(){
+	fsoeConnection.b_sendFailsafeData = false;
 	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
 }
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
