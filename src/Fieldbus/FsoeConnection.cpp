@@ -71,13 +71,15 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 	
 	masterFrame.writeTo(fsoeMasterFrame, frameSize);
 	
-	Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber,
-		fsoeMasterFrame[0],
-		fsoeMasterFrame[1],
-		fsoeMasterFrame[2],
-		fsoeMasterFrame[3],
-		fsoeMasterFrame[4],
-		fsoeMasterFrame[5]);
+	if(false){
+		Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber,
+			fsoeMasterFrame[0],
+			fsoeMasterFrame[1],
+			fsoeMasterFrame[2],
+			fsoeMasterFrame[3],
+			fsoeMasterFrame[4],
+			fsoeMasterFrame[5]);
+	}
 
 	masterSequenceNumber++;
 	if(masterSequenceNumber == 0) masterSequenceNumber++;
@@ -119,13 +121,15 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 		}
 	}
 
-	Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
-		fsoeSlaveFrame[0],
-		fsoeSlaveFrame[1],
-		fsoeSlaveFrame[2],
-		fsoeSlaveFrame[3],
-		fsoeSlaveFrame[4],
+	if(false){
+		Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
+			fsoeSlaveFrame[0],
+			fsoeSlaveFrame[1],
+			fsoeSlaveFrame[2],
+			fsoeSlaveFrame[3],
+			fsoeSlaveFrame[4],
 		fsoeSlaveFrame[5]);
+	}
 
 	lastReceiveTime_s = Timing::getProgramTime_seconds();
 	b_refreshOutputFrame = true;
@@ -614,6 +618,9 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 	int safeDataSize = frame.safeDataSize;
 	uint16_t connectionID = frame.getConnnectionID();
 	
+	bool sequenceIncremented = false;
+	int receiveTries = 0;
+
 	//Compute CRC_0, using 1 or 2 data bytes
 	do{
 
@@ -644,14 +651,25 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		}
 
 		//increment sequence number
-		if(crc_0 == oldCrc && direction == FrameDirection::SEND){
-			Logger::critical("Repeated CRC {}", direction == FrameDirection::SEND ? "on send" : "on receive");
-			Logger::critical("crc {:X} on seqNo {}", crc_0, sequenceNumber);
+		if(direction == FrameDirection::SEND && crc_0 == oldCrc){
 			sequenceNumber++;
 			if(sequenceNumber == 0) sequenceNumber++;
+			sequenceIncremented = true;
+			Logger::info("Repeated CRC {:X} on send, incrementing sequence to {}", crc_0, sequenceNumber);
 		}
+		else if(direction == FrameDirection::RECEIVE && crc_0 != frame.getCrc(0)){
+			receiveTries++;
+			if(receiveTries > 4) sequenceIncremented = false;
+			else{
+				sequenceNumber++;
+				if(sequenceNumber == 0) sequenceNumber++;
+				sequenceIncremented = true;
+				Logger::info("no crc match on receive, incrementing sequence to {}", sequenceNumber);
+			}
+		}
+		else sequenceIncremented = false;
 	}
-	while(crc_0 == oldCrc && direction == FrameDirection::SEND);
+	while(sequenceIncremented);
 	
 	//if receiving, match computed crc_0 against received
 	//if sending, store computed crc_0 in frame
