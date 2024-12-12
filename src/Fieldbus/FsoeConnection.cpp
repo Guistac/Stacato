@@ -22,7 +22,12 @@ bool FsoeConnection::initialize(Config& config){
 	masterFrame.reset(masterFrameSize);
 	slaveFrame.reset(slaveFrameSize);
 	
-	generateConnectionId();
+	//generate connection ID.
+	//the static variable is increment so every id will be unique
+	static uint16_t connectionIdCounter = 0;
+	connectionIdCounter++;
+	if(connectionIdCounter == 0) connectionIdCounter++;
+	connectionID = connectionIdCounter;
 	connectionData[0] = connectionID & 0xFF;
 	connectionData[1] = (connectionID >> 8) & 0xFF;
 	connectionData[2] = fsoeAddress & 0xFF;
@@ -45,6 +50,8 @@ bool FsoeConnection::initialize(Config& config){
 }
 
 
+
+
 bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t* safeOutputs, int outputsSize){
 	
 	if(fsoeMasterFrame == nullptr) return false;
@@ -61,7 +68,7 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 			masterFrame.setSafeData(safeData);
 		}
 		//compute crc, increment sequence number
-		calcCrC(masterFrame, masterSequenceNumber, lastSlaveCRC_0, lastMasterCRC_0, true);
+		computeCrc(masterFrame, masterSequenceNumber, lastSlaveCRC_0, lastMasterCRC_0, true);
 		lastMasterCRC_0 = masterFrame.getCrc(0);
 		masterSequenceNumber++;
 		if(masterSequenceNumber == 0) masterSequenceNumber++;
@@ -137,7 +144,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 	//read new frame, validate crcs, increment counters
 	slaveFrame.readFrom(fsoeSlaveFrame, frameSize);
 	lastSlaveCRC_0 = slaveFrame.getCrc(0);
-	slaveFrame.crc_ok = calcCrC(slaveFrame, slaveSequenceNumber, lastMasterCRC_0, 0x0, false);
+	computeCrc(slaveFrame, slaveSequenceNumber, lastMasterCRC_0, 0x0, false);
 	slaveSequenceNumber++;
 	if(slaveSequenceNumber == 0) slaveSequenceNumber++;
 	
@@ -437,15 +444,7 @@ std::string FsoeConnection::errorToString(FsoeError error){
 }
 
 
-void FsoeConnection::generateConnectionId(){
-	static uint16_t connectionIdCounter = 0;
-	connectionIdCounter++;
-	if(connectionIdCounter == 0) connectionIdCounter++;
-	connectionID = connectionIdCounter;
-}
-
-
-bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc){
+void FsoeConnection::computeCrc(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc){
 	
 	uint16_t crc_0;
 	uint16_t crcCommon;
@@ -471,20 +470,20 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		uint8_t data_0_L = safeData[0];
 		
 		//encode common crc part
-		encodeCrc(crc_0, startCrc_L);
-		encodeCrc(crc_0, startCrc_H);
-		encodeCrc(crc_0, connectionID_L);
-		encodeCrc(crc_0, connectionID_H);
-		encodeCrc(crc_0, sequenceNo_L);
-		encodeCrc(crc_0, sequenceNo_H);
-		encodeCrc(crc_0, command);
+		encodeCrcByte(crc_0, startCrc_L);
+		encodeCrcByte(crc_0, startCrc_H);
+		encodeCrcByte(crc_0, connectionID_L);
+		encodeCrcByte(crc_0, connectionID_H);
+		encodeCrcByte(crc_0, sequenceNo_L);
+		encodeCrcByte(crc_0, sequenceNo_H);
+		encodeCrcByte(crc_0, command);
 		crcCommon = crc_0;
 		
 		//encode crc_0
-		encodeCrc(crc_0, data_0_L);
+		encodeCrcByte(crc_0, data_0_L);
 		if(safeDataSize > 1){
 			uint8_t data_0_H = safeData[1];
-			encodeCrc(crc_0, data_0_H);
+			encodeCrcByte(crc_0, data_0_H);
 		}
 		
 		//if we're sending and the new crc equals the old one:
@@ -500,7 +499,10 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		//we only do this two times until abandoning (1 should be enough but you never know)
 		else if(!b_writeCrc && crc_0 != frame.getCrc(0)){
 			receiveTries++;
-			if(receiveTries > 2) return false;
+			if(receiveTries > 2) {
+				frame.crc_ok = false;
+				return;
+			}
 			sequenceNumber++;
 			if(sequenceNumber == 0) sequenceNumber++;
 			sequenceIncremented = true;
@@ -518,7 +520,10 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 	
 	//check if additional CRC_i need to be computed
 	//this is not the case for fsoe frames which have 2 or less safedata bytes
-	if(safeDataSize <= 2) return true;
+	if(safeDataSize <= 2) {
+		if(!b_writeCrc) frame.crc_ok = true;
+		return true;
+	}
 	
 	//calculate additional crc_i starting from crc_common
 	int maxIndex = int(safeDataSize) / 2;
@@ -530,25 +535,26 @@ bool FsoeConnection::calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_
 		uint8_t data_i_H = safeData[i*2+1];
 		
 		uint16_t crc_i = crcCommon;
-		encodeCrc(crc_i, i_L);
-		encodeCrc(crc_i, i_H);
-		encodeCrc(crc_i, data_i_L);
-		encodeCrc(crc_i, data_i_H);
+		encodeCrcByte(crc_i, i_L);
+		encodeCrcByte(crc_i, i_H);
+		encodeCrcByte(crc_i, data_i_L);
+		encodeCrcByte(crc_i, data_i_H);
 		
 		//if sending, store computed crc_i in frame
 		//if receiving, match computed crc_i against received
 		if(b_writeCrc) frame.setCrc(i, crc_i);
-		else if(crc_i != frame.getCrc(i)) return false;
+		else if(crc_i != frame.getCrc(i)) {
+			frame.crc_ok = false;
+			return;
+		}
 	}
 	
-	//if receiving, returns positive crc match
-	//else it always returns true
-	return true;
+	frame.crc_ok = true;
 }
 
 
 //encode one byte into the crc
-void FsoeConnection::encodeCrc(uint16_t& crc, uint8_t data){
+void FsoeConnection::encodeCrcByte(uint16_t& crc, uint8_t data){
 	uint8_t crc_H = (crc >> 8) & 0xFF;
 	uint8_t crc_L = crc & 0xFF;
 	

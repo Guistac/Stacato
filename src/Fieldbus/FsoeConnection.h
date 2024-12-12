@@ -32,7 +32,6 @@ enum class FsoeError{
 struct FsoeFrame{
 	
 	std::vector<uint8_t> frame;
-	
 	bool crc_ok;
 	int frameSize;
 	int safeDataSize;
@@ -64,7 +63,6 @@ struct FsoeFrame{
 		}
 	}
 	void setCommandType(FsoeCommand cmd){ frame[0] = uint8_t(cmd); }
-	
 	uint8_t getCommand(){ return frame[0]; }
 	
 	void setSafeData(std::vector<uint8_t> data){
@@ -170,16 +168,6 @@ public:
 	bool receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_t* safeInputs, int safeInputsSize);
 	bool b_sendFailsafeData = false;
 	
-	enum class MasterState{
-		RESET,
-		SESSION,
-		CONNECTION,
-		PARAMETER,
-		DATA
-	}masterState = MasterState::RESET;
-	
-	std::string errorToString(FsoeError error);
-	
 private:
 	int configurationSafeDataSize;
 	int safeOutputsSize = 0;
@@ -210,15 +198,21 @@ private:
 	bool b_watchdogExpired = false;
 	bool b_connectionUp = false;
 	
+	enum class MasterState{
+		RESET,
+		SESSION,
+		CONNECTION,
+		PARAMETER,
+		DATA
+	}masterState = MasterState::RESET;
+	
 	void updateMasterStateMachine();
 	void setResetState(FsoeError error);
 	void setSessionState();
+	std::string errorToString(FsoeError error);
 	
-	bool calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc);
-	void encodeCrc(uint16_t& crc, uint8_t data);
-	
-	void generateConnectionId();
-	
+	void computeCrc(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc);
+	void encodeCrcByte(uint16_t& crc, uint8_t data);
 	static uint16_t aCrcTab1[256];
 	static uint16_t aCrcTab2[256];
 };
