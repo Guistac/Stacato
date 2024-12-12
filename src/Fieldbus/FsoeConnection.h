@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <ethercat.h>
+
 enum class FsoeCommand{
 	UNKNOWN_COMMAND = 0x0,
 	RESET = 0x2A,
@@ -188,7 +191,7 @@ private:
 	
 	
 	
-	bool calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t oldCrc, FrameDirection direction);
+	bool calcCrC(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, FrameDirection direction);
 	void encodeCrc(uint16_t& crc, uint8_t data);
 	
 	void reset();

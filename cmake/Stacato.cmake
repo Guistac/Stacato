@@ -236,6 +236,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatFieldbus.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/EtherCatDevice.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/FsoeConnection.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/FsoeConnection.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Console/Console.cpp
     ${STACATO_SOURCE_DIRECTORY}/Console/Console.h

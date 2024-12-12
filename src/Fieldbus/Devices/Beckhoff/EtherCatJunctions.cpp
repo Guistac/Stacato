@@ -450,7 +450,7 @@ bool EL2912::startupConfiguration() {
 	FsoeConnection::Config fsoeConfig;
 	fsoeConfig.fsoeAddress = fsoeAddress;
 	fsoeConfig.connectionID = 10;
-	fsoeConfig.watchdogTimeout_ms = 100;
+	fsoeConfig.watchdogTimeout_ms = 2;
 	fsoeConfig.applicationParameters = {
 		0x2, 0x0, 0x0, 0x0,				//vendorID [fixed: Beckhoff == 0x2]
 		0x60, 0xB, 0x0, 0x0,			//Module Ident [fixed Module == 2912]
@@ -484,9 +484,9 @@ void EL2912::readInputs(){
 	safeOutput2Fault = safe_inputs & 0x2;
 }
 void EL2912::writeOutputs(){
-	safeOutput1 = Timing::getBlink(0.5);
+	safeOutput1 = false;//Timing::getBlink(0.5);
 	safeOutput1ErrAck = false;
-	safeOutput2 = !Timing::getBlink(0.5);
+	safeOutput2 = false;//!Timing::getBlink(0.5);
 	safeOutput2ErrAck = false;
 
 	safe_outputs = 0x0;
@@ -568,7 +568,7 @@ bool EL1904::startupConfiguration() {
 	FsoeConnection::Config fsoeConfig;
 	fsoeConfig.fsoeAddress = fsoeAddress;
 	fsoeConfig.connectionID = 0xABCD;
-	fsoeConfig.watchdogTimeout_ms = 100;
+	fsoeConfig.watchdogTimeout_ms = 2;
 	fsoeConfig.applicationParameters = {
 		opMode,		//Opmode
 		0x0,		//Sensor Test Channel 1-4 Active
