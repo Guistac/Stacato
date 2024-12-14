@@ -26,6 +26,14 @@
                 <InputPins/>
                 <OutputPins/>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ELM7231-9016" Split="false" CustomName="ELM7231-9016 (Alias:0)" UniqueID="2516">
+                <NodeEditorPosition x="496" y="-32"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
         </Nodes>
         <Links/>
     </NodeGraph>

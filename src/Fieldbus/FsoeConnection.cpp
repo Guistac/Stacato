@@ -77,14 +77,26 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 	//write frame to buffer
 	masterFrame.writeTo(fsoeMasterFrame, frameSize);
 	
-	if(false){
-		Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber == 0 ? masterSequenceNumber - 2 : masterSequenceNumber - 1,
-					 fsoeMasterFrame[0],
-					 fsoeMasterFrame[1],
-					 fsoeMasterFrame[2],
-					 fsoeMasterFrame[3],
-					 fsoeMasterFrame[4],
-					 fsoeMasterFrame[5]);
+	if(true){
+		if(frameSize == 6){
+			Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber == 0 ? masterSequenceNumber - 2 : masterSequenceNumber - 1,
+						 fsoeMasterFrame[0],
+						 fsoeMasterFrame[1],
+						 fsoeMasterFrame[2],
+						 fsoeMasterFrame[3],
+						 fsoeMasterFrame[4],
+						 fsoeMasterFrame[5]);
+		}
+		else if(frameSize == 7){
+			Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber == 0 ? masterSequenceNumber - 2 : masterSequenceNumber - 1,
+						 fsoeMasterFrame[0],
+						 fsoeMasterFrame[1],
+						 fsoeMasterFrame[2],
+						 fsoeMasterFrame[3],
+						 fsoeMasterFrame[4],
+						 fsoeMasterFrame[5],
+						 fsoeMasterFrame[6]);
+		}
 	}
 	
 	return true;
@@ -131,14 +143,26 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 		b_refreshOutputFrame = true;
 	}
 		
-	if(false){
-		Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
-			fsoeSlaveFrame[0],
-			fsoeSlaveFrame[1],
-			fsoeSlaveFrame[2],
-			fsoeSlaveFrame[3],
-			fsoeSlaveFrame[4],
-		fsoeSlaveFrame[5]);
+	if(true){
+		if(frameSize == 6){
+			Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
+				 fsoeSlaveFrame[0],
+				 fsoeSlaveFrame[1],
+				 fsoeSlaveFrame[2],
+				 fsoeSlaveFrame[3],
+				 fsoeSlaveFrame[4],
+				 fsoeSlaveFrame[5]);
+		}
+		else if(frameSize == 7){
+			Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
+				fsoeSlaveFrame[0],
+				fsoeSlaveFrame[1],
+				fsoeSlaveFrame[2],
+				fsoeSlaveFrame[3],
+				fsoeSlaveFrame[4],
+				fsoeSlaveFrame[5],
+				fsoeSlaveFrame[6]);
+		}
 	}
 	
 	//read new frame, validate crcs, increment counters
@@ -162,7 +186,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 
 
 void FsoeConnection::updateMasterStateMachine(){
-	bool logState = false;
+	bool logState = true;
 	bool logStateError = true;
 	switch(masterState){
 		case MasterState::RESET:

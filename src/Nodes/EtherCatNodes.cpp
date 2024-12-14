@@ -11,6 +11,7 @@
 #include "Fieldbus/Devices/ABB/MicroFlexE190.h"
 #include "Fieldbus/Devices/PhoenixContact/BusCouper_IL-EC-BK.h"
 #include "Fieldbus/Devices/Beckhoff/EtherCatJunctions.h"
+#include "Fieldbus/Devices/Beckhoff/FsoeModules.h"
 #include "Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.h"
 #include "Fieldbus/Devices/Beckhoff/EL7222-0010.h"
 #include "Fieldbus/Devices/Beckhoff/AX5206.h"
@@ -49,6 +50,7 @@ namespace NodeFactory{
 			new EL2624(),
 			new EL7221_9014(),
 			new EL7222_0010(),
+			new ELM7231_9016(),
 			new AX5206(),
             new ECAT_2511_A_FiberConverter(),
             new ECAT_2511_B_FiberConverter(),

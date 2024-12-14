@@ -209,6 +209,7 @@ private:
 	void updateMasterStateMachine();
 	void setResetState(FsoeError error);
 	void setSessionState();
+	
 	std::string errorToString(FsoeError error);
 	
 	void computeCrc(FsoeFrame& frame, uint16_t& sequenceNumber, uint16_t startCrc, uint16_t oldCrc, bool b_writeCrc);

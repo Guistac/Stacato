@@ -37,3 +37,27 @@ public:
 	bool requestStateSafeOp();
 	
 };
+
+#include "Fieldbus/FsoeConnection.h"
+
+class ELM7231_9016 : public EtherCatDevice{
+	DEFINE_ETHERCAT_DEVICE(ELM7231_9016, "ELM7231-9016", "ELM7231-9016", "Beckhoff", "Servo Drives", 0x2, 0x502275F9)
+	std::shared_ptr<EL722x_Actuator> actuator;
+	
+	uint8_t fsoeMasterFrame[7] = {0,0,0,0,0,0,0};
+	uint8_t fslogicMaster[2] = {0,0};
+	uint8_t fsoeSlaveFrame[7] = {0,0,0,0,0,0,0};
+	uint8_t fsLogicSlave[2] = {0,0};
+	uint8_t safeInputs[2];
+	uint8_t safeOutputs[2];
+	
+	std::string getDiagnosticsStringFromTextID(uint16_t textID);
+	void downloadCompleteDiagnostics();
+	void readMotorNameplatesAndConfigureDrive();
+	bool requestStateSafeOp();
+	
+	EtherCatPdoAssignement fsoeRxPdoAssignement;
+	EtherCatPdoAssignement fsoeTxPdoAssignement;
+	
+	FsoeConnection fsoeConnection;
+};
