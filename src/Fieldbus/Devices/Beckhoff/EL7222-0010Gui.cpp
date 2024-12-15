@@ -44,21 +44,24 @@ void ELM7231_9016::deviceSpecificGui() {
 		if(ImGui::Button("Detect Motor and Configure Drive")) readMotorNameplatesAndConfigureDrive();
 		if(ImGui::Button("Download Diagnostics")) downloadCompleteDiagnostics();
 		
-		ImGui::BeginGroup();
-		ImGui::Text("Outputs");
-		for(int i = 0; i < identity->Obytes; i++){
-			ImGui::Text("[%i]: %x", i, identity->outputs[i]);
+		if(isStateOperational()){
+			
+			if(ImGui::Button("Fix FMMUs")) fixFMMUs();
+			
+			ImGui::BeginGroup();
+			ImGui::Text("Outputs");
+			for(int i = 0; i < identity->Obytes; i++){
+				ImGui::Text("[%i]: %x", i, identity->outputs[i]);
+			}
+			ImGui::EndGroup();
+			ImGui::SameLine();
+			ImGui::BeginGroup();
+			ImGui::Text("Inputs");
+			for(int i = 0; i < identity->Ibytes; i++){
+				ImGui::Text("[%i]: %x", i, identity->inputs[i]);
+			}
+			ImGui::EndGroup();
 		}
-		ImGui::EndGroup();
-		
-		ImGui::SameLine();
-		
-		ImGui::BeginGroup();
-		ImGui::Text("Inputs");
-		for(int i = 0; i < identity->Ibytes; i++){
-			ImGui::Text("[%i]: %x", i, identity->inputs[i]);
-		}
-		ImGui::EndGroup();
 		
 		ImGui::EndTabItem();
 	}

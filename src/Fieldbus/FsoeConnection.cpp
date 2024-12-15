@@ -77,7 +77,7 @@ bool FsoeConnection::sendFrame(uint8_t* fsoeMasterFrame, int frameSize, uint8_t*
 	//write frame to buffer
 	masterFrame.writeTo(fsoeMasterFrame, frameSize);
 	
-	if(true){
+	if(false){
 		if(frameSize == 6){
 			Logger::warn("SEND_{}  {:X} {:X} {:X} {:X} {:X} {:X}", masterSequenceNumber == 0 ? masterSequenceNumber - 2 : masterSequenceNumber - 1,
 						 fsoeMasterFrame[0],

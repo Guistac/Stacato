@@ -37,6 +37,7 @@ struct FsoeFrame{
 	int safeDataSize;
 	
 	void reset(int size){
+		frame.clear();
 		frame.resize(size, 0x0);
 		frameSize = size;
 		if(size == 6) safeDataSize = 1;
@@ -66,10 +67,12 @@ struct FsoeFrame{
 	uint8_t getCommand(){ return frame[0]; }
 	
 	void setSafeData(std::vector<uint8_t> data){
-		frame.resize(frameSize, 0x0);
-		for(int i = 0; i < data.size(); i++){
-			if(i % 2 == 0) frame[i*2+1] = data[i];
-			else frame[i*2] = data[i];
+		for(int i = 0; i < safeDataSize; i++){
+			uint8_t newData;
+			if(i < data.size()) newData = data[i];
+			else newData = 0x0;
+			if(i % 2 == 0) frame[i*2+1] = newData;
+			else frame[i*2] = newData;
 		}
 	}
 	uint8_t getSafeData(int index){

@@ -389,9 +389,10 @@ void EtherCatDevice::resetErrorCounters(){
 void EtherCatDevice::printPdoMap(){
 
 	auto printmapping = [this](uint16_t sm){
-		Logger::info("SM 0x{:X}", sm);
 		uint8_t modulecount;
 		if(!readSDO_U8(sm, 0x0, modulecount)) return;
+		if(modulecount == 0) return;
+		Logger::info("SM 0x{:X}", sm);
 		for(int i = 1; i <= modulecount; i++){
 			uint16_t module;
 			if(!readSDO_U16(sm, i, module)) return;
@@ -409,6 +410,12 @@ void EtherCatDevice::printPdoMap(){
 		}
 	};
 
+	printmapping(0x1c10);
+	printmapping(0x1c11);
 	printmapping(0x1c12);
 	printmapping(0x1c13);
+	printmapping(0x1c14);
+	printmapping(0x1c15);
+	printmapping(0x1c16);
+	printmapping(0x1c17);
 }

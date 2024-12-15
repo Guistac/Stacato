@@ -483,7 +483,7 @@ void ELM7231_9016::initialize() {
 	txPdoAssignement.addEntry(0x6010, 0x8, 16, "CH1 Torque Actual Value", &actuator->txPdo.torqueActualValue);
 	txPdoAssignement.addNewModule(0x1A17);
 	txPdoAssignement.addEntry(0x6010, 0x3, 8, "CH1 Modes of Operation Display", &actuator->txPdo.modeOfOperationDisplay);
-	
+	 
 	fsoeRxPdoAssignement.addNewModule(0x16A0);
 	fsoeRxPdoAssignement.addEntry(0x7200, 0x1, 8, "Fsoe Receive CMD", fsoeMasterFrame);
 	fsoeRxPdoAssignement.addEntry(0xF701, 0x1, 8, "STO ChA", fsoeMasterFrame + 1);
@@ -503,17 +503,6 @@ void ELM7231_9016::initialize() {
 	fsoeTxPdoAssignement.addEntry(0xF100, 0x1, 8, "FSOE Safe Logic State", fsLogicSlave);
 	fsoeTxPdoAssignement.addEntry(0xF100, 0x2, 8, "FSOE Cycle Counter", fsLogicSlave + 1);
 	
-	FsoeConnection::Config fsoeConfig;
-	fsoeConfig.watchdogTimeout_ms = 100;
-	fsoeConfig.fsoeAddress = 1;
-	fsoeConfig.safeInputsSize = 2;
-	fsoeConfig.safeOutputsSize = 2;
-	fsoeConfig.applicationParameters = {
-		0x0, 0x0,	//store code
-		0x0, 0x0	//project crc
-	};
-	fsoeConnection.initialize(fsoeConfig);
-	
 }
 bool ELM7231_9016::startupConfiguration() {
 	if(!rxPdoAssignement.mapToSyncManager(getSlaveIndex(), 0x1C12, false)) return false;
@@ -530,6 +519,18 @@ bool ELM7231_9016::startupConfiguration() {
 	uint32_t cycleTime_nanos = EtherCatFieldbus::processInterval_milliseconds * 1000000;
 	uint32_t cycleOffset_nanos = EtherCatFieldbus::processInterval_milliseconds * 500000;
 	ec_dcsync01(getSlaveIndex(), true, 62500, cycleTime_nanos - 62500, cycleOffset_nanos);
+	
+	FsoeConnection::Config fsoeConfig;
+	fsoeConfig.watchdogTimeout_ms = 100;
+	fsoeConfig.fsoeAddress = 1;
+	fsoeConfig.safeInputsSize = 2;
+	fsoeConfig.safeOutputsSize = 2;
+	fsoeConfig.applicationParameters = {
+		0x0, 0x0,	//store code
+		0x0, 0x0	//project crc
+	};
+	fsoeConnection.initialize(fsoeConfig);
+	
 	return true;
 }
 void ELM7231_9016::readInputs() {
@@ -579,10 +580,25 @@ bool ELM7231_9016::requestStateSafeOp(){
 		.dataLength = uint16_t(iBits / 8),
 		.flags = 65568
 	};
+	SM2.dataLength -= 9;
+	SM3.dataLength -= 9;
+	
+	SyncManagerConfiguration SM6{
+		.startAddress = 0x1e00,
+		.dataLength = 9,
+		.flags = 65572
+	};
+	SyncManagerConfiguration SM7{
+		.startAddress = 0x1f00,
+		.dataLength = 9,
+		.flags = 65568
+	};
 	
 	//upload pdo syncmanager configuration
 	ec_FPWR(identity->configadr, ECT_REG_SM2, sizeof(ec_sm), &SM2, EC_TIMEOUTSAFE);
 	ec_FPWR(identity->configadr, ECT_REG_SM3, sizeof(ec_sm), &SM3, EC_TIMEOUTSAFE);
+	ec_FPWR(identity->configadr, ECT_REG_SM0 + 6 * 0x8, sizeof(ec_sm), &SM6, EC_TIMEOUTSAFE);
+	ec_FPWR(identity->configadr, ECT_REG_SM0 + 7 * 0x8, sizeof(ec_sm), &SM7, EC_TIMEOUTSAFE);
 	
 	//now we can finally take the drive to safeop, which will trigger the motor nameplate reading
 	identity->state = EC_STATE_SAFE_OP;
@@ -694,6 +710,14 @@ void ELM7231_9016::readMotorNameplatesAndConfigureDrive(){
 	});
    
 	worker.detach();
+}
+
+void ELM7231_9016::fixFMMUs(){
+	//correct FMMU[1,3] physical start address for SM[6,7]
+	uint16_t FMMU1_physicalStartAddress = 0x1E00;
+	uint16_t FMMU3_physicalStartAddress = 0x1F00;
+	ec_FPWR(identity->configadr, 0x618, 2, &FMMU1_physicalStartAddress, EC_TIMEOUTSAFE);
+	ec_FPWR(identity->configadr, 0x638, 2, &FMMU3_physicalStartAddress, EC_TIMEOUTSAFE);
 }
 
 std::string ELM7231_9016::getDiagnosticsStringFromTextID(uint16_t textID){
