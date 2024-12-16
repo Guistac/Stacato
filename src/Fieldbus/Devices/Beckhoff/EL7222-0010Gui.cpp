@@ -44,10 +44,8 @@ void ELM7231_9016::deviceSpecificGui() {
 		if(ImGui::Button("Detect Motor and Configure Drive")) readMotorNameplatesAndConfigureDrive();
 		if(ImGui::Button("Download Diagnostics")) downloadCompleteDiagnostics();
 		
+		/*
 		if(isStateOperational()){
-			
-			if(ImGui::Button("Fix FMMUs")) fixFMMUs();
-			
 			ImGui::BeginGroup();
 			ImGui::Text("Outputs");
 			for(int i = 0; i < identity->Obytes; i++){
@@ -62,6 +60,11 @@ void ELM7231_9016::deviceSpecificGui() {
 			}
 			ImGui::EndGroup();
 		}
+		*/
+		
+		ImGui::Checkbox("STO", &b_sto);
+		
+		actuator->gui();
 		
 		ImGui::EndTabItem();
 	}

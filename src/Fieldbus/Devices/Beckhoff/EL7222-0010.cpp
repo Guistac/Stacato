@@ -458,6 +458,8 @@ void ELM7231_9016::initialize() {
 	actuator = std::make_shared<EL722x_Actuator>(thisEtherCatDevice, 1);
 	actuator->initialize();
 	
+	addNodePin(actuator->actuatorPin);
+	
 	rxPdoAssignement.addNewModule(0x1610);
 	rxPdoAssignement.addEntry(0x7010, 0x1, 16, "CH1 Control Word", &actuator->rxPdo.controlWord);
 	rxPdoAssignement.addNewModule(0x1611);
@@ -490,6 +492,8 @@ void ELM7231_9016::initialize() {
 	fsoeRxPdoAssignement.addEntry(0xF701, 0x2, 8, "STO ChB", fsoeMasterFrame + 2);
 	fsoeRxPdoAssignement.addEntry(0x7200, 0x3, 16, "FSOE Receive CRC_0", fsoeMasterFrame + 3);
 	fsoeRxPdoAssignement.addEntry(0x7200, 0x2, 16, "FSOE Receive ConnID", fsoeMasterFrame + 5);
+	fsoeRxPdoAssignement.addNewModule(0x16B0);
+	fsoeRxPdoAssignement.addEntry(0x7200, 0x2, 8, "???", &weird1);
 	fsoeRxPdoAssignement.addNewModule(0x16BF);
 	fsoeRxPdoAssignement.addEntry(0x0, 0x0, 16, "FSLOGIC Outputs", fslogicMaster);
 	
@@ -499,6 +503,8 @@ void ELM7231_9016::initialize() {
 	fsoeTxPdoAssignement.addEntry(0xF601, 0x2, 8, "STO Active ChB", fsoeSlaveFrame + 2);
 	fsoeTxPdoAssignement.addEntry(0x6200, 0x3, 16, "FSOE Receive CRC_0", fsoeSlaveFrame + 3);
 	fsoeTxPdoAssignement.addEntry(0x6200, 0x2, 16, "FSOE Receive ConnID", fsoeSlaveFrame + 5);
+	fsoeTxPdoAssignement.addNewModule(0x1AB0);
+	fsoeTxPdoAssignement.addEntry(0x6200, 0x2, 8, "???", &weird2);
 	fsoeTxPdoAssignement.addNewModule(0x1ABF);
 	fsoeTxPdoAssignement.addEntry(0xF100, 0x1, 8, "FSOE Safe Logic State", fsLogicSlave);
 	fsoeTxPdoAssignement.addEntry(0xF100, 0x2, 8, "FSOE Cycle Counter", fsLogicSlave + 1);
@@ -531,20 +537,62 @@ bool ELM7231_9016::startupConfiguration() {
 	};
 	fsoeConnection.initialize(fsoeConfig);
 	
+	b_initialized = false;
+	
 	return true;
 }
 void ELM7231_9016::readInputs() {
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	fsoeTxPdoAssignement.pullDataFrom(identity->inputs + 19);
 	fsoeConnection.receiveFrame(fsoeSlaveFrame, 7, safeInputs, 2);
+	
+	actuator->readInputs();
 }
 void ELM7231_9016::writeOutputs(){
+	
+	if(!b_initialized){
+		b_initialized = true;
+		fixFMMUs();
+	}
+	
+	//always acknowledge fsoeConnErr
+	if(weird1 == 0x0) weird1 = 0x1;
+	else weird1 = 0x0;
+	
+	fsoeConnection.b_sendFailsafeData = b_sto;
+	safeOutputs[0] = b_sto ? 0x0 : 0x1;
+	
+	actuator->writeOutputs();
+	
 	fsoeConnection.sendFrame(fsoeMasterFrame, 7, safeOutputs, 2);
 	rxPdoAssignement.pushDataTo(identity->outputs);
 	fsoeRxPdoAssignement.pushDataTo(identity->outputs + 13);
 }
-bool ELM7231_9016::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
-bool ELM7231_9016::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool ELM7231_9016::saveDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	XMLElement* actuatorXML = xml->InsertNewChildElement("Actuator");
+	actuator->save(actuatorXML);
+	//XMLElement* pinInversionsXML = xml->InsertNewChildElement("PinInversion");
+	//for(auto parameter : pinInversionParameters) parameter->save(pinInversionsXML);
+	return true;
+}
+bool ELM7231_9016::loadDeviceData(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	bool b_success = true;
+	
+	if(XMLElement* actuatorXML = xml->FirstChildElement("Actuator")){
+		if(!actuator->load(actuatorXML)) b_success = false;
+	}else b_success = false;
+	
+	/*
+	if(XMLElement* pinInversionsXML = xml->FirstChildElement("PinInversion")){
+		for(auto parameter : pinInversionParameters) parameter->load(pinInversionsXML);
+	}
+	*/
+	
+	return true;
+}
 
 
 bool ELM7231_9016::requestStateSafeOp(){
@@ -580,17 +628,17 @@ bool ELM7231_9016::requestStateSafeOp(){
 		.dataLength = uint16_t(iBits / 8),
 		.flags = 65568
 	};
-	SM2.dataLength -= 9;
-	SM3.dataLength -= 9;
+	SM2.dataLength -= 10;
+	SM3.dataLength -= 10;
 	
 	SyncManagerConfiguration SM6{
 		.startAddress = 0x1e00,
-		.dataLength = 9,
+		.dataLength = 10,
 		.flags = 65572
 	};
 	SyncManagerConfiguration SM7{
 		.startAddress = 0x1f00,
-		.dataLength = 9,
+		.dataLength = 10,
 		.flags = 65568
 	};
 	

@@ -143,7 +143,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 		b_refreshOutputFrame = true;
 	}
 		
-	if(true){
+	if(false){
 		if(frameSize == 6){
 			Logger::info("	REC_{} {:X} {:X} {:X} {:X} {:X} {:X}", slaveSequenceNumber,
 				 fsoeSlaveFrame[0],
@@ -186,7 +186,7 @@ bool FsoeConnection::receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_
 
 
 void FsoeConnection::updateMasterStateMachine(){
-	bool logState = true;
+	bool logState = false;
 	bool logStateError = true;
 	switch(masterState){
 		case MasterState::RESET:

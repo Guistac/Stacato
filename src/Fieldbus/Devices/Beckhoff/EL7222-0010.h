@@ -61,5 +61,11 @@ class ELM7231_9016 : public EtherCatDevice{
 	
 	FsoeConnection fsoeConnection;
 	
+	uint8_t weird1;
+	uint8_t weird2;
+	
+	bool b_sto = false;
+	bool b_initialized = false;
+	
 	void fixFMMUs();
 };
