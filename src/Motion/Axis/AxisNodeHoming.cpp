@@ -54,7 +54,14 @@ void AxisNode::homingControl(){
 		case LimitSignalType::SIGNAL_AT_ORIGIN:
 			switch(signalApproachMethod){
 				case SignalApproachMethod::FIND_SIGNAL_EDGE:
-					homingRoutine_HomingOnReferenceSignalEdge();
+					switch (homingDirection) {
+						case NEGATIVE:
+							homingRoutine_HomingOnReferenceSignalEdgeNegative();
+							break;
+						case POSITIVE:
+							homingRoutine_HomingOnReferenceSignalEdgePositive();
+							break;
+					}
 					break;
 				case SignalApproachMethod::FIND_SIGNAL_CENTER:
 					homingRoutine_HomingOnReferenceSignalCenter();
@@ -427,38 +434,125 @@ void AxisNode::homingRoutine_HomingOnReferenceSignalCenter(){
 	}
 }
 
-void AxisNode::homingRoutine_HomingOnReferenceSignalEdge(){
-	homingStep = HomingStep::FAILED;
+void AxisNode::homingRoutine_HomingOnReferenceSignalEdgeNegative(){
 	switch(homingStep){
 			
-			/*
 		case HomingStep::NOT_STARTED:
-			switch(homingDirection){
-				case NEGATIVE:
-					break;
-				case POSITIVE:
-					break;
+			setHomingVelocityTarget(-std::abs(homingVelocityCoarse->value));
+			homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE;
+			break;
+			
+		case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_COARSE:
+			if(*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE;
 			}
 			break;
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_COARSE:
+		case HomingStep::FOUND_ORIGIN_UPPER_EDGE_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
+				setHomingVelocityTarget(std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE;
+			}
+			break;
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_ABOVE_FINE:
+		case HomingStep::SEARCHING_ORIGIN_UPPER_EDGE_FINE:
+			if(previousLowerLimitSignal && !*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_UPPER_EDGE;
+			}
+			break;
 			
-		case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_COARSE:
-			
-		case HomingStep::SEARCHING_REFERENCE_FROM_BELOW_FINE:
-			
-		case HomingStep::FOUND_REFERENCE_FROM_ABOVE:
-			
-		case HomingStep::FOUND_REFERENCE_FROM_BELOW:
-			
-		case HomingStep::MOVING_TO_REFERENCE_MIDDLE:
+		case HomingStep::FOUND_ORIGIN_UPPER_EDGE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
+				if(overridePositionFeedback(0.0)){
+					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
 			
 		case HomingStep::RESETTING_POSITION_FEEDBACK:
-			*/
+			overrideCurrentPosition(0.0);
+			if(!isBusyOverridingPositionFeedback()){
+				if(didPositionFeedbackOverrideSucceed()){
+					homingStep = HomingStep::FINISHING;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
+		
+		case HomingStep::FINISHING:
+			homingStep = HomingStep::FINISHED;
+			break;
 			
-		default: break;
-			
+		default:
+			homingStep = HomingStep::FAILED;
+			break;
 	}
+	
+}
+
+void AxisNode::homingRoutine_HomingOnReferenceSignalEdgePositive(){
+	
+	switch(homingStep){
+			
+		case HomingStep::NOT_STARTED:
+			setHomingVelocityTarget(std::abs(homingVelocityCoarse->value));
+			homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE;
+			break;
+			
+		case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_COARSE:
+			if(*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE;
+			}
+			break;
+			
+		case HomingStep::FOUND_ORIGIN_LOWER_EDGE_COARSE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() >= 0.0){
+				setHomingVelocityTarget(-std::abs(homingVelocityFine->value));
+				homingStep = HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE;
+			}
+			break;
+			
+		case HomingStep::SEARCHING_ORIGIN_LOWER_EDGE_FINE:
+			if(previousLowerLimitSignal && !*lowerLimitSignal){
+				setHomingVelocityTarget(0.0);
+				homingStep = HomingStep::FOUND_ORIGIN_LOWER_EDGE;
+			}
+			break;
+			
+		case HomingStep::FOUND_ORIGIN_LOWER_EDGE:
+			if(motionProfile.getVelocity() == 0.0 && axisInterface->getVelocityActual() <= 0){
+				if(overridePositionFeedback(0.0)){
+					homingStep = HomingStep::RESETTING_POSITION_FEEDBACK;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
+			
+		case HomingStep::RESETTING_POSITION_FEEDBACK:
+			overrideCurrentPosition(0.0);
+			if(!isBusyOverridingPositionFeedback()){
+				if(didPositionFeedbackOverrideSucceed()){
+					homingStep = HomingStep::FINISHING;
+				}else{
+					homingStep = HomingStep::FAILED;
+				}
+			}
+			break;
+		
+		case HomingStep::FINISHING:
+			homingStep = HomingStep::FINISHED;
+			break;
+			
+		default:
+			homingStep = HomingStep::FAILED;
+			break;
+	}
+	
 }

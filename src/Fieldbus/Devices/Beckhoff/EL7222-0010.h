@@ -43,6 +43,7 @@ public:
 class ELM7231_9016 : public EtherCatDevice{
 	DEFINE_ETHERCAT_DEVICE(ELM7231_9016, "ELM7231-9016", "ELM7231-9016", "Beckhoff", "Servo Drives", 0x2, 0x502275F9)
 	std::shared_ptr<EL722x_Actuator> actuator;
+	std::shared_ptr<bool> sto = std::make_shared<bool>(true);
 	
 	uint8_t fsoeMasterFrame[7];
 	uint8_t fslogicMaster[2] = {0,0};

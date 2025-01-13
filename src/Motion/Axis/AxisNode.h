@@ -355,7 +355,8 @@ private:
 	void homingRoutine_HomeToLowerThenUpperLimitSignal();
 	void homingRoutine_HomeToUpperThenLowerLimitSignal();
 	void homingRoutine_HomingOnReferenceSignalCenter();
-	void homingRoutine_HomingOnReferenceSignalEdge();
+	void homingRoutine_HomingOnReferenceSignalEdgeNegative();
+	void homingRoutine_HomingOnReferenceSignalEdgePositive();
 	
 	
 	bool overridePositionFeedback(double newValue);

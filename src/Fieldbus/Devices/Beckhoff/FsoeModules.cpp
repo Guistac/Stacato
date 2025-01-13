@@ -3,7 +3,14 @@
 
 void EL2912::onDisconnection() {}
 void EL2912::onConnection() {}
-void EL2912::initialize() {}
+void EL2912::initialize() {
+	std::shared_ptr<NodePin> out1pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Safe Output 1", "SafeOutput1");
+	std::shared_ptr<NodePin> out2pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "Safe Output 2", "SafeOutput2");
+	out1pin->assignData(out1);
+	out2pin->assignData(out2);
+	addNodePin(out1pin);
+	addNodePin(out2pin);
+}
 bool EL2912::startupConfiguration() {
 
 	//actual parameters
@@ -50,20 +57,22 @@ bool EL2912::startupConfiguration() {
 }
 void EL2912::readInputs(){
 	fsoeConnection.receiveFrame(identity->inputs, 6, &safe_inputs, 1);
-	safeOutput1Fault = safe_inputs & 0x1;
-	safeOutput2Fault = safe_inputs & 0x2;
+	processData.safeOutput1Fault = safe_inputs & 0x1;
+	processData.safeOutput2Fault = safe_inputs & 0x2;
 }
 void EL2912::writeOutputs(){
-	safeOutput1 = Timing::getBlink(0.5);
-	safeOutput1ErrAck = false;
-	safeOutput2 = !Timing::getBlink(0.5);
-	safeOutput2ErrAck = false;
+	for(auto inputPin : getInputPins()) if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
+	
+	processData.safeOutput1 = *out1;
+	processData.safeOutput1ErrAck = false;
+	processData.safeOutput2 = *out2;
+	processData.safeOutput2ErrAck = false;
 
 	safe_outputs = 0x0;
-	if(safeOutput1) safe_outputs |= 0x1;
-	if(safeOutput1ErrAck) safe_outputs |= 0x2;
-	if(safeOutput2) safe_outputs |= 0x4;
-	if(safeOutput2ErrAck) safe_outputs |= 0x8;
+	if(processData.safeOutput1) safe_outputs |= 0x1;
+	if(processData.safeOutput1ErrAck) safe_outputs |= 0x2;
+	if(processData.safeOutput2) safe_outputs |= 0x4;
+	if(processData.safeOutput2ErrAck) safe_outputs |= 0x8;
 	
 	fsoeConnection.b_sendFailsafeData = false;
 	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
@@ -124,7 +133,20 @@ void EL2912::downladSafetyParameters(){
 
 void EL1904::onDisconnection() {}
 void EL1904::onConnection() {}
-void EL1904::initialize() {}
+void EL1904::initialize() {
+	std::shared_ptr<NodePin> in1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 1", "SafeInput1");
+	std::shared_ptr<NodePin> in2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 2", "SafeInput2");
+	std::shared_ptr<NodePin> in3Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 3", "SafeInput3");
+	std::shared_ptr<NodePin> in4Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 4", "SafeInput4");
+	in1Pin->assignData(in1);
+	in2Pin->assignData(in2);
+	in3Pin->assignData(in3);
+	in4Pin->assignData(in4);
+	addNodePin(in1Pin);
+	addNodePin(in2Pin);
+	addNodePin(in3Pin);
+	addNodePin(in4Pin);
+}
 bool EL1904::startupConfiguration() {
 
 	//actual parameters
@@ -160,16 +182,15 @@ bool EL1904::startupConfiguration() {
 	return true;
 }
 void EL1904::readInputs() {
-	fsoeConnection.receiveFrame(identity->inputs, 6, &safe_inputs, 1);
-	
-	safeInput1 = safe_inputs & 0x1;
-	safeInput2 = safe_inputs & 0x2;
-	safeInput3 = safe_inputs & 0x4;
-	safeInput4 = safe_inputs & 0x8;
+	fsoeConnection.receiveFrame(identity->inputs, 6, &processData.safe_inputs, 1);
+	*in1 = processData.safe_inputs & 0x1;
+	*in2 = processData.safe_inputs & 0x2;
+	*in3 = processData.safe_inputs & 0x4;
+	*in4 = processData.safe_inputs & 0x8;
 }
 void EL1904::writeOutputs(){
 	fsoeConnection.b_sendFailsafeData = false;
-	fsoeConnection.sendFrame(identity->outputs, 6, &safe_outputs, 1);
+	fsoeConnection.sendFrame(identity->outputs, 6, &processData.safe_outputs, 1);
 }
 bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }

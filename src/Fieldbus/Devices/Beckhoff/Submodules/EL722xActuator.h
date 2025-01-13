@@ -26,14 +26,15 @@ private:
 class EL722x_Actuator : public ActuatorInterface{
 public:
 	
-	EL722x_Actuator(std::shared_ptr<EtherCatDevice> parentDevice, int ch = 1){
+	EL722x_Actuator(std::shared_ptr<EtherCatDevice> parentDevice, int ch = 0){
 		etherCatDevice = parentDevice;
 		switch(ch){
+			case 0: channel = 1; break;
 			case 1:
 			case 2: channel = ch; break;
 			default: channel = 1; break;
 		}
-		std::string pinName = getChannelName();
+		std::string pinName = ch == 0 ? "Actuator" : getChannelName();
 		actuatorPin = std::make_shared<NodePin>(NodePin::DataType::ACTUATOR_INTERFACE, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, pinName.c_str());
 	}
 	void initialize();
@@ -49,7 +50,7 @@ public:
 	ThreadSafe<std::string> uploadParameterStatus;
 	
 	void onDisconnection();
-	void readInputs();
+	void readInputs(bool sto = false);
 	void writeOutputs();
 	
 	bool save(tinyxml2::XMLElement* parent);
@@ -125,6 +126,7 @@ private:
 		bool b_enableTarget = false;
 		float manualVelocityTarget_rps = 0.0;
 		double manualVelocityProfile_rps = 0.0;
+		bool b_sto = false;
 	}processData;
 	
 	struct MotorNameplate{

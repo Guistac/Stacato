@@ -81,7 +81,6 @@ void EtherCatDevice::nodeSpecificGui() {
 								ImGui::EndTabItem();
 							}
 							*/
-							
 							ImGui::EndTabBar();
 						}
 												

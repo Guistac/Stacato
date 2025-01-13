@@ -455,10 +455,13 @@ void ELM7231_9016::onDisconnection() { actuator->onDisconnection(); }
 void ELM7231_9016::onConnection() {}
 void ELM7231_9016::initialize() {
 	auto thisEtherCatDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());
-	actuator = std::make_shared<EL722x_Actuator>(thisEtherCatDevice, 1);
+	actuator = std::make_shared<EL722x_Actuator>(thisEtherCatDevice);
 	actuator->initialize();
-	
 	addNodePin(actuator->actuatorPin);
+	
+	auto stoPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_INPUT, "STO", "STO");
+	stoPin->assignData(sto);
+	addNodePin(stoPin);
 	
 	rxPdoAssignement.addNewModule(0x1610);
 	rxPdoAssignement.addEntry(0x7010, 0x1, 16, "CH1 Control Word", &actuator->rxPdo.controlWord);
@@ -546,9 +549,13 @@ void ELM7231_9016::readInputs() {
 	fsoeTxPdoAssignement.pullDataFrom(identity->inputs + 19);
 	fsoeConnection.receiveFrame(fsoeSlaveFrame, 7, safeInputs, 2);
 	
-	actuator->readInputs();
+	bool b_stoActiveFeedback = safeInputs[0] == 0x0;
+	
+	actuator->readInputs(b_stoActiveFeedback);
 }
 void ELM7231_9016::writeOutputs(){
+	
+	for(auto inputPin : getInputPins()) if(inputPin->isConnected()) inputPin->copyConnectedPinValue();
 	
 	if(!b_initialized){
 		b_initialized = true;
@@ -560,7 +567,7 @@ void ELM7231_9016::writeOutputs(){
 	else weird1 = 0x0;
 	
 	fsoeConnection.b_sendFailsafeData = b_sto;
-	safeOutputs[0] = b_sto ? 0x0 : 0x1;
+	safeOutputs[0] = *sto ? 0x0 : 0x1;
 	
 	actuator->writeOutputs();
 	
@@ -678,11 +685,12 @@ void ELM7231_9016::downloadCompleteDiagnostics(){
 			uint64_t timestamp = *((uint64_t*)(&buffer[8]));				//8bytes
 			std::string message = getDiagnosticsStringFromTextID(textID);
 			double time_seconds = (double(timestamp) - double(dcStartTime_nanoseconds)) / 1000000000.0;
+			double time_millis = timestamp / 1000000;
 			
-			if(flags == 0x0) 		Logger::info(		"[{}] <Info>    0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
-			else if(flags == 0x1) 	Logger::warn(		"[{}] <Warning> 0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
-			else if(flags == 0x2) 	Logger::error(		"[{}] <Error>   0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
-			else 					Logger::critical(	"[{}] <Message> 0x{:x} diagCode:{:x} : {} {:.3f}s", i, textID, diagCode, message, time_seconds);
+			if(flags == 0x0) 		Logger::info(		"[{}] <Info>    0x{:x} diagCode:{:x} : {} {:.3f}s {}ms", i, textID, diagCode, message, time_seconds, time_millis);
+			else if(flags == 0x1) 	Logger::warn(		"[{}] <Warning> 0x{:x} diagCode:{:x} : {} {:.3f}s {}ms", i, textID, diagCode, message, time_seconds, time_millis);
+			else if(flags == 0x2) 	Logger::error(		"[{}] <Error>   0x{:x} diagCode:{:x} : {} {:.3f}s {}ms", i, textID, diagCode, message, time_seconds, time_millis);
+			else 					Logger::critical(	"[{}] <Message> 0x{:x} diagCode:{:x} : {} {:.3f}s {}ms", i, textID, diagCode, message, time_seconds, time_millis);
 		}
 	}
 }

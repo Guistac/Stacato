@@ -36,7 +36,9 @@ void EL722x_Actuator::onDisconnection(){
 	processData.b_motorConnected = false;
 }
 
-void EL722x_Actuator::readInputs(){
+void EL722x_Actuator::readInputs(bool sto){
+	
+	processData.b_sto = sto;
 	
 	statusWord.readyToSwitchOn		= bool(txPdo.statusWord & (0x1 << 0));
 	statusWord.switchedOn			= bool(txPdo.statusWord & (0x1 << 1));
@@ -54,12 +56,14 @@ void EL722x_Actuator::readInputs(){
 	actuatorProcessData.followingErrorActual = double(txPdo.followingErrorActualValue) / motorNameplate.positionResolution_rev;
 	double actualCurrent = std::abs(motorNameplate.ratedCurrent_amps * double(txPdo.torqueActualValue) / 1000.0);
 	actuatorProcessData.effortActual = actualCurrent / driveSettings.currentLimit->value;
+	actuatorProcessData.b_isEmergencyStopActive = sto;
    
 	feedbackProcessData.positionActual = double(txPdo.fbPosition) / motorNameplate.positionResolution_rev;
 	feedbackProcessData.velocityActual = double(txPdo.velocityActualValue) / motorNameplate.velocityResolution_rps;
 	feedbackProcessData.forceActual = double(txPdo.torqueActualValue) / 1000.0 * motorNameplate.ratedCurrent_amps * motorNameplate.torqueConstant_mNmpA / 1000.0;
 	
 	if(!processData.b_motorConnected)										state = DeviceState::NOT_READY;
+	else if(processData.b_sto)												state = DeviceState::NOT_READY;
 	else if(statusWord.operationEnabled && !processData.b_enableTarget)		state = DeviceState::DISABLING;
 	else if(!statusWord.operationEnabled && processData.b_enableTarget)		state = DeviceState::ENABLING;
 	else if(statusWord.operationEnabled)									state = DeviceState::ENABLED;
@@ -552,6 +556,7 @@ std::string EL722x_Actuator::getStatusString(){
 	if(etherCatDevice->isOffline()) return "Drive is Offline.";
 	if(!etherCatDevice->isStateOperational()) return "Drive is not in Operational State.";
 	if(!processData.b_motorConnected) return "Motor is not connected or is being identified";
+	if(processData.b_sto) return "STO is active";
 	if(statusWord.fault) return "Fault: " + lastErrorString;
 	if(isEnabled()) return "Drive is Enabled.";
 	if(isReady()) return "Drive is Ready.";
