@@ -345,6 +345,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5206.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5206.cpp
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5206Gui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5000.h
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5000.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/Beckhoff/AX5000Gui.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h
     ${STACATO_SOURCE_DIRECTORY}/Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.cpp

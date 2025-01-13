@@ -15,6 +15,7 @@
 #include "Fieldbus/Devices/Beckhoff/EL7221-9014-MotionInterface.h"
 #include "Fieldbus/Devices/Beckhoff/EL7222-0010.h"
 #include "Fieldbus/Devices/Beckhoff/AX5206.h"
+#include "Fieldbus/Devices/Beckhoff/AX5000.h"
 #include "Fieldbus/Devices/ICPDAS/EtherCatFiberConverter.h"
 #include "Fieldbus/Devices/Kinco/KincoFD.h"
 
@@ -56,7 +57,9 @@ namespace NodeFactory{
             new ECAT_2511_B_FiberConverter(),
 			new ECAT_2515_6PortJunction(),
 			new ECAT_2517_7PortJunction(),
-			new KincoFD()
+			new KincoFD(),
+			new AX5103(),
+			new AX5203()
 		};
 
 		//sort devices by manufacturer
