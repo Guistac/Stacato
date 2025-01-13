@@ -10,13 +10,13 @@ void AX5103::onConnection(){ ax5000.onConnection(); }
 bool AX5103::startupConfiguration(){ return ax5000.startupConfiguration(); }
 void AX5103::readInputs(){ ax5000.readInputs(); }
 void AX5103::writeOutputs(){ ax5000.writeOutputs(); }
-bool AX5103::saveDeviceData(tinyxml2::XMLElement* xml){ ax5000.save(xml); }
-bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ ax5000.load(xml); }
+bool AX5103::saveDeviceData(tinyxml2::XMLElement* xml){ return ax5000.save(xml); }
+bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ return ax5000.load(xml); }
 
 
 void AX5203::initialize(){
 	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 1", 0));
-	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 2", 0));
+	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 2", 1));
 	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 }
 void AX5203::onDisconnection(){ ax5000.onDisconnection(); }
@@ -24,8 +24,8 @@ void AX5203::onConnection(){ ax5000.onConnection(); }
 bool AX5203::startupConfiguration(){ return ax5000.startupConfiguration(); }
 void AX5203::readInputs(){ ax5000.readInputs(); }
 void AX5203::writeOutputs(){ ax5000.writeOutputs(); }
-bool AX5203::saveDeviceData(tinyxml2::XMLElement* xml){ ax5000.save(xml); }
-bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ ax5000.load(xml); }
+bool AX5203::saveDeviceData(tinyxml2::XMLElement* xml){ return ax5000.save(xml); }
+bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ return ax5000.load(xml); }
 
 
 
@@ -34,7 +34,8 @@ bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ ax5000.load(xml); }
 
 void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice){
 	etherCatDevice = ecatDevice;
-	
+	//gpio = std::make_shared<Gpio>(<#std::shared_ptr<AX5000> d#>, <#std::string n#>);
+
 	etherCatDevice->addNodePin(gpioPin);
 	etherCatDevice->addNodePin(STO_pin);
 	etherCatDevice->addNodePin(digitalInput0_pin);
@@ -45,9 +46,241 @@ void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice){
 	etherCatDevice->addNodePin(digitalInput5_pin);
 	etherCatDevice->addNodePin(digitalInput6_pin);
 	etherCatDevice->addNodePin(digitalOutput7_pin);
+	
+	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
+	
+	for(auto actuator : actuators) {
+		actuator->initialize();
+		etherCatDevice->addNodePin(actuator->actuatorPin);
+	}
+}
+
+void AX5000::onDisconnection(){
+	gpio->state = DeviceState::OFFLINE;
+	for(auto actuator : actuators) actuator->state = DeviceState::OFFLINE;
+}
+void AX5000::onConnection(){
+	gpio->state = DeviceState::ENABLED;
 }
 
 
+bool AX5000::startupConfiguration() {
+	
+	struct IDN_List{
+		uint16_t size = 0; //total bytes in idn list (idn count * 2)
+		uint16_t maxLength = 0; //max length of array in slave, not useful when uploading
+		uint16_t IDNs[10] = {0};
+		uint8_t* getPointer(){ return (uint8_t*)this; }
+	};
+	
+	//Master Data Telegram (MDT) [Master->Slave]
+	IDN_List axis0_mdtList;
+	axis0_mdtList.size = 6;
+	//axis0_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
+	axis0_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
+	axis0_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
+	axis0_mdtList.IDNs[2] = 33570;	//(2) Digital Outputs
+	
+	IDN_List axis1_mdtList;
+	axis1_mdtList.size = 4;
+	//axis1_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
+	axis1_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
+	axis1_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
+
+	//Acknowledge Telegram (AT) [Slave->Master]
+	IDN_List axis0_atList;
+	axis0_atList.size = 12;
+	//axis0_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
+	axis0_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
+	axis0_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
+	axis0_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
+	axis0_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
+	axis0_atList.IDNs[4] = 33569; 	//(2) Digital Inputs, state
+	axis0_atList.IDNs[5] = 34770; 	//(2) Safety option state
+	
+	IDN_List axis1_atList;
+	axis1_atList.size = 8;
+	//axis1_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
+	axis1_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
+	axis1_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
+	axis1_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
+	axis1_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
+	
+	//========== STARTUP LIST ==========
+	
+	//upload process data configuration
+	etherCatDevice->writeSercos_Array('S', 16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
+	etherCatDevice->writeSercos_Array('S', 24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
+	if(actuators.size() > 1){
+		etherCatDevice->writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
+		etherCatDevice->writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
+	}
+	
+	/*
+	writeSercos_U64('P', 10, 0x1FBD, 0);
+	writeSercos_U64('P', 10, 0x1FBD, 1);
+	
+	uploadMotorConfiguration(0, axis0->getMotorType());
+	uploadMotorConfiguration(1, axis1->getMotorType());
+	
+	writeSercos_U16('S', 32, 2, 0); //Operation mode 0 VEL
+	writeSercos_U16('S', 32, 2, 1); //Operation mode 0 VEL
+	*/
+	 
+	etherCatDevice->writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
+	etherCatDevice->writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
+
+	/*
+	writeSercos_U16('P', 350, 0, 0); //set error reaction to torque off
+	writeSercos_U16('P', 350, 0, 1);
+
+	bool b_invert0 = axis0->invertDirection_param->value;
+	bool b_invert1 = axis1->invertDirection_param->value;
+
+	writeSercos_U16('S', 43, b_invert0 ? 0xD : 0x0, 0);
+	writeSercos_U16('S', 55, b_invert0 ? 0xD : 0x0, 0);
+	writeSercos_U16('S', 43, b_invert1 ? 0xD : 0x0, 1);
+	writeSercos_U16('S', 55, b_invert1 ? 0xD : 0x0, 1);
+
+	writeSercos_U32('P', 92, axis0->currentLimit_amps->value * 1000, 0);
+	writeSercos_U32('P', 92, axis1->currentLimit_amps->value * 1000, 1);
+
+	writeSercos_U32('S', 159, axis0->positionFollowingErrorLimit_rev->value * axis0->unitsPerRev, 0);
+	writeSercos_U32('S', 159, axis1->positionFollowingErrorLimit_rev->value * axis1->unitsPerRev, 1);
+	*/
+	
+	//setup cycle times
+	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
+	uint32_t cycleTime_nanos = cycleTime_micros * 1000;
+	uint32_t driveInterruptTime_nanos = 250'000;
+	etherCatDevice->writeSercos_U16('S', 1, cycleTime_micros); //Control unit cycle time (TNcyc) [MANDATORY]
+	etherCatDevice->writeSercos_U16('S', 2, cycleTime_micros); //Communication cycle time (tScyc) [MANDATORY]
+	ec_dcsync01(etherCatDevice->getSlaveIndex(), true, driveInterruptTime_nanos, cycleTime_nanos - driveInterruptTime_nanos, 0); //[MANDATORY]
+	
+	return true;
+}
+
+
+
+void AX5000::readInputs(){
+	memcpy(&acknowledgeTelegram, etherCatDevice->identity->inputs, etherCatDevice->identity->Ibytes);
+		
+	//Drive Data
+	bool b_stoActive = acknowledgeTelegram.safetyOptionState & 0x1;
+	bool digitalInput0 = acknowledgeTelegram.digitalInputsState & 0x1;
+	bool digitalInput1 = acknowledgeTelegram.digitalInputsState & 0x2;
+	bool digitalInput2 = acknowledgeTelegram.digitalInputsState & 0x4;
+	bool digitalInput3 = acknowledgeTelegram.digitalInputsState & 0x8;
+	bool digitalInput4 = acknowledgeTelegram.digitalInputsState & 0x10;
+	bool digitalInput5 = acknowledgeTelegram.digitalInputsState & 0x20;
+	bool digitalInput6 = acknowledgeTelegram.digitalInputsState & 0x40;
+	
+	*STOValue = invertSTO_param->value ? !b_stoActive : b_stoActive;
+	*digitalin0Value = invertDigitalIn0_param->value ? !digitalInput0 : digitalInput0;
+	*digitalin1Value = invertDigitalIn1_param->value ? !digitalInput1 : digitalInput1;
+	*digitalin2Value = invertDigitalIn2_param->value ? !digitalInput2 : digitalInput2;
+	*digitalin3Value = invertDigitalIn3_param->value ? !digitalInput3 : digitalInput3;
+	*digitalin4Value = invertDigitalIn4_param->value ? !digitalInput4 : digitalInput4;
+	*digitalin5Value = invertDigitalIn5_param->value ? !digitalInput5 : digitalInput5;
+	*digitalin6Value = invertDigitalIn6_param->value ? !digitalInput6 : digitalInput6;
+	
+	//Axis Data
+	actuators[0]->updateInputs(acknowledgeTelegram.ax0_driveStatusWord,
+						acknowledgeTelegram.ax0_positionFeedbackValue1,
+						acknowledgeTelegram.ax0_velocityFeedbackValue,
+						acknowledgeTelegram.ax0_torqueFeedbackValue,
+						acknowledgeTelegram.ax0_class1Diagnostics,
+						b_stoActive);
+	if(actuators.size() > 1){
+		actuators[1]->updateInputs(acknowledgeTelegram.ax1_driveStatusWord,
+								   acknowledgeTelegram.ax1_positionFeedbackValue1,
+								   acknowledgeTelegram.ax1_velocityFeedbackValue,
+								   acknowledgeTelegram.ax1_torqueFeedbackValue,
+								   acknowledgeTelegram.ax1_class1Diagnostics,
+								   b_stoActive);
+	}
+		
+}
+void AX5000::writeOutputs(){
+	
+	//Drive Data
+	if(digitalOutput7_pin->isConnected()) digitalOutput7_pin->copyConnectedPinValue();
+	bool digitalOutput7 = invertDigitalOut7_param->value ? (*digitalout7Value) : !(*digitalout7Value);
+	masterDataTelegram.digitalOutput = digitalOutput7 ? 0x80 : 0x0;
+
+	//Axis Data
+	uint16_t previousControlWord0 = masterDataTelegram.ax0_masterControlWord;
+	actuators[0]->updateOutputs(masterDataTelegram.ax0_masterControlWord,
+								masterDataTelegram.ax0_velocityCommandValue,
+								masterDataTelegram.ax0_positionCommandValue);
+	if(previousControlWord0 != masterDataTelegram.ax0_masterControlWord)
+		Logger::info("Axis 0 ctrlwrd {:x}", masterDataTelegram.ax0_masterControlWord);
+	
+	if(actuators.size() > 1){
+		uint16_t previousControlWord1 = masterDataTelegram.ax1_masterControlWord;
+		actuators[1]->updateOutputs(masterDataTelegram.ax1_masterControlWord,
+									masterDataTelegram.ax1_velocityCommandValue,
+									masterDataTelegram.ax1_positionCommandValue);
+		if(previousControlWord1 != masterDataTelegram.ax1_masterControlWord)
+			Logger::info("Axis 1 ctrlwrd {:x}", masterDataTelegram.ax1_masterControlWord);
+	}
+
+	memcpy(etherCatDevice->identity->outputs, &masterDataTelegram, etherCatDevice->identity->Obytes);
+}
+
+
+
+bool AX5000::save(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	XMLElement* pinInversionXML = xml->InsertNewChildElement("PinInversion");
+	invertSTO_param->save(pinInversionXML);
+	invertDigitalIn0_param->save(pinInversionXML);
+	invertDigitalIn1_param->save(pinInversionXML);
+	invertDigitalIn2_param->save(pinInversionXML);
+	invertDigitalIn3_param->save(pinInversionXML);
+	invertDigitalIn4_param->save(pinInversionXML);
+	invertDigitalIn5_param->save(pinInversionXML);
+	invertDigitalIn6_param->save(pinInversionXML);
+	invertDigitalOut7_param->save(pinInversionXML);
+
+	XMLElement* axis0XML = xml->InsertNewChildElement("Axis0");
+	actuators[0]->save(axis0XML);
+	
+	if(actuators.size() > 1){
+		XMLElement* axis1XML = xml->InsertNewChildElement("Axis1");
+		actuators[1]->save(axis1XML);
+	}
+	
+	return true;
+}
+bool AX5000::load(tinyxml2::XMLElement* xml) {
+	using namespace tinyxml2;
+	
+	if(XMLElement* pinInversionXML = xml->FirstChildElement("PinInversion")){
+		invertSTO_param->load(pinInversionXML);
+		invertDigitalIn0_param->load(pinInversionXML);
+		invertDigitalIn1_param->load(pinInversionXML);
+		invertDigitalIn2_param->load(pinInversionXML);
+		invertDigitalIn3_param->load(pinInversionXML);
+		invertDigitalIn4_param->load(pinInversionXML);
+		invertDigitalIn5_param->load(pinInversionXML);
+		invertDigitalIn6_param->load(pinInversionXML);
+		invertDigitalOut7_param->load(pinInversionXML);
+	}
+	
+	if(XMLElement* axis0XML = xml->FirstChildElement("Axis0")){
+		actuators[0]->load(axis0XML);
+	}
+	
+	if(XMLElement* axis1XML = xml->FirstChildElement("Axis1")){
+		if(actuators.size() > 1){
+			actuators[1]->load(axis1XML);
+		}
+	}
+	
+	return true;
+}
 
 
 
@@ -186,263 +419,6 @@ std::string AX5000::Actuator::getStatusString(){
 	   else return "Actuator not ready";
    }
 }
-
-
-
-/*
-void AX5206::initialize(){
-	auto thisAX5206 = std::static_pointer_cast<AX5206>(shared_from_this());
-	axis0 = std::make_shared<Axis>(thisAX5206, "Actuator 1", 0);
-	axis1 = std::make_shared<Axis>(thisAX5206, "Actuator 2", 1);
-	gpio = std::make_shared<Gpio>(thisAX5206, "Gpio");
-	
-	auto initializeAxis = [](std::shared_ptr<Axis> servo){
-		auto& fbcfg = servo->feedbackConfig;
-		fbcfg.b_supportsForceFeedback = false;
-		fbcfg.b_supportsPositionFeedback = true;
-		fbcfg.b_supportsVelocityFeedback = true;
-		fbcfg.positionFeedbackType = PositionFeedbackType::ABSOLUTE;
-		fbcfg.positionLowerWorkingRangeBound = 0;
-		fbcfg.positionUpperWorkingRangeBound = 4096.0;
-		auto& acfg = servo->actuatorConfig;
-		acfg.b_supportsEffortFeedback = true;
-		acfg.b_supportsForceControl = false;
-		acfg.b_supportsPositionControl = false;
-		acfg.b_supportsVelocityControl = true;
-		acfg.b_supportsHoldingBrakeControl = false;
-		acfg.b_canQuickstop = false;
-		acfg.velocityLimit = 90.0;
-		acfg.accelerationLimit = 500.0;
-		acfg.decelerationLimit = 500.0;
-		acfg.followingErrorLimit = 0.0;
-		acfg.forceLimitNegative = 0.0;
-		acfg.forceLimitPositive = 0.0;
-	};
-	
-	initializeAxis(axis0);
-	initializeAxis(axis1);
-	
-	actuator0Pin->assignData(std::static_pointer_cast<ActuatorInterface>(axis0));
-	actuator1Pin->assignData(std::static_pointer_cast<ActuatorInterface>(axis1));
-	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
-}
-
- 
-void AX5206::onDisconnection(){
-	axis0->state = DeviceState::OFFLINE;
-	axis1->state = DeviceState::OFFLINE;
-	gpio->state = DeviceState::OFFLINE;
-}
-void AX5206::onConnection(){
-	gpio->state = DeviceState::ENABLED;
-}
-bool AX5206::startupConfiguration() {
-	
-	struct IDN_List{
-		uint16_t size = 0; //total bytes in idn list (idn count * 2)
-		uint16_t maxLength = 0; //max length of array in slave, not useful when uploading
-		uint16_t IDNs[10] = {0};
-		uint8_t* getPointer(){ return (uint8_t*)this; }
-	};
-	
-	//Master Data Telegram (MDT) [Master->Slave]
-	IDN_List axis0_mdtList;
-	axis0_mdtList.size = 6;
-	//axis0_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
-	axis0_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
-	axis0_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
-	axis0_mdtList.IDNs[2] = 33570;	//(2) Digital Outputs
-	
-	IDN_List axis1_mdtList;
-	axis1_mdtList.size = 4;
-	//axis1_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
-	axis1_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
-	axis1_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
-
-	//Acknowledge Telegram (AT) [Slave->Master]
-	IDN_List axis0_atList;
-	axis0_atList.size = 12;
-	//axis0_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
-	axis0_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
-	axis0_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
-	axis0_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
-	axis0_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
-	axis0_atList.IDNs[4] = 33569; 	//(2) Digital Inputs, state
-	axis0_atList.IDNs[5] = 34770; 	//(2) Safety option state
-	
-	IDN_List axis1_atList;
-	axis1_atList.size = 8;
-	//axis1_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
-	axis1_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
-	axis1_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
-	axis1_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
-	axis1_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
-	
-	//========== STARTUP LIST ==========
-	
-	//upload process data configuration
-	writeSercos_Array('S', 16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
-	writeSercos_Array('S', 24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
-	writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
-	writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
-	
-	writeSercos_U64('P', 10, 0x1FBD, 0);
-	writeSercos_U64('P', 10, 0x1FBD, 1);
-	
-	uploadMotorConfiguration(0, axis0->getMotorType());
-	uploadMotorConfiguration(1, axis1->getMotorType());
-	
-	writeSercos_U16('S', 32, 2, 0); //Operation mode 0 VEL
-	writeSercos_U16('S', 32, 2, 1); //Operation mode 0 VEL
-	
-	writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
-	
-	writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
-
-	writeSercos_U16('P', 350, 0, 0); //set error reaction to torque off
-	writeSercos_U16('P', 350, 0, 1);
-
-	bool b_invert0 = axis0->invertDirection_param->value;
-	bool b_invert1 = axis1->invertDirection_param->value;
-
-	writeSercos_U16('S', 43, b_invert0 ? 0xD : 0x0, 0);
-	writeSercos_U16('S', 55, b_invert0 ? 0xD : 0x0, 0);
-	writeSercos_U16('S', 43, b_invert1 ? 0xD : 0x0, 1);
-	writeSercos_U16('S', 55, b_invert1 ? 0xD : 0x0, 1);
-
-	writeSercos_U32('P', 92, axis0->currentLimit_amps->value * 1000, 0);
-	writeSercos_U32('P', 92, axis1->currentLimit_amps->value * 1000, 1);
-
-	writeSercos_U32('S', 159, axis0->positionFollowingErrorLimit_rev->value * axis0->unitsPerRev, 0);
-	writeSercos_U32('S', 159, axis1->positionFollowingErrorLimit_rev->value * axis1->unitsPerRev, 1);
-	
-	//setup cycle times
-	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
-	uint32_t cycleTime_nanos = cycleTime_micros * 1000;
-	uint32_t driveInterruptTime_nanos = 250'000;
-	writeSercos_U16('S', 1, cycleTime_micros); //Control unit cycle time (TNcyc) [MANDATORY]
-	writeSercos_U16('S', 2, cycleTime_micros); //Communication cycle time (tScyc) [MANDATORY]
-	ec_dcsync01(getSlaveIndex(), true, driveInterruptTime_nanos, cycleTime_nanos - driveInterruptTime_nanos, 0); //[MANDATORY]
-	
-	//TODO: figure out shitftime in dc function
-	
-	return true;
-}
-void AX5206::readInputs(){
-	memcpy(&acknowledgeTelegram, identity->inputs, identity->Ibytes);
-		
-	//Drive Data
-	processData.b_stoActive = acknowledgeTelegram.safetyOptionState & 0x1;
-	processData.digitalInput0 = acknowledgeTelegram.digitalInputsState & 0x1;
-	processData.digitalInput1 = acknowledgeTelegram.digitalInputsState & 0x2;
-	processData.digitalInput2 = acknowledgeTelegram.digitalInputsState & 0x4;
-	processData.digitalInput3 = acknowledgeTelegram.digitalInputsState & 0x8;
-	processData.digitalInput4 = acknowledgeTelegram.digitalInputsState & 0x10;
-	processData.digitalInput5 = acknowledgeTelegram.digitalInputsState & 0x20;
-	processData.digitalInput6 = acknowledgeTelegram.digitalInputsState & 0x40;
-	
-	*STOValue = invertSTO_param->value ? !processData.b_stoActive : processData.b_stoActive;
-	*digitalin0Value = invertDigitalIn0_param->value ? !processData.digitalInput0 : processData.digitalInput0;
-	*digitalin1Value = invertDigitalIn1_param->value ? !processData.digitalInput1 : processData.digitalInput1;
-	*digitalin2Value = invertDigitalIn2_param->value ? !processData.digitalInput2 : processData.digitalInput2;
-	*digitalin3Value = invertDigitalIn3_param->value ? !processData.digitalInput3 : processData.digitalInput3;
-	*digitalin4Value = invertDigitalIn4_param->value ? !processData.digitalInput4 : processData.digitalInput4;
-	*digitalin5Value = invertDigitalIn5_param->value ? !processData.digitalInput5 : processData.digitalInput5;
-	*digitalin6Value = invertDigitalIn6_param->value ? !processData.digitalInput6 : processData.digitalInput6;
-
-	//Axis Data
-	axis0->updateInputs(acknowledgeTelegram.ax0_driveStatusWord,
-						acknowledgeTelegram.ax0_positionFeedbackValue1,
-						acknowledgeTelegram.ax0_velocityFeedbackValue,
-						acknowledgeTelegram.ax0_torqueFeedbackValue,
-						acknowledgeTelegram.ax0_class1Diagnostics,
-						processData.b_stoActive);
-	axis1->updateInputs(acknowledgeTelegram.ax1_driveStatusWord,
-						acknowledgeTelegram.ax1_positionFeedbackValue1,
-						acknowledgeTelegram.ax1_velocityFeedbackValue,
-						acknowledgeTelegram.ax1_torqueFeedbackValue,
-						acknowledgeTelegram.ax1_class1Diagnostics,
-						processData.b_stoActive);
-		
-}
-void AX5206::writeOutputs(){
-	
-	//Drive Data
-	
-	if(digitalOutput7_pin->isConnected()) digitalOutput7_pin->copyConnectedPinValue();
-	processData.digitalOutput7 = *digitalout7Value;
-	if(invertDigitalOut7_param->value) processData.digitalOutput7 = ! processData.digitalOutput7;
-	masterDataTelegram.digitalOutput = processData.digitalOutput7 ? 0x80 : 0x0;
-
-	uint16_t previousControlWord0 = masterDataTelegram.ax0_masterControlWord;
-	uint16_t previousControlWord1 = masterDataTelegram.ax1_masterControlWord;
-
-	//Axis Data
-	axis0->updateOutputs(masterDataTelegram.ax0_masterControlWord,
-						 masterDataTelegram.ax0_velocityCommandValue,
-						 masterDataTelegram.ax0_positionCommandValue);
-	axis1->updateOutputs(masterDataTelegram.ax1_masterControlWord,
-						 masterDataTelegram.ax1_velocityCommandValue,
-						 masterDataTelegram.ax1_positionCommandValue);
-	
-	if(previousControlWord0 != masterDataTelegram.ax0_masterControlWord)
-		Logger::info("Axis 0 ctrlwrd {:x}", masterDataTelegram.ax0_masterControlWord);
-	if(previousControlWord1 != masterDataTelegram.ax1_masterControlWord)
-		Logger::info("Axis 1 ctrlwrd {:x}", masterDataTelegram.ax1_masterControlWord);
-
-	memcpy(identity->outputs, &masterDataTelegram, identity->Obytes);
-}
-bool AX5206::saveDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	
-	XMLElement* pinInversionXML = xml->InsertNewChildElement("PinInversion");
-	invertSTO_param->save(pinInversionXML);
-	invertDigitalIn0_param->save(pinInversionXML);
-	invertDigitalIn1_param->save(pinInversionXML);
-	invertDigitalIn2_param->save(pinInversionXML);
-	invertDigitalIn3_param->save(pinInversionXML);
-	invertDigitalIn4_param->save(pinInversionXML);
-	invertDigitalIn5_param->save(pinInversionXML);
-	invertDigitalIn6_param->save(pinInversionXML);
-	invertDigitalOut7_param->save(pinInversionXML);
-	
-	XMLElement* axis0XML = xml->InsertNewChildElement("Axis0");
-	axis0->save(axis0XML);
-	
-	XMLElement* axis1XML = xml->InsertNewChildElement("Axis1");
-	axis1->save(axis1XML);
-	
-	return true;
-}
-bool AX5206::loadDeviceData(tinyxml2::XMLElement* xml) {
-	using namespace tinyxml2;
-	
-	if(XMLElement* pinInversionXML = xml->FirstChildElement("PinInversion")){
-		invertSTO_param->load(pinInversionXML);
-		invertDigitalIn0_param->load(pinInversionXML);
-		invertDigitalIn1_param->load(pinInversionXML);
-		invertDigitalIn2_param->load(pinInversionXML);
-		invertDigitalIn3_param->load(pinInversionXML);
-		invertDigitalIn4_param->load(pinInversionXML);
-		invertDigitalIn5_param->load(pinInversionXML);
-		invertDigitalIn6_param->load(pinInversionXML);
-		invertDigitalOut7_param->load(pinInversionXML);
-	}
-	
-	if(XMLElement* axis0XML = xml->FirstChildElement("Axis0")){
-		axis0->load(axis0XML);
-	}
-	
-	if(XMLElement* axis1XML = xml->FirstChildElement("Axis1")){
-		axis1->load(axis1XML);
-	}
-	
-	return true;
-}
-*/
-
-
-
 
 
 
