@@ -1,8 +1,9 @@
 #include "AX5000.h"
 #include "Fieldbus/EtherCatFieldbus.h"
+#include "AX5000_StartupLists.h"
 
 void AX5103::initialize(){
-	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator", 0));
+	ax5000.addActuator("Actuator");
 	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 }
 void AX5103::onDisconnection(){ 								ax5000.onDisconnection(); }
@@ -15,8 +16,8 @@ bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ return 	ax5000.load(xml)
 
 
 void AX5203::initialize(){
-	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 1", 0));
-	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 2", 1));
+	ax5000.addActuator("Actuator 1");
+	ax5000.addActuator("Actuator 2");
 	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 }
 void AX5203::onDisconnection(){ 								ax5000.onDisconnection(); }
@@ -30,11 +31,17 @@ bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ return	ax5000.load(xml);
 
 
 
-
+void AX5000::addActuator(std::string name){
+	if(actuators.size() > 1) return;
+	std::shared_ptr<Actuator> newActuator = std::make_shared<Actuator>(name, actuators.size() == 0 ? 0 : 1);
+	actuators.push_back(newActuator);
+}
 
 void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice){
 	etherCatDevice = ecatDevice;
-	//gpio = std::make_shared<Gpio>(<#std::shared_ptr<AX5000> d#>, <#std::string n#>);
+	
+	gpio = std::make_shared<Gpio>(ecatDevice, "GPIO");
+	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
 
 	etherCatDevice->addNodePin(gpioPin);
 	etherCatDevice->addNodePin(STO_pin);
@@ -47,9 +54,9 @@ void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice){
 	etherCatDevice->addNodePin(digitalInput6_pin);
 	etherCatDevice->addNodePin(digitalOutput7_pin);
 	
-	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
-	
 	for(auto actuator : actuators) {
+		actuator->etherCatDevice = etherCatDevice;
+		actuator->ax5000 = this;
 		actuator->initialize();
 		etherCatDevice->addNodePin(actuator->actuatorPin);
 	}
@@ -66,6 +73,8 @@ void AX5000::onConnection(){
 
 bool AX5000::startupConfiguration() {
 	
+	//========== PROCESS DATA CONFIGURATION =========
+	
 	struct IDN_List{
 		uint16_t size = 0; //total bytes in idn list (idn count * 2)
 		uint16_t maxLength = 0; //max length of array in slave, not useful when uploading
@@ -80,12 +89,6 @@ bool AX5000::startupConfiguration() {
 	axis0_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
 	axis0_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
 	axis0_mdtList.IDNs[2] = 33570;	//(2) Digital Outputs
-	
-	IDN_List axis1_mdtList;
-	axis1_mdtList.size = 4;
-	//axis1_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
-	axis1_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
-	axis1_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
 
 	//Acknowledge Telegram (AT) [Slave->Master]
 	IDN_List axis0_atList;
@@ -98,58 +101,62 @@ bool AX5000::startupConfiguration() {
 	axis0_atList.IDNs[4] = 33569; 	//(2) Digital Inputs, state
 	axis0_atList.IDNs[5] = 34770; 	//(2) Safety option state
 	
-	IDN_List axis1_atList;
-	axis1_atList.size = 8;
-	//axis1_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
-	axis1_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
-	axis1_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
-	axis1_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
-	axis1_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
-	
-	//========== STARTUP LIST ==========
-	
-	//upload process data configuration
 	etherCatDevice->writeSercos_Array('S', 16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
 	etherCatDevice->writeSercos_Array('S', 24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
+	
 	if(actuators.size() > 1){
+		IDN_List axis1_mdtList;
+		axis1_mdtList.size = 4;
+		//axis1_mdtList.IDNs[0] = 134; 	//(2) Master Control Word		[FIXED]
+		axis1_mdtList.IDNs[0] = 47; 	//(4) Position Command Value
+		axis1_mdtList.IDNs[1] = 36; 	//(4) Velocity Command Value
+		
+		IDN_List axis1_atList;
+		axis1_atList.size = 8;
+		//axis1_atList.IDNs[0] = 135;	//(2) Drive Status Word (u16)						[FIXED]
+		axis1_atList.IDNs[0] = 51;		//(4) Position Feedback Value 1 (motor feedback)
+		axis1_atList.IDNs[1] = 40;		//(4) Velocity Feedback Value 1
+		axis1_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
+		axis1_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
+		
 		etherCatDevice->writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
 		etherCatDevice->writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
 	}
 	
-	/*
-	writeSercos_U64('P', 10, 0x1FBD, 0);
-	writeSercos_U64('P', 10, 0x1FBD, 1);
 	
-	uploadMotorConfiguration(0, axis0->getMotorType());
-	uploadMotorConfiguration(1, axis1->getMotorType());
+	//========== GLOBAL DRIVE CONFIGURATION ==========
 	
-	writeSercos_U16('S', 32, 2, 0); //Operation mode 0 VEL
-	writeSercos_U16('S', 32, 2, 1); //Operation mode 0 VEL
-	*/
-	 
+	
+	std::vector<uint8_t> IDN32972 = {0x09, 0x08};
+	etherCatDevice->writeSercos_Array(0, 32972, IDN32972); //Power Management Control Word
+	etherCatDevice->writeSercos_U16('P', 216, 8900); //Max DC link Voltage [890.0V]
+	etherCatDevice->writeSercos_U16('P', 201, 4000); //Nominal mains voltage [400.0V]
+	etherCatDevice->writeSercos_U16('P', 202, 100); //mains voltage positive tolerance range [10.0V]
+	etherCatDevice->writeSercos_U16('P', 203, 100); //mains voltage negative tolerance range [10.0V]
+	
+	
+	
 	etherCatDevice->writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
 	etherCatDevice->writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
-
-	/*
-	writeSercos_U16('P', 350, 0, 0); //set error reaction to torque off
-	writeSercos_U16('P', 350, 0, 1);
-
-	bool b_invert0 = axis0->invertDirection_param->value;
-	bool b_invert1 = axis1->invertDirection_param->value;
-
-	writeSercos_U16('S', 43, b_invert0 ? 0xD : 0x0, 0);
-	writeSercos_U16('S', 55, b_invert0 ? 0xD : 0x0, 0);
-	writeSercos_U16('S', 43, b_invert1 ? 0xD : 0x0, 1);
-	writeSercos_U16('S', 55, b_invert1 ? 0xD : 0x0, 1);
-
-	writeSercos_U32('P', 92, axis0->currentLimit_amps->value * 1000, 0);
-	writeSercos_U32('P', 92, axis1->currentLimit_amps->value * 1000, 1);
-
-	writeSercos_U32('S', 159, axis0->positionFollowingErrorLimit_rev->value * axis0->unitsPerRev, 0);
-	writeSercos_U32('S', 159, axis1->positionFollowingErrorLimit_rev->value * axis1->unitsPerRev, 1);
-	*/
 	
-	//setup cycle times
+	
+	
+	
+	
+	//========== AXIS STARTUP LIST ==========
+	
+	for(int i = 0; i < actuators.size(); i++){
+		uploadAxisStartupList(i, actuators[i]->getMotorType());
+		etherCatDevice->writeSercos_U16('S', 32, 2, i); //Operation mode 0 VEL
+		etherCatDevice->writeSercos_U16('P', 350, 0, i); //set error reaction to torque off
+		etherCatDevice->writeSercos_U16('S', 43, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
+		etherCatDevice->writeSercos_U16('S', 55, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
+		etherCatDevice->writeSercos_U32('P', 92, actuators[i]->currentLimit_amps->value * 1000, i);
+		etherCatDevice->writeSercos_U32('S', 159, actuators[i]->positionFollowingErrorLimit_rev->value * actuators[0]->unitsPerRev, i);
+	}
+
+	//=========== TIMING CONFIGURATION ============
+	
 	uint16_t cycleTime_micros = EtherCatFieldbus::processInterval_milliseconds * 1000;
 	uint32_t cycleTime_nanos = cycleTime_micros * 1000;
 	uint32_t driveInterruptTime_nanos = 250'000;
@@ -160,6 +167,27 @@ bool AX5000::startupConfiguration() {
 	return true;
 }
 
+bool AX5000::uploadAxisStartupList(uint8_t axis, Actuator::Type type){
+	auto uploadStartupList = [this](uint8_t axis, std::vector<StartupItem>& startupList) -> bool {
+		for(auto& startupItem : startupList){
+			if(!etherCatDevice->writeSercos_Array(axis, startupItem.idn, startupItem.data)){
+				Logger::error("Failed to upload startupItem '{}'", startupItem.comment);
+				return false;
+			}
+		}
+		return true;
+	};
+	switch(type){
+		case Actuator::Type::NONE:
+			return true;
+		case Actuator::Type::AM8032_1D20_0000:
+			return uploadStartupList(axis, AM8032_1D20_0000_startupList);
+		case Actuator::Type::AM8043_0E20_0000:
+			return uploadStartupList(axis, AM8043_0E20_0000_startupList);
+		default:
+			return false;
+	}
+}
 
 
 void AX5000::readInputs(){
@@ -299,48 +327,48 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
 
    bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
    if(previousEstop != sto){
-	   //if(sto) Logger::warn("[{}] Axis {} : STO Active", drive->getName(), channel);
-	   //else Logger::info("[{}] Axis {} : STO Cleared", drive->getName(), channel);
+	   if(sto) Logger::warn("[{}] Axis {} : STO Active", etherCatDevice->getName(), channel);
+	   else Logger::info("[{}] Axis {} : STO Cleared", etherCatDevice->getName(), channel);
    }
 
    if(statusWord.shutdownError != b_hasFault){
-	   //if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", drive->getName(), channel);
-	   //else Logger::error("[{}] Axis {} : Fault !", drive->getName(), channel);
+	   if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", etherCatDevice->getName(), channel);
+	   else Logger::error("[{}] Axis {} : Fault !", etherCatDevice->getName(), channel);
    }
    if(statusWord.warningChange != b_warning){
-	   //Logger::critical("[{}] Axis {} : Warning {}", drive->getName(), channel, statusWord.warningChange);
+	   Logger::critical("[{}] Axis {} : Warning {}", etherCatDevice->getName(), channel, statusWord.warningChange);
    }
    if(statusWord.infoChange != b_info){
-	   //Logger::critical("[{}] Axis {} : Info {}", drive->getName(), channel, statusWord.infoChange);
+	   Logger::critical("[{}] Axis {} : Info {}", etherCatDevice->getName(), channel, statusWord.infoChange);
    }
 
 
 
    if(class1Errors != err){
 	   if(err != 0x0){
-		   //Logger::error("[{}] Axis {} Errors:", drive->getName(), channel);
-		   //Logger::error("{}", drive->getClass1Errors(err));
+		   Logger::error("[{}] Axis {} Errors:", etherCatDevice->getName(), channel);
+		   Logger::error("{}", ax5000->getClass1Errors(err));
 	   }
-	   //else Logger::error("[{}] Axis {} : Error cleared !", drive->getName(), channel);
+	   else Logger::error("[{}] Axis {} : Error cleared !", etherCatDevice->getName(), channel);
    }
    class1Errors = err;
 
    if(actuatorProcessData.b_enabling){
 	   if(statusWord.isEnabled()){
 		   actuatorProcessData.b_enabling = false;
-		   //Logger::info("[{}] Axis {} Enabled", drive->getName(), channel);
+		   Logger::info("[{}] Axis {} Enabled", etherCatDevice->getName(), channel);
 	   }
 	   else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - actuatorProcessData.enableRequest_nanos > enableTimeout_nanos){
 		   actuatorProcessData.b_enabling = false;
 		   controlWord.disable();
-		   //Logger::warn("[{}] Axis {} Enable timeout", drive->getName(), channel);
+		   Logger::warn("[{}] Axis {} Enable timeout", etherCatDevice->getName(), channel);
 	   }
    }
    else if(isEnabled() && !statusWord.isEnabled()){
-	   //Logger::error("[{} Axis {}] isEnabled: {}", drive->getName(), channel, isEnabled());
+	   Logger::error("[{} Axis {}] isEnabled: {}", etherCatDevice->getName(), channel, isEnabled());
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
-	   //Logger::error("[{} Axis {}] Disabled (st:{} fl:{})", drive->getName(), channel, statusWord.status, statusWord.followsCommand);
+	   Logger::error("[{} Axis {}] Disabled (st:{} fl:{})", etherCatDevice->getName(), channel, statusWord.status, statusWord.followsCommand);
    }
 
 
@@ -352,7 +380,7 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
    else{
 	   if(actuatorProcessData.b_enabling) state = DeviceState::ENABLING;
 	   else if(sto || !statusWord.isReady()) state = DeviceState::NOT_READY;
-	   //else if(!drive->isStateOperational()) state = DeviceState::NOT_READY;
+	   else if(!etherCatDevice->isStateOperational()) state = DeviceState::NOT_READY;
 	   else state = DeviceState::READY;
    }
    feedbackProcessData.positionActual = double(pos) / unitsPerRev;
@@ -369,7 +397,7 @@ void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t&
 	   actuatorProcessData.b_enable = false;
 	   actuatorProcessData.b_enabling = true;
 	   actuatorProcessData.enableRequest_nanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
-	   //if(statusWord.shutdownError) drive->requestFaultReset(channel);
+	   if(statusWord.shutdownError) ax5000->requestFaultReset(channel);
    }
    if(actuatorProcessData.b_enabling){
 	   if(!statusWord.shutdownError) controlWord.enable();
@@ -378,7 +406,7 @@ void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t&
 	   actuatorProcessData.b_disable = false;
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
-	   //Logger::error("[{} Axis {}] Disable request", drive->getName(), channel);
+	   Logger::error("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
    }
    
    vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
@@ -387,7 +415,7 @@ void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t&
    controlWord.encode(controlw);
 }
 bool AX5000::Actuator::save(tinyxml2::XMLElement* xml){
-   //motorType->save(xml);
+   motorType->save(xml);
    velocityLimit_revps->save(xml);
    accelerationLimit_revps2->save(xml);
    positionFollowingErrorLimit_rev->save(xml);
@@ -396,7 +424,7 @@ bool AX5000::Actuator::save(tinyxml2::XMLElement* xml){
    return true;
 }
 bool AX5000::Actuator::load(tinyxml2::XMLElement* xml){
-   //motorType->load(xml);
+   motorType->load(xml);
    velocityLimit_revps->load(xml);
    accelerationLimit_revps2->load(xml);
    positionFollowingErrorLimit_rev->load(xml);
@@ -411,10 +439,10 @@ std::string AX5000::Actuator::getStatusString(){
    else if(isReady()) return "Actuator Ready";
    else{
 	   if(isEmergencyStopActive()) return "STO is active";
-	   //if(!drive->isStateOperational()) return "Drive is not in operational state";
+	   if(!etherCatDevice->isStateOperational()) return "Drive is not in operational state";
 	   if(hasFault()) {
 		   std::string output = "Axis has errors:\n";
-		   //return output + drive->getClass1Errors(class1Errors);
+		   return output + ax5000->getClass1Errors(class1Errors);
 	   }
 	   else return "Actuator not ready";
    }
@@ -422,20 +450,31 @@ std::string AX5000::Actuator::getStatusString(){
 
 
 
-/*
-void AX5206::requestFaultReset(uint8_t axis){
+
+
+
+
+
+
+
+
+
+
+
+
+void AX5000::requestFaultReset(uint8_t axis){
 	std::thread faultResetThread([this,axis](){
 		//set & enable command
-		if(writeSercos_U16('S', 99, 3, axis)) Logger::info("Requested fault reset");
+		if(etherCatDevice->writeSercos_U16('S', 99, 3, axis)) Logger::info("Requested fault reset");
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		//cancel command
-		if(writeSercos_U16('S', 99, 0, axis)) Logger::info("Fault reset request finished");
+		if(etherCatDevice->writeSercos_U16('S', 99, 0, axis)) Logger::info("Fault reset request finished");
 	});
 	faultResetThread.detach();
 }
 
 
-void AX5206::getInvalidIDNsForSafeOp(){
+void AX5000::getInvalidIDNsForSafeOp(){
 	struct IDN_List{
 		uint16_t actualLength = 0; //number of bytes in the idns array
 		uint16_t maxLength = 0;
@@ -443,7 +482,7 @@ void AX5206::getInvalidIDNsForSafeOp(){
 	}invalidIDNs;
 	int size = 100;
 	
-	if(!readSercos_Array('S', 21, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
+	if(!etherCatDevice->readSercos_Array('S', 21, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
 	
 	int invalidIDNcount = invalidIDNs.actualLength / 2;
 	Logger::info("Invalid IDNs for PreOp->SafeOp Transition ({})", invalidIDNcount);
@@ -454,7 +493,7 @@ void AX5206::getInvalidIDNsForSafeOp(){
 	}
 }
 
-void AX5206::getInvalidIDNsForOp(){
+void AX5000::getInvalidIDNsForOp(){
 	struct IDN_List{
 		uint16_t actualLength = 0; //number of bytes in the idns array
 		uint16_t maxLength = 0;
@@ -462,7 +501,7 @@ void AX5206::getInvalidIDNsForOp(){
 	}invalidIDNs;
 	int size = 100;
 	
-	if(!readSercos_Array('S', 22, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
+	if(!etherCatDevice->readSercos_Array('S', 22, (uint8_t*)&invalidIDNs, size)) Logger::warn("Failed to download IDN list");
 	
 	int invalidIDNcount = invalidIDNs.actualLength / 2;
 	Logger::info("Invalid IDNs for SafeOp->Op Transition ({})", invalidIDNcount);
@@ -473,7 +512,7 @@ void AX5206::getInvalidIDNsForOp(){
 	}
 }
 
-std::string AX5206::getClass1Errors(uint16_t c1diag){
+std::string AX5000::getClass1Errors(uint16_t c1diag){
 	if(c1diag == 0x0) return "No Errors";
 	std::string output;
 	if(c1diag & 0x1) output += "Motor overload shut down\n";
@@ -496,17 +535,17 @@ std::string AX5206::getClass1Errors(uint16_t c1diag){
 	return output;
 }
 
-void AX5206::getShutdownErrorList(){
+void AX5000::getShutdownErrorList(){
 	uint16_t err0, err1;
-	bool ret0 = readSercos_U16('S', 11, err0);
-	bool ret1 = readSercos_U16('S', 11, err1);
+	bool ret0 = etherCatDevice->readSercos_U16('S', 11, err0);
+	bool ret1 = etherCatDevice->readSercos_U16('S', 11, err1);
 	Logger::warn("Axis 0 Errors: ");
 	Logger::error("{}", getClass1Errors(err0));
 	//Logger::warn("Axis 1 Errors: "); //this does not seem to show anything
 	//Logger::error("{}", getClass1Errors(err1));
 }
 
-void AX5206::getErrorHistory(){
+void AX5000::getErrorHistory(){
 	struct ErrorList{
 		uint16_t actualSize;
 		uint16_t maxSize;
@@ -530,8 +569,8 @@ void AX5206::getErrorHistory(){
 	};
 	
 	auto showErrorHistory = [&](uint8_t axis){
-		bool ret1 = readSercos_Array('P', 300, (uint8_t*)&errorList, errorListSize, axis);
-		bool ret2 = readSercos_Array('P', 301, (uint8_t*)&errorTimeList, errorTimeListSize, axis);
+		bool ret1 = etherCatDevice->readSercos_Array('P', 300, (uint8_t*)&errorList, errorListSize, axis);
+		bool ret2 = etherCatDevice->readSercos_Array('P', 301, (uint8_t*)&errorTimeList, errorTimeListSize, axis);
 		Logger::info("{} {}", errorListSize, errorTimeListSize);
 		if(ret1 && ret2){
 			int errorCount = errorList.actualSize / 4;
@@ -550,22 +589,24 @@ void AX5206::getErrorHistory(){
 	showErrorHistory(1);
 }
 
-void AX5206::getDiagnosticsMessage(){
+void AX5000::getDiagnosticsMessage(){
 	std::string ax0diag;
-	bool ret0 = readSercos_String('S', 95, ax0diag, 0); //same idn for axis 1 never displays anything
+	bool ret0 = etherCatDevice->readSercos_String('S', 95, ax0diag, 0); //same idn for axis 1 never displays anything
 	Logger::warn("{}", ax0diag);
 }
 
-std::string AX5206::getErrorString(uint32_t errorCode){
+std::string AX5000::getErrorString(uint32_t errorCode){
 	switch(errorCode){
 		case 0xF100: return "Axis state machine: Communication error";
 		case 0xF101: return "Axis state machine: Initialize error (selected uninitialized operating mode)";
 		case 0xF106: return "Axis state machine: No motor configured";
 		case 0xF107: return "Axis state machine: Current control not ready to enable";
+		case 0xF11F: return "The advanced parametrization introduced with firmware version 2.10 is required";
 		case 0xF152: return "Initialization of the feedback: Command failed";
 		case 0xF166: return "Process data mapping: MDT - S-0-0024";
 		case 0xF2A0: return "COMMUTATION ERROR (very rare)";
 		case 0xF2A7: return "Torque off triggered from \"shorted coils brake\" or \"DC brake\"";
+		case 0xF330: return "Position control - Interpolator error";
 		case 0xF414: return "Distributed clocks: hardware sync";
 		case 0xF415: return "Distributed clocks: Process data synchronization lost";
 		case 0xF4A1: return "SoE Communication: Internal error";
@@ -579,6 +620,7 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xF859: return "One cable feedback: Write system control failed";
 		case 0xF85F: return "One cable feedback: Read of the cyclic data failed";
 		case 0xFC03: return "Control voltage error: undervoltage";
+		case 0xFD07: return "Motor over-temperature shut down.";
 		case 0xFD08: return "Motor management: Drive type don't match";
 		case 0xFD09: return "Motor management: Motor type don't match";
 		case 0xFD0A: return "Configured channel peak current is greater than the motor peak current";
@@ -589,12 +631,13 @@ std::string AX5206::getErrorString(uint32_t errorCode){
 		case 0xFD44: return "Mains supply: Phase error";
 		case 0xFD47: return "Power management error";
 		case 0xFDD3: return "Safety switch off while the axis was enabled";
+		case 0xFDD4: return "Configured safety option don't match";
 		default: return "";
 	};
 }
 
-std::string AX5206::getGpioStatus(){
+/*
+std::string AX5000::getGpioStatus(){
 	return "No status string yet :(";
 }
-
 */

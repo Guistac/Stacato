@@ -4,11 +4,29 @@
 #include "Project/Editor/Parameter.h"
 #include "Fieldbus/EtherCatDevice.h"
 
-class AX5000{
+//TODO: the device doesn't seem to like cycle times larger than 4ms
+
+class AX5000;
+
+class AX5000 : public std::enable_shared_from_this<AX5000>{
 public:
 	
 	class Actuator : public ActuatorInterface{
 	public:
+		
+		enum class Type{
+			NONE = 0x0,
+			AM8032_1D20_0000 = 0x1,
+			AM8043_0E20_0000 = 0x2
+		};
+		OptionParameter::Option option_motorType_none = OptionParameter::Option(int(Type::NONE), "No Motor", "NoMotor");
+		OptionParameter::Option option_motorType_am8032_1D20_0000 = OptionParameter::Option(int(Type::AM8032_1D20_0000), "AM8032-1D20-0000", "AM8032-1D20-0000");
+		OptionParameter::Option option_motorType_am8043_0E20_0000 = OptionParameter::Option(int(Type::AM8043_0E20_0000), "AM8043-0E20-0000", "AM8043-0E20-0000");
+		std::vector<OptionParameter::Option*> motorTypeOptions = {
+			&option_motorType_none,
+			&option_motorType_am8032_1D20_0000,
+			&option_motorType_am8043_0E20_0000
+		};
 		
 		struct StatusWord{
 			bool followsCommand;
@@ -58,8 +76,8 @@ public:
 			void toggleSyncBit(){ b_syncBit = !b_syncBit; }
 		};
 		
-		Actuator(std::shared_ptr<AX5000> d, std::string n, uint8_t c) : parentDrive(d), name(n), channel(c){
-			//motorType = OptionParameter::make2(drive->option_motor_none, drive->motorTypeOptions, "Motor Type", "MotorType");
+		Actuator(std::string n, uint8_t c) : name(n), channel(c){
+			motorType = OptionParameter::make2(option_motorType_none, motorTypeOptions, "Motor Type", "MotorType");
 			std::string pinSaveName;
 			switch(c){
 				case 0: pinSaveName = "Actuator1"; break;
@@ -104,8 +122,8 @@ public:
 		void updateInputs(uint16_t status, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto);
 		void updateOutputs(uint16_t& controlWord, int32_t& vel, uint32_t& pos);
 		///Parameters
-		//OptionParam motorType;
-		//MotorType getMotorType(){ return MotorType(motorType->value); }
+		OptionParam motorType;
+		Type getMotorType(){ return Type(motorType->value); }
 		NumberParam<double> velocityLimit_revps = NumberParameter<double>::make(0.0, "Velocity Limit", "VelocityLimit",
 																				"%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
 		NumberParam<double> accelerationLimit_revps2 = NumberParameter<double>::make(0.0, "Acceleration Limit", "AccelerationLimit",
@@ -119,7 +137,8 @@ public:
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);
 
-		std::shared_ptr<AX5000> parentDrive;
+		std::shared_ptr<EtherCatDevice> etherCatDevice = nullptr;
+		AX5000* ax5000 = nullptr;
 		std::shared_ptr<NodePin> actuatorPin;
 		std::string name;
 		uint8_t channel;
@@ -132,12 +151,12 @@ public:
 	
 	class Gpio : public GpioInterface{
 	public:
-		Gpio(std::shared_ptr<AX5000> d, std::string n) : drive(d), name(n){}
+		Gpio(std::shared_ptr<EtherCatDevice> d, std::string n) : ethercatDevice(d), name(n){}
 		virtual std::string getName() override { return name; }
-		virtual std::string getStatusString() override {/* return drive->getGpioStatus(); */}
+		virtual std::string getStatusString() override { return "No status string."; }
 	private:
 		std::string name;
-		std::shared_ptr<AX5000> drive;
+		std::shared_ptr<EtherCatDevice> ethercatDevice;
 	};
 	
 	std::shared_ptr<EtherCatDevice> etherCatDevice = nullptr;
@@ -152,6 +171,10 @@ public:
 	bool load(tinyxml2::XMLElement* xml);
 	void onDisconnection();
 	void onConnection();
+	
+	void addActuator(std::string name);
+	
+	bool uploadAxisStartupList(uint8_t axis, Actuator::Type type);
 	
 	
 	struct __attribute__((__packed__)) MasterDataTelegram{
@@ -216,6 +239,16 @@ public:
 	
 	void readTwinCatStartupListXML(std::string filePath);
 	void gui();
+	
+	void getInvalidIDNsForSafeOp();
+	void getInvalidIDNsForOp();
+	void getShutdownErrorList();
+	void getErrorHistory();
+	void getDiagnosticsMessage();
+	void requestFaultReset(uint8_t axis);
+	std::string getGpioStatus();
+	std::string getErrorString(uint32_t errorCode);
+	std::string getClass1Errors(uint16_t class1diagnostics);
 	
 };
 

@@ -190,6 +190,7 @@ public:
 	bool writeSercos_U32(char paramType, uint16_t IDN, uint32_t data, uint8_t driveNumber = 0);
 	bool writeSercos_U64(char paramType, uint16_t IDN, uint64_t data, uint8_t driveNumber = 0);
 	bool writeSercos_Array(char paramType, uint16_t IDN, uint8_t* data, int size, uint8_t driveNumber = 0);
+	bool writeSercos_Array(uint8_t driveNumber, uint16_t IDN, std::vector<uint8_t>& data);
 	
     //===== Reading And Writing Data
 

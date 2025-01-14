@@ -312,6 +312,10 @@ bool EtherCatDevice::writeSercos_Array(char paramType, uint16_t IDN, uint8_t* da
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, size, data, EC_TIMEOUTSAFE);
 }
 
+bool EtherCatDevice::writeSercos_Array(uint8_t driveNumber, uint16_t IDN, std::vector<uint8_t>& data){
+	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, int(data.size()), data.data(), EC_TIMEOUTSAFE);
+}
+
 bool EtherCatDevice::writeSercos_U32(char paramType, uint16_t IDN, uint32_t data, uint8_t driveNumber){
 	if(paramType == 'P') IDN += 32768;
 	return 1 == ec_SoEwrite(slaveIndex, driveNumber, EC_SOE_VALUE_B, IDN, 4, &data, EC_TIMEOUTRXM);

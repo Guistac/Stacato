@@ -2,13 +2,12 @@
     <Dashboard Scale="0.97274703" OffsetX="652.85443" OffsetY="-257" AutoFit="true" DrawGrid="false" LockEdit="true"/>
     <NodeGraph>
         <Nodes>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5203" Split="false" CustomName="AX5203" UniqueID="2">
-                <NodeEditorPosition x="545" y="440"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5103" Split="false" CustomName="AX5103 (Alias:0)" UniqueID="2">
+                <NodeEditorPosition x="498" y="489"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="0" InvertDirection="false"/>
-                    <Axis1 VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="0" InvertDirection="false"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="1" InvertDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="3" Visible="true"/>
@@ -23,31 +22,32 @@
                     <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="10" Visible="true"/>
                     <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="11" Visible="true"/>
                     <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="12" Visible="true"/>
-                    <OutputPin SaveString="Actuator1" DisplayString="Actuator 1" DataType="ActuatorInterface" UniqueID="13" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="Actuator2" DisplayString="Actuator 2" DataType="ActuatorInterface" UniqueID="14" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Actuator1" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="13" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5103" Split="false" CustomName="AX5103" UniqueID="16">
-                <NodeEditorPosition x="691" y="455"/>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5203" Split="false" CustomName="AX5203" UniqueID="15">
+                <NodeEditorPosition x="644" y="490"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="0"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="0" InvertDirection="false"/>
+                    <Axis0 MotorType="0" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="0" InvertDirection="false"/>
+                    <Axis1 MotorType="0" VelocityLimit="0" AccelerationLimit="0" PositionFollowingErrorLimit="0" CurrentLimit="0" InvertDirection="false"/>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="17" Visible="true"/>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="16" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="18" Visible="true" NoDataField="true"/>
-                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="19" Visible="true"/>
-                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="20" Visible="true"/>
-                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="21" Visible="true"/>
-                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="22" Visible="true"/>
-                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="23" Visible="true"/>
-                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="24" Visible="true"/>
-                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="25" Visible="true"/>
-                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="26" Visible="true"/>
-                    <OutputPin SaveString="Actuator1" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="27" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="17" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="18" Visible="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="19" Visible="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="20" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="21" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="22" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="23" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="24" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="25" Visible="true"/>
+                    <OutputPin SaveString="Actuator1" DisplayString="Actuator 1" DataType="ActuatorInterface" UniqueID="26" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="Actuator2" DisplayString="Actuator 2" DataType="ActuatorInterface" UniqueID="27" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -56,5 +56,5 @@
 </Environnement>
 
 <FieldbusSettings>
-    <Timing ProcessIntervalMilliseconds="5" ProcessDataTimeoutMilliseconds="0.89999997615814209" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="20"/>
+    <Timing ProcessIntervalMilliseconds="3" ProcessDataTimeoutMilliseconds="0.89999997615814209" ClockStableThresholdMilliseconds="0.10000000149011612" FieldbusTimeoutDelayMilliseconds="20"/>
 </FieldbusSettings>
