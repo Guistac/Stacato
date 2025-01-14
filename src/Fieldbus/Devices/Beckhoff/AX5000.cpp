@@ -5,13 +5,13 @@ void AX5103::initialize(){
 	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator", 0));
 	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 }
-void AX5103::onDisconnection(){ ax5000.onDisconnection(); }
-void AX5103::onConnection(){ ax5000.onConnection(); }
-bool AX5103::startupConfiguration(){ return ax5000.startupConfiguration(); }
-void AX5103::readInputs(){ ax5000.readInputs(); }
-void AX5103::writeOutputs(){ ax5000.writeOutputs(); }
-bool AX5103::saveDeviceData(tinyxml2::XMLElement* xml){ return ax5000.save(xml); }
-bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ return ax5000.load(xml); }
+void AX5103::onDisconnection(){ 								ax5000.onDisconnection(); }
+void AX5103::onConnection(){ 									ax5000.onConnection(); }
+bool AX5103::startupConfiguration(){ return 					ax5000.startupConfiguration(); }
+void AX5103::readInputs(){ 										ax5000.readInputs(); }
+void AX5103::writeOutputs(){ 									ax5000.writeOutputs(); }
+bool AX5103::saveDeviceData(tinyxml2::XMLElement* xml){ return 	ax5000.save(xml); }
+bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ return 	ax5000.load(xml); }
 
 
 void AX5203::initialize(){
@@ -19,13 +19,13 @@ void AX5203::initialize(){
 	ax5000.actuators.push_back(std::make_shared<AX5000::Actuator>(nullptr, "Actuator 2", 1));
 	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
 }
-void AX5203::onDisconnection(){ ax5000.onDisconnection(); }
-void AX5203::onConnection(){ ax5000.onConnection(); }
-bool AX5203::startupConfiguration(){ return ax5000.startupConfiguration(); }
-void AX5203::readInputs(){ ax5000.readInputs(); }
-void AX5203::writeOutputs(){ ax5000.writeOutputs(); }
-bool AX5203::saveDeviceData(tinyxml2::XMLElement* xml){ return ax5000.save(xml); }
-bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ return ax5000.load(xml); }
+void AX5203::onDisconnection(){ 								ax5000.onDisconnection(); }
+void AX5203::onConnection(){ 									ax5000.onConnection(); }
+bool AX5203::startupConfiguration(){ return 					ax5000.startupConfiguration(); }
+void AX5203::readInputs(){ 										ax5000.readInputs(); }
+void AX5203::writeOutputs(){ 									ax5000.writeOutputs(); }
+bool AX5203::saveDeviceData(tinyxml2::XMLElement* xml){ return	ax5000.save(xml); }
+bool AX5203::loadDeviceData(tinyxml2::XMLElement* xml){ return	ax5000.load(xml); }
 
 
 

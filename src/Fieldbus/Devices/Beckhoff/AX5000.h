@@ -213,6 +213,10 @@ public:
 	BoolParam invertDigitalIn6_param = BooleanParameter::make(false, "Invert Digital Input 6", "InvertDigitalIn6");
 	BoolParam invertDigitalOut7_param = BooleanParameter::make(false, "Invert Digital Output 7", "InvertDigitalOut7");
 	
+	
+	void readTwinCatStartupListXML(std::string filePath);
+	void gui();
+	
 };
 
 
