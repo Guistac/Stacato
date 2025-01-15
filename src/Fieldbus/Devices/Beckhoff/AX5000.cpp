@@ -323,37 +323,37 @@ bool AX5000::load(tinyxml2::XMLElement* xml) {
 
 void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, int16_t tor, uint16_t err, bool sto){
 
-   statusWord.decode(statusw);
+	statusWord.decode(statusw);
 
-   bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
-   if(previousEstop != sto){
+	bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
+	if(previousEstop != sto){
 	   if(sto) Logger::warn("[{}] Axis {} : STO Active", etherCatDevice->getName(), channel);
 	   else Logger::info("[{}] Axis {} : STO Cleared", etherCatDevice->getName(), channel);
-   }
+	}
 
-   if(statusWord.shutdownError != b_hasFault){
+	if(statusWord.shutdownError != b_hasFault){
 	   if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", etherCatDevice->getName(), channel);
 	   else Logger::error("[{}] Axis {} : Fault !", etherCatDevice->getName(), channel);
-   }
-   if(statusWord.warningChange != b_warning){
+	}
+	if(statusWord.warningChange != b_warning){
 	   Logger::critical("[{}] Axis {} : Warning {}", etherCatDevice->getName(), channel, statusWord.warningChange);
-   }
-   if(statusWord.infoChange != b_info){
+	}
+	if(statusWord.infoChange != b_info){
 	   Logger::critical("[{}] Axis {} : Info {}", etherCatDevice->getName(), channel, statusWord.infoChange);
-   }
+	}
 
 
 
-   if(class1Errors != err){
+	if(class1Errors != err){
 	   if(err != 0x0){
 		   Logger::error("[{}] Axis {} Errors:", etherCatDevice->getName(), channel);
 		   Logger::error("{}", ax5000->getClass1Errors(err));
 	   }
 	   else Logger::error("[{}] Axis {} : Error cleared !", etherCatDevice->getName(), channel);
-   }
-   class1Errors = err;
+	}
+	class1Errors = err;
 
-   if(actuatorProcessData.b_enabling){
+	if(actuatorProcessData.b_enabling){
 	   if(statusWord.isEnabled()){
 		   actuatorProcessData.b_enabling = false;
 		   Logger::info("[{}] Axis {} Enabled", etherCatDevice->getName(), channel);
@@ -363,81 +363,90 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
 		   controlWord.disable();
 		   Logger::warn("[{}] Axis {} Enable timeout", etherCatDevice->getName(), channel);
 	   }
-   }
-   else if(isEnabled() && !statusWord.isEnabled()){
+	}
+	else if(isEnabled() && !statusWord.isEnabled()){
 	   Logger::error("[{} Axis {}] isEnabled: {}", etherCatDevice->getName(), channel, isEnabled());
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
 	   Logger::error("[{} Axis {}] Disabled (st:{} fl:{})", etherCatDevice->getName(), channel, statusWord.status, statusWord.followsCommand);
-   }
+	}
 
 
-   //update interface state
-   if(statusWord.isEnabled()) {
+	//update interface state
+	if(statusWord.isEnabled()) {
 	   if(controlWord.isRequestingEnable()) state = DeviceState::ENABLED;
 	   else state = DeviceState::DISABLING;
-   }
-   else{
+	}
+	else{
 	   if(actuatorProcessData.b_enabling) state = DeviceState::ENABLING;
 	   else if(sto || !statusWord.isReady()) state = DeviceState::NOT_READY;
 	   else if(!etherCatDevice->isStateOperational()) state = DeviceState::NOT_READY;
 	   else state = DeviceState::READY;
-   }
-   feedbackProcessData.positionActual = double(pos) / unitsPerRev;
-   feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
-   actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
-   actuatorProcessData.b_isEmergencyStopActive = sto;
-   b_hasFault = statusWord.shutdownError;
-   b_warning = statusWord.warningChange;
-   b_info = statusWord.infoChange;
+	}
+	positionRaw = pos;
+	feedbackProcessData.positionActual = double(pos + positionOffset) / unitsPerRev;
+	feedbackProcessData.velocityActual = double(vel) / (unitsPerRPM * 60.0);
+	actuatorProcessData.effortActual = std::abs(double(tor) / 1000.0);
+	actuatorProcessData.b_isEmergencyStopActive = sto;
+	b_hasFault = statusWord.shutdownError;
+	b_warning = statusWord.warningChange;
+	b_info = statusWord.infoChange;
 }
 void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t& pos){
-   //controlWord.toggleSyncBit();
-   if(actuatorProcessData.b_enable){
+	//controlWord.toggleSyncBit();
+	if(actuatorProcessData.b_enable){
 	   actuatorProcessData.b_enable = false;
 	   actuatorProcessData.b_enabling = true;
 	   actuatorProcessData.enableRequest_nanos = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
 	   if(statusWord.shutdownError) ax5000->requestFaultReset(channel);
-   }
-   if(actuatorProcessData.b_enabling){
+	}
+	if(actuatorProcessData.b_enabling){
 	   if(!statusWord.shutdownError) controlWord.enable();
-   }
-   if(actuatorProcessData.b_disable){
+	}
+	if(actuatorProcessData.b_disable){
 	   actuatorProcessData.b_disable = false;
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
 	   Logger::error("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
-   }
-   
-   vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
-   pos = actuatorProcessData.positionTarget * unitsPerRev;
+	}
 
-   controlWord.encode(controlw);
+	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
+	pos = (actuatorProcessData.positionTarget * unitsPerRev) - positionOffset;
+
+	controlWord.encode(controlw);
+	
+	if(feedbackProcessData.b_overridePosition){
+		feedbackProcessData.b_overridePosition = false;
+		positionOffset = (feedbackProcessData.positionOverride * unitsPerRev) - positionRaw;
+		feedbackProcessData.b_positionOverrideSucceeded = true;
+	}
 }
 bool AX5000::Actuator::save(tinyxml2::XMLElement* xml){
-   motorType->save(xml);
-   velocityLimit_revps->save(xml);
-   accelerationLimit_revps2->save(xml);
-   positionFollowingErrorLimit_rev->save(xml);
-   currentLimit_amps->save(xml);
-   invertDirection_param->save(xml);
-   return true;
+	motorType->save(xml);
+	velocityLimit_revps->save(xml);
+	accelerationLimit_revps2->save(xml);
+	positionFollowingErrorLimit_rev->save(xml);
+	currentLimit_amps->save(xml);
+	invertDirection_param->save(xml);
+	xml->SetAttribute("PositionOffset", positionOffset);
+	return true;
 }
 bool AX5000::Actuator::load(tinyxml2::XMLElement* xml){
-   motorType->load(xml);
-   velocityLimit_revps->load(xml);
-   accelerationLimit_revps2->load(xml);
-   positionFollowingErrorLimit_rev->load(xml);
-   currentLimit_amps->load(xml);
-   invertDirection_param->load(xml);
-   return true;
+	motorType->load(xml);
+	velocityLimit_revps->load(xml);
+	accelerationLimit_revps2->load(xml);
+	positionFollowingErrorLimit_rev->load(xml);
+	currentLimit_amps->load(xml);
+	invertDirection_param->load(xml);
+	xml->QueryIntAttribute("PositionOffset", &positionOffset);
+	return true;
 }
 std::string AX5000::Actuator::getStatusString(){
-   if(!isOnline()) return "Actuator Offline";
-   else if(isEnabled()) return "Actuator Enabled";
-   else if(isEnabling()) return "Actuator Enabling...";
-   else if(isReady()) return "Actuator Ready";
-   else{
+	if(!isOnline()) return "Actuator Offline";
+	else if(isEnabled()) return "Actuator Enabled";
+	else if(isEnabling()) return "Actuator Enabling...";
+	else if(isReady()) return "Actuator Ready";
+	else{
 	   if(isEmergencyStopActive()) return "STO is active";
 	   if(!etherCatDevice->isStateOperational()) return "Drive is not in operational state";
 	   if(hasFault()) {
@@ -445,7 +454,7 @@ std::string AX5000::Actuator::getStatusString(){
 		   return output + ax5000->getClass1Errors(class1Errors);
 	   }
 	   else return "Actuator not ready";
-   }
+	}
 }
 
 

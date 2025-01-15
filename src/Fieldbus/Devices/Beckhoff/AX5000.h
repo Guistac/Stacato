@@ -92,8 +92,8 @@ public:
 			feedbackConfig.b_supportsPositionFeedback = true;
 			feedbackConfig.b_supportsVelocityFeedback = true;
 			feedbackConfig.positionFeedbackType = PositionFeedbackType::ABSOLUTE;
-			feedbackConfig.positionLowerWorkingRangeBound = 0;
-			feedbackConfig.positionUpperWorkingRangeBound = 4096.0;
+			feedbackConfig.positionLowerWorkingRangeBound = -2048.0;
+			feedbackConfig.positionUpperWorkingRangeBound = 2048.0;
 			actuatorConfig.b_supportsEffortFeedback = true;
 			actuatorConfig.b_supportsForceControl = false;
 			actuatorConfig.b_supportsPositionControl = false;
@@ -143,10 +143,13 @@ public:
 		std::string name;
 		uint8_t channel;
 		float guiVelocitySliderValue = 0.0;
+		double gui_offsetTarget = 0.0;
 		
 		const double unitsPerRPM = 17895.697;
 		const double unitsPerRev = 1048576.0;
 		const uint64_t enableTimeout_nanos = 500'000'000; //300ms
+		int32_t positionOffset = 0.0;
+		int32_t positionRaw = 0;
 	};
 	
 	class Gpio : public GpioInterface{

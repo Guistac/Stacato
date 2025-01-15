@@ -44,8 +44,17 @@ void AX5000::gui() {
 						servo->setVelocityTarget(0.0);
 						servo->guiVelocitySliderValue = 0.0;
 					}
+					
+					ImGui::InputDouble("##offsetTarget", &servo->gui_offsetTarget);
+					ImGui::SameLine();
+					if(ImGui::Button("Override Position")){
+						servo->overridePosition(servo->gui_offsetTarget);
+					}
+					
 					ImGui::Text("Velocity: %.3frev/s", servo->feedbackProcessData.velocityActual);
 					ImGui::Text("Position: %.3frev", servo->feedbackProcessData.positionActual);
+					//ImGui::Text("PositionOffset: %ib", servo->positionOffset);
+					//ImGui::Text("PositionRaw: %ib (%.2frev)", servo->positionRaw, double(servo->positionRaw) / servo->unitsPerRev);
 					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual * 100.0);
 					ImGui::PopID();
 				};
