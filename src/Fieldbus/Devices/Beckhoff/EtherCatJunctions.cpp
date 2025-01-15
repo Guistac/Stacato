@@ -30,6 +30,15 @@ void EK1100::writeOutputs(){}
 bool EK1100::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
 bool EK1100::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
 
+void EK1310::onDisconnection() {}
+void EK1310::onConnection() {}
+void EK1310::initialize() {}
+bool EK1310::startupConfiguration() { return true; }
+void EK1310::readInputs() {}
+void EK1310::writeOutputs(){}
+bool EK1310::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool EK1310::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+
 void EK1122::onDisconnection() {}
 void EK1122::onConnection() {}
 void EK1122::initialize() {}
@@ -143,6 +152,55 @@ bool EL1008::loadDeviceData(tinyxml2::XMLElement* xml) {
 	for(int i = 0; i < 8; i++) signalInversionParams[i]->load(xml);
 	return true;
 }
+
+
+void EPP1008_0001::onDisconnection() {}
+void EPP1008_0001::onConnection() {}
+void EPP1008_0001::initialize() {
+	txPdoAssignement.addNewModule(0x1600);
+	for(int i = 0; i < 8; i++){
+		char name[32];
+		snprintf(name, 32, "Channel %i", i + 1);
+		txPdoAssignement.addEntry(0x1A00 + i, 0x1, 1, name, &inputs[i]);
+	}
+	for(int i = 0; i < 8; i++){
+		char pinName[16];
+		int inputNumber = i + 1;
+		snprintf(pinName, 16, "DI%i", inputNumber);
+		auto pinValue = std::make_shared<bool>(false);
+		auto pin = std::make_shared<NodePin>(pinValue, NodePin::Direction::NODE_OUTPUT, pinName);
+		pinValues.push_back(pinValue);
+		addNodePin(pin);
+		char parameterName[64];
+		snprintf(parameterName, 64, "Invert DI%i", inputNumber);
+		char parameterSaveName[64];
+		snprintf(parameterSaveName, 64, "InvertDI%i", inputNumber);
+		auto inversionParam = BooleanParameter::make(false, parameterName, parameterSaveName);
+		signalInversionParams.push_back(inversionParam);
+	}
+}
+bool EPP1008_0001::startupConfiguration() { return true; }
+void EPP1008_0001::readInputs() {
+	txPdoAssignement.pullDataFrom(identity->inputs);
+	for(int i = 0; i < 8; i++){
+		*pinValues[i] = signalInversionParams[i]->value ? !inputs[i] : inputs[i];
+	}
+}
+void EPP1008_0001::writeOutputs(){}
+bool EPP1008_0001::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 8; i++) signalInversionParams[i]->save(xml);
+	return true;
+}
+bool EPP1008_0001::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 8; i++) signalInversionParams[i]->load(xml);
+	return true;
+}
+
+
+
+
+
+
 
 
 

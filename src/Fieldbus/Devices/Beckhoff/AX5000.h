@@ -267,6 +267,6 @@ class AX5103 : public EtherCatDevice{
 
 
 class AX5203 : public EtherCatDevice{
-	DEFINE_ETHERCAT_DEVICE(AX5203, "AX5203", "AX5203", "Beckhoff", "Servo Drives", 0x2, 0x00000000)
+	DEFINE_ETHERCAT_DEVICE(AX5203, "AX5203", "AX5203", "Beckhoff", "Servo Drives", 0x2, 0x14536012)
 	AX5000 ax5000;
 };

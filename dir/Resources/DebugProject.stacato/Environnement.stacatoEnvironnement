@@ -76,6 +76,54 @@
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="51" Visible="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1310" Split="false" CustomName="EK1310 EtherCAT-P extension with feed-in (Alias:106)" UniqueID="54">
+                <NodeEditorPosition x="732" y="715"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="106"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins/>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EPP1008-0001" Split="false" CustomName="EPP1008-0001 8x Digital Input (Alias:107)" UniqueID="55">
+                <NodeEditorPosition x="650" y="801"/>
+                <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
+                    <Identification Type="StationAlias" StationAlias="107"/>
+                </NodeSpecificData>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="56" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="57" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="58" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="59" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="60" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="61" Visible="true"/>
+                    <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="62" Visible="true"/>
+                    <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="63" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="AX5103" Split="false" CustomName="AX5103 (Alias:108)" UniqueID="76">
+                <NodeEditorPosition x="1487" y="424"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="108"/>
+                    <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="1" InvertDirection="false" PositionOffset="0"/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="77" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="78" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="79" Visible="true"/>
+                    <OutputPin SaveString="DI0" DisplayString="DI0" DataType="Boolean" UniqueID="80" Visible="true"/>
+                    <OutputPin SaveString="DI1" DisplayString="DI1" DataType="Boolean" UniqueID="81" Visible="true"/>
+                    <OutputPin SaveString="DI2" DisplayString="DI2" DataType="Boolean" UniqueID="82" Visible="true"/>
+                    <OutputPin SaveString="DI3" DisplayString="DI3" DataType="Boolean" UniqueID="83" Visible="true"/>
+                    <OutputPin SaveString="DI4" DisplayString="DI4" DataType="Boolean" UniqueID="84" Visible="true"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="85" Visible="true"/>
+                    <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="86" Visible="true"/>
+                    <OutputPin SaveString="Actuator1" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="87" Visible="true" NoDataField="true"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="45" StartPin="13" EndPin="44"/>

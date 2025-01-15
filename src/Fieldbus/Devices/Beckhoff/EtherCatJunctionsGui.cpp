@@ -27,6 +27,13 @@ void EK1100::deviceSpecificGui() {
 	}
 }
 
+void EK1310::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EK1310")){
+		ImGui::Text("This device has no settings or controls");
+		ImGui::EndTabItem();
+	}
+}
+
 void EK1122::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EK1122")){
 		ImGui::Text("This device has no settings or controls");
@@ -69,6 +76,18 @@ void EL1008::deviceSpecificGui() {
 		ImGui::EndTabItem();
 	}
 }
+
+void EPP1008_0001::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EPP1008-0001")){
+		for(int i = 0; i < 8; i++){
+			ImGui::PushID(i);
+			signalInversionParams[i]->gui(Fonts::sansBold15);
+			ImGui::PopID();
+		}
+		ImGui::EndTabItem();
+	}
+}
+
 
 void EL2624::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("EL2624")){

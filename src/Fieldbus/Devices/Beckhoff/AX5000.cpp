@@ -639,6 +639,7 @@ std::string AX5000::getErrorString(uint32_t errorCode){
 		case 0xFD43: return "Mains supply: Power down";
 		case 0xFD44: return "Mains supply: Phase error";
 		case 0xFD47: return "Power management error";
+		case 0xFD5C: return "Power Management: Powersupply type is wrong";
 		case 0xFDD3: return "Safety switch off while the axis was enabled";
 		case 0xFDD4: return "Configured safety option don't match";
 		default: return "";
