@@ -546,7 +546,7 @@ void FsoeConnection::computeCrc(FsoeFrame& frame, uint16_t& sequenceNumber, uint
 	//this is not the case for fsoe frames which have 2 or less safedata bytes
 	if(safeDataSize <= 2) {
 		if(!b_writeCrc) frame.crc_ok = true;
-		return true;
+		return;
 	}
 	
 	//calculate additional crc_i starting from crc_common
