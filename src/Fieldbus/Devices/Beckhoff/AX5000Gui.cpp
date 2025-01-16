@@ -111,6 +111,7 @@ void AX5000::Actuator::settingsGui(){
 	accelerationLimit_revps2->gui(Fonts::sansBold15);
 	positionFollowingErrorLimit_rev->gui(Fonts::sansBold15);
 	currentLimit_amps->gui(Fonts::sansBold15);
+	currentPeak_amps->gui(Fonts::sansBold15);
 	invertDirection_param->gui(Fonts::sansBold15);
 }
 

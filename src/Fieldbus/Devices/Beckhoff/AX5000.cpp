@@ -4,7 +4,16 @@
 
 void AX5103::initialize(){
 	ax5000.addActuator("Actuator");
-	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
+	AX5000::Config driveConfig{
+		.configuredDriveType = {
+			0x10, 0x00, 0x1E, 0x00, 0x41, 0x58, 0x35, 0x31,
+			0x30, 0x33, 0x2D, 0x30, 0x30, 0x30, 0x30, 0x2D,
+			0x23, 0x23, 0x23, 0x23
+		},
+		.channelRatedCurrent = 3.0,
+		.channelPeakCurrent = 7.5 //min 1.0
+	};
+	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()), driveConfig);
 }
 void AX5103::onDisconnection(){ 								ax5000.onDisconnection(); }
 void AX5103::onConnection(){ 									ax5000.onConnection(); }
@@ -18,11 +27,20 @@ bool AX5103::loadDeviceData(tinyxml2::XMLElement* xml){ return 	ax5000.load(xml)
 void AX5203::initialize(){
 	ax5000.addActuator("Actuator 1");
 	ax5000.addActuator("Actuator 2");
-	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()));
+	AX5000::Config driveConfig{
+		.configuredDriveType = {
+			0x10, 0x00, 0x1E, 0x00, 0x41, 0x58, 0x35, 0x32,
+			0x30, 0x33, 0x2D, 0x30, 0x30, 0x30, 0x30, 0x2D,
+			0x23, 0x23, 0x23, 0x23
+		},
+		.channelRatedCurrent = 6.0,
+		.channelPeakCurrent = 10.0 //min 1.0
+	};
+	ax5000.initialize(std::static_pointer_cast<EtherCatDevice>(shared_from_this()), driveConfig);
 }
 void AX5203::onDisconnection(){ 								ax5000.onDisconnection(); }
 void AX5203::onConnection(){ 									ax5000.onConnection(); }
-bool AX5203::startupConfiguration(){ return 					ax5000.startupConfiguration(); }
+bool AX5203::startupConfiguration(){ return						ax5000.startupConfiguration(); }
 void AX5203::readInputs(){ 										ax5000.readInputs(); }
 void AX5203::writeOutputs(){ 									ax5000.writeOutputs(); }
 bool AX5203::saveDeviceData(tinyxml2::XMLElement* xml){ return	ax5000.save(xml); }
@@ -37,8 +55,9 @@ void AX5000::addActuator(std::string name){
 	actuators.push_back(newActuator);
 }
 
-void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice){
+void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice, Config& driveConfig){
 	etherCatDevice = ecatDevice;
+	driveConfiguration = driveConfig;
 	
 	gpio = std::make_shared<Gpio>(ecatDevice, "GPIO");
 	gpioPin->assignData(std::static_pointer_cast<GpioInterface>(gpio));
@@ -101,6 +120,7 @@ bool AX5000::startupConfiguration() {
 	axis0_atList.IDNs[4] = 33569; 	//(2) Digital Inputs, state
 	axis0_atList.IDNs[5] = 34770; 	//(2) Safety option state
 	
+	etherCatDevice->writeSercos_U16('S', 15, 0x7, 0); //Telegram Type
 	etherCatDevice->writeSercos_Array('S', 16, axis0_atList.getPointer(), sizeof(IDN_List), 0); //AT List [axis0]
 	etherCatDevice->writeSercos_Array('S', 24, axis0_mdtList.getPointer(), sizeof(IDN_List), 0); //MDT List [axis0]
 	
@@ -119,6 +139,7 @@ bool AX5000::startupConfiguration() {
 		axis1_atList.IDNs[2] = 84;		//(2) Torque Feedback Value
 		axis1_atList.IDNs[3] = 11;		//(2) Class 1 Diagnostics
 		
+		etherCatDevice->writeSercos_U16('S', 15, 0x7, 1); //Telegram Type
 		etherCatDevice->writeSercos_Array('S', 16, axis1_atList.getPointer(), sizeof(IDN_List), 1); //AT List [axis1]
 		etherCatDevice->writeSercos_Array('S', 24, axis1_mdtList.getPointer(), sizeof(IDN_List), 1); //MDT List [axis1]
 	}
@@ -134,24 +155,24 @@ bool AX5000::startupConfiguration() {
 	etherCatDevice->writeSercos_U16('P', 202, 100); //mains voltage positive tolerance range [10.0V]
 	etherCatDevice->writeSercos_U16('P', 203, 100); //mains voltage negative tolerance range [10.0V]
 	
-	
-	
 	etherCatDevice->writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
 	etherCatDevice->writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
-	
-	
-	
-	
 	
 	//========== AXIS STARTUP LIST ==========
 	
 	for(int i = 0; i < actuators.size(); i++){
+		std::vector<uint8_t> IDN32778 = {0xFF, 0xFF, 0xF9, 0x07, 0x00, 0x00, 0x00, 0x00};
+		etherCatDevice->writeSercos_Array(i, 32778, IDN32778); //Feature Flags
+		etherCatDevice->writeSercos_U16('P', 304, 0x0001, i); //Report Diagnostics information
+		etherCatDevice->writeSercos_Array(i, 32822, driveConfiguration.configuredDriveType); //Configured drive type (drive name)
 		uploadAxisStartupList(i, actuators[i]->getMotorType());
 		etherCatDevice->writeSercos_U16('S', 32, 2, i); //Operation mode 0 VEL
 		etherCatDevice->writeSercos_U16('P', 350, 0, i); //set error reaction to torque off
 		etherCatDevice->writeSercos_U16('S', 43, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
 		etherCatDevice->writeSercos_U16('S', 55, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
-		etherCatDevice->writeSercos_U32('P', 92, actuators[i]->currentLimit_amps->value * 1000, i);
+		etherCatDevice->writeSercos_U32('P', 92, actuators[i]->currentLimit_amps->value * 1000, i); //Configured channel peak current
+		etherCatDevice->writeSercos_U32('P', 93, actuators[i]->currentPeak_amps->value * 1000, i); //Configured Channel Current (in startup list)
+		etherCatDevice->writeSercos_U16('P', 52, 0x0000, i); //Time limitation for peak current
 		etherCatDevice->writeSercos_U32('S', 159, actuators[i]->positionFollowingErrorLimit_rev->value * actuators[0]->unitsPerRev, i);
 	}
 
@@ -427,6 +448,7 @@ bool AX5000::Actuator::save(tinyxml2::XMLElement* xml){
 	accelerationLimit_revps2->save(xml);
 	positionFollowingErrorLimit_rev->save(xml);
 	currentLimit_amps->save(xml);
+	currentPeak_amps->save(xml);
 	invertDirection_param->save(xml);
 	xml->SetAttribute("PositionOffset", positionOffset);
 	return true;
@@ -437,6 +459,7 @@ bool AX5000::Actuator::load(tinyxml2::XMLElement* xml){
 	accelerationLimit_revps2->load(xml);
 	positionFollowingErrorLimit_rev->load(xml);
 	currentLimit_amps->load(xml);
+	currentPeak_amps->load(xml);
 	invertDirection_param->load(xml);
 	xml->QueryIntAttribute("PositionOffset", &positionOffset);
 	return true;

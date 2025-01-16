@@ -132,6 +132,8 @@ public:
 																							"%.1f", Units::AngularDistance::Revolution, false);
 		NumberParam<double> currentLimit_amps = NumberParameter<double>::make(0.0, "Current Limit", "CurrentLimit",
 																			  "%.3f", Units::Current::Ampere, false);
+		NumberParam<double> currentPeak_amps = NumberParameter<double>::make(0.0, "Peak Current", "PeakCurrent",
+																			  "%.3f", Units::Current::Ampere, false);
 		BoolParam invertDirection_param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
 		
 		bool save(tinyxml2::XMLElement* xml);
@@ -166,7 +168,13 @@ public:
 	std::vector<std::shared_ptr<Actuator>> actuators = {}; //Actuator List, Always 1 or 2
 	std::shared_ptr<Gpio> gpio = nullptr;
 	
-	void initialize(std::shared_ptr<EtherCatDevice> ecatDevice);
+	struct Config{
+		std::vector<uint8_t> configuredDriveType;
+		float channelRatedCurrent;
+		float channelPeakCurrent;
+	}driveConfiguration;
+	
+	void initialize(std::shared_ptr<EtherCatDevice> ecatDevice, Config& driveConfiguration);
 	bool startupConfiguration();
 	void readInputs();
 	void writeOutputs();
@@ -178,7 +186,6 @@ public:
 	void addActuator(std::string name);
 	
 	bool uploadAxisStartupList(uint8_t axis, Actuator::Type type);
-	
 	
 	struct __attribute__((__packed__)) MasterDataTelegram{
 		uint16_t ax0_masterControlWord;

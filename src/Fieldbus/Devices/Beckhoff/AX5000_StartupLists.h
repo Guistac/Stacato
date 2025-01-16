@@ -9,68 +9,6 @@ struct StartupItem{
 
 std::vector<StartupItem> AM8032_1D20_0000_startupList = {
 	StartupItem{
-		.comment = "Feature flags",
-		.driveNo = 0,
-		.idn = 32778,
-		.data = {0xFF, 0xFF, 0xF9, 0x07, 0x00, 0x00, 0x00, 0x00}
-	},
-	/*
-	StartupItem{
-		.comment = "Tncyc - NC cycle time",
-		.driveNo = 0,
-		.idn = 1,
-		.data = {0xD0, 0x07}
-	},
-	StartupItem{
-		.comment = "Tscyc - Comm cycle time",
-		.driveNo = 0,
-		.idn = 2,
-		.data = {0xD0, 0x07}
-	},
-	StartupItem{
-		.comment = "Operation mode",
-		.driveNo = 0,
-		.idn = 32,
-		.data = {0x0B, 0x00}
-	},
-	StartupItem{
-		.comment = "Nominal mains voltage",
-		.driveNo = 0,
-		.idn = 32969,
-		.data = {0xA0, 0x0F}
-	},
-	StartupItem{
-		.comment = "Mains voltage positive tolerance range",
-		.driveNo = 0,
-		.idn = 32970,
-		.data = {0x64, 0x00}
-	},
-	StartupItem{
-		.comment = "Mains voltage negative tolerance range",
-		.driveNo = 0,
-		.idn = 32971,
-		.data = {0x64, 0x00}
-	},
-	StartupItem{
-		.comment = "Power management control word",
-		.driveNo = 0,
-		.idn = 32972,
-		.data = {0x09, 0x08}
-	},
-	StartupItem{
-		.comment = "Max DC link voltage",
-		.driveNo = 0,
-		.idn = 32984,
-		.data = {0x2E, 0x22}
-	},
-	*/
-	StartupItem{
-		.comment = "Report diagnostics information",
-		.driveNo = 0,
-		.idn = 33072,
-		.data = {0x01, 0x00}
-	},
-	StartupItem{
 		.comment = "Configured motor type",
 		.driveNo = 0,
 		.idn = 32821,
@@ -259,34 +197,6 @@ std::vector<StartupItem> AM8032_1D20_0000_startupList = {
 		}
 	},
 	StartupItem{
-		.comment = "Configured drive type",
-		.driveNo = 0,
-		.idn = 32822,
-		.data = {
-			0x10, 0x00, 0x1E, 0x00, 0x41, 0x58, 0x35, 0x31,
-			0x30, 0x33, 0x2D, 0x30, 0x30, 0x30, 0x30, 0x2D,
-			0x23, 0x23, 0x23, 0x23
-		}
-	},
-	StartupItem{
-		.comment = "Configured channel current",
-		.driveNo = 0,
-		.idn = 32861,
-		.data = {0xA4, 0x06, 0x00, 0x00}
-	},
-	StartupItem{
-		.comment = "Configured channel peak current",
-		.driveNo = 0,
-		.idn = 32860,
-		.data = {0x48, 0x0D, 0x00, 0x00}
-	},
-	StartupItem{
-		.comment = "Time limitation for peak current",
-		.driveNo = 0,
-		.idn = 32820,
-		.data = {0x00, 0x00}
-	},
-	StartupItem{
 		.comment = "Current controller settings 2",
 		.driveNo = 0,
 		.idn = 33219,
@@ -375,69 +285,10 @@ std::vector<StartupItem> AM8032_1D20_0000_startupList = {
 	}
 };
 
+
+
+
 std::vector<StartupItem> AM8043_0E20_0000_startupList = {
-	StartupItem{
-		.comment = "Feature flags",
-		.driveNo = 0,
-		.idn = 32778,
-		.data = {0xFF, 0xFF, 0xF9, 0x07, 0x00, 0x00, 0x00, 0x00}
-	},
-	/*
-	StartupItem{
-		.comment = "Tncyc - NC cycle time",
-		.driveNo = 0,
-		.idn = 1,
-		.data = {0xD0, 0x07}
-	},
-	StartupItem{
-		.comment = "Tscyc - Comm cycle time",
-		.driveNo = 0,
-		.idn = 2,
-		.data = {0xD0, 0x07}
-	},
-	StartupItem{
-		.comment = "Operation mode",
-		.driveNo = 0,
-		.idn = 32,
-		.data = {0x0B, 0x00}
-	},
-	StartupItem{
-		.comment = "Nominal mains voltage",
-		.driveNo = 0,
-		.idn = 32969,
-		.data = {0xA0, 0x0F}
-	},
-	StartupItem{
-		.comment = "Mains voltage positive tolerance range",
-		.driveNo = 0,
-		.idn = 32970,
-		.data = {0x64, 0x00}
-	},
-	StartupItem{
-		.comment = "Mains voltage negative tolerance range",
-		.driveNo = 0,
-		.idn = 32971,
-		.data = {0x64, 0x00}
-	},
-	StartupItem{
-		.comment = "Power management control word",
-		.driveNo = 0,
-		.idn = 32972,
-		.data = {0x09, 0x08}
-	},
-	StartupItem{
-		.comment = "Max DC link voltage",
-		.driveNo = 0,
-		.idn = 32984,
-		.data = {0x2E, 0x22}
-	},
-	 */
-	StartupItem{
-		.comment = "Report diagnostics information",
-		.driveNo = 0,
-		.idn = 33072,
-		.data = {0x01, 0x00}
-	},
 	StartupItem{
 		.comment = "Configured motor type",
 		.driveNo = 0,
@@ -627,34 +478,6 @@ std::vector<StartupItem> AM8043_0E20_0000_startupList = {
 		}
 	},
 	StartupItem{
-		.comment = "Configured drive type",
-		.driveNo = 0,
-		.idn = 32822,
-		.data = {
-			0x10, 0x00, 0x1E, 0x00, 0x41, 0x58, 0x35, 0x31,
-			0x30, 0x33, 0x2D, 0x30, 0x30, 0x30, 0x30, 0x2D,
-			0x23, 0x23, 0x23, 0x23
-		}
-	},
-	StartupItem{
-		.comment = "Configured channel current",
-		.driveNo = 0,
-		.idn = 32861,
-		.data = {0x54, 0x0B, 0x00, 0x00}
-	},
-	StartupItem{
-		.comment = "Configured channel peak current",
-		.driveNo = 0,
-		.idn = 32860,
-		.data = {0xA8, 0x16, 0x00, 0x00}
-	},
-	StartupItem{
-		.comment = "Time limitation for peak current",
-		.driveNo = 0,
-		.idn = 32820,
-		.data = {0x00, 0x00}
-	},
-	StartupItem{
 		.comment = "Current controller settings 2",
 		.driveNo = 0,
 		.idn = 33219,
@@ -742,3 +565,98 @@ std::vector<StartupItem> AM8043_0E20_0000_startupList = {
 		.data = {0x07, 0x00}
 	}
 };
+
+
+
+//These are items that still appear in TC drive manager startup lists
+//they should be applied at the general drive level
+/*
+StartupItem{
+	.comment = "Tncyc - NC cycle time",
+	.driveNo = 0,
+	.idn = 1,
+	.data = {0xD0, 0x07}
+},
+StartupItem{
+	.comment = "Tscyc - Comm cycle time",
+	.driveNo = 0,
+	.idn = 2,
+	.data = {0xD0, 0x07}
+},
+StartupItem{
+	.comment = "Operation mode",
+	.driveNo = 0,
+	.idn = 32,
+	.data = {0x0B, 0x00}
+},
+StartupItem{
+	.comment = "Nominal mains voltage",
+	.driveNo = 0,
+	.idn = 32969,
+	.data = {0xA0, 0x0F}
+},
+StartupItem{
+	.comment = "Mains voltage positive tolerance range",
+	.driveNo = 0,
+	.idn = 32970,
+	.data = {0x64, 0x00}
+},
+StartupItem{
+	.comment = "Mains voltage negative tolerance range",
+	.driveNo = 0,
+	.idn = 32971,
+	.data = {0x64, 0x00}
+},
+StartupItem{
+	.comment = "Power management control word",
+	.driveNo = 0,
+	.idn = 32972,
+	.data = {0x09, 0x08}
+},
+StartupItem{
+	.comment = "Max DC link voltage",
+	.driveNo = 0,
+	.idn = 32984,
+	.data = {0x2E, 0x22}
+},
+StartupItem{
+	.comment = "Report diagnostics information",
+	.driveNo = 0,
+	.idn = 33072,
+	.data = {0x01, 0x00}
+},
+StartupItem{
+	.comment = "Configured drive type",
+	.driveNo = 0,
+	.idn = 32822,
+	.data = {
+		0x10, 0x00, 0x1E, 0x00, 0x41, 0x58, 0x35, 0x31,
+		0x30, 0x33, 0x2D, 0x30, 0x30, 0x30, 0x30, 0x2D,
+		0x23, 0x23, 0x23, 0x23
+	}
+},
+StartupItem{
+	.comment = "Configured channel current",
+	.driveNo = 0,
+	.idn = 32861,
+	.data = {0xA4, 0x06, 0x00, 0x00}
+},
+StartupItem{
+	.comment = "Configured channel peak current",
+	.driveNo = 0,
+	.idn = 32860,
+	.data = {0x48, 0x0D, 0x00, 0x00}
+},
+StartupItem{
+	.comment = "Time limitation for peak current",
+	.driveNo = 0,
+	.idn = 32820,
+	.data = {0x00, 0x00}
+},
+StartupItem{
+	.comment = "Feature flags",
+	.driveNo = 0,
+	.idn = 32778,
+	.data = {0xFF, 0xFF, 0xF9, 0x07, 0x00, 0x00, 0x00, 0x00}
+},
+*/
