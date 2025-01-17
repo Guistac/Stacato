@@ -148,6 +148,7 @@ bool AX5000::startupConfiguration() {
 	//========== GLOBAL DRIVE CONFIGURATION ==========
 	
 	
+	//Power Settings
 	std::vector<uint8_t> IDN32972 = {0x09, 0x08};
 	etherCatDevice->writeSercos_Array(0, 32972, IDN32972); //Power Management Control Word
 	etherCatDevice->writeSercos_U16('P', 216, 8900); //Max DC link Voltage [890.0V]
@@ -155,6 +156,7 @@ bool AX5000::startupConfiguration() {
 	etherCatDevice->writeSercos_U16('P', 202, 100); //mains voltage positive tolerance range [10.0V]
 	etherCatDevice->writeSercos_U16('P', 203, 100); //mains voltage negative tolerance range [10.0V]
 	
+	//Miscellaneous Settings
 	etherCatDevice->writeSercos_U16('P', 2000, 3); //Configured Safety Option (3 == AX5801-0200) [MANDATORY]
 	etherCatDevice->writeSercos_U16('P', 800, 0x80, 0); //Set digital pin 7 to User Output
 	
@@ -162,11 +164,11 @@ bool AX5000::startupConfiguration() {
 	
 	for(int i = 0; i < actuators.size(); i++){
 		std::vector<uint8_t> IDN32778 = {0xFF, 0xFF, 0xF9, 0x07, 0x00, 0x00, 0x00, 0x00};
-		etherCatDevice->writeSercos_Array(i, 32778, IDN32778); //Feature Flags
+		etherCatDevice->writeSercos_Array(i, 32778, IDN32778); //Feature Flags, obligatory for recent firmware versions
 		etherCatDevice->writeSercos_U16('P', 304, 0x0001, i); //Report Diagnostics information
 		etherCatDevice->writeSercos_Array(i, 32822, driveConfiguration.configuredDriveType); //Configured drive type (drive name)
 		uploadAxisStartupList(i, actuators[i]->getMotorType());
-		etherCatDevice->writeSercos_U16('S', 32, 2, i); //Operation mode 0 VEL
+		etherCatDevice->writeSercos_U16('S', 32, 2, i); //Operation mode VEL
 		etherCatDevice->writeSercos_U16('P', 350, 0, i); //set error reaction to torque off
 		etherCatDevice->writeSercos_U16('S', 43, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
 		etherCatDevice->writeSercos_U16('S', 55, actuators[i]->invertDirection_param->value ? 0xD : 0x0, i);
@@ -193,7 +195,6 @@ bool AX5000::uploadAxisStartupList(uint8_t axis, Actuator::Type type){
 		for(auto& startupItem : startupList){
 			if(!etherCatDevice->writeSercos_Array(axis, startupItem.idn, startupItem.data)){
 				Logger::error("Failed to upload startupItem '{}'", startupItem.comment);
-				return false;
 			}
 		}
 		return true;
@@ -633,6 +634,7 @@ std::string AX5000::getErrorString(uint32_t errorCode){
 		case 0xF101: return "Axis state machine: Initialize error (selected uninitialized operating mode)";
 		case 0xF106: return "Axis state machine: No motor configured";
 		case 0xF107: return "Axis state machine: Current control not ready to enable";
+		case 0xF110: return "Axis State Machine: The motor management isn't ready to enable. E.g. P-0-0093 is zero";
 		case 0xF11F: return "The advanced parametrization introduced with firmware version 2.10 is required";
 		case 0xF152: return "Initialization of the feedback: Command failed";
 		case 0xF166: return "Process data mapping: MDT - S-0-0024";

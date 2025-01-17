@@ -81,7 +81,8 @@ std::vector<StartupItem> AM8032_1D20_0000_startupList = {
 		.comment = "Motor shut down temperature",
 		.driveNo = 0,
 		.idn = 204,
-		.data = {0x78, 0x05}
+		//.data = {0x78, 0x05}
+		.data = {0xDC, 0x05}
 	},
 	StartupItem{
 		.comment = "Motor EMF",

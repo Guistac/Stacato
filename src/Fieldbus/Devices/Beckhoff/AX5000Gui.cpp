@@ -113,6 +113,17 @@ void AX5000::Actuator::settingsGui(){
 	currentLimit_amps->gui(Fonts::sansBold15);
 	currentPeak_amps->gui(Fonts::sansBold15);
 	invertDirection_param->gui(Fonts::sansBold15);
+	if(ImGui::Button("Download motor temperature")){
+		uint16_t temp;
+		etherCatDevice->readSercos_U16('S', 383, temp, channel);
+		float tempDegrees = float(temp) / 10.0;
+		Logger::info("Temperature={}°C", tempDegrees);
+	}
+	if(ImGui::Button("Download motor nameplate")){
+		uint8_t nameplate[1056];
+		int size = 1056;
+		bool ret = etherCatDevice->readSercos_Array('P', 98, nameplate, size);
+	}
 }
 
 
