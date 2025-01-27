@@ -5,8 +5,9 @@
 
 class EL7221_9014 : public EtherCatDevice{
 public:
-	DEFINE_ETHERCAT_DEVICE(EL7221_9014, "EL7221-9014", "EL7221-9014", "Beckhoff", "Servo Drives", 0x2, 0x1c353052)
-
+	//DEFINE_ETHERCAT_DEVICE(EL7221_9014, "EL7221-9014", "EL7221-9014", "Beckhoff", "Servo Drives", 0x2, 0x1c353052)
+	DEFINE_ETHERCAT_DEVICE(EL7221_9014, "EL7211-9014", "EL7211-9014", "Beckhoff", "Servo Drives", 0x2, 0x1c2b3052)
+	
 	class EL7211ServoMotor : public ActuatorInterface{
 	public:
 		EL7211ServoMotor(std::shared_ptr<EL7221_9014> parentDevice) : etherCatDevice(parentDevice){}
