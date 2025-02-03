@@ -129,7 +129,9 @@ namespace Environnement::NodeGraph{
 			}
 			
 			loadedNode = NodeFactory::getNodeBySaveName(nodeSaveNameString);
-			if (loadedNode == nullptr) return Logger::warn("Coult not load Node Class");
+			if (loadedNode == nullptr) {
+				return Logger::warn("Coult not load Node Class '{}'", nodeSaveNameString);
+			}
 			
 			//Get Node position in node editor
 			if (!isSplit) {
