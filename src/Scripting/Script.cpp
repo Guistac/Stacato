@@ -53,6 +53,7 @@ void LuaScript::editor(ImVec2 size_arg){
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, glm::vec2(0,0));
 	for(auto& message : consoleMessages){
+
 		switch(message.type){
 			case ScriptFlag::INFO:
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 1.0, 0.5, 1.0));

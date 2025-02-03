@@ -154,7 +154,9 @@ bool EL1008::loadDeviceData(tinyxml2::XMLElement* xml) {
 }
 
 
-void EPP1008_0001::onDisconnection() {}
+void EPP1008_0001::onDisconnection() {
+	gpio->state = DeviceState::OFFLINE;
+}
 void EPP1008_0001::onConnection() {}
 void EPP1008_0001::initialize() {
 	txPdoAssignement.addNewModule(0x1600);
@@ -163,6 +165,8 @@ void EPP1008_0001::initialize() {
 		snprintf(name, 32, "Channel %i", i + 1);
 		txPdoAssignement.addEntry(0x1A00 + i, 0x1, 1, name, &inputs[i]);
 	}
+	auto gpioPin = std::make_shared<NodePin>(gpio, NodePin::Direction::NODE_OUTPUT_BIDIRECTIONAL, "GPIO");
+	addNodePin(gpioPin);
 	for(int i = 0; i < 8; i++){
 		char pinName[16];
 		int inputNumber = i + 1;
@@ -181,6 +185,8 @@ void EPP1008_0001::initialize() {
 }
 bool EPP1008_0001::startupConfiguration() { return true; }
 void EPP1008_0001::readInputs() {
+	if(isStateOperational() | isStateSafeOperational()) gpio->state = DeviceState::ENABLED;
+	else gpio->state = DeviceState::NOT_READY;
 	txPdoAssignement.pullDataFrom(identity->inputs);
 	for(int i = 0; i < 8; i++){
 		*pinValues[i] = signalInversionParams[i]->value ? !inputs[i] : inputs[i];

@@ -72,6 +72,8 @@ DEFINE_ETHERCAT_DEVICE(EPP1008_0001, "EPP1008-0001 8x Digital Input", "EPP1008-0
 	std::vector<std::shared_ptr<bool>> pinValues;
 	std::vector<std::shared_ptr<NodePin>> pins;
 	std::vector<BoolParam> signalInversionParams;
+
+	std::shared_ptr<GpioInterface> gpio = std::make_shared<GpioInterface>();
 };
 
 class EL2624 : public EtherCatDevice{
