@@ -19,6 +19,7 @@
 void PositionControlledMachine::initialize() {
 	//inputs
 	addNodePin(axisPin);
+	addNodePin(referenceSignalPin);
 		
 	//outputs
 	positionPin->assignData(positionPinValue);
@@ -183,6 +184,9 @@ std::string PositionControlledMachine::getStatusString(){
 }
 
 void PositionControlledMachine::inputProcess() {
+	
+	if(referenceSignalPin->isConnected()) referenceSignalPin->copyConnectedPinValue();
+	
 	if (!isAxisConnected()) {
 		state = DeviceState::OFFLINE;
 		return;

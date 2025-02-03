@@ -16,6 +16,7 @@ namespace Scripting::EnvironnementLibrary{
 	LuaEnumerator<AnimatableType, "AnimatableType"> lua_AnimatableType;
 
 	LuaSharedPointer<Machine, "Machine"> lua_Machine;
+	LuaSharedPointer<NodePin, "NodePin"> lua_nodePin;
 	LuaSharedPointer<Animatable, "Animatable"> lua_Animatable;
 	LuaSharedPointer<AnimationConstraint, "AnimationConstraint"> lua_AnimationConstraint;
 
@@ -139,7 +140,43 @@ namespace Scripting::EnvironnementLibrary{
 			lua_pushstring(L, machine->getName());
 			return 1;
 		}
+	
+		int getNodePin(lua_State* L){
+			auto machine = lua_Machine.checkArgument(L, 1);
+			const char* pinName = luaL_checkstring(L, 2);
+			for(auto pin : machine->getInputPins()){
+				if(strcmp(pin->displayString, pinName) == 0){
+					lua_nodePin.push(L, pin);
+					return 1;
+				}
+			}
+			for(auto pin : machine->getOutputPins()){
+				if(strcmp(pin->displayString, pinName) == 0){
+					lua_nodePin.push(L, pin);
+					return 1;
+				}
+			}
+			lua_pushnil(L);
+			return 1;
+		}
 
+	}
+
+	namespace Lua_NodePin{
+		
+		int getName(lua_State* L){
+			auto pin = lua_nodePin.checkArgument(L, 1);
+			lua_pushstring(L, pin->displayString);
+			return 1;
+		}
+	
+		int getBoolValue(lua_State* L){
+			auto pin = lua_nodePin.checkArgument(L, 1);
+			bool value = pin->read<bool>();
+			lua_pushboolean(L, value);
+			return 1;
+		}
+	
 	}
 
 
@@ -407,8 +444,14 @@ namespace Scripting::EnvironnementLibrary{
 		lua_Machine.addMethod("hasAnimatable", Lua_Machine::hasAnimatable);
 		lua_Machine.addMethod("getAnimatable", Lua_Machine::getAnimatable);
 		lua_Machine.addMethod("getAnimatables", Lua_Machine::getAnimatables);
+		lua_Machine.addMethod("getNodePin", Lua_Machine::getNodePin);
 		lua_Machine.setToStringMethod(Lua_Machine::toString);
 		lua_Machine.declare(L);
+		
+		//——— NodePin
+		lua_nodePin.addMethod("getName", Lua_NodePin::getName);
+		lua_nodePin.addMethod("getBoolValue", Lua_NodePin::getBoolValue);
+		lua_nodePin.declare(L);
 		
 		//——— Animatables
 		lua_Animatable.addMethod("getName", Lua_Animatable::getName);

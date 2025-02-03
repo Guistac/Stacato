@@ -6,7 +6,17 @@
 
 --Initialize stuff here :
 
+local testMachine
+local refSignal
+
+
 function setup()
+
+testMachine = Environnement.getMachine("TestMachine")
+refSignal = testMachine:getNodePin("Reference Signal")
+local value = refSignal:getBoolValue()
+Logger:warn(value)
+
 end
 
 
@@ -20,6 +30,9 @@ end
 
 function exit()
 end
+
+
+
 
 
 
