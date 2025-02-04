@@ -1,7 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.1376477" OffsetX="-123.58192" OffsetY="-145.04422" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Moto Tournette" UniqueID="2" PositionX="139" PositionY="147" SizeX="178.49994" SizeY="386.81522"/>
-        <Widget Name="Moto Roues" UniqueID="3" PositionX="347" PositionY="162" SizeX="136.49989" SizeY="317.31677"/>
+    <Dashboard Scale="1.1335417" OffsetX="-122.90227" OffsetY="-145.03714" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Moto Tournette" UniqueID="2" PositionX="139" PositionY="147" SizeX="178.50005" SizeY="388.21542"/>
+        <Widget Name="Moto Roues" UniqueID="3" PositionX="347" PositionY="162" SizeX="136.50003" SizeY="317.63745"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -217,7 +217,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="110"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="0" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="1" PeakCurrent="2" InvertDirection="false" PositionOffset="0"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="1" PeakCurrent="2" InvertDirection="false" PositionOffset="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="161" Visible="false"/>

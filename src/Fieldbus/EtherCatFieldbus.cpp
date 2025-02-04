@@ -630,13 +630,37 @@ namespace EtherCatFieldbus {
 		
 		startupProgress.setProgress(0.55, "Waiting for Safe-Operational State");
         Logger::debug("===== Checking For Safe-Operational State...");
-        //if (ec_statecheck(0, EC_STATE_SAFE_OP, EC_TIMEOUTSTATE) != EC_STATE_SAFE_OP) {
-		if (ec_statecheck(0, EC_STATE_SAFE_OP, 10'000'000) != EC_STATE_SAFE_OP) {
-			startupProgress.setFailure("Not all slaves reached Safe-Operational State. Check the Log for more detailed errors.");
+
+		Timing::Timer safeOpTimer;
+		safeOpTimer.setExpirationSeconds(10.0);
+		bool b_anyDeviceSafeOperational;
+		bool b_allDevicesSafeOperational;
+
+		do{
+			ec_readstate();
+			b_allDevicesSafeOperational = true;
+			b_anyDeviceSafeOperational = false;
+			for(auto device : discoveredDevices){
+				if(device->isStateSafeOperational()) b_anyDeviceSafeOperational = true;
+				else b_allDevicesSafeOperational = false;
+			}
+			if(b_allDevicesSafeOperational) break;
+			else std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+		while(!safeOpTimer.isExpired());
+
+		if(b_allDevicesSafeOperational) {
+			Logger::info("===== All slaves are Safe-Operational");
+		}
+		else if(b_anyDeviceSafeOperational){
             Logger::error("===== Not all slaves have reached Safe-Operational State...");
-            return false;
-        }
-        Logger::info("===== All slaves are Safe-Operational");
+		}
+		else{
+			startupProgress.setFailure("No slaves reached Safe-Operational State. Check the Log for more detailed errors.");
+            Logger::error("===== No slaves have reached Safe-Operational State...");
+			return false;
+		}
+
 
         return true;
     }
@@ -1116,34 +1140,54 @@ namespace EtherCatFieldbus {
 			//set all slaves to operational (by setting slave 0 to operational)
 			ec_slave[0].state = EC_STATE_OPERATIONAL;
 			ec_writestate(0);
+
 			//wait for all slaves to reach OP state
-			if (EC_STATE_OPERATIONAL == ec_statecheck(0, EC_STATE_OPERATIONAL, EC_TIMEOUTSTATE)) {
-				
-				//addition read state is required to set the individual state of each slave
-				//statecheck on slave zero doesn't assign the state of each individual slave, only global slave 0
+			Timing::Timer opTimer;
+			opTimer.setExpirationSeconds(1.0);
+			bool b_anyDeviceOperational;
+			bool b_allDevicesOperational;
+
+			do{
 				ec_readstate();
-				b_networkRunning = true;
-
-				startHandlingStateTransitions();
-				//startCountingTransmissionErrors();
-				
-				startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
-				Logger::info("===== All slaves are operational");
-				Logger::info("===== Successfully started EtherCAT Fieldbus");
-
+				b_allDevicesOperational = true;
+				b_anyDeviceOperational = false;
+				for(auto device : discoveredDevices){
+					if(device->isStateOperational()) b_anyDeviceOperational = true;
+					else b_allDevicesOperational = false;
+				}
+				if(b_allDevicesOperational) break;
+				else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			else {
-				startupProgress.setFailure("Not all slaves reached Operational State. Check the Log for more detailed errors.");
-				Logger::error("===== Not all slaves reached operational state... ");
-				logDeviceStates();
+			while(!opTimer.isExpired());
+
+			if(b_allDevicesOperational) {
+				Logger::info("===== All slaves are Operational");
+			}
+			else if(b_anyDeviceOperational){
+				Logger::error("===== Not all slaves have reached Operational State...");
 				logAlStatusCodes();
 				for (auto device : discoveredDevices) {
 					if (!device->isStateOperational() || device->hasStateError()) {
 						Logger::error("Device '{}' has state {}", device->getName(), device->getEtherCatStateChar());
 					}
 				}
-				stop();
 			}
+			else{
+				startupProgress.setFailure("No slaves reached Operational State. Check the Log for more detailed errors.");
+				Logger::error("===== No slaves have reached Operational State...");
+				logAlStatusCodes();
+				stop();
+				b_networkStarting = false;
+				return;
+			}
+
+			b_networkRunning = true;
+			startupProgress.setCompletion("Successfully Started EtherCAT Fieldbus");
+			Logger::info("===== Successfully started EtherCAT Fieldbus");
+
+			startHandlingStateTransitions();
+			//startCountingTransmissionErrors();
+
 			b_networkStarting = false;
 		});
 		opStateHandler.detach();
