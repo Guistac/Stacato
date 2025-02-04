@@ -1,7 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.70882475" OffsetX="631.15503" OffsetY="-145.0531" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Moto Tournette" UniqueID="2" PositionX="139" PositionY="147" SizeX="178.50003" SizeY="384.85843"/>
-        <Widget Name="Moto Roues" UniqueID="3" PositionX="347" PositionY="162" SizeX="136.49995" SizeY="317.65936"/>
+    <Dashboard Scale="1.1376477" OffsetX="-123.58192" OffsetY="-145.04422" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Moto Tournette" UniqueID="2" PositionX="139" PositionY="147" SizeX="178.49994" SizeY="386.81522"/>
+        <Widget Name="Moto Roues" UniqueID="3" PositionX="347" PositionY="162" SizeX="136.49989" SizeY="317.31677"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -386,7 +386,7 @@
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="723.11319446563721"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="-3372.8867902755737"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
@@ -803,7 +803,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Pratiquable J2" UniqueID="527">
-                <NodeEditorPosition x="2440" y="-930"/>
+                <NodeEditorPosition x="2392" y="-924"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
@@ -821,7 +821,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Pratiquable J1" UniqueID="533">
-                <NodeEditorPosition x="2436" y="-642"/>
+                <NodeEditorPosition x="2388" y="-636"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
@@ -839,7 +839,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Pratiquable C1" UniqueID="545">
-                <NodeEditorPosition x="2440" y="-322"/>
+                <NodeEditorPosition x="2392" y="-316"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
@@ -857,7 +857,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Pratiquable C2" UniqueID="551">
-                <NodeEditorPosition x="2440" y="-50"/>
+                <NodeEditorPosition x="2392" y="-44"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
@@ -882,7 +882,7 @@
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping/>
-                    <SelectedVelocityFeedbackMapping/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
@@ -916,7 +916,7 @@
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping/>
-                    <SelectedVelocityFeedbackMapping/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
@@ -950,7 +950,7 @@
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping/>
-                    <SelectedVelocityFeedbackMapping/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
@@ -966,7 +966,7 @@
                     <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="611" Visible="false"/>
                     <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="612" Visible="false"/>
                     <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="613" Visible="false"/>
-                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="614" Visible="true"/>
+                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="614" Visible="false"/>
                     <InputPin SaveString="ActuatorDevice0" DisplayString="Actuator Device 0" DataType="ActuatorInterface" UniqueID="636" Visible="true" NoDataField="true"/>
                 </InputPins>
                 <OutputPins>
@@ -984,7 +984,7 @@
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="1" PositionOffset="0"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping/>
-                    <SelectedVelocityFeedbackMapping/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
@@ -1062,6 +1062,22 @@
             <Link UniqueID="643" StartPin="222" EndPin="636"/>
             <Link UniqueID="644" StartPin="225" EndPin="620"/>
             <Link UniqueID="645" StartPin="234" EndPin="637"/>
+            <Link UniqueID="647" StartPin="205" EndPin="577"/>
+            <Link UniqueID="648" StartPin="208" EndPin="578"/>
+            <Link UniqueID="649" StartPin="206" EndPin="576"/>
+            <Link UniqueID="650" StartPin="207" EndPin="579"/>
+            <Link UniqueID="651" StartPin="194" EndPin="591"/>
+            <Link UniqueID="652" StartPin="195" EndPin="594"/>
+            <Link UniqueID="653" StartPin="196" EndPin="593"/>
+            <Link UniqueID="654" StartPin="193" EndPin="592"/>
+            <Link UniqueID="655" StartPin="217" EndPin="607"/>
+            <Link UniqueID="656" StartPin="220" EndPin="608"/>
+            <Link UniqueID="657" StartPin="219" EndPin="609"/>
+            <Link UniqueID="658" StartPin="218" EndPin="606"/>
+            <Link UniqueID="659" StartPin="229" EndPin="622"/>
+            <Link UniqueID="660" StartPin="232" EndPin="623"/>
+            <Link UniqueID="661" StartPin="231" EndPin="624"/>
+            <Link UniqueID="662" StartPin="230" EndPin="621"/>
         </Links>
     </NodeGraph>
 </Environnement>

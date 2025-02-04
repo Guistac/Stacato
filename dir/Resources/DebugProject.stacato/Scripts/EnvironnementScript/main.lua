@@ -53,7 +53,7 @@ function update()
 	local o3 = overlap_Pc1:getBoolValue()
 	local o4 = overlap_Pc2:getBoolValue()
 
-	Logger:warn("J2-" .. tostring(o1) .. " J1-" .. tostring(o2) .. " C1-" .. tostring(o3) .. " C2-" .. tostring(o4))
+	--Logger:warn("J2-" .. tostring(o1) .. " J1-" .. tostring(o2) .. " C1-" .. tostring(o3) .. " C2-" .. tostring(o4))
 
 end
 
@@ -62,5 +62,6 @@ end
 
 function exit()
 end
+
 
 
