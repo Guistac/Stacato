@@ -834,14 +834,14 @@ void EtherCatDevice::eventListGui() {
 
 
 glm::vec4 EtherCatDevice::getEtherCatStateColor(){
-	if (!isDetected()) return Colors::blue;
+	if (!isDetected()) return Colors::black;
 	uint16_t stateWithoutErrorBit = identity->state & 0xF;
 	switch (stateWithoutErrorBit) {
-		case EC_STATE_INIT: return Colors::red;
-		case EC_STATE_PRE_OP:
-		case EC_STATE_SAFE_OP: return Colors::yellow;
+		case EC_STATE_INIT: return Colors::blue;
+		case EC_STATE_PRE_OP: return Colors::darkRed;
+		case EC_STATE_SAFE_OP: return Colors::orange;
 		case EC_STATE_OPERATIONAL: return Colors::green;
-		default: return Colors::blue;
+		default: return Colors::darkGray;
 	}
 }
 

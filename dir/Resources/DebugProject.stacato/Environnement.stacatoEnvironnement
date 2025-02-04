@@ -386,7 +386,7 @@
                     <FeedbackMappings/>
                     <ActuatorMappings>
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
-                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="-3372.8867902755737"/>
+                        <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="1" UnitConversion="1" PositionOffset="-3372.8536520004272"/>
                     </ActuatorMappings>
                     <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
                     <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
