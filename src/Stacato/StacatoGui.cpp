@@ -144,7 +144,8 @@ void gui(){
 	void load(){
 		FileDialog::FilePath path;
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
-		if(FileDialog::load(path, filter)) {
+		if(FileDialog::load(path)) {
+		//if(FileDialog::load(path, filter)) {
 			std::filesystem::path fsPath = path.path;
 			Workspace::openFile(fsPath);
 		}
