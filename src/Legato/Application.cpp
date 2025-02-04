@@ -119,7 +119,7 @@ namespace Application{
 		
 		//——— core library initialization
 		Random::initialize();
-		//FileDialog::init(); //this sets locale on unix for some reason...
+		FileDialog::init(); //this sets locale on unix for some reason...
 
 		//——— set locale, this sets decimal points to . and not ,
 		std::setlocale(LC_NUMERIC, "C");
