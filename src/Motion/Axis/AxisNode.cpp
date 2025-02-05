@@ -468,11 +468,7 @@ void AxisNode::updateControlMode(){
 			option_LimitSignalType_SignalAtLowerLimit.enable();
 			option_LimitSignalType_SignalAtLowerAndUpperLimits.enable();
 			option_LimitSignalType_SignalAtOrigin.enable();
-			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.disable();
-			if(limitSignalTypeParameter->value == LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
-				limitSignalTypeParameter->overwrite(&option_LimitSignalType_SignalAtLowerAndUpperLimits);
-				updateLimitSignalType();
-			}
+			option_LimitSignalType_LimitAndSlowdownAtLowerAndUpperLimits.enable();
 			break;
 		case ControlMode::VELOCITY_CONTROL:
 			controlMode = ControlMode::VELOCITY_CONTROL;
@@ -588,9 +584,9 @@ void AxisNode::updateLimitSignalType(){
 			referenceSignalPin->disconnectAllLinks();
 			referenceSignalPin->setVisible(false);
 			
-			option_SignalApproachMethod_FindSignalEdge.disable();
+			option_SignalApproachMethod_FindSignalEdge.enable();
 			option_SignalApproachMethod_FindSignalCenter.disable();
-			option_HomingDirection_Negative.disable();
+			option_HomingDirection_Negative.enable();
 			option_HomingDirection_Positive.disable();
 			break;
 		default:

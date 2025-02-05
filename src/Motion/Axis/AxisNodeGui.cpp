@@ -189,42 +189,41 @@ void AxisNode::controlTab(){
 			
 		}
 		
-		if(controlMode == VELOCITY_CONTROL){
-			
-			ImVec4 inactiveBackgroundColor = Colors::darkYellow;
-			ImVec4 activeBackgroundColor = Colors::yellow;
-			ImVec4 inactiveTextColor = Colors::veryDarkGray;
-			ImVec4 activeTextColor = Colors::black;
-			
-			if(limitSignalType == SIGNAL_AT_LOWER_AND_UPPER_LIMITS){
-				ImVec2 indicatorSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetFrameHeight());
-				backgroundText("Lower Limit", indicatorSize,
-							   *lowerLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *lowerLimitSignal ? activeTextColor : inactiveTextColor);
-				ImGui::SameLine();
-				backgroundText("Upper Limit", indicatorSize,
-							   *upperLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *upperLimitSignal ? activeTextColor : inactiveTextColor);
-			}
-			else if(limitSignalType == LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
-				ImVec2 indicatorSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 3.0) / 4.0, ImGui::GetFrameHeight());
-				backgroundText("Lower Limit", indicatorSize,
-							   *lowerLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *lowerLimitSignal ? activeTextColor : inactiveTextColor);
-				ImGui::SameLine();
-				backgroundText("Lower Slowdown", indicatorSize,
-							   *lowerSlowdownSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *lowerSlowdownSignal ? activeTextColor : inactiveTextColor);
-				ImGui::SameLine();
-				backgroundText("Upper Slowdown", indicatorSize,
-							   *upperSlowdownSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *upperSlowdownSignal ? activeTextColor : inactiveTextColor);
-				ImGui::SameLine();
-				backgroundText("Upper Limit", indicatorSize,
-							   *upperLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
-							   *upperLimitSignal ? activeTextColor : inactiveTextColor);
-			}
+		
+		ImVec4 inactiveBackgroundColor = Colors::darkYellow;
+		ImVec4 activeBackgroundColor = Colors::yellow;
+		ImVec4 inactiveTextColor = Colors::veryDarkGray;
+		ImVec4 activeTextColor = Colors::black;
+		
+		if(limitSignalType == SIGNAL_AT_LOWER_AND_UPPER_LIMITS){
+			ImVec2 indicatorSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0, ImGui::GetFrameHeight());
+			backgroundText("Lower Limit", indicatorSize,
+							*lowerLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*lowerLimitSignal ? activeTextColor : inactiveTextColor);
+			ImGui::SameLine();
+			backgroundText("Upper Limit", indicatorSize,
+							*upperLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*upperLimitSignal ? activeTextColor : inactiveTextColor);
 		}
+		else if(limitSignalType == LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
+			ImVec2 indicatorSize((ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 3.0) / 4.0, ImGui::GetFrameHeight());
+			backgroundText("Lower Limit", indicatorSize,
+							*lowerLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*lowerLimitSignal ? activeTextColor : inactiveTextColor);
+			ImGui::SameLine();
+			backgroundText("Lower Slowdown", indicatorSize,
+							*lowerSlowdownSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*lowerSlowdownSignal ? activeTextColor : inactiveTextColor);
+			ImGui::SameLine();
+			backgroundText("Upper Slowdown", indicatorSize,
+							*upperSlowdownSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*upperSlowdownSignal ? activeTextColor : inactiveTextColor);
+			ImGui::SameLine();
+			backgroundText("Upper Limit", indicatorSize,
+							*upperLimitSignal ? activeBackgroundColor : inactiveBackgroundColor,
+							*upperLimitSignal ? activeTextColor : inactiveTextColor);
+		}
+
 		
 		if(axisInterface->supportsHoming()){
 			ImVec2 buttonSize(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 2.0);
