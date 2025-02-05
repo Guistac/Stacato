@@ -485,6 +485,28 @@ void AxisNode::outputProcess(){
 		}
 	};
 	
+	auto limitAndSlowdownPositionControl = [this](double targetPosition, double targetVelocity, double targetAcceleration){
+		double slowdownVelocity = std::abs(limitSlowdownVelocity->value);
+		double acc = axisInterface->getAccelerationLimit();
+		
+		if(*lowerLimitSignal && (targetVelocity < 0.0 || motionProfile.getVelocity() < 0.0 || targetPosition < axisInterface->getPositionActual())){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+		}
+		else if(*upperLimitSignal && (targetVelocity > 0.0 || motionProfile.getVelocity() > 0.0 || targetPosition > axisInterface->getPositionActual())){
+			motionProfile.matchVelocity(profileTimeDelta_seconds, 0.0, acc);
+		}
+		else if(*lowerSlowdownSignal && (targetVelocity < -slowdownVelocity || motionProfile.getVelocity() < -slowdownVelocity)){
+			motionProfile.matchPosition(profileTimeDelta_seconds, targetPosition, targetVelocity, targetAcceleration, acc, slowdownVelocity);
+		}
+		else if(*upperSlowdownSignal && (targetVelocity > slowdownVelocity || motionProfile.getVelocity() > slowdownVelocity)){
+			motionProfile.matchPosition(profileTimeDelta_seconds, targetPosition, targetVelocity, targetAcceleration, acc, slowdownVelocity);
+		}
+		else{
+			motionProfile.matchPosition(profileTimeDelta_seconds, targetPosition, targetVelocity, targetAcceleration, acc, velocityLimit->value);
+		}
+		
+	};
+	
 	//update the motion profile
 	switch(internalControlMode){
 		case InternalControlMode::MANUAL_VELOCITY_TARGET:
@@ -525,16 +547,25 @@ void AxisNode::outputProcess(){
 		case InternalControlMode::HOMING_POSITION_INTERPOLATION:
 			motionProfile.updateInterpolation(profileTime_seconds);
 			break;
-		case InternalControlMode::EXTERNAL_POSITION_TARGET:{
-			double velLim = std::abs(axisInterface->getVelocityLimit());
-			double accLim = std::abs(axisInterface->getAccelerationLimit());
-			double lposLim = axisInterface->getLowerPositionLimit();
-			double uposLim = axisInterface->getUpperPositionLimit();
-			double posTar = axisInterface->processData.positionTarget;
-			double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
-			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
-			motionProfile.matchPositionAndRespectPositionLimits(profileTimeDelta_seconds, posTar, velTar, accTar, accLim, velLim, lposLim, uposLim);
-			}break;
+		case InternalControlMode::EXTERNAL_POSITION_TARGET:
+			if(limitSignalType == LimitSignalType::LIMIT_AND_SLOWDOWN_SIGNALS_AT_LOWER_AND_UPPER_LIMITS){
+				double accLim = std::abs(axisInterface->getAccelerationLimit());
+				double velLim = std::abs(axisInterface->getVelocityLimit());
+				double posTar = axisInterface->processData.positionTarget;
+				double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
+				double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
+				limitAndSlowdownPositionControl(posTar, velTar, accTar);
+			}else{
+				double velLim = std::abs(axisInterface->getVelocityLimit());
+				double accLim = std::abs(axisInterface->getAccelerationLimit());
+				double lposLim = axisInterface->getLowerPositionLimit();
+				double uposLim = axisInterface->getUpperPositionLimit();
+				double posTar = axisInterface->processData.positionTarget;
+				double velTar = std::clamp(axisInterface->processData.velocityTarget, -velLim, velLim);
+				double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
+				motionProfile.matchPositionAndRespectPositionLimits(profileTimeDelta_seconds, posTar, velTar, accTar, accLim, velLim, lposLim, uposLim);
+			}
+			break;
 		case InternalControlMode::EXTERNAL_VELOCITY_TARGET:{
 			double accLim = std::abs(axisInterface->getAccelerationLimit());
 			double accTar = std::clamp(axisInterface->processData.accelerationTarget, -accLim, accLim);
