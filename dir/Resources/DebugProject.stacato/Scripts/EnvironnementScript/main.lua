@@ -26,10 +26,10 @@ function setup()
 	Tc1 = tournette_C1:getAnimatable("Position")
 	Tc2 = tournette_C2:getAnimatable("Position")
 	
-	local pratiquable_J2 = Environnement.getMachine("Pratiquable J2")
-	local pratiquable_J1 = Environnement.getMachine("Pratiquable J1")
-	local pratiquable_C1 = Environnement.getMachine("Pratiquable C1")
-	local pratiquable_C2 = Environnement.getMachine("Pratiquable C2")
+	local pratiquable_J2 = Environnement.getMachine("Pratos J2")
+	local pratiquable_J1 = Environnement.getMachine("Pratos J1")
+	local pratiquable_C1 = Environnement.getMachine("Pratos C1")
+	local pratiquable_C2 = Environnement.getMachine("Pratos C2")
 	
 	Pj2 = pratiquable_J2:getAnimatable("Position")
 	Pj1 = pratiquable_J1:getAnimatable("Position")
@@ -62,6 +62,11 @@ end
 
 function exit()
 end
+
+
+
+
+
 
 
 
