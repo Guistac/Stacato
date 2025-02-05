@@ -201,7 +201,14 @@ void PositionControlledMachine::inputProcess() {
 	b_emergencyStopActive = axis->isEmergencyStopActive() && axis->getState() != DeviceState::OFFLINE;
 	
 	//update halt state
-	b_halted = isEnabled() && !isMotionAllowed();
+	bool haltconstraint = false;
+	for(auto constraint : animatablePosition->getConstraints()){
+		if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()) {
+			haltconstraint = true;
+			break;
+		}
+	}
+	b_halted = isEnabled() && (!isMotionAllowed() || haltconstraint);
 	
 	//update animatable state
 	if(state == DeviceState::OFFLINE) animatablePosition->state = Animatable::State::OFFLINE;
@@ -246,7 +253,7 @@ void PositionControlledMachine::outputProcess(){
 		animatablePosition->stopAnimation();
 	}
 	
-	if(!isMotionAllowed()){
+	if(!isMotionAllowed() || b_halted){
 		if(animatablePosition->hasAnimation()){
 			animatablePosition->getAnimation()->pausePlayback();
 		}

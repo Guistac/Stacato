@@ -113,7 +113,8 @@ namespace Scripting::EnvironnementLibrary{
 						case AnimatableType::POSITION:
 							lua_AnimatablePosition.push(L, animatable->toPosition()); return 1;
 						default:
-							lua_pushnil(L);
+							lua_Animatable.push(L, animatable); return 1;
+							//lua_pushnil(L);
 							return 1;
 					}
 				}
@@ -387,6 +388,20 @@ namespace Scripting::EnvironnementLibrary{
 			return 1;
 		}
 
+		int getLowerPositionLimit(lua_State* L){
+			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
+			double lowerLimit = animatablePosition->lowerPositionLimit;
+			lua_pushnumber(L, lowerLimit);
+			return 1;
+		}
+
+		int getUpperPositionLimit(lua_State* L){
+			auto animatablePosition = lua_AnimatablePosition.checkArgument(L, 1);
+			double upperLimit = animatablePosition->upperPositionLimit;
+			lua_pushnumber(L, upperLimit);
+			return 1;
+		}
+
 	};
 	
 	namespace Lua_AnimatablePosition_KeepoutConstraint{
@@ -492,6 +507,8 @@ namespace Scripting::EnvironnementLibrary{
 		}
 		lua_AnimatablePosition.addMethod("getConstraints", Lua_AnimatablePosition::getConstraints);
 		lua_AnimatablePosition.addMethod("getBrakingPosition", Lua_AnimatablePosition::getBrakingPosition);
+		lua_AnimatablePosition.addMethod("getLowerPositionLimit", Lua_AnimatablePosition::getLowerPositionLimit);
+		lua_AnimatablePosition.addMethod("getUpperPositionLimit", Lua_AnimatablePosition::getUpperPositionLimit);
 		lua_AnimatablePosition.declare(L);
 		
 		//——— Animatable Position Keepout Constraint

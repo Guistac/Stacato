@@ -19,6 +19,8 @@ class VelocityControlledMachine : public Machine{
 	//———————— Input Pins ——————————
 	
 	std::shared_ptr<NodePin> axisPin = std::make_shared<NodePin>(NodePin::DataType::AXIS_INTERFACE, NodePin::Direction::NODE_INPUT_BIDIRECTIONAL, "Velocity Controlled Axis");
+	std::shared_ptr<bool> referenceSignal = std::make_shared<bool>(false);
+	std::shared_ptr<NodePin> referenceSignalPin = std::make_shared<NodePin>(referenceSignal, NodePin::Direction::NODE_INPUT, "Reference Signal", "ReferenceSignal");
 	bool isAxisConnected();
 	std::shared_ptr<AxisInterface> getAxisInterface();
 	

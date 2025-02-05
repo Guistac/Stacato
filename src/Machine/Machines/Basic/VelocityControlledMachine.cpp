@@ -19,6 +19,7 @@
 void VelocityControlledMachine::initialize() {
 	//inputs
 	addNodePin(axisPin);
+	addNodePin(referenceSignalPin);
 		
 	//outputs
 	velocityPin->assignData(velocityPinValue);
@@ -120,6 +121,9 @@ std::string VelocityControlledMachine::getStatusString(){
 }
 
 void VelocityControlledMachine::inputProcess() {
+
+	if(referenceSignalPin->isConnected()) referenceSignalPin->copyConnectedPinValue();
+
 	if (!isAxisConnected()) {
 		state = DeviceState::OFFLINE;
 		return;
@@ -135,7 +139,15 @@ void VelocityControlledMachine::inputProcess() {
 	b_emergencyStopActive = axis->isEmergencyStopActive() && axis->getState() != DeviceState::OFFLINE;
 	
 	//update halt state
-	b_halted = isEnabled() && !isMotionAllowed();
+	bool haltconstraint = false;
+	for(auto constraint : animatableVelocity->getConstraints()){
+		if(constraint->getType() == AnimationConstraint::Type::HALT && constraint->isEnabled()) {
+			haltconstraint = true;
+			//Logger::warn("Machine {} Halted", getName());
+			break;
+		}
+	}
+	b_halted = isEnabled() && (!isMotionAllowed() || haltconstraint);
 	
 	//update animatable state
 	if(state == DeviceState::OFFLINE) animatableVelocity->state = Animatable::State::OFFLINE;
@@ -171,8 +183,8 @@ void VelocityControlledMachine::outputProcess(){
 		animatableVelocity->stopMovement();
 		animatableVelocity->stopAnimation();
 	}
-	
-	if(!isMotionAllowed()){
+
+	if(!isMotionAllowed() || b_halted){
 		if(animatableVelocity->hasAnimation()){
 			animatableVelocity->getAnimation()->pausePlayback();
 		}

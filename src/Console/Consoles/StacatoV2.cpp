@@ -69,7 +69,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         if(!rgbButton_goToStart->isPressed()) manoeuvre->rapidToStart();
 	});
 	rgbButton_goToStart->setOutputUpdateCallback([this](){
-		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+		auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_goToStart->setColor(glm::vec3(0.f, 0.f, 0.f));
         else if(manoeuvre->isAtStart()) rgbButton_goToStart->setColor(glm::vec3(.0f, 1.f, .0f));
         else if(manoeuvre->canRapidToStart()) rgbButton_goToStart->setColor(glm::vec3(.1f, .1f, .1f));
@@ -77,7 +81,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_PlayPause->setInputUpdateCallback([this](){
-		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+		auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(!manoeuvre) return;
         if(!rgbButton_PlayPause->isPressed()) {
             if(manoeuvre->canPausePlayback()) manoeuvre->pausePlayback();
@@ -86,7 +94,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         }
 	});
 	rgbButton_PlayPause->setOutputUpdateCallback([this](){
-        auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+        auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_PlayPause->setColor(glm::vec3(0.f, 0.f, 0.1f));
         else if(manoeuvre->isPlaying()){
             glm::vec3 black = glm::vec3(0.f);
@@ -105,7 +117,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_Stop->setInputUpdateCallback([this](){
-		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+		auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(rgbButton_Stop->isPressed()){
             if(manoeuvre && manoeuvre->canStop()) {
                 manoeuvre->stop();
@@ -114,7 +130,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         }
 	});
 	rgbButton_Stop->setOutputUpdateCallback([this](){
-        auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+                auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(manoeuvre != nullptr && manoeuvre->canStop()){
             glm::vec3 black = glm::vec3(0.f, 0.f, 0.f);
             glm::vec3 red = glm::vec3(1.f, 0.f, 0.f);
@@ -130,7 +150,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
         if(!rgbButton_goToEnd->isPressed()) manoeuvre->rapidToTarget();
 	});
 	rgbButton_goToEnd->setOutputUpdateCallback([this](){
-		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
+		        auto project = Stacato::Editor::getCurrentProject();
+		if(project == nullptr) return;
+		auto plot = project->getCurrentPlot();
+		if(plot == nullptr) return;
+		auto manoeuvre = plot->getSelectedManoeuvre();
         if(manoeuvre == nullptr) rgbButton_goToEnd->setColor(glm::vec3(0.f, 0.f, 0.f));
         else if(manoeuvre->isAtTarget()) rgbButton_goToEnd->setColor(glm::vec3(.0f, 1.f, .0f));
         else if(manoeuvre->canRapidToTarget()) rgbButton_goToEnd->setColor(glm::vec3(.1f, .1f, .1f));

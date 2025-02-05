@@ -452,6 +452,7 @@ DockSpace                 ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,61 Size=1920,935
                 <Window Name="Log"/>
                 <Window Name="Node Editor"/>
                 <Window Name="Dashboard"/>
+                <Window Name="Environnement Script"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -723,9 +724,10 @@ Collapsed=0
 DockId=0x00000014,0
 
 [Window][Environnement Script]
-Pos=423,73
-Size=879,938
+Pos=0,29
+Size=1121,898
 Collapsed=0
+DockId=0x0000000C,1
 
 [Window][Window 1]
 ViewportPos=1000,583
@@ -876,7 +878,7 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,98 Size=1920,898 S
           DockNode      ID=0x00000009 Parent=0x00000006 SizeRef=1069,1023 Split=X Selected=0xEDDB08E7
             DockNode    ID=0x00000012 Parent=0x00000009 SizeRef=1213,1022 Split=Y Selected=0xB00214C9
               DockNode  ID=0x00000005 Parent=0x00000012 SizeRef=1761,667 HiddenTabBar=1 Selected=0x8506A884
-              DockNode  ID=0x0000000C Parent=0x00000012 SizeRef=1761,266 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
+              DockNode  ID=0x0000000C Parent=0x00000012 SizeRef=1761,266 CentralNode=1 Selected=0xEE7B11E9
             DockNode    ID=0x00000013 Parent=0x00000009 SizeRef=434,1022 Selected=0x27459703
         DockNode        ID=0x00000007 Parent=0x00000004 SizeRef=663,1023 Selected=0x7AEFDC53
     DockNode            ID=0x0000000D Parent=0x00000016 SizeRef=797,914 Split=Y Selected=0x64F50EE5

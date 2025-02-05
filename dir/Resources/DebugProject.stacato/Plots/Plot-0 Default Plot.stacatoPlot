@@ -1,7 +1,20 @@
 <Plot Name="Default Plot">
     <ManoeuvreList>
-        <Manoeuvre Name="M-0" Description="" Type="Sequence">
+        <Manoeuvre Name="Mise Démo Tournettes" Description="" Type="Target">
             <LabelColo r="0" g="0" b="0" a="0"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Move Démo Tournettes" Description="" Type="Target">
+            <LabelColo r="0" g="0" b="0" a="0"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-179.90000000000001" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="179.94999999999999" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Velocity" Time="0" Velocity="5" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
