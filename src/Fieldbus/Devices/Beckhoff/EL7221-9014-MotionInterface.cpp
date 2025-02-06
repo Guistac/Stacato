@@ -125,11 +125,12 @@ void EL7221_9014::readInputs() {
 	
 	//fault event detection
 	if(!processData.b_hadFault && statusWord.fault) {
-		Logger::warn("[{}] Fault Detected, downloading error code...", getName());
+		Logger::warn("[{}] Fault", getName());
+		//Logger::warn("[{}] Fault Detected, downloading error code...", getName());
 		//since we can't have an error message in the process data
 		//we request an asynchronous download of the last diagnostics message by the drive
 		//this method will copy the last error message and raise a flag when it's done
-		downloadLatestDiagnosticsMessage(&processData.lastErrorTextID, &processData.b_newErrorID);
+		//downloadLatestDiagnosticsMessage(&processData.lastErrorTextID, &processData.b_newErrorID);
 	}
 	else if(processData.b_hadFault && !statusWord.fault) Logger::info("[{}] Fault Cleared", getName());
 	processData.b_hadFault = statusWord.fault;
