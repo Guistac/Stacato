@@ -385,10 +385,9 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
 	   }
 	}
 	else if(isEnabled() && !statusWord.isEnabled()){
-	   Logger::error("[{} Axis {}] isEnabled: {}", etherCatDevice->getName(), channel, isEnabled());
+	   Logger::warn("[{} Axis {}] disabled on its own", etherCatDevice->getName(), channel);
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
-	   Logger::error("[{} Axis {}] Disabled (st:{} fl:{})", etherCatDevice->getName(), channel, statusWord.status, statusWord.followsCommand);
 	}
 
 
@@ -427,7 +426,7 @@ void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t&
 	   actuatorProcessData.b_disable = false;
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
-	   //Logger::error("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
+	   Logger::debug("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
 	}
 
 	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;

@@ -183,6 +183,7 @@ void AxisNode::inputProcess(){
 	//handle axis enable request
 	if(processData.b_enable){
 		processData.b_enable = false;
+		processData.b_disable = false;
 		if(axisInterface->getState() == DeviceState::READY){
 			b_isEnabling = true;
 			
