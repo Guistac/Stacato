@@ -106,10 +106,10 @@ end
 --Perform Environnement Logic here :
 
 function update()
-	anticollision(Tj2, overlap_j2, finDeCourseJ2, halt_Tj2, halt_Pj2)
-	anticollision(Tj1, overlap_j1, finDeCourseJ1, halt_Tj1, halt_Pj1)
-	anticollision(Tc1, overlap_c1, finDeCourseC1, halt_Tc1, halt_Pc1)
-	anticollision(Tc2, overlap_c2, finDeCourseC2, halt_Tc2, halt_Pc2)
+	--anticollision(Tj2, overlap_j2, finDeCourseJ2, halt_Tj2, halt_Pj2)
+	--anticollision(Tj1, overlap_j1, finDeCourseJ1, halt_Tj1, halt_Pj1)
+	--anticollision(Tc1, overlap_c1, finDeCourseC1, halt_Tc1, halt_Pc1)
+	--anticollision(Tc2, overlap_c2, finDeCourseC2, halt_Tc2, halt_Pc2)
 end
 
 
@@ -117,6 +117,11 @@ end
 
 function exit()
 end
+
+
+
+
+
 
 
 
