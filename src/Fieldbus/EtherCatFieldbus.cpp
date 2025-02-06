@@ -88,7 +88,7 @@ namespace EtherCatFieldbus {
 
 	bool b_pollNics = false;
 	bool b_discoveredDevices = false;
-	bool b_stateTransitions = false;
+	bool b_stateTransitions = true;
 	bool b_transmissionErrors = false;
 
 	void startPollingNetworkInterfaceCards();
@@ -1047,7 +1047,8 @@ namespace EtherCatFieldbus {
 		averageDCTimeDelta_nanoseconds = averageDCTimeDelta_nanoseconds * 0.95 + (double)abs(referenceClockError_nanoseconds) * 0.05;
 		if (referenceClockError_nanoseconds > 0) { clockDriftCorrectionintegral++; }
 		else if (referenceClockError_nanoseconds < 0) { clockDriftCorrectionintegral--; }
-		int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
+		//int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 20);
+		int64_t masterClockCorrection_nanoseconds = -(referenceClockError_nanoseconds / 100) - (clockDriftCorrectionintegral / 5);
 		previousCycleStartTime_nanoseconds = cycleStartTime_nanoseconds;
 		cycleStartTime_nanoseconds += processInterval_nanoseconds + masterClockCorrection_nanoseconds;
 
@@ -1305,6 +1306,7 @@ namespace EtherCatFieldbus {
 				//read the current state of each slave
 				ec_readstate();
 
+				/*
 				//detect state changes by comparing the previous state with the current state
 				for (auto device : discoveredDevices) {
 					if (device->identity->state != device->previousState) {
@@ -1365,6 +1367,7 @@ namespace EtherCatFieldbus {
 						}
 					}
 				}
+				*/
 
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}

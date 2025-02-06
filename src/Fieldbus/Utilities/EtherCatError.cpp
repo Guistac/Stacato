@@ -46,7 +46,7 @@ namespace EtherCatError {
 				}
 				*/
 				errorString = ec_soeerror2string(error.ErrorCode);
-				if(error.ErrorCode == 0x800A) Logger::info("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString);
+				if(error.ErrorCode == 0x800A) Logger::debug("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString);
                 else Logger::warn("SOE Error: Slave '{}' AbortCode: {:X} Error: {}", slaveName, error.AbortCode, errorString); break;
             case EC_ERR_TYPE_MBX_ERROR:
 				errorString = ec_mbxerror2string(error.ErrorCode);

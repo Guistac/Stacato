@@ -83,7 +83,10 @@ void AX5000::initialize(std::shared_ptr<EtherCatDevice> ecatDevice, Config& driv
 
 void AX5000::onDisconnection(){
 	gpio->state = DeviceState::OFFLINE;
-	for(auto actuator : actuators) actuator->state = DeviceState::OFFLINE;
+	for(auto actuator : actuators) {
+		actuator->state = DeviceState::OFFLINE;
+		actuator->disable();
+	}
 }
 void AX5000::onConnection(){
 	gpio->state = DeviceState::ENABLED;
@@ -263,16 +266,14 @@ void AX5000::writeOutputs(){
 	actuators[0]->updateOutputs(masterDataTelegram.ax0_masterControlWord,
 								masterDataTelegram.ax0_velocityCommandValue,
 								masterDataTelegram.ax0_positionCommandValue);
-	if(previousControlWord0 != masterDataTelegram.ax0_masterControlWord)
-		Logger::info("Axis 0 ctrlwrd {:x}", masterDataTelegram.ax0_masterControlWord);
+	//if(previousControlWord0 != masterDataTelegram.ax0_masterControlWord) Logger::info("Axis 0 ctrlwrd {:x}", masterDataTelegram.ax0_masterControlWord);
 	
 	if(actuators.size() > 1){
 		uint16_t previousControlWord1 = masterDataTelegram.ax1_masterControlWord;
 		actuators[1]->updateOutputs(masterDataTelegram.ax1_masterControlWord,
 									masterDataTelegram.ax1_velocityCommandValue,
 									masterDataTelegram.ax1_positionCommandValue);
-		if(previousControlWord1 != masterDataTelegram.ax1_masterControlWord)
-			Logger::info("Axis 1 ctrlwrd {:x}", masterDataTelegram.ax1_masterControlWord);
+	//if(previousControlWord1 != masterDataTelegram.ax1_masterControlWord) Logger::info("Axis 1 ctrlwrd {:x}", masterDataTelegram.ax1_masterControlWord);
 	}
 
 	memcpy(etherCatDevice->identity->outputs, &masterDataTelegram, etherCatDevice->identity->Obytes);
@@ -349,13 +350,13 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
 
 	bool previousEstop = actuatorProcessData.b_isEmergencyStopActive;
 	if(previousEstop != sto){
-	   if(sto) Logger::warn("[{}] Axis {} : STO Active", etherCatDevice->getName(), channel);
-	   else Logger::info("[{}] Axis {} : STO Cleared", etherCatDevice->getName(), channel);
+	   //if(sto) Logger::warn("[{}] Axis {} : STO Active", etherCatDevice->getName(), channel);
+	   //else Logger::info("[{}] Axis {} : STO Cleared", etherCatDevice->getName(), channel);
 	}
 
 	if(statusWord.shutdownError != b_hasFault){
-	   if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", etherCatDevice->getName(), channel);
-	   else Logger::error("[{}] Axis {} : Fault !", etherCatDevice->getName(), channel);
+	   //if(!statusWord.shutdownError) Logger::info("[{}] Axis {} : Fault Cleared", etherCatDevice->getName(), channel);
+	   //if(statusWord.shutdownError) Logger::error("[{}] Axis {} : Fault", etherCatDevice->getName(), channel);
 	}
 	if(statusWord.warningChange != b_warning){
 	   Logger::critical("[{}] Axis {} : Warning {}", etherCatDevice->getName(), channel, statusWord.warningChange);
@@ -367,18 +368,15 @@ void AX5000::Actuator::updateInputs(uint16_t statusw, int32_t pos, int32_t vel, 
 
 
 	if(class1Errors != err){
-	   if(err != 0x0){
-		   Logger::error("[{}] Axis {} Errors:", etherCatDevice->getName(), channel);
-		   Logger::error("{}", ax5000->getClass1Errors(err));
-	   }
-	   else Logger::error("[{}] Axis {} : Error cleared !", etherCatDevice->getName(), channel);
+	   if(err != 0x0) Logger::error("[{}] Axis {} {}", etherCatDevice->getName(), channel, ax5000->getClass1Errors(err));
+	   else Logger::info("[{}] Axis {} : Error cleared !", etherCatDevice->getName(), channel);
 	}
 	class1Errors = err;
 
 	if(actuatorProcessData.b_enabling){
 	   if(statusWord.isEnabled()){
 		   actuatorProcessData.b_enabling = false;
-		   Logger::info("[{}] Axis {} Enabled", etherCatDevice->getName(), channel);
+		   Logger::debug("[{}] Axis {} Enabled", etherCatDevice->getName(), channel);
 	   }
 	   else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - actuatorProcessData.enableRequest_nanos > enableTimeout_nanos){
 		   actuatorProcessData.b_enabling = false;
@@ -429,7 +427,7 @@ void AX5000::Actuator::updateOutputs(uint16_t& controlw, int32_t& vel, uint32_t&
 	   actuatorProcessData.b_disable = false;
 	   actuatorProcessData.b_enabling = false;
 	   controlWord.disable();
-	   Logger::error("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
+	   //Logger::error("[{} Axis {}] Disable request", etherCatDevice->getName(), channel);
 	}
 
 	vel = actuatorProcessData.velocityTarget * unitsPerRPM * 60.0;
@@ -498,10 +496,10 @@ std::string AX5000::Actuator::getStatusString(){
 void AX5000::requestFaultReset(uint8_t axis){
 	std::thread faultResetThread([this,axis](){
 		//set & enable command
-		if(etherCatDevice->writeSercos_U16('S', 99, 3, axis)) Logger::info("Requested fault reset");
+		etherCatDevice->writeSercos_U16('S', 99, 3, axis); //Logger::info("Requested fault reset");
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		//cancel command
-		if(etherCatDevice->writeSercos_U16('S', 99, 0, axis)) Logger::info("Fault reset request finished");
+		etherCatDevice->writeSercos_U16('S', 99, 0, axis); //Logger::info("Fault reset request finished");
 	});
 	faultResetThread.detach();
 }

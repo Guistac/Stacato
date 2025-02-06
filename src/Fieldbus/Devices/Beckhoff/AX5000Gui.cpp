@@ -56,6 +56,30 @@ void AX5000::gui() {
 					//ImGui::Text("PositionOffset: %ib", servo->positionOffset);
 					//ImGui::Text("PositionRaw: %ib (%.2frev)", servo->positionRaw, double(servo->positionRaw) / servo->unitsPerRev);
 					ImGui::Text("Effort: %.1f%%", servo->actuatorProcessData.effortActual * 100.0);
+
+					if(ImGui::CollapsingHeader("StatusWord")){
+						ImGui::BeginGroup();
+						ImGui::Text("followsCommand %i", servo->statusWord);
+						ImGui::Text("realtimeBit1 %i", servo->statusWord.realtimeBit1);
+						ImGui::Text("realtimeBit2 %i", servo->statusWord.realtimeBit2);
+						ImGui::Text("operatingMode %i", servo->statusWord.operatingMode);
+						ImGui::Text("infoChange %i", servo->statusWord.infoChange);
+						ImGui::Text("warningChange %i", servo->statusWord.warningChange);
+						ImGui::Text("shutdownError %i", servo->statusWord.shutdownError);
+						ImGui::Text("status %i", servo->statusWord.status);
+						ImGui::EndGroup();
+						ImGui::SameLine();
+						ImGui::BeginGroup();
+						ImGui::Text("b_realtimeBit1 %i", servo->controlWord.b_realtimeBit1);
+						ImGui::Text("b_realtimeBit2 %i", servo->controlWord.b_realtimeBit2);
+						ImGui::Text("operatingMode %i", servo->controlWord.operatingMode);
+						ImGui::Text("b_syncBit %i", servo->controlWord.b_syncBit);
+						ImGui::Text("b_haltRestart %i", servo->controlWord.b_haltRestart);
+						ImGui::Text("b_enable %i", servo->controlWord.b_enable);
+						ImGui::Text("b_driveOnOff %i", servo->controlWord.b_driveOnOff);
+						ImGui::EndGroup();
+					}
+
 					ImGui::PopID();
 				};
 				

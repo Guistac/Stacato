@@ -239,6 +239,8 @@ void etherCatParameters() {
 		
         ImGui::InputInt("Skipped Frame Count", &EtherCatFieldbus::maxSkippedFrames);
         if(ImGui::Button("Skip Frames")) EtherCatFieldbus::b_skipCycles = true;
+
+		ImGui::Text("Timing integrator value: %x", EtherCatFieldbus::clockDriftCorrectionintegral);
         
 		ImGui::EndChild();
 	}

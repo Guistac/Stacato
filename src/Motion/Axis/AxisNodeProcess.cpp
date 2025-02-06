@@ -158,22 +158,22 @@ void AxisNode::inputProcess(){
 	//disable the axis if any connected interface is not enabled anymore
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
 		for(auto actuatorMapping : actuatorMappings) actuatorMapping->disable();
-		axisInterface->state = DeviceState::DISABLING;
+		//axisInterface->state = DeviceState::DISABLING;
 		Logger::warn("[{}] Disabling axis", getName());
 		for(auto actuatorMapping : actuatorMappings){
-			if(!actuatorMapping->isEnabled()) Logger::warn("[{}] {} was not enabled", getName(), actuatorMapping->getName());
+			if(!actuatorMapping->isEnabled()) Logger::debug("[{}] {} was not enabled", getName(), actuatorMapping->getName());
 		}
 		for(auto gpio : connectedGpioInterfaces){
-			if(!gpio->isEnabled()) Logger::warn("[{}] {} was not enabled", getName(), gpio->getName());
+			if(!gpio->isEnabled()) Logger::debug("[{}] {} was not enabled", getName(), gpio->getName());
 		}
 		for(auto feedbackMapping : feedbackMappings){
-			if(!feedbackMapping->isReady()) Logger::warn("[{}] {} was not enabled", getName(), feedbackMapping->getName());
+			if(!feedbackMapping->isReady()) Logger::debug("[{}] {} was not enabled", getName(), feedbackMapping->getName());
 		}
 		if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected() && !selectedPositionFeedbackMapping->isEnabled())
-			Logger::warn("[{}] {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
+			Logger::debug("[{}] {} was not enabled", getName(), selectedPositionFeedbackMapping->getName());
 		
 		if(b_readyStatePinInvalid){
-			Logger::warn("[{}] Ready Signal was not valid", getName());
+			Logger::debug("[{}] Ready Signal was not valid", getName());
 		}
 	}
 	
@@ -195,7 +195,7 @@ void AxisNode::inputProcess(){
 				if(!actuatorMapping->isActuatorConnected()) continue;
 				actuatorMapping->enable();
 			}
-			Logger::info("[{}] Enabling Axis", getName());
+			Logger::debug("[{}] Enabling Axis", getName());
 		}
 	}
 	if(b_isEnabling){
@@ -447,7 +447,7 @@ void AxisNode::inputProcess(){
 	
 	
 	//handle axis disable request
-	if(processData.b_disable){
+	if(processData.b_disable && axisInterface->state == DeviceState::ENABLED){
 		processData.b_disable = false;
 		b_isEnabling = false;
 		for(auto actuatorMapping : actuatorMappings) {

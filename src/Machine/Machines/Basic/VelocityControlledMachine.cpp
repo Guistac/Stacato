@@ -175,7 +175,6 @@ void VelocityControlledMachine::outputProcess(){
 	
 	if(b_disableRequest){
 		b_disableRequest = false;
-		Logger::info("machine disable request process");
 		if(isAxisConnected()) getAxisInterface()->disable();
 	}
 	

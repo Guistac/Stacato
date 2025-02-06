@@ -348,9 +348,6 @@ namespace Environnement {
 			EtherCatFieldbus::stop();
 			for(auto& networkDevice : getNetworkDevices()) networkDevice->disconnect();
 			
-			//execute the input process one last time to propagate disconnection of ethercat devices
-			NodeGraph::executeInputProcess(ethercatDeviceProcess);
-			
 			Script::stop();
 			Environnement::StageVisualizer::stop();
 			

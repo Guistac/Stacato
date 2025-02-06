@@ -49,6 +49,7 @@ namespace EtherCatFieldbus {
 	bool canStop();
 
 	extern ProgressIndicator startupProgress;
+	extern int clockDriftCorrectionintegral;
 
 	EtherCatMetrics& getMetrics();
 
