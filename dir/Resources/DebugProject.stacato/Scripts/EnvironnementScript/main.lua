@@ -29,6 +29,13 @@ local finDeCourseJ1
 local finDeCourseC1
 local finDeCourseC2
 
+local alignedPos_j2 = {-180.00, 0.0, 180.00}
+local alignedPos_j1 = {-179,90, 0.0, 180.15}
+local alignedPos_c1 = {-180.05, 0.0, 179.95}
+local alignedPos_c2 = {-180.20, 0.0, 179.80}
+
+
+
 function setup()
 
 	local tournette_J2 = Environnement.getMachine("Tournette J2");
@@ -74,22 +81,19 @@ function setup()
 end
 
 
-function anticollision(tournetteAnimatable, overlapNodePin, finDeCourseNodePin, haltTournette, haltPratos)
+function anticollision(tournetteAnimatable, alignedPositions, overlapNodePin, finDeCourseNodePin, haltTournette, haltPratos)
 
 	local f_tpos = tournetteAnimatable:getActualValue().Position
 	local f_tposMax = tournetteAnimatable:getUpperPositionLimit()
 	local f_tposMin = tournetteAnimatable:getLowerPositionLimit()
 	local f_tolerance = 0.05
 
-	local b_aligned
-	if f_tpos < f_tolerance and f_tpos > -f_tolerance then
-		b_aligned = true
-	elseif f_tpos < f_tposMax + f_tolerance and f_tpos > f_tposMax - f_tolerance then
-		b_aligned = true
-	elseif f_tpos < f_tposMin + f_tolerance and f_tpos > f_tposMin - f_tolerance then
-		b_aligned = true
-	else
-		b_aligned = false
+	local b_aligned = false
+	for index, f_alignedPosition in ipairs(alignedPositions) do
+		if f_tpos < f_alignedPosition + f_tolerance and f_tpos > f_alignedPosition - f_tolerance then
+			b_aligned = true
+			break
+		end
 	end
 
 	local b_overlapping = overlapNodePin:getBoolValue()
@@ -106,10 +110,10 @@ end
 --Perform Environnement Logic here :
 
 function update()
-	--anticollision(Tj2, overlap_j2, finDeCourseJ2, halt_Tj2, halt_Pj2)
-	--anticollision(Tj1, overlap_j1, finDeCourseJ1, halt_Tj1, halt_Pj1)
-	--anticollision(Tc1, overlap_c1, finDeCourseC1, halt_Tc1, halt_Pc1)
-	--anticollision(Tc2, overlap_c2, finDeCourseC2, halt_Tc2, halt_Pc2)
+	anticollision(Tj2, alignedPos_j2, overlap_j2, finDeCourseJ2, halt_Tj2, halt_Pj2)
+	anticollision(Tj1, alignedPos_j1, overlap_j1, finDeCourseJ1, halt_Tj1, halt_Pj1)
+	anticollision(Tc1, alignedPos_c1, overlap_c1, finDeCourseC1, halt_Tc1, halt_Pc1)
+	anticollision(Tc2, alignedPos_c2, overlap_c2, finDeCourseC2, halt_Tc2, halt_Pc2)
 end
 
 
@@ -117,6 +121,9 @@ end
 
 function exit()
 end
+
+
+
 
 
 
