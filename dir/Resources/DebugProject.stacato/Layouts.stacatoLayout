@@ -139,7 +139,7 @@ Collapsed=0
 Pos=0,29
 Size=293,967
 Collapsed=0
-DockId=0x00000001,0
+DockId=0x0000000E,0
 
 [Window][Manoeuvre Sheet]
 Pos=0,32
@@ -363,7 +363,7 @@ Size=358,140
 Collapsed=0
 
 [Window][Rename Layout]
-Pos=541,353
+Pos=541,380
 Size=358,140
 Collapsed=0
 

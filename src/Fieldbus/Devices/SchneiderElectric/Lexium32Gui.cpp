@@ -481,6 +481,7 @@ void Lexium32::generalSettingsGui() {
 
     externalBrakingResistorPower->gui(Fonts::sansBold15);
     externalBrakingResistorResistance->gui(Fonts::sansBold15);
+	externalBrakingResistorSwitchOnTime->gui(Fonts::sansBold15);
 
     ImGui::EndDisabled();
 

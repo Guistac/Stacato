@@ -64,6 +64,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	//======= RGB LED BUTTONS ========
 	
 	rgbButton_goToStart->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToStart()) return;
         if(!rgbButton_goToStart->isPressed()) manoeuvre->rapidToStart();
@@ -145,6 +146,7 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	});
 	
 	rgbButton_goToEnd->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		auto manoeuvre = Stacato::Editor::getCurrentProject()->getCurrentPlot()->getSelectedManoeuvre();
         if(!manoeuvre || !manoeuvre->canRapidToTarget()) return;
         if(!rgbButton_goToEnd->isPressed()) manoeuvre->rapidToTarget();
@@ -166,9 +168,11 @@ void StacatoV2::apply(std::shared_ptr<Console> console){
 	//======= SCROLL BUTTONS ========
 	
 	pushbutton_arrowUp->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		if(pushbutton_arrowUp->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectPreviousManoeuvre();
 	});
 	pushbutton_arrowDown->setInputUpdateCallback([this](){
+		if(!Stacato::Editor::getCurrentProject()) return;
 		if(pushbutton_arrowDown->isPressed()) Stacato::Editor::getCurrentProject()->getCurrentPlot()->getManoeuvreList()->selectNextManoeuvre();
 	});
 	

@@ -8,6 +8,9 @@
 
 #include "Legato/Gui/Window.h"
 
+#include "Gui/Utilities/CustomWidgets.h"
+#include "Machine/Machine.h"
+
 void StacatoCompact::gui(float height){
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
@@ -27,9 +30,37 @@ void StacatoCompact::gui(float height){
 		return b_pressed;
 	};
 	
+	
+	
+	auto drawControlChannelMappings = [&](std::shared_ptr<ManualControlChannel> controlChannel){
+
+		std::string mappingString;
+		if(controlChannel->getSubscribers().empty()) {
+			ImGui::PushFont(Fonts::sansLight20);
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			backgroundText("No Mapping", ImVec2(ImGui::GetTextLineHeight() * 5.0, height), Colors::darkGray);
+			ImGui::PopStyleColor();
+			ImGui::PopFont();
+		}
+		else{
+			for(auto animatable : controlChannel->getSubscribers()){
+				mappingString += std::string(animatable->getMachine()->getName()) + ", ";
+			}
+			mappingString.pop_back();
+			mappingString.pop_back();
+
+			ImGui::PushFont(Fonts::sansBold20);
+			scrollingTextWithBackground("mappingdisplay", mappingString.c_str(), ImVec2(ImGui::GetTextLineHeight() * 5.0, height), Colors::darkGray, false, 0.0);
+			ImGui::PopFont();
+		}
+	};
+
+	
 	if(drawJoystick(joystick)) controlChannel->requestAxisSelectionPopupOpen();
 	else if(ImGui::IsItemHovered()) controlChannel->mappingListTooltip();
 	controlChannel->mappingList();
+	ImGui::SameLine();
+	drawControlChannelMappings(controlChannel);
 	
 	ImGui::SameLine();
 

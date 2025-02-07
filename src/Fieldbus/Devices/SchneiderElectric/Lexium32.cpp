@@ -513,6 +513,8 @@ bool Lexium32::uploadGeneralParameters() {
 	if(!writeSDO_U16(0x3005, 0x12, externalBrakingResistorPower->value)) return onFailure();
 
 	if(!writeSDO_U16(0x3005, 0x13, externalBrakingResistorResistance->value * 100)) return onFailure();
+	
+	if(!writeSDO_U16(0x3005, 0x11, externalBrakingResistorSwitchOnTime->value)) return onFailure();
 
     generalParameterUploadState = DataTransferState::SAVING;
 	if (!saveToEEPROM()) return onFailure();
@@ -615,6 +617,10 @@ bool Lexium32::downloadGeneralParameters() {
 	uint16_t RESext_R;
 	if(!readSDO_U16(0x3005, 0x13, RESext_R)) return onFailure();
 	externalBrakingResistorResistance->overwrite(double(RESext_R)*0.01);
+	
+	uint16_t RESext_ton;
+	if(!readSDO_U16(0x3005, 0x11, RESext_ton)) return onFailure();
+	externalBrakingResistorSwitchOnTime->overwrite(RESext_ton);
 	
     generalParameterDownloadState = DataTransferState::SUCCEEDED;
 	
@@ -1009,6 +1015,7 @@ bool Lexium32::saveDeviceData(tinyxml2::XMLElement* xml) {
 	brakingResistorType->save(brakingResistorXML);
 	externalBrakingResistorPower->save(brakingResistorXML);
 	externalBrakingResistorResistance->save(brakingResistorXML);
+	externalBrakingResistorSwitchOnTime->save(brakingResistorXML);
 
     XMLElement* encoderSettingsXML = xml->InsertNewChildElement("EncoderSettings");
     encoderSettingsXML->SetAttribute("RangeShifted", b_encoderRangeShifted);
@@ -1101,6 +1108,7 @@ bool Lexium32::loadDeviceData(tinyxml2::XMLElement* xml) {
 		brakingResistorType->load(brakingResistorXML);
 		externalBrakingResistorPower->load(brakingResistorXML);
 		externalBrakingResistorResistance->load(brakingResistorXML);
+		externalBrakingResistorSwitchOnTime->load(brakingResistorXML);
 	}
 
     XMLElement* encoderSettingsXML = xml->FirstChildElement("EncoderSettings");
