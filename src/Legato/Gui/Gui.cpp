@@ -5,7 +5,8 @@
 
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 1
-#define OPENGL_VERSION_STRING "#version 410 core"
+//#define OPENGL_VERSION_STRING "#version 410 core"
+#define OPENGL_VERSION_STRING "#version 300 es"
 
 #define GLFW_INCLUDE_NONE //don't let GLFW include a gl loader, we're using GLAD
 #include <GLFW/glfw3.h>
@@ -125,10 +126,6 @@ namespace Legato::Gui{
 
 	void initialize(){
 			
-		//this is needed on MacOs, not on unix...
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
-		
 		#if defined (STACATO_UNIX)
 			//on ubuntu xorg desktop, touchscreen do not work with glfw decorated windows
 			//too tired to understand why, an
@@ -136,6 +133,8 @@ namespace Legato::Gui{
 		#endif
 
 		#if defined(STACATO_MACOS)
+			//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+			//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
 							
