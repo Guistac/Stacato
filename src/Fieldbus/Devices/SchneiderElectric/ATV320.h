@@ -126,7 +126,20 @@ public:
 		&option_motorControlType_VFQuadratic,
 		&option_motorControlType_energySaving
 	};
-	
+
+	enum BoostType{
+		BOOST_INACTIVE = 0,
+		BOOST_DYNAMIC = 1,
+		BOOST_STATIC = 2
+	};
+	OptionParameter::Option option_boost_inactive = OptionParameter::Option(BoostType::BOOST_INACTIVE, "Inactive", "Inactive");
+	OptionParameter::Option option_boost_dynamic = OptionParameter::Option(BoostType::BOOST_DYNAMIC, "Dynamic", "Dynamic");
+	OptionParameter::Option option_boost_static = OptionParameter::Option(BoostType::BOOST_STATIC, "Static", "Static");
+	std::vector<OptionParameter::Option*> options_boostType = {
+		&option_boost_inactive,
+		&option_boost_dynamic,
+		&option_boost_static
+	};
 	
 	enum LogicInput{
 		NONE = 0,
@@ -217,9 +230,12 @@ public:
 	std::shared_ptr<NumberParameter<double>> highControlFrequencyParameter; //[hsp]
 	std::shared_ptr<NumberParameter<double>> maxFrequencyParameter; //[tfr]
 	NumberParam<double> switchingFrequencyParameter;	//[sfr]
+	OptionParam boostTypeParameter = OptionParameter::make2(option_boost_dynamic, options_boostType, "Boost Type [boa]", "BoostType"); //[boa]
+	NumberParam<double> boostAmountParameter; //[boo]
+	NumberParam<double> boostThresholdParameter; //[fab]
 	
 	//—————— Frequency Reference ————————
-	OptionParam frequencyReference1_Parameter = OptionParameter::make2(option_frequencyReference_CommunicationCard, options_frequencyReferences, "Frequency Reference 1 [fr1]", "FrequencyReference1");
+	OptionParam frequencyReference1_Parameter = OptionParameter::make2(option_frequencyReference_CommunicationCard, options_frequencyReferences,"Frequency Reference 1 [fr1]", "FrequencyReference1");
 	OptionParam frequencyReference2_Parameter = OptionParameter::make2(option_frequencyReference_None, options_frequencyReferences, "Frequency Reference 2 [fr2]", "FrequencyReference2");
 	OptionParam referenceSwitchingPin_Parameter = OptionParameter::make2(option_frequencyReference1, options_frequencyReferenceSwitch, "Reference Switching Method [rfc]", "ReferenceSwitchingMethod");
 

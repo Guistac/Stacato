@@ -106,6 +106,9 @@ void ATV320::initialize() {
 		else if(switchingFrequencyParameter->value < 2.0) switchingFrequencyParameter->overwrite(2.0);
 	});
 	
+	boostAmountParameter = NumberParameter<double>::make(0.0, "Boost Amount [boo]", "BoostAmount", "%.1f", Units::Fraction::Percent);
+	boostThresholdParameter = NumberParameter<double>::make(0.0, "Boost Threshold [fab]", "BoostThreshold", "%.1f", Units::Frequency::Hertz);
+
 	//————— Motor Parameters —————
 	
 	standartMotorFrequencyParameter = OptionParameter::make2(option_frequency50Hz, options_standartMotorFrequency, "Standart Motor Frequency [bfr]", "StandartMotorFrequency");
@@ -341,7 +344,10 @@ bool ATV320::saveDeviceData(tinyxml2::XMLElement* xml) {
 	highControlFrequencyParameter->save(motionControlSettingsXML);
 	maxFrequencyParameter->save(motionControlSettingsXML);
 	switchingFrequencyParameter->save(motionControlSettingsXML);
-	
+	boostTypeParameter->save(motionControlSettingsXML);
+	boostAmountParameter->save(motionControlSettingsXML);
+	boostThresholdParameter->save(motionControlSettingsXML);
+
 	//————— Frequency References —————
 	XMLElement* frequencyReferenceXML = xml->InsertNewChildElement("FrequencyReference");
 	frequencyReference1_Parameter->save(frequencyReferenceXML);
@@ -400,6 +406,9 @@ bool ATV320::loadDeviceData(tinyxml2::XMLElement* xml) {
 		highControlFrequencyParameter->load(motionControlSettingsXML);
 		maxFrequencyParameter->load(motionControlSettingsXML);
 		switchingFrequencyParameter->load(motionControlSettingsXML);
+		boostTypeParameter->load(motionControlSettingsXML);
+		boostAmountParameter->load(motionControlSettingsXML);
+		boostThresholdParameter->load(motionControlSettingsXML);
 	}
 	
 	//————— Frequency Reference —————
@@ -609,7 +618,13 @@ void ATV320::ConfigurationUploadTask::onExecution(){
 		SDOTask::prepareUpload(0x2001, 0x5, uint16_t(atv320->highControlFrequencyParameter->value * 10), "High Speed [hsp]"),
 		//[sfr] switching frequency (in 0.1KHz increments)
 		SDOTask::prepareUpload(0x2001, 0x3, uint16_t(atv320->switchingFrequencyParameter->value * 10), "Switching Frequency [sfr]"),
-		
+		//[boa] Boost Type
+		SDOTask::prepareUpload(0x206D, 0xB, uint16_t(atv320->boostTypeParameter->value), "Boost Activation [boa]"),
+		//[boo] boost amount (in 1% increments)
+		SDOTask::prepareUpload(0x206D, 0xD, int16_t(atv320->boostAmountParameter->value), "Boost [boo]"),
+		//[fab] boost activation threshold (in 0.1Hz increments)
+		SDOTask::prepareUpload(0x206D, 0xC, uint16_t(atv320->boostThresholdParameter->value * 10), "Action Boost [fab]"),
+
 		//———————— Frequency Reference —————————
 		//[fr1] Frequency Reference 1
 		SDOTask::prepareUpload(0x2036, 0xE, uint16_t(atv320->frequencyReference1_Parameter->value), "Frequency Reference 1 [fr1]"),

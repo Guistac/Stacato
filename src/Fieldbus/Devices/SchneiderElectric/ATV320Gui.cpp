@@ -145,8 +145,7 @@ void ATV320::settingsGui(){
 		motorControlTypeParameter,
 		ratedMotorPowerParameter,
 		nominalMotorVoltageParameter,
-		nominalMotorCurrentParameter,
-		switchingFrequencyParameter
+		nominalMotorCurrentParameter
 	});
 
 	drawParameterGroup("Motion Control", {
@@ -156,7 +155,11 @@ void ATV320::settingsGui(){
 		maxFrequencyParameter,
 		accelerationRampTime,
 		decelerationRampTime,
-		invertDirection
+		invertDirection,
+		switchingFrequencyParameter,
+		boostTypeParameter,
+		boostAmountParameter,
+		boostThresholdParameter
 	});
 	
 	drawParameterGroup("Frequency Reference", {
