@@ -1,29 +1,29 @@
 <Plot Name="Pestacle">
     <ManoeuvreList>
-        <Manoeuvre Name="Mise Ecrans" Description="Light Curve + Pratos Back" Type="Target">
-            <LabelColo r="200" g="0" b="200" a="255"/>
+        <Manoeuvre Name="00 ENTREE PUBLIC" Description="Light CURVED+ Pratos BACK" Type="Target">
+            <LabelColo r="200" g="200" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Intro" Description="Video Curve + Pratos Face" Type="Target">
-            <LabelColo r="200" g="0" b="200" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        <Manoeuvre Name="01 INTRO" Description="Video CURVED" Type="Target">
+            <LabelColo r="200" g="200" b="0" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Limites" Description="Pratos OUT" Type="Target">
+        <Manoeuvre Name="03 LES LIMITES" Description="Pratos OUT" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.20000000000000001" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Limites" Description="Video FLAT" Type="Target">
+        <Manoeuvre Name="03 LES LIMITES" Description="Video FLAT" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-158" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="190" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
@@ -31,113 +31,96 @@
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-190" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="158" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Limites" Description="Light FLAT" Type="Target">
+        <Manoeuvre Name="03 LES LIMITES" Description="Video CURVED" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="22" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="10" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-10" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-22" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Kiss me Forever 1a" Description="Ecrans Arrondis" Type="Target">
-            <LabelColo r="255" g="100" b="100" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        <Manoeuvre Name="03 LES LIMITES" Description="Pratos BACK" Type="Target">
+            <LabelColo r="0" g="127" b="0" a="255"/>
+            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Kiss me Forever 1b" Description="Avancée Pratiquables" Type="Target">
-            <LabelColo r="255" g="100" b="100" a="255"/>
+        <Manoeuvre Name="04 KISS ME FOREVER" Description="Flip CENTRALE LIGHT OUT" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="04 KISS ME FOREVER" Description="Backflip CENTRALE VIDEO OUT" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="04 KISS ME FOREVER" Description="Pratos OUT" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.10000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.10000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.10000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.10000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Kiss me Forever 2" Description="Flip tournette Centrale" Type="Target">
+        <Manoeuvre Name="04 KISS ME FOREVER" Description="Light CURVED au noir" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="05 COCO CALINE" Description="Flip CENTRALE VIDEO OUT" Type="Target">
             <LabelColo r="255" g="100" b="100" a="255"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Kiss me Forever 3" Description="reflip tournette Centrale" Type="Target">
+        <Manoeuvre Name="05 COCO CALINE" Description="Video CURVED J2 J1 C1 C2" Type="Target">
             <LabelColo r="255" g="100" b="100" a="255"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Kiss me Forever 4" Description="Ecrans Curved Face Light" Type="Target">
+        <Manoeuvre Name="05 COCO CALINE" Description="Pratos BACK" Type="Target">
             <LabelColo r="255" g="100" b="100" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Coco Caline" Description="reflip tournette Centrale" Type="Target">
-            <LabelColo r="0" g="255" b="255" a="255"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Coco Caline" Description="Ecrans Arrondis, retour pratos" Type="Target">
-            <LabelColo r="0" g="255" b="255" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.059999999999999998" ConstraintType="Time" Time="120" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.080000000000000002" ConstraintType="Time" Time="120" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.080000000000000002" ConstraintType="Time" Time="120" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.059999999999999998" ConstraintType="Time" Time="120" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Chou Wasabi 1" Description="ouverture rues" Type="Target">
+        <Manoeuvre Name="06 CHOU WASABI" Description="J2 C2 OPEN" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="150" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-150" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Chou Wasabi 2" Description="Fermeture rues" Type="Target">
+        <Manoeuvre Name="06 CHOU WASABI" Description="J2 C2 CLOSE" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Chou Wasabi 3" Description="ouverture rues" Type="Target">
+        <Manoeuvre Name="06 CHOU WASABI" Description="Light CURVED" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="150" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-150" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Chou Wasabi 4" Description="Fermeture rues" Type="Target">
+        <Manoeuvre Name="06 CHOU WASABI" Description="Video CURVED au noir" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="8" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Mise technique porto vecchio" Description="Ecrans Arrondis" Type="Target">
-            <LabelColo r="0" g="0" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio" Description="Avancée rapid pratos" Type="Target">
+        <Manoeuvre Name="08 PORTO" Description="Pratos OUT SPEED" Type="Target">
             <LabelColo r="0" g="0" b="200" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio 2" Description="Ecrans Diago 1" Type="Target">
-            <LabelColo r="0" g="0" b="200" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="171" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-202" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-211" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="136" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio 2 " Description="Ecrans Diago 2" Type="Target">
-            <LabelColo r="0" g="0" b="200" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-136" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="215" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-158" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-167" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Va et Viens en Boucle" Description="Ecrans Diago 2" Type="Sequence">
+        <Manoeuvre Name="08 PORTO 4x" Description="Video VAGUE ASAP" Type="Sequence">
             <LabelColo r="0" g="0" b="200" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="true" interpolationType="Trapezoidal" Start="-136" End="-136" Duration="20" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
                 <Curves>
@@ -175,7 +158,7 @@
                 </Curves>
             </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio" Description="Ecrans Arrondis" Type="Target">
+        <Manoeuvre Name="08 PORTO" Description="Video CURVED" Type="Target">
             <LabelColo r="0" g="0" b="200" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Velocity" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Velocity" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
@@ -183,55 +166,52 @@
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Velocity" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Velocity" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio" Description="TAPIS ROULANT" Type="Target">
-            <LabelColo r="0" g="0" b="200" a="255"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Porto Vecchio" Description="Retour Pratos" Type="Target">
+        <Manoeuvre Name="08 PORTO" Description="Pratos BACK" Type="Target">
             <LabelColo r="0" g="0" b="200" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.20000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.20000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.20000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.20000000000000001" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Piano Voix" Description="Mise Piano Forêt" Type="Target">
+        <Manoeuvre Name="09 PIANO VOIX" Description="Light CURVED" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Piano Voix" Description="Ecran Curved" Type="Target">
+        <Manoeuvre Name="09 PIANO VOIX Mourir sur scène" Description="Video CURVED" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Yeux de la Mama" Description="Sortie Pratos" Type="Target">
-            <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.050000000000000003" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.050000000000000003" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.050000000000000003" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.050000000000000003" ConstraintType="Time" Time="50" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Sublime &amp; Silence" Description="Ecrans Curved Face Light" Type="Target">
+        <Manoeuvre Name="10 SUBLIME &amp; SILENCE" Description="Pratos OUT" Type="Target">
             <LabelColo r="220" g="0" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.080000000000000002" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.080000000000000002" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.080000000000000002" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.080000000000000002" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Sublime &amp; Silence" Description="Retour Pratiquables" Type="Target">
+        <Manoeuvre Name="10 SUBLIME &amp; SILENCE" Description="Light CURVED" Type="Target">
             <LabelColo r="220" g="0" b="0" a="255"/>
-            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Sublime &amp; Silence" Description="Ecrans Curved" Type="Target">
+        <Manoeuvre Name="10 SUBLIME &amp; SILENCE" Description="Pratos BACK" Type="Target">
+            <LabelColo r="220" g="0" b="0" a="255"/>
+            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.22" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.22" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.22" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.22" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+        </Manoeuvre>
+        <Manoeuvre Name="10 SUBLIME &amp; SILENCE" Description="Video CURVED" Type="Target">
             <LabelColo r="220" g="0" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-179.90000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
@@ -239,9 +219,9 @@
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="179.94999999999999" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-180.19999999999999" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Sequence Moto" Description="Baleines et tout ça" Type="Sequence">
-            <LabelColo r="0" g="0" b="0" a="0"/>
-            <Animation Machine="Moto Tournette" MachineUniqueID="298" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="198" TimeOffset="0" StartAcceleration="35" EndAcceleration="35">
+        <Manoeuvre Name="10 SUBLIME &amp; SILENCE" Description="MOTO" Type="Sequence">
+            <LabelColo r="220" g="0" b="0" a="255"/>
+            <Animation Machine="Moto" MachineUniqueID="298" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="0" Duration="198" TimeOffset="0" StartAcceleration="35" EndAcceleration="35">
                 <Curves>
                     <Curve Name="Position">
                         <ControlPoint Position="-0" Time="6" Velocity="0" InAcceleration="35" OutAcceleration="1.3"/>
@@ -264,108 +244,225 @@
                     </Curve>
                 </Curves>
             </Animation>
-            <Animation Machine="Moto Roues" MachineUniqueID="305" Parameter="Velocity" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Linear" Start="0" End="0" Duration="198" TimeOffset="0" StartAcceleration="5" EndAcceleration="5">
-                <Curves>
-                    <Curve Name="Velocity">
-                        <ControlPoint Position="0" Time="0" Velocity="0" InAcceleration="0" OutAcceleration="0"/>
-                        <ControlPoint Position="7" Time="2" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                        <ControlPoint Position="7" Time="192" Velocity="0" InAcceleration="5" OutAcceleration="5"/>
-                    </Curve>
-                </Curves>
-            </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="Nous" Description="Retour Moto / Porte Jardin" Type="Target">
+        <Manoeuvre Name="11 NOUS" Description="Moto BACK / J2 J1 OPEN" Type="Target">
             <LabelColo r="255" g="100" b="100" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-110" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="15" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Nous" Description="Ecrans Curved" Type="Target">
+        <Manoeuvre Name="11 NOUS" Description="Video CURVED" Type="Target">
             <LabelColo r="255" g="100" b="100" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-179.90000000000001" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="179.94999999999999" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-180.19999999999999" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-179.90000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="179.94999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-180.19999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Pourvu qu&apos;elles soient douces" Description="Ecrans Curved Face Light" Type="Target">
+        <Manoeuvre Name="12 PQSD" Description="Light CURVED" Type="Target">
             <LabelColo r="100" g="200" b="255" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Pourvu qu&apos;elles soient douces" Description="Sortie Pratiquables" Type="Target">
+        <Manoeuvre Name="12 PQSD" Description="Pratos OUT" Type="Target">
             <LabelColo r="100" g="200" b="255" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Pourvu qu&apos;elles soient douces" Description="Ecrans Perpendiculaires" Type="Target">
+        <Manoeuvre Name="12 PQSD " Description="WAVES fin Video CURVED" Type="Sequence">
             <LabelColo r="100" g="200" b="255" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97849513577103" Duration="98" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-68" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="87" Time="43.973609924316406" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="19" Time="57.983333587646484" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.18710110389407" Duration="98" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-79" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="67" Time="44" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-12" Time="58" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.02092400597456" Duration="98" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="90" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="180" Time="44" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="90" Time="58" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97543803599996" Duration="98" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="79" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-67" Time="44" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="12" Time="58" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="179.80000000000001" Duration="98" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="68" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-87" Time="44" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-19" Time="58" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="Pourvu qu&apos;elles soient douces" Description="Ecrans 45" Type="Target">
+        <Manoeuvre Name="12 PQSD  (copy)" Description="WAVES fin Video CURVED" Type="Sequence">
             <LabelColo r="100" g="200" b="255" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="155" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="146" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-146" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-155" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97849513577103" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-68" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="81.212460877403373" Time="43.943881527669525" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.18710110389407" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="87.451549946121986" Time="14.381917381137956" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-106.74009731774464" Time="38.868277474668744" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="92.910752881250801" Time="65.755261106780978" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.02092400597456" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="147.6701262207178" Time="20.212003117692905" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-80.896502162146547" Time="48.470771628994541" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97543803599996" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-95.041805313897257" Time="17.879968823070925" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="59.375649136888285" Time="38.456742010911924" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-55.267612500816142" Time="55.878409976617299" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="179.80000000000001" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="68" Time="14" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-81.783741042870219" Time="44.01247077162899" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="Les Crocrodiles" Description="Ecrans Curved" Type="Target">
-            <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="40" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        <Manoeuvre Name="12 PQSD  (copy) (copy)" Description="WAVES fin Video CURVED" Type="Sequence">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97849513577103" Duration="143" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-136.37577154194733" Time="19.209702716984975" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="118.64698939094978" Time="50.350933016229213" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-116.09873244636529" Time="82.47298946663075" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="31.29974405613487" Time="112.87860015250702" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.18710110389407" Duration="143" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="87.451549946121986" Time="14.381917381137956" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-106.74009731774464" Time="38.868277474668744" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="92.910752881250801" Time="65.755261106780978" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136.37577154194733" Time="98.043604616252864" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="180.02092400597456" Duration="143" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-102.84067129901075" Time="41.155688309149177" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="141.26368684371437" Time="71.683901803900511" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-121.55793527979122" Time="107.11624651445796" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="-179.97543803599996" Duration="143" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="128.00562281967996" Time="20.313132137036938" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-122.33782139885207" Time="72.909934492847086" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="138.92403476305054" Time="104.78678877630553" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="0" End="179.80000000000001" Duration="143" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-137.93554266133768" Time="23.868628215120815" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="128.00562889279297" Time="62.979072486360103" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-56.047498634405969" Time="104.05116913484022" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
         </Manoeuvre>
-        <Manoeuvre Name="Les Crocrodiles" Description="Retour Pratos" Type="Target">
-            <LabelColo r="0" g="127" b="0" a="255"/>
+        <Manoeuvre Name="12 PQSD RESET Video CURVED" Description="Video CURVED" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="26" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="12 PQSD ATTENTION C1" Description="Pratos BACK" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Crocrodiles" Description="Ecrans Curved Face Light" Type="Target">
-            <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        <Manoeuvre Name="12 PQSD" Description="Light CURVED" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Les Crocrodiles" Description="Ecrans Curved" Type="Target">
+        <Manoeuvre Name="13 AH LES CROCRO" Description="Video CURVED" Type="Target">
             <LabelColo r="0" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Paris Seychelles" Description="Sortie Pratiquables Rapide Curve" Type="Target">
+        <Manoeuvre Name="14 PARIS SEYCHELLES PART A" Description="Pratos OUT" Type="Target">
             <LabelColo r="255" g="127" b="0" a="255"/>
             <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
             <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
         </Manoeuvre>
-        <Manoeuvre Name="Paris Seychelles" Description="Mise Ecrans" Type="Target">
+        <Manoeuvre Name="14 PARIS SEYCHELLES PART A" Description="Mise Ecrans Eventail" Type="Target">
             <LabelColo r="255" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-136" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="220" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-220" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="136" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-129.87270474106924" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="138.24208805643889" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-138.37672517944227" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="129.81705169641882" ConstraintType="Time" Time="19" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Paris Seychelles" Description="Curve Mi Video Mi Light" Type="Target">
+        <Manoeuvre Name="14 PARIS SEYCHELLES PART B" Description="Curved Mi Video Mi Light" Type="Target">
             <LabelColo r="255" g="127" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
@@ -373,28 +470,233 @@
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Paris Seychelles" Description="Curve Light" Type="Target">
-            <LabelColo r="255" g="127" b="0" a="255"/>
-            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="24" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
-        </Manoeuvre>
-        <Manoeuvre Name="Femme like U" Description="Ecrans Curved" Type="Target">
+        <Manoeuvre Name="15 FEMME LIKE U" Description="Video CURVED" Type="Target">
             <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="15 FEMME LIKE U" Description="Pratos BACK" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+        </Manoeuvre>
+        <Manoeuvre Name="14 PARIS SEYCHELLES PART A (copy)" Description="Pratos OUT" Type="Target">
+            <LabelColo r="255" g="127" b="0" a="255"/>
+            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="0.34999999999999998" ConstraintType="Time" Time="12" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+        </Manoeuvre>
+        <Manoeuvre Name="00 THE END" Description="Light CURVED+ Pratos BACK" Type="Target">
+            <LabelColo r="200" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="08 PORTO TEST SEQ WAVE FIN CURVED" Description="Video VAGUE ASAP" Type="Sequence">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180" End="-180" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-180" Time="15" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136" Time="25" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-180" Time="35" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136" Time="45" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-180" Time="55" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136" Time="65" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="180.19999999999999" End="180.19999999999999" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="215" Time="8.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="18.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="215" Time="28.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="38.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="215" Time="48.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="58.5" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="70" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180" End="-180" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-180" Time="2" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="12" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-158" Time="22" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="32" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-158" Time="42" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="52" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-158" Time="62" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="72" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180.09999999999999" End="-180.09999999999999" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-167" Time="6" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-211" Time="16" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-167" Time="26" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-211" Time="36" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-167" Time="46" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-211" Time="56" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-167" Time="66" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="179.80000000000001" End="179.80000000000001" Duration="80" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="136" Time="10" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="179.80000000000001" Time="20" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="136" Time="30" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="178.80000000000001" Time="40.035003662109375" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="136" Time="50" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="179.80000000000001" Time="60" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="136" Time="70" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="08 PORTO TEST SEQ WAVE FIN CURVED (copy)" Description="Video VAGUE ASAP" Type="Sequence">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180" End="-180" Duration="160" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-180" Time="2.3999999999999999" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136" Time="40" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-180" Time="80" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-136" Time="120" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="180.19999999999999" End="180.19999999999999" Duration="160" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="215" Time="10" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="40" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="215" Time="70" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="171" Time="100" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="215" Time="130" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180" End="-180" Duration="160" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-180" Time="10" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="40" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-158" Time="70" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-202" Time="100" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-158" Time="130" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="-180.09999999999999" End="-180.09999999999999" Duration="160" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="-167" Time="10" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-211" Time="40" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-167" Time="70" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-211" Time="100" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="-167" Time="130" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Sequence" isLoop="false" interpolationType="Trapezoidal" Start="179.80000000000001" End="179.80000000000001" Duration="160" TimeOffset="0" StartAcceleration="2" EndAcceleration="2">
+                <Curves>
+                    <Curve Name="Position">
+                        <ControlPoint Position="136" Time="40" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="179.80000000000001" Time="80" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                        <ControlPoint Position="136" Time="120" Velocity="0" InAcceleration="2" OutAcceleration="2"/>
+                    </Curve>
+                </Curves>
+            </Animation>
+        </Manoeuvre>
+        <Manoeuvre Name="RESET Ecran CURVED (copy)" Description="Video CURVED" Type="Target">
+            <LabelColo r="0" g="127" b="0" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="12 PQSD" Description="Ecrans 90" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="12 PQSD" Description="Ecrans 45" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="155" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="146" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="0" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-146" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="-155" ConstraintType="Time" Time="30" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="12 PQSD" Description="Ecrans 90" Type="Target">
+            <LabelColo r="100" g="200" b="255" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="-79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="90" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="79" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="68" ConstraintType="Time" Time="14" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="13 AH LES CROCRO" Description="Video CURVED" Type="Target">
+            <LabelColo r="0" g="127" b="0" a="255"/>
             <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="180.15000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="180" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-180.05000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
             <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
-        <Manoeuvre Name="Femme like U" Description="Retour Pratiquables" Type="Target">
-            <LabelColo r="0" g="0" b="0" a="0"/>
-            <Animation Machine="Pratos J2" MachineUniqueID="745" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos J1" MachineUniqueID="750" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C1" MachineUniqueID="755" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
-            <Animation Machine="Pratos C2" MachineUniqueID="760" Parameter="Velocity" IsComposite="false" Type="Target" Target="-0.29999999999999999" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="0.20000000000000001" EndAcceleration="0.20000000000000001"/>
+        <Manoeuvre Name="VIDEO TO LIGHT AVEC PRATOS" Description="Reset VIDEO to LIGHT" Type="Target">
+            <LabelColo r="0" g="127" b="0" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="25" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Porto Vecchio 2" Description="Ecrans Diago 1" Type="Target">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-180" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="171" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-202" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-211" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="136" ConstraintType="Time" Time="10" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Porto Vecchio 2 " Description="Ecrans Diago 2" Type="Target">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="-136" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="215" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="-158" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="-167" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="179.80000000000001" ConstraintType="Time" Time="10" Velocity="10" StartAcceleration="2" EndAcceleration="2"/>
+        </Manoeuvre>
+        <Manoeuvre Name="Porto Vecchio" Description="TAPIS ROULANT" Type="Target">
+            <LabelColo r="0" g="0" b="200" a="255"/>
+        </Manoeuvre>
+        <Manoeuvre Name="14 PARIS SEYCHELLES PART B off" Description="Light CURVED" Type="Target">
+            <LabelColo r="255" g="127" b="0" a="255"/>
+            <Animation Machine="Tournette J2" MachineUniqueID="356" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette J1" MachineUniqueID="362" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette Axe" MachineUniqueID="368" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C1" MachineUniqueID="374" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
+            <Animation Machine="Tournette C2" MachineUniqueID="380" Parameter="Position" IsComposite="false" Type="Target" Target="0" ConstraintType="Time" Time="20" Velocity="0" StartAcceleration="2" EndAcceleration="2"/>
         </Manoeuvre>
     </ManoeuvreList>
 </Plot>
