@@ -6,7 +6,7 @@
  
  DESCRIPTION
  
- Workspace if the layer above the editor, it owns all projects
+ Workspace is the layer above the editor, it owns all projects
  the workspace handles loading files and opening projects
  it can have a single active project and switch between multiple projects
  There should be only a single workspace

@@ -612,7 +612,7 @@ namespace EtherCatFieldbus {
 				return Logger::warn("Failed to configure all devices");
 			}
 		}
-		if (ioMapSize <= 0) return Logger::error("EtherCAT ioMap size is zero");
+		if (ioMapSize <= 0) Logger::warn("EtherCAT ioMap size is zero");
 		else if(ioMapSize >= MAX_IO_MAP_SIZE) return Logger::critical("IoMap size is exceeded !");
 		
         Logger::info("===== Finished Configuring Devices  (IOMap size : {} bytes)", ioMapSize);

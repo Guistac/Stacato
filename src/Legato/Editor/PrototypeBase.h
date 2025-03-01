@@ -95,10 +95,75 @@ protected:
 	}
 	
 	virtual void onConstruction() {}
-	
 	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) {}
 	
 private:
-	
 	virtual std::shared_ptr<PrototypeBase> createPrototypeInstance_private() = 0;
+};
+
+
+#include "ProjectComponent.hpp"
+
+class InterfaceThing : public Test::Component{
+	COMPONENT_INTERFACE(InterfaceThing)
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		Component::copyFrom(source);
+	}
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		return true;
+	}
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		return true;
+	}
+};
+
+ 
+class ChildThing : public Test::Component{
+	COMPONENT_IMPLEMENTATION(ChildThing)
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		Component::copyFrom(source);
+		auto src = source->cast<ChildThing>();
+		value = src->value;
+	}
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		return true;
+	}
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		return true;
+	}
+public:
+	int value = 0;
+};
+
+
+class RealThing : public InterfaceThing{
+	COMPONENT_IMPLEMENTATION(RealThing)
+	
+	virtual void onConstruction() override {
+		InterfaceThing::onConstruction();
+		childThing = ChildThing::createInstance();
+		addChildComponent(childThing);
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		InterfaceThing::copyFrom(source);
+	}
+	virtual bool onSerialization() override {
+		return InterfaceThing::onSerialization();
+	}
+	virtual bool onDeserialization() override {
+		return InterfaceThing::onDeserialization();
+	}
+public:
+	Ptr<ChildThing> childThing;
+	
 };
