@@ -188,12 +188,12 @@ namespace Legato::Gui{
 
 		#if defined(__APPLE__)
 			//OpenGL 4.1 is the latest supported version on MacOS
-			ImGui_ImplOpenGL3_Init("#version 410 core")
+			ImGui_ImplOpenGL3_Init("#version 410 core");
 		#elif defined(__arm__) || defined (__aarch64__)
 			//OpenGL ES 3.1 is the latest version supported on Raspberry Pi 5
 			ImGui_ImplOpenGL3_Init("#version 300 es");
 		#else
-			ImGui_ImplOpenGL3_Init("#version 410 core")
+			ImGui_ImplOpenGL3_Init("#version 410 core");
 		#endif
 
 		std::string path = std::filesystem::current_path().string();
