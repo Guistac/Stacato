@@ -185,14 +185,16 @@ namespace Legato::Gui{
 		//initialize glfw & opengl backends
 		ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
 		
-		//OpenGL 4.1 is the latest supported version on MacOS
-		if(ImGui_ImplOpenGL3_Init("#version 410 core")) Logger::debug("Graphics API: OpenGL 4.1");
-		//OpenGL ES 3.1 is the latest version supported on Raspberry Pi 5
-		else if(ImGui_ImplOpenGL3_Init("#version 300 es")) Logger::debug("Graphics API: OpenGL ES 3.0");
-		else{
-			Logger::error("ImGui failed to initialize graphics API");
-			return;
-		}
+
+		#if defined(__APPLE__)
+			//OpenGL 4.1 is the latest supported version on MacOS
+			ImGui_ImplOpenGL3_Init("#version 410 core")
+		#elif defined(__arm__) || defined (__aarch64__)
+			//OpenGL ES 3.1 is the latest version supported on Raspberry Pi 5
+			ImGui_ImplOpenGL3_Init("#version 300 es");
+		#else
+			ImGui_ImplOpenGL3_Init("#version 410 core")
+		#endif
 
 		std::string path = std::filesystem::current_path().string();
 		Logger::debug("Current Path: {}", path);
