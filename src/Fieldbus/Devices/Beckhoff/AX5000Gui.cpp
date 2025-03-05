@@ -137,6 +137,7 @@ void AX5000::Actuator::settingsGui(){
 	currentLimit_amps->gui(Fonts::sansBold15);
 	currentPeak_amps->gui(Fonts::sansBold15);
 	invertDirection_param->gui(Fonts::sansBold15);
+	commutationMonitoringMinVelocity_revps->gui(Fonts::sansBold15);
 	if(ImGui::Button("Download motor temperature")){
 		uint16_t temp;
 		etherCatDevice->readSercos_U16('S', 383, temp, channel);

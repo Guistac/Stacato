@@ -135,6 +135,8 @@ public:
 		NumberParam<double> currentPeak_amps = NumberParameter<double>::make(0.0, "Peak Current", "PeakCurrent",
 																			  "%.3f", Units::Current::Ampere, false);
 		BoolParam invertDirection_param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+		NumberParam<double> commutationMonitoringMinVelocity_revps = NumberParameter<double>::make(0.0, "Commutation Monitoring Minimum Velocity", "CommutationMonitoringMinVelocity",
+																								   "%.1f", Units::AngularDistance::Revolution, false, 0, 0, "", "/s");
 		
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);

@@ -179,6 +179,10 @@ bool AX5000::startupConfiguration() {
 		etherCatDevice->writeSercos_U32('P', 93, actuators[i]->currentPeak_amps->value * 1000, i); //Configured Channel Current (in startup list)
 		etherCatDevice->writeSercos_U16('P', 52, 0x0000, i); //Time limitation for peak current
 		etherCatDevice->writeSercos_U32('S', 159, actuators[i]->positionFollowingErrorLimit_rev->value * actuators[0]->unitsPerRev, i);
+		
+		//TODO: upload this
+		//commutationMonitoringMinVelocity_revps
+		//actuators[i]->commutationMonitoringMinVelocity_revps->value * actuators[i]->unitsPerRPM * 60.0;
 	}
 
 	//=========== TIMING CONFIGURATION ============
@@ -448,6 +452,7 @@ bool AX5000::Actuator::save(tinyxml2::XMLElement* xml){
 	currentLimit_amps->save(xml);
 	currentPeak_amps->save(xml);
 	invertDirection_param->save(xml);
+	commutationMonitoringMinVelocity_revps->save(xml);
 	xml->SetAttribute("PositionOffset", positionOffset);
 	return true;
 }
@@ -459,6 +464,7 @@ bool AX5000::Actuator::load(tinyxml2::XMLElement* xml){
 	currentLimit_amps->load(xml);
 	currentPeak_amps->load(xml);
 	invertDirection_param->load(xml);
+	commutationMonitoringMinVelocity_revps->load(xml);
 	xml->QueryIntAttribute("PositionOffset", &positionOffset);
 	return true;
 }
