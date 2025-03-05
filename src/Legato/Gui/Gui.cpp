@@ -3,10 +3,6 @@
 
 #include "config.h"
 
-#define OPENGL_VERSION_MAJOR 4
-#define OPENGL_VERSION_MINOR 1
-#define OPENGL_VERSION_STRING "#version 410 core"
-
 #define GLFW_INCLUDE_NONE //don't let GLFW include a gl loader, we're using GLAD
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -125,10 +121,6 @@ namespace Legato::Gui{
 
 	void initialize(){
 			
-		//this is needed on MacOs, not on unix...
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
-		
 		#if defined (STACATO_UNIX)
 			//on ubuntu xorg desktop, touchscreen do not work with glfw decorated windows
 			//too tired to understand why, an
@@ -136,6 +128,8 @@ namespace Legato::Gui{
 		#endif
 
 		#if defined(STACATO_MACOS)
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
 							
@@ -190,10 +184,18 @@ namespace Legato::Gui{
 		
 		//initialize glfw & opengl backends
 		ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
-		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
+		
+		//OpenGL 4.1 is the latest supported version on MacOS
+		if(ImGui_ImplOpenGL3_Init("#version 410 core")) Logger::debug("Graphics API: OpenGL 4.1");
+		//OpenGL ES 3.1 is the latest version supported on Raspberry Pi 5
+		else if(ImGui_ImplOpenGL3_Init("#version 300 es")) Logger::debug("Graphics API: OpenGL ES 3.0");
+		else{
+			Logger::error("ImGui failed to initialize graphics API");
+			return;
+		}
 
 		std::string path = std::filesystem::current_path().string();
-		Logger::warn("Current Path: {}", path);
+		Logger::debug("Current Path: {}", path);
 
 		//user gui initialization
 		userInitializationFunction();
