@@ -1,2 +1,3 @@
 ALL ALL=(ALL) NOPASSWD: /opt/Stacato/Stacato
+ALL ALL=(ALL) NOPASSWD: /usr/bin/startx
 ALL ALL=(ALL) NOPASSWD: /usr/bin/gdb
