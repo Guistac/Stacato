@@ -1,19 +1,19 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.37632254" OffsetX="862.34131" OffsetY="-583.7218" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.49995" SizeY="376.53793"/>
-        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.49995" SizeY="377.93689"/>
-        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.49995" SizeY="378.13901"/>
-        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.49995" SizeY="378.19525"/>
-        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.49995" SizeY="378.62228"/>
-        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.50029" SizeY="313.46954"/>
-        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.50029" SizeY="313.38519"/>
-        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.50029" SizeY="313.72791"/>
-        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.50029" SizeY="312.49768"/>
-        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.50012" SizeY="106.96342"/>
-        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50012" SizeY="106.96342"/>
-        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.49995" SizeY="138.30617"/>
-        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.49995" SizeY="377.99158"/>
-        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.50029" SizeY="313.99158"/>
+    <Dashboard Scale="0.89095592" OffsetX="85.67926" OffsetY="-464.84991" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.50008" SizeY="385.35757"/>
+        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.50008" SizeY="386.27692"/>
+        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.50008" SizeY="386.3158"/>
+        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.50008" SizeY="385.47992"/>
+        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.50008" SizeY="385.5426"/>
+        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.50034" SizeY="316.79086"/>
+        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.50034" SizeY="316.36108"/>
+        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.50034" SizeY="315.9939"/>
+        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.50034" SizeY="315.93414"/>
+        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.49994" SizeY="109.33444"/>
+        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50008" SizeY="109.33444"/>
+        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.50008" SizeY="141.08971"/>
+        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.50008" SizeY="386.08969"/>
+        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.50034" SizeY="316.47772"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -179,8 +179,8 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="109"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" PositionOffset="1238435784"/>
-                    <Axis1 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" PositionOffset="-1567251584"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="1238435784"/>
+                    <Axis1 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="-1567251584"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="134" Visible="false"/>
@@ -204,8 +204,8 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="108"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" PositionOffset="265940788"/>
-                    <Axis1 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" PositionOffset="-1360318040"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="265940788"/>
+                    <Axis1 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="-1360318040"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="148" Visible="false"/>
@@ -229,7 +229,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="110"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="false" InvertDigitalIn1="false" InvertDigitalIn2="false" InvertDigitalIn3="false" InvertDigitalIn4="false" InvertDigitalIn5="false" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="2" InvertDirection="false" PositionOffset="35854384"/>
+                    <Axis0 MotorType="1" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2" PeakCurrent="2" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="35854384"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="161" Visible="false"/>
@@ -252,7 +252,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="300"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="true" InvertDigitalIn1="true" InvertDigitalIn2="true" InvertDigitalIn3="true" InvertDigitalIn4="true" InvertDigitalIn5="true" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" PositionOffset="0"/>
+                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="188" Visible="false"/>
@@ -275,7 +275,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="200"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="true" InvertDigitalIn1="true" InvertDigitalIn2="true" InvertDigitalIn3="true" InvertDigitalIn4="true" InvertDigitalIn5="true" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" PositionOffset="0"/>
+                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="200" Visible="false"/>
@@ -298,7 +298,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="400"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="true" InvertDigitalIn1="true" InvertDigitalIn2="true" InvertDigitalIn3="true" InvertDigitalIn4="true" InvertDigitalIn5="true" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" PositionOffset="0"/>
+                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="0"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="212" Visible="false"/>
@@ -321,7 +321,7 @@
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="500"/>
                     <PinInversion InvertSTOPin="false" InvertDigitalIn0="true" InvertDigitalIn1="true" InvertDigitalIn2="true" InvertDigitalIn3="true" InvertDigitalIn4="true" InvertDigitalIn5="true" InvertDigitalIn6="false" InvertDigitalOut7="false"/>
-                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" PositionOffset="79108792"/>
+                    <Axis0 MotorType="2" VelocityLimit="10" AccelerationLimit="10" PositionFollowingErrorLimit="1" CurrentLimit="2.7000000000000002" PeakCurrent="3" InvertDirection="false" CommutationMonitoringMinVelocity="0" PositionOffset="79108792"/>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DO7" DisplayString="DO7" DataType="Boolean" UniqueID="224" Visible="false"/>
@@ -436,7 +436,7 @@
                 <NodeEditorPosition x="2313" y="374"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="6.8499999999999996" LowerPositionLimit="-206.84999999999999" UpperPositionLimit="223.15000000000001"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="true"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="6"/>
                 </NodeSpecificData>
@@ -1062,6 +1062,22 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="853" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="ELM7231-9016" Split="false" CustomName="ELM7231-9016 (Alias:0)" UniqueID="865">
+                <NodeEditorPosition x="952" y="-1960"/>
+                <NodeSpecificData>
+                    <Identification Type="StationAlias" StationAlias="0"/>
+                    <Actuator>
+                        <MotorNameplate IsIdentified="true" RatedCurrentAmps="8" MaxCurrentAmps="44.299999999999997" MaxVelocityRps="20.833333333333332" WorkingRangeRev="4096" VelocityResolutionRps="268435" PositionResolutionRev="1048576" TorqueConstant="296" HasBrake="false" MotorType="AM8132-xJx0" SerialNumber="aa401zxs"/>
+                        <DriveSettings VelocityLimit="20" AccelerationLimit="20" CurrentLimit="1" InvertDirection="false" PositionFollowingErrorWindow="1" PositionFollowingErrorTimeout="10" FaultReaction="0" HaltRampDeceleration="20"/>
+                    </Actuator>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="STO" DisplayString="STO" DataType="Boolean" UniqueID="866" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="867" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
