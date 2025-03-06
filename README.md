@@ -7,7 +7,6 @@ Execute the following commands, then generate project files with CMake.
 ```
 git clone https://github.com/Guistac/Stacato.git
 cd Stacato
-git checkout Linux2
 git submodule init
 git submodule update
 ```
@@ -15,25 +14,20 @@ git submodule update
 
 ## Build Instructions (Linux)
 
-Steps for a bare linux machine:
-- install vscode .deb file
-- install vscode extensions: cmaketools c/c++
-run these commands:
+
+- install vscode (and extensions: cmaketools c/c++)
+- run these commands:
 ```
 sudo apt update
 sudo apt updgrade
-sudo apt-get install git cmake clang xorg-dev gtk+-3.0 wireshark htop
-```
-
-To clone repo and start developping:
-```
+sudo apt-get install git cmake clang xorg-dev gtk+-3.0
 git clone https://github.com/Guistac/Stacato.git
 cd Stacato
-git checkout Linux2
 git submodule init
 git submodule update
 code .
 ```
+-set kit to Clang and build project
 
 
 
@@ -59,7 +53,6 @@ Priority stack:
     sudo reboot
     ```
 - Disable dynamic cpu frequency, sleep states and anything useless in the machine BIOS configuration
-- Execute the script `utilities/linux/NicIrqAffinity.sh` at login to bind the IRQ for our fieldbus NIC to core 2
 
 ### Further Research topics for RT performance
 - check what irqbalance does
