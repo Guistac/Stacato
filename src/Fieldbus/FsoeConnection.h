@@ -171,7 +171,20 @@ public:
 	bool receiveFrame(uint8_t* fsoeSlaveFrame, int frameSize, uint8_t* safeInputs, int safeInputsSize);
 	bool b_sendFailsafeData = false;
 	
+	enum class MasterState{
+		RESET,
+		SESSION,
+		CONNECTION,
+		PARAMETER,
+		DATA
+	};
+
+	MasterState getState(){ return masterState; }
+
 private:
+
+	MasterState masterState = MasterState::RESET;
+
 	int configurationSafeDataSize;
 	int safeOutputsSize = 0;
 	int safeInputsSize = 0;
@@ -201,14 +214,6 @@ private:
 	bool b_watchdogExpired = false;
 	bool b_connectionUp = false;
 	
-	enum class MasterState{
-		RESET,
-		SESSION,
-		CONNECTION,
-		PARAMETER,
-		DATA
-	}masterState = MasterState::RESET;
-	
 	void updateMasterStateMachine();
 	void setResetState(FsoeError error);
 	void setSessionState();
@@ -219,4 +224,5 @@ private:
 	void encodeCrcByte(uint16_t& crc, uint8_t data);
 	static uint16_t aCrcTab1[256];
 	static uint16_t aCrcTab2[256];
+
 };

@@ -568,6 +568,7 @@ void ELM7231_9016::writeOutputs(){
 	
 	fsoeConnection.b_sendFailsafeData = b_sto;
 	safeOutputs[0] = *sto ? 0x0 : 0x1;
+	safeOutputs[1] = 0x0;
 	
 	actuator->writeOutputs();
 	
