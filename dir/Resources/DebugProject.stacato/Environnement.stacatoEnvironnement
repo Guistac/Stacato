@@ -1,19 +1,20 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="0.89095592" OffsetX="85.67926" OffsetY="-464.84991" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.50008" SizeY="385.35757"/>
-        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.50008" SizeY="386.27692"/>
-        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.50008" SizeY="386.3158"/>
-        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.50008" SizeY="385.47992"/>
-        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.50008" SizeY="385.5426"/>
-        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.50034" SizeY="316.79086"/>
-        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.50034" SizeY="316.36108"/>
-        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.50034" SizeY="315.9939"/>
-        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.50034" SizeY="315.93414"/>
-        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.49994" SizeY="109.33444"/>
-        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50008" SizeY="109.33444"/>
-        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.50008" SizeY="141.08971"/>
-        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.50008" SizeY="386.08969"/>
-        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.50034" SizeY="316.47772"/>
+    <Dashboard Scale="0.8116554" OffsetX="191.68134" OffsetY="-581.97534" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.50006" SizeY="387.12228"/>
+        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.50006" SizeY="386.17746"/>
+        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.50006" SizeY="386.13895"/>
+        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.50006" SizeY="386.12231"/>
+        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.50006" SizeY="386.01721"/>
+        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.49997" SizeY="318.04633"/>
+        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.49997" SizeY="317.45526"/>
+        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.49997" SizeY="317.99115"/>
+        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.49997" SizeY="317.65402"/>
+        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.50002" SizeY="109.73214"/>
+        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50002" SizeY="109.73214"/>
+        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.50006" SizeY="141.26801"/>
+        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.50006" SizeY="386.26797"/>
+        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.49997" SizeY="317.33975"/>
+        <Widget Name="Position Controlled MachineProgramming" UniqueID="25" PositionX="84" PositionY="1512" SizeX="610.42456" SizeY="265.31387"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -403,6 +404,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="2"/>
+                    <ProgrammingWidget UniqueID="18">
+                        <Target TimeMode="true" Time="47.299999" Velocity="0" Position="0"/>
+                        <Target TimeMode="true" Time="28.200001" Velocity="20.83" Position="0"/>
+                        <Target TimeMode="true" Time="16.6" Velocity="17.99" Position="0"/>
+                        <Target TimeMode="true" Time="37.200001" Velocity="25.190001" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="299" Visible="false" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -421,6 +428,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="5"/>
+                    <ProgrammingWidget UniqueID="19">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="357" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -439,6 +452,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="true"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="6"/>
+                    <ProgrammingWidget UniqueID="20">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="363" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -457,6 +476,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="7"/>
+                    <ProgrammingWidget UniqueID="21">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="369" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -475,6 +500,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="8"/>
+                    <ProgrammingWidget UniqueID="22">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="375" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -493,6 +524,12 @@
                     <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="9"/>
+                    <ProgrammingWidget UniqueID="23">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
                 </NodeSpecificData>
                 <InputPins>
                     <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="381" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
@@ -1080,6 +1117,64 @@
                     <OutputPin SaveString="Actuator" DisplayString="Actuator" DataType="ActuatorInterface" UniqueID="867" Visible="true" NoDataField="true"/>
                 </OutputPins>
             </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="869">
+                <NodeEditorPosition x="1176" y="-1970"/>
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="0" VelocityLimit="20" AccelerationLimit="20" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="1" PositionLoopMinError="0" PositionLoopErrorTimeout="10" LimitSlowdownVelocity="0" EnableLowerPositionLimit="true" EnableUpperPositionLimit="true" LowerPositionLimit="0" UpperPositionLimit="500" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                    <FeedbackMappings/>
+                    <ActuatorMappings>
+                        <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="1" UnitConversion="1" PositionOffset="0"/>
+                    </ActuatorMappings>
+                    <SelectedPositionFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SafetyRules SafetyClearSignalTime="0.5">
+                        <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
+                        <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
+                    </SafetyRules>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="870" Visible="false" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="871" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="872" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="873" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="874" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="875" Visible="false"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="876" Visible="false"/>
+                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="877" Visible="false"/>
+                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="878" Visible="false"/>
+                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="879" Visible="false"/>
+                    <InputPin SaveString="ActuatorDevice0" DisplayString="Actuator Device 0" DataType="ActuatorInterface" UniqueID="884" Visible="true" NoDataField="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="880" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control" DataType="Boolean" UniqueID="881" Visible="false"/>
+                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="882" Visible="false"/>
+                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="883" Visible="false"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="Position Controlled Machine" UniqueID="886">
+                <NodeEditorPosition x="1368" y="-1954"/>
+                <NodeSpecificData ShortName="M">
+                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="500"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
+                    <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
+                    <ControWidget UniqueID="24"/>
+                    <ProgrammingWidget UniqueID="25">
+                        <Target TimeMode="false" Time="32.5" Velocity="13.65" Position="0"/>
+                        <Target TimeMode="true" Time="0" Velocity="8.5600004" Position="353.79513168334961"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="887" Visible="false" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="888" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="889" Visible="false"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="890" Visible="false"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="891" Visible="false"/>
+                </OutputPins>
+            </Node>
         </Nodes>
         <Links>
             <Link UniqueID="294" StartPin="246" EndPin="293"/>
@@ -1172,6 +1267,8 @@
             <Link UniqueID="861" StartPin="502" EndPin="783"/>
             <Link UniqueID="862" StartPin="6" EndPin="17"/>
             <Link UniqueID="863" StartPin="7" EndPin="18"/>
+            <Link UniqueID="885" StartPin="867" EndPin="884"/>
+            <Link UniqueID="892" StartPin="880" EndPin="888"/>
         </Links>
     </NodeGraph>
 </Environnement>

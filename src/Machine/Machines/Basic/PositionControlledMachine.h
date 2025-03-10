@@ -9,6 +9,7 @@
 #include "Animation/Animatables/AnimatablePosition.h"
 
 #include "Project/Editor/Parameter.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 class PositionControlledMachine : public Machine{
 	
@@ -109,8 +110,14 @@ class PositionControlledMachine : public Machine{
 	
 	//——————————— Control Widget ————————————
 		
-	virtual void onAddToNodeGraph() override { controlWidget->addToDictionnary(); }
-	virtual void onRemoveFromNodeGraph() override { controlWidget->removeFromDictionnary(); }
+	virtual void onAddToNodeGraph() override {
+		controlWidget->addToDictionnary();
+		programmingWidget->addToDictionnary();
+	}
+	virtual void onRemoveFromNodeGraph() override {
+		controlWidget->removeFromDictionnary();
+		programmingWidget->removeFromDictionnary();
+	}
 	
 	void verticalWidgetGui();
 	void horizontalWidgetGui();
@@ -132,6 +139,32 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<ControlWidget> controlWidget;
 	double velocitySliderValue = .0f;
 	double positionTargetValue = .0f;
+	
+	class ProgrammingWidget : public Widget{
+	public:
+		ProgrammingWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machine Programming"), machine(machine_){}
+		std::shared_ptr<PositionControlledMachine> machine;
+		virtual void gui() override;
+		virtual std::string getName() override {
+			return machine->getName() + std::string("Programming");
+		}
+		
+		struct Target{
+			double position = 0.0;
+			float velocity = 0.0;
+			float time = 0.0;
+			bool useTime = false;
+			ToggleSwitch modeSwitch;
+			bool save(tinyxml2::XMLElement* xml);
+			bool load(tinyxml2::XMLElement* xml);
+		};
+		std::vector<Target> targets = std::vector<Target>(4);
+		
+		bool save(tinyxml2::XMLElement* xml);
+		bool load(tinyxml2::XMLElement* xml);
+		
+	};
+	std::shared_ptr<ProgrammingWidget> programmingWidget;
 	
 	//MODULA HACK
 	int turnOffset = 0;

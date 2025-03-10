@@ -896,3 +896,82 @@ void PositionControlledMachine::setupGui(){
 	ImGui::PopStyleVar();
 	
 }
+
+
+
+#include "Stacato/StacatoGui.h"
+
+void PositionControlledMachine::ProgrammingWidget::gui(){
+	
+	ImVec2 switchSize = ImVec2(ImGui::GetTextLineHeight() * 3.0, ImGui::GetTextLineHeight()*2.0);
+	ImVec2 targetSize = ImVec2(ImGui::GetTextLineHeight() * 5.0, ImGui::GetTextLineHeight()*2.0);
+	ImVec2 captureSize = ImVec2(ImGui::GetTextLineHeight() * 3.5, ImGui::GetTextLineHeight()*2.0);
+	
+	float sliderWidth = ImGui::GetTextLineHeight() * 10.0;
+	
+	ImGui::PushFont(Fonts::sansBold26);
+	char buf[32];
+	snprintf(buf, 32, "Vel: %.2fm/s", machine->animatablePosition->getActualVelocity());
+	ImVec2 velSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetTextLineHeight()*1.2);
+	backgroundText(buf, velSize, Colors::veryDarkGray);
+	ImGui::SameLine();
+	snprintf(buf, 32, "Pos: %.3fm", machine->animatablePosition->getActualPosition());
+	ImVec2 posSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetTextLineHeight()*1.2);
+	backgroundText(buf, posSize, Colors::veryDarkGray);
+	ImGui::PopFont();
+	
+	for(int i = 0; i < targets.size(); i++){
+		ImGui::PushID(i);
+		
+		if(targets[i].modeSwitch.draw("##mode", targets[i].useTime, "Time", "Velocity", switchSize)){
+			targets[i].useTime = !targets[i].useTime;
+			Stacato::Gui::save();
+		}
+		
+		ImGui::SameLine();
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3.0, 9.0));
+		ImGui::SetNextItemWidth(sliderWidth);
+		if(targets[i].useTime){
+			ImGui::SliderFloat("##Time", &targets[i].time, 0.0, 60.0, "Time: %.1fs");
+		}
+		else{
+			float maxVel = machine->animatablePosition->velocityLimit;
+			ImGui::SliderFloat("##Vel", &targets[i].velocity, 0.0, maxVel, "Velocity: %.2fm/s");
+		}
+		ImGui::PopStyleVar();
+		if(ImGui::IsItemDeactivatedAfterEdit()){
+			targets[i].time = std::clamp(targets[i].time, 0.0f, 60.0f);
+			targets[i].velocity = std::clamp(targets[i].velocity, 0.0f, float(machine->animatablePosition->velocityLimit));
+			Stacato::Gui::save();
+		}
+		
+		ImGui::SameLine();
+		if(ImGui::Button("Capture", captureSize)){
+			targets[i].position = std::clamp(machine->animatablePosition->getActualPosition(),
+											 machine->animatablePosition->lowerPositionLimit,
+											 machine->animatablePosition->upperPositionLimit);
+			Stacato::Gui::save();
+		}
+		
+		ImGui::SameLine();
+		char buffer[32];
+		snprintf(buffer, 32, "%.3f", targets[i].position);
+		ImGui::PushFont(Fonts::sansBold26);
+		backgroundText(buffer, targetSize, Colors::black);
+		
+		ImGui::PopFont();
+		ImGui::SameLine();
+		ImGui::PushFont(Fonts::sansBold26);
+		if(customButton("GO", targetSize, Colors::green, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll)){
+			if(targets[i].useTime){
+				machine->animatablePosition->moveToPositionInTime(targets[i].position, targets[i].time);
+			}
+			else{
+				machine->animatablePosition->moveToPositionWithVelocity(targets[i].position, targets[i].velocity);
+			}
+		}
+		ImGui::PopFont();
+		
+		ImGui::PopID();
+	}
+}
