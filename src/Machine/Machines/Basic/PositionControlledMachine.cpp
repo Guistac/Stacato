@@ -33,7 +33,8 @@ void PositionControlledMachine::initialize() {
 	auto thisMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
 	programmingWidget = std::make_shared<ProgrammingWidget>(thisMachine);
-	
+	setupWidget = std::make_shared<SetupWidget>(thisMachine);
+
 	
 	lowerPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
 		if(lowerPositionLimit->value < getMinPosition()) lowerPositionLimit->overwrite(getMinPosition());
@@ -558,6 +559,9 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	XMLElement* progWidgetXML = xml->InsertNewChildElement("ProgrammingWidget");
 	programmingWidget->save(progWidgetXML);
 	
+	XMLElement* setupWidgetXML = xml->InsertNewChildElement("SetupWidget");
+	setupWidgetXML->SetAttribute("UniqueID", setupWidget->uniqueID);
+	
 	return true;
 }
 
@@ -594,6 +598,10 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	
 	if(XMLElement* progWidgetXML = xml->FirstChildElement("ProgrammingWidget")){
 		programmingWidget->load(progWidgetXML);
+	}
+	
+	if(XMLElement* setupWidgetXML = xml->FirstChildElement("SetupWidget")){
+		if(widgetXML->QueryIntAttribute("UniqueID", &setupWidget->uniqueID) != XML_SUCCESS) return Logger::warn("Could not find machine setup widget uid attribute");
 	}
 	
 	return true;

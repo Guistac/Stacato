@@ -113,10 +113,12 @@ class PositionControlledMachine : public Machine{
 	virtual void onAddToNodeGraph() override {
 		controlWidget->addToDictionnary();
 		programmingWidget->addToDictionnary();
+		setupWidget->addToDictionnary();
 	}
 	virtual void onRemoveFromNodeGraph() override {
 		controlWidget->removeFromDictionnary();
 		programmingWidget->removeFromDictionnary();
+		setupWidget->removeFromDictionnary();
 	}
 	
 	void verticalWidgetGui();
@@ -145,9 +147,7 @@ class PositionControlledMachine : public Machine{
 		ProgrammingWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machine Programming"), machine(machine_){}
 		std::shared_ptr<PositionControlledMachine> machine;
 		virtual void gui() override;
-		virtual std::string getName() override {
-			return machine->getName() + std::string("Programming");
-		}
+		virtual std::string getName() override { return machine->getName() + std::string("Programming"); }
 		
 		struct Target{
 			double position = 0.0;
@@ -165,6 +165,15 @@ class PositionControlledMachine : public Machine{
 		
 	};
 	std::shared_ptr<ProgrammingWidget> programmingWidget;
+	
+	class SetupWidget : public Widget{
+	public:
+		SetupWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machine Setup"), machine(machine_){}
+		std::shared_ptr<PositionControlledMachine> machine;
+		virtual void gui() override;
+		virtual std::string getName() override { return machine->getName() + std::string("Setup"); }
+	};
+	std::shared_ptr<SetupWidget> setupWidget;
 	
 	//MODULA HACK
 	int turnOffset = 0;

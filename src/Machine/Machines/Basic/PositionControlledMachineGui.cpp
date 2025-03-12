@@ -992,3 +992,10 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 		ImGui::PopID();
 	}
 }
+
+void PositionControlledMachine::SetupWidget::gui(){
+	float txt = ImGui::GetTextLineHeight();
+	ImGui::BeginChild("##SizeContainer", ImVec2(txt * 15.0, 0.0), ImGuiChildFlags_AutoResizeY);
+	machine->setupGui();
+	ImGui::EndChild();
+}
