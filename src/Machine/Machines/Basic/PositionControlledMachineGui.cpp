@@ -912,16 +912,29 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 	ImGui::PushFont(Fonts::sansBold26);
 	char buf[32];
 	snprintf(buf, 32, "Vel: %.2fm/s", machine->animatablePosition->getActualVelocity());
-	ImVec2 velSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 velSize(ImGui::GetTextLineHeight() * 6.55, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, velSize, Colors::veryDarkGray);
 	ImGui::SameLine();
 	snprintf(buf, 32, "Pos: %.3fm", machine->animatablePosition->getActualPosition());
-	ImVec2 posSize(ImGui::GetTextLineHeight() * 8.0, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 posSize(ImGui::GetTextLineHeight() * 6.55, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, posSize, Colors::veryDarkGray);
 	ImGui::PopFont();
 	
+	ImGui::SameLine();
+	ImGui::PushFont(Fonts::sansBold26);
+	if(customButton("STOP", targetSize, Colors::red, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll)){
+		machine->animatablePosition->stopMovement();
+	}
+	ImGui::PopFont();
+	
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::darkGray);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::black);
+	ImGui::ProgressBar(machine->animatablePosition->getRapidProgress(), ImVec2(ImGui::GetTextLineHeight() * 28.5, ImGui::GetTextLineHeight() * 1.0), "");
+	ImGui::PopStyleColor(2);
+	
 	for(int i = 0; i < targets.size(); i++){
 		ImGui::PushID(i);
+		
 		
 		if(targets[i].modeSwitch.draw("##mode", targets[i].useTime, "Time", "Velocity", switchSize)){
 			targets[i].useTime = !targets[i].useTime;
@@ -932,7 +945,8 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3.0, 9.0));
 		ImGui::SetNextItemWidth(sliderWidth);
 		if(targets[i].useTime){
-			ImGui::SliderFloat("##Time", &targets[i].time, 0.0, 60.0, "Time: %.1fs");
+			float maxTime = 60.0;
+			ImGui::SliderFloat("##Time", &targets[i].time, 0.0, maxTime, "Time: %.1fs");
 		}
 		else{
 			float maxVel = machine->animatablePosition->velocityLimit;
@@ -944,6 +958,7 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 			targets[i].velocity = std::clamp(targets[i].velocity, 0.0f, float(machine->animatablePosition->velocityLimit));
 			Stacato::Gui::save();
 		}
+		 
 		
 		ImGui::SameLine();
 		if(ImGui::Button("Capture", captureSize)){
