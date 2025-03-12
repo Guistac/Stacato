@@ -38,6 +38,7 @@ bool ActuatorMapping::save(tinyxml2::XMLElement* parent){
 	controlModeParameter->save(parent);
 	deviceUnitsPerAxisUnits->save(parent);
 	parent->SetAttribute("PositionOffset", actuatorPositionOffset);
+	minimumControlVelocity->save(parent);
 	return true;
 }
 bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
@@ -47,6 +48,7 @@ bool ActuatorMapping::load(tinyxml2::XMLElement* parent){
 	controlModeParameter->load(parent);
 	deviceUnitsPerAxisUnits->load(parent);
 	parent->QueryAttribute("PositionOffset", &actuatorPositionOffset);
+	minimumControlVelocity->load(parent);
 	
 	controlModeParameter->onEdit();
 	deviceUnitsPerAxisUnits->onEdit();

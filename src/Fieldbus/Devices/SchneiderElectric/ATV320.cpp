@@ -230,11 +230,11 @@ void ATV320::readInputs() {
 		static const long long maxEnableTime_nanoseconds = 500'000'000; //500ms
 		//for some reason switched on is sometimes a valid 'enabled' power state with ATV320
 		if(axis->getActualPowerState() == DS402Axis::PowerState::OPERATION_ENABLED || axis->getActualPowerState() == DS402Axis::PowerState::SWITCHED_ON) {
-			Logger::info("Drive Enabled");
+			Logger::debug("[{}] Drive Enabled", getName());
 			b_waitingForEnable = false;
 		}
 		else if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
-			Logger::warn("Enable request timed out");
+			Logger::warn("[{}] Enable request timed out", getName());
 			b_waitingForEnable = false;
 			axis->disable();
 		}
@@ -265,6 +265,10 @@ void ATV320::readInputs() {
 	else if(isStateSafeOperational()) 	gpio->state = DeviceState::READY;
 	else if(isStateOperational())		gpio->state = DeviceState::ENABLED;
 	else 								gpio->state = DeviceState::NOT_READY;
+	
+	
+	if(!actuator->isEmergencyStopActive() && b_stoActive) Logger::warn("[{}] STO triggered", getName());
+	else if(actuator->isEmergencyStopActive() && !b_stoActive) Logger::info("[{}] STO cleared", getName());
 	
 	actuator->actuatorProcessData.b_isEmergencyStopActive = b_stoActive;
 	actuator->actuatorProcessData.effortActual = (double)motorPower / 100.0;

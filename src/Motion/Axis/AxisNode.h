@@ -156,6 +156,9 @@ private:
 	//Position Control
 	NumberParam<double> positionLoop_velocityFeedForward;
 	NumberParam<double> positionLoop_proportionalGain;
+	NumberParam<double> positionLoop_integralGain;
+	NumberParam<double> positionLoop_integralLimit;
+	NumberParam<double> positionLoop_derivativeGain;
 	NumberParam<double> positionLoop_maxError;
 	NumberParam<double> positionLoop_minError;
 	NumberParam<double> positionLoop_errorTimeout_milliseconds;
@@ -330,6 +333,9 @@ private:
 	}internalControlMode = InternalControlMode::MANUAL_VELOCITY_TARGET;
 	float internalVelocityTarget = 0.0;
 	double positionFollowingError = 0.0;
+	double positionFollowingErrorPrevious = 0.0;
+	double positionErrorIntegral = 0.0;
+	double positionErrorDerivative = 0.0;
 	double velocityFollowingError = 0.0;
 	double lowerPositionLimitWithoutClearance;
 	double upperPositionLimitWithoutClearance;

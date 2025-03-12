@@ -271,13 +271,21 @@ public:
 			ImGui::SameLine(0.0f, 2.0f);
 			ImGui::PushID(2);
 			ImGui::SetNextItemWidth(ImGui::GetTextLineHeight() * 3.0);
-			ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &singleTurnPosition, nullptr, nullptr, "+%.1f°");
+			std::string format;
+			if(singleTurnPosition > 0.0) format = "+%.1f°";
+			else format = "%.1f°";
+			ImGui::InputScalar(getImGuiID(), ImGuiDataType_Double, &singleTurnPosition, nullptr, nullptr, format.c_str());
 			b_edited |= ImGui::IsItemDeactivatedAfterEdit();
 			ImGui::PopID();
 			if(b_edited){
-				singleTurnPosition = std::clamp(singleTurnPosition, 0.0, 359.99);
+				//this is for a range from -179.99 to 180.0
+				singleTurnPosition = std::clamp(singleTurnPosition, -179.99, 180.0);
 				double absoluteDegrees = fullTurns * 360.0 + singleTurnPosition;
 				overwriteWithHistory(absoluteDegrees);
+				//this is for a range from 0.0 to 360.0
+				//singleTurnPosition = std::clamp(singleTurnPosition, 0.0, 359.99);
+				//double absoluteDegrees = fullTurns * 360.0 + singleTurnPosition;
+				//overwriteWithHistory(absoluteDegrees);
 			}
 			
 			ImGui::SameLine();
@@ -323,8 +331,19 @@ public:
 		displayValue = newValue;
 		value = newValue;
 		//TURN DISPLAY HACK
+		//fullTurns = std::floor(newValue / 360.0);
+		//singleTurnPosition = newValue - fullTurns * 360.0;
+		//for -179.99 to 180.0
 		fullTurns = std::floor(newValue / 360.0);
 		singleTurnPosition = newValue - fullTurns * 360.0;
+		if(singleTurnPosition <= -180.0){
+			singleTurnPosition += 360.0;
+			fullTurns--;
+		}
+		else if(singleTurnPosition > 180.0){
+			singleTurnPosition -= 360.0;
+			fullTurns++;
+		}
 	}
 	
 	void overwriteWithHistory(T newValue){
@@ -368,9 +387,24 @@ private:
 			parameter->lockMutex();
 			parameter->value = newValue;
 			
-			//TURN DISPLAY HACK
-			parameter->fullTurns = std::floor(newValue / 360.0);
-			parameter->singleTurnPosition = newValue - parameter->fullTurns * 360.0;
+			//TURN DISPLAY HACK for 0.0 to 360.0
+			//parameter->fullTurns = std::floor(newValue / 360.0);
+			//parameter->singleTurnPosition = newValue - parameter->fullTurns * 360.0;
+			
+			//for -179.99 to 180.0
+			int fullTurns = std::floor(newValue / 360.0);
+			double degrees = newValue - fullTurns * 360.0;
+			if(degrees <= -180.0){
+				degrees += 360.0;
+				fullTurns--;
+			}
+			else if(degrees > 180.0){
+				degrees -= 360.0;
+				fullTurns++;
+			}
+			parameter->fullTurns = fullTurns;
+			parameter->singleTurnPosition = degrees;
+			
 			
 			parameter->displayValue = newValue;
 			parameter->unlockMutex();

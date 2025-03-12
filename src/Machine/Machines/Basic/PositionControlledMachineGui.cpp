@@ -530,6 +530,9 @@ void PositionControlledMachine::angularWidgetGui(){
 	ImDrawList* drawing = ImGui::GetWindowDrawList();
 	
 	auto drawArrowRotated = [&](glm::vec2 center, float startRadius, float endRadius, float angleRadians, ImVec4 color){
+		
+		angleRadians += M_PI;
+		
 		float lineEndRadius = endRadius - triangleSize * .5f;
 		glm::vec2 start(startRadius * std::cos(angleRadians), startRadius * std::sin(angleRadians));
 		glm::vec2 end(lineEndRadius * std::cos(angleRadians), lineEndRadius * std::sin(angleRadians));
@@ -569,7 +572,8 @@ void PositionControlledMachine::angularWidgetGui(){
 		//background & zero tick mark
 		drawing->AddCircle(middle, radius, borderColor, 64, borderWidth);
 		float zeroTickLength = ImGui::GetTextLineHeight() * .25f;
-		drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
+		//drawing->AddLine(middle, middle + glm::vec2(0, -radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
+		drawing->AddLine(middle, middle + glm::vec2(0, radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
 		
 		//draw visualizer arrows
 		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle, Colors::gray);

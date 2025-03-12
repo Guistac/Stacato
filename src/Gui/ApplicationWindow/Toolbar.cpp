@@ -68,7 +68,7 @@ namespace Stacato::Gui {
 		}
 		
 		
-		/*
+		
 		ImGui::SameLine();
 			
 		static ToggleSwitch simulationToggle;
@@ -81,7 +81,7 @@ namespace Stacato::Gui {
 			Environnement::setSimulation(b_simulation);
 		}
 		ImGui::EndDisabled();
-		*/
+		
 		 
 		ImGui::EndGroup();
 		

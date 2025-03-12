@@ -125,6 +125,7 @@ DEFINE_ETHERCAT_DEVICE(EL5001, "EL5001 SSI Input", "EL5001", "Beckhoff", "I/O", 
 	BoolParam invertDirection_Param;
 	BoolParam hasResetSignal_Param;
 	NumberParam<double> resetSignalTime_Param;
+	BoolParam reportOfflineState_Param;
 	
 	bool b_dataError = false;		//b0
 	bool b_frameError = false;		//b1

@@ -125,13 +125,13 @@ void PositionControlledMachine::disableHardware() {
 }
 
 void PositionControlledMachine::onEnableHardware() {
-	Logger::info("Enabled Machine {}", getName());
+	Logger::info("[{}] Enabled Machine", getName());
 	animatablePosition->stopMovement();
 	animatablePosition->stopAnimation();
 }
 
 void PositionControlledMachine::onDisableHardware() {
-	Logger::info("Disabled Machine {}", getName());
+	Logger::info("[{}] Disabled Machine", getName());
 	animatablePosition->stopMovement();
 	animatablePosition->stopAnimation();
 }

@@ -28,6 +28,7 @@ namespace NodeFactory{
 			new DivisionNode(),
 			new ExponentNode(),
 			new AbsoluteNode(),
+			new ModuloNode(),
 			new SinusNode(),
 			new CosinusNode(),
 			new TangentNode(),

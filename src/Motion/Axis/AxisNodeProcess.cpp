@@ -159,7 +159,7 @@ void AxisNode::inputProcess(){
 	if(previousAxisState == DeviceState::ENABLED && lowestInterfaceState != DeviceState::ENABLED){
 		for(auto actuatorMapping : actuatorMappings) actuatorMapping->disable();
 		//axisInterface->state = DeviceState::DISABLING;
-		Logger::warn("[{}] Disabling axis", getName());
+		Logger::debug("[{}] Disabling axis", getName());
 		for(auto actuatorMapping : actuatorMappings){
 			if(!actuatorMapping->isEnabled()) Logger::debug("[{}] {} was not enabled", getName(), actuatorMapping->getName());
 		}
@@ -212,7 +212,10 @@ void AxisNode::inputProcess(){
 		if(b_allEnabled){
 			b_isEnabling = false;
 			homingStep = HomingStep::NOT_STARTED;
-			Logger::info("[{}] Axis Enabled", getName());
+			positionFollowingError = 0.0;
+			positionFollowingErrorPrevious = 0.0;
+			positionErrorIntegral = 0.0;
+			Logger::debug("[{}] Axis Enabled", getName());
 		}
 		else if(Timing::getProgramTime_seconds() - enableRequestTime_seconds > maxEnableTimeSeconds->value){
 			for(auto actuatorMapping : actuatorMappings) {
@@ -264,6 +267,7 @@ void AxisNode::inputProcess(){
 	if(selectedPositionFeedbackMapping && selectedPositionFeedbackMapping->isFeedbackConnected()){
 		auto feedbackDevice = selectedPositionFeedbackMapping->getFeedbackInterface();
 		processData.positionActual = feedbackDevice->getPosition() / selectedPositionFeedbackMapping->deviceUnitsPerAxisUnits->value;
+		positionFollowingErrorPrevious = positionFollowingError;
 		positionFollowingError = motionProfile.getPosition() - axisInterface->getPositionActual();
 	}
 	
@@ -421,7 +425,14 @@ void AxisNode::inputProcess(){
 
 			}else{
 				b_isOverPositionErrorTreshold = false;
+				positionErrorIntegral += positionFollowingError * EtherCatFieldbus::getCycleTimeDelta_seconds();
+				positionErrorIntegral = std::clamp(positionErrorIntegral, -std::abs(positionLoop_integralLimit->value), std::abs(positionLoop_integralLimit->value));
+				positionErrorDerivative = (positionFollowingError - positionFollowingErrorPrevious) / EtherCatFieldbus::getCycleTimeDelta_seconds();
 			}
+		}
+		else{
+			positionErrorIntegral = 0.0;
+			positionErrorDerivative = 0.0;
 		}
 	}
 	
@@ -611,7 +622,12 @@ void AxisNode::outputProcess(){
 			velocityCommand = 0.0;
 		}
 		else{
-			velocityCommand = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01 + positionFollowingError * positionLoop_proportionalGain->value;
+			double feedforwardVelocity = motionProfile.getVelocity() * positionLoop_velocityFeedForward->value * 0.01;
+			double proportionalVelocity = positionFollowingError * positionLoop_proportionalGain->value;
+			double integralVelocity = positionErrorIntegral * positionLoop_integralGain->value;
+			double derivativeVelocity = positionErrorDerivative * positionLoop_derivativeGain->value;
+			//Logger::trace("[{}] {:.5f} {:.5f} {:.5f} {:.5f}", getName(), feedforwardVelocity, proportionalVelocity, integralVelocity, derivativeVelocity);
+			velocityCommand = feedforwardVelocity + proportionalVelocity + integralVelocity + derivativeVelocity;
 		}
 	};
 	
@@ -662,6 +678,17 @@ void AxisNode::outputProcess(){
 				}break;
 			case ActuatorMapping::VELOCITY_CONTROL:{
 				double actuatorVelocity = velocityCommand * actuatorMapping->deviceUnitsPerAxisUnits->value;
+				
+				if(motionProfile.getVelocity() == 0.0){
+					double minVelocity = std::abs(actuatorMapping->minimumControlVelocity->value);
+					if(actuatorVelocity != 0.0 && std::abs(actuatorVelocity) < minVelocity){
+						if(actuatorVelocity < 0.0) actuatorVelocity =-minVelocity;
+						else actuatorVelocity = minVelocity;
+						Logger::trace("[{}] {} is below min velocity {:.3f}", getName(), actuatorMapping->getName(), actuatorMapping->minimumControlVelocity->value);
+					}
+				}
+				
+				
 				actuatorInterface->setVelocityTarget(actuatorVelocity);
 				}break;
 			case ActuatorMapping::FORCE_CONTROL:

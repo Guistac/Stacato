@@ -120,6 +120,7 @@ void EL5001::deviceSpecificGui() {
 		
 		invertDirection_Param->gui(Fonts::sansBold15);
 		centerOnZero_Param->gui(Fonts::sansBold15);
+		reportOfflineState_Param->gui(Fonts::sansBold15);
 		
 		float minRange = encoder->feedbackConfig.positionLowerWorkingRangeBound;
 		float maxRange = encoder->feedbackConfig.positionUpperWorkingRangeBound;

@@ -313,6 +313,71 @@ void AbsoluteNode::inputProcess() {
 
 
 
+class ModuloNode : public Node {
+public:
+
+	DEFINE_NODE(ModuloNode, "Modulo", "Modulo", Node::Type::PROCESSOR, "Math")
+
+	std::shared_ptr<NodePin> in = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in", NodePin::Flags::None);
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+
+	std::shared_ptr<double> inputPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
+	NumberParam<double> rangeLower = NumberParameter<double>::make(-1.0, "Lower Range", "LowerRange", "%.3f");
+	NumberParam<double> rangeUpper = NumberParameter<double>::make(1.0, "Upper Range", "UpperRange", "%.3f");
+
+	void nodeSpecificGui() override {
+		if (ImGui::BeginTabItem("Plot")) {
+			rangeLower->gui(Fonts::sansBold15);
+			rangeUpper->gui(Fonts::sansBold15);
+			ImGui::EndTabItem();
+		}
+	}
+
+	void inputProcess() override {
+		if(in->isConnected()) in->copyConnectedPinValue();
+		double input = *inputPinValue;
+		double low = rangeLower->value;
+		double high = rangeUpper->value;
+		if(low > high) std::swap(low, high);
+		else if(low == high) {
+			*outputPinValue = low;
+			return;
+		}
+		double range = high - low;
+		double output = fmod(input, range);
+		if(output > high) output -= range;
+		if(output < low) output += range;
+		*outputPinValue = output;
+	}
+	
+	bool load(tinyxml2::XMLElement* xml) override {
+		using namespace tinyxml2;
+		rangeLower->load(xml);
+		rangeUpper->load(xml);
+		return true;
+	}
+
+	bool save(tinyxml2::XMLElement* xml) override {
+		using namespace tinyxml2;
+		rangeLower->save(xml);
+		rangeUpper->save(xml);
+		return true;
+	}
+	
+};
+
+
+void ModuloNode::initialize() {
+	in->assignData(inputPinValue);
+	addNodePin(in);
+	out->assignData(outputPinValue);
+	addNodePin(out);
+}
+
+
+
 
 
 

@@ -68,6 +68,8 @@ public:
 										}, "Control Mode", "ControlMode");
 	double actuatorPositionOffset = 0.0;
 	
+	NumberParam<double> minimumControlVelocity = NumberParameter<double>::make(0.0, "Minimum Control Velocity", "MinControlVelocity");
+	
 	bool save(tinyxml2::XMLElement* parent);
 	bool load(tinyxml2::XMLElement* parent);
 	

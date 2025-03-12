@@ -122,6 +122,9 @@ void AxisNode::initialize(){
 	positionLoop_velocityFeedForward = NumberParameter<double>::make(100.0, "Position loop velocity feed forward (PvFF)", "PositionLoopVelocityFeedForward");
 	positionLoop_velocityFeedForward->setUnit(Units::Fraction::Percent);
 	positionLoop_proportionalGain = NumberParameter<double>::make(0.0, "Position loop proportional gain (PKp)", "PositionLoopProportionalGain");
+	positionLoop_integralGain = NumberParameter<double>::make(0.0, "Position loop integral gain (PKi)", "PositionLoopIntegralGain");
+	positionLoop_integralLimit = NumberParameter<double>::make(0.0, "Position loop integral limit (PiL)", "PositionLoopIntegralLimit");
+	positionLoop_derivativeGain = NumberParameter<double>::make(0.0, "Position loop derivative gain (Pkd)", "PositionLoopDerivativeLimit");
 	positionLoop_maxError = NumberParameter<double>::make(0.0, "Position loop max error", "PositionLoopMaxError");
 	positionLoop_minError = NumberParameter<double>::make(0.0, "Position loop min error", "PositionLoopMinError");
 	positionLoop_errorTimeout_milliseconds = NumberParameter<double>::make(0.0, "Position loop error timeout", "PositionLoopErrorTimeout");
@@ -289,6 +292,9 @@ bool AxisNode::save(tinyxml2::XMLElement* xml){
 	
 	positionLoop_velocityFeedForward->save(xml);
 	positionLoop_proportionalGain->save(xml);
+	positionLoop_integralGain->save(xml);
+	positionLoop_integralLimit->save(xml);
+	positionLoop_derivativeGain->save(xml);
 	positionLoop_maxError->save(xml);
 	positionLoop_minError->save(xml);
 	positionLoop_errorTimeout_milliseconds->save(xml);
@@ -392,8 +398,12 @@ bool AxisNode::load(tinyxml2::XMLElement* xml){
 	success &= accelerationLimit->load(xml);
 	success &= upperForceLimit->load(xml);
 	success &= lowerForceLimit->load(xml);
+	
 	success &= positionLoop_velocityFeedForward->load(xml);
 	success &= positionLoop_proportionalGain->load(xml);
+	/*success &= */positionLoop_integralGain->load(xml);
+	/*success &= */positionLoop_integralLimit->load(xml);
+	/*success &= */positionLoop_derivativeGain->load(xml);
 	success &= positionLoop_maxError->load(xml);
 	success &= positionLoop_minError->load(xml);
 	positionLoop_errorTimeout_milliseconds->load(xml);

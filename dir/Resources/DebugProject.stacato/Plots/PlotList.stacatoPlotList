@@ -1,4 +1,6 @@
 <Plots>
-    <Plot FileName="Plot-0 Default Plot.stacatoPlot"/>
-    <Plot FileName="Plot-1 Pestacle.stacatoPlot"/>
+    <Plot FileName="Plot-0 GODO - Acte I.stacatoPlot"/>
+    <Plot FileName="Plot-1 GODO - Acte II.stacatoPlot"/>
+    <Plot FileName="Plot-2 MIRO - Acte I.stacatoPlot"/>
+    <Plot FileName="Plot-3 MIRO - Acte II.stacatoPlot"/>
 </Plots>

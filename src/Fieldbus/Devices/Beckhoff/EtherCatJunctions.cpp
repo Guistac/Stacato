@@ -281,6 +281,7 @@ void EL5001::initialize() {
 	
 	centerOnZero_Param = BooleanParameter::make(false, "Center On Zero", "CenterOnZero");
 	invertDirection_Param = BooleanParameter::make(false, "Invert Direction", "InvertDirection");
+	reportOfflineState_Param = BooleanParameter::make(false, "Report Offline State", "ReportOfflineState");
 	
 	hasResetSignal_Param = BooleanParameter::make(true, "Has position reset signal", "HasResetSignal");
 	resetSignalTime_Param = NumberParameter<double>::make(100.0, "Reset Time", "ResetTime", "%.1f", Units::Time::Millisecond, false);
@@ -368,8 +369,6 @@ void EL5001::readInputs() {
 	//if centering on zero, subtract the entire range if we are over half the range
 	if(centerOnZero_Param->value && positionSigned_inc >= incrementsTotal / 2) positionSigned_inc -= incrementsTotal;
 	
-	
-	
 	positionBeforeOffset_rev = double(positionSigned_inc) / double(incrementsPerRevolution);
 	double position_rev = positionBeforeOffset_rev + positionOffset_rev;
 	
@@ -384,11 +383,8 @@ void EL5001::readInputs() {
 	encoder->feedbackProcessData.positionActual = position_rev;
 	encoder->feedbackProcessData.velocityActual = deltaP_revolutions / deltaT_seconds;
 	
-	encoder->state = DeviceState::ENABLED;
-	
-	if(b_txPdoState) encoder->state = DeviceState::NOT_READY;
+	if(reportOfflineState_Param->value && b_txPdoState) encoder->state = DeviceState::NOT_READY;
 	else encoder->state = DeviceState::ENABLED;
-
 }
 
 void EL5001::writeOutputs(){
@@ -446,6 +442,7 @@ bool EL5001::saveDeviceData(tinyxml2::XMLElement* xml) {
 	inhibitTime->save(xml);
 	centerOnZero_Param->save(xml);
 	invertDirection_Param->save(xml);
+	reportOfflineState_Param->save(xml);
 	hasResetSignal_Param->save(xml);
 	resetSignalTime_Param->save(xml);
 	return true;
@@ -459,6 +456,7 @@ bool EL5001::loadDeviceData(tinyxml2::XMLElement* xml) {
 	inhibitTime->load(xml);
 	centerOnZero_Param->load(xml);
 	invertDirection_Param->load(xml);
+	reportOfflineState_Param->load(xml);
 	hasResetSignal_Param->load(xml);
 	resetSignalTime_Param->load(xml);
 	updateSSIFrameFormat();

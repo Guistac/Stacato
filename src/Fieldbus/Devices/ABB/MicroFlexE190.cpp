@@ -150,10 +150,13 @@ void MicroFlex_e190::readInputs() {
 	
 	//fault logging
 	if(previousErrorCode != axis->getErrorCode()){
-		if(axis->getErrorCode() == 0x0) Logger::info("Fault cleared.");
-		else Logger::error("fault {:x} {}", axis->getErrorCode(), getErrorCodeString());
+		if(axis->getErrorCode() == 0x0) Logger::debug("Fault cleared.");
+		else Logger::error("[{}] Fault {:x} : {}", getName(), axis->getErrorCode(), getErrorCodeString());
 	}
 	previousErrorCode = axis->getErrorCode();
+	
+	if(!servo->isEmergencyStopActive() && b_estop) Logger::warn("[{}] STO triggered", getName());
+	else if(servo->isEmergencyStopActive() && !b_estop) Logger::info("[{}] STO cleared", getName());
 	
 	//status word:
 	//b10 : Target Reached (quickstop, halt ???)
@@ -228,11 +231,10 @@ void MicroFlex_e190::writeOutputs() {
 	else if(b_waitingForEnable){
 		static const long long maxEnableTime_nanoseconds = 100'000'000; //100ms
 		if(axis->isEnabled()) {
-			Logger::info("Drive Enabled");
 			b_waitingForEnable = false;
 		}
 		else if(now_nanoseconds - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
-			Logger::warn("Enable request timed out");
+			Logger::warn("[{}] Enable request timed out", getName());
 			b_waitingForEnable = false;
 			axis->disable();
 		}

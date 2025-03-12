@@ -388,6 +388,14 @@ void AxisNode::controlTab(){
 			ImDrawList* canvas = ImGui::GetWindowDrawList();
 			canvas->AddLine(ImVec2(min.x + size.x * minErrorNormalized, min.y),
 							ImVec2(min.x + size.x * minErrorNormalized, max.y), ImColor(Colors::white));
+			
+			ImGui::PushFont(Fonts::sansBold15);
+			ImGui::Text("Position Following Error Integral");
+			ImGui::PopFont();
+			std::ostringstream errorIntegralString;
+			errorIntegralString << std::fixed << std::setprecision(4) << positionErrorIntegral << "u";
+			double integralNormalized = std::abs(positionErrorIntegral / positionLoop_integralLimit->value);
+			ImGui::ProgressBar(integralNormalized, progressBarSize, errorIntegralString.str().c_str());
 		}
 		
 		
@@ -639,6 +647,10 @@ void AxisNode::actuatorControlSettingsGui(){
 		ImGui::Text("Actuator Control Mode");
 		actuatorMapping->controlModeParameter->gui();
 		
+		if(actuatorMapping->controlModeParameter->value == actuatorMapping->actuatorMode_Velocity.getInt()){
+			actuatorMapping->minimumControlVelocity->gui(Fonts::sansBold15);
+		}
+		
 		if(actuatorMapping->isActuatorConnected()){
 			auto actuatorDevice = actuatorMapping->getActuatorInterface();
 			if(ImGui::BeginTable("##feedbackProperties", 2, ImGuiTableFlags_Borders)){
@@ -750,6 +762,9 @@ void AxisNode::positionControlSettingsGui(){
 	ImGui::BeginDisabled(controlModeParameter->value != ControlMode::POSITION_CONTROL);
 	positionLoop_velocityFeedForward->gui(Fonts::sansBold15);
 	positionLoop_proportionalGain->gui(Fonts::sansBold15);
+	positionLoop_integralGain->gui(Fonts::sansBold15);
+	positionLoop_integralLimit->gui(Fonts::sansBold15);
+	positionLoop_derivativeGain->gui(Fonts::sansBold15);
 	positionLoop_maxError->gui(Fonts::sansBold15);
 	positionLoop_minError->gui(Fonts::sansBold15);
 	positionLoop_errorTimeout_milliseconds->gui(Fonts::sansBold15);

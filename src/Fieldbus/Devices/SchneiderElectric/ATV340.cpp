@@ -318,11 +318,11 @@ void ATV340::writeOutputs() {
 	else if(b_waitingForEnable){
 		static const long long maxEnableTime_nanoseconds = 1000'000'000; //100ms
 		if(axis->isEnabled()) {
-			Logger::info("Drive Enabled");
+			Logger::info("[{}] Drive Enabled", getName());
 			b_waitingForEnable = false;
 		}
 		else if(now_nanoseconds - enableRequestTime_nanoseconds > maxEnableTime_nanoseconds){
-			Logger::warn("Enable request timed out");
+			Logger::warn("[{}] Enable request timed out", getName());
 			b_waitingForEnable = false;
 			axis->disable();
 		}

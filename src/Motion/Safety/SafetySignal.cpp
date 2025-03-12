@@ -19,7 +19,7 @@ void SafetySignal::initialize(){
 void SafetySignal::inputProcess(){
 	
 	//check gpio devices for their state
-	if(!gpioPin->isConnected() || !safetyStateValidPin->isConnected()) {
+	if(!safetyStateValidPin->isConnected()) {
 		safetyState = State::OFFLINE;
 		return;
 	}
