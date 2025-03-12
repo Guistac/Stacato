@@ -670,6 +670,7 @@ bool PositionControlledMachine::ProgrammingWidget::save(tinyxml2::XMLElement* xm
 		XMLElement* targetXML = xml->InsertNewChildElement("Target");
 		targets[i].save(targetXML);
 	}
+	return true;
 }
 bool PositionControlledMachine::ProgrammingWidget::load(tinyxml2::XMLElement* xml){
 	using namespace tinyxml2;
@@ -681,7 +682,9 @@ bool PositionControlledMachine::ProgrammingWidget::load(tinyxml2::XMLElement* xm
 			targetXML = targetXML->NextSiblingElement("Target");
 			if(targetXML == nullptr) break;
 		}
+		return true;
 	}
+	return false;
 }
 
 bool PositionControlledMachine::ProgrammingWidget::Target::save(tinyxml2::XMLElement* xml){
