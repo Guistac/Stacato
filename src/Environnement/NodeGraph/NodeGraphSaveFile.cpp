@@ -11,17 +11,6 @@ namespace Environnement::NodeGraph{
 
 	bool save(tinyxml2::XMLElement* xml) {
 		
-		//this needs to be called to satisfy the node editor library
-		//if we never displayed the node editor, this means we never submitted any nodes to the library
-		//and we can't retrieve information such as node positions from the library
-		//we submit all node once here before saving so the library is happy
-		//we can proceed as if the node editor had been displayed all along
-		//if the node editor was display once this is useless but we submit the draw call anyways since it is offscreen
-		ImGui::SetNextWindowPos(ImVec2(10000, 10000));
-		ImGui::Begin("OffscreenNodeEditorFor1Frame", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
-		Environnement::NodeGraph::Gui::editor(glm::vec2(0,0));
-		ImGui::End();
-		
 		using namespace tinyxml2;
 		XMLElement* nodes = xml->InsertNewChildElement("Nodes");
 
@@ -43,25 +32,16 @@ namespace Environnement::NodeGraph{
 
 			if (!node->isSplit()) {
 				XMLElement* positionXML = nodeXML->InsertNewChildElement("NodeEditorPosition");
-				glm::vec2 position = node->getNodeGraphPosition();
-				//position.x *= ApplicationWindow::getScaleTuning();
-				//position.y *= ApplicationWindow::getScaleTuning();
-				positionXML->SetAttribute("x", position.x);
-				positionXML->SetAttribute("y", position.y);
+				positionXML->SetAttribute("x", node->savedPosition.x);
+				positionXML->SetAttribute("y", node->savedPosition.y);
 			}
 			else {
 				XMLElement* inputPositionXML = nodeXML->InsertNewChildElement("InputNodeEditorPosition");
 				XMLElement* outputPositionXML = nodeXML->InsertNewChildElement("OutputNodeEditorPosition");
-				glm::vec2 input, output;
-				node->getSplitNodeGraphPosition(input, output);
-				//input.x *= ApplicationWindow::getScaleTuning();
-				//input.y *= ApplicationWindow::getScaleTuning();
-				//output.x *= ApplicationWindow::getScaleTuning();
-				//output.y *= ApplicationWindow::getScaleTuning();
-				inputPositionXML->SetAttribute("x", input.x);
-				inputPositionXML->SetAttribute("y", input.y);
-				outputPositionXML->SetAttribute("x", output.x);
-				outputPositionXML->SetAttribute("y", output.y);
+				inputPositionXML->SetAttribute("x", node->savedPosition.x);
+				inputPositionXML->SetAttribute("y", node->savedPosition.y);
+				outputPositionXML->SetAttribute("x", node->savedSplitPosition.x);
+				outputPositionXML->SetAttribute("y", node->savedSplitPosition.y);
 			}
 
 			XMLElement* nodeSpecificDataXML = nodeXML->InsertNewChildElement("NodeSpecificData");
