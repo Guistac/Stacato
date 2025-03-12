@@ -133,12 +133,17 @@ namespace Legato::Gui{
 			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		#endif
 							
+		
 		//this opens the main application window and creates the main opengl context
 		//open window on main monitor, max window size
 		glm::ivec2 workPos, workSize;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &workPos.x, &workPos.y, &workSize.x, &workSize.y);
 		mainWindow = glfwCreateWindow(workSize.x, workSize.y, "Stacato", nullptr, nullptr);
 		glfwSetWindowPos(mainWindow, workPos.x, workPos.y);
+
+		#if defined (STACATO_UNIX)
+			b_goFullscreen = true;
+		#endif
 
 		//set window callbacks that are not handled by imgui glfw backend
 		glfwSetWindowSizeCallback(mainWindow, [](GLFWwindow* window, int w, int h) { drawFrame(); });

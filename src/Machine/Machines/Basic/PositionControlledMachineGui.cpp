@@ -941,8 +941,10 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 			Stacato::Gui::save();
 		}
 		
+		float txt = ImGui::GetTextLineHeight();
+
 		ImGui::SameLine();
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3.0, 9.0));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(txt * 0.15, txt * 0.5));
 		ImGui::SetNextItemWidth(sliderWidth);
 		if(targets[i].useTime){
 			float maxTime = 60.0;
