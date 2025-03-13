@@ -1226,8 +1226,12 @@ namespace EtherCatFieldbus {
 			if(!pipe) Logger::critical("Failed to execute bash script");
 			char buffer[64];
 			fgets(buffer, sizeof(buffer), pipe);
-			if(std::stoi(buffer) == core) Logger::critical("Set irq of {} set to CPU core {}", activeNetworkInterfaceCard->description, core);
-			else Logger::critical("Could not set IRQ");
+			try{
+				if(std::stoi(buffer) == core) Logger::critical("Set irq of {} set to CPU core {}", activeNetworkInterfaceCard->description, core);
+				else Logger::critical("Could not set IRQ");
+			}catch(std::invalid_argument& error){
+				
+			}
 			pclose(pipe);
 
 
