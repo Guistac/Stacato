@@ -319,6 +319,14 @@ namespace Environnement::NodeGraph::Gui{
 			showFlow();
 		}
 		
+		for (auto node : Environnement::NodeGraph::getNodes()) {
+			if(node->isSplit()){
+				node->getSplitNodeGraphPosition(node->savedPosition, node->savedSplitPosition);
+			}
+			else{
+				node->savedPosition = node->getNodeGraphPosition();
+			}
+		}
 		
 
 	}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <Environnement name="Starmania" notes="
 ">
     <Dashboard Scale="1.1845223" OffsetX="1828.7606" OffsetY="-977.41516" AutoFit="false" DrawGrid="false" LockEdit="true">
@@ -518,14 +519,56 @@
                         <ActuatorMapping PinSaveName="ActuatorDevice0" ControlMode="2" UnitConversion="1" PositionOffset="0" MinControlVelocity="0"/>
                         <ActuatorMapping PinSaveName="ActuatorDevice1" ControlMode="2" UnitConversion="1" PositionOffset="0" MinControlVelocity="0"/>
                     </ActuatorMappings>
+=======
+<Environnement name="Default Environnement" notes="">
+    <Dashboard Scale="1.0532957" OffsetX="187.86404" OffsetY="-726.92419" AutoFit="false" DrawGrid="false" LockEdit="true">
+        <Widget Name="1234" UniqueID="28" PositionX="-184" PositionY="854" SizeX="149.10001" SizeY="397.24353"/>
+        <Widget Name="1234Programming" UniqueID="29" PositionX="-29" PositionY="854" SizeX="610.00061" SizeY="398.19293"/>
+    </Dashboard>
+    <NodeGraph>
+        <Nodes>
+            <Node NodeType="Machine" ClassName="PositionControlledMachine" CustomName="1234" UniqueID="2">
+                <NodeEditorPosition x="520" y="334"/>
+                <NodeSpecificData ShortName="M">
+                    <Limits InvertAxis="false" AxisOffset="0" LowerPositionLimit="0" UpperPositionLimit="0"/>
+                    <UserSetup AllowUserZeroEdit="true" AllowUserLowerLimitEdit="true" AllowUserUpperLimitEdit="true" AllowUserHoming="false" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
+                    <Animatable ManualControlChannelAxis="0" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
+                    <ControWidget UniqueID="28"/>
+                    <ProgrammingWidget UniqueID="29">
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                        <Target TimeMode="false" Time="0" Velocity="0" Position="0"/>
+                    </ProgrammingWidget>
+                    <SetupWidget/>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="3" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Position Controlled Axis" DisplayString="Position Controlled Axis" DataType="AxisInterface" UniqueID="4" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="5" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Position" DisplayString="Position" DataType="Real" UniqueID="6" Visible="true"/>
+                    <OutputPin SaveString="Velocity" DisplayString="Velocity" DataType="Real" UniqueID="7" Visible="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Axis" ClassName="Axis" CustomName="Axis" UniqueID="8">
+                <NodeEditorPosition x="252" y="296"/>
+                <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="0" PositionUnit="2" LimitSignalType="0" AxisControlMode="2" VelocityLimit="0" AccelerationLimit="0" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
+                    <FeedbackMappings/>
+                    <ActuatorMappings/>
+>>>>>>> Gauthier
                     <SelectedPositionFeedbackMapping/>
-                    <SelectedVelocityFeedbackMapping PinSaveString="ActuatorDevice0"/>
+                    <SelectedVelocityFeedbackMapping/>
                     <SafetyRules SafetyClearSignalTime="0.5">
                         <SafetyRule Type="FeedbackToFeedbackVelocityComparison" Enabled="false" MaxVelocityDeviation="0"/>
                         <SafetyRule Type="FeedbackToFeedbackPositionComparison" Enabled="false" MaxPositionDeviation="0"/>
                     </SafetyRules>
                 </NodeSpecificData>
                 <InputPins>
+<<<<<<< HEAD
                     <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="501" Visible="false" AcceptsMultipleInputs="true" NoDataField="true"/>
                     <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="502" Visible="true"/>
                     <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="503" Visible="false"/>
@@ -604,10 +647,29 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="out" DisplayString="out" DataType="Real" UniqueID="563" Visible="true" DisableDataField="true"/>
+=======
+                    <InputPin SaveString="GPIO" DisplayString="GPIO" DataType="GpioInterface" UniqueID="9" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="LowerLimitSignal" DisplayString="Lower Limit Signal" DataType="Boolean" UniqueID="10" Visible="false"/>
+                    <InputPin SaveString="LowerSlowdownSignal" DisplayString="Lower Slowdown Signal" DataType="Boolean" UniqueID="11" Visible="false"/>
+                    <InputPin SaveString="UpperSlowdownSignal" DisplayString="Upper Slowdown Signal" DataType="Boolean" UniqueID="12" Visible="false"/>
+                    <InputPin SaveString="UpperLimitSignal" DisplayString="Upper Limit Signal" DataType="Boolean" UniqueID="13" Visible="false"/>
+                    <InputPin SaveString="ReferenceSignal" DisplayString="Reference Signal" DataType="Boolean" UniqueID="14" Visible="false"/>
+                    <InputPin SaveString="LoadSensor" DisplayString="Load Sensor" DataType="Real" UniqueID="15" Visible="false"/>
+                    <InputPin SaveString="ReadyStateInput" DisplayString="Ready State" DataType="Boolean" UniqueID="16" Visible="true"/>
+                    <InputPin SaveString="SafetyStateInput" DisplayString="Safety State" DataType="Boolean" UniqueID="17" Visible="true"/>
+                    <InputPin SaveString="SafetyResetInput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="18" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="Axis" DisplayString="Axis" DataType="AxisInterface" UniqueID="19" Visible="true" NoDataField="true"/>
+                    <OutputPin SaveString="BrakeControlSignal" DisplayString="Brake Control" DataType="Boolean" UniqueID="20" Visible="true"/>
+                    <OutputPin SaveString="SafetyStateOutput" DisplayString="Safety State" DataType="Boolean" UniqueID="21" Visible="true"/>
+                    <OutputPin SaveString="SafetyResetOutput" DisplayString="Safety Reset" DataType="Boolean" UniqueID="22" Visible="true"/>
+>>>>>>> Gauthier
                 </OutputPins>
             </Node>
         </Nodes>
         <Links>
+<<<<<<< HEAD
             <Link UniqueID="65" StartPin="7" EndPin="62"/>
             <Link UniqueID="66" StartPin="22" EndPin="63"/>
             <Link UniqueID="67" StartPin="37" EndPin="64"/>
@@ -641,6 +703,9 @@
             <Link UniqueID="560" StartPin="558" EndPin="553"/>
             <Link UniqueID="564" StartPin="545" EndPin="562"/>
             <Link UniqueID="565" StartPin="563" EndPin="550"/>
+=======
+            <Link UniqueID="23" StartPin="19" EndPin="4"/>
+>>>>>>> Gauthier
         </Links>
     </NodeGraph>
 </Environnement>

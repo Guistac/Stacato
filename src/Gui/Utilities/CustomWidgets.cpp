@@ -370,6 +370,7 @@ bool ToggleSwitch::draw(const char* ID, bool& data, const char* option1, const c
 	
 	ImVec2 min = ImGui::GetItemRectMin();
 	ImVec2 max = ImGui::GetItemRectMax();
+	float rounding = ImGui::GetStyle().FrameRounding;
 	
 	glm::vec2 opt1Min = min;
 	glm::vec2 opt1Max(max.x, min.y + size.y / 2.0);
@@ -378,7 +379,7 @@ bool ToggleSwitch::draw(const char* ID, bool& data, const char* option1, const c
 	
 	ImDrawList* drawList = ImGui::GetWindowDrawList();
 	
-	drawList->AddRectFilled(min, max, ImGui::GetColorU32(ImGuiCol_MenuBarBg), 5.0);
+	drawList->AddRectFilled(min, max, ImGui::GetColorU32(ImGuiCol_MenuBarBg), rounding);
 	
 	ImU32 selectionBoxColor = ImGui::GetColorU32(ImGuiCol_Button);
 	if(ImGui::IsItemActive()) selectionBoxColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
@@ -393,7 +394,7 @@ bool ToggleSwitch::draw(const char* ID, bool& data, const char* option1, const c
 	ImVec2 selBoxMin = ImVec2(min.x, selectionBoxHeight);
 	ImVec2 selBoxMax = ImVec2(max.x, selBoxMin.y + size.y / 2.0);
 	
-	drawList->AddRectFilled(selBoxMin, selBoxMax, selectionBoxColor, 5.0);
+	drawList->AddRectFilled(selBoxMin, selBoxMax, selectionBoxColor, rounding);
 	 
 	ImVec2 opt1TextSize = ImGui::CalcTextSize(option1);
 	ImVec2 opt2TextSize = ImGui::CalcTextSize(option2);

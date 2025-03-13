@@ -114,10 +114,11 @@ public:
 	
 	void overridePositionTarget(double positionTarget);
 	
-private:
 	void setVelocityTarget(double velocityTarget);
 	void moveToPositionWithVelocity(double targetPosition, double targetVelocity);
 	void moveToPositionInTime(double targetPosition, double targetTime);
+	
+private:
 	void copyMotionProfilerValueToTargetValue();
 	
 public:

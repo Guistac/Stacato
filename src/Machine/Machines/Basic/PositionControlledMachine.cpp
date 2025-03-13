@@ -32,7 +32,8 @@ void PositionControlledMachine::initialize() {
 	
 	auto thisMachine = std::static_pointer_cast<PositionControlledMachine>(shared_from_this());
 	controlWidget = std::make_shared<ControlWidget>(thisMachine);
-	
+	programmingWidget = std::make_shared<ProgrammingWidget>(thisMachine);
+
 	
 	lowerPositionLimit->setEditCallback([this](std::shared_ptr<Parameter>){
 		if(lowerPositionLimit->value < getMinPosition()) lowerPositionLimit->overwrite(getMinPosition());
@@ -554,6 +555,11 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	XMLElement* widgetXML = xml->InsertNewChildElement("ControWidget");
 	widgetXML->SetAttribute("UniqueID", controlWidget->uniqueID);
 	
+	XMLElement* progWidgetXML = xml->InsertNewChildElement("ProgrammingWidget");
+	programmingWidget->save(progWidgetXML);
+	
+	XMLElement* setupWidgetXML = xml->InsertNewChildElement("SetupWidget");
+	
 	return true;
 }
 
@@ -587,6 +593,10 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	XMLElement* widgetXML = xml->FirstChildElement("ControWidget");
 	if(widgetXML == nullptr) return Logger::warn("Could not find Control Widget Attribute");
 	if(widgetXML->QueryIntAttribute("UniqueID", &controlWidget->uniqueID) != XML_SUCCESS) return Logger::warn("Could not find machine control widget uid attribute");
+	
+	if(XMLElement* progWidgetXML = xml->FirstChildElement("ProgrammingWidget")){
+		programmingWidget->load(progWidgetXML);
+	}
 	
 	return true;
 }
@@ -650,5 +660,46 @@ bool PositionControlledMachine::canSetTurnOffset(int offset){
 	else if(lowerPositionLimit->value + offset * 360.0 < axis->getLowerPositionLimit())	return false;
 	else if(axis->getPositionActual() + offset * 360.0 > upperPositionLimit->value)		return false;
 	else if(axis->getPositionActual() + offset * 360.0 < lowerPositionLimit->value)		return false;
+	return true;
+}
+
+
+
+bool PositionControlledMachine::ProgrammingWidget::save(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	xml->SetAttribute("UniqueID", uniqueID);
+	for(int i = 0; i < targets.size(); i++){
+		XMLElement* targetXML = xml->InsertNewChildElement("Target");
+		targets[i].save(targetXML);
+	}
+	return true;
+}
+bool PositionControlledMachine::ProgrammingWidget::load(tinyxml2::XMLElement* xml){
+	using namespace tinyxml2;
+	xml->QueryIntAttribute("UniqueID", &uniqueID);
+	
+	if(XMLElement* targetXML = xml->FirstChildElement("Target")){
+		for(int i = 0; i < targets.size(); i++){
+			targets[i].load(targetXML);
+			targetXML = targetXML->NextSiblingElement("Target");
+			if(targetXML == nullptr) break;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool PositionControlledMachine::ProgrammingWidget::Target::save(tinyxml2::XMLElement* xml){
+	xml->SetAttribute("TimeMode", useTime);
+	xml->SetAttribute("Time", time);
+	xml->SetAttribute("Velocity", velocity);
+	xml->SetAttribute("Position", position);
+	return true;
+}
+bool PositionControlledMachine::ProgrammingWidget::Target::load(tinyxml2::XMLElement* xml){
+	xml->QueryBoolAttribute("TimeMode", &useTime);
+	xml->QueryFloatAttribute("Time", &time);
+	xml->QueryFloatAttribute("Velocity", &velocity);
+	xml->QueryDoubleAttribute("Position", &position);
 	return true;
 }

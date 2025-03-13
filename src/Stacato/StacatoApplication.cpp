@@ -13,6 +13,7 @@
 #include "Project/StacatoProject.h"
 
 #include "StacatoEditor.h"
+#include "Utilities/Timing.h"
 
 
 namespace Stacato::Application{
@@ -65,6 +66,44 @@ bool initialize(std::filesystem::path launchPath){
 		#endif
 	}
 
+	std::thread environnementAutoStart = std::thread([](){
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		Timing::Timer watchdog;
+		watchdog.setExpirationSeconds(2.0);
+		while(!Environnement::isReady()){
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			if(watchdog.isExpired()){
+				Logger::warn("Environnement autosetup timed out");
+				return;
+			}
+		}
+		Logger::info("Autostarting Environnement");
+		Environnement::start();
+
+		watchdog.setExpirationSeconds(20.0);
+		while(!Environnement::isRunning()){
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			if(watchdog.isExpired()){
+				Logger::warn("Environnement autostart timed out");
+				return;
+			}
+		}
+		Logger::info("Environnement autostart fnished");
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+		while(!Environnement::areAllMachinesEnabled()){
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			if(watchdog.isExpired()){
+				Logger::warn("Machine autoenable timed out");
+				return;
+			}
+		}
+
+		Logger::info("Machine autoenable finished");
+	});
+	environnementAutoStart.detach();
+	 
 	return true;
 }
 
