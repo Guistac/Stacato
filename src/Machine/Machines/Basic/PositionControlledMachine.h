@@ -113,12 +113,10 @@ class PositionControlledMachine : public Machine{
 	virtual void onAddToNodeGraph() override {
 		controlWidget->addToDictionnary();
 		programmingWidget->addToDictionnary();
-		setupWidget->addToDictionnary();
 	}
 	virtual void onRemoveFromNodeGraph() override {
 		controlWidget->removeFromDictionnary();
 		programmingWidget->removeFromDictionnary();
-		setupWidget->removeFromDictionnary();
 	}
 	
 	void verticalWidgetGui();
@@ -158,22 +156,13 @@ class PositionControlledMachine : public Machine{
 			bool save(tinyxml2::XMLElement* xml);
 			bool load(tinyxml2::XMLElement* xml);
 		};
-		std::vector<Target> targets = std::vector<Target>(4);
+		std::vector<Target> targets = std::vector<Target>(6);
 		
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);
 		
 	};
 	std::shared_ptr<ProgrammingWidget> programmingWidget;
-	
-	class SetupWidget : public Widget{
-	public:
-		SetupWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machine Setup"), machine(machine_){}
-		std::shared_ptr<PositionControlledMachine> machine;
-		virtual void gui() override;
-		virtual std::string getName() override { return machine->getName() + std::string("Setup"); }
-	};
-	std::shared_ptr<SetupWidget> setupWidget;
 	
 	//MODULA HACK
 	int turnOffset = 0;

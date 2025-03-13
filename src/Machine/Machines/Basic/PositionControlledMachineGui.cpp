@@ -909,14 +909,26 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 	
 	float sliderWidth = ImGui::GetTextLineHeight() * 10.0;
 	
+	ImGui::PushFont(Fonts::sansBold15);
+	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
+	ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
+	if(ImGui::Button("Zero", switchSize)){
+		machine->captureUserZero();
+		machine->resetUpperUserLimit();
+		machine->resetLowerUserLimit();
+	}
+	ImGui::PopStyleColor(2);
+	ImGui::PopFont();
+	
+	ImGui::SameLine();
 	ImGui::PushFont(Fonts::sansBold26);
 	char buf[32];
 	snprintf(buf, 32, "Vel: %.2fm/s", machine->animatablePosition->getActualVelocity());
-	ImVec2 velSize(ImGui::GetTextLineHeight() * 6.55, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 velSize(ImGui::GetTextLineHeight() * 5.5, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, velSize, Colors::veryDarkGray);
 	ImGui::SameLine();
 	snprintf(buf, 32, "Pos: %.3fm", machine->animatablePosition->getActualPosition());
-	ImVec2 posSize(ImGui::GetTextLineHeight() * 6.55, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 posSize(ImGui::GetTextLineHeight() * 5.5, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, posSize, Colors::veryDarkGray);
 	ImGui::PopFont();
 	
@@ -991,11 +1003,5 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 		
 		ImGui::PopID();
 	}
-}
-
-void PositionControlledMachine::SetupWidget::gui(){
-	float txt = ImGui::GetTextLineHeight();
-	ImGui::BeginChild("##SizeContainer", ImVec2(txt * 15.0, 0.0), ImGuiChildFlags_AutoResizeY);
-	machine->setupGui();
-	ImGui::EndChild();
+	
 }

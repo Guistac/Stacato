@@ -13,6 +13,7 @@
 #include "Project/StacatoProject.h"
 
 #include "StacatoEditor.h"
+#include "Utilities/Timing.h"
 
 
 namespace Stacato::Application{
@@ -64,7 +65,22 @@ bool initialize(std::filesystem::path launchPath){
 			Stacato::Editor::createNewProject();
 		#endif
 	}
-
+	
+	std::thread environnementAutoStart = std::thread([](){
+		Timing::Timer watchdog;
+		watchdog.setExpirationSeconds(1.0);
+		while(!Environnement::isReady()){
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			if(watchdog.isExpired()){
+				Logger::warn("Environnement autostart timed out");
+				return;
+			}
+		}
+		Logger::info("Autostarting Environnement");
+		Environnement::start();
+	});
+	environnementAutoStart.detach();
+	 
 	return true;
 }
 
