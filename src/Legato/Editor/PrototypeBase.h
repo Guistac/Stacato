@@ -102,9 +102,9 @@ private:
 };
 
 
-#include "ProjectComponent.hpp"
+#include "ProjectComponent.h"
 
-class InterfaceThing : public Test::Component{
+class InterfaceThing : public Legato::Component{
 	COMPONENT_INTERFACE(InterfaceThing)
 	virtual void onConstruction() override {
 		Component::onConstruction();
@@ -123,7 +123,7 @@ class InterfaceThing : public Test::Component{
 };
 
  
-class ChildThing : public Test::Component{
+class ChildThing : public Legato::Component{
 	COMPONENT_IMPLEMENTATION(ChildThing)
 	virtual void onConstruction() override {
 		Component::onConstruction();
@@ -151,8 +151,8 @@ class RealThing : public InterfaceThing{
 	
 	virtual void onConstruction() override {
 		InterfaceThing::onConstruction();
-		childThing = ChildThing::createInstance();
-		addChildComponent(childThing);
+		childThing = ChildThing::make();
+		addChild(childThing);
 	}
 	virtual void copyFrom(Ptr<Component> source) override {
 		InterfaceThing::copyFrom(source);

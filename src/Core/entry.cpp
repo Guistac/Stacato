@@ -13,10 +13,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 #else
 int main(int argcount, const char ** args){
 #endif
-
-	auto rt = RealThing::make();
-	rt->childThing->value = 5;
-	auto rt2 = rt->duplicate();
 	
 	if(mlockall(MCL_CURRENT | MCL_FUTURE) == 0){
 		std::cout << "Locked Application Memory" << std::endl;
