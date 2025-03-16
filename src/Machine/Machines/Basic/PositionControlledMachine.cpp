@@ -241,16 +241,19 @@ void PositionControlledMachine::inputProcess() {
 		b_userZeroUpdateRequest = false;
 		axisOffset->overwrite(requestedUserZeroOffset);
 
-		if(resetLowerLimitOnZeroCapture->value){
+		if(resetLowerLimitOnZeroCapture->value)
 			axisLowerPositionLimit = axisPositionToMachinePosition(axis->getLowerPositionLimit());
-		}
-		if(resetUpperLimitOnZeroCapture->value){
+		if(resetUpperLimitOnZeroCapture->value)
 			axisUpperPositionLimit = axisPositionToMachinePosition(axis->getUpperPositionLimit());
-		}
-
 		if(invertAxis->value) std::swap(axisLowerPositionLimit, axisUpperPositionLimit);
-		setUserLowerLimit(lowerPositionLimit->value);
-		setUserUpperLimit(upperPositionLimit->value);
+
+		if(resetLowerLimitOnZeroCapture->value)
+			setUserLowerLimit(axisLowerPositionLimit);
+		else setUserLowerLimit(lowerPositionLimit->value);
+		if(resetUpperLimitOnZeroCapture->value)
+			setUserUpperLimit(axisUpperPositionLimit);
+		else setUserUpperLimit(upperPositionLimit->value);
+
 		animatablePosition->overridePositionTarget(axisPositionToMachinePosition(axis->getPositionActual()));
 	}
 	

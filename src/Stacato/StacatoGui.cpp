@@ -84,6 +84,9 @@ void gui(){
 		style.GrabRounding = rounding;
 		dockspaceID = ImGui::GetID("MainDockspace");
 		b_initialized = true;
+
+		
+
 	}
 
 	//get coordinates for main window and toolbar

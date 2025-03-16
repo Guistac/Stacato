@@ -932,8 +932,10 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 		machine->captureUserZero();
 		saveAfterDelay();
 	}
+	float spacing = ImGui::GetTextLineHeight() * 0.1;
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing,spacing));
 	ImGui::SameLine();
-	ImGui::SetCursorPosX(ImGui::GetItemRectMax().x + 1);
+	ImGui::PopStyleVar();
 	if(customButton("Reset", switchSize, Colors::darkGray, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)){
 		machine->resetUserZero();
 		saveAfterDelay();
