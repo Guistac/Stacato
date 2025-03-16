@@ -40,11 +40,9 @@ bool initialize(std::filesystem::path launchPath){
 	Stacato::Editor::initialize();
 	
 	#if defined(STACATO_DEBUG)
-	Stacato::Editor::unlock();
+		Stacato::Editor::unlock();
 	#else
-	//Stacato::Editor::lock();
-	Stacato::Editor::unlock();
-	
+		Stacato::Editor::lock();
 	#endif
 
 	bool b_launchPathLoaded;
@@ -80,7 +78,7 @@ bool initialize(std::filesystem::path launchPath){
 		Logger::info("Autostarting Environnement");
 		Environnement::start();
 
-		watchdog.setExpirationSeconds(20.0);
+		watchdog.setExpirationSeconds(10.0);
 		while(!Environnement::isRunning()){
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			if(watchdog.isExpired()){
@@ -92,7 +90,10 @@ bool initialize(std::filesystem::path launchPath){
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
+		watchdog.setExpirationSeconds(10.0);
 		while(!Environnement::areAllMachinesEnabled()){
+			Logger::info("Auto Machine Enable Request");
+			Environnement::enableAllMachines();
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			if(watchdog.isExpired()){
 				Logger::warn("Machine autoenable timed out");

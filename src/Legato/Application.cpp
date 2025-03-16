@@ -184,5 +184,21 @@ namespace Application{
 	
 	void quitImmediately(){ b_running = false; }
 	
+	void requestShutdown(){
+		std::string command = "sudo poweroff";
+		FILE* pipe = popen(command.c_str(), "r");
+		if(!pipe) Logger::critical("Failed to execute bash script");
+		/*
+		char buffer[64];
+		fgets(buffer, sizeof(buffer), pipe);
+		try{
+			std::stoi(buffer);
+		}catch(std::invalid_argument& error){
+			
+		}
+		pclose(pipe);
+		*/
+	}
+
 };
 	

@@ -47,6 +47,10 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<NumberParameter<double>> upperPositionLimit = NumberParameter<double>::make(0.0, "Upper Position Limit", "UpperPositionLimit", "%.3f");
 	
 	std::shared_ptr<BooleanParameter> allowUserZeroEdit = BooleanParameter::make(false, "Allow User Zero Edit", "AllowUserZeroEdit");
+	std::shared_ptr<BooleanParameter> resetLowerLimitOnZeroCapture = BooleanParameter::make(true, "Reset lower limit on zero capture", "ResetLowerLimitOnZeroCapture");
+	std::shared_ptr<BooleanParameter> resetUpperLimitOnZeroCapture = BooleanParameter::make(true, "Reset upper limit on zero capture", "ResetUpperLimitOnZeroCapture");
+	std::shared_ptr<NumberParameter<double>> minimumVelocity = NumberParameter<double>::make(0.0, "Minium velocity", "MinVelocity", "%.3f");
+
 	std::shared_ptr<BooleanParameter> allowUserLowerLimitEdit = BooleanParameter::make(false, "Allow User Lower Limit Edit", "AllowUserLowerLimitEdit");
 	std::shared_ptr<BooleanParameter> allowUserUpperLimitEdit = BooleanParameter::make(false, "Allow User Upper Limit Edit", "AllowUserUpperLimitEdit");
 	std::shared_ptr<BooleanParameter> allowUserHoming = BooleanParameter::make(false, "Allow User Homing", "AllowUserHoming");

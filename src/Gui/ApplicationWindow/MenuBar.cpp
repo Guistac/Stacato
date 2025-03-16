@@ -76,6 +76,8 @@ namespace Stacato::Gui {
 			if (ImGui::MenuItem("About")) Stacato::Gui::AboutPopup::get()->open();
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", quitShortcut.getString())) Application::requestQuit();
+			ImGui::Separator();
+			if(ImGui::MenuItem("Shutdown")) Application::requestShutdown();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("File")) {
