@@ -186,20 +186,22 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Application.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Logger.h
+
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoComponent.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoComponent.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoList.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoParameter.h
+
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/PrototypeBase.h
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ProjectComponent.h
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ProjectComponent.cpp
-	${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListComponent.h
-	${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Listcomponent.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Component.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/FileComponent.h
-    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Parameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/ListParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/StringParameter.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Project.h
+    
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui_Private.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Gui/Gui.cpp

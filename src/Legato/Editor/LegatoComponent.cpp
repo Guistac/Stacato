@@ -1,4 +1,4 @@
-#include "ProjectComponent.h"
+#include "LegatoComponent.h"
 #include <tinyxml2.h>
 
 bool Legato::sanitizeXmlIdentifier(const std::string input, std::string& output){

@@ -50,7 +50,7 @@ private:
 
 
 
-#include "ProjectComponent.h"
+#include "LegatoComponent.h"
 
 namespace Legato{
 

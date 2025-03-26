@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Parameter.h"
+#include "LegatoParameter.h"
 
 class NewStringParameter : public BaseParameter{
 	

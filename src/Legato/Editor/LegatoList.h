@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ProjectComponent.h"
+#include "LegatoComponent.h"
 #include <tinyxml2.h>
 
 namespace Legato{

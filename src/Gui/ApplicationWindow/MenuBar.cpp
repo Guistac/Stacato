@@ -34,8 +34,8 @@
 
 
 
-#include "Legato/Editor/ProjectComponent.h"
-#include "Legato/Editor/ListComponent.h"
+#include "Legato/Editor/LegatoComponent.h"
+#include "Legato/Editor/LegatoList.h"
 
 class InterfaceThing : public Legato::Component{
 	COMPONENT_INTERFACE(InterfaceThing)
