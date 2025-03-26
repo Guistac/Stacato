@@ -39,6 +39,9 @@ namespace Legato{
 
 	bool sanitizeXmlIdentifier(const std::string input, std::string& output);
 
+	class FileComponent;
+	class Project;
+
 	class Component : public std::enable_shared_from_this<Component>{
 	public:
 		
@@ -47,8 +50,10 @@ namespace Legato{
 		
 		virtual void addChild(Ptr<Component> child){
 			if(child == nullptr) return;
-			child->parentComponent = shared_from_this();
 			childComponents.push_back(child);
+			child->parentComponent = shared_from_this();
+			child->parentFile = parentFile;
+			child->parentProject = parentProject;
 		}
 		
 		void setIdentifier(std::string input);
@@ -76,18 +81,47 @@ namespace Legato{
 		
 		tinyxml2::XMLElement* xmlElement = nullptr;
 		std::string identifier = "DefaultIdentifier";
-		bool b_hasValidIdentifier = false;
+		std::string name = "Default Name";
+		Ptr<Component> parentComponent = nullptr;
+		std::vector<Ptr<Component>> childComponents = {};
+		Ptr<Project> parentProject = nullptr;
+		Ptr<FileComponent> parentFile = nullptr;
 		
 	private:
 		virtual Ptr<Component> instanciateComponent() = 0;
-		
-		Ptr<Component> parentComponent = nullptr;
-		std::vector<Ptr<Component>> childComponents = {};
 		
 		bool checkAttributeSerializationError(std::string& ID);
 		bool checkAttributeDeserializationError(std::string& ID);
 		bool checkAttributeDeserializationResult(int result, std::string& ID);
 		
+	};
+
+
+	class FileComponent : public Component{
+		COMPONENT_INTERFACE(FileComponent)
+	public:
+		
+		//void setFileName(std::string input);
+		//void setFileLocation(std::filesystem::path input);
+		//void setFileLocationAndName(std::filesystem::path input);
+
+		
+		virtual bool serialize() override;
+		virtual bool deserialize() override;
+		
+	private:
+		bool b_hasRelativePath = false;
+		std::filesystem::path absoluteFilePath;
+		std::filesystem::path relativeFilePath;
+		std::string fileName;
+	};
+
+
+	class Project : public Component{
+		COMPONENT_INTERFACE(Project)
+	public:
+		virtual bool serialize() override;
+		virtual bool deserialize() override;
 	};
 
 }

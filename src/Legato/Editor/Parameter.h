@@ -42,3 +42,47 @@ private:
 	
 	std::vector<std::function<void()>> editCallbacks;
 };
+
+
+
+
+
+
+
+
+#include "ProjectComponent.h"
+
+namespace Legato{
+
+	class Parameter : public Component{
+		COMPONENT_INTERFACE(Parameter)
+	
+	public:
+		
+		virtual void gui() = 0;
+		
+		void addEditCallback(std::function<void()> callback) {
+			editCallbacks.push_back(callback);
+		}
+		
+	protected:
+		
+		virtual void onConstruction() override { Component::onConstruction(); }
+		virtual void copyFrom(Ptr<Component> source) override { Component::copyFrom(source); }
+		virtual bool onSerialization() override { Component::onSerialization(); }
+		virtual bool onDeserialization() override { Component::onDeserialization(); }
+		virtual void onPostLoad() override { Component::onPostLoad(); }
+		
+		virtual void onEdit(){
+			for(auto& editCallback : editCallbacks) {
+				editCallback();
+			}
+		}
+		
+	private:
+		
+		std::vector<std::function<void()>> editCallbacks;
+		
+	};
+
+}

@@ -34,7 +34,7 @@ namespace Legato{
 		
 		int size(){ return 0; }
 		bool hasEntry(Ptr<T> queriedEntry){ return false; }
-		void addEntry(Ptr<T> newEntry){}
+		void addEntry(Ptr<T> newEntry, int index = -1){}
 		void removeEntry(Ptr<T> removedEntry){}
 		void moveEntry(Ptr<T> movedEntry, int newIndex){}
 		Ptr<T> getEntry(int index){

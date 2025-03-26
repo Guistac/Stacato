@@ -202,3 +202,116 @@ Ptr<Legato::Component> Legato::Component::duplicateComponent(){
 
 
 
+
+/*
+void Legato::FileComponent::setFileName(std::string input){
+	std::filesystem::path inputPath = input;
+	if(!inputPath.has_filename()) {
+		Logger::error("[File] '{}' does not contain a filename", input);
+		return;
+	}
+	
+	if(inputPath.has_parent_path()){
+		Logger::warn("[File] '{}' is not a file name, removing parent path", input);
+		fileName = inputPath.filename().string();
+	}
+	else fileName = input;
+
+	if(filePath.has_filename()) filePath = filePath.parent_path() / fileName;
+	else filePath = filePath / fileName;
+}
+void Legato::FileComponent::setFileLocation(std::filesystem::path input){
+	if(!input.has_parent_path()){
+		Logger::error("[File] '{}' does not contain a path", input.string());
+		return;
+	}
+	if(input.has_filename()){
+		Logger::warn("[File] '{}' is not a directory, removing file name", input.string());
+		filePath = input.parent_path() / fileName;
+	}
+	filePath = filePath / fileName;
+}
+void Legato::FileComponent::setFileLocationAndName(std::filesystem::path input){
+	if(!input.has_parent_path()){
+		Logger::error("[File] '{}' does not have a parent path", input.string());
+		return;
+	}
+	if(!input.has_filename()){
+		Logger::error("[File] '{}' does not have a file name", input.string());
+		return;
+	}
+	filePath = input;
+}
+ 
+
+bool Legato::FileComponent::serialize(){
+	
+	tinyxml2::XMLDocument xmlDocument;
+	xmlElement = xmlDocument.NewElement(identifier.c_str());
+	xmlDocument.InsertEndChild(xmlElement);
+	
+	onSerialization();
+	for(auto child : childComponents) child->serialize();
+	
+	tinyxml2::XMLError result = xmlDocument.SaveFile(filePath.c_str());
+	switch(result){
+		case tinyxml2::XMLError::XML_SUCCESS:
+			Logger::debug("[File] Successfully saved file '{}'", filePath.string());
+			return true;
+		case tinyxml2::XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
+			Logger::error("[File] Failed to write file '{}' : Invalid file path", filePath.string());
+			return false;
+		default:
+			Logger::error("[File] Failed to write file '{}' : File could not be written", filePath.string());
+			return false;
+	}
+	
+	return true;
+}
+
+bool Legato::FileComponent::deserialize(){
+	tinyxml2::XMLDocument xmlDocument;
+	tinyxml2::XMLError result = xmlDocument.LoadFile(filePath.c_str());
+	switch(result){
+		case tinyxml2::XMLError::XML_SUCCESS:
+			break;
+		case tinyxml2::XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
+			Logger::error("[File] Failed to read file '{}' : Invalid file path", filePath.string());
+			return false;
+		case tinyxml2::XMLError::XML_ERROR_FILE_NOT_FOUND:
+			Logger::error("[File] Failed to read file '{}' : File not found", filePath.string());
+			return false;
+		case tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR:
+			Logger::error("[File] Failed to read file '{}' : Error reading file", filePath.string());
+			return false;
+		case tinyxml2::XMLError::XML_ERROR_EMPTY_DOCUMENT:
+			Logger::error("[File] Failed to read file '{}' : Empty document", filePath.string());
+			return false;
+		default:
+			Logger::warn("[File] Failed to read file '{}' : XMLError code {}", filePath.string(), result);
+			return false;
+	}
+	
+	xmlElement = xmlDocument.FirstChildElement(identifier.c_str());
+	if(xmlElement == nullptr){
+		Logger::warn("[File] Failed to read file '{}' : Could not find root element <{}>", filePath.string(), identifier);
+		return false;
+	}
+	
+	onDeserialization();
+	for(auto child : childComponents) child->deserialize();
+	onPostLoad();
+		
+	Logger::debug("Successfully read file '{}'", filePath.string());
+	return true;
+}
+*/
+ 
+
+bool Legato::Project::serialize(){
+	
+}
+
+bool Legato::Project::deserialize(){
+	
+}
