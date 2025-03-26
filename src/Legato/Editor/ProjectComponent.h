@@ -39,7 +39,8 @@ namespace Legato{
 
 	bool sanitizeXmlIdentifier(const std::string input, std::string& output);
 
-	class FileComponent;
+	class File;
+	class Directory;
 	class Project;
 
 	class Component : public std::enable_shared_from_this<Component>{
@@ -48,23 +49,24 @@ namespace Legato{
 		template<typename T>
 		friend class ListComponent;
 		
-		virtual void addChild(Ptr<Component> child){
-			if(child == nullptr) return;
-			childComponents.push_back(child);
-			child->parentComponent = shared_from_this();
-			child->parentFile = parentFile;
-			child->parentProject = parentProject;
-		}
+		friend class File;
+		friend class Directory;
+		friend class Project;
+		
+		virtual void addChild(Ptr<Component> child);
+		const std::vector<Ptr<Component>>& getChildren(){ return childComponents; }
 		
 		void setIdentifier(std::string input);
+		std::string getIdentifier(){ return identifier; }
 		virtual bool serialize();
 		virtual bool deserialize();
 		
 		template<typename T>
 		Ptr<T> cast(){ return std::dynamic_pointer_cast<T>(shared_from_this()); }
 		
-	protected:
 		virtual std::string getClassName() = 0;
+		
+	protected:
 		Ptr<Component> duplicateComponent();
 		virtual void onConstruction(){}
 		virtual void copyFrom(Ptr<Component> source){}
@@ -85,7 +87,8 @@ namespace Legato{
 		Ptr<Component> parentComponent = nullptr;
 		std::vector<Ptr<Component>> childComponents = {};
 		Ptr<Project> parentProject = nullptr;
-		Ptr<FileComponent> parentFile = nullptr;
+		Ptr<Directory> parentDirectory = nullptr;
+		Ptr<File> parentFile = nullptr;
 		
 	private:
 		virtual Ptr<Component> instanciateComponent() = 0;
@@ -97,27 +100,38 @@ namespace Legato{
 	};
 
 
-	class FileComponent : public Component{
-		COMPONENT_INTERFACE(FileComponent)
+	class File : public Component{
+		COMPONENT_INTERFACE(File)
 	public:
 		
-		//void setFileName(std::string input);
-		//void setFileLocation(std::filesystem::path input);
-		//void setFileLocationAndName(std::filesystem::path input);
-
+		void setFileName(std::filesystem::path input);
 		
 		virtual bool serialize() override;
 		virtual bool deserialize() override;
 		
+		std::filesystem::path getFileName(){ return fileName; }
+		std::filesystem::path getPath();
+		
 	private:
-		bool b_hasRelativePath = false;
-		std::filesystem::path absoluteFilePath;
-		std::filesystem::path relativeFilePath;
-		std::string fileName;
+		std::filesystem::path fileName;
 	};
 
 
-	class Project : public Component{
+	class Directory : public Component{
+		COMPONENT_IMPLEMENTATION(Directory)
+	public:
+		void setPath(std::filesystem::path input);
+		std::filesystem::path getDirectory(){ return directoryName; }
+		std::filesystem::path getPath();
+	protected:
+		virtual bool serialize() override;
+		virtual bool deserialize() override;
+	private:
+		std::filesystem::path directoryName;
+	};
+
+
+	class Project : public Directory{
 		COMPONENT_INTERFACE(Project)
 	public:
 		virtual bool serialize() override;

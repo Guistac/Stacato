@@ -31,10 +31,116 @@
 #include "Legato/Application.h"
 #include "Stacato/StacatoEditor.h"
 
+
+
+
+#include "Legato/Editor/ProjectComponent.h"
+
+class InterfaceThing : public Legato::Component{
+	COMPONENT_INTERFACE(InterfaceThing)
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		Component::copyFrom(source);
+	}
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		return true;
+	}
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		return true;
+	}
+};
+
+ 
+class ChildThing : public Legato::Component{
+	COMPONENT_IMPLEMENTATION(ChildThing)
+	virtual void onConstruction() override {
+		Component::onConstruction();
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		Component::copyFrom(source);
+		auto src = source->cast<ChildThing>();
+		value = src->value;
+	}
+	virtual bool onSerialization() override {
+		Component::onSerialization();
+		return true;
+	}
+	virtual bool onDeserialization() override {
+		Component::onDeserialization();
+		return true;
+	}
+public:
+	int value = 0;
+};
+
+
+class RealThing : public InterfaceThing{
+	COMPONENT_IMPLEMENTATION(RealThing)
+	
+	virtual void onConstruction() override {
+		InterfaceThing::onConstruction();
+		childThing = ChildThing::make();
+		addChild(childThing);
+	}
+	virtual void copyFrom(Ptr<Component> source) override {
+		InterfaceThing::copyFrom(source);
+	}
+	virtual bool onSerialization() override {
+		return InterfaceThing::onSerialization();
+	}
+	virtual bool onDeserialization() override {
+		return InterfaceThing::onDeserialization();
+	}
+public:
+	Ptr<ChildThing> childThing;
+	
+};
+
+class ProjectThing : public Legato::Project{
+	COMPONENT_IMPLEMENTATION(ProjectThing)
+public:
+	
+};
+
+class FileThing : public Legato::File{
+	COMPONENT_IMPLEMENTATION(FileThing)
+public:
+};
+
+void drawChildren(Ptr<Legato::Component> parent){
+	std::string displayString;
+	std::string completePath;
+	bool b_file = false;
+	if(auto project = parent->cast<Legato::Project>()){
+		displayString = "[Project:" + project->getClassName() + "] dir=" + project->getDirectory().string();
+	}
+	else if(auto directory = parent->cast<Legato::Directory>()){
+		displayString = "[Directory] dir=" + directory->getDirectory().string();
+	}
+	else if(auto file = parent->cast<Legato::File>()){
+		displayString = "[File:" + file->getClassName() + "] dir=" + file->getFileName().string() + " <" + file->getIdentifier() + ">";
+		completePath = file->getPath();
+		b_file = true;
+	}
+	else{
+		displayString = "[" + parent->getClassName() + "] <" + parent->getIdentifier() + ">";
+	}
+	if(ImGui::TreeNode(displayString.c_str())){
+		if(b_file) ImGui::Text("Complete Path : %s", completePath.c_str());
+		for(auto child : parent->getChildren()) drawChildren(child);
+		ImGui::TreePop();
+	}
+}
+
 namespace Stacato::Gui {
 
 	void menuBar() {
-
+		
+		
 		auto currentProject = Stacato::Editor::getCurrentProject();
 		
 
@@ -420,6 +526,45 @@ namespace Stacato::Gui {
 				ImGui::EndMenu();
 			}
 		}
+		
+		
+		
+		
+		ImGui::SameLine();
+		if(ImGui::Button("Test")) ImGui::OpenPopup("Testing");
+		if(ImGui::BeginPopup("Testing")){
+			static bool b_testInit = false;
+			static Ptr<ProjectThing> proj = ProjectThing::make();
+			if(!b_testInit){
+				b_testInit = true;
+				proj = ProjectThing::make();
+				proj->setPath("LegatoTestProject.stacato");
+				auto dir1 = Legato::Directory::make();
+				dir1->setPath("folder1");
+				auto dir2 = Legato::Directory::make();
+				dir2->setPath("folder2");
+				proj->addChild(dir1);
+				proj->addChild(dir2);
+				auto file1 = FileThing::make();
+				file1->setFileName("test.file");
+				dir1->addChild(file1);
+				auto rt = RealThing::make();
+				file1->addChild(rt);
+			}
+			drawChildren(proj);
+			
+			if(ImGui::Button("Serialize")) {
+				proj->serialize();
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("Deserialize")) {
+				proj->deserialize();
+			}
+			
+			ImGui::EndPopup();
+		}
+		
+		
 		ImGui::EndMenuBar();
 		
 		if(ImGui::IsKeyDown(ImGuiKey_UpArrow) &&
@@ -433,6 +578,8 @@ namespace Stacato::Gui {
 		if (imguiDemoWindowOpen) ImGui::ShowDemoWindow(&imguiDemoWindowOpen);
 		if (imguiMetricsWindowOpen) ImGui::ShowMetricsWindow(&imguiMetricsWindowOpen);
 		if (implotDemoWindowOpen) ImPlot::ShowDemoWindow(&implotDemoWindowOpen);
+		
+	
 
 	}
 

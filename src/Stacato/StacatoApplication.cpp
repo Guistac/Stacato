@@ -65,23 +65,6 @@ bool initialize(std::filesystem::path launchPath){
 		#endif
 	}
 	
-	auto rt = RealThing::make();
-	rt->childThing->value = 5;
-	auto rt2 = rt->duplicate();
-	std::string test = rt->getClassName();
-	std::string test2 = rt->childThing->getClassName();
-	rt->setIdentifier("Testing");
-	rt->setIdentifier("Testing stuff");
-	rt->setIdentifier("123Testing");
-	rt->setIdentifier("xmlTesting");
-	rt->setIdentifier("XMLTesting");
-	rt->setIdentifier("Testing.stuff");
-	rt->setIdentifier("Testing/stuff");
-	rt->setIdentifier("Testing:stuff");
-	rt->setIdentifier("TestingÆstuff");
-	rt->setIdentifier("   ");
-	rt->setIdentifier("ç!è");
-
 	return true;
 }
 

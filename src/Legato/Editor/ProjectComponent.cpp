@@ -49,6 +49,29 @@ void Legato::Component::setIdentifier(std::string input){
 	}
 }
 
+
+void Legato::Component::addChild(Ptr<Component> child){
+	if(child == nullptr) return;
+	childComponents.push_back(child);
+	child->parentComponent = shared_from_this();
+	
+	if(auto thisFile = std::dynamic_pointer_cast<File>(shared_from_this())){
+		child->parentFile = thisFile;
+	}
+	else child->parentFile = parentFile;
+	
+	if(auto thisDirectory = std::dynamic_pointer_cast<Directory>(shared_from_this())){
+		child->parentDirectory = thisDirectory;
+	}
+	else child->parentDirectory = parentDirectory;
+	
+	if(auto thisProject = std::dynamic_pointer_cast<Project>(shared_from_this())){
+		child->parentProject = thisProject;
+	}
+	else child->parentProject = parentProject;
+}
+
+
 bool Legato::Component::serialize(){
 	if(identifier.empty()){
 		Logger::error("Could not save element <{}> : no entry identifier provided", identifier);
@@ -203,48 +226,31 @@ Ptr<Legato::Component> Legato::Component::duplicateComponent(){
 
 
 
-/*
-void Legato::FileComponent::setFileName(std::string input){
-	std::filesystem::path inputPath = input;
-	if(!inputPath.has_filename()) {
-		Logger::error("[File] '{}' does not contain a filename", input);
+
+void Legato::File::setFileName(std::filesystem::path input){
+	if(!input.has_filename()) {
+		Logger::error("[File] '{}' does not contain a filename", input.string());
 		return;
 	}
+	fileName = input;
+}
+
+std::filesystem::path Legato::File::getPath(){
+	std::filesystem::path completePath = fileName;
+	Ptr<Directory> nextDir = parentDirectory;
+	while(nextDir){
+		completePath = nextDir->getDirectory() / completePath;
+		nextDir = nextDir->parentDirectory;
+	}
+	return completePath;
+}
+
+bool Legato::File::serialize(){
 	
-	if(inputPath.has_parent_path()){
-		Logger::warn("[File] '{}' is not a file name, removing parent path", input);
-		fileName = inputPath.filename().string();
-	}
-	else fileName = input;
-
-	if(filePath.has_filename()) filePath = filePath.parent_path() / fileName;
-	else filePath = filePath / fileName;
-}
-void Legato::FileComponent::setFileLocation(std::filesystem::path input){
-	if(!input.has_parent_path()){
-		Logger::error("[File] '{}' does not contain a path", input.string());
+	if(!fileName.has_filename()) {
+		Logger::error("[File] Cannot serialize, "" is not a filename", fileName.string());
 		return;
 	}
-	if(input.has_filename()){
-		Logger::warn("[File] '{}' is not a directory, removing file name", input.string());
-		filePath = input.parent_path() / fileName;
-	}
-	filePath = filePath / fileName;
-}
-void Legato::FileComponent::setFileLocationAndName(std::filesystem::path input){
-	if(!input.has_parent_path()){
-		Logger::error("[File] '{}' does not have a parent path", input.string());
-		return;
-	}
-	if(!input.has_filename()){
-		Logger::error("[File] '{}' does not have a file name", input.string());
-		return;
-	}
-	filePath = input;
-}
- 
-
-bool Legato::FileComponent::serialize(){
 	
 	tinyxml2::XMLDocument xmlDocument;
 	xmlElement = xmlDocument.NewElement(identifier.c_str());
@@ -253,48 +259,56 @@ bool Legato::FileComponent::serialize(){
 	onSerialization();
 	for(auto child : childComponents) child->serialize();
 	
-	tinyxml2::XMLError result = xmlDocument.SaveFile(filePath.c_str());
+	std::filesystem::path completePath = getPath();
+	tinyxml2::XMLError result = xmlDocument.SaveFile(completePath.c_str());
 	switch(result){
 		case tinyxml2::XMLError::XML_SUCCESS:
-			Logger::debug("[File] Successfully saved file '{}'", filePath.string());
+			Logger::debug("[File] Successfully saved file '{}'", completePath.c_str());
 			return true;
 		case tinyxml2::XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
-			Logger::error("[File] Failed to write file '{}' : Invalid file path", filePath.string());
+			Logger::error("[File] Failed to write file '{}' : Invalid file path", completePath.c_str());
 			return false;
 		default:
-			Logger::error("[File] Failed to write file '{}' : File could not be written", filePath.string());
+			Logger::error("[File] Failed to write file '{}' : File could not be written", completePath.c_str());
 			return false;
 	}
 	
 	return true;
 }
 
-bool Legato::FileComponent::deserialize(){
+bool Legato::File::deserialize(){
+	
+	if(!fileName.has_filename()) {
+		Logger::error("[File] Cannot deserialize, "" is not a filename", fileName.string());
+		return;
+	}
+	
+	std::filesystem::path completePath = getPath();
 	tinyxml2::XMLDocument xmlDocument;
-	tinyxml2::XMLError result = xmlDocument.LoadFile(filePath.c_str());
+	tinyxml2::XMLError result = xmlDocument.LoadFile(completePath.c_str());
 	switch(result){
 		case tinyxml2::XMLError::XML_SUCCESS:
 			break;
 		case tinyxml2::XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
-			Logger::error("[File] Failed to read file '{}' : Invalid file path", filePath.string());
+			Logger::error("[File] Failed to read file '{}' : Invalid file path", completePath.string());
 			return false;
 		case tinyxml2::XMLError::XML_ERROR_FILE_NOT_FOUND:
-			Logger::error("[File] Failed to read file '{}' : File not found", filePath.string());
+			Logger::error("[File] Failed to read file '{}' : File not found", completePath.string());
 			return false;
 		case tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR:
-			Logger::error("[File] Failed to read file '{}' : Error reading file", filePath.string());
+			Logger::error("[File] Failed to read file '{}' : Error reading file", completePath.string());
 			return false;
 		case tinyxml2::XMLError::XML_ERROR_EMPTY_DOCUMENT:
-			Logger::error("[File] Failed to read file '{}' : Empty document", filePath.string());
+			Logger::error("[File] Failed to read file '{}' : Empty document", completePath.string());
 			return false;
 		default:
-			Logger::warn("[File] Failed to read file '{}' : XMLError code {}", filePath.string(), result);
+			Logger::warn("[File] Failed to read file '{}' : XMLError code {}", completePath.string(), result);
 			return false;
 	}
 	
 	xmlElement = xmlDocument.FirstChildElement(identifier.c_str());
 	if(xmlElement == nullptr){
-		Logger::warn("[File] Failed to read file '{}' : Could not find root element <{}>", filePath.string(), identifier);
+		Logger::warn("[File] Failed to read file '{}' : Could not find root element <{}>", completePath.string(), identifier);
 		return false;
 	}
 	
@@ -302,16 +316,77 @@ bool Legato::FileComponent::deserialize(){
 	for(auto child : childComponents) child->deserialize();
 	onPostLoad();
 		
-	Logger::debug("Successfully read file '{}'", filePath.string());
+	Logger::debug("Successfully read file '{}'", completePath.string());
 	return true;
 }
-*/
  
 
-bool Legato::Project::serialize(){
+void Legato::Directory::setPath(std::filesystem::path input){
+	if(input.empty()){
+		Logger::error("[Directory] path is empty");
+		return;
+	}
+	directoryName = input;
+}
+
+std::filesystem::path Legato::Directory::getPath(){
+	std::filesystem::path completePath = directoryName;
+	Ptr<Directory> nextDir = parentDirectory;
+	while(nextDir){
+		completePath = nextDir->getDirectory() / completePath;
+		nextDir = nextDir->parentDirectory;
+	}
+	return completePath;
+}
+
+bool Legato::Directory::serialize(){
+	std::filesystem::path completePath = getPath();
+	if(!std::filesystem::exists(completePath)){
+		Logger::debug("[Directory] creating {}", completePath.string());
+		std::filesystem::create_directory(completePath);
+	}
 	
+	for(auto child : getChildren()){
+		child->serialize();
+	}
+	
+	return true;
+}
+
+bool Legato::Directory::deserialize(){
+	std::filesystem::path completePath = getPath();
+	if(!std::filesystem::exists(completePath)){
+		Logger::error("[Directory] Could not load, directory does not exists: {}", completePath.string());
+		return false;
+	}
+	
+	for(auto child : getChildren()){
+		child->deserialize();
+	}
+}
+
+bool Legato::Project::serialize(){
+	std::filesystem::path completePath = getPath();
+	if(!std::filesystem::exists(completePath)){
+		Logger::debug("[Project] creating {}", completePath.string());
+		std::filesystem::create_directory(completePath);
+	}
+	
+	for(auto child : getChildren()){
+		child->serialize();
+	}
+	
+	return true;
 }
 
 bool Legato::Project::deserialize(){
+	std::filesystem::path completePath = getPath();
+	if(!std::filesystem::exists(completePath)){
+		Logger::error("[Project] Could not load, directory does not exists: {}", completePath.string());
+		return false;
+	}
 	
+	for(auto child : getChildren()){
+		child->deserialize();
+	}
 }
