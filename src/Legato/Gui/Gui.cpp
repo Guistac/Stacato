@@ -193,7 +193,7 @@ namespace Legato::Gui{
 		ImGui_ImplOpenGL3_Init(OPENGL_VERSION_STRING);
 
 		std::string path = std::filesystem::current_path().string();
-		Logger::warn("Current Path: {}", path);
+		Logger::debug("Current Path: {}", path);
 
 		//user gui initialization
 		userInitializationFunction();

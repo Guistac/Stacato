@@ -358,11 +358,11 @@ namespace EtherCatFieldbus {
 		std::vector<std::shared_ptr<NetworkInterfaceCard>> detectedNics;
 		getDetectedNetworkInterfaceCards(detectedNics);
 		
-		Logger::info("Found {} Network Interface Card{}", detectedNics.size(), detectedNics.size() == 1 ? "" : "s");
+		Logger::debug("Found {} Network Interface Card{}", detectedNics.size(), detectedNics.size() == 1 ? "" : "s");
 		for (auto& nic : detectedNics) Logger::debug("    = {} (ID: {})", nic->description, nic->name);
 		
 		//check all nics for EtherCAT slave responses
-		Logger::info("Scanning all Network Interface Cards for EtherCAT slaves.");
+		Logger::debug("Scanning all Network Interface Cards for EtherCAT slaves.");
 		std::vector<std::shared_ptr<NetworkInterfaceCard>> nicsWithDetectedSlaves = {};
 		for(auto nic : detectedNics){
 			if(ec_init(nic->name) > 0){
@@ -392,7 +392,7 @@ namespace EtherCatFieldbus {
 		
 		if(nicsWithDetectedSlaves.empty()){
 			//no slave on any nic
-			Logger::warn("No Slaves detected on any Network Interface Card");
+			Logger::warn("No EtherCAT devices detected");
 			startupProgress.setFailure("No EtherCAT slaves found.");
 			b_networkInitializing = false;
 			return false;

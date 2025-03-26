@@ -142,7 +142,7 @@ namespace Application{
 			Logger::info("[Application] Application was launched with file path {}", applicationLaunchFilePath.string());
 		}else{
 			if(Workspace::getLastLoadedFilePath(applicationLaunchFilePath)){
-				Logger::info("Found last loaded file: {}", applicationLaunchFilePath.string());
+				Logger::debug("Found last loaded file: {}", applicationLaunchFilePath.string());
 			}else Logger::info("Could not find last opened file");
 		}
 

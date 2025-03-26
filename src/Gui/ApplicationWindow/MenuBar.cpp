@@ -122,6 +122,8 @@ void drawChildren(Ptr<Legato::Component> parent){
 
 	if(auto project = parent->cast<Legato::Project>()){
 		displayString = "[Project:" + project->getClassName() + "] dir=" + project->getDirectoryName().string();
+		completePath = project->getPath();
+		b_file = true;
 	}
 	else if(auto directory = parent->cast<Legato::Directory>()){
 		displayString = "[Directory] " + directory->getDirectoryName().string() + "/";

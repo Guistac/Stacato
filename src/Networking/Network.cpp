@@ -13,10 +13,10 @@ void init() {
 		//pthread_setname_np("Asio Network Thread");
 		asio::io_context::work dummyWork(io_context);
 		b_initialized = true;
-		Logger::info("===== Started IP Network IO Context");
+		Logger::debug("===== Started IP Network IO Context");
 		io_context.run();
 		b_initialized = false;
-		Logger::info("===== Stopped IP Network IO Context");
+		Logger::debug("===== Stopped IP Network IO Context");
 	});
 }
 
