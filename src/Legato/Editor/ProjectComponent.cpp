@@ -132,19 +132,32 @@ bool Legato::Component::checkAttributeSerializationError(std::string& ID){
 	return false;
 }
 
-bool Legato::Component::serializeAttribute(std::string ID, int data){
+
+bool Legato::Component::serializeBoolAttribute(std::string ID, bool data){
 	if(checkAttributeSerializationError(ID)) return false;
 	xmlElement->SetAttribute(ID.c_str(), data);
 	return true;
 }
 
-bool Legato::Component::serializeAttribute(std::string ID, double data){
+bool Legato::Component::serializeIntAttribute(std::string ID, int data){
 	if(checkAttributeSerializationError(ID)) return false;
 	xmlElement->SetAttribute(ID.c_str(), data);
 	return true;
 }
 
-bool Legato::Component::serializeAttribute(std::string ID, const std::string& data){
+bool Legato::Component::serializeLongAttribute(std::string ID, long long data){
+	if(checkAttributeSerializationError(ID)) return false;
+	xmlElement->SetAttribute(ID.c_str(), data);
+	return true;
+}
+
+bool Legato::Component::serializeDoubleAttribute(std::string ID, double data){
+	if(checkAttributeSerializationError(ID)) return false;
+	xmlElement->SetAttribute(ID.c_str(), data);
+	return true;
+}
+
+bool Legato::Component::serializeStringAttribute(std::string ID, const std::string& data){
 	if(checkAttributeSerializationError(ID)) return false;
 	xmlElement->SetAttribute(ID.c_str(), data.c_str());
 	return true;
@@ -185,19 +198,32 @@ bool Legato::Component::checkAttributeDeserializationResult(int result, std::str
 	}
 }
 
-bool Legato::Component::deserializeAttribute(std::string ID, int& data){
+
+bool Legato::Component::deserializeBoolAttribute(std::string ID, bool& data){
+	if(checkAttributeDeserializationError(ID)) return false;
+	tinyxml2::XMLError result = xmlElement->QueryBoolAttribute(ID.c_str(), &data);
+	return checkAttributeDeserializationResult(result, ID);
+}
+
+bool Legato::Component::deserializeIntAttribute(std::string ID, int& data){
 	if(checkAttributeDeserializationError(ID)) return false;
 	tinyxml2::XMLError result = xmlElement->QueryIntAttribute(ID.c_str(), &data);
 	return checkAttributeDeserializationResult(result, ID);
 }
 
-bool Legato::Component::deserializeAttribute(std::string ID, double& data){
+bool Legato::Component::deserializeLongAttribute(std::string ID, long long& data){
+	if(checkAttributeDeserializationError(ID)) return false;
+	tinyxml2::XMLError result = xmlElement->QueryInt64Attribute(ID.c_str(), &data);
+	return checkAttributeDeserializationResult(result, ID);
+}
+
+bool Legato::Component::deserializeDoubleAttribute(std::string ID, double& data){
 	if(checkAttributeDeserializationError(ID)) return false;
 	tinyxml2::XMLError result = xmlElement->QueryDoubleAttribute(ID.c_str(), &data);
 	return checkAttributeDeserializationResult(result, ID);
 }
 
-bool Legato::Component::deserializeAttribute(std::string ID, std::string& data){
+bool Legato::Component::deserializeStringAttribute(std::string ID, std::string& data){
 	if(checkAttributeDeserializationError(ID)) return false;
 	const char* buffer;
 	tinyxml2::XMLError result = xmlElement->QueryStringAttribute(ID.c_str(), &buffer);

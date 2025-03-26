@@ -91,12 +91,16 @@ namespace Legato{
 		virtual bool onDeserialization(){ return true; }
 		virtual void onPostLoad(){ return true; }
 		
-		bool serializeAttribute(const std::string attributeSaveString, int data);
-		bool serializeAttribute(const std::string attributeSaveString, double data);
-		bool serializeAttribute(const std::string attributeSaveString, const std::string& data);
-		bool deserializeAttribute(const std::string idString, int& data);
-		bool deserializeAttribute(const std::string idString, double& data);
-		bool deserializeAttribute(const std::string idString, std::string& data);
+		bool serializeBoolAttribute(const std::string idString, bool data);
+		bool serializeIntAttribute(const std::string idString, int data);
+		bool serializeLongAttribute(const std::string idString, long long data);
+		bool serializeDoubleAttribute(const std::string idString, double data);
+		bool serializeStringAttribute(const std::string idString, const std::string& data);
+		bool deserializeBoolAttribute(const std::string idString, bool& data);
+		bool deserializeIntAttribute(const std::string idString, int& data);
+		bool deserializeLongAttribute(const std::string idString, long long& data);
+		bool deserializeDoubleAttribute(const std::string idString, double& data);
+		bool deserializeStringAttribute(const std::string idString, std::string& data);
 		
 		void addChildDependencies(Ptr<Component> child);
 		

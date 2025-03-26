@@ -68,13 +68,13 @@ class ChildThing : public Legato::Component{
 	}
 	virtual bool onSerialization() override {
 		Component::onSerialization();
-		serializeAttribute("Attrib1", 1234);
+		serializeIntAttribute("Attrib1", 1234);
 		return true;
 	}
 	virtual bool onDeserialization() override {
 		Component::onDeserialization();
 		int result;
-		deserializeAttribute("Attrib1", result);
+		deserializeIntAttribute("Attrib1", result);
 		return true;
 	}
 public:
