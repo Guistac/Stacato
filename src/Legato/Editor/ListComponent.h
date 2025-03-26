@@ -8,20 +8,37 @@ namespace Legato{
 	template<typename T>
 	class ListComponent : public Component{
 		
-		COMPONENT_IMPLEMENTATION(ListComponent)
+		//ALL OF THIS REPLACES THE MACRO COMPONENT_IMPLEMENTATION()
+		//we can't declare addChild() here as public gere since we don't want users to call it on a list
+		//instead forcing them to use addEntry()
+		public:
+			Ptr<ListComponent<T>> duplicate(){
+				Ptr<Component> componentCopy = duplicateComponent();
+				return std::static_pointer_cast<ListComponent<T>>(componentCopy);
+			}
+			static std::string getStaticClassName(){ return "ListComponent"; }
+			static Ptr<ListComponent> make(){
+				auto newInstance = Ptr<ListComponent<T>>(new ListComponent<T>());
+				newInstance->onConstruction();
+				return newInstance;
+			}
+			static std::shared_ptr<ListComponent> make(std::string ID, std::string entryID){
+				auto newInstance = make();
+				newInstance->setIdentifier(ID);
+				newInstance->setEntryIdentifier(entryID);
+				return newInstance;
+			}
+			std::string getClassName() override { return "ListComponent"; }
+		protected:
+			ListComponent() = default;
+		private:
+			virtual Ptr<Component> instanciateComponent() override{
+				return make();
+			}
+		//MACRO END
+			
 		
 	public:
-		static std::shared_ptr<ListComponent> make(std::string ID, std::string entryID){
-			auto newInstance = make();
-			newInstance->setIdentifier(ID);
-			newInstance->setEntryIdentifier(entryID);
-			return newInstance;
-		}
-		
-		void addChild(Ptr<Component> child) override{
-			Logger::critical("<{}> Cannot add children to listComponent, use addEntry()", identifier);
-		}
-		
 		//this was suggested by chatGPT to make sure we only create lists templated with serializable elements
 		static_assert(std::is_base_of<Component, T>::value, "Templated type must be derived from Component since the elements in the list must be saved and loaded");
 		

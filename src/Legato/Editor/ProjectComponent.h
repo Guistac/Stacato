@@ -2,6 +2,7 @@
 
 #define COMPONENT_INTERFACE(Typename)									\
 public:																	\
+	using Component::addChild;											\
 	Ptr<Typename> duplicate(){											\
 		Ptr<Component> componentCopy = duplicateComponent();			\
 		return std::static_pointer_cast<Typename>(componentCopy);		\
@@ -52,7 +53,6 @@ namespace Legato{
 		friend class Directory;
 		friend class Project;
 		
-		virtual void addChild(Ptr<Component> child);
 		const std::vector<Ptr<Component>>& getChildren(){ return childComponents; }
 		bool hasChildren(){ return !childComponents.empty(); }
 		
@@ -92,6 +92,8 @@ namespace Legato{
 		Ptr<Directory> parentDirectory = nullptr;
 		Ptr<File> parentFile = nullptr;
 		
+		virtual void addChild(Ptr<Component> child);
+		
 	private:
 		virtual Ptr<Component> instanciateComponent() = 0;
 		
@@ -124,6 +126,11 @@ namespace Legato{
 		COMPONENT_IMPLEMENTATION(Directory)
 		friend class Project;
 	public:
+		static Ptr<Directory> make(std::filesystem::path directoryName_){
+			auto newInstance = make();
+			newInstance->setPath(directoryName_);
+			return newInstance;
+		}
 		void setPath(std::filesystem::path input);
 		std::filesystem::path getDirectoryName(){ return directoryName; }
 		std::filesystem::path getPath();

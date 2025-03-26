@@ -556,8 +556,8 @@ namespace Stacato::Gui {
 				b_testInit = true;
 				proj = ProjectThing::make();
 				proj->setPath("LegatoTestProject.stacato");
-				auto dir1 = Legato::Directory::make();
-				dir1->setPath("folder1");
+				
+				auto dir1 = Legato::Directory::make("folder1");
 				proj->addChild(dir1);
 				auto file1 = FileThing::make();
 				file1->setFileName("test.file");
@@ -565,8 +565,7 @@ namespace Stacato::Gui {
 				auto rt = RealThing::make();
 				file1->addChild(rt);
 				
-				auto dir2 = Legato::Directory::make();
-				dir2->setPath("folder2");
+				auto dir2 = Legato::Directory::make("folder2");
 				proj->addChild(dir2);
 				auto file2 = FileThing::make();
 				file2->setFileName("ListFile.test");
