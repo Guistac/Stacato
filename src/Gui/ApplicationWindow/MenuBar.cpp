@@ -68,10 +68,13 @@ class ChildThing : public Legato::Component{
 	}
 	virtual bool onSerialization() override {
 		Component::onSerialization();
+		serializeAttribute("Attrib1", 1234);
 		return true;
 	}
 	virtual bool onDeserialization() override {
 		Component::onDeserialization();
+		int result;
+		deserializeAttribute("Attrib1", result);
 		return true;
 	}
 public:
@@ -570,7 +573,7 @@ namespace Stacato::Gui {
 				auto file2 = FileThing::make();
 				file2->setFileName("ListFile.test");
 				dir2->addChild(file2);
-				auto realList = Legato::ListComponent<RealThing>::make("ThingList", "ReaaaalThinnnnng");
+				auto realList = Legato::List<RealThing>::make("ThingList", "ReaaaalThinnnnng");
 				file2->addChild(realList);
 				realList->addEntry(RealThing::make());
 				realList->addEntry(RealThing::make());

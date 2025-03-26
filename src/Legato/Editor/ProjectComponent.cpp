@@ -117,18 +117,19 @@ bool Legato::Component::deserialize(){
 bool Legato::Component::checkAttributeSerializationError(std::string& ID){
 	if(xmlElement == nullptr){
 		Logger::error("Could not save attribute '{}', element <{}> was not serialized first", ID, identifier);
-		return false;
+		return true;
 	}
 	if(ID.empty()){
 		Logger::error("Coud not save attribute of element <{}> : identifier string empty", identifier);
-		return false;
+		return true;
 	}
 	std::string sanitizedID;
 	if(sanitizeXmlIdentifier(ID, sanitizedID)){
 		Logger::warn("Invalid Attribute identifier '{}' of element <{}> was sanitized to '{}'", ID, identifier, sanitizedID);
 		ID = sanitizedID;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool Legato::Component::serializeAttribute(std::string ID, int data){

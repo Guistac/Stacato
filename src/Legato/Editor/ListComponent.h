@@ -6,51 +6,44 @@
 namespace Legato{
 
 	template<typename T>
-	class ListComponent : public Component{
-		
-		//ALL OF THIS REPLACES THE MACRO COMPONENT_IMPLEMENTATION()
-		//we can't declare addChild() here as public gere since we don't want users to call it on a list
-		//instead forcing them to use addEntry()
-		public:
-			Ptr<ListComponent<T>> duplicate(){
-				Ptr<Component> componentCopy = duplicateComponent();
-				return std::static_pointer_cast<ListComponent<T>>(componentCopy);
-			}
-			static std::string getStaticClassName(){ return "ListComponent"; }
-			static Ptr<ListComponent> make(){
-				auto newInstance = Ptr<ListComponent<T>>(new ListComponent<T>());
-				newInstance->onConstruction();
-				return newInstance;
-			}
-			static std::shared_ptr<ListComponent> make(std::string ID, std::string entryID){
-				auto newInstance = make();
-				newInstance->setIdentifier(ID);
-				newInstance->setEntryIdentifier(entryID);
-				return newInstance;
-			}
-			std::string getClassName() override { return "ListComponent"; }
-		protected:
-			ListComponent() = default;
-		private:
-			virtual Ptr<Component> instanciateComponent() override{
-				return make();
-			}
-		//MACRO END
-			
+	class List : public Component{
+		COMPONENT_IMPLEMENTATION_NOADDCHILD(List)
 		
 	public:
 		//this was suggested by chatGPT to make sure we only create lists templated with serializable elements
 		static_assert(std::is_base_of<Component, T>::value, "Templated type must be derived from Component since the elements in the list must be saved and loaded");
+		
+		static std::shared_ptr<List> make(std::string ID, std::string entryID){
+			auto newInstance = make();
+			newInstance->setIdentifier(ID);
+			newInstance->setEntryIdentifier(entryID);
+			return newInstance;
+		}
 		
 		void setEntryIdentifier(std::string entryID){
 			if(sanitizeXmlIdentifier(entryID, entryIdentifier)){
 				Logger::error("[{}] invalid list entry identifier '{}' was sanitized to '{}'", getClassName(), entryID, entryIdentifier);
 			}
 		}
+		
 		void setEntryConstructor(std::function<std::shared_ptr<T>(void)> constructor){ entryConstructor = constructor; }
 		
-		int size(){ return 0; }
-		bool hasEntry(Ptr<T> queriedEntry){ return false; }
+		int size(){ childComponents.size(); }
+		
+		bool hasEntry(Ptr<T> queriedEntry){
+			for(auto child : childComponents){
+				if(child == queriedEntry) return true;
+			}
+			return false;
+		}
+		
+		Ptr<T> getEntry(int index){
+			if(index < 0) return nullptr;
+			else if(index > childComponents.size() - 1) return nullptr;
+			Ptr<Component> componentEntry = childComponents[index];
+			return componentEntry->cast<T>();
+		}
+		
 		void addEntry(Ptr<T> newEntry, int index = -1){
 			if(newEntry == nullptr) return;
 			if(index == -1) Component::addChild(newEntry);
@@ -61,13 +54,34 @@ namespace Legato{
 				addChildDependencies(newEntry);
 			}
 		}
-		void removeEntry(Ptr<T> removedEntry){}
-		void moveEntry(Ptr<T> movedEntry, int newIndex){}
-		Ptr<T> getEntry(int index){
-			if(index < 0) return nullptr;
-			else if(index > childComponents.size() - 1) return nullptr;
-			Ptr<Component> componentEntry = childComponents[index];
-			return componentEntry->cast<T>();
+		
+		void removeEntry(Ptr<T> removedEntry){
+			for(int i = 0; i < childComponents.size(); i++){
+				if(i == removedEntry){
+					childComponents.erase(childComponents.begin() + i);
+					return;
+				}
+			}
+		}
+		
+		int getEntryIndex(Ptr<T> entry){
+			for(int i = 0; i < childComponents.size(); i++){
+				if(childComponents[i] == entry) return i;
+			}
+			return -1;
+		}
+		
+		void moveEntry(Ptr<T> movedEntry, int newIndex){
+			int oldIndex = getEntryIndex(movedEntry);
+			if(oldIndex == -1 || newIndex < 0 || newIndex >= childComponents.size() || oldIndex == newIndex) return;
+			moveEntry(oldIndex, newIndex);
+		}
+		
+		void moveEntry(int oldIndex, int newIndex){
+			if(oldIndex < 0 || oldIndex >= childComponents.size() || newIndex < 0 || newIndex >= childComponents.size() || oldIndex == newIndex) return;
+			Ptr<T> temp = childComponents[oldIndex];
+			childComponents.erase(childComponents.begin() + oldIndex);
+			childComponents.insert(childComponents.begin() + newIndex, temp);
 		}
 		
 		//also handle selection ?
@@ -80,7 +94,8 @@ namespace Legato{
 		void onConstruction() override {
 			Component::onConstruction();
 			//Add the default entry constructor so the user doesn't have to add it
-			entryConstructor = [](){ return T::make(); };
+			entryConstructor = []() -> Ptr<T> { return T::make(); };
+			//Also add the default entry constructor
 			entryIdentifier = T::getStaticClassName();
 		};
 		
@@ -119,7 +134,9 @@ namespace Legato{
 				
 				std::shared_ptr<T> loadedEntry = entryConstructor();
 				loadedEntry->xmlElement = entryXML;
-				childComponents.push_back(loadedEntry);
+				Ptr<Component> loadedComponent = std::static_pointer_cast<Component>(loadedEntry);
+				loadedComponent->setIdentifier(entryIdentifier);
+				addChild(loadedEntry);
 				
 				entryXML = entryXML->NextSiblingElement(entryIdentifier.c_str());
 			}

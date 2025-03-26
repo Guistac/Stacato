@@ -1,54 +1,71 @@
 #pragma once
 
-#define COMPONENT_INTERFACE(Typename)									\
-public:																	\
-	using Component::addChild;											\
-	Ptr<Typename> duplicate(){											\
-		Ptr<Component> componentCopy = duplicateComponent();			\
-		return std::static_pointer_cast<Typename>(componentCopy);		\
-	}																	\
-	static std::string getStaticClassName(){ return #Typename; }		\
-protected:																\
-	Typename() = default;												\
+
+#define COMPONENT_INTERFACE_NOADDCHILD(Typename)							\
+public:																		\
+	Ptr<Typename> duplicate(){												\
+		Ptr<Component> componentCopy = duplicateComponent();				\
+		return std::static_pointer_cast<Typename>(componentCopy);			\
+	}																		\
+	static std::string getStaticClassName(){ return #Typename; }			\
+protected:																	\
+	Typename() = default;													\
+	
+
+
+#define COMPONENT_IMPLEMENTATION_NOADDCHILD(Typename)							\
+COMPONENT_INTERFACE_NOADDCHILD(Typename)										\
+public:																			\
+	static Ptr<Typename> make(){												\
+		auto newInstance = Ptr<Typename>(new Typename());						\
+		newInstance->onConstruction();											\
+		return newInstance;														\
+	}																			\
+	std::string getClassName() override { return #Typename; }					\
+private:																		\
+	virtual Ptr<Component> instanciateComponent() override{	return make(); }	\
 
 
 
-#define COMPONENT_IMPLEMENTATION(Typename)								\
-COMPONENT_INTERFACE(Typename)											\
-public:																	\
-	static Ptr<Typename> make(){										\
-		auto newInstance = Ptr<Typename>(new Typename());				\
-		newInstance->onConstruction();									\
-		return newInstance;												\
-	}																	\
-	std::string getClassName() override { return #Typename; }			\
-private:																\
-	virtual Ptr<Component> instanciateComponent() override{				\
-		return make();													\
-	}																	\
+#define COMPONENT_INTERFACE(Typename)		\
+COMPONENT_INTERFACE_NOADDCHILD(Typename)	\
+public:										\
+	using Component::addChild;				\
+
+
+
+#define COMPONENT_IMPLEMENTATION(Typename)		\
+COMPONENT_IMPLEMENTATION_NOADDCHILD(Typename)	\
+public:											\
+	using Component::addChild;					\
 
 
 
 template<typename T>
 using Ptr = std::shared_ptr<T>;
+
+
+//forward declaration
 namespace tinyxml2{ class XMLElement; }
 
 
 
 namespace Legato{
 
+
 	bool sanitizeXmlIdentifier(const std::string input, std::string& output);
+
 
 	class File;
 	class Directory;
 	class Project;
 
+
 	class Component : public std::enable_shared_from_this<Component>{
 	public:
 		
 		template<typename T>
-		friend class ListComponent;
-		
+		friend class List;
 		friend class File;
 		friend class Directory;
 		friend class Project;
@@ -104,6 +121,7 @@ namespace Legato{
 	};
 
 
+
 	class File : public Component{
 		COMPONENT_INTERFACE(File)
 	public:
@@ -120,6 +138,7 @@ namespace Legato{
 	private:
 		std::filesystem::path fileName;
 	};
+
 
 
 	class Directory : public Component{
@@ -140,6 +159,7 @@ namespace Legato{
 	private:
 		std::filesystem::path directoryName;
 	};
+
 
 
 	class Project : public Directory{
