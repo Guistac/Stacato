@@ -34,7 +34,16 @@ namespace Legato{
 		
 		int size(){ return 0; }
 		bool hasEntry(Ptr<T> queriedEntry){ return false; }
-		void addEntry(Ptr<T> newEntry, int index = -1){}
+		void addEntry(Ptr<T> newEntry, int index = -1){
+			if(newEntry == nullptr) return;
+			if(index == -1) Component::addChild(newEntry);
+			else{
+				if(index > childComponents.size()) index = int(childComponents.size());
+				else if(index < 0) index = 0;
+				childComponents.insert(childComponents.begin() + index, newEntry);
+				addChildDependencies(newEntry);
+			}
+		}
 		void removeEntry(Ptr<T> removedEntry){}
 		void moveEntry(Ptr<T> movedEntry, int newIndex){}
 		Ptr<T> getEntry(int index){
@@ -51,7 +60,12 @@ namespace Legato{
 		std::string entryIdentifier = "";
 		std::function<std::shared_ptr<T>(void)> entryConstructor;
 		
-		
+		void onConstruction() override {
+			Component::onConstruction();
+			//Add the default entry constructor so the user doesn't have to add it
+			entryConstructor = [](){ return T::make(); };
+			entryIdentifier = T::getStaticClassName();
+		};
 		
 		bool onSerialization() override {
 			if(entryIdentifier.empty()){
@@ -63,7 +77,7 @@ namespace Legato{
 				return false;
 			}
 			for(auto entry : childComponents){
-				entry->xmlElement = xmlElement->InsertNewChildElement(entryIdentifier.c_str());
+				entry->setIdentifier(entryIdentifier);
 			}
 			return true;
 		}

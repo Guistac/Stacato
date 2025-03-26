@@ -6,6 +6,7 @@ public:																	\
 		Ptr<Component> componentCopy = duplicateComponent();			\
 		return std::static_pointer_cast<Typename>(componentCopy);		\
 	}																	\
+	static std::string getStaticClassName(){ return #Typename; }		\
 protected:																\
 	Typename() = default;												\
 
@@ -19,9 +20,7 @@ public:																	\
 		newInstance->onConstruction();									\
 		return newInstance;												\
 	}																	\
-	std::string getClassName() override {								\
-		return #Typename;												\
-	}																	\
+	std::string getClassName() override { return #Typename; }			\
 private:																\
 	virtual Ptr<Component> instanciateComponent() override{				\
 		return make();													\
@@ -55,6 +54,7 @@ namespace Legato{
 		
 		virtual void addChild(Ptr<Component> child);
 		const std::vector<Ptr<Component>>& getChildren(){ return childComponents; }
+		bool hasChildren(){ return !childComponents.empty(); }
 		
 		void setIdentifier(std::string input);
 		std::string getIdentifier(){ return identifier; }
@@ -68,7 +68,7 @@ namespace Legato{
 		
 	protected:
 		Ptr<Component> duplicateComponent();
-		virtual void onConstruction(){}
+		virtual void onConstruction();
 		virtual void copyFrom(Ptr<Component> source){}
 		virtual bool onSerialization(){ return true; }
 		virtual bool onDeserialization(){ return true; }
@@ -80,6 +80,8 @@ namespace Legato{
 		bool deserializeAttribute(const std::string idString, int& data);
 		bool deserializeAttribute(const std::string idString, double& data);
 		bool deserializeAttribute(const std::string idString, std::string& data);
+		
+		void addChildDependencies(Ptr<Component> child);
 		
 		tinyxml2::XMLElement* xmlElement = nullptr;
 		std::string identifier = "DefaultIdentifier";
@@ -104,6 +106,7 @@ namespace Legato{
 		COMPONENT_INTERFACE(File)
 	public:
 		
+		void onConstruction() override;
 		void setFileName(std::filesystem::path input);
 		
 		virtual bool serialize() override;
@@ -119,9 +122,10 @@ namespace Legato{
 
 	class Directory : public Component{
 		COMPONENT_IMPLEMENTATION(Directory)
+		friend class Project;
 	public:
 		void setPath(std::filesystem::path input);
-		std::filesystem::path getDirectory(){ return directoryName; }
+		std::filesystem::path getDirectoryName(){ return directoryName; }
 		std::filesystem::path getPath();
 	protected:
 		virtual bool serialize() override;

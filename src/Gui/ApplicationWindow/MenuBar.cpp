@@ -35,6 +35,7 @@
 
 
 #include "Legato/Editor/ProjectComponent.h"
+#include "Legato/Editor/ListComponent.h"
 
 class InterfaceThing : public Legato::Component{
 	COMPONENT_INTERFACE(InterfaceThing)
@@ -115,23 +116,39 @@ void drawChildren(Ptr<Legato::Component> parent){
 	std::string displayString;
 	std::string completePath;
 	bool b_file = false;
+
 	if(auto project = parent->cast<Legato::Project>()){
-		displayString = "[Project:" + project->getClassName() + "] dir=" + project->getDirectory().string();
+		displayString = "[Project:" + project->getClassName() + "] dir=" + project->getDirectoryName().string();
 	}
 	else if(auto directory = parent->cast<Legato::Directory>()){
-		displayString = "[Directory] dir=" + directory->getDirectory().string();
+		displayString = "[Directory] " + directory->getDirectoryName().string() + "/";
 	}
 	else if(auto file = parent->cast<Legato::File>()){
-		displayString = "[File:" + file->getClassName() + "] dir=" + file->getFileName().string() + " <" + file->getIdentifier() + ">";
+		displayString = "[File:" + file->getClassName() + "] " + file->getFileName().string() + " <" + file->getIdentifier() + ">";
 		completePath = file->getPath();
 		b_file = true;
 	}
 	else{
 		displayString = "[" + parent->getClassName() + "] <" + parent->getIdentifier() + ">";
 	}
-	if(ImGui::TreeNode(displayString.c_str())){
-		if(b_file) ImGui::Text("Complete Path : %s", completePath.c_str());
-		for(auto child : parent->getChildren()) drawChildren(child);
+	
+	if(parent->hasChildren()){
+		if(ImGui::TreeNode(displayString.c_str())){
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+			if(b_file) ImGui::Text("Complete Path : %s", completePath.c_str());
+			ImGui::PopStyleColor();
+			auto& children = parent->getChildren();
+			for(int i = 0; i < children.size(); i++){
+				ImGui::PushID(i);
+				drawChildren(children[i]);
+				ImGui::PopID();
+			}
+			ImGui::TreePop();
+		}
+	}
+	else {
+		ImGui::TreePush("Tree");
+		ImGui::Text("%s", displayString.c_str());
 		ImGui::TreePop();
 	}
 }
@@ -541,15 +558,25 @@ namespace Stacato::Gui {
 				proj->setPath("LegatoTestProject.stacato");
 				auto dir1 = Legato::Directory::make();
 				dir1->setPath("folder1");
-				auto dir2 = Legato::Directory::make();
-				dir2->setPath("folder2");
 				proj->addChild(dir1);
-				proj->addChild(dir2);
 				auto file1 = FileThing::make();
 				file1->setFileName("test.file");
 				dir1->addChild(file1);
 				auto rt = RealThing::make();
 				file1->addChild(rt);
+				
+				auto dir2 = Legato::Directory::make();
+				dir2->setPath("folder2");
+				proj->addChild(dir2);
+				auto file2 = FileThing::make();
+				file2->setFileName("ListFile.test");
+				dir2->addChild(file2);
+				auto realList = Legato::ListComponent<RealThing>::make("ThingList", "ReaaaalThinnnnng");
+				file2->addChild(realList);
+				realList->addEntry(RealThing::make());
+				realList->addEntry(RealThing::make());
+				realList->addEntry(RealThing::make(),1);
+				
 			}
 			drawChildren(proj);
 			

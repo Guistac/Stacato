@@ -47,14 +47,21 @@ void Legato::Component::setIdentifier(std::string input){
 	if(sanitizeXmlIdentifier(input, identifier)){
 		Logger::warn("[{}] invalid identifier '{}' was sanitized to '{}'", getClassName(), input, identifier);
 	}
+	else identifier = input;
 }
 
+void Legato::Component::onConstruction(){
+	setIdentifier(getClassName());
+}
 
 void Legato::Component::addChild(Ptr<Component> child){
 	if(child == nullptr) return;
+	addChildDependencies(child);
 	childComponents.push_back(child);
+}
+
+void Legato::Component::addChildDependencies(Ptr<Component> child){
 	child->parentComponent = shared_from_this();
-	
 	if(auto thisFile = std::dynamic_pointer_cast<File>(shared_from_this())){
 		child->parentFile = thisFile;
 	}
@@ -226,6 +233,10 @@ Ptr<Legato::Component> Legato::Component::duplicateComponent(){
 
 
 
+void Legato::File::onConstruction(){
+	Component::onConstruction();
+	setIdentifier(getClassName());
+}
 
 void Legato::File::setFileName(std::filesystem::path input){
 	if(!input.has_filename()) {
@@ -239,7 +250,7 @@ std::filesystem::path Legato::File::getPath(){
 	std::filesystem::path completePath = fileName;
 	Ptr<Directory> nextDir = parentDirectory;
 	while(nextDir){
-		completePath = nextDir->getDirectory() / completePath;
+		completePath = nextDir->getDirectoryName() / completePath;
 		nextDir = nextDir->parentDirectory;
 	}
 	return completePath;
@@ -321,6 +332,10 @@ bool Legato::File::deserialize(){
 }
  
 
+
+
+
+
 void Legato::Directory::setPath(std::filesystem::path input){
 	if(input.empty()){
 		Logger::error("[Directory] path is empty");
@@ -333,17 +348,23 @@ std::filesystem::path Legato::Directory::getPath(){
 	std::filesystem::path completePath = directoryName;
 	Ptr<Directory> nextDir = parentDirectory;
 	while(nextDir){
-		completePath = nextDir->getDirectory() / completePath;
+		completePath = nextDir->getDirectoryName() / completePath;
 		nextDir = nextDir->parentDirectory;
 	}
 	return completePath;
 }
 
 bool Legato::Directory::serialize(){
-	std::filesystem::path completePath = getPath();
-	if(!std::filesystem::exists(completePath)){
-		Logger::debug("[Directory] creating {}", completePath.string());
-		std::filesystem::create_directory(completePath);
+	
+	if(directoryName.empty()){
+		Logger::error("[Directory] cannot serialize, directory name is empty");
+		return false;
+	}
+	
+	std::filesystem::path path = getPath();
+	if(!std::filesystem::exists(path)){
+		Logger::debug("[Directory] creating {}", path.string());
+		std::filesystem::create_directory(path);
 	}
 	
 	for(auto child : getChildren()){
@@ -354,9 +375,15 @@ bool Legato::Directory::serialize(){
 }
 
 bool Legato::Directory::deserialize(){
-	std::filesystem::path completePath = getPath();
-	if(!std::filesystem::exists(completePath)){
-		Logger::error("[Directory] Could not load, directory does not exists: {}", completePath.string());
+	
+	if(directoryName.empty()){
+		Logger::error("[Directory] cannot deserialize, directory name is empty");
+		return false;
+	}
+	
+	std::filesystem::path path = getPath();
+	if(!std::filesystem::exists(path)){
+		Logger::error("[Directory] Could not load, directory does not exists: {}", path.string());
 		return false;
 	}
 	
@@ -365,28 +392,56 @@ bool Legato::Directory::deserialize(){
 	}
 }
 
+
+
+
+
+
 bool Legato::Project::serialize(){
-	std::filesystem::path completePath = getPath();
-	if(!std::filesystem::exists(completePath)){
-		Logger::debug("[Project] creating {}", completePath.string());
-		std::filesystem::create_directory(completePath);
+	
+	if(directoryName.empty()){
+		Logger::error("[Project] cannot serialize, directory name is empty");
+		return false;
+	}
+	
+	std::filesystem::path path = getPath();
+	if(!std::filesystem::exists(path)){
+		Logger::debug("[Project] creating {}", path.string());
+		try{
+			std::filesystem::create_directory(path);
+		}
+		catch(std::filesystem::filesystem_error e){
+			Logger::error("[Project] Could not create project folder : {}", e.code().message());
+			return false;
+		}
 	}
 	
 	for(auto child : getChildren()){
 		child->serialize();
 	}
 	
+	Logger::info("[Project] Successfully serialized project {}", path.string());
+	
 	return true;
 }
 
 bool Legato::Project::deserialize(){
-	std::filesystem::path completePath = getPath();
-	if(!std::filesystem::exists(completePath)){
-		Logger::error("[Project] Could not load, directory does not exists: {}", completePath.string());
+	
+	if(directoryName.empty()){
+		Logger::error("[Project] cannot deserialize, directory name is empty");
+		return false;
+	}
+	
+	std::filesystem::path path = getPath();
+	if(!std::filesystem::exists(path)){
+		Logger::error("[Project] Could not load, directory does not exists: {}", path.string());
 		return false;
 	}
 	
 	for(auto child : getChildren()){
 		child->deserialize();
 	}
+	
+	Logger::info("[Project] Successfully deserialized project {}", path.string());
+	
 }
