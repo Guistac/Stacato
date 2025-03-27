@@ -36,6 +36,7 @@
 
 #include "Legato/Editor/LegatoComponent.h"
 #include "Legato/Editor/LegatoList.h"
+#include "Legato/Editor/LegatoParameter.h"
 
 class InterfaceThing : public Legato::Component{
 	COMPONENT_INTERFACE(InterfaceThing)
@@ -55,11 +56,16 @@ class InterfaceThing : public Legato::Component{
 	}
 };
 
- 
+
 class ChildThing : public Legato::Component{
 	COMPONENT_IMPLEMENTATION(ChildThing)
 	virtual void onConstruction() override {
 		Component::onConstruction();
+		addChild(param1);
+		addChild(param2);
+		addChild(param3);
+		addChild(param4);
+		addChild(param5);
 	}
 	virtual void copyFrom(Ptr<Component> source) override {
 		Component::copyFrom(source);
@@ -68,17 +74,30 @@ class ChildThing : public Legato::Component{
 	}
 	virtual bool onSerialization() override {
 		Component::onSerialization();
-		serializeIntAttribute("Attrib1", 1234);
 		return true;
 	}
 	virtual bool onDeserialization() override {
 		Component::onDeserialization();
-		int result;
-		deserializeIntAttribute("Attrib1", result);
 		return true;
 	}
 public:
 	int value = 0;
+	enum OptionEnum{
+		TYPE_ZERO = 0,
+		TYPE_ONE = 1,
+		TYPE_TWO = 2,
+		TYPE_THREE = 3
+	};
+	Ptr<Legato::BoolParam> param1 = Legato::BoolParam::make(false, "Parameter 1", "Param1");
+	Ptr<Legato::IntParam> param2 = Legato::IntParam::make(false, "Parameter 2", "Param2");
+	Ptr<Legato::RealParam> param3 = Legato::RealParam::make(false, "Parameter 3", "Param3");
+	Ptr<Legato::StrParam> param4 = Legato::StrParam::make("Test", "Parameter 4", "Param4");
+	Ptr<Legato::OptParam> param5 = Legato::OptParam::make(OptionEnum::TYPE_ZERO, "Parameter 5", "Param5", {
+		Legato::Option(OptionEnum::TYPE_ZERO, "Option 0"),
+		Legato::Option(OptionEnum::TYPE_ONE, "Option 1"),
+		Legato::Option(OptionEnum::TYPE_TWO, "Option 2"),
+		Legato::Option(OptionEnum::TYPE_THREE, "Option 3")
+	});
 };
 
 
@@ -101,7 +120,6 @@ class RealThing : public InterfaceThing{
 	}
 public:
 	Ptr<ChildThing> childThing;
-	
 };
 
 class ProjectThing : public Legato::Project{
@@ -118,29 +136,33 @@ public:
 void drawChildren(Ptr<Legato::Component> parent){
 	std::string displayString;
 	std::string completePath;
-	bool b_file = false;
+	bool b_directory = false;
 
 	if(auto project = parent->cast<Legato::Project>()){
-		displayString = "[Project:" + project->getClassName() + "] dir=" + project->getDirectoryName().string();
-		completePath = project->getPath();
-		b_file = true;
+		displayString = "[Project:" + project->getClassName() + "]";
+		completePath = project->getPath().string() + "/";
+		b_directory = true;
 	}
 	else if(auto directory = parent->cast<Legato::Directory>()){
 		displayString = "[Directory] " + directory->getDirectoryName().string() + "/";
+		completePath = directory->getPath().string() + "/";
+		b_directory = true;
 	}
 	else if(auto file = parent->cast<Legato::File>()){
 		displayString = "[File:" + file->getClassName() + "] " + file->getFileName().string() + " <" + file->getIdentifier() + ">";
 		completePath = file->getPath();
-		b_file = true;
+		b_directory = true;
 	}
 	else{
 		displayString = "[" + parent->getClassName() + "] <" + parent->getIdentifier() + ">";
 	}
 	
+	
+	
 	if(parent->hasChildren()){
 		if(ImGui::TreeNode(displayString.c_str())){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			if(b_file) ImGui::Text("Complete Path : %s", completePath.c_str());
+			if(b_directory) ImGui::Text("Path : %s", completePath.c_str());
 			ImGui::PopStyleColor();
 			auto& children = parent->getChildren();
 			for(int i = 0; i < children.size(); i++){
@@ -154,6 +176,7 @@ void drawChildren(Ptr<Legato::Component> parent){
 	else {
 		ImGui::TreePush("Tree");
 		ImGui::Text("%s", displayString.c_str());
+		if(auto param = parent->cast<Legato::Parameter>()) param->gui();
 		ImGui::TreePop();
 	}
 }
@@ -580,7 +603,6 @@ namespace Stacato::Gui {
 				realList->addEntry(RealThing::make());
 				realList->addEntry(RealThing::make());
 				realList->addEntry(RealThing::make(),1);
-				
 			}
 			drawChildren(proj);
 			

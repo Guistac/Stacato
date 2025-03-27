@@ -191,6 +191,7 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoComponent.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoParameter.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoParameter.cpp
 
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/Serializable.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/SerializableList.h

@@ -59,10 +59,15 @@ namespace Legato{
 		
 	public:
 		
-		virtual void gui() = 0;
+		virtual void gui(bool b_drawText = true) = 0;
 		
 		void addEditCallback(std::function<void()> callback) {
 			editCallbacks.push_back(callback);
+		}
+		
+		virtual void setName(std::string newName) override {
+			name = newName;
+			imguiID = "##" + newName;
 		}
 		
 	protected:
@@ -82,23 +87,20 @@ namespace Legato{
 		virtual void onPostLoad() override {
 			Component::onPostLoad();
 		}
-		
 		virtual void onEdit(){
 			for(auto& editCallback : editCallbacks) {
 				editCallback();
 			}
 		}
 		
-		//make()
-		//getValue()
+		std::string imguiID;
+		
 		//overwrite()
 		//overwriteWithHistory()
 		//class EditCommand{};
 		
 	private:
-		
 		std::vector<std::function<void()>> editCallbacks;
-		
 	};
 
 
@@ -106,16 +108,26 @@ namespace Legato{
 
 
 
-	class BooleanParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(BooleanParameter)
+	class BoolParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(BoolParam)
 	public:
-		virtual void gui() override;
+		static Ptr<BoolParam> make(bool val, std::string name_, std::string identifier_){
+			auto instance = make();
+			instance->value = val;
+			instance->displayValue = val;
+			instance->setName(name_);
+			instance->setIdentifier(identifier_);
+			return instance;
+		}
+		
+		virtual void gui(bool b_drawText = true) override;
+	private:
 		virtual void onConstruction() override{
 			Parameter::onConstruction();
 		}
 		virtual void copyFrom(Ptr<Component> source) override{
 			Parameter::copyFrom(source);
-			auto original = source->cast<BooleanParameter>();
+			auto original = source->cast<BoolParam>();
 			displayValue = original->displayValue;
 			value = original->displayValue;
 		}
@@ -126,6 +138,7 @@ namespace Legato{
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
 			deserializeBoolAttribute("value", value);
+			displayValue = value;
 		}
 	private:
 		bool displayValue = false;
@@ -133,16 +146,25 @@ namespace Legato{
 	};
 
 
-	class IntegerParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(IntegerParameter)
+	class IntParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(IntParam)
 	public:
-		virtual void gui() override;
+		static Ptr<IntParam> make(int val, std::string name_, std::string identifier_){
+			auto instance = make();
+			instance->value = val;
+			instance->displayValue = val;
+			instance->setName(name_);
+			instance->setIdentifier(identifier_);
+			return instance;
+		}
+		virtual void gui(bool b_drawText = true) override;
+	private:
 		virtual void onConstruction() override{
 			Parameter::onConstruction();
 		}
 		virtual void copyFrom(Ptr<Component> source) override{
 			Parameter::copyFrom(source);
-			auto original = source->cast<IntegerParameter>();
+			auto original = source->cast<IntParam>();
 			displayValue = original->displayValue;
 			value = original->displayValue;
 		}
@@ -153,6 +175,7 @@ namespace Legato{
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
 			deserializeLongAttribute("value", value);
+			displayValue = value;
 		}
 	private:
 		long long displayValue = false;
@@ -160,16 +183,25 @@ namespace Legato{
 	};
 
 
-	class RealParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(RealParameter)
+	class RealParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(RealParam)
 	public:
-		virtual void gui() override;
+		static Ptr<RealParam> make(int val, std::string name_, std::string identifier_){
+			auto instance = make();
+			instance->value = val;
+			instance->displayValue = val;
+			instance->setName(name_);
+			instance->setIdentifier(identifier_);
+			return instance;
+		}
+		virtual void gui(bool b_drawText = true) override;
+	private:
 		virtual void onConstruction() override{
 			Parameter::onConstruction();
 		}
 		virtual void copyFrom(Ptr<Component> source) override{
 			Parameter::copyFrom(source);
-			auto original = source->cast<RealParameter>();
+			auto original = source->cast<RealParam>();
 			displayValue = original->displayValue;
 			value = original->displayValue;
 		}
@@ -180,6 +212,7 @@ namespace Legato{
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
 			deserializeDoubleAttribute("value", value);
+			displayValue = value;
 		}
 	private:
 		double displayValue = false;
@@ -187,17 +220,25 @@ namespace Legato{
 	};
 
 
-	class StringParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(StringParameter)
+	class StrParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(StrParam)
 	public:
-		virtual void gui() override;
+		static Ptr<StrParam> make(std::string val, std::string name_, std::string identifier_){
+			auto instance = make();
+			instance->value = val;
+			std::strcpy(instance->displayValue, val.c_str());
+			instance->setName(name_);
+			instance->setIdentifier(identifier_);
+			return instance;
+		}
+		virtual void gui(bool b_drawName = true) override;
 		virtual void onConstruction() override{
 			Parameter::onConstruction();
 			displayValue[0] = 0;
 		}
 		virtual void copyFrom(Ptr<Component> source) override{
 			Parameter::copyFrom(source);
-			auto original = source->cast<StringParameter>();
+			auto original = source->cast<StrParam>();
 			strcpy(displayValue, original->displayValue);
 			value = original->value;
 		}
@@ -208,6 +249,7 @@ namespace Legato{
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
 			deserializeStringAttribute("value", value);
+			strcpy(displayValue, value.c_str());
 		}
 	private:
 		char displayValue[256];
@@ -215,17 +257,76 @@ namespace Legato{
 	};
 
 
-	class OptionParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(OptionParameter)
+	class Option{
 	public:
-		virtual void gui() override;
+		Option(int enumerator_, std::string name_, bool b_enabled_ = true){
+			enumerator = enumerator_;
+			name = name_;
+			b_enabled = b_enabled_;
+		}
+		void enable(){ b_enabled = true; }
+		void disable(){ b_enabled = false; }
+		bool isEnabled(){ return b_enabled; }
+		int getInt(){ return enumerator; }
+	private:
+		friend class OptParam;
+		int enumerator = 0;
+		std::string name = "";
+		bool b_enabled = true;
 	};
 
 
-	class TimeParameter : public Parameter{
-		COMPONENT_IMPLEMENTATION(TimeParameter)
+	class OptParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(OptParam)
 	public:
-		virtual void gui() override;
+		static Ptr<OptParam> make(int value, std::string name_, std::string identifier_, std::vector<Option> options) {
+			auto instance = make();
+			instance->options = options;
+			instance->overwrite(value);
+			instance->setName(name_);
+			instance->setIdentifier(identifier_);
+			return instance;
+		}
+		virtual void gui(bool b_drawName = true) override;
+	private:
+		virtual void onConstruction() override{
+			Parameter::onConstruction();
+		}
+		virtual void copyFrom(Ptr<Component> source) override{
+			Parameter::copyFrom(source);
+			auto original = source->cast<OptParam>();
+			options = original->options;
+			overwrite(original->value);
+		}
+		virtual bool onSerialization() override{
+			Parameter::onSerialization();
+			serializeIntAttribute("value", value);
+		}
+		virtual bool onDeserialization() override{
+			Parameter::onDeserialization();
+			deserializeIntAttribute("value", value);
+			overwrite(value);
+		}
+		void overwrite(int enumValue){
+			value = enumValue;
+			for(auto& option : options){
+				if(option.enumerator == value){
+					displayValue = &option;
+					return;
+				}
+			}
+			displayValue = nullptr;
+		}
+		int value;
+		Option* displayValue = nullptr;
+		std::vector<Option> options;
+	};
+
+
+	class TimeParam : public Parameter{
+		COMPONENT_IMPLEMENTATION(TimeParam)
+	public:
+		virtual void gui(bool b_drawName = true) override;
 	};
 
 }

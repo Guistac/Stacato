@@ -22,11 +22,20 @@ namespace Legato{
 		
 		void setEntryIdentifier(std::string entryID){
 			if(sanitizeXmlIdentifier(entryID, entryIdentifier)){
-				Logger::error("[{}] invalid list entry identifier '{}' was sanitized to '{}'", getClassName(), entryID, entryIdentifier);
+				Logger::error("[List:{}] invalid list entry identifier '{}' was sanitized to '{}'", T::getStaticClassName(), entryID, entryIdentifier);
+				return;
 			}
+			entryIdentifier = entryID;
+			for(auto child : childComponents) child->setIdentifier(entryIdentifier);
 		}
 		
-		void setEntryConstructor(std::function<std::shared_ptr<T>(void)> constructor){ entryConstructor = constructor; }
+		void setEntryConstructor(std::function<std::shared_ptr<T>(void)> constructor){
+			if(constructor == nullptr){
+				Logger::error("[List:{}] invalid entry contrusctor was null", T::getStaticClassName());
+				return;
+			}
+			entryConstructor = constructor;
+		}
 		
 		int size(){ childComponents.size(); }
 		
@@ -46,12 +55,16 @@ namespace Legato{
 		
 		void addEntry(Ptr<T> newEntry, int index = -1){
 			if(newEntry == nullptr) return;
-			if(index == -1) Component::addChild(newEntry);
+			if(index == -1) {
+				Component::addChild(newEntry);
+				newEntry->setIdentifier(entryIdentifier);
+			}
 			else{
 				if(index > childComponents.size()) index = int(childComponents.size());
 				else if(index < 0) index = 0;
 				childComponents.insert(childComponents.begin() + index, newEntry);
 				addChildDependencies(newEntry);
+				newEntry->setIdentifier(entryIdentifier);
 			}
 		}
 		
@@ -114,34 +127,44 @@ namespace Legato{
 			return true;
 		}
 		
-		
-		
-		bool onDeserialization() override {
+		virtual bool deserialize() override {
+
+			if(identifier.empty()){
+				 Logger::error("[List] Could not load element <{}> : no entry identifier provided", identifier);
+				 return false;
+			}
 			if(entryIdentifier.empty()){
 				Logger::error("Could not load list <{}> : no entry identifier provided", identifier);
 				return false;
 			}
-			if(xmlElement == nullptr){
-				Logger::error("Could not load list, element <{}> was not deserialized first", identifier);
+			xmlElement = parentComponent->xmlElement->FirstChildElement(identifier.c_str());
+				if(xmlElement == nullptr){
+				Logger::error("[List] Could not load element <{}> : could not find XML element", identifier);
 				return false;
 			}
 			
 			childComponents.clear();
-			bool b_allEntriesLoaded = true;
-			
+
 			tinyxml2::XMLElement* entryXML = xmlElement->FirstChildElement(entryIdentifier.c_str());
 			while(entryXML != nullptr){
-				
 				std::shared_ptr<T> loadedEntry = entryConstructor();
 				loadedEntry->xmlElement = entryXML;
 				Ptr<Component> loadedComponent = std::static_pointer_cast<Component>(loadedEntry);
 				loadedComponent->setIdentifier(entryIdentifier);
 				addChild(loadedEntry);
-				
 				entryXML = entryXML->NextSiblingElement(entryIdentifier.c_str());
 			}
 			
+			for(auto child : childComponents){
+				child->onDeserialization();
+				for(auto childChild : child->childComponents) childChild->deserialize();
+				child->onPostLoad();
+			}
+			
+			onPostLoad();
+			
 			return true;
+			
 		}
 		
 	};

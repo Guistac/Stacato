@@ -73,6 +73,7 @@ namespace Legato{
 		const std::vector<Ptr<Component>>& getChildren(){ return childComponents; }
 		bool hasChildren(){ return !childComponents.empty(); }
 		
+		virtual void setName(std::string newName){ name = newName; }
 		void setIdentifier(std::string input);
 		std::string getIdentifier(){ return identifier; }
 		virtual bool serialize();
@@ -86,10 +87,19 @@ namespace Legato{
 	protected:
 		Ptr<Component> duplicateComponent();
 		virtual void onConstruction();
-		virtual void copyFrom(Ptr<Component> source){}
-		virtual bool onSerialization(){ return true; }
-		virtual bool onDeserialization(){ return true; }
-		virtual void onPostLoad(){ return true; }
+		virtual void copyFrom(Ptr<Component> source){
+			setName(source->name);
+			setIdentifier(source->identifier);
+		}
+		virtual bool onSerialization(){
+			return true;
+		}
+		virtual bool onDeserialization(){
+			return true;
+		}
+		virtual void onPostLoad(){
+			return true;
+		}
 		
 		bool serializeBoolAttribute(const std::string idString, bool data);
 		bool serializeIntAttribute(const std::string idString, int data);
