@@ -35,6 +35,8 @@
 
 
 #include "Legato/Editor/LegatoComponent.h"
+#include "Legato/Editor/LegatoFile.h"
+#include "Legato/Editor/LegatoProject.h"
 #include "Legato/Editor/LegatoList.h"
 #include "Legato/Editor/LegatoParameter.h"
 
@@ -176,7 +178,7 @@ void drawChildren(Ptr<Legato::Component> parent){
 	else {
 		ImGui::TreePush("Tree");
 		ImGui::Text("%s", displayString.c_str());
-		if(auto param = parent->cast<Legato::Parameter>()) param->gui();
+		if(auto param = parent->cast<Legato::Parameter>()) param->gui(false);
 		ImGui::TreePop();
 	}
 }
@@ -598,11 +600,11 @@ namespace Stacato::Gui {
 				auto file2 = FileThing::make();
 				file2->setFileName("ListFile.test");
 				dir2->addChild(file2);
-				auto realList = Legato::List<RealThing>::make("ThingList", "ReaaaalThinnnnng");
+				auto realList = Legato::List<ChildThing>::make("ThingList", "ListItemHehehe");
 				file2->addChild(realList);
-				realList->addEntry(RealThing::make());
-				realList->addEntry(RealThing::make());
-				realList->addEntry(RealThing::make(),1);
+				realList->addEntry(ChildThing::make());
+				realList->addEntry(ChildThing::make());
+				realList->addEntry(ChildThing::make(),1);
 			}
 			drawChildren(proj);
 			
