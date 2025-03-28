@@ -243,14 +243,14 @@ namespace Stacato::Gui {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::PushFont(Fonts::sansBold15);
 			if(currentProject == nullptr) ImGui::Text("No Project Loaded.");
-			else ImGui::Text("Current Project : %s", currentProject->getFilePath().c_str());
+			else ImGui::Text("Current Project : %s", currentProject->getFileName().c_str());
 			ImGui::PopFont();
 			ImGui::PopStyleColor();
 			
 			ImGui::BeginDisabled(currentProject == nullptr);
 			
-			ImGui::BeginDisabled(!currentProject->hasFilePath());
-			if (ImGui::MenuItem("Save", saveShortcut.getString())) currentProject->writeFile();
+			ImGui::BeginDisabled(!currentProject->hasFileName());
+			if (ImGui::MenuItem("Save", saveShortcut.getString())) currentProject->serialize();
 			ImGui::EndDisabled();
 			
 			if (ImGui::MenuItem("Save As...", saveAsShortcut.getString())) Stacato::Gui::saveAs();
@@ -277,7 +277,7 @@ namespace Stacato::Gui {
 				ImGui::PushID(i);
 				auto file = files[i];
 				bool isCurrent = currentProject == file;
-				std::string name = file->getFilePath().string();
+				std::string name = file->getFileName().string();
 				if(name.empty()) name = "[Unsaved Project]";
 				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
 					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){

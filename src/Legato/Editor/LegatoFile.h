@@ -16,6 +16,7 @@ namespace Legato{
 		
 		std::filesystem::path getFileName(){ return fileName; }
 		std::filesystem::path getPath();
+		bool hasFileName(){ return !fileName.empty(); }
 		
 	protected:
 		std::filesystem::path fileName;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Legato/Editor/Project.h"
+#include "Legato/Editor/LegatoProject.h"
 
 #include "LayoutList.h"
 
@@ -8,9 +8,9 @@
 class Plot;
 class Manoeuvre;
 
- class StacatoProject : public Project{
+ class StacatoProject : public Legato::Project{
 	 
-	 DECLARE_PROTOTYPE_IMPLENTATION_METHODS(StacatoProject)
+	 COMPONENT_IMPLEMENTATION(StacatoProject)
 	 
  public:
 	 std::vector<std::shared_ptr<Plot>>& getPlots(){ return plots; }
@@ -27,18 +27,15 @@ class Manoeuvre;
 	 void unlockPlotEdit(){ b_plotEditLocked = false; }
 	 bool isPlotEditLocked(){ return b_plotEditLocked; }
 	 
-	 virtual bool canClose() override;
-	 
 	 std::shared_ptr<LayoutList> getLayouts(){ return layouts; }
 	 
 protected:
 	 
 	 virtual void onConstruction() override;
-	 virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
-	 virtual bool onWriteFile() override;
-	 virtual bool onReadFile() override;
-	 virtual void onOpen() override;
-	 virtual void onClose() override;
+	 virtual void copyFrom(Ptr<Legato::Component> source) override;
+	 virtual bool onSerialization() override;
+	 virtual bool onDeserialization() override;
+	 virtual void onPostLoad() override;
 	 
  private:
 	 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Editor/Project.h"
+//#include "Editor/Project.h"
+#include "Editor/LegatoFile.h"
 
 /*
  
@@ -18,17 +19,17 @@
 
 namespace Workspace{
 
-	const std::vector<std::shared_ptr<File>>& getFiles();
-	bool hasFile(std::shared_ptr<File> file);
-	void addFile(std::shared_ptr<File> file);
-	void removeFile(std::shared_ptr<File> file);
+	const std::vector<std::shared_ptr<Legato::File>>& getFiles();
+	bool hasFile(std::shared_ptr<Legato::File> file);
+	void addFile(std::shared_ptr<Legato::File> file);
+	void removeFile(std::shared_ptr<Legato::File> file);
 	
 	bool openFile(std::filesystem::path file);
-	void setFileOpenCallback(std::function<std::shared_ptr<File>(std::filesystem::path)> callback);
+	void setFileOpenCallback(std::function<std::shared_ptr<Legato::File>(std::filesystem::path)> callback);
 
-	std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
-	void pushToClipboard(std::shared_ptr<PrototypeBase> object);
-	void pushToClipboard(std::vector<std::shared_ptr<PrototypeBase>> objects);
+	//std::vector<std::shared_ptr<PrototypeBase>>& getClipboard();
+	//void pushToClipboard(std::shared_ptr<PrototypeBase> object);
+	//void pushToClipboard(std::vector<std::shared_ptr<PrototypeBase>> objects);
 
 	void saveLastLoadedFilePath(std::filesystem::path loadedFilePath);
 	bool getLastLoadedFilePath(std::filesystem::path& output);

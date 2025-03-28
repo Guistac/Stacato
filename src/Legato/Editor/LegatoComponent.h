@@ -74,6 +74,7 @@ namespace Legato{
 		bool hasChildren(){ return !childComponents.empty(); }
 		
 		virtual void setName(std::string newName){ name = newName; }
+		std::string getName(){ return name; }
 		void setIdentifier(std::string input);
 		std::string getIdentifier(){ return identifier; }
 		virtual bool serialize();
@@ -86,6 +87,7 @@ namespace Legato{
 		
 	protected:
 		Ptr<Component> duplicateComponent();
+		
 		virtual void onConstruction();
 		virtual void copyFrom(Ptr<Component> source){
 			setName(source->name);

@@ -20,6 +20,7 @@ bool Legato::Project::serialize(){
 		}
 	}
 	
+	onSerialization();
 	for(auto child : getChildren()){
 		child->serialize();
 	}
@@ -42,12 +43,14 @@ bool Legato::Project::deserialize(){
 		return false;
 	}
 	
+	onDeserialization();
 	for(auto child : getChildren()){
 		child->deserialize();
 	}
 	
 	Logger::info("[Project] Successfully deserialized project {}", path.string());
 	
+	return true;
 }
 
 

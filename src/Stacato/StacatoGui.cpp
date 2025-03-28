@@ -154,7 +154,7 @@ void gui(){
 	bool save(){
 		if(Stacato::Editor::hasCurrentProject()){
 			auto project = Stacato::Editor::getCurrentProject();
-			if(project->hasFilePath()) return project->writeFile();
+			if(project->hasFileName()) return project->serialize();
 			else return saveAs();
 		}
 		return false;
@@ -167,8 +167,8 @@ void gui(){
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
 		if(FileDialog::save(path, filter, "project")) {
 			std::filesystem::path fsPath = path.path;
-			project->setFilePath(fsPath);
-			return project->writeFile();
+			project->setFileName(fsPath);
+			return project->serialize();
 		}
 		return false;
 	}
@@ -252,7 +252,7 @@ void gui(){
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2, 0.4, 0.1, 1.0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3, 0.6, 0.2, 1.0));
 		if (ImGui::Button("Save and Close") || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
-			bool b_saved = Stacato::Editor::getCurrentProject()->writeFile();
+			bool b_saved = Stacato::Editor::getCurrentProject()->serialize();
 			close();
 		}
 		ImGui::PopStyleColor(3);

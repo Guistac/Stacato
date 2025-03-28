@@ -18,9 +18,9 @@ void StacatoProject::onConstruction() {
 	layouts = LayoutList::createInstance();
 }
 
-void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	Project::onCopyFrom(source);
-	auto original = std::static_pointer_cast<StacatoProject>(source);
+void StacatoProject::copyFrom(Ptr<Legato::Component> source) {
+	Legato::Project::copyFrom(source);
+	auto original = source->cast<StacatoProject>();
 	
 	plots.clear();
 	for(auto plot : original->getPlots()){
@@ -29,14 +29,10 @@ void StacatoProject::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
 	}
 }
 
-bool StacatoProject::onWriteFile() {
-	
-	auto path = getFilePath();
-	if(path.extension() != ".stacato") path.replace_extension(".stacato");
-	
-	if (!std::filesystem::exists(path)) std::filesystem::create_directory(path);
-	std::string projectFolderPath = filePath.string();
+bool StacatoProject::onSerialization() {
 
+	std::string projectFolderPath = fileName.string();
+	
 	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
 	if (!Environnement::save(environnementFilePath.c_str())) return false;
 	
@@ -74,16 +70,9 @@ bool StacatoProject::onWriteFile() {
 	return false;
 };
 
-bool StacatoProject::onReadFile() {
+bool StacatoProject::onDeserialization() {
 	
-	auto path = getFilePath();
-	
-	if(path.extension().string() != ".stacato"){
-		Logger::warn("File {} could not be loaded, wrong file extension", filePath.string());
-		return false;
-	}
-	
-	std::string projectFolderPath = std::string(path);
+	std::string projectFolderPath = fileName.string();
 	if (!std::filesystem::is_directory(projectFolderPath)) return false;
 
 	//look for the environnement file
@@ -96,7 +85,7 @@ bool StacatoProject::onReadFile() {
 		}
 	}
 	if(!b_loadedEnvironnementFile) {
-		Logger::warn("Could not load environnement file in project {}", filePath.filename().string());
+		Logger::warn("Could not load environnement file in project {}", fileName.string());
 		return false;
 	}
 	
@@ -109,7 +98,7 @@ bool StacatoProject::onReadFile() {
 	//look for the stage folder
 	std::string scriptFolderPath = projectFolderPath + "/Scripts";
 	if (!std::filesystem::exists(std::filesystem::path(scriptFolderPath))) {
-		Logger::warn("Could not find Scripts Folder in project {}", filePath.filename().string());
+		Logger::warn("Could not find Scripts Folder in project {}", fileName.string());
 		return false;
 	}
 	
@@ -119,7 +108,7 @@ bool StacatoProject::onReadFile() {
 	//look for the plot folder
 	std::string plotsFolderPath = projectFolderPath + "/Plots";
 	if (!std::filesystem::exists(std::filesystem::path(plotsFolderPath))) {
-		Logger::warn("Could not find Plot Folder in project {}", filePath.filename().string());
+		Logger::warn("Could not find Plot Folder in project {}", fileName.string());
 		return false;
 	}
 	
@@ -170,18 +159,9 @@ bool StacatoProject::onReadFile() {
 	return true;
 };
 
-bool StacatoProject::canClose() {
-	return !hasUnsavedModifications() && !Environnement::isRunning();
-}
+void StacatoProject::onPostLoad(){}
 
-void StacatoProject::onOpen() {
-	//initialize some project variables?
-	//load window layout
-}
-
-void StacatoProject::onClose() {
-	//deinitialize some project variables?
-};
+//bool StacatoProject::canClose() { return !hasUnsavedModifications() && !Environnement::isRunning(); }
 
 
 

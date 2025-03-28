@@ -1,7 +1,10 @@
 #pragma once
 
 class Window;
+
+namespace Legato{
 class File;
+}
 class StacatoProject;
 
 
@@ -27,7 +30,7 @@ std::vector<std::shared_ptr<Window>>& getAdministratorWindows();
 
 
 
-std::shared_ptr<File> openFile(std::filesystem::path path);
+std::shared_ptr<Legato::File> openFile(std::filesystem::path path);
 
 bool hasCurrentProject();
 std::shared_ptr<StacatoProject> getCurrentProject();

@@ -79,7 +79,7 @@ void terminate(){
 
 std::shared_ptr<StacatoProject> currentProject;
 
-std::shared_ptr<File> openFile(std::filesystem::path path){
+std::shared_ptr<Legato::File> openFile(std::filesystem::path path){
 
 	if(!path.has_filename()){
 		Logger::error("[Stacato] Could not open file : Path has no File Name");
@@ -103,9 +103,9 @@ std::shared_ptr<File> openFile(std::filesystem::path path){
 	}
 
 	if(fileExtension == ".stacato"){
-		auto loadedProject = StacatoProject::createInstance();
-		loadedProject->setFilePath(path);
-		if(!loadedProject->readFile()){
+		auto loadedProject = StacatoProject::make();
+		loadedProject->setFileName(path);
+		if(!loadedProject->deserialize()){
 			Logger::error("[Stacato] Failed to open stacato project {}", fileName);
 			return nullptr;
 		}
@@ -131,10 +131,10 @@ void openProject(std::shared_ptr<StacatoProject> project){
 }
 
 void createNewProject(){
-	if(hasCurrentProject() && !currentProject->canClose()) return;
+	if(hasCurrentProject()/* && !currentProject->canClose()*/) return;
 	
 	closeCurrentProject();
-	auto newProject = StacatoProject::createInstance();
+	auto newProject = StacatoProject::make();
 	openProject(newProject);
 	::Workspace::addFile(newProject);
 }
