@@ -192,6 +192,8 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoFile.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoFile.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoDirectory.h
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoDirectory.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoProject.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoProject.cpp
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoAction.h

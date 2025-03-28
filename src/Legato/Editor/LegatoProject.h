@@ -6,7 +6,7 @@ namespace Legato{
 
 	class Action;
 
-	class Project : public Directory{
+	class Project : public File{
 		COMPONENT_INTERFACE(Project)
 	public:
 		virtual bool serialize() override;

@@ -36,6 +36,7 @@
 
 #include "Legato/Editor/LegatoComponent.h"
 #include "Legato/Editor/LegatoFile.h"
+#include "Legato/Editor/LegatoDirectory.h"
 #include "Legato/Editor/LegatoProject.h"
 #include "Legato/Editor/LegatoList.h"
 #include "Legato/Editor/LegatoParameter.h"
@@ -585,7 +586,7 @@ namespace Stacato::Gui {
 			if(!b_testInit){
 				b_testInit = true;
 				proj = ProjectThing::make();
-				proj->setPath("LegatoTestProject.stacato");
+				proj->setFileName("LegatoTestProject.stacato");
 				
 				auto dir1 = Legato::Directory::make("folder1");
 				proj->addChild(dir1);

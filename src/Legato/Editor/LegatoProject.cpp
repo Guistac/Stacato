@@ -3,8 +3,8 @@
 
 bool Legato::Project::serialize(){
 	
-	if(directoryName.empty()){
-		Logger::error("[Project] cannot serialize, directory name is empty");
+	if(fileName.empty()){
+		Logger::error("[Project] cannot serialize, filename is empty");
 		return false;
 	}
 	
@@ -31,8 +31,8 @@ bool Legato::Project::serialize(){
 
 bool Legato::Project::deserialize(){
 	
-	if(directoryName.empty()){
-		Logger::error("[Project] cannot deserialize, directory name is empty");
+	if(fileName.empty()){
+		Logger::error("[Project] cannot deserialize, filename is empty");
 		return false;
 	}
 	

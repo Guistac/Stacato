@@ -2,7 +2,9 @@
 #include <tinyxml2.h>
 
 #include "LegatoFile.h"
+#include "LegatoDirectory.h"
 #include "LegatoProject.h"
+
 
 bool Legato::sanitizeXmlIdentifier(const std::string input, std::string& output){
 	if (input.empty()) {
