@@ -256,6 +256,77 @@ bool EL2624::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 
 
+void EL3078::onDisconnection() {}
+void EL3078::onConnection() {}
+void EL3078::initialize() {
+	
+	pinValues.resize(8);
+	pins.resize(8);
+	
+	for(int i = 0; i < 8; i++){
+		txPdoAssignement.addNewModule(0x1A01 + i * 2);
+		std::string entryName = "AI Compact Channel " + std::to_string(i+1);
+		txPdoAssignement.addEntry(0x6000 + i * 0x10, 0x17, 16, entryName, &analogInputs[i]);
+		
+		channelSettings[i].inputType = OptionParameter::make2(inputType_Bipolar10V, inputTypeOptions, "Input Type", "InputType");
+		channelSettings[i].enableFilter = BooleanParameter::make(false, "Enable Filter", "EnableFilter");
+		channelSettings[i].filterSetting = OptionParameter::make2(filter_FIR_50HZ, filterOptions, "Filter Setting", "FilterSetting");
+		
+		pinValues[i] = std::make_shared<double>(0.0);
+		std::string pinName = "AI" + std::to_string(i+1);
+		pins[i] = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, pinName.c_str(), pinName.c_str());
+		pins[i]->assignData(pinValues[i]);
+		addNodePin(pins[i]);
+	}
+	
+}
+bool EL3078::startupConfiguration() {
+	for(int i = 0; i < 8; i++){
+		//disable user scaling
+		writeSDO_U8(0x8000 + i*0x10, 0x1, 0);
+		//signed representation
+		writeSDO_U8(0x8000 + i*0x10, 0x2, 0);
+		//filter enable
+		writeSDO_U8(0x8000 + i*0x10, 0x6, channelSettings[i].enableFilter->value ? 0x1 : 0x0);
+		//filter setting
+		writeSDO_U16(0x800D + i*0x10, 0x15, channelSettings[i].filterSetting->value);
+		//input type
+		writeSDO_U16(0x800D + i*0x10, 0x11, channelSettings[i].inputType->value);
+		//set scaling to Extended Range
+		writeSDO_U16(0x800D + i*0x10, 0x12, 0);
+	}
+	return true;
+}
+void EL3078::readInputs() {
+	for(int i = 0; i < 8; i++){
+		*(pinValues[i]) = double(analogInputs[i]) / 30518.0;
+	}
+}
+void EL3078::writeOutputs(){}
+bool EL3078::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 8; i++){
+		std::string xmlName = "Channel" + std::to_string(i+1);
+		auto channelXML = xml->InsertNewChildElement(xmlName.c_str());
+		channelSettings[i].inputType->save(channelXML);
+		channelSettings[i].enableFilter->save(channelXML);
+		channelSettings[i].filterSetting->save(channelXML);
+	}
+	return true;
+}
+bool EL3078::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 8; i++){
+		std::string xmlName = "Channel" + std::to_string(i+1);
+		if(auto channelXML = xml->FirstChildElement(xmlName.c_str())){
+			channelSettings[i].inputType->load(channelXML);
+			channelSettings[i].enableFilter->load(channelXML);
+			channelSettings[i].filterSetting->load(channelXML);
+		}
+	}
+	return true;
+}
+
+
+
 /*
 class EL2624 : public EtherCatDevice{
 public:

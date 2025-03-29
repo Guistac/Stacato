@@ -86,6 +86,82 @@ DEFINE_ETHERCAT_DEVICE(EL2624, "EL2624 4x Relay Output", "EL2624", "Beckhoff", "
 	std::vector<BoolParam> signalInversionParams;
 };
 
+
+class EL3078 : public EtherCatDevice{
+public:
+	DEFINE_ETHERCAT_DEVICE(EL3078, "EL3078 8x Analog Input (12bit)", "EL3078", "Beckhoff", "I/O", 0x2, 0xC063052)
+	int16_t analogInputs[8] = {0,0,0,0,0,0,0,0};
+	std::vector<std::shared_ptr<double>> pinValues;
+	std::vector<std::shared_ptr<NodePin>> pins;
+	
+	enum InputType{
+		BIPOLAR_10V = 2,
+		UNIPOLAR_10V = 14,
+		BIPOLAR_20MA = 17,
+		UNIPOLAR_20MA = 18,
+		UNIPOLAR_4_20MA = 19,
+		UNIPOLAR_4_20MA_NAMUR = 20
+	};
+	
+	Option inputType_Bipolar10V = 			Option(InputType::BIPOLAR_10V, 				"±10V", "±10V");
+	Option inputType_Unipolar10V = 			Option(InputType::UNIPOLAR_10V, 			"0-10V", "0-10V");
+	Option inputType_Bipolar20ma = 			Option(InputType::BIPOLAR_20MA, 			"±20mA", "±20mA");
+	Option inputType_Unipolar20ma = 		Option(InputType::UNIPOLAR_20MA, 			"0-20mA", "0-20mA");
+	Option inputType_Unipolar4_20ma = 		Option(InputType::UNIPOLAR_4_20MA, 			"4-20mA", "4-20mA");
+	Option inputType_Unipolar4_20ma_NAMUR = Option(InputType::UNIPOLAR_4_20MA_NAMUR, 	"4-20mA NAMUR", "4-20mA_NAMUR");
+	std::vector<Option*> inputTypeOptions = {
+		&inputType_Bipolar10V,
+		&inputType_Unipolar10V,
+		&inputType_Bipolar20ma,
+		&inputType_Unipolar20ma,
+		&inputType_Unipolar4_20ma,
+		&inputType_Unipolar4_20ma_NAMUR
+	};
+	
+	enum FilterSetting{
+		FIR_50HZ = 0,
+		FIR_60HZ = 1,
+		IIR_1 = 2,
+		IIR_2 = 3,
+		IIR_3 = 4,
+		IIR_4 = 5,
+		IIR_5 = 6,
+		IIR_6 = 7,
+		IIR_7 = 8,
+		IIR_8 = 9
+	};
+	
+	Option filter_FIR_50HZ = Option(FilterSetting::FIR_50HZ, "FIR 50HZ", "FIR_50HZ");
+	Option filter_FIR_60HZ = Option(FilterSetting::FIR_60HZ, "FIR 60HZ", "FIR_60HZ");
+	Option filter_IIR_1 = Option(FilterSetting::IIR_1, "IIR 1", "IIR_1");
+	Option filter_IIR_2 = Option(FilterSetting::IIR_2, "IIR 2", "IIR_2");
+	Option filter_IIR_3 = Option(FilterSetting::IIR_3, "IIR 3", "IIR_3");
+	Option filter_IIR_4 = Option(FilterSetting::IIR_4, "IIR 4", "IIR_4");
+	Option filter_IIR_5 = Option(FilterSetting::IIR_5, "IIR 5", "IIR_5");
+	Option filter_IIR_6 = Option(FilterSetting::IIR_6, "IIR 6", "IIR_6");
+	Option filter_IIR_7 = Option(FilterSetting::IIR_7, "IIR 7", "IIR_7");
+	Option filter_IIR_8 = Option(FilterSetting::IIR_8, "IIR 8", "IIR_8");
+	std::vector<Option*> filterOptions = {
+		&filter_FIR_50HZ,
+		&filter_FIR_60HZ,
+		&filter_IIR_1,
+		&filter_IIR_2,
+		&filter_IIR_3,
+		&filter_IIR_4,
+		&filter_IIR_5,
+		&filter_IIR_6,
+		&filter_IIR_7,
+		&filter_IIR_8
+	};
+	
+	struct ChannelSettings{
+		OptionParam inputType;
+		BoolParam enableFilter;
+		OptionParam filterSetting;
+	};
+	std::vector<ChannelSettings> channelSettings = std::vector<ChannelSettings>(8);
+};
+
 class EL5001 : public EtherCatDevice{
 public:
 DEFINE_ETHERCAT_DEVICE(EL5001, "EL5001 SSI Input", "EL5001", "Beckhoff", "I/O", 0x2, 0x13893052)

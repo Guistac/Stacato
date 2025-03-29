@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include "Gui/Assets/Fonts.h"
 #include "Gui/Assets/Colors.h"
+#include "Gui/Utilities/CustomWidgets.h"
 
 void CU1124::deviceSpecificGui() {
 	if(ImGui::BeginTabItem("CU1124")){
@@ -96,6 +97,52 @@ void EL2624::deviceSpecificGui() {
 			signalInversionParams[i]->gui(Fonts::sansBold15);
 			ImGui::PopID();
 		}
+		ImGui::EndTabItem();
+	}
+}
+
+void EL3078::deviceSpecificGui() {
+	if(ImGui::BeginTabItem("EL3078")){
+		
+		ImGui::PushFont(Fonts::sansBold20);
+		ImGui::Text("Analog Input Channel Settings");
+		ImGui::PopFont();
+		
+		if(ImGui::BeginTable("##ChannelSetting", 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_RowBg)){
+			ImGui::TableSetupColumn("Ch#");
+			ImGui::TableSetupColumn("Input Type");
+			ImGui::TableSetupColumn("Filter");
+			ImGui::TableHeadersRow();
+			
+			ImVec2 chNameSize = ImVec2(ImGui::GetTextLineHeight() * 2.0, ImGui::GetFrameHeight());
+			float inputTypeWidth = ImGui::GetTextLineHeight() * 5.0;
+			float filterSettingWidth = ImGui::GetTextLineHeight() * 5.0;
+			for(int i = 0; i < 8; i++){
+				ImGui::PushID(i);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				std::string channelName = "Ch" + std::to_string(i+1);
+				ImGui::PushFont(Fonts::sansBold15);
+				backgroundText(channelName.c_str(), chNameSize, Colors::gray, Colors::black);
+				ImGui::PopFont();
+				ImGui::TableSetColumnIndex(1);
+				ImGui::SetNextItemWidth(inputTypeWidth);
+				channelSettings[i].inputType->gui();
+				ImGui::TableSetColumnIndex(2);
+				channelSettings[i].enableFilter->gui();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(filterSettingWidth);
+				ImGui::BeginDisabled(!channelSettings[i].enableFilter->value);
+				channelSettings[i].filterSetting->gui();
+				ImGui::EndDisabled();
+				ImGui::PopID();
+			}
+		
+			
+			ImGui::EndTable();
+		}
+		
+		
 		ImGui::EndTabItem();
 	}
 }
