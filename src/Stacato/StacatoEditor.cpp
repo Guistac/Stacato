@@ -27,7 +27,7 @@ std::vector<std::shared_ptr<Window>> administratorWindows;
 std::vector<std::shared_ptr<Window>>& getUserWindows(){ return userWindows; }
 std::vector<std::shared_ptr<Window>>& getAdministratorWindows(){ return administratorWindows; }
 
-bool b_isLocked = false;
+bool b_isLocked = true;
 
 bool isLocked(){ return b_isLocked; }
 void unlock(){

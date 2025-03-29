@@ -240,11 +240,20 @@ void PositionControlledMachine::inputProcess() {
 	if(b_userZeroUpdateRequest){
 		b_userZeroUpdateRequest = false;
 		axisOffset->overwrite(requestedUserZeroOffset);
-		axisLowerPositionLimit = axisPositionToMachinePosition(axis->getLowerPositionLimit());
-		axisUpperPositionLimit = axisPositionToMachinePosition(axis->getUpperPositionLimit());
+
+		if(resetLowerLimitOnZeroCapture->value)
+			axisLowerPositionLimit = axisPositionToMachinePosition(axis->getLowerPositionLimit());
+		if(resetUpperLimitOnZeroCapture->value)
+			axisUpperPositionLimit = axisPositionToMachinePosition(axis->getUpperPositionLimit());
 		if(invertAxis->value) std::swap(axisLowerPositionLimit, axisUpperPositionLimit);
-		setUserLowerLimit(lowerPositionLimit->value);
-		setUserUpperLimit(upperPositionLimit->value);
+
+		if(resetLowerLimitOnZeroCapture->value)
+			setUserLowerLimit(axisLowerPositionLimit);
+		else setUserLowerLimit(lowerPositionLimit->value);
+		if(resetUpperLimitOnZeroCapture->value)
+			setUserUpperLimit(axisUpperPositionLimit);
+		else setUserUpperLimit(upperPositionLimit->value);
+
 		animatablePosition->overridePositionTarget(axisPositionToMachinePosition(axis->getPositionActual()));
 	}
 	
@@ -534,9 +543,8 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	axisOffset->save(limitsXML);
 	lowerPositionLimit->save(limitsXML);
 	upperPositionLimit->save(limitsXML);
-	//velocityLimit->save(limitsXML);
-	//accelerationLimit->save(limitsXML);
-	
+	minimumVelocity->save(limitsXML); 
+
 	XMLElement* userSetupXML = xml->InsertNewChildElement("UserSetup");
 	allowUserZeroEdit->save(userSetupXML);
 	allowUserLowerLimitEdit->save(userSetupXML);
@@ -548,6 +556,8 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	allowModuloPositionShifting->save(userSetupXML);
 	linearWidgetOrientation_parameter->save(userSetupXML);
 	displayModuloturns_param->save(userSetupXML);
+	resetLowerLimitOnZeroCapture->save(userSetupXML);
+	resetUpperLimitOnZeroCapture->save(userSetupXML);
 	
 	XMLElement* animatableXML = xml->InsertNewChildElement("Animatable");
 	animatablePosition->save(animatableXML);
@@ -572,7 +582,8 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	if(!axisOffset->load(limitsXML)) return false;
 	if(!lowerPositionLimit->load(limitsXML)) return false;
 	if(!upperPositionLimit->load(limitsXML)) return false;
-	
+	minimumVelocity->load(limitsXML);
+
 	XMLElement* userSetupXML;
 	if(!loadXMLElement("UserSetup", xml, userSetupXML)) return false;
 	if(!allowUserZeroEdit->load(userSetupXML)) return false;
@@ -585,6 +596,8 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	allowModuloPositionShifting->load(userSetupXML);
 	linearWidgetOrientation_parameter->load(userSetupXML);
 	displayModuloturns_param->load(userSetupXML);
+	resetLowerLimitOnZeroCapture->load(userSetupXML);
+	resetUpperLimitOnZeroCapture->load(userSetupXML);
 	
 	if(XMLElement* animatableXML = xml->FirstChildElement("Animatable")){
 		animatablePosition->load(animatableXML);

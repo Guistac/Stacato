@@ -134,16 +134,20 @@ namespace Application{
 		#if defined(STACATO_MACOS)
 			if(const char* path = glfwGetOpenedFilePath()) applicationLaunchFilePath = path;
 		#elif defined(STACATO_UNIX)
-			if(argcount >= 2) applicationLaunchFilePath = args[1];
+			if(argcount >= 2){
+				applicationLaunchFilePath = args[1];
+				Logger::info("Launch path argument: '{}'", args[1]);
+			}
 		#endif
 
 		//open the file path in the workspace
-		if(!applicationLaunchFilePath.empty()){
-			Logger::info("[Application] Application was launched with file path {}", applicationLaunchFilePath.string());
-		}else{
+		if(applicationLaunchFilePath.empty() || applicationLaunchFilePath == "%f"){
 			if(Workspace::getLastLoadedFilePath(applicationLaunchFilePath)){
 				Logger::info("Found last loaded file: {}", applicationLaunchFilePath.string());
 			}else Logger::info("Could not find last opened file");
+		}
+		else{
+			Logger::info("[Application] Application was launched with file path {}", applicationLaunchFilePath.string());
 		}
 
 		//——— User Initialization
@@ -184,5 +188,21 @@ namespace Application{
 	
 	void quitImmediately(){ b_running = false; }
 	
+	void requestShutdown(){
+		std::string command = "sudo poweroff";
+		FILE* pipe = popen(command.c_str(), "r");
+		if(!pipe) Logger::critical("Failed to execute bash script");
+		/*
+		char buffer[64];
+		fgets(buffer, sizeof(buffer), pipe);
+		try{
+			std::stoi(buffer);
+		}catch(std::invalid_argument& error){
+			
+		}
+		pclose(pipe);
+		*/
+	}
+
 };
 	

@@ -13,6 +13,7 @@ void run(int argcount, const char ** args);
 
 void requestQuit();
 void quitImmediately();
+void requestShutdown();
 
 float getTrackpadRotationDelta();
 float getTrackpadZoomDelta();

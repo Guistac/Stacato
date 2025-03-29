@@ -102,9 +102,9 @@ ViewportId=0x34E92D39
 Size=44,55
 Collapsed=0
 
-[Window][Edit Layout]
-Pos=781,456
-Size=358,140
+[Window][EtherCAT Devices]
+Pos=148,160
+Size=409,221
 Collapsed=0
 
 [Window][Closing Current Project]
@@ -635,7 +635,7 @@ DockId=0x0000000A,0
 
 [Window][Spatial Editor]
 Pos=0,29
-Size=515,508
+Size=988,687
 Collapsed=0
 
 [Window][Toolbar]

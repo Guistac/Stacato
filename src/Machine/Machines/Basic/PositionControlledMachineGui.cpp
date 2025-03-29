@@ -99,6 +99,8 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::SameLine();
 	if(ImGui::Button("Reset##UpperLimit")) resetUpperUserLimit();
 
+	minimumVelocity->gui(Fonts::sansBold15);
+
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);
@@ -110,6 +112,9 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::PushFont(Fonts::sansBold15);
 	ImGui::Text("Allow user to modify zero");
 	ImGui::PopFont();
+
+	resetLowerLimitOnZeroCapture->gui(Fonts::sansBold15);
+	resetUpperLimitOnZeroCapture->gui(Fonts::sansBold15);
 	
 	allowUserLowerLimitEdit->gui();
 	ImGui::SameLine();
@@ -912,27 +917,41 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 	ImVec2 captureSize = ImVec2(ImGui::GetTextLineHeight() * 3.5, ImGui::GetTextLineHeight()*2.0);
 	
 	float sliderWidth = ImGui::GetTextLineHeight() * 10.0;
-	
+
+	auto saveAfterDelay = [](){
+		std::thread saveThread([](){
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			Stacato::Gui::save();
+		});
+		saveThread.detach();
+	};
+
 	ImGui::PushFont(Fonts::sansBold15);
-	ImGui::PushStyleColor(ImGuiCol_Button, Colors::darkGray);
 	ImGui::PushStyleColor(ImGuiCol_Text, Colors::black);
-	if(ImGui::Button("Zero", switchSize)){
+	if(customButton("Zero", switchSize, Colors::darkGray, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersLeft)){
 		machine->captureUserZero();
-		machine->resetUpperUserLimit();
-		machine->resetLowerUserLimit();
+		saveAfterDelay();
 	}
-	ImGui::PopStyleColor(2);
+	float spacing = ImGui::GetTextLineHeight() * 0.1;
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing,spacing));
+	ImGui::SameLine();
+	ImGui::PopStyleVar();
+	if(customButton("Reset", switchSize, Colors::darkGray, ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersRight)){
+		machine->resetUserZero();
+		saveAfterDelay();
+	}
+	ImGui::PopStyleColor();
 	ImGui::PopFont();
 	
 	ImGui::SameLine();
 	ImGui::PushFont(Fonts::sansBold26);
 	char buf[32];
 	snprintf(buf, 32, "Vel: %.2fm/s", machine->animatablePosition->getActualVelocity());
-	ImVec2 velSize(ImGui::GetTextLineHeight() * 5.5, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 velSize(ImGui::GetTextLineHeight() * 4.6, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, velSize, Colors::veryDarkGray);
 	ImGui::SameLine();
 	snprintf(buf, 32, "Pos: %.3fm", machine->animatablePosition->getActualPosition());
-	ImVec2 posSize(ImGui::GetTextLineHeight() * 5.5, ImGui::GetTextLineHeight()*1.2);
+	ImVec2 posSize(ImGui::GetTextLineHeight() * 4.6, ImGui::GetTextLineHeight()*1.2);
 	backgroundText(buf, posSize, Colors::veryDarkGray);
 	ImGui::PopFont();
 	
@@ -945,7 +964,13 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 	
 	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Colors::darkGray);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, Colors::black);
-	ImGui::ProgressBar(machine->animatablePosition->getRapidProgress(), ImVec2(ImGui::GetTextLineHeight() * 28.5, ImGui::GetTextLineHeight() * 1.0), "");
+	char timeTxt[32];
+	if(machine->animatablePosition->motionProfile.hasInterpolationTarget()){
+		float remaining = machine->animatablePosition->motionProfile.getRemainingInterpolationTime(machine->animatablePosition->profileTime_seconds);\
+		snprintf(timeTxt, 32, "%.1fs", remaining);
+	}
+	else snprintf(timeTxt, 32, "0.0s");
+	ImGui::ProgressBar(machine->animatablePosition->getRapidProgress(), ImVec2(ImGui::GetTextLineHeight() * 28.5, ImGui::GetTextLineHeight() * 1.0), timeTxt);
 	ImGui::PopStyleColor(2);
 	
 	for(int i = 0; i < targets.size(); i++){
@@ -967,8 +992,9 @@ void PositionControlledMachine::ProgrammingWidget::gui(){
 			ImGui::SliderFloat("##Time", &targets[i].time, 0.0, maxTime, "Time: %.1fs");
 		}
 		else{
+			float minVel = machine->minimumVelocity->value;
 			float maxVel = machine->animatablePosition->velocityLimit;
-			ImGui::SliderFloat("##Vel", &targets[i].velocity, 0.0, maxVel, "Velocity: %.2fm/s");
+			ImGui::SliderFloat("##Vel", &targets[i].velocity, minVel, maxVel, "Velocity: %.3fm/s");	
 		}
 		ImGui::PopStyleVar();
 		if(ImGui::IsItemDeactivatedAfterEdit()){
