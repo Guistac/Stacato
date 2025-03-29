@@ -8,6 +8,7 @@ void EL722x_Actuator::initialize(){
 	driveSettings.accelerationLimit->addEditCallback([this](){ updateProprieties(); });
 	driveSettings.velocityLimit->addEditCallback([this](){ updateProprieties(); });
 	driveSettings.positionFollowingErrorWindow->addEditCallback([this](){ updateProprieties(); });
+	updateProprieties();
 }
 
 void EL722x_Actuator::updateProprieties(){
