@@ -65,7 +65,7 @@ bool Legato::File::deserialize(){
 			Logger::error("[File] Failed to read file '{}' : Empty document", completePath.string());
 			return false;
 		default:
-			Logger::warn("[File] Failed to read file '{}' : XMLError code {}", completePath.string(), result);
+			Logger::error("[File] Failed to read file '{}' : XMLError code {}", completePath.string(), result);
 			return false;
 	}
 	
@@ -96,7 +96,7 @@ void Legato::File::setPath(std::filesystem::path input){
 }
 
 std::filesystem::path Legato::File::getCompletePath(){
-	if(parentDirectory) return parentDirectory->getCompletePath() / path;
+	if(parentFile) return parentFile->getCompletePath() / path;
 	else return path;
 }
 

@@ -163,7 +163,7 @@ namespace Legato{
 			EditAction(Ptr<BooleanParameter> p, bool newValue_) : param(p) {
 				oldValue = p->value;
 				newValue = newValue_;
-				name = "Edited " + param->getName() + " from " + std::to_string(oldValue) + " to " + std::to_string(newValue);
+				name = "Change " + param->getName() + " value from " + (oldValue ? "true" : "false") + " to " + (newValue ? "true" : "false");
 			}
 			virtual void onExecute() override { param->overwrite(newValue); }
 			virtual void onUndo() override { param->overwrite(oldValue); }
@@ -237,7 +237,7 @@ namespace Legato{
 			EditAction(Ptr<IntegerParameter> p, long long newValue_) : param(p) {
 				oldValue = p->value;
 				newValue = newValue_;
-				name = "Edited " + param->getName() + " from " + std::to_string(oldValue) + " to " + std::to_string(newValue);
+				name = "Change " + param->getName() + " value from " + std::to_string(oldValue) + " to " + std::to_string(newValue);
 			}
 			virtual void onExecute() override { param->overwrite(newValue); }
 			virtual void onUndo() override { param->overwrite(oldValue); }
@@ -323,7 +323,7 @@ public:
 			EditAction(Ptr<RealParameter> p, double newValue_) : param(p) {
 				oldValue = p->value;
 				newValue = newValue_;
-				name = "Edited " + param->getName() + " from " + std::to_string(oldValue) + " to " + std::to_string(newValue);
+				name = "Change " + param->getName() + " value from " + std::to_string(oldValue) + " to " + std::to_string(newValue);
 			}
 			virtual void onExecute() override { param->overwrite(newValue); }
 			virtual void onUndo() override { param->overwrite(oldValue); }
@@ -405,7 +405,7 @@ public:
 			EditAction(Ptr<StringParameter> p, std::string newValue_) : param(p) {
 				oldValue = p->value;
 				newValue = newValue_;
-				name = "Edited " + param->getName() + " from \"" + oldValue + "\" to \"" + newValue + "\"";
+				name = "Change " + param->getName() + " value from \"" + oldValue + "\" to \"" + newValue + "\"";
 			}
 			virtual void onExecute() override { param->overwrite(newValue); }
 			virtual void onUndo() override { param->overwrite(oldValue); }
@@ -505,9 +505,9 @@ public:
 				newValue = newValue_;
 				Opt* oldOption = param->findOption(oldValue);
 				Opt* newOption = param->findOption(newValue);
-				name = "Edited " + param->getName() + " from "
-					+ (oldOption == nullptr ? std::to_string(oldValue) : oldOption->name) + " to \""
-					+ (newOption == nullptr ? std::to_string(newValue) : newOption->name) + "\"";
+				name = "Change " + param->getName() + " value from "
+					+ (oldOption == nullptr ? std::to_string(oldValue) : oldOption->name) + " to "
+					+ (newOption == nullptr ? std::to_string(newValue) : newOption->name);
 			}
 			virtual void onExecute() override { param->overwrite(newValue); }
 			virtual void onUndo() override { param->overwrite(oldValue); }

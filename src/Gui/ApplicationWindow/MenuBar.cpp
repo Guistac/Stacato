@@ -60,8 +60,26 @@ class InterfaceThing : public Legato::Component{
 };
 
 
+
+enum OptionEnum{
+	TYPE_ZERO = 0,
+	TYPE_ONE = 1,
+	TYPE_TWO = 2,
+	TYPE_THREE = 3
+};
+
 class ChildThing : public Legato::Component{
 	COMPONENT_IMPLEMENTATION(ChildThing)
+public:
+	static Ptr<ChildThing> make(std::string val4, bool val1 = false, int val2 = 0, double val3 = 0.0, OptionEnum val5 = TYPE_ZERO){
+		auto instance = ChildThing::make();
+		instance->param1->overwrite(val1);
+		instance->param2->overwrite(val2);
+		instance->param3->overwrite(val3);
+		instance->param4->overwrite(val4);
+		instance->param5->overwrite(val5);
+		return instance;
+	}
 	virtual void onConstruction() override {
 		Component::onConstruction();
 		addChild(parameters);
@@ -81,12 +99,6 @@ class ChildThing : public Legato::Component{
 	}
 public:
 	int value = 0;
-	enum OptionEnum{
-		TYPE_ZERO = 0,
-		TYPE_ONE = 1,
-		TYPE_TWO = 2,
-		TYPE_THREE = 3
-	};
 	
 	Legato::Boolean param1 = Legato::makeBoolean(false, "Parameter 1", "Param1");
 	Legato::Integer param2 = Legato::makeInteger(0, "Parameter 2", "Param2");
@@ -132,12 +144,21 @@ public:
 class ProjectThing : public Legato::Project{
 	COMPONENT_IMPLEMENTATION(ProjectThing)
 public:
-	
+	static Ptr<ProjectThing> make(std::filesystem::path path){
+		auto instance = ProjectThing::make();
+		instance->setPath(path);
+		return instance;
+	}
 };
 
 class FileThing : public Legato::File{
 	COMPONENT_IMPLEMENTATION(FileThing)
 public:
+	static Ptr<FileThing> make(std::filesystem::path path){
+		auto instance = FileThing::make();
+		instance->setPath(path);
+		return instance;
+	}
 };
 
 void drawChildren(Ptr<Legato::Component> parent){
@@ -162,6 +183,8 @@ void drawChildren(Ptr<Legato::Component> parent){
 	}
 	else{
 		displayString = "[" + parent->getClassName() + "] <" + parent->getIdentifier() + ">";
+		completePath = parent->getIdentifierPath();
+		b_directory = true;
 	}
 	
 	
@@ -169,7 +192,7 @@ void drawChildren(Ptr<Legato::Component> parent){
 	if(parent->hasChildren()){
 		if(ImGui::TreeNode(displayString.c_str())){
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
-			if(b_directory) ImGui::Text("Path : %s", completePath.c_str());
+			ImGui::Text("Path : %s", completePath.c_str());
 			ImGui::PopStyleColor();
 			auto& children = parent->getChildren();
 			for(int i = 0; i < children.size(); i++){
@@ -183,6 +206,9 @@ void drawChildren(Ptr<Legato::Component> parent){
 	else {
 		ImGui::TreePush("Tree");
 		ImGui::Text("%s", displayString.c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
+		ImGui::Text("Path : %s", completePath.c_str());
+		ImGui::PopStyleColor();
 		if(auto param = parent->cast<Legato::Parameter>()) param->gui(false);
 		ImGui::TreePop();
 	}
@@ -600,34 +626,41 @@ namespace Stacato::Gui {
 			ImGui::BeginDisabled(!proj->canUndo());
 			if(ImGui::Button("Undo")) proj->undo();
 			ImGui::EndDisabled();
+			auto undoAction = proj->getUndoableAction();
+			if(ImGui::IsItemHovered() && undoAction && ImGui::BeginTooltip()){
+				ImGui::Text("Undo %s", undoAction->getName().c_str());
+				ImGui::EndTooltip();
+			}
 			ImGui::SameLine();
 			ImGui::BeginDisabled(!proj->canRedo());
 			if(ImGui::Button("Redo")) proj->redo();
 			ImGui::EndDisabled();
+			auto redoAction = proj->getRedoableAction();
+			if(ImGui::IsItemHovered() && redoAction && ImGui::BeginTooltip()){
+				ImGui::Text("Redo %s", redoAction->getName().c_str());
+				ImGui::EndTooltip();
+			}
 			
 			
 			if(!b_testInit){
 				b_testInit = true;
-				proj = ProjectThing::make();
-				proj->setPath("LegatoTestProject.stacato");
 				
+				proj = ProjectThing::make("LegatoTestProject.stacato");
 				auto dir1 = proj->addDirectory("folder1");
-				auto file1 = FileThing::make();
-				file1->setPath("test.file");
+				auto dir2 = proj->addDirectory("folder2");
+				
+				auto file1 = FileThing::make("test.file");
 				dir1->addChild(file1);
 				auto rt = RealThing::make();
 				file1->addChild(rt);
 				
-				auto dir2 = Legato::Directory::make("folder2");
-				proj->addChild(dir2);
-				auto file2 = FileThing::make();
-				file2->setPath("ListFile.test");
+				auto file2 = FileThing::make("ListFile.test");
 				dir2->addChild(file2);
-				auto realList = Legato::List<ChildThing>::make("ThingList", "ListItemHehehe");
+				auto realList = Legato::makeList<ChildThing>("ThingList");
 				file2->addChild(realList);
 				realList->addEntry(ChildThing::make());
-				realList->addEntry(ChildThing::make());
-				realList->addEntry(ChildThing::make(),1);
+				realList->addEntry(ChildThing::make("Not a default argument"));
+				realList->addEntry(ChildThing::make("added last, but at index 1", true, 123, 456.789, OptionEnum::TYPE_THREE),1);
 			}
 			drawChildren(proj);
 			

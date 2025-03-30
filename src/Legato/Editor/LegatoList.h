@@ -6,19 +6,12 @@
 namespace Legato{
 
 	template<typename T>
-	class List : public Component{
-		COMPONENT_IMPLEMENTATION_NOADDCHILD(List)
+	class ListComponent : public Component{
+		COMPONENT_IMPLEMENTATION_NOADDCHILD(ListComponent)
 		
 	public:
-		//this was suggested by chatGPT to make sure we only create lists templated with serializable elements
-		static_assert(std::is_base_of<Component, T>::value, "Templated type must be derived from Component since the elements in the list must be saved and loaded");
-		
-		static std::shared_ptr<List> make(std::string ID, std::string entryID){
-			auto newInstance = make();
-			newInstance->setIdentifier(ID);
-			newInstance->setEntryIdentifier(entryID);
-			return newInstance;
-		}
+		//this was suggested by chatGPT to make sure we only create lists templated with Component elements
+		static_assert(std::is_base_of<Component, T>::value, "[Legato::ListComponent] Templated type must be derived from Legato::Component since the elements in the list must be saved and loaded");
 		
 		void setEntryIdentifier(std::string entryID){
 			if(sanitizeXmlIdentifier(entryID, entryIdentifier)){
@@ -113,7 +106,7 @@ namespace Legato{
 			//Add the default entry constructor so the user doesn't have to add it
 			entryConstructor = []() -> Ptr<T> { return T::make(); };
 			//Also add the default entry constructor
-			entryIdentifier = T::getStaticClassName();
+			setEntryIdentifier(T::getStaticClassName());
 		};
 		
 		bool onSerialization() override {
@@ -138,12 +131,12 @@ namespace Legato{
 				 return false;
 			}
 			if(entryIdentifier.empty()){
-				Logger::error("Could not load list <{}> : no entry identifier provided", identifier);
+				Logger::error("[List] Could not load list <{}> : no entry identifier provided", identifier);
 				return false;
 			}
 			xmlElement = parentComponent->xmlElement->FirstChildElement(identifier.c_str());
 				if(xmlElement == nullptr){
-				Logger::error("[List] Could not load element <{}> : could not find XML element", identifier);
+				Logger::error("[Load Failure] {} : could not find XML element", getIdentifierPath());
 				return false;
 			}
 			
@@ -171,6 +164,20 @@ namespace Legato{
 			
 		}
 		
+		friend std::shared_ptr<ListComponent> makeList(std::string ID, std::string entryID);
+		
 	};
+
+	template<typename T>
+	using List = Ptr<ListComponent<T>>;
+
+	template<typename T>
+	inline List<T> makeList(std::string ID, std::string entryID = ""){
+		auto newInstance = ListComponent<T>::make();
+		newInstance->setIdentifier(ID);
+		//entry ID is not mandatory, since the default entry identifier is T:getStaticClassName()
+		if(!entryID.empty()) newInstance->setEntryIdentifier(entryID);
+		return newInstance;
+	}
 
 }

@@ -27,13 +27,14 @@ private:																		\
 
 
 
+//add this to each user created component class that is an uninstanciable interface
 #define COMPONENT_INTERFACE(Typename)		\
 COMPONENT_INTERFACE_NOADDCHILD(Typename)	\
 public:										\
 	using Component::addChild;				\
 
 
-
+//add this to each user create component derived class that is a final implementation
 #define COMPONENT_IMPLEMENTATION(Typename)		\
 COMPONENT_IMPLEMENTATION_NOADDCHILD(Typename)	\
 public:											\
@@ -41,11 +42,11 @@ public:											\
 
 
 
+//This makes stuff less verbose
 template<typename T>
 using Ptr = std::shared_ptr<T>;
 
-
-//forward declaration
+//forward declaration to avoid including tinyxml2 in a header file
 namespace tinyxml2{ class XMLElement; }
 
 
@@ -64,8 +65,8 @@ namespace Legato{
 	class Component : public std::enable_shared_from_this<Component>{
 	public:
 		
-		template<typename T>
-		friend class List;
+		template<typename T> //the template applies to class List<T> only
+		friend class ListComponent;
 		friend class File;
 		friend class Directory;
 		friend class Project;
@@ -76,8 +77,12 @@ namespace Legato{
 		
 		virtual void setName(std::string newName){ name = newName; }
 		std::string getName(){ return name; }
+		
 		void setIdentifier(std::string input);
 		std::string getIdentifier(){ return identifier; }
+		
+		std::string getIdentifierPath();
+		
 		virtual bool serialize();
 		virtual bool deserialize();
 		
@@ -87,22 +92,15 @@ namespace Legato{
 		virtual std::string getClassName() = 0;
 		
 	protected:
-		Ptr<Component> duplicateComponent();
 		
 		virtual void onConstruction();
 		virtual void copyFrom(Ptr<Component> source){
 			setName(source->name);
 			setIdentifier(source->identifier);
 		}
-		virtual bool onSerialization(){
-			return true;
-		}
-		virtual bool onDeserialization(){
-			return true;
-		}
-		virtual void onPostLoad(){
-			return true;
-		}
+		virtual bool onSerialization(){ 	return true; }
+		virtual bool onDeserialization(){ 	return true; }
+		virtual void onPostLoad(){ 			return true; }
 		
 		bool serializeBoolAttribute(const std::string idString, bool data);
 		bool serializeIntAttribute(const std::string idString, int data);
@@ -114,26 +112,25 @@ namespace Legato{
 		bool deserializeLongAttribute(const std::string idString, long long& data);
 		bool deserializeDoubleAttribute(const std::string idString, double& data);
 		bool deserializeStringAttribute(const std::string idString, std::string& data);
-		
-		void addChildDependencies(Ptr<Component> child);
-		
-		tinyxml2::XMLElement* xmlElement = nullptr;
-		std::string identifier = "DefaultIdentifier";
-		std::string name = "Default Name";
-		Ptr<Component> parentComponent = nullptr;
-		std::vector<Ptr<Component>> childComponents = {};
-		Ptr<Project> parentProject = nullptr;
-		Ptr<Directory> parentDirectory = nullptr;
-		Ptr<File> parentFile = nullptr;
-		
-		virtual void addChild(Ptr<Component> child);
-		
-	private:
-		virtual Ptr<Component> instanciateComponent() = 0;
-		
 		bool checkAttributeSerializationError(std::string& ID);
 		bool checkAttributeDeserializationError(std::string& ID);
 		bool checkAttributeDeserializationResult(int result, std::string& ID);
+		
+		std::string name = "Default Name";
+		
+		std::string identifier = "DefaultIdentifier";
+		tinyxml2::XMLElement* xmlElement = nullptr;
+		
+		virtual Ptr<Component> addChild(Ptr<Component> child);
+		void addChildDependencies(Ptr<Component> child);
+		std::vector<Ptr<Component>> childComponents = {};
+		
+		Ptr<Component> parentComponent = nullptr; //use to serialize and deserialize
+		Ptr<File> parentFile = nullptr; //used to construct complete paths
+		Ptr<Project> parentProject = nullptr; //used to execute undaoble actions
+		
+		virtual Ptr<Component> instanciateComponent() = 0;
+		Ptr<Component> duplicateComponent();
 		
 	};
 

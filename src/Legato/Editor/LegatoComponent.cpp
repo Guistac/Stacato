@@ -55,18 +55,26 @@ void Legato::Component::setIdentifier(std::string input){
 	else identifier = input;
 }
 
+std::string Legato::Component::getIdentifierPath(){
+	std::string identifierPath = identifier;
+	if(parentComponent == nullptr) return identifier;
+	else if(parentComponent == parentFile) return parentFile->getPath().string() + "/<" + identifier + ">";
+	else return parentComponent->getIdentifierPath() + "/<" + identifier + ">";
+}
+
 void Legato::Component::onConstruction(){
 	setIdentifier(getClassName());
 }
 
-void Legato::Component::addChild(Ptr<Component> child){
-	if(child == nullptr) return;
+Ptr<Legato::Component> Legato::Component::addChild(Ptr<Component> child){
+	if(child == nullptr) return nullptr;
 	if(hasChild(child)) {
 		Logger::warn("[{}:{}] cannot add duplicate component [{}:{}]", getClassName(), getName(), child->getClassName(), child->getName());
-		return;
+		return nullptr;
 	}
 	addChildDependencies(child);
 	childComponents.push_back(child);
+	return child;
 }
 
 bool Legato::Component::hasChild(Ptr<Component> input){
@@ -83,11 +91,6 @@ void Legato::Component::addChildDependencies(Ptr<Component> child){
 	}
 	else child->parentFile = parentFile;
 	
-	if(auto thisDirectory = cast<Directory>()){
-		child->parentDirectory = thisDirectory;
-	}
-	else child->parentDirectory = parentDirectory;
-	
 	if(auto thisProject = cast<Project>()){
 		child->parentProject = thisProject;
 	}
@@ -96,10 +99,8 @@ void Legato::Component::addChildDependencies(Ptr<Component> child){
 	//in case a component already has children when adding it to a parent
 	//we need the parents dependencies to be propagated down the hierarchy
 	//maybe this is an inefficient way to do it?
-	for(auto child : childComponents){
-		for(auto childrensChild : child->childComponents){
-			child->addChildDependencies(childrensChild);
-		}
+	for(auto childrensChild : child->childComponents){
+		child->addChildDependencies(childrensChild);
 	}
 }
 
@@ -125,7 +126,7 @@ bool Legato::Component::deserialize(){
 	}
 	xmlElement = parentComponent->xmlElement->FirstChildElement(identifier.c_str());
 	if(xmlElement == nullptr){
-		Logger::error("Could not load element <{}> : could not find XML element", identifier);
+		Logger::error("[Load Failure] {} : could not find XML element", getIdentifierPath());
 		return false;
 	}
 	//this deserializes and creates all necessary ChildComponents
@@ -211,16 +212,16 @@ bool Legato::Component::checkAttributeDeserializationError(std::string& ID){
 bool Legato::Component::checkAttributeDeserializationResult(int result, std::string& ID){
 	switch(result){
 		case tinyxml2::XML_SUCCESS:
-			Logger::trace("Deserialized attribute '{}' of element <{}>", ID, identifier);
+			//Logger::trace("Deserialized attribute '{}' of element <{}>", ID, identifier);
 			return true;
 		case tinyxml2::XML_NO_ATTRIBUTE:
-			Logger::error("Failed to load attribute '{}' of element <{}> : No Attribute found", ID, identifier);
+			Logger::error("[Load Failure] {}/{} : No Attribute found", getIdentifierPath(), ID);
 			return false;
 		case tinyxml2::XML_WRONG_ATTRIBUTE_TYPE:
-			Logger::error("Failed to load attribute '{}' of element <{}> : Wrong Attribute Type", ID, identifier);
+			Logger::error("[Load Error] {}/{} : Wrong Attribute Type", getIdentifierPath(), ID);
 			return false;
 		default:
-			Logger::error("Failed to load attribute '{}' of element <{}> : tinyxml::XMLError {}", ID, identifier, result);
+			Logger::error("[Load Error] {}/{} : tinyxml::XMLError {}", getIdentifierPath(), ID, result);
 			return false;
 	}
 }

@@ -13,9 +13,9 @@ namespace Legato{
 		virtual bool deserialize() override;
 		
 		virtual void setPath(std::filesystem::path fileName);
+		bool hasPath(){ return !path.empty(); }
 		std::filesystem::path getPath(){ return path; }
 		std::filesystem::path getCompletePath();
-		bool hasPath(){ return !path.empty(); }
 		
 	protected:
 		std::filesystem::path path;
