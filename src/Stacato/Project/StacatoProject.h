@@ -35,7 +35,7 @@ protected:
 	 virtual void copyFrom(Ptr<Legato::Component> source) override;
 	 virtual bool onSerialization() override;
 	 virtual bool onDeserialization() override;
-	 virtual void onPostLoad() override;
+	 virtual bool onPostLoad() override;
 	 
  private:
 	 

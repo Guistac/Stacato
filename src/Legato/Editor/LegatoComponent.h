@@ -100,7 +100,7 @@ namespace Legato{
 		}
 		virtual bool onSerialization(){ 	return true; }
 		virtual bool onDeserialization(){ 	return true; }
-		virtual void onPostLoad(){ 			return true; }
+		virtual bool onPostLoad(){ 			return true; }
 		
 		bool serializeBoolAttribute(const std::string idString, bool data);
 		bool serializeIntAttribute(const std::string idString, int data);

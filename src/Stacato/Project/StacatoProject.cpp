@@ -159,7 +159,7 @@ bool StacatoProject::onDeserialization() {
 	return true;
 };
 
-void StacatoProject::onPostLoad(){}
+bool StacatoProject::onPostLoad(){}
 
 //bool StacatoProject::canClose() { return !hasUnsavedModifications() && !Environnement::isRunning(); }
 
