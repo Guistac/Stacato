@@ -83,13 +83,13 @@ namespace Legato{
 			Component::copyFrom(source);
 		}
 		virtual bool onSerialization() override {
-			Component::onSerialization();
+			return Component::onSerialization();
 		}
 		virtual bool onDeserialization() override {
-			Component::onDeserialization();
+			return Component::onDeserialization();
 		}
 		virtual bool onPostLoad() override {
-			Component::onPostLoad();
+			return Component::onPostLoad();
 		}
 		virtual void onEdit(){
 			for(auto& editCallback : editCallbacks) {
@@ -146,12 +146,15 @@ namespace Legato{
 		}
 		virtual bool onSerialization() override{
 			Parameter::onSerialization();
-			serializeBoolAttribute("value", value);
+			return serializeBoolAttribute("value", value);
 		}
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
-			deserializeBoolAttribute("value", value);
-			overwrite(value);
+			if(deserializeBoolAttribute("value", value)){
+				overwrite(value);
+				return true;
+			}
+			return false;
 		}
 		
 		bool displayValue = false;
@@ -220,12 +223,15 @@ namespace Legato{
 		}
 		virtual bool onSerialization() override{
 			Parameter::onSerialization();
-			serializeLongAttribute("value", value);
+			return serializeLongAttribute("value", value);
 		}
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
-			deserializeLongAttribute("value", value);
-			displayValue = value;
+			if(deserializeLongAttribute("value", value)){
+				overwrite(value);
+				return true;
+			}
+			return false;
 		}
 	private:
 		long long displayValue = false;
@@ -303,12 +309,15 @@ namespace Legato{
 		}
 		virtual bool onSerialization() override{
 			Parameter::onSerialization();
-			serializeDoubleAttribute("value", value);
+			return serializeDoubleAttribute("value", value);
 		}
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
-			deserializeDoubleAttribute("value", value);
-			displayValue = value;
+			if(deserializeDoubleAttribute("value", value)){
+				overwrite(value);
+				return true;
+			}
+			return false;
 		}
 	private:
 		double displayValue = false;
@@ -394,7 +403,8 @@ namespace Legato{
 			if(deserializeStringAttribute("value", value)){
 				overwrite(value);
 				return true;
-			} else return false;
+			}
+			return false;
 		}
 	private:
 		char displayValue[256];
@@ -488,12 +498,15 @@ namespace Legato{
 		}
 		virtual bool onSerialization() override{
 			Parameter::onSerialization();
-			serializeIntAttribute("value", value);
+			return serializeIntAttribute("value", value);
 		}
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
-			deserializeIntAttribute("value", value);
-			overwrite(value);
+			if(deserializeIntAttribute("value", value)){
+				overwrite(value);
+				return true;
+			}
+			return false;
 		}
 		int value;
 		Opt* displayValue = nullptr;

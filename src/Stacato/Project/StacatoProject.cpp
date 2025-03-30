@@ -67,7 +67,7 @@ bool StacatoProject::onSerialization() {
 	std::string plotListFilePath = plotsFolder + "/PlotList.stacatoPlotList";
 	plotListXML.SaveFile(plotListFilePath.c_str());
 	
-	return false;
+	return true;
 };
 
 bool StacatoProject::onDeserialization() {
@@ -159,7 +159,7 @@ bool StacatoProject::onDeserialization() {
 	return true;
 };
 
-bool StacatoProject::onPostLoad(){}
+bool StacatoProject::onPostLoad(){ return true; }
 
 //bool StacatoProject::canClose() { return !hasUnsavedModifications() && !Environnement::isRunning(); }
 

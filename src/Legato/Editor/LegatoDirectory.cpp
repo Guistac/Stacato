@@ -31,11 +31,12 @@ bool Legato::Directory::serialize(){
 		std::filesystem::create_directory(path);
 	}
 	
+	bool b_success = true;
 	for(auto child : getChildren()){
-		child->serialize();
+		b_success &= child->serialize();
 	}
 	
-	return true;
+	return b_success;
 }
 
 bool Legato::Directory::deserialize(){
@@ -51,7 +52,10 @@ bool Legato::Directory::deserialize(){
 		return false;
 	}
 	
+	bool b_success = true;
 	for(auto child : getChildren()){
-		child->deserialize();
+		b_success &= child->deserialize();
 	}
+	
+	return b_success;
 }

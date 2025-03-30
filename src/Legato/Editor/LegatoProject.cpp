@@ -32,14 +32,16 @@ bool Legato::Project::serialize(){
 		}
 	}
 	
-	onSerialization();
+	bool b_success = true;
+	b_success &= onSerialization();
 	for(auto child : getChildren()){
-		child->serialize();
+		b_success &= child->serialize();
 	}
 	
-	Logger::info("[Project] Successfully serialized project {}", path.string());
+	if(b_success) Logger::info("[Project] {} Saved Successfully", path.string());
+	else Logger::warn("[Project] {} Saved with errors", path.string());
 	
-	return true;
+	return b_success;
 }
 
 bool Legato::Project::deserialize(){
@@ -55,14 +57,18 @@ bool Legato::Project::deserialize(){
 		return false;
 	}
 	
-	onDeserialization();
+	bool b_success = true;
+	
+	b_success &= onDeserialization();
 	for(auto child : getChildren()){
-		child->deserialize();
+		b_success &= child->deserialize();
 	}
+	b_success &= onPostLoad();
 	
-	Logger::info("[Project] Successfully deserialized project {}", path.string());
+	if(b_success) Logger::info("[Project] {} loaded successfully", path.string());
+	else Logger::warn("[Project] {} loaded with errors", path.string());
 	
-	return true;
+	return b_success;
 }
 
 

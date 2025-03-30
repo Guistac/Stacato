@@ -118,9 +118,9 @@ namespace Legato{
 				Logger::error("Could not save list, element <{}> was not serialized first", identifier);
 				return false;
 			}
-			for(auto entry : childComponents){
-				entry->setIdentifier(entryIdentifier);
-			}
+			
+			for(auto entry : childComponents) entry->setIdentifier(entryIdentifier);
+			
 			return true;
 		}
 		
@@ -142,6 +142,7 @@ namespace Legato{
 			
 			childComponents.clear();
 
+			
 			tinyxml2::XMLElement* entryXML = xmlElement->FirstChildElement(entryIdentifier.c_str());
 			while(entryXML != nullptr){
 				std::shared_ptr<T> loadedEntry = entryConstructor();
@@ -152,15 +153,18 @@ namespace Legato{
 				entryXML = entryXML->NextSiblingElement(entryIdentifier.c_str());
 			}
 			
+			bool b_success = true;
 			for(auto child : childComponents){
-				child->onDeserialization();
-				for(auto childChild : child->childComponents) childChild->deserialize();
-				child->onPostLoad();
+				b_success &= child->onDeserialization();
+				for(auto childChild : child->childComponents) {
+					b_success &= childChild->deserialize();
+				}
+				b_success &= child->onPostLoad();
 			}
 			
-			onPostLoad();
+			b_success &= onPostLoad();
 			
-			return true;
+			return b_success;
 			
 		}
 		

@@ -113,9 +113,12 @@ bool Legato::Component::serialize(){
 		return false;
 	}
 	xmlElement = parentComponent->xmlElement->InsertNewChildElement(identifier.c_str());
-	onSerialization();
-	for(auto child : childComponents) child->serialize();
-	return true;
+	bool b_success = true;
+	b_success &= onSerialization();
+	for(auto child : childComponents) {
+		b_success &= child->serialize();
+	}
+	return b_success;
 }
 
 
@@ -129,14 +132,17 @@ bool Legato::Component::deserialize(){
 		Logger::error("[Load Failure] {} : could not find XML element", getIdentifierPath());
 		return false;
 	}
+	bool b_success = true;
 	//this deserializes and creates all necessary ChildComponents
-	onDeserialization();
+	b_success &= onDeserialization();
 	//this deserializes all child components
-	for(auto child : childComponents) child->deserialize();
+	for(auto child : childComponents) {
+		b_success &= child->deserialize();
+	}
 	//this gets called after all children are deserialized,
 	//in case the Component needs to initialize stuff after children have loaded
-	onPostLoad();
-	return true;
+	b_success &= onPostLoad();
+	return b_success;
 }
 
 

@@ -12,22 +12,24 @@ bool Legato::File::serialize(){
 	
 	if(!path.has_filename()) {
 		Logger::error("[File] Cannot serialize, "" is not a filename", path.string());
-		return;
+		return false;
 	}
 	
 	tinyxml2::XMLDocument xmlDocument;
 	xmlElement = xmlDocument.NewElement(identifier.c_str());
 	xmlDocument.InsertEndChild(xmlElement);
 	
-	onSerialization();
-	for(auto child : childComponents) child->serialize();
+	bool b_success = true;
+	b_success &= onSerialization();
+	for(auto child : childComponents) {
+		b_success &= child->serialize();
+	}
 	
 	std::filesystem::path completePath = getCompletePath();
 	tinyxml2::XMLError result = xmlDocument.SaveFile(completePath.c_str());
 	switch(result){
 		case tinyxml2::XMLError::XML_SUCCESS:
-			Logger::debug("[File] Successfully saved file '{}'", completePath.c_str());
-			return true;
+			break;
 		case tinyxml2::XMLError::XML_ERROR_FILE_COULD_NOT_BE_OPENED:
 			Logger::error("[File] Failed to write file '{}' : Invalid file path", completePath.c_str());
 			return false;
@@ -36,14 +38,17 @@ bool Legato::File::serialize(){
 			return false;
 	}
 	
-	return true;
+	if(b_success) Logger::debug("[File] Successfully saved file '{}'", completePath.c_str());
+	else Logger::warn("[File] '{}' File saved with errors", completePath.c_str());
+	
+	return b_success;
 }
 
 bool Legato::File::deserialize(){
 	
 	if(!path.has_filename()) {
 		Logger::error("[File] Cannot deserialize, "" is not a filename", path.string());
-		return;
+		return false;
 	}
 	
 	std::filesystem::path completePath = getCompletePath();
@@ -75,12 +80,14 @@ bool Legato::File::deserialize(){
 		return false;
 	}
 	
-	onDeserialization();
-	for(auto child : childComponents) child->deserialize();
-	onPostLoad();
+	bool b_success = true;
+	b_success &= onDeserialization();
+	for(auto child : childComponents) {
+		b_success &= child->deserialize();
+	}
+	b_success &= onPostLoad();
 		
-	Logger::debug("Successfully read file '{}'", completePath.string());
-	return true;
+	return b_success;
 }
  
 void Legato::File::setPath(std::filesystem::path input){
