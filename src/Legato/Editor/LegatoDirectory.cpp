@@ -1,31 +1,31 @@
 #include "LegatoDirectory.h"
 
+Ptr<Legato::Directory> Legato::Directory::addDirectory(std::filesystem::path folderName){
+	auto newDirectory = Directory::make(folderName);
+	addChild(newDirectory);
+	return newDirectory;
+}
+
 void Legato::Directory::setPath(std::filesystem::path input){
 	if(input.empty()){
 		Logger::error("[Directory] path is empty");
 		return;
 	}
-	directoryName = input;
-}
-
-std::filesystem::path Legato::Directory::getPath(){
-	std::filesystem::path completePath = directoryName;
-	Ptr<Directory> nextDir = parentDirectory;
-	while(nextDir){
-		completePath = nextDir->getDirectoryName() / completePath;
-		nextDir = nextDir->parentDirectory;
+	else if(std::distance(input.begin(), input.end()) != 1){
+		Logger::error("[Directory] '{}' path cannot contain multiple directories", input.string());
+		return;
 	}
-	return completePath;
+	else path = input;
 }
 
 bool Legato::Directory::serialize(){
 	
-	if(directoryName.empty()){
+	if(path.empty()){
 		Logger::error("[Directory] cannot serialize, directory name is empty");
 		return false;
 	}
 	
-	std::filesystem::path path = getPath();
+	std::filesystem::path path = getCompletePath();
 	if(!std::filesystem::exists(path)){
 		Logger::debug("[Directory] creating {}", path.string());
 		std::filesystem::create_directory(path);
@@ -40,12 +40,12 @@ bool Legato::Directory::serialize(){
 
 bool Legato::Directory::deserialize(){
 	
-	if(directoryName.empty()){
+	if(path.empty()){
 		Logger::error("[Directory] cannot deserialize, directory name is empty");
 		return false;
 	}
 	
-	std::filesystem::path path = getPath();
+	std::filesystem::path path = getCompletePath();
 	if(!std::filesystem::exists(path)){
 		Logger::error("[Directory] Could not load, directory does not exists: {}", path.string());
 		return false;

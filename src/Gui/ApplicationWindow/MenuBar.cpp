@@ -147,17 +147,17 @@ void drawChildren(Ptr<Legato::Component> parent){
 
 	if(auto project = parent->cast<Legato::Project>()){
 		displayString = "[Project:" + project->getClassName() + "]";
-		completePath = project->getPath().string() + "/";
+		completePath = project->getCompletePath().string() + "/";
 		b_directory = true;
 	}
 	else if(auto directory = parent->cast<Legato::Directory>()){
-		displayString = "[Directory] " + directory->getDirectoryName().string() + "/";
-		completePath = directory->getPath().string() + "/";
+		displayString = "[Directory] " + directory->getPath().string() + "/";
+		completePath = directory->getCompletePath().string() + "/";
 		b_directory = true;
 	}
 	else if(auto file = parent->cast<Legato::File>()){
-		displayString = "[File:" + file->getClassName() + "] " + file->getFileName().string() + " <" + file->getIdentifier() + ">";
-		completePath = file->getPath();
+		displayString = "[File:" + file->getClassName() + "] " + file->getPath().string() + " <" + file->getIdentifier() + ">";
+		completePath = file->getCompletePath();
 		b_directory = true;
 	}
 	else{
@@ -247,13 +247,13 @@ namespace Stacato::Gui {
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::gray);
 			ImGui::PushFont(Fonts::sansBold15);
 			if(currentProject == nullptr) ImGui::Text("No Project Loaded.");
-			else ImGui::Text("Current Project : %s", currentProject->getFileName().c_str());
+			else ImGui::Text("Current Project : %s", currentProject->getPath().c_str());
 			ImGui::PopFont();
 			ImGui::PopStyleColor();
 			
 			ImGui::BeginDisabled(currentProject == nullptr);
 			
-			ImGui::BeginDisabled(!currentProject->hasFileName());
+			ImGui::BeginDisabled(!currentProject->hasPath());
 			if (ImGui::MenuItem("Save", saveShortcut.getString())) currentProject->serialize();
 			ImGui::EndDisabled();
 			
@@ -281,7 +281,7 @@ namespace Stacato::Gui {
 				ImGui::PushID(i);
 				auto file = files[i];
 				bool isCurrent = currentProject == file;
-				std::string name = file->getFileName().string();
+				std::string name = file->getPath().string();
 				if(name.empty()) name = "[Unsaved Project]";
 				if(ImGui::MenuItem(name.c_str(), nullptr, isCurrent)){
 					if(auto project = std::dynamic_pointer_cast<StacatoProject>(file)){
@@ -609,12 +609,11 @@ namespace Stacato::Gui {
 			if(!b_testInit){
 				b_testInit = true;
 				proj = ProjectThing::make();
-				proj->setFileName("LegatoTestProject.stacato");
+				proj->setPath("LegatoTestProject.stacato");
 				
-				auto dir1 = Legato::Directory::make("folder1");
-				proj->addChild(dir1);
+				auto dir1 = proj->addDirectory("folder1");
 				auto file1 = FileThing::make();
-				file1->setFileName("test.file");
+				file1->setPath("test.file");
 				dir1->addChild(file1);
 				auto rt = RealThing::make();
 				file1->addChild(rt);
@@ -622,7 +621,7 @@ namespace Stacato::Gui {
 				auto dir2 = Legato::Directory::make("folder2");
 				proj->addChild(dir2);
 				auto file2 = FileThing::make();
-				file2->setFileName("ListFile.test");
+				file2->setPath("ListFile.test");
 				dir2->addChild(file2);
 				auto realList = Legato::List<ChildThing>::make("ThingList", "ListItemHehehe");
 				file2->addChild(realList);

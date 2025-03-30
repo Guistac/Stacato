@@ -1,14 +1,26 @@
 #include "LegatoProject.h"
 #include "LegatoAction.h"
 
+void Legato::Project::setPath(std::filesystem::path projectFilePath){
+	if(projectFilePath.empty()){
+		Logger::warn("[Project] path is empty");
+		return;
+	}
+	else if(!projectFilePath.has_filename()){
+		Logger::warn("[Project] '{}' path does not contain a file name", projectFilePath.string());
+		return;
+	}
+	else path = projectFilePath;
+}
+
 bool Legato::Project::serialize(){
 	
-	if(fileName.empty()){
+	if(path.empty()){
 		Logger::error("[Project] cannot serialize, filename is empty");
 		return false;
 	}
 	
-	std::filesystem::path path = getPath();
+	std::filesystem::path path = getCompletePath();
 	if(!std::filesystem::exists(path)){
 		Logger::debug("[Project] creating {}", path.string());
 		try{
@@ -32,12 +44,12 @@ bool Legato::Project::serialize(){
 
 bool Legato::Project::deserialize(){
 	
-	if(fileName.empty()){
+	if(path.empty()){
 		Logger::error("[Project] cannot deserialize, filename is empty");
 		return false;
 	}
 	
-	std::filesystem::path path = getPath();
+	std::filesystem::path path = getCompletePath();
 	if(!std::filesystem::exists(path)){
 		Logger::error("[Project] Could not load, directory does not exists: {}", path.string());
 		return false;

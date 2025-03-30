@@ -61,8 +61,19 @@ void Legato::Component::onConstruction(){
 
 void Legato::Component::addChild(Ptr<Component> child){
 	if(child == nullptr) return;
+	if(hasChild(child)) {
+		Logger::warn("[{}:{}] cannot add duplicate component [{}:{}]", getClassName(), getName(), child->getClassName(), child->getName());
+		return;
+	}
 	addChildDependencies(child);
 	childComponents.push_back(child);
+}
+
+bool Legato::Component::hasChild(Ptr<Component> input){
+	for(auto child : childComponents){
+		if(child == input) return true;
+	}
+	return false;
 }
 
 void Legato::Component::addChildDependencies(Ptr<Component> child){

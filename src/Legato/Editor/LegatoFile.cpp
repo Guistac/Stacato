@@ -8,28 +8,10 @@ void Legato::File::onConstruction(){
 	setIdentifier(getClassName());
 }
 
-void Legato::File::setFileName(std::filesystem::path input){
-	if(!input.has_filename()) {
-		Logger::error("[File] '{}' does not contain a filename", input.string());
-		return;
-	}
-	fileName = input;
-}
-
-std::filesystem::path Legato::File::getPath(){
-	std::filesystem::path completePath = fileName;
-	Ptr<Directory> nextDir = parentDirectory;
-	while(nextDir){
-		completePath = nextDir->getDirectoryName() / completePath;
-		nextDir = nextDir->parentDirectory;
-	}
-	return completePath;
-}
-
 bool Legato::File::serialize(){
 	
-	if(!fileName.has_filename()) {
-		Logger::error("[File] Cannot serialize, "" is not a filename", fileName.string());
+	if(!path.has_filename()) {
+		Logger::error("[File] Cannot serialize, "" is not a filename", path.string());
 		return;
 	}
 	
@@ -40,7 +22,7 @@ bool Legato::File::serialize(){
 	onSerialization();
 	for(auto child : childComponents) child->serialize();
 	
-	std::filesystem::path completePath = getPath();
+	std::filesystem::path completePath = getCompletePath();
 	tinyxml2::XMLError result = xmlDocument.SaveFile(completePath.c_str());
 	switch(result){
 		case tinyxml2::XMLError::XML_SUCCESS:
@@ -59,12 +41,12 @@ bool Legato::File::serialize(){
 
 bool Legato::File::deserialize(){
 	
-	if(!fileName.has_filename()) {
-		Logger::error("[File] Cannot deserialize, "" is not a filename", fileName.string());
+	if(!path.has_filename()) {
+		Logger::error("[File] Cannot deserialize, "" is not a filename", path.string());
 		return;
 	}
 	
-	std::filesystem::path completePath = getPath();
+	std::filesystem::path completePath = getCompletePath();
 	tinyxml2::XMLDocument xmlDocument;
 	tinyxml2::XMLError result = xmlDocument.LoadFile(completePath.c_str());
 	switch(result){
@@ -101,7 +83,22 @@ bool Legato::File::deserialize(){
 	return true;
 }
  
+void Legato::File::setPath(std::filesystem::path input){
+	if(!input.has_filename()) {
+		Logger::error("[File] '{}' does not contain a filename", input.string());
+		return;
+	}
+	else if(input.has_parent_path()){
+		Logger::warn("[File] '{}' Path contains directory, truncating to filename.", input.string());
+		path = input.filename();
+	}
+	else path = input;
+}
 
+std::filesystem::path Legato::File::getCompletePath(){
+	if(parentDirectory) return parentDirectory->getCompletePath() / path;
+	else return path;
+}
 
 
 

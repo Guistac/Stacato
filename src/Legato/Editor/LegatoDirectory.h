@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LegatoComponent.h"
+#include "LegatoFile.h"
 
 namespace Legato{
 
-	class Directory : public Component{
+	class Directory : public File{
 		COMPONENT_IMPLEMENTATION(Directory)
 		friend class Project;
 	public:
@@ -13,14 +13,11 @@ namespace Legato{
 			newInstance->setPath(directoryName_);
 			return newInstance;
 		}
-		void setPath(std::filesystem::path input);
-		std::filesystem::path getDirectoryName(){ return directoryName; }
-		std::filesystem::path getPath();
+		virtual void setPath(std::filesystem::path folderName) override;
+		Ptr<Directory> addDirectory(std::filesystem::path folderName);
 	protected:
 		virtual bool serialize() override;
 		virtual bool deserialize() override;
-	private:
-		std::filesystem::path directoryName;
 	};
 
 }

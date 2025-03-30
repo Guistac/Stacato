@@ -154,7 +154,7 @@ void gui(){
 	bool save(){
 		if(Stacato::Editor::hasCurrentProject()){
 			auto project = Stacato::Editor::getCurrentProject();
-			if(project->hasFileName()) return project->serialize();
+			if(project->hasPath()) return project->serialize();
 			else return saveAs();
 		}
 		return false;
@@ -167,7 +167,7 @@ void gui(){
 		FileDialog::FileTypeFilter filter("Stacato Project File", "stacato");
 		if(FileDialog::save(path, filter, "project")) {
 			std::filesystem::path fsPath = path.path;
-			project->setFileName(fsPath);
+			project->setPath(fsPath);
 			return project->serialize();
 		}
 		return false;

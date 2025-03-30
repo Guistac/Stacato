@@ -104,7 +104,7 @@ std::shared_ptr<Legato::File> openFile(std::filesystem::path path){
 
 	if(fileExtension == ".stacato"){
 		auto loadedProject = StacatoProject::make();
-		loadedProject->setFileName(path);
+		loadedProject->setPath(path);
 		if(!loadedProject->deserialize()){
 			Logger::error("[Stacato] Failed to open stacato project {}", fileName);
 			return nullptr;

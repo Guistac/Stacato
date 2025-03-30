@@ -23,9 +23,9 @@ namespace Workspace{
 	}
 
 	bool hasFile(std::shared_ptr<Legato::File> file){
-		std::filesystem::path queriedPath = file->getFileName();
+		std::filesystem::path queriedPath = file->getCompletePath();
 		for(auto listedFile : files){
-			if(listedFile->getFileName() == queriedPath) return true;
+			if(listedFile->getCompletePath() == queriedPath) return true;
 		}
 		return false;
 	}

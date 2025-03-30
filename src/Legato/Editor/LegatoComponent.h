@@ -71,6 +71,7 @@ namespace Legato{
 		friend class Project;
 		
 		const std::vector<Ptr<Component>>& getChildren(){ return childComponents; }
+		bool hasChild(Ptr<Component> input);
 		bool hasChildren(){ return !childComponents.empty(); }
 		
 		virtual void setName(std::string newName){ name = newName; }

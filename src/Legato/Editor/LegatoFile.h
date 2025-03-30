@@ -8,18 +8,17 @@ namespace Legato{
 		COMPONENT_INTERFACE(File)
 	public:
 		
-		void onConstruction() override;
-		void setFileName(std::filesystem::path input);
-		
+		virtual void onConstruction() override;
 		virtual bool serialize() override;
 		virtual bool deserialize() override;
 		
-		std::filesystem::path getFileName(){ return fileName; }
-		std::filesystem::path getPath();
-		bool hasFileName(){ return !fileName.empty(); }
+		virtual void setPath(std::filesystem::path fileName);
+		std::filesystem::path getPath(){ return path; }
+		std::filesystem::path getCompletePath();
+		bool hasPath(){ return !path.empty(); }
 		
 	protected:
-		std::filesystem::path fileName;
+		std::filesystem::path path;
 	};
 
 }

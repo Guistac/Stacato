@@ -31,7 +31,7 @@ void StacatoProject::copyFrom(Ptr<Legato::Component> source) {
 
 bool StacatoProject::onSerialization() {
 
-	std::string projectFolderPath = fileName.string();
+	std::string projectFolderPath = path.string();
 	
 	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
 	if (!Environnement::save(environnementFilePath.c_str())) return false;
@@ -72,7 +72,7 @@ bool StacatoProject::onSerialization() {
 
 bool StacatoProject::onDeserialization() {
 	
-	std::string projectFolderPath = fileName.string();
+	std::string projectFolderPath = path.string();
 	if (!std::filesystem::is_directory(projectFolderPath)) return false;
 
 	//look for the environnement file
@@ -85,7 +85,7 @@ bool StacatoProject::onDeserialization() {
 		}
 	}
 	if(!b_loadedEnvironnementFile) {
-		Logger::warn("Could not load environnement file in project {}", fileName.string());
+		Logger::warn("Could not load environnement file in project {}", path.string());
 		return false;
 	}
 	
@@ -98,7 +98,7 @@ bool StacatoProject::onDeserialization() {
 	//look for the stage folder
 	std::string scriptFolderPath = projectFolderPath + "/Scripts";
 	if (!std::filesystem::exists(std::filesystem::path(scriptFolderPath))) {
-		Logger::warn("Could not find Scripts Folder in project {}", fileName.string());
+		Logger::warn("Could not find Scripts Folder in project {}", path.string());
 		return false;
 	}
 	
@@ -108,7 +108,7 @@ bool StacatoProject::onDeserialization() {
 	//look for the plot folder
 	std::string plotsFolderPath = projectFolderPath + "/Plots";
 	if (!std::filesystem::exists(std::filesystem::path(plotsFolderPath))) {
-		Logger::warn("Could not find Plot Folder in project {}", fileName.string());
+		Logger::warn("Could not find Plot Folder in project {}", path.string());
 		return false;
 	}
 	
