@@ -67,21 +67,32 @@ void Legato::Component::addChild(Ptr<Component> child){
 
 void Legato::Component::addChildDependencies(Ptr<Component> child){
 	child->parentComponent = shared_from_this();
-	if(auto thisFile = std::dynamic_pointer_cast<File>(shared_from_this())){
+	if(auto thisFile = cast<File>()){
 		child->parentFile = thisFile;
 	}
 	else child->parentFile = parentFile;
 	
-	if(auto thisDirectory = std::dynamic_pointer_cast<Directory>(shared_from_this())){
+	if(auto thisDirectory = cast<Directory>()){
 		child->parentDirectory = thisDirectory;
 	}
 	else child->parentDirectory = parentDirectory;
 	
-	if(auto thisProject = std::dynamic_pointer_cast<Project>(shared_from_this())){
+	if(auto thisProject = cast<Project>()){
 		child->parentProject = thisProject;
 	}
 	else child->parentProject = parentProject;
+	
+	//in case a component already has children when adding it to a parent
+	//we need the parents dependencies to be propagated down the hierarchy
+	//maybe this is an inefficient way to do it?
+	for(auto child : childComponents){
+		for(auto childrensChild : child->childComponents){
+			child->addChildDependencies(childrensChild);
+		}
+	}
 }
+
+
 
 
 bool Legato::Component::serialize(){

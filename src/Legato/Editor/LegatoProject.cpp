@@ -56,7 +56,7 @@ bool Legato::Project::deserialize(){
 
 
  
- void Legato::Project::pushAction(std::shared_ptr<Action> action){
+ void Legato::Project::execute(std::shared_ptr<Action> action){
 	 if(currentAction){
 		 Logger::trace("Executing Undoable SideEffect: {}", action->getName());
 		 currentAction->addSideEffect(action);
@@ -82,10 +82,12 @@ bool Legato::Project::deserialize(){
 	 
 	 //undo all side effects in reverse order, the undo command
 	 auto action = actionHistory[undoableActionCount];
-	 for(size_t i = action->getSideEffects().size() - 1; i >= 0; i--) {
-		 auto sideEffect = action->getSideEffects()[i];
-		 Logger::trace("Undoing SideEffect: {}", sideEffect->getName());
-		 sideEffect->onUndo();
+	 if(action->hasSideEffects()){
+		 for(size_t i = action->getSideEffects().size() - 1; i >= 0; i--) {
+			 auto sideEffect = action->getSideEffects()[i];
+			 Logger::trace("Undoing SideEffect: {}", sideEffect->getName());
+			 sideEffect->onUndo();
+		 }
 	 }
 	 Logger::trace("Undoing : {}", action->getName());
 	 action->onUndo();

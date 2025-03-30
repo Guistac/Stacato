@@ -21,7 +21,7 @@ namespace Legato{
 		std::vector<std::shared_ptr<Action>>& getActionHistory(){ return actionHistory; }
 		std::shared_ptr<Action> getUndoableAction();
 		std::shared_ptr<Action> getRedoableAction();
-		void pushAction(std::shared_ptr<Action> newAction);
+		void execute(std::shared_ptr<Action> newAction);
 		
 	private:
 		std::vector<std::shared_ptr<Action>> actionHistory;

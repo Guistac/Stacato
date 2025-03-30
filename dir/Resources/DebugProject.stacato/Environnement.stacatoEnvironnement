@@ -1,19 +1,19 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.0617518" OffsetX="85.679321" OffsetY="-475.29248" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.5" SizeY="387.08899"/>
-        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.5" SizeY="387.31036"/>
-        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.50005" SizeY="387.04211"/>
-        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.50002" SizeY="387.03082"/>
-        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.49995" SizeY="387.65933"/>
-        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.49998" SizeY="317.76846"/>
-        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.49997" SizeY="317.31445"/>
-        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.50003" SizeY="317.48898"/>
-        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.49991" SizeY="318.1756"/>
-        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.50002" SizeY="109.9863"/>
-        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50002" SizeY="109.9863"/>
-        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.50002" SizeY="141.16083"/>
-        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.50002" SizeY="387.10263"/>
-        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.50003" SizeY="317.45163"/>
+    <Dashboard Scale="1.0617518" OffsetX="85.679321" OffsetY="-474.91937" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Tournette J1" UniqueID="6" PositionX="135" PositionY="614" SizeX="178.5" SizeY="387.65775"/>
+        <Widget Name="Tournette J2" UniqueID="5" PositionX="-80" PositionY="594" SizeX="178.5" SizeY="387.87912"/>
+        <Widget Name="Tournette Axe" UniqueID="7" PositionX="382" PositionY="631" SizeX="178.50005" SizeY="387.61084"/>
+        <Widget Name="Tournette C1" UniqueID="8" PositionX="648" PositionY="615" SizeX="178.50002" SizeY="387.59958"/>
+        <Widget Name="Tournette C2" UniqueID="9" PositionX="866" PositionY="588" SizeX="178.49995" SizeY="387.28622"/>
+        <Widget Name="Pratos J2" UniqueID="10" PositionX="-54" PositionY="980" SizeX="136.49998" SizeY="317.39539"/>
+        <Widget Name="Pratos J1" UniqueID="11" PositionX="158" PositionY="1004" SizeX="136.49997" SizeY="317.88321"/>
+        <Widget Name="Pratos C1" UniqueID="12" PositionX="669" PositionY="1001" SizeX="136.50003" SizeY="318.05768"/>
+        <Widget Name="Pratos C2" UniqueID="13" PositionX="886" PositionY="973" SizeX="136.49991" SizeY="317.80252"/>
+        <Widget Name="AU Dispatch" UniqueID="15" PositionX="146" PositionY="1330" SizeX="157.50002" SizeY="109.61321"/>
+        <Widget Name="AU Console" UniqueID="14" PositionX="-16" PositionY="1330" SizeX="157.50002" SizeY="109.61321"/>
+        <Widget Name="Homme Mort" UniqueID="16" PositionX="856" PositionY="1296" SizeX="178.50002" SizeY="141.72952"/>
+        <Widget Name="Moto" UniqueID="2" PositionX="326" PositionY="1051" SizeX="178.50002" SizeY="387.67139"/>
+        <Widget Name="Tapis" UniqueID="17" PositionX="508" PositionY="1115" SizeX="136.50003" SizeY="318.02032"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -454,7 +454,7 @@
                 <NodeEditorPosition x="2314" y="530"/>
                 <NodeSpecificData ShortName="M">
                     <Limits InvertAxis="false" AxisOffset="7.0499999999999998" LowerPositionLimit="-217.05000000000001" UpperPositionLimit="192.94999999999999"/>
-                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="true"/>
+                    <UserSetup AllowUserZeroEdit="false" AllowUserLowerLimitEdit="false" AllowUserUpperLimitEdit="false" AllowUserHoming="true" AllowUserEncoderRangeReset="false" AllowUserEncoderValueOverride="false" InvertControlGui="false" AllowModulePositionShifting="false" WidgetOrientation="0" DisplayModuleTurns="false"/>
                     <Animatable ManualControlChannelAxis="2" InvertManualControlAxis="false" CanHaveMasterAnimatable="false"/>
                     <ControWidget UniqueID="7"/>
                 </NodeSpecificData>

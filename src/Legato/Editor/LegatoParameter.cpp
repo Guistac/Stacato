@@ -2,10 +2,10 @@
 
 #include <imgui.h>
 
-void Legato::BoolParam::gui(bool b_drawName){
+void Legato::BooleanParameter::gui(bool b_drawName){
 	ImGui::Checkbox(imguiID.c_str(), &displayValue);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		value = displayValue;
+		overwriteUndoable(displayValue);
 	}
 	if(b_drawName){
 		ImGui::SameLine();
@@ -13,31 +13,31 @@ void Legato::BoolParam::gui(bool b_drawName){
 	}
 }
 
-void Legato::IntParam::gui(bool b_drawName){
+void Legato::IntegerParameter::gui(bool b_drawName){
 	if(b_drawName) ImGui::Text("%s", name.c_str());
 	ImGui::InputScalar(imguiID.c_str(), ImGuiDataType_S64, &displayValue);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		value = displayValue;
+		overwriteUndoable(displayValue);
 	}
 }
 
-void Legato::RealParam::gui(bool b_drawName){
+void Legato::RealParameter::gui(bool b_drawName){
 	if(b_drawName) ImGui::Text("%s", name.c_str());
-	ImGui::InputDouble(imguiID.c_str(), &displayValue);
+	ImGui::InputDouble(imguiID.c_str(), &displayValue, 0.0, 0.0, formatString.c_str());
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		value = displayValue;
+		overwriteUndoable(displayValue);
 	}
 }
 
-void Legato::StrParam::gui(bool b_drawName){
+void Legato::StringParameter::gui(bool b_drawName){
 	if(b_drawName) ImGui::Text("%s", name.c_str());
 	ImGui::InputText(imguiID.c_str(), displayValue, 256);
 	if(ImGui::IsItemDeactivatedAfterEdit()){
-		value = displayValue;
+		overwriteUndoable(displayValue);
 	}
 }
 
-void Legato::OptParam::gui(bool b_drawName){
+void Legato::OptionParameter::gui(bool b_drawName){
 	if(b_drawName) ImGui::Text("%s", name.c_str());
 	std::string preview = "";
 	if(displayValue) preview = displayValue->name;
@@ -45,8 +45,7 @@ void Legato::OptParam::gui(bool b_drawName){
 		for(auto& option : options){
 			ImGui::BeginDisabled(!option.b_enabled);
 			if(ImGui::Selectable(option.name.c_str(), value == option.enumerator)){
-				displayValue = &option;
-				value = option.enumerator;
+				overwriteUndoable(option.enumerator);
 			}
 			ImGui::EndDisabled();
 		}

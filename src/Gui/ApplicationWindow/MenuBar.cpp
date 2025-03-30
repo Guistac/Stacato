@@ -64,11 +64,7 @@ class ChildThing : public Legato::Component{
 	COMPONENT_IMPLEMENTATION(ChildThing)
 	virtual void onConstruction() override {
 		Component::onConstruction();
-		addChild(param1);
-		addChild(param2);
-		addChild(param3);
-		addChild(param4);
-		addChild(param5);
+		addChild(parameters);
 	}
 	virtual void copyFrom(Ptr<Component> source) override {
 		Component::copyFrom(source);
@@ -91,15 +87,23 @@ public:
 		TYPE_TWO = 2,
 		TYPE_THREE = 3
 	};
-	Ptr<Legato::BoolParam> param1 = Legato::BoolParam::make(false, "Parameter 1", "Param1");
-	Ptr<Legato::IntParam> param2 = Legato::IntParam::make(false, "Parameter 2", "Param2");
-	Ptr<Legato::RealParam> param3 = Legato::RealParam::make(false, "Parameter 3", "Param3");
-	Ptr<Legato::StrParam> param4 = Legato::StrParam::make("Test", "Parameter 4", "Param4");
-	Ptr<Legato::OptParam> param5 = Legato::OptParam::make(OptionEnum::TYPE_ZERO, "Parameter 5", "Param5", {
-		Legato::Option(OptionEnum::TYPE_ZERO, "Option 0"),
-		Legato::Option(OptionEnum::TYPE_ONE, "Option 1"),
-		Legato::Option(OptionEnum::TYPE_TWO, "Option 2"),
-		Legato::Option(OptionEnum::TYPE_THREE, "Option 3")
+	
+	Legato::Boolean param1 = Legato::makeBoolean(false, "Parameter 1", "Param1");
+	Legato::Integer param2 = Legato::makeInteger(0, "Parameter 2", "Param2");
+	Legato::Real 	param3 = Legato::makeReal(0.0, "Parameter 3", "Param3");
+	Legato::String 	param4 = Legato::makeString("Test", "Parameter 4", "Param4");
+	Legato::Option 	param5 = Legato::makeOption(OptionEnum::TYPE_ZERO, "Parameter 5", "Param5", {
+		Legato::Opt(OptionEnum::TYPE_ZERO, "Option 0"),
+		Legato::Opt(OptionEnum::TYPE_ONE, "Option 1"),
+		Legato::Opt(OptionEnum::TYPE_TWO, "Option 2"),
+		Legato::Opt(OptionEnum::TYPE_THREE, "Option 3")
+	});
+	Legato::ParameterGroup parameters = Legato::makeParameterGroup("Parameters", "Parameters", {
+		param1,
+		param2,
+		param3,
+		param4,
+		param5
 	});
 };
 
@@ -581,8 +585,27 @@ namespace Stacato::Gui {
 		ImGui::SameLine();
 		if(ImGui::Button("Test")) ImGui::OpenPopup("Testing");
 		if(ImGui::BeginPopup("Testing")){
+			
 			static bool b_testInit = false;
 			static Ptr<ProjectThing> proj = ProjectThing::make();
+			
+			if(ImGui::Button("Serialize")) {
+				proj->serialize();
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("Deserialize")) {
+				proj->deserialize();
+			}
+			
+			ImGui::BeginDisabled(!proj->canUndo());
+			if(ImGui::Button("Undo")) proj->undo();
+			ImGui::EndDisabled();
+			ImGui::SameLine();
+			ImGui::BeginDisabled(!proj->canRedo());
+			if(ImGui::Button("Redo")) proj->redo();
+			ImGui::EndDisabled();
+			
+			
 			if(!b_testInit){
 				b_testInit = true;
 				proj = ProjectThing::make();
@@ -608,14 +631,6 @@ namespace Stacato::Gui {
 				realList->addEntry(ChildThing::make(),1);
 			}
 			drawChildren(proj);
-			
-			if(ImGui::Button("Serialize")) {
-				proj->serialize();
-			}
-			ImGui::SameLine();
-			if(ImGui::Button("Deserialize")) {
-				proj->deserialize();
-			}
 			
 			ImGui::EndPopup();
 		}
