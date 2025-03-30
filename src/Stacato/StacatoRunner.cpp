@@ -20,7 +20,7 @@ namespace Stacato::Runner{
 	void run_async(std::shared_ptr<StacatoProject> project){
 		std::lock_guard<std::mutex> lock(runnerMutex);
 		if(b_isRunning) {
-			Logger::warn("[Stacato Runner] Cannot run project {} : another project is still running", project->getName());
+			Logger::warn("[Stacato Runner] Cannot run project {} : another project is still running", project->getPath().string());
 			return;
 		}
 		runningProject = project;

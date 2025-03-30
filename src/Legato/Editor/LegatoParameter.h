@@ -67,10 +67,12 @@ namespace Legato{
 			editCallbacks.push_back(callback);
 		}
 		
-		virtual void setName(std::string newName) override {
+		void setName(std::string newName) {
 			name = newName;
 			imguiID = "##" + newName;
 		}
+		
+		std::string getName(){ return name; }
 		
 	protected:
 		
@@ -95,11 +97,8 @@ namespace Legato{
 			}
 		}
 		
+		std::string name;
 		std::string imguiID;
-		
-		//overwrite()
-		//overwriteWithHistory()
-		//class EditCommand{};
 		
 	private:
 		std::vector<std::function<void()>> editCallbacks;
@@ -364,21 +363,16 @@ namespace Legato{
 		virtual void gui(bool b_drawName = true) override;
 		
 		void overwrite(std::string newValue){
-			if(externValue) *externValue = newValue;
-			else value = newValue;
+			value = newValue;
 			snprintf(displayValue, 256, "%s", newValue.c_str());
 		}
 		void overwriteUndoable(std::string newValue){
-			if(newValue == getValue()) return;
+			if(newValue == value) return;
 			if(parentProject) {
 				auto action = std::make_shared<EditAction>(cast<StringParameter>(), newValue);
 				parentProject->execute(action);
 			}
 			else overwrite(newValue);
-		}
-		std::string getValue(){
-			if(externValue) return *externValue;
-			else return value;
 		}
 		
 	private:
@@ -389,28 +383,27 @@ namespace Legato{
 		virtual void copyFrom(Ptr<Component> source) override{
 			Parameter::copyFrom(source);
 			auto original = source->cast<StringParameter>();
-			overwrite(original->getValue());
+			overwrite(original->value);
 		}
 		virtual bool onSerialization() override{
 			Parameter::onSerialization();
-			return serializeStringAttribute("value", getValue());
+			return serializeStringAttribute("value", value);
 		}
 		virtual bool onDeserialization() override{
 			Parameter::onDeserialization();
-			std::string tmpValue;
-			bool result = deserializeStringAttribute("value", tmpValue);
-			if(result) overwrite(tmpValue);
-			return result;
+			if(deserializeStringAttribute("value", value)){
+				overwrite(value);
+				return true;
+			} else return false;
 		}
 	private:
 		char displayValue[256];
 		std::string value = "";
-		std::string* externValue = nullptr;
 		
 		class EditAction : public Action{
 		public:
 			EditAction(Ptr<StringParameter> p, std::string newValue_) : param(p) {
-				oldValue = p->getValue();
+				oldValue = p->value;
 				newValue = newValue_;
 				name = "Change " + param->getName() + " value from \"" + oldValue + "\" to \"" + newValue + "\"";
 			}
@@ -430,16 +423,6 @@ namespace Legato{
 		auto instance = StringParameter::make();
 		instance->value = val;
 		std::strcpy(instance->displayValue, val.c_str());
-		instance->setName(name_);
-		instance->setIdentifier(identifier_);
-		return instance;
-	}
-
-	inline String makeString(std::string* externVal, std::string name_, std::string identifier_, StringFlags = String_NoFlag){
-		if(externVal == nullptr) return nullptr;
-		auto instance = StringParameter::make();
-		instance->externValue = externVal;
-		std::strcpy(instance->displayValue, externVal->c_str());
 		instance->setName(name_);
 		instance->setIdentifier(identifier_);
 		return instance;
@@ -556,23 +539,27 @@ namespace Legato{
 	};
 
 
-
+	class ParameterGroupComponent;
+	using ParameterGroup = Ptr<ParameterGroupComponent>;
 
 	class ParameterGroupComponent : public Component{
 		COMPONENT_IMPLEMENTATION(ParameterGroupComponent)
+		std::string getName(){ return name; }
+	private:
+		std::string name;
+		
+		friend ParameterGroup makeParameterGroup(std::string name_, std::string identifier, std::vector<Ptr<Parameter>> parameters);
 	};
 
-	using ParameterGroup = Ptr<ParameterGroupComponent>;
-
-	inline ParameterGroup makeParameterGroup(std::string name, std::string identifier, std::vector<Ptr<Parameter>> parameters){
+	inline ParameterGroup makeParameterGroup(std::string name_, std::string identifier, std::vector<Ptr<Parameter>> parameters){
 		auto instance = ParameterGroupComponent::make();
-		   instance->setName(name);
-		   instance->setIdentifier(identifier);
-		   for(auto parameter : parameters){
-			   instance->addChild(parameter);
-		   }
-		   return instance;
-	   }
+		instance->name = name_;
+		instance->setIdentifier(identifier);
+		for(auto parameter : parameters){
+			instance->addChild(parameter);
+		}
+		return instance;
+	}
 
 
 }

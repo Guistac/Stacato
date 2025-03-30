@@ -49,7 +49,7 @@ namespace Legato{
 		void addEntry(Ptr<T> newEntry, int index = -1){
 			if(newEntry == nullptr) return;
 			if(hasChild(newEntry)) {
-				Logger::warn("[{}:{}] cannot add duplicate component [{}:{}]", getClassName(), getName(), newEntry->getClassName(), newEntry->getName());
+				Logger::warn("[{}:{}] cannot add duplicate component [{}:{}]", getClassName(), getIdentifier(), newEntry->getClassName(), newEntry->getIdentifier());
 				return;
 			}
 			if(index == -1) {

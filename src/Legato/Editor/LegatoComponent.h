@@ -75,9 +75,6 @@ namespace Legato{
 		bool hasChild(Ptr<Component> input);
 		bool hasChildren(){ return !childComponents.empty(); }
 		
-		virtual void setName(std::string newName){ name = newName; }
-		std::string getName(){ return name; }
-		
 		void setIdentifier(std::string input);
 		std::string getIdentifier(){ return identifier; }
 		
@@ -95,7 +92,6 @@ namespace Legato{
 		
 		virtual void onConstruction();
 		virtual void copyFrom(Ptr<Component> source){
-			setName(source->name);
 			setIdentifier(source->identifier);
 		}
 		virtual bool onSerialization(){ 	return true; }
@@ -115,8 +111,6 @@ namespace Legato{
 		bool checkAttributeSerializationError(std::string& ID);
 		bool checkAttributeDeserializationError(std::string& ID);
 		bool checkAttributeDeserializationResult(int result, std::string& ID);
-		
-		std::string name = "Default Name";
 		
 		std::string identifier = "DefaultIdentifier";
 		tinyxml2::XMLElement* xmlElement = nullptr;

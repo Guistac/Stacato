@@ -159,10 +159,6 @@ public:
 		instance->setPath(path);
 		return instance;
 	}
-	virtual void onConstruction() override {
-		addChild(nameParam);
-	}
-	Legato::String nameParam = Legato::makeString(&name, "Component Name", "ComponentName");
 };
 
 void drawChildren(Ptr<Legato::Component> parent){
