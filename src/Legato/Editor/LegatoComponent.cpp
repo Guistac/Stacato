@@ -58,7 +58,9 @@ void Legato::Component::setIdentifier(std::string input){
 std::string Legato::Component::getIdentifierPath(){
 	std::string identifierPath = identifier;
 	if(parentComponent == nullptr) return identifier;
-	else if(parentComponent == parentFile) return parentFile->getPath().string() + "/<" + identifier + ">";
+	else if(parentComponent == parentFile) {
+		return parentFile->getPath().string() + "/<" + parentFile->getIdentifier() + ">/<" + identifier + ">";
+	}
 	else return parentComponent->getIdentifierPath() + "/<" + identifier + ">";
 }
 

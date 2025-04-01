@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LegatoComponent.h"
+#include "LegatoAction.h"
 #include <tinyxml2.h>
 
 namespace Legato{
@@ -39,6 +40,13 @@ namespace Legato{
 			return false;
 		}
 		
+		int getEntryIndex(Ptr<T> entry){
+			for(int i = 0; i < childComponents.size(); i++){
+				if(childComponents[i] == entry) return i;
+			}
+			return -1;
+		}
+		
 		Ptr<T> getEntry(int index){
 			if(index < 0) return nullptr;
 			else if(index > childComponents.size() - 1) return nullptr;
@@ -74,13 +82,6 @@ namespace Legato{
 			}
 		}
 		
-		int getEntryIndex(Ptr<T> entry){
-			for(int i = 0; i < childComponents.size(); i++){
-				if(childComponents[i] == entry) return i;
-			}
-			return -1;
-		}
-		
 		void moveEntry(Ptr<T> movedEntry, int newIndex){
 			int oldIndex = getEntryIndex(movedEntry);
 			if(oldIndex == -1 || newIndex < 0 || newIndex >= childComponents.size() || oldIndex == newIndex) return;
@@ -92,6 +93,34 @@ namespace Legato{
 			Ptr<T> temp = childComponents[oldIndex];
 			childComponents.erase(childComponents.begin() + oldIndex);
 			childComponents.insert(childComponents.begin() + newIndex, temp);
+		}
+		
+		void addEntry_undoable(Ptr<T> newEntry, int index = -1){
+			if(newEntry == nullptr) return;
+			if(parentProject){
+				auto command = std::make_shared<AddEntryAction>(cast<ListComponent>(), newEntry, index);
+				parentProject->execute(command);
+			}
+			else addEntry(newEntry, index);
+		}
+
+		void removeEntry_undoable(Ptr<T> removedEntry){
+			if(removedEntry == nullptr) return;
+			if(!hasEntry(removedEntry)) return;
+			if(parentProject){
+				auto command = std::make_shared<RemoveEntryAction>(cast<ListComponent>(), removedEntry);
+				parentProject->execute(command);
+			}
+			else removeEntry(removedEntry);
+		}
+
+		void moveEntry_undoable(int oldIndex, int newIndex){
+			if(oldIndex < 0 || oldIndex >= childComponents.size() || newIndex < 0 || newIndex >= childComponents.size() || oldIndex == newIndex) return;
+			if(parentProject){
+				auto command = std::make_shared<MoveEntryAction>(cast<ListComponent>(), oldIndex, newIndex);
+				parentProject->execute(command);
+			}
+			else moveEntry(oldIndex, newIndex);
 		}
 		
 		//also handle selection ?
@@ -167,6 +196,55 @@ namespace Legato{
 			return b_success;
 			
 		}
+		
+		class AddEntryAction : public Action{
+			AddEntryAction(Ptr<ListComponent> list_, Ptr<T> entry_, int index_) : list(list_), entry(entry_), index(index_){
+				name = "Add entry to " + list->getIdentifier();
+			}
+			virtual void onExecute() override {
+				list->addEntry(entry, index);
+			}
+			virtual void onUndo() override {
+				list->removeEntry(entry);
+			}
+		private:
+			Ptr<ListComponent> list;
+			Ptr<T> entry;
+			int index;
+		};
+		
+		class RemoveEntryAction : public Action{
+			RemoveEntryAction(Ptr<ListComponent> list_, Ptr<T> entry_) : list(list_), entry(entry_){
+				name = "Remove Entry from " + list->getIdentifier();
+				index = list->getEntryIndex(entry);
+			}
+			virtual void onExecute() override {
+				list->removeEntry(entry);
+			}
+			virtual void onUndo() override {
+				list->addEntry(entry, index);
+			}
+		private:
+			Ptr<ListComponent> list;
+			Ptr<T> entry;
+			int index;
+		};
+		
+		class MoveEntryAction : public Action{
+			MoveEntryAction(Ptr<ListComponent> list_, int oldIndex_, int newIndex_) : list(list_), oldIndex(oldIndex_), newIndex(newIndex_){
+				name = "Move entry in " + list->getIdentifier();
+			}
+			virtual void onExecute() override {
+				list->moveEntry(oldIndex, newIndex);
+			}
+			virtual void onUndo() override {
+				list->moveEntry(newIndex, oldIndex);
+			}
+		private:
+			Ptr<ListComponent> list;
+			int oldIndex;
+			int newIndex;
+		};
 		
 		friend std::shared_ptr<ListComponent> makeList(std::string ID, std::string entryID);
 		
