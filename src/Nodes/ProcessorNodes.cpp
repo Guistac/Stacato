@@ -29,6 +29,8 @@ namespace NodeFactory{
 			new ExponentNode(),
 			new AbsoluteNode(),
 			new ModuloNode(),
+			new JoystickNode(),
+			
 			new SinusNode(),
 			new CosinusNode(),
 			new TangentNode(),

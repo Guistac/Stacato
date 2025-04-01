@@ -40,6 +40,10 @@ void EL1904::deviceSpecificGui() {
 		ImGui::InputScalar("FSOE Address", ImGuiDataType_U16, &fsoeAddress);
 		if(ImGui::Button("show safety parameters")) downladSafetyParameters();
 		
+		for(int i = 0; i < 4; i++){
+			pinInversionParams[i]->gui(Fonts::sansBold15);
+		}
+		
 		if(isStateOperational()){
 			
 			ImGui::BeginGroup();

@@ -266,7 +266,7 @@ void EL3078::initialize() {
 	for(int i = 0; i < 8; i++){
 		txPdoAssignement.addNewModule(0x1A01 + i * 2);
 		std::string entryName = "AI Compact Channel " + std::to_string(i+1);
-		txPdoAssignement.addEntry(0x6000 + i * 0x10, 0x17, 16, entryName, &analogInputs[i]);
+		txPdoAssignement.addEntry(0x6000 + i * 0x10, 0x11, 16, entryName, &analogInputs[i]);
 		
 		channelSettings[i].inputType = OptionParameter::make2(inputType_Bipolar10V, inputTypeOptions, "Input Type", "InputType");
 		channelSettings[i].enableFilter = BooleanParameter::make(false, "Enable Filter", "EnableFilter");
@@ -281,26 +281,12 @@ void EL3078::initialize() {
 	
 }
 bool EL3078::startupConfiguration() {
-	for(int i = 0; i < 8; i++){
-		//disable user scaling
-		writeSDO_U8(0x8000 + i*0x10, 0x1, 0);
-		//signed representation
-		writeSDO_U8(0x8000 + i*0x10, 0x2, 0);
-		//filter enable
-		writeSDO_U8(0x8000 + i*0x10, 0x6, channelSettings[i].enableFilter->value ? 0x1 : 0x0);
-		//filter setting
-		writeSDO_U16(0x800D + i*0x10, 0x15, channelSettings[i].filterSetting->value);
-		//input type
-		writeSDO_U16(0x800D + i*0x10, 0x11, channelSettings[i].inputType->value);
-		//set scaling to Extended Range
-		writeSDO_U16(0x800D + i*0x10, 0x12, 0);
-	}
+	if(!txPdoAssignement.mapToTxPdoSyncManager(getSlaveIndex(), false)) return false;
 	return true;
 }
 void EL3078::readInputs() {
-	for(int i = 0; i < 8; i++){
-		*(pinValues[i]) = double(analogInputs[i]) / 30518.0;
-	}
+	txPdoAssignement.pullDataFrom(identity->inputs);
+	for(int i = 0; i < 8; i++) *(pinValues[i]) = double(analogInputs[i]) / 30518.0;
 }
 void EL3078::writeOutputs(){}
 bool EL3078::saveDeviceData(tinyxml2::XMLElement* xml) {
@@ -323,6 +309,28 @@ bool EL3078::loadDeviceData(tinyxml2::XMLElement* xml) {
 		}
 	}
 	return true;
+}
+void EL3078::updloadConfiguration(){
+	std::thread configurationUploader = std::thread([this](){
+		bool result = true;
+		for(int i = 0; i < 8; i++){
+			//disable user scaling
+			result &= writeSDO_U8(0x8000 + i*0x10, 0x1, 0);
+			//signed representation
+			result &= writeSDO_U8(0x8000 + i*0x10, 0x2, 0);
+			//filter enable
+			result &= writeSDO_U8(0x8000 + i*0x10, 0x6, channelSettings[i].enableFilter->value ? 0x1 : 0x0);
+			//filter setting
+			result &= writeSDO_U16(0x8000 + i*0x10, 0x15, channelSettings[i].filterSetting->value);
+			//input type
+			result &= writeSDO_U16(0x800D + i*0x10, 0x11, channelSettings[i].inputType->value);
+			//set scaling to Extended Range
+			result &= writeSDO_U16(0x800D + i*0x10, 0x12, 0);
+		}
+		if(result) Logger::info("[{}] Configuration Uploaded", getName());
+		else Logger::warn("[{}] Configuration Upload Failed", getName());
+	});
+	configurationUploader.detach();
 }
 
 

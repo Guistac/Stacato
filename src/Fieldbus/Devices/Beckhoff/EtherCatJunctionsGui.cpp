@@ -108,12 +108,11 @@ void EL3078::deviceSpecificGui() {
 		ImGui::Text("Analog Input Channel Settings");
 		ImGui::PopFont();
 		
-		if(ImGui::BeginTable("##ChannelSetting", 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_RowBg)){
+		if(ImGui::BeginTable("##ChannelSetting", 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_RowBg)){
 			ImGui::TableSetupColumn("Ch#");
 			ImGui::TableSetupColumn("Input Type");
 			ImGui::TableSetupColumn("Filter");
 			ImGui::TableHeadersRow();
-			
 			ImVec2 chNameSize = ImVec2(ImGui::GetTextLineHeight() * 2.0, ImGui::GetFrameHeight());
 			float inputTypeWidth = ImGui::GetTextLineHeight() * 5.0;
 			float filterSettingWidth = ImGui::GetTextLineHeight() * 5.0;
@@ -137,10 +136,9 @@ void EL3078::deviceSpecificGui() {
 				ImGui::EndDisabled();
 				ImGui::PopID();
 			}
-		
-			
 			ImGui::EndTable();
 		}
+		if(ImGui::Button("Upload Configuration")) updloadConfiguration();
 		
 		
 		ImGui::EndTabItem();

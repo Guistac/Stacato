@@ -131,21 +131,22 @@ void EL2912::downladSafetyParameters(){
 	Logger::info("project crc: {}", projectCRC);
 }
 
+
+
 void EL1904::onDisconnection() {}
 void EL1904::onConnection() {}
 void EL1904::initialize() {
-	std::shared_ptr<NodePin> in1Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 1", "SafeInput1");
-	std::shared_ptr<NodePin> in2Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 2", "SafeInput2");
-	std::shared_ptr<NodePin> in3Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 3", "SafeInput3");
-	std::shared_ptr<NodePin> in4Pin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, "Safe Input 4", "SafeInput4");
-	in1Pin->assignData(in1);
-	in2Pin->assignData(in2);
-	in3Pin->assignData(in3);
-	in4Pin->assignData(in4);
-	addNodePin(in1Pin);
-	addNodePin(in2Pin);
-	addNodePin(in3Pin);
-	addNodePin(in4Pin);
+	for(int i = 0; i < 4; i++){
+		std::string displayName = "Safe Input" + std::to_string(i+1);
+		std::string saveName = "SafeInput" + std::to_string(i+1);
+		std::shared_ptr<NodePin> inPin = std::make_shared<NodePin>(NodePin::DataType::BOOLEAN, NodePin::Direction::NODE_OUTPUT, displayName.c_str(), saveName.c_str());
+		std::shared_ptr<bool> pinValue = std::make_shared<bool>(false);
+		inputValues.push_back(pinValue);
+		inPin->assignData(pinValue);
+		addNodePin(inPin);
+		BoolParam invertParam = BooleanParameter::make(false, "Invert Input " + std::to_string(i+1), "Invert" + std::to_string(i+1));
+		pinInversionParams.push_back(invertParam);
+	}
 }
 bool EL1904::startupConfiguration() {
 
@@ -183,17 +184,28 @@ bool EL1904::startupConfiguration() {
 }
 void EL1904::readInputs() {
 	fsoeConnection.receiveFrame(identity->inputs, 6, &processData.safe_inputs, 1);
-	*in1 = processData.safe_inputs & 0x1;
-	*in2 = processData.safe_inputs & 0x2;
-	*in3 = processData.safe_inputs & 0x4;
-	*in4 = processData.safe_inputs & 0x8;
+	for(int i = 0; i < 4; i++) {
+		bool val = processData.safe_inputs & (0x1 << i);
+		if(pinInversionParams[i]->value) *inputValues[i] = !val;
+		else *inputValues[i] = val;
+	}
 }
 void EL1904::writeOutputs(){
 	fsoeConnection.b_sendFailsafeData = false;
 	fsoeConnection.sendFrame(identity->outputs, 6, &processData.safe_outputs, 1);
 }
-bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) { return true; }
-bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) { return true; }
+bool EL1904::saveDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++){
+		pinInversionParams[i]->save(xml);
+	}
+	return true;
+}
+bool EL1904::loadDeviceData(tinyxml2::XMLElement* xml) {
+	for(int i = 0; i < 4; i++){
+		pinInversionParams[i]->load(xml);
+	}
+	return true;
+}
 
 void EL1904::downladSafetyParameters(){
 

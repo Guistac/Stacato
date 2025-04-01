@@ -3,6 +3,8 @@
 #include "Fieldbus/EtherCatDevice.h"
 #include "Fieldbus/FsoeConnection.h"
 
+#include "Project/Editor/Parameter.h"
+
 class EL2912 : public EtherCatDevice {
 public:
 	DEFINE_ETHERCAT_DEVICE(EL2912, "EL2912 2x FsoE Digital Output", "EL2912", "Beckhoff", "Utilities", 0x2, 0xb603052)
@@ -31,11 +33,9 @@ public:
 class EL1904 : public EtherCatDevice {
 public:
 	DEFINE_ETHERCAT_DEVICE(EL1904, "EL1904 4x FsoE Digital Input", "EL1904", "Beckhoff", "Utilities", 0x2, 0x7703052)
-
-	std::shared_ptr<bool> in1 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> in2 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> in3 = std::make_shared<bool>(false);
-	std::shared_ptr<bool> in4 = std::make_shared<bool>(false);
+	
+	std::vector<std::shared_ptr<bool>> inputValues;
+	std::vector<BoolParam> pinInversionParams;
 	
 	struct ProcessData{
 		uint8_t safe_inputs = 0;

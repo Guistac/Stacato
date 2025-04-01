@@ -377,6 +377,81 @@ void ModuloNode::initialize() {
 }
 
 
+inline double map(double val, double inlow, double inhigh, double outlow, double outhigh) {
+	return (val - inlow) * (outhigh - outlow) / (inhigh - inlow) + outlow;
+}
+
+class JoystickNode : public Node{
+public:
+
+	DEFINE_NODE(JoystickNode, "Joystick", "Joystick", Node::Type::PROCESSOR, "Math")
+
+	std::shared_ptr<NodePin> inNeg = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in-", NodePin::Flags::None);
+	std::shared_ptr<NodePin> inPos = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_INPUT, "in+", NodePin::Flags::None);
+	std::shared_ptr<NodePin> out = std::make_shared<NodePin>(NodePin::DataType::REAL, NodePin::Direction::NODE_OUTPUT, "out", NodePin::Flags::DisableDataField);
+
+	std::shared_ptr<double> inputNegPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> inputPosPinValue = std::make_shared<double>(0.0);
+	std::shared_ptr<double> outputPinValue = std::make_shared<double>(0.0);
+	
+	NumberParam<double> deadZone = NumberParameter<double>::make(0.01, "deadzone", "deadzone", "%.3f");
+	NumberParam<double> maxRange = NumberParameter<double>::make(1.0, "max range", "maxrange", "%.3f");
+	double raw = 0.0;
+	
+	void nodeSpecificGui() override {
+		if (ImGui::BeginTabItem("Joystick")) {
+			deadZone->gui(Fonts::sansBold15);
+			maxRange->gui(Fonts::sansBold15);
+			ImGui::Text("raw=%.4f", raw);
+			ImGui::Text("out=%.4f", *outputPinValue);
+			ImGui::EndTabItem();
+		}
+	}
+
+	void inputProcess() override {
+		if(inNeg->isConnected()) inNeg->copyConnectedPinValue();
+		if(inPos->isConnected()) inPos->copyConnectedPinValue();
+		
+		raw = *inputPosPinValue - *inputNegPinValue;
+		double output;
+		if(raw > deadZone->value){
+			output = map(raw, deadZone->value, maxRange->value, 0.0, maxRange->value);
+			if(output > maxRange->value) output = maxRange->value;
+		}
+		else if(raw < -deadZone->value){
+			output = map(raw, -deadZone->value, -maxRange->value, 0.0, -maxRange->value);
+			if(output < -maxRange->value) output = -maxRange->value;
+		}
+		else output = 0.0;
+		
+		*outputPinValue = output;
+	}
+	
+	bool load(tinyxml2::XMLElement* xml) override {
+		using namespace tinyxml2;
+		deadZone->load(xml);
+		maxRange->load(xml);
+		return true;
+	}
+
+	bool save(tinyxml2::XMLElement* xml) override {
+		using namespace tinyxml2;
+		deadZone->save(xml);
+		maxRange->save(xml);
+		return true;
+	}
+};
+
+void JoystickNode::initialize() {
+	inNeg->assignData(inputNegPinValue);
+	inPos->assignData(inputPosPinValue);
+	out->assignData(outputPinValue);
+	addNodePin(inNeg);
+	addNodePin(inPos);
+	addNodePin(out);
+}
+
+
 
 
 

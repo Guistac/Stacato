@@ -94,6 +94,8 @@ public:
 	std::vector<std::shared_ptr<double>> pinValues;
 	std::vector<std::shared_ptr<NodePin>> pins;
 	
+	void updloadConfiguration();
+	
 	enum InputType{
 		BIPOLAR_10V = 2,
 		UNIPOLAR_10V = 14,
