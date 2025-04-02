@@ -8,6 +8,7 @@
 
 #include "Machine/Machines/StateMachines/FlipStateMachine.h"
 #include "Machine/Machines/StateMachines/AxisStateMachine.h"
+#include "Machine/Machines/Special/MecanumMachine.h"
 
 #include "Motion/Axis/AxisNode.h"
 
@@ -35,7 +36,8 @@ namespace NodeFactory{
 			new VelocityControlledMachine(),
 			new MultiAxisMachine(),
 			new FlipStateMachine(),
-			new AxisStateMachine()
+			new AxisStateMachine(),
+			new MecanumMachine()
 		};
 		
 		allSafetyNodes = {

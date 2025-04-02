@@ -373,6 +373,9 @@ set(STACATO_SOURCE_FILES
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.cpp
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachine.h
     ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/StateMachines/AxisStateMachineGui.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MecanumMachine.h
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MecanumMachine.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Machine/Machines/Special/MecanumMachineGui.cpp
 
     #========================= AXIS TYPES =========================
     

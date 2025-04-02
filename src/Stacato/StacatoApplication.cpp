@@ -42,7 +42,7 @@ bool initialize(std::filesystem::path launchPath){
 	#if defined(STACATO_DEBUG)
 		Stacato::Editor::unlock();
 	#else
-		Stacato::Editor::lock();
+		Stacato::Editor::unlock();
 	#endif
 
 	bool b_launchPathLoaded;

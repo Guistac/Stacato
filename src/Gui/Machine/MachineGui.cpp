@@ -51,42 +51,7 @@ void Machine::nodeSpecificGui() {
 }
 
 void Machine::stateControlGui() {
-	glm::vec2 buttonSize;
-	int buttonCount = 2;
-	buttonSize.x = (ImGui::GetContentRegionAvail().x - (buttonCount - 1) * ImGui::GetStyle().ItemSpacing.x) / buttonCount;
-	buttonSize.y = ImGui::GetTextLineHeight() * 2.0;
-
-	bool readyToEnable = isReady();
-
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-	if(b_emergencyStopActive){
-		ImGui::PushStyleColor(ImGuiCol_Button, Timing::getBlink(0.5) ? Colors::red : Colors::yellow);
-		ImGui::Button("E-Stop", buttonSize);
-	}
-	else if (isEnabled()) {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::green);
-		ImGui::Button("Machine Enabled", buttonSize);
-	}
-	else if (readyToEnable) {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::yellow);
-		ImGui::Button("Machine Ready", buttonSize);
-	}
-	else {
-		ImGui::PushStyleColor(ImGuiCol_Button, Colors::red);
-		ImGui::Button("Machine Not Ready", buttonSize);
-	}
-	ImGui::PopStyleColor();
-	ImGui::PopItemFlag();
-
-	ImGui::SameLine();
-	ImGui::BeginDisabled(!readyToEnable);
-	if (isEnabled()) {
-		if (ImGui::Button("Disable Machine", buttonSize)) disable();
-	}
-	else {
-		if (ImGui::Button("Enable Machine", buttonSize)) enable();
-	}
-	ImGui::EndDisabled();
+	machineStateControlGui(ImGui::GetContentRegionAvail().x);
 }
 
 
@@ -153,7 +118,17 @@ void Machine::machineStateControlGui(float width){
 				statusTextFont = Fonts::sansRegular15;
 				break;
 			case DeviceState::ENABLING:
+				statusColor = Colors::darkGreen;
+				statusString = "Enabling...";
+				statusTextColor = Colors::white;
+				statusTextFont = Fonts::sansRegular15;
+				break;
 			case DeviceState::DISABLING:
+				statusColor = Colors::darkYellow;
+				statusString = "Disabling...";
+				statusTextColor = Colors::white;
+				statusTextFont = Fonts::sansRegular15;
+				break;
 			case DeviceState::ENABLED:
 				if(b_halted){
 					statusColor = Colors::orange;

@@ -780,6 +780,7 @@ void ELM7231_9016::fixFMMUs(){
 std::string ELM7231_9016::getDiagnosticsStringFromTextID(uint16_t textID){
 	switch(textID){
 		case 0x0000: return "No Error";
+		case 0x0096: return "Safety reports Encoder voltage statemachine fault on channel A";
 		case 0x1201: return "Communication re-established";
 		case 0x2084: return "The %d. connection has received an invalid FSoE-CRC in state DATA";
 		case 0x2085: return "The FSoE-Watchdog of the connection has been expired in state DATA";

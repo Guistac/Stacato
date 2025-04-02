@@ -3,7 +3,7 @@
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 (Alias:100)" UniqueID="50">
-                <NodeEditorPosition x="496" y="142"/>
+                <NodeEditorPosition x="527" y="1040"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="100"/>
                 </NodeSpecificData>
@@ -11,7 +11,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1008" Split="false" CustomName="EL1008 (Alias:101)" UniqueID="51">
-                <NodeEditorPosition x="460" y="193"/>
+                <NodeEditorPosition x="491" y="1091"/>
                 <NodeSpecificData InvertDI1="false" InvertDI2="false" InvertDI3="false" InvertDI4="false" InvertDI5="false" InvertDI6="false" InvertDI7="false" InvertDI8="false">
                     <Identification Type="StationAlias" StationAlias="101"/>
                 </NodeSpecificData>
@@ -28,7 +28,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2008" Split="false" CustomName="EL2008 (Alias:102)" UniqueID="60">
-                <NodeEditorPosition x="1112" y="291"/>
+                <NodeEditorPosition x="1512" y="1123"/>
                 <NodeSpecificData InvertDO1="false" InvertDO2="false" InvertDO3="false" InvertDO4="false" InvertDO5="false" InvertDO6="false" InvertDO7="false" InvertDO8="false">
                     <Identification Type="StationAlias" StationAlias="102"/>
                 </NodeSpecificData>
@@ -45,7 +45,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL3078" Split="false" CustomName="EL3078 (Alias:103)" UniqueID="69">
-                <NodeEditorPosition x="446" y="344"/>
+                <NodeEditorPosition x="477" y="1242"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="103"/>
                     <Channel1 InputType="14" EnableFilter="true" FilterSetting="1"/>
@@ -70,7 +70,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL1904" Split="false" CustomName="EL1904 (Alias:104)" UniqueID="78">
-                <NodeEditorPosition x="425" y="769"/>
+                <NodeEditorPosition x="415" y="790"/>
                 <NodeSpecificData Invert1="true" Invert2="false" Invert3="false" Invert4="false">
                     <Identification Type="StationAlias" StationAlias="104"/>
                 </NodeSpecificData>
@@ -83,7 +83,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL2912" Split="false" CustomName="EL2912 (Alias:105)" UniqueID="83">
-                <NodeEditorPosition x="1128" y="501"/>
+                <NodeEditorPosition x="1506" y="1331"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="105"/>
                 </NodeSpecificData>
@@ -158,7 +158,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Back Left" UniqueID="108">
-                <NodeEditorPosition x="948" y="640"/>
+                <NodeEditorPosition x="933" y="642"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="1" VelocityLimit="2" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopIntegralGain="0" PositionLoopIntegralLimit="0" PositionLoopDerivativeLimit="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -192,7 +192,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Back Right" UniqueID="125">
-                <NodeEditorPosition x="950" y="736"/>
+                <NodeEditorPosition x="935" y="738"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="1" VelocityLimit="2" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopIntegralGain="0" PositionLoopIntegralLimit="0" PositionLoopDerivativeLimit="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -226,7 +226,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Front Left" UniqueID="140">
-                <NodeEditorPosition x="950" y="832"/>
+                <NodeEditorPosition x="935" y="834"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="1" VelocityLimit="2" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopIntegralGain="0" PositionLoopIntegralLimit="0" PositionLoopDerivativeLimit="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -260,7 +260,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Axis" ClassName="Axis" CustomName="Axe Front Right" UniqueID="155">
-                <NodeEditorPosition x="950" y="928"/>
+                <NodeEditorPosition x="935" y="930"/>
                 <NodeSpecificData UseExternalLoadSensor="false" ForceSensorMultiplier="0" ForceSensorOffset="0" MovementType="1" PositionUnit="3" LimitSignalType="0" AxisControlMode="1" VelocityLimit="2" AccelerationLimit="2" UpperForceLimit="0" LowerForceLimit="0" PositionLoopVelocityFeedForward="100" PositionLoopProportionalGain="0" PositionLoopIntegralGain="0" PositionLoopIntegralLimit="0" PositionLoopDerivativeLimit="0" PositionLoopMaxError="0" PositionLoopMinError="0" PositionLoopErrorTimeout="0" LimitSlowdownVelocity="0" EnableLowerPositionLimit="false" EnableUpperPositionLimit="false" LowerPositionLimit="0" UpperPositionLimit="0" LowerPositionLimitClearance="0" UpperPositionLimitClearance="0" HomingDirection="0" SignalApproachMethod="0" HomingVelocityCoarse="0" HomingVelocityFine="0" MaxHomingDistanceCoarse="0" MaxHomingDistanceFine="0" MaxEnableTime="0.20000000000000001">
                     <FeedbackMappings/>
                     <ActuatorMappings>
@@ -294,7 +294,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Joystick" CustomName="Joystick Y" UniqueID="182">
-                <NodeEditorPosition x="744" y="261"/>
+                <NodeEditorPosition x="812" y="1160"/>
                 <NodeSpecificData deadzone="0.01" maxrange="1"/>
                 <InputPins>
                     <InputPin SaveString="in-" DisplayString="in-" DataType="Real" UniqueID="183" Visible="true"/>
@@ -305,7 +305,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Joystick" CustomName="Joystick X" UniqueID="186">
-                <NodeEditorPosition x="744" y="386"/>
+                <NodeEditorPosition x="812" y="1285"/>
                 <NodeSpecificData deadzone="0.01" maxrange="1"/>
                 <InputPins>
                     <InputPin SaveString="in-" DisplayString="in-" DataType="Real" UniqueID="187" Visible="true"/>
@@ -316,7 +316,7 @@
                 </OutputPins>
             </Node>
             <Node NodeType="Processor" ClassName="Joystick" CustomName="Joystick R" UniqueID="190">
-                <NodeEditorPosition x="744" y="510"/>
+                <NodeEditorPosition x="812" y="1409"/>
                 <NodeSpecificData deadzone="0.01" maxrange="1"/>
                 <InputPins>
                     <InputPin SaveString="in-" DisplayString="in-" DataType="Real" UniqueID="191" Visible="true"/>
@@ -324,6 +324,63 @@
                 </InputPins>
                 <OutputPins>
                     <OutputPin SaveString="out" DisplayString="out" DataType="Real" UniqueID="193" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="And" CustomName="And" UniqueID="226">
+                <NodeEditorPosition x="792" y="1040"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="227" Visible="true" AcceptsMultipleInputs="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="228" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Processor" ClassName="Constant" CustomName="ON" UniqueID="241">
+                <NodeEditorPosition x="1200" y="1356"/>
+                <NodeSpecificData ConstantValue="1"/>
+                <InputPins/>
+                <OutputPins>
+                    <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="242" Visible="true" ForceDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="MecanumMachine" CustomName="Mecanum Machine" UniqueID="245">
+                <NodeEditorPosition x="1176" y="789"/>
+                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" LinearVelocityLimit_HighSpeed="100" AngularVelocityLimit_HighSpeed="100" LinearVelocityLimit_LowSpeed="100" AngularVelocityLimit_LowSpeed="100" LinearAcceleration="100" AngularAcceleration="100">
+                    <Axis1 WheelType="0" InvertAxis="false" WheelDiameter="203">
+                        <WheelPosition x="-500" y="500"/>
+                    </Axis1>
+                    <Axis2 WheelType="1" InvertAxis="true" WheelDiameter="203">
+                        <WheelPosition x="500" y="500"/>
+                    </Axis2>
+                    <Axis3 WheelType="1" InvertAxis="false" WheelDiameter="203">
+                        <WheelPosition x="-500" y="-500"/>
+                    </Axis3>
+                    <Axis4 WheelType="0" InvertAxis="true" WheelDiameter="203">
+                        <WheelPosition x="500" y="-500"/>
+                    </Axis4>
+                </NodeSpecificData>
+                <InputPins>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="246" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis1" DisplayString="FL" DataType="AxisInterface" UniqueID="247" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis2" DisplayString="FR" DataType="AxisInterface" UniqueID="248" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis3" DisplayString="BL" DataType="AxisInterface" UniqueID="249" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis4" DisplayString="BR" DataType="AxisInterface" UniqueID="250" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="EnableControl" DisplayString="Enable Control" DataType="Boolean" UniqueID="251" Visible="true"/>
+                    <InputPin SaveString="SpeedModeControl" DisplayString="Speed Mode Control" DataType="Boolean" UniqueID="252" Visible="true"/>
+                    <InputPin SaveString="MoveModeControl" DisplayString="Move Mode Control" DataType="Boolean" UniqueID="253" Visible="true"/>
+                    <InputPin SaveString="BrakeFeedback" DisplayString="Brake Feedback" DataType="Boolean" UniqueID="254" Visible="true"/>
+                    <InputPin SaveString="JoystickX" DisplayString="Joystick X" DataType="Real" UniqueID="255" Visible="true"/>
+                    <InputPin SaveString="JoystickY" DisplayString="Joystick Y" DataType="Real" UniqueID="256" Visible="true"/>
+                    <InputPin SaveString="JoystickR" DisplayString="Joystick R" DataType="Real" UniqueID="257" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="EnabledFeedback" DisplayString="Enabled Feedback" DataType="Boolean" UniqueID="258" Visible="true"/>
+                    <OutputPin SaveString="ErrorLed" DisplayString="Error Led" DataType="Boolean" UniqueID="259" Visible="true"/>
+                    <OutputPin SaveString="EnabledLed" DisplayString="Enabled Led" DataType="Boolean" UniqueID="260" Visible="true"/>
+                    <OutputPin SaveString="VelocityModeFeedback" DisplayString="Velocity Mode Feedback" DataType="Boolean" UniqueID="261" Visible="true"/>
+                    <OutputPin SaveString="MoveModeFeedback" DisplayString="Move Mode Feedback" DataType="Boolean" UniqueID="262" Visible="true"/>
+                    <OutputPin SaveString="BrakeControl" DisplayString="Brake Control" DataType="Boolean" UniqueID="263" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -342,6 +399,26 @@
             <Link UniqueID="197" StartPin="73" EndPin="188"/>
             <Link UniqueID="198" StartPin="75" EndPin="191"/>
             <Link UniqueID="199" StartPin="74" EndPin="192"/>
+            <Link UniqueID="229" StartPin="81" EndPin="227"/>
+            <Link UniqueID="230" StartPin="82" EndPin="227"/>
+            <Link UniqueID="243" StartPin="242" EndPin="65"/>
+            <Link UniqueID="264" StartPin="119" EndPin="249"/>
+            <Link UniqueID="265" StartPin="136" EndPin="250"/>
+            <Link UniqueID="266" StartPin="151" EndPin="247"/>
+            <Link UniqueID="267" StartPin="166" EndPin="248"/>
+            <Link UniqueID="268" StartPin="80" EndPin="251"/>
+            <Link UniqueID="269" StartPin="52" EndPin="252"/>
+            <Link UniqueID="270" StartPin="53" EndPin="253"/>
+            <Link UniqueID="271" StartPin="228" EndPin="254"/>
+            <Link UniqueID="272" StartPin="189" EndPin="255"/>
+            <Link UniqueID="273" StartPin="185" EndPin="256"/>
+            <Link UniqueID="274" StartPin="193" EndPin="257"/>
+            <Link UniqueID="277" StartPin="260" EndPin="62"/>
+            <Link UniqueID="278" StartPin="259" EndPin="61"/>
+            <Link UniqueID="279" StartPin="261" EndPin="63"/>
+            <Link UniqueID="280" StartPin="258" EndPin="64"/>
+            <Link UniqueID="281" StartPin="258" EndPin="66"/>
+            <Link UniqueID="282" StartPin="263" EndPin="84"/>
         </Links>
     </NodeGraph>
 </Environnement>
