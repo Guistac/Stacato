@@ -151,12 +151,27 @@ void MecanumMachine::inputProcess(){
 	if(joystickRpin->isConnected()) joystickRpin->copyConnectedPinValue();
 	else *joystickRvalue = 0.0;
 	
-	b_highSpeedMode = *speedModeControl;
-	b_absoluteMoveMode = *moveModeControl;
+
 	b_brakesOpened = *brakeFeedback;
 	
-	if(b_localControl) b_highSpeedMode = b_localControlSpeedMode;
-	else b_highSpeedMode = *speedModeControl;
+	bool b_previousMoveMode = b_absoluteMoveMode;
+	if(b_localControl) {
+		b_highSpeedMode = b_localControlSpeedMode;
+		b_absoluteMoveMode = b_localControlMoveMode;
+	}
+	else{
+		b_highSpeedMode = *speedModeControl;
+		b_absoluteMoveMode = *moveModeControl;
+	}
+	if(!b_previousMoveMode && b_absoluteMoveMode){
+		estimatedHeading_degrees = 0.0;
+		estimatedPosition_absolute.x = 0.0;
+		estimatedPosition_absolute.y = 0.0;
+		positionHistoryMutex.lock();
+		positionHistory.clear();
+		positionHistoryMutex.unlock();
+		Logger::info("[{}] Reset Heading", getName());
+	}
 	
 	translationVelocityLimit = b_highSpeedMode ? linearVelocityLimit_H->value : linearVelocityLimit_L->value;
 	rotationVelocityLimit = b_highSpeedMode ? angularVelocityLimit_H->value : angularVelocityLimit_L->value;
@@ -238,7 +253,7 @@ void MecanumMachine::inputProcess(){
 	else *enabledLed = false;
 	
 	*velocityModeFeedback = b_highSpeedMode;
-	
+	*moveModeFeedback = b_absoluteMoveMode;
 	*enabledFeedback = state == DeviceState::ENABLED;
 	
 }
@@ -283,8 +298,70 @@ void MecanumMachine::outputProcess(){
 		yProfile.setVelocity(0.0);
 		rProfile.setVelocity(0.0);
 	}
+	
+	
+	//calculate odometry for the heading by integrating angular velocity
+	double previousAngularVelocity = angularVelocity;
+	angularVelocity = rProfile.getVelocity();
+	double averageAngularVelocity = (previousAngularVelocity + angularVelocity) / 2.0;
+	double angularPositionDelta = averageAngularVelocity * EtherCatFieldbus::getCycleTimeDelta_seconds();
+	estimatedHeading_degrees += angularPositionDelta * headingCorrectFactor->value / 100.0;
 
-	 double wheelVelocity[4];
+	glm::vec2 translationVelocityRequest(xProfile.getVelocity(), yProfile.getVelocity());
+	
+	auto compensateForHeading = [](glm::vec2 translationVelocity, double headingDegrees) -> glm::vec2 {
+		//————————————————————————————————————————————————————————————————————————————————————————————————————————
+		//in compass mode we use the current heading to correct the angle of the translation vector
+		//this way we can keep moving in a fixed direction
+		
+		//get info about current requested velocity
+		//front is 0, right is PI/2, left is -PI/2
+		//the value needs to be inverted to match the real movement
+		double requestedVelocityHeading_radians = -atan2(translationVelocity.x, translationVelocity.y);
+		double requestedVelocityMagnitude_mmPerS = sqrt(std::pow(translationVelocity.x, 2.0) + std::pow(translationVelocity.y, 2.0));
+
+		//get the current heading in normalized radians
+		double currentHeading_radians = M_PI * 2.0 * headingDegrees / 360.0;
+		while(currentHeading_radians > M_PI) currentHeading_radians -= 2.0 * M_PI;
+		while(currentHeading_radians < -M_PI) currentHeading_radians += 2.0 * M_PI;
+
+		//we need to subtract the current heading angle from the requested velocity vector to keep moving in the same direction as the heading
+		//at the same time subtract 90° to match the joystick angle
+		double correctedVelocityHeading_radians = requestedVelocityHeading_radians + currentHeading_radians + (M_PI / 2.0);
+		while(correctedVelocityHeading_radians < -M_PI) correctedVelocityHeading_radians += 2.0 * M_PI;
+		while(correctedVelocityHeading_radians > M_PI) correctedVelocityHeading_radians -= 2.0 * M_PI;
+
+		//get unit vector with the correct heading and set its magnitude to equal the original requested velocity
+		glm::vec2 translationVelocity_HeadingAdjusted(cos(correctedVelocityHeading_radians), sin(correctedVelocityHeading_radians));
+		translationVelocity_HeadingAdjusted.x *= requestedVelocityMagnitude_mmPerS;
+		translationVelocity_HeadingAdjusted.y *= requestedVelocityMagnitude_mmPerS;
+
+		return translationVelocity_HeadingAdjusted;
+		//————————————————————————————————————————————————————————————————————————————————————————————————————————
+	};
+	
+	glm::vec2 previousTranslationVelocity_absolute = translationVelocity_absolute;
+	glm::vec2 previousTranslationVelocity_relative = translationVelocity_relative;
+	
+	if(b_absoluteMoveMode) {
+		translationVelocity_relative = compensateForHeading(translationVelocityRequest, estimatedHeading_degrees);
+		translationVelocity_absolute = translationVelocityRequest;
+	}
+	else {
+		translationVelocity_relative = translationVelocityRequest;
+		translationVelocity_absolute = compensateForHeading(translationVelocityRequest, -estimatedHeading_degrees);
+	}
+	
+	glm::vec2 averageTranslationVelocity_absolute = (previousTranslationVelocity_absolute + translationVelocity_absolute) / 2.0;
+	glm::vec2 translationPositionDelta_absolute = averageTranslationVelocity_absolute * EtherCatFieldbus::getCycleTimeDelta_seconds();
+	estimatedPosition_absolute += translationPositionDelta_absolute;
+	
+	if(EtherCatFieldbus::getCycleProgramTime_nanoseconds() - lastPointTime > 10'0000'000){
+		lastPointTime = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		positionHistoryMutex.lock();
+		positionHistory.push(estimatedPosition_absolute);
+		positionHistoryMutex.unlock();
+	}
 
 	 //calculate target velocity for each wheel
 	 for(int i = 0; i < 4; i++){
@@ -293,12 +370,12 @@ void MecanumMachine::outputProcess(){
 		 glm::vec2 wheelPosition = axisMappings[i]->wheelPosition->value;
 		 
 		 //————————————X & Y component velocity————————————
-		 wheelVelocity[i] = xProfile.getVelocity() / wheelFrictionVector.x + yProfile.getVelocity() / wheelFrictionVector.y;
+		 double wheelVelocity = translationVelocity_relative.x / wheelFrictionVector.x + translationVelocity_relative.y / wheelFrictionVector.y;
 
 		 //———————Rotational Component velocity————————
 		 float rotationRadius = std::sqrt(std::pow(wheelPosition.x, 2.0) + std::pow(wheelPosition.y, 2.0));
 		 float rotationCirclePerimeter = 2.0 * M_PI * rotationRadius;
-		 float rotationVectorMagnitude = rotationCirclePerimeter * rProfile.getVelocity() / 360.0;
+		 float rotationVectorMagnitude = rotationCirclePerimeter * angularVelocity / 360.0;
 
 		 //vector perpendicular to radius of wheel position around rotation center vector
 		 glm::vec2 wheelRotationVector;
@@ -320,16 +397,11 @@ void MecanumMachine::outputProcess(){
 
 		 //decompose the rotation vector and add to wheel velocity
 		 //Testing: inverting because trigonometric positive is anticlockwise
-		 wheelVelocity[i] -= wheelRotationVector.x / wheelFrictionVector.x;
-		 wheelVelocity[i] -= wheelRotationVector.y / wheelFrictionVector.y;
+		 wheelVelocity -= wheelRotationVector.x / wheelFrictionVector.x;
+		 wheelVelocity -= wheelRotationVector.y / wheelFrictionVector.y;
+		 
+		 if(axisMappings[i]->axis) axisMappings[i]->axis->setVelocityTarget(wheelVelocity, 100000.0); //acceleration value does not matter here
 	 }
-	
-	
-	for(int i = 0; i < 4; i++){
-		if(axisMappings[i]->axis){
-			axisMappings[i]->axis->setVelocityTarget(wheelVelocity[i], 100000.0); //acceleration value does not matter here
-		}
-	}
 	
 }
 
@@ -338,6 +410,7 @@ bool MecanumMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	
 	enableTimeout->save(xml);
 	brakeApplyTime->save(xml);
+	headingCorrectFactor->save(xml);
 	linearVelocityLimit_H->save(xml);
 	angularVelocityLimit_H->save(xml);
 	linearVelocityLimit_L->save(xml);
@@ -356,6 +429,7 @@ bool MecanumMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	
 	enableTimeout->load(xml);
 	brakeApplyTime->load(xml);
+	headingCorrectFactor->load(xml);
 	linearVelocityLimit_H->load(xml);
 	angularVelocityLimit_H->load(xml);
 	linearVelocityLimit_L->load(xml);

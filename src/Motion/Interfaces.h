@@ -251,6 +251,9 @@ public:
 	double getVelocityNormalizedToLimits(){
 		return processData.velocityActual / configuration.velocityLimit;
 	}
+	double getVelocityTargetNormalizedToLimits(){
+		return processData.velocityTarget / configuration.velocityLimit;
+	}
 	double getPositionActual(){ return processData.positionActual; }
 	double getVelocityActual(){ return processData.velocityActual; }
 	double getForceActual(){ return processData.forceActual; }

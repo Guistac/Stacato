@@ -86,7 +86,7 @@ void EL722x_Actuator::readInputs(bool sto){
 	if(b_newErrorID){
 		b_newErrorID = false;
 		lastErrorString = std::static_pointer_cast<EL7222_0010>(etherCatDevice)->getDiagnosticsStringFromTextID(lastErrorTextID);
-		Logger::warn("[{}] Error {:x} : {}", getName(), lastErrorTextID, lastErrorString);
+		Logger::warn("[{}] Error 0x{:x} : {}", getName(), lastErrorTextID, lastErrorString);
 	}
    
 }

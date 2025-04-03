@@ -346,7 +346,7 @@
             </Node>
             <Node NodeType="Machine" ClassName="MecanumMachine" CustomName="Mecanum Machine" UniqueID="245">
                 <NodeEditorPosition x="1176" y="789"/>
-                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" LinearVelocityLimit_HighSpeed="100" AngularVelocityLimit_HighSpeed="100" LinearVelocityLimit_LowSpeed="100" AngularVelocityLimit_LowSpeed="100" LinearAcceleration="100" AngularAcceleration="100">
+                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" HeadingCorrectionFactor="100" LinearVelocityLimit_HighSpeed="100" AngularVelocityLimit_HighSpeed="100" LinearVelocityLimit_LowSpeed="100" AngularVelocityLimit_LowSpeed="100" LinearAcceleration="100" AngularAcceleration="100">
                     <Axis1 WheelType="0" InvertAxis="false" WheelDiameter="203">
                         <WheelPosition x="-500" y="500"/>
                     </Axis1>

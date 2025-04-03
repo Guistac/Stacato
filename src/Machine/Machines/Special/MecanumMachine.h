@@ -9,6 +9,50 @@
 #include "Gui/Environnement/Dashboard/Widget.h"
 #include "Project/Editor/Parameter.h"
 
+
+#include <span>
+
+template <typename T, std::size_t Size>
+class RingBuffer {
+public:
+	RingBuffer() : head(0), full(false) {}
+
+	void push(T value) {
+		buffer[head] = value;
+		head = (head + 1) % Size;
+		if (!full && head == 0) {
+			full = true;
+		}
+	}
+
+	void data(std::vector<T>& out) const {
+		  out.clear();
+		  if (!full && head == 0) return; // No data yet
+
+		  out.reserve(Size); // Preallocate to avoid multiple reallocations
+
+		  if (full) {
+			  // Copy in two parts: from head to end, then from start to head
+			  out.insert(out.end(), buffer.begin() + head, buffer.end());
+			  out.insert(out.end(), buffer.begin(), buffer.begin() + head);
+		  } else {
+			  // Copy only valid elements
+			  out.insert(out.end(), buffer.begin(), buffer.begin() + head);
+		  }
+	  }
+	
+	void clear() {
+			head = 0;
+			full = false;
+		}
+
+private:
+	std::vector<T> buffer = std::vector<T>(Size);
+	std::size_t head;
+	bool full;
+};
+
+
 class MecanumMachine : public Machine{
 	
 	DEFINE_MACHINE_NODE(MecanumMachine, "Mecanum Machine", "MecanumMachine", "Special")
@@ -72,6 +116,9 @@ class MecanumMachine : public Machine{
 	NumberParam<double> linearVelocityLimit_L = NumberParameter<double>::make(100.0, "Linear Velocity Limit [Low Speed]", "LinearVelocityLimit_LowSpeed", "%.1fmm/s");
 	NumberParam<double> angularVelocityLimit_L = NumberParameter<double>::make(100.0, "Angular Velocity Limit [Low Speed]", "AngularVelocityLimit_LowSpeed", "%.1f°/s");
 	
+	NumberParam<double> headingCorrectFactor = NumberParameter<double>::make(100.0, "Heading Correction Factor", "HeadingCorrectionFactor", "%.2f%%");
+	
+	
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
@@ -116,6 +163,7 @@ class MecanumMachine : public Machine{
 	
 	bool b_localControl = false;
 	bool b_localControlSpeedMode = false;
+	bool b_localControlMoveMode = false;
 	float localControl_X = 0.0;
 	float localControl_Y = 0.0;
 	float localControl_R = 0.0;
@@ -129,4 +177,14 @@ class MecanumMachine : public Machine{
 	bool b_absoluteMoveMode = false;
 	double translationVelocityLimit = 0.0;
 	double rotationVelocityLimit = 0.0;
+	double estimatedHeading_degrees = 0.0;
+	glm::vec2 estimatedPosition_absolute = glm::vec2(0.0, 0.0);
+	
+	//visualisation values
+	glm::vec2 translationVelocity_relative = glm::vec2(0.0, 0.0);
+	glm::vec2 translationVelocity_absolute = glm::vec2(0.0, 0.0);
+	double angularVelocity = 0.0;
+	RingBuffer<ImVec2, 200> positionHistory;
+	uint64_t lastPointTime = 0;
+	std::mutex positionHistoryMutex;
 };
