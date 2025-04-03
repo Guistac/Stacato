@@ -1,21 +1,21 @@
 #pragma once
 
-#include "Legato/Editor/FileComponent.h"
-#include "Legato/Editor/SerializableList.h"
 #include "Legato/Gui/Layout.h"
 
-class LayoutList : public FileComponent{
-	
-	DECLARE_PROTOTYPE_IMPLENTATION_METHODS(LayoutList)
-	
+#include "Legato/Editor/LegatoFile.h"
+#include "Legato/Editor/LegatoList.h"
+
+class LayoutList : public Legato::File{
+	COMPONENT_IMPLEMENTATION(LayoutList)
 public:
 	
-	SerializableList<Layout> layouts;
+	static Ptr<LayoutList> make(std::filesystem::path path_){
+		auto instance = LayoutList::make();
+		instance->setPath(path_);
+		return instance;
+	}
 	
-	std::shared_ptr<Layout> currentLayout = nullptr;
-	std::shared_ptr<Layout> defaultLayout = nullptr;
-
-	const std::vector<std::shared_ptr<Layout>>& get(){ return layouts.get(); }
+	const std::vector<std::shared_ptr<Layout>> get(){ return layouts->getList(); }
 	std::shared_ptr<Layout> getCurrent(){ return currentLayout; }
 	std::shared_ptr<Layout> getDefault(){ return defaultLayout; }
 
@@ -24,23 +24,21 @@ public:
 	void makeCurrent(std::shared_ptr<Layout> layout);
 	
 	void add(std::shared_ptr<Layout> layout){
-		layouts.get().push_back(layout);
+		layouts->addEntry(layout);
 	}
 	
 	void remove(std::shared_ptr<Layout> layout){
-		if(layout == currentLayout) currentLayout = nullptr;
-		auto& list = layouts.get();
-		for(int i = 0; i < list.size(); i++){
-			if(list[i] == layout){
-				list.erase(list.begin() + i);
-				return;
-			}
-		}
+		layouts->removeEntry(layout);
 	}
 	
-	virtual bool onSerialization() override;
-	virtual bool onDeserialization() override;
+private:
+	Legato::List<Layout> layouts = Legato::makeList<Layout>("Layouts");
+	Ptr<Layout> currentLayout = nullptr;
+	Ptr<Layout> defaultLayout = nullptr;
+	
 	virtual void onConstruction() override;
-	virtual void onCopyFrom(std::shared_ptr<PrototypeBase> source) override;
+	virtual bool onSerialization() override;
+	virtual bool onPostLoad() override;
+	virtual void copyFrom(Ptr<Component> source) override;
 	
 };

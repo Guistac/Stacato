@@ -383,6 +383,7 @@ namespace Legato{
 			}
 			else overwrite(newValue);
 		}
+		std::string& getValue(){ return value; }
 		
 	private:
 		virtual void onConstruction() override{

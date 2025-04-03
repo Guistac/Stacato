@@ -9,9 +9,7 @@
 
 
 bool Layout::onSerialization(){
-	bool success = true;
-	
-	success &= Component::onSerialization();
+	Component::onSerialization();
 	
 	using namespace tinyxml2;
 	
@@ -25,12 +23,11 @@ bool Layout::onSerialization(){
 	iniStringXML->InsertNewText("\n\n");
 	iniStringXML->InsertNewText(layoutString.c_str());
 	
-	return success;
+	return true;
 }
 
 bool Layout::onDeserialization(){
-	bool success = true;
-	success &= Component::onDeserialization();
+	Component::onDeserialization();
 	
 	using namespace tinyxml2;
 			
@@ -62,16 +59,17 @@ bool Layout::onDeserialization(){
 	while(layoutString[i] == '\n') i++;
 	layoutString = layoutString.substr(i);
 	 
-	return success;
+	return true;
 }
 
 void Layout::onConstruction() {
 	Component::onConstruction();
-	setSaveString("Layout");
+	addChild(name);
 }
 
-void Layout::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	Component::onCopyFrom(source);
+void Layout::copyFrom(std::shared_ptr<Legato::Component> source) {
+	Component::copyFrom(source);
+	//copy copy copy
 }
 
 void Layout::overwrite(){
@@ -93,7 +91,7 @@ void RenameLayoutPopup::onDraw(){
 	}
 	ImGui::SameLine();
 	if(ImGui::Button("Ok")){
-		renamedLayout->setName(nameBuffer);
+		//renamedLayout->setName(nameBuffer);
 		close();
 	}
 }

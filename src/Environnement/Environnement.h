@@ -12,6 +12,14 @@ class Command;
 
 class ManualControlChannel;
 
+#include "Legato/Editor/LegatoFile.h"
+
+class EnvironnementFile : public Legato::File{
+	COMPONENT_IMPLEMENTATION(EnvironnementFile);
+public:
+	
+};
+
 namespace Environnement{
 
 	//project interface

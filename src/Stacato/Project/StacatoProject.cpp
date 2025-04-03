@@ -9,13 +9,14 @@
 
 void StacatoProject::onConstruction() {
 	Project::onConstruction();
+	
+	addChild(layouts);
+	
 	auto defaultPlot = Plot::create();
 	defaultPlot->setName("Default Plot");
 	setCurrentPlot(defaultPlot);
 	
 	Environnement::createNew();
-	
-	layouts = LayoutList::createInstance();
 }
 
 void StacatoProject::copyFrom(Ptr<Legato::Component> source) {
@@ -35,12 +36,6 @@ bool StacatoProject::onSerialization() {
 	
 	std::string environnementFilePath = projectFolderPath + "/Environnement.stacatoEnvironnement";
 	if (!Environnement::save(environnementFilePath.c_str())) return false;
-	
-	
-	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
-	if(!layouts->writeFile()) return false;
-	
-	
 
 	std::string scriptsFolderPath = projectFolderPath + "/Scripts";
 	if(!std::filesystem::exists(std::filesystem::path(scriptsFolderPath))) std::filesystem::create_directory(std::filesystem::path(scriptsFolderPath));
@@ -88,12 +83,6 @@ bool StacatoProject::onDeserialization() {
 		Logger::warn("Could not load environnement file in project {}", path.string());
 		return false;
 	}
-	
-	
-	layouts->setFilePath(projectFolderPath + "/Layouts.stacatoLayout");
-	if(!layouts->readFile()) return false;
-	//TODO: make default layout active
-	
 	
 	//look for the stage folder
 	std::string scriptFolderPath = projectFolderPath + "/Scripts";

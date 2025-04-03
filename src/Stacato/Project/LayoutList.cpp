@@ -5,58 +5,44 @@
 #include "Legato/Gui/Layout.h"
 #include "Legato/Gui/Gui.h"
 
-bool LayoutList::onSerialization() {
-	bool success = true;
-	
-	if(defaultLayout != nullptr){
-		Serializable defaultLayoutSerializable;
-		defaultLayoutSerializable.setSaveString("DefaultLayout");
-		defaultLayoutSerializable.serializeIntoParent(this);
-		defaultLayoutSerializable.serializeAttribute("Name", defaultLayout->getName());
-	}
-		
-	success &= layouts.serializeIntoParent(this);
-	return success;
+void LayoutList::onConstruction(){
+	Legato::File::onConstruction();
+	addChild(layouts);
 }
 
-bool LayoutList::onDeserialization() {
-	bool success = true;
-	success &= layouts.deserializeFromParent(this);
-	
-	Serializable defaultLayoutSerializable;
-	defaultLayoutSerializable.setSaveString("DefaultLayout");
-	if(defaultLayoutSerializable.deserializeFromParent(this)){
-		std::string defaultLayoutName;
-		if(defaultLayoutSerializable.deserializeAttribute("Name", defaultLayoutName)){
-			for(auto layout : layouts.get()){
-				if(layout->getName() == defaultLayoutName){
-					defaultLayout = layout;
-					makeCurrent(layout);
-					break;
-				}
-			}
+bool LayoutList::onSerialization() {
+	Legato::File::onSerialization();
+	std::string defaultLayoutName = "";
+	if(defaultLayout) defaultLayoutName = defaultLayout->getName();
+	serializeStringAttribute("DefaultLayout", defaultLayoutName);
+	return true;
+}
+
+bool LayoutList::onPostLoad(){
+	Legato::File::onPostLoad();
+	std::string defaultLayoutName;
+	if(!deserializeStringAttribute("DefaultLayout", defaultLayoutName)) return false;
+	for(auto layout : layouts->getList()){
+		if(layout->getName() == defaultLayoutName){
+			defaultLayout = layout;
+			makeCurrent(layout);
+			break;
 		}
 	}
-	
-	return success;
+	return true;
 }
 
-void LayoutList::onConstruction() {
-	Component::onConstruction();
-	setSaveString("LayoutList");
-	layouts.setSaveString("Layouts");
-	layouts.setEntrySaveString("Layout");
-	layouts.setEntryConstructor(Layout::createInstance);
+void LayoutList::copyFrom(std::shared_ptr<Legato::Component> source) {
+	Legato::File::copyFrom(source);
+	Component::copyFrom(source);
 }
 
-void LayoutList::onCopyFrom(std::shared_ptr<PrototypeBase> source) {
-	Component::onCopyFrom(source);
-}
+
 
 void LayoutList::captureNew(){
 	auto newLayout = Legato::Gui::WindowManager::captureCurentLayout();
-	newLayout->setName("New Layout");
-	layouts.get().push_back(newLayout);
+	newLayout->name->overwrite("New Layout");
+	layouts->addEntry(newLayout);
 	currentLayout = newLayout;
 }
 

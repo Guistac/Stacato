@@ -46,8 +46,8 @@ void unregisterWindow(std::shared_ptr<Window> window){
 
 
 std::shared_ptr<Layout> captureCurentLayout(){
-	auto newLayout = Layout::createInstance();
-	newLayout->setName("New Layout");
+	auto newLayout = Layout::make();
+	newLayout->name->overwrite("New Layout");
 	newLayout->overwrite();
 	return newLayout;
 }

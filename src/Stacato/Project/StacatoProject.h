@@ -39,7 +39,7 @@ protected:
 	 
  private:
 	 
-	 std::shared_ptr<LayoutList> layouts;
+	 Ptr<LayoutList> layouts = LayoutList::make("Layouts.stacatoLayout");
 	 
 	 std::vector<std::shared_ptr<Plot>> plots;
 	 std::shared_ptr<Plot> currentPlot;

@@ -31,7 +31,16 @@ namespace Legato{
 			entryConstructor = constructor;
 		}
 		
-		int size(){ childComponents.size(); }
+		Ptr<T>& operator[](size_t index) {
+			if(index < 0) return nullptr;
+			else if(index > childComponents.size() - 1) return nullptr;
+			Ptr<Component> componentEntry = childComponents[index];
+			return componentEntry->cast<T>();
+		}
+		
+		
+		
+		size_t size(){ return childComponents.size(); }
 		
 		bool hasEntry(Ptr<T> queriedEntry){
 			for(auto child : childComponents){
@@ -47,11 +56,13 @@ namespace Legato{
 			return -1;
 		}
 		
-		Ptr<T> getEntry(int index){
-			if(index < 0) return nullptr;
-			else if(index > childComponents.size() - 1) return nullptr;
-			Ptr<Component> componentEntry = childComponents[index];
-			return componentEntry->cast<T>();
+		std::vector<Ptr<T>> getList(){
+			size_t count = size();
+			std::vector<Ptr<T>> output(size());
+			for(int i = 0; i < size(); i++) {
+				output[i] = childComponents[i]->template cast<T>();
+			}
+			return output;
 		}
 		
 		void addEntry(Ptr<T> newEntry, int index = -1){
@@ -75,7 +86,7 @@ namespace Legato{
 		
 		void removeEntry(Ptr<T> removedEntry){
 			for(int i = 0; i < childComponents.size(); i++){
-				if(i == removedEntry){
+				if(childComponents[i] == removedEntry){
 					childComponents.erase(childComponents.begin() + i);
 					return;
 				}
@@ -246,7 +257,8 @@ namespace Legato{
 			int newIndex;
 		};
 		
-		friend std::shared_ptr<ListComponent> makeList(std::string ID, std::string entryID);
+		template<typename U>
+		friend Ptr<ListComponent<U>> makeList(std::string ID, std::string entryID);
 		
 	};
 

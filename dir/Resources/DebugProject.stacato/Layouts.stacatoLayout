@@ -1,8 +1,6 @@
-<LayoutList HELLo="1234">
-    <DefaultLayout Name="New Layout"/>
+<LayoutList DefaultLayout="New Layout">
     <Layouts>
         <Layout>
-            <ComponentName Value="Conduite"/>
             <OpenWindows>
                 <Window Name="Manoeuvre List"/>
                 <Window Name="Track Sheet Editor"/>
@@ -445,9 +443,9 @@ DockSpace                 ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,29 Size=1920,967
       DockNode            ID=0x00000014 Parent=0x0000000D SizeRef=354,546 Selected=0xBC7A743B
 
 </ImGuiIniString>
+            <Name value="Conduite"/>
         </Layout>
         <Layout>
-            <ComponentName Value="Maintenance"/>
             <OpenWindows>
                 <Window Name="Log"/>
                 <Window Name="Dashboard"/>
@@ -888,9 +886,9 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,98 Size=1920,898 S
       DockNode          ID=0x00000014 Parent=0x0000000D SizeRef=354,546 Selected=0xBC7A743B
 
 </ImGuiIniString>
+            <Name value="Maintenance"/>
         </Layout>
         <Layout>
-            <ComponentName Value="Full Manuel"/>
             <OpenWindows>
                 <Window Name="Dashboard"/>
                 <Window Name="Log"/>
@@ -1327,9 +1325,9 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,29 Size=1920,967 S
       DockNode          ID=0x00000014 Parent=0x0000000D SizeRef=354,546 Selected=0xBC7A743B
 
 </ImGuiIniString>
+            <Name value="Full Manuel"/>
         </Layout>
         <Layout>
-            <ComponentName Value="New Layout"/>
             <OpenWindows>
                 <Window Name="Log"/>
                 <Window Name="Dashboard"/>
@@ -1768,6 +1766,7 @@ DockSpace               ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144
       DockNode          ID=0x00000014 Parent=0x0000000D SizeRef=354,546 Selected=0xBC7A743B
 
 </ImGuiIniString>
+            <Name value="New Layout"/>
         </Layout>
     </Layouts>
 </LayoutList>
