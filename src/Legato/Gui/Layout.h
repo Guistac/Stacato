@@ -19,6 +19,8 @@ public:
 	std::string layoutString;
 	std::vector<std::string> openWindowIds;
 	
+	bool b_showToolbar = true;
+	
 };
 
 class RenameLayoutPopup : public Popup{

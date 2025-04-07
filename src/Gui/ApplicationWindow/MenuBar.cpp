@@ -334,6 +334,7 @@ namespace Stacato::Gui {
 				if(ImGui::MenuItem("Overwrite Layout")) currentLayout->overwrite();
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
 				if(ImGui::MenuItem("Rename Layout")) RenameLayoutPopup::open(currentLayout);
+				ImGui::Checkbox("Show Toolbar", &currentLayout->b_showToolbar);
 				ImGui::EndDisabled();
 			}
 			

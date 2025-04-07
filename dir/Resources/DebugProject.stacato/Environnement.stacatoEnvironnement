@@ -1,6 +1,6 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1.6289737" OffsetX="-110.96695" OffsetY="-179.25351" AutoFit="true" DrawGrid="true" LockEdit="true">
-        <Widget Name="Mecanum Machine" UniqueID="1" PositionX="193" PositionY="181" SizeX="430.2847" SizeY="345.96155"/>
+    <Dashboard Scale="1.8993074" OffsetX="-153.14621" OffsetY="-179.39151" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Mecanum Machine" UniqueID="1" PositionX="193" PositionY="181" SizeX="429.776" SizeY="318.75821"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>

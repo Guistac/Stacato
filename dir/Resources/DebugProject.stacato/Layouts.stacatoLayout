@@ -1,7 +1,7 @@
 <LayoutList HELLo="1234">
     <DefaultLayout Name="Maintenance"/>
     <Layouts>
-        <Layout>
+        <Layout ShowToolbar="false">
             <ComponentName Value="Maintenance"/>
             <OpenWindows>
                 <Window Name="Node Editor"/>
@@ -438,7 +438,7 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Spl
 
 </ImGuiIniString>
         </Layout>
-        <Layout>
+        <Layout ShowToolbar="true">
             <ComponentName Value="Mecanum"/>
             <OpenWindows>
                 <Window Name="Log"/>

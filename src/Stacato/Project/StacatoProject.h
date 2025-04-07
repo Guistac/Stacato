@@ -40,9 +40,9 @@ protected:
 	 virtual void onOpen() override;
 	 virtual void onClose() override;
 	 
- private:
-	 
 	 std::shared_ptr<LayoutList> layouts;
+	 
+ private:
 	 
 	 std::vector<std::shared_ptr<Plot>> plots;
 	 std::shared_ptr<Plot> currentPlot;

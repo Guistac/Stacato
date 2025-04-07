@@ -91,7 +91,18 @@ void gui(){
 
 	//get coordinates for main window and toolbar
 	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
-	float toolbarHeight = ImGui::GetTextLineHeight() * 4.0;
+	
+	
+	
+	bool showToolbar = true;
+	if(auto project = Stacato::Editor::getCurrentProject()) {
+		if(auto layout = project->getLayouts()->currentLayout){
+			showToolbar = layout->b_showToolbar;
+		}
+	}
+	float toolbarHeight = showToolbar ? ImGui::GetTextLineHeight() * 4.0 : 0.0;
+	
+	
 	glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 	mainWindowSize.y -= toolbarHeight;
 	glm::vec2 toolbarPosition(mainWindowPosition.x, mainWindowPosition.y + mainWindowSize.y);
@@ -117,21 +128,23 @@ void gui(){
 	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), dockspaceFlags);
 	ImGui::End();
 	
-	//draw toolbar
-	ImGui::SetNextWindowPos(toolbarPosition);
-	ImGui::SetNextWindowSize(toolbarSize);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
-	ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoTitleBar |
-									ImGuiWindowFlags_NoResize |
-									ImGuiWindowFlags_NoCollapse |
-									ImGuiWindowFlags_NoDocking |
-									ImGuiWindowFlags_NoScrollWithMouse |
-									ImGuiWindowFlags_NoScrollbar;
-	ImGui::Begin("Toolbar", nullptr, toolbarFlags);
-	toolbar(toolbarHeight);
-	ImGui::End();
-	ImGui::PopStyleVar();
-	
+	if(showToolbar){
+		//draw toolbar
+		ImGui::SetNextWindowPos(toolbarPosition);
+		ImGui::SetNextWindowSize(toolbarSize);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, glm::vec2(ImGui::GetTextLineHeight() * 0.25));
+		ImGuiWindowFlags toolbarFlags = ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoScrollbar;
+		ImGui::Begin("Toolbar", nullptr, toolbarFlags);
+		toolbar(toolbarHeight);
+		ImGui::End();
+		ImGui::PopStyleVar();
+	}
+		
 }
 
 

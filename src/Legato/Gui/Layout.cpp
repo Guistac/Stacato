@@ -25,6 +25,8 @@ bool Layout::onSerialization(){
 	iniStringXML->InsertNewText("\n\n");
 	iniStringXML->InsertNewText(layoutString.c_str());
 	
+	xmlElement->SetAttribute("ShowToolbar", b_showToolbar);
+	
 	return success;
 }
 
@@ -61,6 +63,8 @@ bool Layout::onDeserialization(){
 	int i = 0;
 	while(layoutString[i] == '\n') i++;
 	layoutString = layoutString.substr(i);
+	
+	xmlElement->QueryBoolAttribute("ShowToolbar", &b_showToolbar);
 	 
 	return success;
 }
