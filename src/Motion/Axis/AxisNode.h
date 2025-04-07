@@ -18,7 +18,12 @@ public:
 		AxisInterfaceImplementation(std::shared_ptr<AxisNode> node) : parentNode(node){}
 		std::shared_ptr<AxisNode> parentNode;
 		virtual std::string getName() override { return parentNode->getName(); }
-		virtual std::string getStatusString() override { return "..."; }
+		virtual std::string getStatusString() override {
+			if(parentNode->actuatorMappings.size() > 0){
+				return parentNode->actuatorMappings[0]->getActuatorInterface()->getStatusString();
+			}
+			else return "...";
+		}
 	};
 	std::shared_ptr<AxisInterfaceImplementation> axisInterface;
 	

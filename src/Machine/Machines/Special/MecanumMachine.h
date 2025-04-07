@@ -68,6 +68,8 @@ class MecanumMachine : public Machine{
 		OptionParameter::Option wheelType_A = OptionParameter::Option(0, "Type \\\\\\", "TypeA");
 		OptionParameter::Option wheelType_B = OptionParameter::Option(1, "Type ///", "TypeB");
 		OptionParam wheelType = OptionParameter::make2(wheelType_A, {&wheelType_A, &wheelType_B}, "Wheel Type", "WheelType");
+		
+		double wheelCircumference = 0.0;
 		glm::vec2 frictionVector = glm::vec2(0.0, 0.0);
 		bool save(tinyxml2::XMLElement* xml);
 		bool load(tinyxml2::XMLElement* xml);
@@ -109,41 +111,44 @@ class MecanumMachine : public Machine{
 	NumberParam<double> brakeApplyTime = NumberParameter<double>::make(1.0, "Brake Apply Delay", "BrakeApplyDelay", "%.1fs");
 	NumberParam<double> brakeReleaseTimeout = NumberParameter<double>::make(0.2, "Brake Release Timeout", "BrakeReleaseTimeout", "%.1fs");
 	
-	NumberParam<double> linearAcceleration = NumberParameter<double>::make(100.0, "Linear Acceleration", "LinearAcceleration", "%.1fmm/s\xc2\xb2");
-	NumberParam<double> angularAcceleration = NumberParameter<double>::make(100.0, "Angular Acceleration", "AngularAcceleration", "%.1f°/s\xc2\xb2");
-	NumberParam<double> linearVelocityLimit_H = NumberParameter<double>::make(100.0, "Linear Velocity Limit [High Speed]", "LinearVelocityLimit_HighSpeed", "%.1fmm/s");
-	NumberParam<double> angularVelocityLimit_H = NumberParameter<double>::make(100.0, "Angular Velocity Limit [High Speed]", "AngularVelocityLimit_HighSpeed", "%.1f°/s");
-	NumberParam<double> linearVelocityLimit_L = NumberParameter<double>::make(100.0, "Linear Velocity Limit [Low Speed]", "LinearVelocityLimit_LowSpeed", "%.1fmm/s");
-	NumberParam<double> angularVelocityLimit_L = NumberParameter<double>::make(100.0, "Angular Velocity Limit [Low Speed]", "AngularVelocityLimit_LowSpeed", "%.1f°/s");
+	NumberParam<double> linearAccelerationLimit = NumberParameter<double>::make(100.0, "Linear Acceleration", "LinearAcceleration", "%.1fmm/s\xc2\xb2");
+	NumberParam<double> angularAccelerationLimit = NumberParameter<double>::make(100.0, "Angular Acceleration", "AngularAcceleration", "%.1f°/s\xc2\xb2");
+	NumberParam<double> linearVelocityLimit = NumberParameter<double>::make(100.0, "Linear Velocity Limit [High Speed]", "LinearVelocityLimit_HighSpeed", "%.1fmm/s");
+	NumberParam<double> angularVelocityLimit = NumberParameter<double>::make(100.0, "Angular Velocity Limit [High Speed]", "AngularVelocityLimit_HighSpeed", "%.1f°/s");
 	
 	NumberParam<double> headingCorrectFactor = NumberParameter<double>::make(100.0, "Heading Correction Factor", "HeadingCorrectionFactor", "%.2f%%");
 	
+	float lowSpeed_userAdjust = 50.0;
+	float globalAcceleration_userAdjust = 100.0;
+	
+	std::vector<std::shared_ptr<Parameter>> userParameters = {
+		linearAccelerationLimit,
+		angularAccelerationLimit,
+		linearVelocityLimit,
+		linearVelocityLimit
+	};
 	
 	virtual void onPinUpdate(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinConnection(std::shared_ptr<NodePin> pin) override;
 	virtual void onPinDisconnection(std::shared_ptr<NodePin> pin) override;
-
-
 	
-
-	
-		
-	virtual void onAddToNodeGraph() override {}
-	virtual void onRemoveFromNodeGraph() override {}
-	virtual bool hasSetupGui() override { return true; }
+	virtual void onAddToNodeGraph() override { widget->addToDictionnary(); }
+	virtual void onRemoveFromNodeGraph() override { widget->removeFromDictionnary(); }
+	virtual bool hasSetupGui() override { return false; }
 	virtual void setupGui() override;
 	
-	/*
-	class ControlWidget : public Widget{
+	class MecanumWidget : public Widget{
 	public:
-		ControlWidget(std::shared_ptr<PositionControlledMachine> machine_) : Widget("Machines"), machine(machine_){}
-		std::shared_ptr<PositionControlledMachine> machine;
+		MecanumWidget(std::shared_ptr<MecanumMachine> machine_) : Widget("Machines"), machine(machine_){}
+		std::shared_ptr<MecanumMachine> machine;
 		virtual void gui() override;
 		virtual std::string getName() override {
 			return machine->getName();
 		}
 	};
-	*/
+	std::shared_ptr<MecanumWidget> widget;
+	
+	void drawWheelWidget();
 	
 	
 	void enableAllAxis();
@@ -175,8 +180,10 @@ class MecanumMachine : public Machine{
 	bool b_brakesOpened = false;
 	bool b_highSpeedMode = false;
 	bool b_absoluteMoveMode = false;
-	double translationVelocityLimit = 0.0;
-	double rotationVelocityLimit = 0.0;
+	double translationVelocityLimitCurrent = 0.0;
+	double rotationVelocityLimitCurrent = 0.0;
+	double translationAccelerationCurrent = 0.0;
+	double rotationAccelerationCurrent = 0.0;
 	double estimatedHeading_degrees = 0.0;
 	glm::vec2 estimatedPosition_absolute = glm::vec2(0.0, 0.0);
 	

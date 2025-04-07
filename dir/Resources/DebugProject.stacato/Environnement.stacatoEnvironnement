@@ -1,5 +1,7 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="1" OffsetX="0" OffsetY="0" AutoFit="false" DrawGrid="true" LockEdit="false"/>
+    <Dashboard Scale="1.6289737" OffsetX="-110.96695" OffsetY="-179.25351" AutoFit="true" DrawGrid="true" LockEdit="true">
+        <Widget Name="Mecanum Machine" UniqueID="1" PositionX="193" PositionY="181" SizeX="430.2847" SizeY="345.96155"/>
+    </Dashboard>
     <NodeGraph>
         <Nodes>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EK1100" Split="false" CustomName="EK1100 (Alias:100)" UniqueID="50">
@@ -346,7 +348,7 @@
             </Node>
             <Node NodeType="Machine" ClassName="MecanumMachine" CustomName="Mecanum Machine" UniqueID="245">
                 <NodeEditorPosition x="1176" y="789"/>
-                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" HeadingCorrectionFactor="100" LinearVelocityLimit_HighSpeed="100" AngularVelocityLimit_HighSpeed="100" LinearVelocityLimit_LowSpeed="100" AngularVelocityLimit_LowSpeed="100" LinearAcceleration="100" AngularAcceleration="100">
+                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" HeadingCorrectionFactor="100" LinearVelocityLimit_HighSpeed="100" AngularVelocityLimit_HighSpeed="100" LinearAcceleration="100" AngularAcceleration="100" UserLowSpeedScaling="37.200001" UserAccelerationScaling="93" WidgetID="1">
                     <Axis1 WheelType="0" InvertAxis="false" WheelDiameter="203">
                         <WheelPosition x="-500" y="500"/>
                     </Axis1>

@@ -276,7 +276,12 @@ void EL7222_0010::readMotorNameplatesAndConfigureDrive(){
 std::string EL7222_0010::getDiagnosticsStringFromTextID(uint16_t textID){
 	switch(textID){
 		case 0x0000: return "No Error";
+		case 0x0096: return "Safety reports Encoder voltage statemachine fault on channel A";
 		case 0x1201: return "Communication re-established";
+		case 0x2084: return "The %d. connection has received an invalid FSoE-CRC in state DATA";
+		case 0x2085: return "The FSoE-Watchdog of the connection has been expired in state DATA";
+		case 0x3400: return "The %d. group has no more errors";
+		case 0x3410: return "All groups will enter the ERROR-state because the safe logic program has been restarted";
 		case 0x4101: return "Terminal-Overtemperature";
 		case 0x4102: return "PDO-configuration is incompatible to the selected mode of operation";
 		case 0x4107: return "Undervoltage Up";
@@ -451,7 +456,10 @@ bool EL7222_0010::loadDeviceData(tinyxml2::XMLElement* xml) {
 
 
 
-void ELM7231_9016::onDisconnection() { actuator->onDisconnection(); }
+void ELM7231_9016::onDisconnection() {
+	actuator->onDisconnection();
+	actuator->state = DeviceState::OFFLINE;
+}
 void ELM7231_9016::onConnection() {}
 void ELM7231_9016::initialize() {
 	auto thisEtherCatDevice = std::static_pointer_cast<EtherCatDevice>(shared_from_this());

@@ -29,8 +29,8 @@ bool MecanumMachine::AxisMapping::load(tinyxml2::XMLElement* xml){
 void MecanumMachine::updateFrictionVectors(){
 	for(int i = 0; i < 4; i++){
 		auto mapping = axisMappings[i];
-		double wheelCircumference_mm = M_PI * mapping->wheelDiameter->value;
-		float frictionVectorUnit = std::sin(M_PI_4) * wheelCircumference_mm;
+		mapping->wheelCircumference = M_PI * mapping->wheelDiameter->value;
+		float frictionVectorUnit = std::sin(M_PI_4) * mapping->wheelCircumference;
 		if(mapping->wheelType->value == mapping->wheelType_A.getInt()){
 			mapping->frictionVector = glm::vec2(frictionVectorUnit, frictionVectorUnit);
 		}
@@ -45,6 +45,9 @@ void MecanumMachine::updateFrictionVectors(){
 
 
 void MecanumMachine::initialize() {
+	
+	widget = std::make_shared<MecanumWidget>(std::dynamic_pointer_cast<MecanumMachine>(shared_from_this()));
+	
 	axisMappings.resize(4);
 	for(int i = 0; i < 4; i++){
 		std::string name = "Axis " + std::to_string(i+1);
@@ -173,8 +176,10 @@ void MecanumMachine::inputProcess(){
 		Logger::info("[{}] Reset Heading", getName());
 	}
 	
-	translationVelocityLimit = b_highSpeedMode ? linearVelocityLimit_H->value : linearVelocityLimit_L->value;
-	rotationVelocityLimit = b_highSpeedMode ? angularVelocityLimit_H->value : angularVelocityLimit_L->value;
+	translationVelocityLimitCurrent = b_highSpeedMode ? linearVelocityLimit->value : linearVelocityLimit->value * lowSpeed_userAdjust / 100.0;
+	rotationVelocityLimitCurrent = b_highSpeedMode ? angularVelocityLimit->value : angularVelocityLimit->value * lowSpeed_userAdjust / 100.0;
+	translationAccelerationCurrent = linearAccelerationLimit->value * globalAcceleration_userAdjust / 100.0;
+	rotationAccelerationCurrent = angularAccelerationLimit->value * globalAcceleration_userAdjust / 100.0;
 
 	b_emergencyStopActive = areAllAxisOnline() && !areAllAxisEstopFree();
 	
@@ -268,14 +273,14 @@ void MecanumMachine::outputProcess(){
 		double targetVelocity_R;
 		
 		if(b_localControl){
-			targetVelocity_X = std::clamp(localControl_X, -1.0f, 1.0f) * translationVelocityLimit;
-			targetVelocity_Y = std::clamp(localControl_Y, -1.0f, 1.0f) * translationVelocityLimit;
-			targetVelocity_R = std::clamp(localControl_R, -1.0f, 1.0f) * rotationVelocityLimit;
+			targetVelocity_X = std::clamp(localControl_X, -1.0f, 1.0f) * translationVelocityLimitCurrent;
+			targetVelocity_Y = std::clamp(localControl_Y, -1.0f, 1.0f) * translationVelocityLimitCurrent;
+			targetVelocity_R = std::clamp(localControl_R, -1.0f, 1.0f) * rotationVelocityLimitCurrent;
 		}
 		else{
-			targetVelocity_X = std::clamp(*joystickXvalue, -1.0, 1.0) * translationVelocityLimit;
-			targetVelocity_Y = std::clamp(*joystickYvalue, -1.0, 1.0) * translationVelocityLimit;
-			targetVelocity_R = std::clamp(*joystickRvalue, -1.0, 1.0) * rotationVelocityLimit;
+			targetVelocity_X = std::clamp(*joystickXvalue, -1.0, 1.0) * translationVelocityLimitCurrent;
+			targetVelocity_Y = std::clamp(*joystickYvalue, -1.0, 1.0) * translationVelocityLimitCurrent;
+			targetVelocity_R = std::clamp(*joystickRvalue, -1.0, 1.0) * rotationVelocityLimitCurrent;
 		}
 		
 		//limit the translation vector magnitude to the max translation velocity
@@ -284,14 +289,14 @@ void MecanumMachine::outputProcess(){
 		if(translationTargetVectorMagnitude != 0.0){
 			targetVelocity_X /= translationTargetVectorMagnitude;
 			targetVelocity_Y /= translationTargetVectorMagnitude;
-			translationTargetVectorMagnitude = std::clamp(translationTargetVectorMagnitude, 0.0, translationVelocityLimit);
+			translationTargetVectorMagnitude = std::clamp(translationTargetVectorMagnitude, 0.0, translationVelocityLimitCurrent);
 			targetVelocity_X *= translationTargetVectorMagnitude;
 			targetVelocity_Y *= translationTargetVectorMagnitude;
 		}
 		
-		xProfile.matchVelocity(dT, targetVelocity_X, linearAcceleration->value);
-		yProfile.matchVelocity(dT, targetVelocity_Y, linearAcceleration->value);
-		rProfile.matchVelocity(dT, targetVelocity_R, angularAcceleration->value);
+		xProfile.matchVelocity(dT, targetVelocity_X, translationAccelerationCurrent);
+		yProfile.matchVelocity(dT, targetVelocity_Y, translationAccelerationCurrent);
+		rProfile.matchVelocity(dT, targetVelocity_R, rotationAccelerationCurrent);
 	}
 	else{
 		xProfile.setVelocity(0.0);
@@ -411,15 +416,15 @@ bool MecanumMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	enableTimeout->save(xml);
 	brakeApplyTime->save(xml);
 	headingCorrectFactor->save(xml);
-	linearVelocityLimit_H->save(xml);
-	angularVelocityLimit_H->save(xml);
-	linearVelocityLimit_L->save(xml);
-	angularVelocityLimit_L->save(xml);
-	linearAcceleration->save(xml);
-	angularAcceleration->save(xml);
-	for(int i = 0; i < 4; i++){
-		axisMappings[i]->save(xml);
-	}
+	linearVelocityLimit->save(xml);
+	angularVelocityLimit->save(xml);
+	linearAccelerationLimit->save(xml);
+	angularAccelerationLimit->save(xml);
+	for(int i = 0; i < 4; i++) axisMappings[i]->save(xml);
+	
+	xml->SetAttribute("UserLowSpeedScaling", lowSpeed_userAdjust);
+	xml->SetAttribute("UserAccelerationScaling", globalAcceleration_userAdjust);
+	xml->SetAttribute("WidgetID", widget->uniqueID);
 	
 	return true;
 }
@@ -430,16 +435,17 @@ bool MecanumMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	enableTimeout->load(xml);
 	brakeApplyTime->load(xml);
 	headingCorrectFactor->load(xml);
-	linearVelocityLimit_H->load(xml);
-	angularVelocityLimit_H->load(xml);
-	linearVelocityLimit_L->load(xml);
-	angularVelocityLimit_L->load(xml);
-	linearAcceleration->load(xml);
-	angularAcceleration->load(xml);
-	for(int i = 0; i < 4; i++){
-		axisMappings[i]->load(xml);
-	}
+	linearVelocityLimit->load(xml);
+	angularVelocityLimit->load(xml);
+	linearAccelerationLimit->load(xml);
+	angularAccelerationLimit->load(xml);
+	for(int i = 0; i < 4; i++) axisMappings[i]->load(xml);
+	xml->QueryFloatAttribute("UserLowSpeedScaling", &lowSpeed_userAdjust);
+	xml->QueryFloatAttribute("UserAccelerationScaling", &globalAcceleration_userAdjust);
+	
 	updateFrictionVectors();
+	
+	xml->QueryAttribute("WidgetID", &widget->uniqueID);
 	
 	return true;
 }

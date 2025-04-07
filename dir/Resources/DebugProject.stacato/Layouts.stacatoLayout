@@ -6,6 +6,7 @@
             <OpenWindows>
                 <Window Name="Node Editor"/>
                 <Window Name="Log"/>
+                <Window Name="Dashboard"/>
             </OpenWindows>
             <ImGuiIniString>
 
@@ -48,7 +49,7 @@ Collapsed=0
 Pos=1481,29
 Size=575,1144
 Collapsed=0
-DockId=0x0000000C,1
+DockId=0x00000003,1
 
 [Window][Plot List]
 Pos=0,32
@@ -85,7 +86,7 @@ Collapsed=0
 
 [Window][MainWindow]
 Pos=0,0
-Size=1440,763
+Size=2056,1173
 Collapsed=0
 
 [Window][OffscreenNodeEditorFor1Frame]
@@ -145,8 +146,8 @@ Size=2056,961
 Collapsed=0
 
 [Window][Starting Environnement]
-Pos=405,253
-Size=630,341
+Pos=713,492
+Size=630,273
 Collapsed=0
 
 [Window][DragList]
@@ -181,10 +182,10 @@ Size=449,51
 Collapsed=0
 
 [Window][Dashboard]
-Pos=0,29
-Size=1479,1144
+Pos=1088,604
+Size=968,569
 Collapsed=0
-DockId=0x0000000B,1
+DockId=0x00000004,0
 
 [Window][Spatial Editor]
 Pos=0,29
@@ -192,8 +193,8 @@ Size=515,508
 Collapsed=0
 
 [Window][Toolbar]
-Pos=0,763
-Size=1440,84
+Pos=0,1173
+Size=2056,84
 Collapsed=0
 
 [Window][Quit Application]
@@ -223,7 +224,7 @@ Collapsed=0
 
 [Window][Node Editor]
 Pos=0,29
-Size=863,734
+Size=1086,1144
 Collapsed=0
 DockId=0x0000000B,0
 
@@ -249,10 +250,10 @@ Collapsed=0
 DockId=0x00000007,0
 
 [Window][Log]
-Pos=865,29
-Size=575,734
+Pos=1088,29
+Size=968,573
 Collapsed=0
-DockId=0x0000000C,0
+DockId=0x00000003,0
 
 [Window][Active Animations]
 Pos=378,713
@@ -263,7 +264,7 @@ Collapsed=0
 Pos=1289,29
 Size=439,433
 Collapsed=0
-DockId=0x0000000C,0
+DockId=0x00000003,0
 
 [Window][ESI Reader]
 Pos=0,29
@@ -419,8 +420,8 @@ Column 4  Weight=1.0000
 Column 5  Weight=-1.0000
 
 [Docking][Data]
-DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split=X Selected=0xAE98FAB7
-  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1479,1144 Split=X
+DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,101 Size=2056,1144 Split=X Selected=0xAE98FAB7
+  DockNode          ID=0x0000000D Parent=0xD5272B65 SizeRef=1086,1144 Split=X
     DockNode        ID=0x00000001 Parent=0x0000000D SizeRef=1287,0 Split=X Selected=0xAE98FAB7
       DockNode      ID=0x00000006 Parent=0x00000001 SizeRef=976,1023 Split=X Selected=0xFCCC3921
         DockNode    ID=0x00000008 Parent=0x00000006 SizeRef=570,1023 Selected=0xFCCC3921
@@ -429,8 +430,10 @@ DockSpace           ID=0xD5272B65 Window=0xEA71A0E1 Pos=0,82 Size=1440,734 Split
           DockNode  ID=0x0000000B Parent=0x00000009 SizeRef=1120,1023 CentralNode=1 HiddenTabBar=1 Selected=0xAE98FAB7
       DockNode      ID=0x00000007 Parent=0x00000001 SizeRef=663,1023 Selected=0x7AEFDC53
     DockNode        ID=0x00000002 Parent=0x0000000D SizeRef=439,938 HiddenTabBar=1 Selected=0x64F50EE5
-  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=575,1144 Split=Y Selected=0x64F50EE5
-    DockNode        ID=0x0000000C Parent=0x0000000E SizeRef=1025,1090 HiddenTabBar=1 Selected=0x64F50EE5
+  DockNode          ID=0x0000000E Parent=0xD5272B65 SizeRef=968,1144 Split=Y Selected=0x64F50EE5
+    DockNode        ID=0x0000000C Parent=0x0000000E SizeRef=1025,1090 Split=Y Selected=0x64F50EE5
+      DockNode      ID=0x00000003 Parent=0x0000000C SizeRef=575,573 HiddenTabBar=1 Selected=0x64F50EE5
+      DockNode      ID=0x00000004 Parent=0x0000000C SizeRef=575,569 HiddenTabBar=1 Selected=0xB00214C9
     DockNode        ID=0x0000000F Parent=0x0000000E SizeRef=1025,52 HiddenTabBar=1 Selected=0x90F1A334
 
 </ImGuiIniString>

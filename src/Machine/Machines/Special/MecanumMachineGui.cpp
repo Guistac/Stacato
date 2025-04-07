@@ -7,6 +7,95 @@
 #include "Gui/Utilities/CustomWidgets.h"
 #include "Motion/Interfaces.h"
 
+
+void drawArrowRotated(float s, float rotationDegrees){
+	float rad = s * 0.5;
+	ImGui::InvisibleButton("Test", ImVec2(s,s));
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	ImVec2 size = ImGui::GetItemRectSize();
+	ImVec2 mid = ImVec2(min.x + size.x * 0.5, min.y + size.y * 0.5);
+	auto canvas = ImGui::GetWindowDrawList();
+	canvas->AddCircleFilled(mid, rad, ImColor(ImGui::GetStyle().Colors[ImGuiCol_FrameBg]));
+	
+	float angleRadians = -M_PI * rotationDegrees / 180.0;
+	angleRadians -= M_PI_2;
+	float triangleSize = s*0.6;
+	float startRadius = -rad;
+	float endRadius = rad;
+	glm::vec2 center = mid;
+	
+	float lineEndRadius = endRadius - triangleSize * .5f;
+	glm::vec2 start(startRadius * std::cos(angleRadians), startRadius * std::sin(angleRadians));
+	glm::vec2 end(lineEndRadius * std::cos(angleRadians), lineEndRadius * std::sin(angleRadians));
+	start += center;
+	end += center;
+	
+	glm::vec2 trianglePoints[3] = {
+		center + glm::rotate(glm::vec2(endRadius, 0), angleRadians),
+		center + glm::rotate(glm::vec2(endRadius - triangleSize, triangleSize * .4f), angleRadians),
+		center + glm::rotate(glm::vec2(endRadius - triangleSize, -triangleSize * .4f), angleRadians)
+	};
+	
+	canvas->AddLine(start, end, ImColor(Colors::white), s*0.1);
+	canvas->AddTriangleFilled(trianglePoints[0],
+							   trianglePoints[1],
+							   trianglePoints[2],
+							   ImColor(Colors::white));
+}
+
+void MecanumMachine::drawWheelWidget(){
+	auto verticalBar = [](float val1, float val2, std::string txt){
+		ImDrawList* canvas = ImGui::GetWindowDrawList();
+		ImGui::Dummy(ImVec2(ImGui::GetTextLineHeight() * 2.0, ImGui::GetTextLineHeight() * 4.0));
+		ImVec2 min = ImGui::GetItemRectMin();
+		ImVec2 max = ImGui::GetItemRectMax();
+		ImVec2 size = ImGui::GetItemRectSize();
+		canvas->AddRectFilled(min, max, ImColor(ImGui::GetStyle().Colors[ImGuiCol_FrameBg]), ImGui::GetStyle().FrameRounding, ImDrawFlags_RoundCornersAll);
+		float halfX = size.x * 0.5;
+		float halfY = size.y * 0.5;
+		float midX = min.x + halfX;
+		float midY = min.y + halfY;
+		canvas->AddLine(ImVec2(min.x, midY), ImVec2(max.x, midY), ImColor(Colors::transparentWhite), 1);
+		float barSize1 = halfY * val1;
+		float barSize2 = halfY * val2;
+		float rounding = ImGui::GetStyle().FrameRounding;
+		if(barSize1 < -1.0)
+			canvas->AddRectFilled(ImVec2(min.x, midY), ImVec2(midX, midY - barSize1), ImColor(Colors::yellow), rounding, ImDrawFlags_RoundCornersBottomLeft);
+		if(barSize1 > 1.0)
+			canvas->AddRectFilled(ImVec2(min.x, midY - barSize1), ImVec2(midX, midY), ImColor(Colors::yellow), rounding, ImDrawFlags_RoundCornersTopLeft);
+		
+		if(barSize2 < -1.0)
+			canvas->AddRectFilled(ImVec2(midX, midY), ImVec2(max.x, midY - barSize2), ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersBottomRight);
+		else if(barSize2 > 1.0)
+			canvas->AddRectFilled(ImVec2(midX, midY - barSize2), ImVec2(max.x, midY), ImColor(Colors::white), rounding, ImDrawFlags_RoundCornersTopRight);
+	};
+	
+	auto drawAxis = [&](std::shared_ptr<AxisMapping> mapping){
+		if(mapping->axis == nullptr) {
+			verticalBar(0.0, 0.0, "NC");
+			return;
+		}
+		double actual = mapping->axis->getVelocityNormalizedToLimits();
+		double target = mapping->axis->getVelocityTargetNormalizedToLimits();
+		if(!mapping->invertAxis->value) {
+			actual *= -1.0;
+			target *= -1.0;
+		}
+		verticalBar(actual, target, mapping->axisPin->displayString);
+	};
+	
+	ImGui::BeginGroup();
+	drawAxis(axisMappings[0]);
+	ImGui::SameLine();
+	drawAxis(axisMappings[1]);
+	drawAxis(axisMappings[2]);
+	ImGui::SameLine();
+	drawAxis(axisMappings[3]);
+	ImGui::EndGroup();
+}
+
+
 void MecanumMachine::controlsGui() {
 	
 	if(ImGui::Checkbox("LocalControls", &b_localControl)){
@@ -35,13 +124,13 @@ void MecanumMachine::controlsGui() {
 	}
 	
 	
-	ImGui::Text("Limits:  Translation %.1fmm/s  Rotation: %.2f°/s", translationVelocityLimit, rotationVelocityLimit);
+	ImGui::Text("Limits:  Translation %.1fmm/s  Rotation: %.2f°/s", translationVelocityLimitCurrent, rotationVelocityLimitCurrent);
 	ImGui::Text("Relative Velocity    X: %.1fmm/s  Y: %.1fmm/s  R: %.2f°/s", translationVelocity_relative.x, translationVelocity_relative.y, angularVelocity);
 	ImGui::Text("Absolute Velocity    X: %.1fmm/s  Y: %.1fmm/s  R: %.2f°/s", translationVelocity_absolute.x, translationVelocity_absolute.y, angularVelocity);
 	ImGui::Text("Odometry Position    X: %.1fmm  Y: %.1fmm  R: %.2f°", estimatedPosition_absolute.x, estimatedPosition_absolute.y, estimatedHeading_degrees);
 	
 	
-	
+	/*
 	auto progressBarCentered = [](float val1, float val2, std::string txt){
 		ImDrawList* canvas = ImGui::GetWindowDrawList();
 		ImGui::Dummy(ImVec2(ImGui::GetTextLineHeight() * 10.0, ImGui::GetFrameHeight()));
@@ -69,26 +158,7 @@ void MecanumMachine::controlsGui() {
 		ImGui::SameLine();
 		backgroundText(txt.c_str(), ImVec2(ImGui::GetTextLineHeight() * 6.0, ImGui::GetFrameHeight()), Colors::gray, Colors::black);
 	};
-	
-	/*
-	ImGui::BeginGroup();
-	ImVec2 velFeedbacksize(ImGui::GetTextLineHeight()*10.0, ImGui::GetFrameHeight());
-	for(int i = 0; i < 4; i++){
-		char txt[64];
-		if(auto axis = axisMappings[i]->axis){
-			snprintf(txt, 64, "%s %.2frev/s", axisMappings[i]->axisPin->displayString, axis->getVelocityActual());
-			progressBarCentered(axis->getVelocityNormalizedToLimits(), axis->getVelocityTargetNormalizedToLimits(), txt);
-		}
-		else{
-			char txt[64];
-			snprintf(txt, 64, "%s not connected", axisMappings[i]->axisPin->displayString);
-			progressBarCentered(0.0, 0.0, txt);
-		}
-	}
-	ImGui::EndGroup();
-	 */
-	
-	
+	*/
 	
 	auto verticalBar = [](float val1, float val2, std::string txt){
 		ImDrawList* canvas = ImGui::GetWindowDrawList();
@@ -274,17 +344,15 @@ void MecanumMachine::settingsGui() {
 	ImGui::Text("Velocity Settings");
 	ImGui::PopFont();
 	
-	linearVelocityLimit_H->gui(Fonts::sansBold15);
-	angularVelocityLimit_H->gui(Fonts::sansBold15);
-	linearVelocityLimit_L->gui(Fonts::sansBold15);
-	angularVelocityLimit_L->gui(Fonts::sansBold15);
+	linearVelocityLimit->gui(Fonts::sansBold15);
+	angularVelocityLimit->gui(Fonts::sansBold15);
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);
 	ImGui::Text("Acceleration Settings");
 	ImGui::PopFont();
-	linearAcceleration->gui(Fonts::sansBold15);
-	angularAcceleration->gui(Fonts::sansBold15);
+	linearAccelerationLimit->gui(Fonts::sansBold15);
+	angularAccelerationLimit->gui(Fonts::sansBold15);
 	ImGui::Separator();
 	
 	ImGui::PushFont(Fonts::sansBold20);
@@ -300,3 +368,81 @@ void MecanumMachine::axisGui() {}
 void MecanumMachine::deviceGui() {}
 void MecanumMachine::metricsGui() {}
 void MecanumMachine::setupGui() {}
+
+#include "Stacato/StacatoGui.h"
+#include "Legato/Application.h"
+
+void MecanumMachine::MecanumWidget::gui(){
+	
+	ImVec2 widgetSize(ImGui::GetTextLineHeight() * 20.0, ImGui::GetTextLineHeight() * 14.7);
+	
+	if(ImGui::BeginChild("Widget", widgetSize)){
+		
+		machine->drawWheelWidget();
+		float mh = ImGui::GetItemRectSize().y;
+		ImGui::SameLine();
+		float offset = 0.0;
+		drawArrowRotated(ImGui::GetItemRectSize().y, machine->b_absoluteMoveMode ? machine->estimatedHeading_degrees + offset : offset);
+		ImGui::SameLine();
+		
+		float rm = ImGui::GetContentRegionAvail().x;
+		ImGui::BeginGroup();
+		ImGui::PushFont(Fonts::sansBold20);
+		float bh = (mh - ImGui::GetStyle().ItemSpacing.y) / 2.0;
+		backgroundText(machine->b_absoluteMoveMode ? "Absolute" : "Relative",
+					   ImVec2(rm, bh),
+					   machine->b_absoluteMoveMode ? Colors::black : Colors::gray,
+					   machine->b_absoluteMoveMode ? Colors::white : Colors::black);
+		
+		if(ImGui::Button("Shutdown", ImVec2(rm, bh))){
+			Application::requestShutdown();
+		}
+		
+		ImGui::PopFont();
+		
+		ImGui::EndGroup();
+		
+		float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) / 2.0;
+		float h = ImGui::GetFrameHeight();
+		for(int i = 0; i < 4; i++){
+			if(machine->axisMappings[i]->axis){
+				auto axis = machine->axisMappings[i]->axis;
+				ImVec4 color;
+				if(axis->hasFault()) color = Colors::orange;
+				else if(axis->isEnabled()) color = Colors::green;
+				else if(axis->isReady()) color = Colors::yellow;
+				else if(axis->isOnline()) color = Colors::red;
+				else color = Colors::blue;
+				char txt[128];
+				snprintf(txt, 128, "%s: %s", machine->axisMappings[i]->axisPin->displayString, machine->axisMappings[i]->axis->getStatusString().c_str());
+				ImGui::PushID(i);
+				scrollingTextWithBackground("##txt", txt, ImVec2(w,h), color);
+				ImGui::PopID();
+				if(i == 0 || i == 2) ImGui::SameLine();
+			}
+		}
+		
+		float sw = ImGui::GetContentRegionAvail().x;
+		
+		bool paramEdit = false;
+		ImGui::SetNextItemWidth(sw);
+		ImGui::SliderFloat("##LowSpeedAdjust", &machine->lowSpeed_userAdjust, 10.0, 50.0, "Low Speed %.1f%%");
+		paramEdit |= ImGui::IsItemDeactivatedAfterEdit();
+		ImGui::SetNextItemWidth(sw);
+		ImGui::SliderFloat("##AccelAdjust", &machine->globalAcceleration_userAdjust, 50.0, 150.0, "Acceleration %.1f%%");
+		paramEdit |= ImGui::IsItemDeactivatedAfterEdit();
+		
+		if(paramEdit){
+			auto saveAfterDelay = [](){
+				std::thread saveThread([](){
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					Stacato::Gui::save();
+				});
+				saveThread.detach();
+			};
+			saveAfterDelay();
+		}
+		
+		ImGui::EndChild();
+	}
+}

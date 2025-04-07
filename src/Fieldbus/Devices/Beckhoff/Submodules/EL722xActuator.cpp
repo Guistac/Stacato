@@ -554,15 +554,15 @@ bool EL722x_Actuator::DriveSettings::load(tinyxml2::XMLElement* parent){
 
 
 std::string EL722x_Actuator::getStatusString(){
-	if(etherCatDevice->isOffline()) return "Drive is Offline.";
-	if(!etherCatDevice->isStateOperational()) return "Drive is not in Operational State.";
-	if(!processData.b_motorConnected) return "Motor is not connected or is being identified";
-	if(processData.b_sto) return "STO is active";
+	if(etherCatDevice->isOffline()) return "Drive Offline";
+	if(!etherCatDevice->isStateOperational()) return "Drive not Operational";
+	if(!processData.b_motorConnected) return "Identifiying Motor...";
 	if(statusWord.fault) return "Fault: " + lastErrorString;
-	if(isEnabled()) return "Drive is Enabled.";
-	if(isReady()) return "Drive is Ready.";
-	if(isEnabling()) return "Drive is Enabling...";
-	if(state == DeviceState::DISABLING) return "Drive is Disabling...";
+	if(processData.b_sto) return "STO is active";
+	if(isEnabled()) return "Drive Enabled.";
+	if(isReady()) return "Drive Ready.";
+	if(isEnabling()) return "Drive Enabling...";
+	if(state == DeviceState::DISABLING) return "Drive Disabling...";
 	return "Unknown State";
 }
 
