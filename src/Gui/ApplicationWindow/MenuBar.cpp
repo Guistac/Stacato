@@ -341,9 +341,9 @@ KeyboardShortcut unlockEditorShortcut(ImGuiKey_U, KeyboardShortcut::Modifier::CT
 				if(ImGui::MenuItem("Overwrite Layout")) currentLayout->overwrite();
 				if(ImGui::MenuItem("Delete Layout")) layoutList->remove(currentLayout);
 				if(ImGui::MenuItem("Rename Layout")) RenameLayoutPopup::open(currentLayout);
-				if(layoutList->getCurrent() != nullptr){
-					ImGui::MenuItem("Show Menu Bar", nullptr, &currentLayout->b_showMenubar);
-					ImGui::MenuItem("Show Tool Bar", nullptr, &currentLayout->b_showToolbar);
+				if(auto cl = layoutList->getCurrent()){
+					ImGui::MenuItem("Show Menu Bar", nullptr, &cl->b_showMenubar);
+					ImGui::MenuItem("Show Tool Bar", nullptr, &cl->b_showToolbar);
 				}
 				ImGui::EndDisabled();
 			}

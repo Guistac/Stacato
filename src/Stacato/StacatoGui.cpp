@@ -104,7 +104,10 @@ void gui(){
 	glm::vec2 toolbarSize(mainWindowSize.x, toolbarHeight);
 	
 	ImVec2 mousePos = ImGui::GetMousePos();
-	if(mousePos.y < mainWindowPosition.y + 10 && mousePos.x > mainWindowPosition.x + 20 && mousePos.x < mainWindowPosition.x + 120) showMenuBar = true;
+	if(mousePos.y < mainWindowPosition.y + ImGui::GetTextLineHeight() * 1.0 &&
+	   mousePos.x > mainWindowPosition.x + ImGui::GetTextLineHeight() * 1.0 &&
+	   mousePos.x < mainWindowPosition.x + ImGui::GetTextLineHeight() * 6.0)
+		showMenuBar = true;
 	
 	//draw main window with menu bar and dockspace
 	ImGuiWindowFlags dockspaceWindowFlags = ImGuiWindowFlags_NoMove |
