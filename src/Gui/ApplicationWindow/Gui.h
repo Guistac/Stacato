@@ -4,6 +4,7 @@
 
 namespace Stacato::Gui{
 	
+	void keyboardShortcuts();
 	void menuBar();
 	void toolbar(float height);
 

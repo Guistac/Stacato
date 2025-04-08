@@ -90,7 +90,7 @@ namespace Environnement {
 
 	void startSimulation();
 	void stopSimulation();
-	void startHardware();
+	void startHardware(bool b_showStartPopup = true);
 	void stopHardware();
 
 	void updateSimulation();
@@ -110,10 +110,10 @@ namespace Environnement {
 		Network::terminate();
 	}
 
-	void start(){
+	void start(bool b_showStartPopup){
 		if(isStarting() || isRunning()) return;
 		if(b_isSimulating) startSimulation();
-		else startHardware();
+		else startHardware(b_showStartPopup);
 	}
 
 	void stop(){
@@ -252,7 +252,7 @@ namespace Environnement {
 
 	std::shared_ptr<NodeGraph::CompiledProcess> ethercatDeviceProcess;
 
-	void startHardware(){
+	void startHardware(bool b_showStartPopup){
 		
 		
 		
@@ -286,7 +286,7 @@ namespace Environnement {
 		Logger::info("Compiled EtherCAT Process: ");
 		ethercatDeviceProcess->log();
 		
-		EtherCatStartPopup::get()->open();
+		if(b_showStartPopup) EtherCatStartPopup::get()->open();
 		EtherCatFieldbus::start();
 		std::thread environnementHardwareStarter([](){
 			//wait while the fieldbus is starting

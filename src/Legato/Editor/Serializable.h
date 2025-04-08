@@ -77,6 +77,11 @@ public:
 	
 	//————— ATTRIBUTE SERIALIZATION
 	
+	bool serializeAttribute(std::string attributeSaveString, bool data){
+		if(!logAttributeSerializationError(attributeSaveString)) return false;
+		xmlElement->SetAttribute(attributeSaveString.c_str(), data);
+		return true;
+	}
 	bool serializeAttribute(std::string attributeSaveString, int data){
 		if(!logAttributeSerializationError(attributeSaveString)) return false;
 		xmlElement->SetAttribute(attributeSaveString.c_str(), data);
@@ -109,10 +114,20 @@ public:
 		xmlElement->SetAttribute(attributeSaveString.c_str(), data.c_str());
 		return true;
 	}
+	bool serializeAttribute(std::string attributeSaveString, const char* data){
+		if(!logAttributeSerializationError(attributeSaveString)) return false;
+		xmlElement->SetAttribute(attributeSaveString.c_str(), data);
+		return true;
+	}
 	
 	
 	//————— ATTRIBUTE DESERIALIZATION
 	
+	bool deserializeAttribute(std::string idString, bool& data){
+		if(!logAttributeDeserializationError(idString)) return false;
+		tinyxml2::XMLError result = xmlElement->QueryBoolAttribute(idString.c_str(), &data);
+		return logAttributeDeserializationResult(result, idString);
+	}
 	bool deserializeAttribute(std::string idString, int& data){
 		if(!logAttributeDeserializationError(idString)) return false;
 		tinyxml2::XMLError result = xmlElement->QueryIntAttribute(idString.c_str(), &data);

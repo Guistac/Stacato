@@ -43,7 +43,7 @@ private:
 	virtual bool onSerialization() override {
 		bool success = true;
 		success &= BaseParameter::onSerialization();
-		success &= serializeAttribute("Value", value.c_str());
+		success &= serializeAttribute("Value", value);
 		return success;
 	}
 	

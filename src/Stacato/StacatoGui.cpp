@@ -84,33 +84,30 @@ void gui(){
 		style.GrabRounding = rounding;
 		dockspaceID = ImGui::GetID("MainDockspace");
 		b_initialized = true;
-
-		
-
 	}
-
-	//get coordinates for main window and toolbar
-	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
-	
-	
 	
 	bool showToolbar = true;
+	bool showMenuBar = true;
 	if(auto project = Stacato::Editor::getCurrentProject()) {
 		if(auto layout = project->getLayouts()->currentLayout){
 			showToolbar = layout->b_showToolbar;
+			showMenuBar = layout->b_showMenubar;
 		}
 	}
 	float toolbarHeight = showToolbar ? ImGui::GetTextLineHeight() * 4.0 : 0.0;
 	
-	
+	//get coordinates for main window and toolbar
+	glm::vec2 mainWindowPosition = ImGui::GetMainViewport()->WorkPos;
 	glm::vec2 mainWindowSize = ImGui::GetMainViewport()->WorkSize;
 	mainWindowSize.y -= toolbarHeight;
 	glm::vec2 toolbarPosition(mainWindowPosition.x, mainWindowPosition.y + mainWindowSize.y);
 	glm::vec2 toolbarSize(mainWindowSize.x, toolbarHeight);
 	
+	ImVec2 mousePos = ImGui::GetMousePos();
+	if(mousePos.y < mainWindowPosition.y + 10 && mousePos.x > mainWindowPosition.x + 20 && mousePos.x < mainWindowPosition.x + 120) showMenuBar = true;
+	
 	//draw main window with menu bar and dockspace
 	ImGuiWindowFlags dockspaceWindowFlags = ImGuiWindowFlags_NoMove |
-											ImGuiWindowFlags_MenuBar |					//main window has menu bar
 											ImGuiWindowFlags_NoBringToFrontOnFocus |	//can't hide other windows behind the main window
 											ImGuiWindowFlags_NoDocking |				//can't dock windows into the main window (but can into the contained dockspace)
 											ImGuiWindowFlags_NoCollapse |
@@ -118,12 +115,13 @@ void gui(){
 											ImGuiWindowFlags_NoTitleBar |
 											ImGuiWindowFlags_NoScrollbar |
 											ImGuiWindowFlags_NoScrollWithMouse;
+	if(showMenuBar) dockspaceWindowFlags |= ImGuiWindowFlags_MenuBar; //main window has menu bar
 	ImGui::SetNextWindowPos(mainWindowPosition);
 	ImGui::SetNextWindowSize(mainWindowSize);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("MainWindow", nullptr, dockspaceWindowFlags);
 	ImGui::PopStyleVar();
-	menuBar();
+	if(showMenuBar) menuBar();
 	ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoCloseButton;
 	ImGui::DockSpace(dockspaceID, ImGui::GetContentRegionAvail(), dockspaceFlags);
 	ImGui::End();
@@ -144,6 +142,8 @@ void gui(){
 		ImGui::End();
 		ImGui::PopStyleVar();
 	}
+	
+	keyboardShortcuts();
 		
 }
 
