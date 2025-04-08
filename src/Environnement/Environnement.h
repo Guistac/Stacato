@@ -31,7 +31,7 @@ namespace Environnement{
 
 	//main environnement controls
 	void setSimulation(bool sim);
-	void start();
+	void start(bool b_showStartPopup = true);
 	void stop();
 	void enableAllMachines();
 	void disableAllMachines();

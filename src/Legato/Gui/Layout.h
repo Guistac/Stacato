@@ -20,6 +20,7 @@ public:
 	std::vector<std::string> openWindowIds;
 	
 	bool b_showToolbar = true;
+	bool b_showMenubar = true;
 	
 };
 

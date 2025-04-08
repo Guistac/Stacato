@@ -132,7 +132,7 @@ namespace EtherCatFieldbus {
 	//============== public functions ==============
 
 	void initialize(){
-		scan();
+		//scan();
 		startPollingNetworkInterfaceCards();
 	}
 	void terminate(){
