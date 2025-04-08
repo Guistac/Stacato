@@ -557,8 +557,8 @@ std::string EL722x_Actuator::getStatusString(){
 	if(etherCatDevice->isOffline()) return "Drive Offline";
 	if(!etherCatDevice->isStateOperational()) return "Drive not Operational";
 	if(!processData.b_motorConnected) return "Identifiying Motor...";
-	if(statusWord.fault) return "Fault: " + lastErrorString;
 	if(processData.b_sto) return "STO is active";
+	if(statusWord.fault) return "Fault: " + lastErrorString;
 	if(isEnabled()) return "Drive Enabled.";
 	if(isReady()) return "Drive Ready.";
 	if(isEnabling()) return "Drive Enabling...";

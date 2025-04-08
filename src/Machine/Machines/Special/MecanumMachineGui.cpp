@@ -381,7 +381,7 @@ void MecanumMachine::MecanumWidget::gui(){
 		machine->drawWheelWidget();
 		float mh = ImGui::GetItemRectSize().y;
 		ImGui::SameLine();
-		float offset = 0.0;
+		float offset = 180.0;
 		drawArrowRotated(ImGui::GetItemRectSize().y, machine->b_absoluteMoveMode ? machine->estimatedHeading_degrees + offset : offset);
 		ImGui::SameLine();
 		
