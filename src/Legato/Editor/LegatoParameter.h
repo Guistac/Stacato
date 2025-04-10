@@ -136,6 +136,7 @@ namespace Legato{
 			}
 			else overwrite(newValue);
 		}
+		bool getValue(){ return value; }
 		
 	private:
 		virtual void copyFrom(Ptr<Component> source) override{
@@ -210,6 +211,7 @@ namespace Legato{
 			}
 			else overwrite(newValue);
 		}
+		long long getValue(){ return value; }
 		
 	private:
 		virtual void onConstruction() override{
@@ -291,7 +293,7 @@ namespace Legato{
 			}
 			else overwrite(newValue);
 		}
-		
+		double getValue(){ return value; }
 		void setPrecision(int precision){
 			formatString = "%." + std::to_string(std::clamp(precision, 1, 9)) + "f";
 		}
@@ -478,6 +480,7 @@ namespace Legato{
 			}
 			else overwrite(newValue);
 		}
+		int getValue(){ return value; }
 		Opt* findOption(int input){
 			for(auto& option : options){
 				if(option.enumerator == input){

@@ -189,6 +189,7 @@ set(STACATO_SOURCE_FILES
 
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoComponent.cpp
+    ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoNamedComponent.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoList.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoFile.h
     ${STACATO_SOURCE_DIRECTORY}/Legato/Editor/LegatoFile.cpp

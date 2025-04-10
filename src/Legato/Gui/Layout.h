@@ -2,10 +2,9 @@
 
 #include "Legato/Gui/Window.h"
 
-#include "Legato/Editor/LegatoComponent.h"
-#include "Legato/Editor/LegatoParameter.h"
+#include "Legato/Editor/LegatoNamedComponent.h"
 
-class Layout : public Legato::Component{
+class Layout : public Legato::NamedComponent{
 	COMPONENT_IMPLEMENTATION(Layout)
 public:
 	
@@ -15,10 +14,6 @@ public:
 	virtual void copyFrom(std::shared_ptr<Legato::Component> source) override;
 	
 	void overwrite();
-
-	std::string& getName(){ return name->getValue();  }
-	
-	Legato::String name = Legato::makeString("Default Name", "Name", "Name");
 	
 	std::string layoutString;
 	std::vector<std::string> openWindowIds;

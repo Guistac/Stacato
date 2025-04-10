@@ -9,7 +9,7 @@
 
 
 bool Layout::onSerialization(){
-	Component::onSerialization();
+	NamedComponent::onSerialization();
 	
 	using namespace tinyxml2;
 	
@@ -27,7 +27,7 @@ bool Layout::onSerialization(){
 }
 
 bool Layout::onDeserialization(){
-	Component::onDeserialization();
+	NamedComponent::onDeserialization();
 	
 	using namespace tinyxml2;
 			
@@ -63,12 +63,11 @@ bool Layout::onDeserialization(){
 }
 
 void Layout::onConstruction() {
-	Component::onConstruction();
-	addChild(name);
+	NamedComponent::onConstruction();
 }
 
 void Layout::copyFrom(std::shared_ptr<Legato::Component> source) {
-	Component::copyFrom(source);
+	NamedComponent::copyFrom(source);
 	//copy copy copy
 }
 

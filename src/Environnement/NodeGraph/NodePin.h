@@ -500,3 +500,28 @@ inline void NodePin::assignData(std::shared_ptr<Motion::Axis> ptr) {
 	}
 	pointer = ptr;
 }
+
+
+#include "Legato/Editor/LegatoNamedComponent.h"
+#include <typeindex>
+
+enum NodePinDirection{
+	NodePin_Input = 1,
+	NodePin_Output = 2,
+	NodePin_InputBidirectional = 4,
+	NodePin_OutputBidirectional = 8
+};
+
+class NodePin_new : public Legato::NamedComponent{
+	COMPONENT_IMPLEMENTATION(NodePin_new)
+public:
+	
+	template<typename T>
+	static Ptr<NodePin_new> make(T* data, NodePinDirection dir, std::string name, std::string identifier){
+		auto instance = NodePin_new::make();
+		instance->name->overwrite(name);
+		instance->setIdentifier(identifier);
+		std::type_index t = typeid(T);
+	}
+	
+};
