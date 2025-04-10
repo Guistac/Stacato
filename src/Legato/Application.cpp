@@ -125,7 +125,7 @@ namespace Application{
 		std::setlocale(LC_NUMERIC, "C");
 		
 		//——— Gui Initialization
-		Legato::Gui::initialize();
+		Legato::Gui::initialize(false);
 		
 		//====== APP IS FULLY INITIALIZED
 		

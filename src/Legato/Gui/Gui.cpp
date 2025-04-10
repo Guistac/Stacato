@@ -119,7 +119,7 @@ namespace Legato::Gui{
 	}
 
 
-	void initialize(){
+	void initialize(bool b_viewports){
 			
 		#if defined (STACATO_UNIX)
 			//on ubuntu xorg desktop, touchscreen do not work with glfw decorated windows
@@ -168,7 +168,7 @@ namespace Legato::Gui{
 		//configure imgui
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		if(b_viewports) io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		
 		//figure out gui scale
 		#ifdef STACATO_WIN32

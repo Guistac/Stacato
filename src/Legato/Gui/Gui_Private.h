@@ -2,7 +2,7 @@
 
 namespace Legato::Gui{
 
-void initialize();
+void initialize(bool b_viewports);
 void drawFrame();
 void terminate();
 
