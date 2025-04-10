@@ -187,6 +187,12 @@ void MecanumMachine::inputProcess(){
 
 	b_emergencyStopActive = areAllAxisOnline() && !areAllAxisEstopFree();
 	
+	if(isEnabled() && b_brakeOverride){
+		Logger::warn("[{}] Machine disable because brakes were overridden", getName());
+		disableTime = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+		disableAllAxis();
+	}
+	
 	if(areAllAxisEnabled() && b_brakesOpened && !b_brakeOverride){
 		if(state == DeviceState::ENABLING){
 			state = DeviceState::ENABLED;
@@ -240,8 +246,10 @@ void MecanumMachine::inputProcess(){
 	}
 	else{
 		if(state == DeviceState::ENABLED || state == DeviceState::ENABLING){
-			Logger::warn("[{}] Machine disabled because one or more axis were offline", getName());
-			disableTime = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			if(!areAllAxisOnline()){
+				Logger::warn("[{}] Machine disabled because one or more axis were offline", getName());
+				disableTime = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
+			}
 		}
 		//
 		state = DeviceState::OFFLINE;
