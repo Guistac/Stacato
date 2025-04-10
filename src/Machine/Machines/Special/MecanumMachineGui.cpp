@@ -388,15 +388,17 @@ void MecanumMachine::MecanumWidget::gui(){
 		float rm = ImGui::GetContentRegionAvail().x;
 		ImGui::BeginGroup();
 		ImGui::PushFont(Fonts::sansBold20);
+		
 		float bh = (mh - ImGui::GetStyle().ItemSpacing.y * 2.0) / 3.0;
 		ImVec2 fds = ImVec2(rm, bh);
+		
+		if(ImGui::Button("Shutdown", fds)){
+			Application::requestShutdown();
+		}
+		
 		backgroundText(machine->b_absoluteMoveMode ? "Absolute" : "Relative", fds,
 					   machine->b_absoluteMoveMode ? Colors::black : Colors::gray,
 					   machine->b_absoluteMoveMode ? Colors::white : Colors::black);
-		
-		if(ImGui::Button("Shutdown", ImVec2(rm, bh))){
-			Application::requestShutdown();
-		}
 		
 		switch(machine->state){
 			case DeviceState::ENABLED:
@@ -413,7 +415,7 @@ void MecanumMachine::MecanumWidget::gui(){
 				break;
 			case DeviceState::NOT_READY:
 				if(machine->isEmergencyStopped()) backgroundText("STO", fds, Timing::getBlink(1.0) ? Colors::red : Colors::yellow, Colors::white);
-				else if(machine->b_brakeOverride) backgroundText("Brake Override", fds, Timing::getBlink(2.0) ? Colors::yellow : Colors::white, Colors::black);
+				else if(machine->b_brakeOverride) backgroundText("Brakes", fds, Timing::getBlink(2.0) ? Colors::yellow : Colors::white, Colors::black);
 				else backgroundText("Not Ready", fds, Colors::red, Colors::white);
 				break;
 			case DeviceState::OFFLINE:
