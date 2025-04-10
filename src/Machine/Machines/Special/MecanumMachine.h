@@ -89,10 +89,12 @@ class MecanumMachine : public Machine{
 	std::shared_ptr<bool> speedModeControl = std::make_shared<bool>(false);
 	std::shared_ptr<bool> moveModeControl = std::make_shared<bool>(false);
 	std::shared_ptr<bool> brakeFeedback = std::make_shared<bool>(false);
+	std::shared_ptr<bool> brakeOverrideFeedback = std::make_shared<bool>(false);
 	std::shared_ptr<NodePin> enablePin = std::make_shared<NodePin>(enableControl, NodePin::Direction::NODE_INPUT, "Enable Control", "EnableControl");
 	std::shared_ptr<NodePin> speedModePin = std::make_shared<NodePin>(speedModeControl, NodePin::Direction::NODE_INPUT, "Speed Mode Control", "SpeedModeControl");
 	std::shared_ptr<NodePin> moveModePin = std::make_shared<NodePin>(moveModeControl, NodePin::Direction::NODE_INPUT, "Move Mode Control", "MoveModeControl");
 	std::shared_ptr<NodePin> brakeFeedbackPin = std::make_shared<NodePin>(brakeFeedback, NodePin::Direction::NODE_INPUT, "Brake Feedback", "BrakeFeedback");
+	std::shared_ptr<NodePin> brakeOverrideFeedbackPin = std::make_shared<NodePin>(brakeOverrideFeedback, NodePin::Direction::NODE_INPUT, "Brake Override Feedback", "BrakeOverrideFeedback");
 	
 	std::shared_ptr<bool> enabledFeedback = std::make_shared<bool>(false);
 	std::shared_ptr<bool> errorLed = std::make_shared<bool>(false);
@@ -178,6 +180,7 @@ class MecanumMachine : public Machine{
 	Motion::Profile rProfile;
 	
 	bool b_brakesOpened = false;
+	bool b_brakeOverride = false;
 	bool b_highSpeedMode = false;
 	bool b_absoluteMoveMode = false;
 	double translationVelocityLimitCurrent = 0.0;

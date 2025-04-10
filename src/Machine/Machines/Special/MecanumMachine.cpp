@@ -105,6 +105,7 @@ void MecanumMachine::initialize() {
 	addNodePin(speedModePin);
 	addNodePin(moveModePin);
 	addNodePin(brakeFeedbackPin);
+	addNodePin(brakeOverrideFeedbackPin);
 	addNodePin(joystickXpin);
 	addNodePin(joystickYpin);
 	addNodePin(joystickRpin);
@@ -147,7 +148,9 @@ void MecanumMachine::inputProcess(){
 	else *moveModeControl = false;
 	if(brakeFeedbackPin->isConnected()) brakeFeedbackPin->copyConnectedPinValue();
 	else *brakeFeedback = false;
-	if(joystickXpin->isConnected()) joystickXpin->copyConnectedPinValue();
+	if(brakeOverrideFeedbackPin->isConnected()) brakeOverrideFeedbackPin->copyConnectedPinValue();
+	else *brakeOverrideFeedback = false;
+ 	if(joystickXpin->isConnected()) joystickXpin->copyConnectedPinValue();
 	else *joystickXvalue = 0.0;
 	if(joystickYpin->isConnected()) joystickYpin->copyConnectedPinValue();
 	else *joystickYvalue = 0.0;
@@ -156,6 +159,7 @@ void MecanumMachine::inputProcess(){
 	
 
 	b_brakesOpened = *brakeFeedback;
+	b_brakeOverride = *brakeOverrideFeedback;
 	
 	bool b_previousMoveMode = b_absoluteMoveMode;
 	if(b_localControl) {
@@ -183,7 +187,7 @@ void MecanumMachine::inputProcess(){
 
 	b_emergencyStopActive = areAllAxisOnline() && !areAllAxisEstopFree();
 	
-	if(areAllAxisEnabled() && b_brakesOpened){
+	if(areAllAxisEnabled() && b_brakesOpened && !b_brakeOverride){
 		if(state == DeviceState::ENABLING){
 			state = DeviceState::ENABLED;
 			enableTime = EtherCatFieldbus::getCycleProgramTime_nanoseconds();
@@ -198,7 +202,7 @@ void MecanumMachine::inputProcess(){
 		}
 		else state = DeviceState::ENABLED;
 	}
-	else if(areAllAxisReady()){
+	else if(areAllAxisReady() && !b_brakeOverride){
 		if(state == DeviceState::DISABLING){
 			Logger::info("[{}] Machine Disabled : user request", getName());
 		}

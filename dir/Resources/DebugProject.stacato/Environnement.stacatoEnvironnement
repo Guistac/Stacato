@@ -1,6 +1,6 @@
 <Environnement name="Default Environnement" notes="">
-    <Dashboard Scale="3.9023654" OffsetX="-78.732452" OffsetY="-145.38947" AutoFit="true" DrawGrid="false" LockEdit="true">
-        <Widget Name="Mecanum" UniqueID="1" PositionX="127" PositionY="147" SizeX="430.0289" SizeY="318.70175"/>
+    <Dashboard Scale="1.8836945" OffsetX="-204.36427" OffsetY="-107.79785" AutoFit="true" DrawGrid="false" LockEdit="true">
+        <Widget Name="Mecanum Machine" UniqueID="2" PositionX="206.53554" PositionY="110.44864" SizeX="429.89957" SizeY="318.2457"/>
     </Dashboard>
     <NodeGraph>
         <Nodes>
@@ -23,7 +23,7 @@
                     <OutputPin SaveString="DI2" DisplayString="DI2 Mode Déplacement" DataType="Boolean" UniqueID="53" Visible="true"/>
                     <OutputPin SaveString="DI3" DisplayString="DI3 RPM+" DataType="Boolean" UniqueID="54" Visible="true"/>
                     <OutputPin SaveString="DI4" DisplayString="DI4 RPM-" DataType="Boolean" UniqueID="55" Visible="true"/>
-                    <OutputPin SaveString="DI5" DisplayString="DI5" DataType="Boolean" UniqueID="56" Visible="false"/>
+                    <OutputPin SaveString="DI5" DisplayString="DI5 Clé Forcage Freins" DataType="Boolean" UniqueID="56" Visible="true"/>
                     <OutputPin SaveString="DI6" DisplayString="DI6" DataType="Boolean" UniqueID="57" Visible="false"/>
                     <OutputPin SaveString="DI7" DisplayString="DI7" DataType="Boolean" UniqueID="58" Visible="false"/>
                     <OutputPin SaveString="DI8" DisplayString="DI8" DataType="Boolean" UniqueID="59" Visible="false"/>
@@ -47,7 +47,7 @@
                 <OutputPins/>
             </Node>
             <Node NodeType="IODevice" DeviceType="EtherCatDevice" ClassName="EL3078" Split="false" CustomName="EL3078 (Alias:103)" UniqueID="69">
-                <NodeEditorPosition x="477" y="1242"/>
+                <NodeEditorPosition x="478" y="1260"/>
                 <NodeSpecificData>
                     <Identification Type="StationAlias" StationAlias="103"/>
                     <Channel1 InputType="14" EnableFilter="true" FilterSetting="1"/>
@@ -346,9 +346,19 @@
                     <OutputPin SaveString="value" DisplayString="value" DataType="Real" UniqueID="242" Visible="true" ForceDataField="true"/>
                 </OutputPins>
             </Node>
-            <Node NodeType="Machine" ClassName="MecanumMachine" CustomName="Mecanum" UniqueID="245">
-                <NodeEditorPosition x="1176" y="784"/>
-                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" HeadingCorrectionFactor="138.72" LinearVelocityLimit_HighSpeed="600" AngularVelocityLimit_HighSpeed="40" LinearAcceleration="300" AngularAcceleration="20" UserLowSpeedScaling="20.700001" UserAccelerationScaling="58.299999" WidgetID="1">
+            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="284">
+                <NodeEditorPosition x="893" y="1043"/>
+                <NodeSpecificData/>
+                <InputPins>
+                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="285" Visible="true"/>
+                </InputPins>
+                <OutputPins>
+                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="286" Visible="true" DisableDataField="true"/>
+                </OutputPins>
+            </Node>
+            <Node NodeType="Machine" ClassName="MecanumMachine" CustomName="Mecanum Machine" UniqueID="366">
+                <NodeEditorPosition x="1176" y="704"/>
+                <NodeSpecificData ShortName="M" EnableTimeout="0.5" BrakeApplyDelay="1" HeadingCorrectionFactor="138.72" LinearVelocityLimit_HighSpeed="600" AngularVelocityLimit_HighSpeed="40" LinearAcceleration="300" AngularAcceleration="20" UserLowSpeedScaling="50" UserAccelerationScaling="100" WidgetID="2">
                     <Axis1 WheelType="0" InvertAxis="true" WheelDiameter="152">
                         <WheelPosition x="-460" y="460"/>
                     </Axis1>
@@ -363,36 +373,27 @@
                     </Axis4>
                 </NodeSpecificData>
                 <InputPins>
-                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="246" Visible="true" AcceptsMultipleInputs="true" NoDataField="true"/>
-                    <InputPin SaveString="Axis1" DisplayString="FL" DataType="AxisInterface" UniqueID="247" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Axis2" DisplayString="FR" DataType="AxisInterface" UniqueID="248" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Axis3" DisplayString="BL" DataType="AxisInterface" UniqueID="249" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="Axis4" DisplayString="BR" DataType="AxisInterface" UniqueID="250" Visible="true" NoDataField="true"/>
-                    <InputPin SaveString="EnableControl" DisplayString="Enable Control" DataType="Boolean" UniqueID="251" Visible="true"/>
-                    <InputPin SaveString="SpeedModeControl" DisplayString="Speed Mode Control" DataType="Boolean" UniqueID="252" Visible="true"/>
-                    <InputPin SaveString="MoveModeControl" DisplayString="Move Mode Control" DataType="Boolean" UniqueID="253" Visible="true"/>
-                    <InputPin SaveString="BrakeFeedback" DisplayString="Brake Feedback" DataType="Boolean" UniqueID="254" Visible="true"/>
-                    <InputPin SaveString="JoystickX" DisplayString="Joystick X" DataType="Real" UniqueID="255" Visible="true"/>
-                    <InputPin SaveString="JoystickY" DisplayString="Joystick Y" DataType="Real" UniqueID="256" Visible="true"/>
-                    <InputPin SaveString="JoystickR" DisplayString="Joystick R" DataType="Real" UniqueID="257" Visible="true"/>
+                    <InputPin SaveString="DeadMansSwitch" DisplayString="Dead Man&apos;s Switch" DataType="DeadMansSwitchLink" UniqueID="367" Visible="false" AcceptsMultipleInputs="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis1" DisplayString="FL" DataType="AxisInterface" UniqueID="368" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis2" DisplayString="FR" DataType="AxisInterface" UniqueID="369" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis3" DisplayString="BL" DataType="AxisInterface" UniqueID="370" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="Axis4" DisplayString="BR" DataType="AxisInterface" UniqueID="371" Visible="true" NoDataField="true"/>
+                    <InputPin SaveString="EnableControl" DisplayString="Enable Control" DataType="Boolean" UniqueID="372" Visible="true"/>
+                    <InputPin SaveString="SpeedModeControl" DisplayString="Speed Mode Control" DataType="Boolean" UniqueID="373" Visible="true"/>
+                    <InputPin SaveString="MoveModeControl" DisplayString="Move Mode Control" DataType="Boolean" UniqueID="374" Visible="true"/>
+                    <InputPin SaveString="BrakeFeedback" DisplayString="Brake Feedback" DataType="Boolean" UniqueID="375" Visible="true"/>
+                    <InputPin SaveString="BrakeOverrideFeedback" DisplayString="Brake Override Feedback" DataType="Boolean" UniqueID="376" Visible="true"/>
+                    <InputPin SaveString="JoystickX" DisplayString="Joystick X" DataType="Real" UniqueID="377" Visible="true"/>
+                    <InputPin SaveString="JoystickY" DisplayString="Joystick Y" DataType="Real" UniqueID="378" Visible="true"/>
+                    <InputPin SaveString="JoystickR" DisplayString="Joystick R" DataType="Real" UniqueID="379" Visible="true"/>
                 </InputPins>
                 <OutputPins>
-                    <OutputPin SaveString="EnabledFeedback" DisplayString="Enabled Feedback" DataType="Boolean" UniqueID="258" Visible="true"/>
-                    <OutputPin SaveString="ErrorLed" DisplayString="Error Led" DataType="Boolean" UniqueID="259" Visible="true"/>
-                    <OutputPin SaveString="EnabledLed" DisplayString="Enabled Led" DataType="Boolean" UniqueID="260" Visible="true"/>
-                    <OutputPin SaveString="VelocityModeFeedback" DisplayString="Velocity Mode Feedback" DataType="Boolean" UniqueID="261" Visible="true"/>
-                    <OutputPin SaveString="MoveModeFeedback" DisplayString="Move Mode Feedback" DataType="Boolean" UniqueID="262" Visible="true"/>
-                    <OutputPin SaveString="BrakeControl" DisplayString="Brake Control" DataType="Boolean" UniqueID="263" Visible="true"/>
-                </OutputPins>
-            </Node>
-            <Node NodeType="Processor" ClassName="Not" CustomName="Not" UniqueID="284">
-                <NodeEditorPosition x="893" y="1043"/>
-                <NodeSpecificData/>
-                <InputPins>
-                    <InputPin SaveString="in" DisplayString="in" DataType="Boolean" UniqueID="285" Visible="true"/>
-                </InputPins>
-                <OutputPins>
-                    <OutputPin SaveString="out" DisplayString="out" DataType="Boolean" UniqueID="286" Visible="true" DisableDataField="true"/>
+                    <OutputPin SaveString="EnabledFeedback" DisplayString="Enabled Feedback" DataType="Boolean" UniqueID="380" Visible="true"/>
+                    <OutputPin SaveString="ErrorLed" DisplayString="Error Led" DataType="Boolean" UniqueID="381" Visible="true"/>
+                    <OutputPin SaveString="EnabledLed" DisplayString="Enabled Led" DataType="Boolean" UniqueID="382" Visible="true"/>
+                    <OutputPin SaveString="VelocityModeFeedback" DisplayString="Velocity Mode Feedback" DataType="Boolean" UniqueID="383" Visible="true"/>
+                    <OutputPin SaveString="MoveModeFeedback" DisplayString="Move Mode Feedback" DataType="Boolean" UniqueID="384" Visible="true"/>
+                    <OutputPin SaveString="BrakeControl" DisplayString="Brake Control" DataType="Boolean" UniqueID="385" Visible="true"/>
                 </OutputPins>
             </Node>
         </Nodes>
@@ -413,25 +414,26 @@
             <Link UniqueID="199" StartPin="74" EndPin="192"/>
             <Link UniqueID="229" StartPin="81" EndPin="227"/>
             <Link UniqueID="230" StartPin="82" EndPin="227"/>
-            <Link UniqueID="243" StartPin="242" EndPin="65"/>
-            <Link UniqueID="269" StartPin="52" EndPin="252"/>
-            <Link UniqueID="270" StartPin="53" EndPin="253"/>
-            <Link UniqueID="277" StartPin="260" EndPin="62"/>
-            <Link UniqueID="278" StartPin="259" EndPin="61"/>
-            <Link UniqueID="279" StartPin="261" EndPin="63"/>
-            <Link UniqueID="280" StartPin="258" EndPin="64"/>
-            <Link UniqueID="281" StartPin="258" EndPin="66"/>
             <Link UniqueID="287" StartPin="228" EndPin="285"/>
-            <Link UniqueID="288" StartPin="286" EndPin="254"/>
-            <Link UniqueID="296" StartPin="80" EndPin="251"/>
-            <Link UniqueID="308" StartPin="185" EndPin="256"/>
-            <Link UniqueID="309" StartPin="189" EndPin="255"/>
-            <Link UniqueID="310" StartPin="193" EndPin="257"/>
-            <Link UniqueID="360" StartPin="119" EndPin="249"/>
-            <Link UniqueID="361" StartPin="136" EndPin="250"/>
-            <Link UniqueID="362" StartPin="151" EndPin="247"/>
-            <Link UniqueID="363" StartPin="166" EndPin="248"/>
-            <Link UniqueID="364" StartPin="263" EndPin="84"/>
+            <Link UniqueID="386" StartPin="119" EndPin="370"/>
+            <Link UniqueID="387" StartPin="136" EndPin="371"/>
+            <Link UniqueID="388" StartPin="151" EndPin="368"/>
+            <Link UniqueID="389" StartPin="166" EndPin="369"/>
+            <Link UniqueID="390" StartPin="286" EndPin="375"/>
+            <Link UniqueID="391" StartPin="53" EndPin="374"/>
+            <Link UniqueID="392" StartPin="52" EndPin="373"/>
+            <Link UniqueID="393" StartPin="80" EndPin="372"/>
+            <Link UniqueID="394" StartPin="189" EndPin="377"/>
+            <Link UniqueID="395" StartPin="185" EndPin="378"/>
+            <Link UniqueID="396" StartPin="193" EndPin="379"/>
+            <Link UniqueID="397" StartPin="380" EndPin="64"/>
+            <Link UniqueID="398" StartPin="381" EndPin="61"/>
+            <Link UniqueID="399" StartPin="383" EndPin="63"/>
+            <Link UniqueID="400" StartPin="382" EndPin="62"/>
+            <Link UniqueID="401" StartPin="385" EndPin="84"/>
+            <Link UniqueID="402" StartPin="380" EndPin="66"/>
+            <Link UniqueID="403" StartPin="242" EndPin="65"/>
+            <Link UniqueID="404" StartPin="56" EndPin="376"/>
         </Links>
     </NodeGraph>
 </Environnement>
