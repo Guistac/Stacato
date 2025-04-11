@@ -158,8 +158,8 @@ bool AX5206::AM8051_1G20_0000_startupList(uint8_t axis){
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
-	bool ret3 = writeSercos_U16('P', 202, 100, axis); //mains voltage positive tolerance range [10.0V]
-	bool ret4 = writeSercos_U16('P', 203, 100, axis); //mains voltage negative tolerance range [10.0V]
+	bool ret3 = writeSercos_U16('P', 202, 300, axis); //mains voltage positive tolerance range [10.0V]
+	bool ret4 = writeSercos_U16('P', 203, 300, axis); //mains voltage negative tolerance range [10.0V]
 	bool ret5 = writeSercos_U16('P', 204, 9, axis); //Power management control word [internal brake resistor, others] [0x9] corrected for [REV 203]
 	uint8_t P0053[16] = {
 		//[MANDATORY]
@@ -303,8 +303,8 @@ bool AX5206::AM8052_1J20_0000_startupList(uint8_t axis){
 	bool ret0 = writeSercos_U16('P', 304, 1, axis); //Report diagnostics information [report only errors]
 	bool ret1 = writeSercos_U16('P', 216, 8900, axis); //Max DC link Voltage [890.0V]
 	bool ret2 = writeSercos_U16('P', 201, 4000, axis); //Nominal mains voltage [400.0V]
-	bool ret3 = writeSercos_U16('P', 202, 100, axis); //mains voltage positive tolerance range [10.0V]
-	bool ret4 = writeSercos_U16('P', 203, 100, axis); //mains voltage negative tolerance range [10.0V]
+	bool ret3 = writeSercos_U16('P', 202, 300, axis); //mains voltage positive tolerance range [10.0V]
+	bool ret4 = writeSercos_U16('P', 203, 300, axis); //mains voltage negative tolerance range [10.0V]
 	bool ret5 = writeSercos_U16('P', 204, 9, axis); //Power management control word [internal brake resistor, others] [0x9] corrected for [REV 203]
 	uint8_t P0053[16] = {
 		0x0c, 0x00, 0x22, 0x00, 0x41, 0x4d, 0x38, 0x30,
