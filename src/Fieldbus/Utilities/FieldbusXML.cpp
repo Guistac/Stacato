@@ -24,6 +24,8 @@ namespace EtherCatFieldbus {
 			}
 		}
 		 */
+
+		xml->SetAttribute("AutoEnable", b_autoEnable);
 		
 		XMLElement* timingXML = xml->InsertNewChildElement("Timing");
 		timingXML->SetAttribute("ProcessIntervalMilliseconds", processInterval_milliseconds);
@@ -38,6 +40,8 @@ namespace EtherCatFieldbus {
 		using namespace tinyxml2;
 
 		Logger::debug("Loading Fieldbus Parameters");
+		
+		xml->QueryBoolAttribute("AutoEnable", &b_autoEnable);
 		
 		/*
 		EtherCatFieldbus::terminate();

@@ -51,6 +51,8 @@ namespace EtherCatFieldbus {
 	extern ProgressIndicator startupProgress;
 	extern int clockDriftCorrectionintegral;
 
+	extern bool b_autoEnable;
+
 	EtherCatMetrics& getMetrics();
 
 	//cyclic exchange timing
@@ -69,6 +71,7 @@ namespace EtherCatFieldbus {
     //Save and load EtherCAT settings
     bool save(tinyxml2::XMLElement* xml);
     bool load(tinyxml2::XMLElement* xml);
+
 
 
 

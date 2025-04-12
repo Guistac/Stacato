@@ -241,6 +241,8 @@ void etherCatParameters() {
         if(ImGui::Button("Skip Frames")) EtherCatFieldbus::b_skipCycles = true;
 
 		ImGui::Text("Timing integrator value: %x", EtherCatFieldbus::clockDriftCorrectionintegral);
+		
+		ImGui::Checkbox("Auto Enable on start", &EtherCatFieldbus::b_autoEnable);
         
 		ImGui::EndChild();
 	}

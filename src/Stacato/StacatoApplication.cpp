@@ -15,6 +15,8 @@
 #include "StacatoEditor.h"
 #include "Utilities/Timing.h"
 
+#include "Fieldbus/EtherCatFieldbus.h"
+
 
 namespace Stacato::Application{
 
@@ -81,6 +83,8 @@ bool initialize(std::filesystem::path launchPath){
 		Logger::info("Autostarting Environnement");
 		Environnement::start(false); //start without opening the popup
 
+		if(!EtherCatFieldbus::b_autoEnable) return;
+		
 		watchdog.setExpirationSeconds(10.0);
 		while(!Environnement::isRunning()){
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));

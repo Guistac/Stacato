@@ -24,6 +24,7 @@ namespace EtherCatFieldbus {
     bool b_skippingFrames = false;
     int skippedFrames = 0;
 
+	bool b_autoEnable = false;
 
 	std::shared_ptr<NetworkInterfaceCard> activeNetworkInterfaceCard = nullptr;
 	std::shared_ptr<NetworkInterfaceCard> getActiveNetworkInterfaceCard(){ return activeNetworkInterfaceCard; }
