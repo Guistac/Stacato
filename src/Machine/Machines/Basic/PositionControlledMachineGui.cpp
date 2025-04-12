@@ -583,9 +583,9 @@ void PositionControlledMachine::angularWidgetGui(){
 		drawing->AddLine(middle, middle + glm::vec2(0, radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
 		
 		//draw visualizer arrows
-		double posOffset = widgetZeroOrientation->value;
-		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle + posOffset, Colors::gray);
-		drawArrowRotated(middle, 0.0, radius, displayPositionAngle + posOffset, Colors::white);
+		double posOffset_rad = 2.0 * M_PI * widgetZeroOrientation->value / 360.0;
+		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle + posOffset_rad, Colors::gray);
+		drawArrowRotated(middle, 0.0, radius, displayPositionAngle + posOffset_rad, Colors::white);
 		
 		//display position string on turntables
 		
