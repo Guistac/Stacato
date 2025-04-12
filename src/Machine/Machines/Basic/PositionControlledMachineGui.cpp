@@ -172,6 +172,8 @@ void PositionControlledMachine::settingsGui() {
 	ImGui::Text("Invert Control Widget");
 	ImGui::PopFont();
 	
+	widgetZeroOrientation->gui(Fonts::sansBold15);
+	
 }
 
 void PositionControlledMachine::axisGui() {}
@@ -581,8 +583,9 @@ void PositionControlledMachine::angularWidgetGui(){
 		drawing->AddLine(middle, middle + glm::vec2(0, radius), ImColor(0.f, 0.f, 0.f, .2f), borderWidth);
 		
 		//draw visualizer arrows
-		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle, Colors::gray);
-		drawArrowRotated(middle, 0.0, radius, displayPositionAngle, Colors::white);
+		double posOffset = widgetZeroOrientation->value;
+		drawArrowRotated(middle, 0.0, radius, displayBreakingPositionAngle + posOffset, Colors::gray);
+		drawArrowRotated(middle, 0.0, radius, displayPositionAngle + posOffset, Colors::white);
 		
 		//display position string on turntables
 		
@@ -901,6 +904,7 @@ void PositionControlledMachine::setupGui(){
 			drawing->AddRect(min, max, ImColor(Colors::black), 0.0, ImDrawFlags_None, 1.0);
 		}
 	}
+	
 	
 	ImGui::PopStyleVar();
 	

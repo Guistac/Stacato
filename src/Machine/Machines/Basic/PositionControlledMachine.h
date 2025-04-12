@@ -59,6 +59,8 @@ class PositionControlledMachine : public Machine{
 	std::shared_ptr<BooleanParameter> invertControlGui = BooleanParameter::make(false, "Invert Control Gui", "InvertControlGui");
 	std::shared_ptr<BooleanParameter> allowModuloPositionShifting = BooleanParameter::make(false, "Allow Modulo Position Shifting", "AllowModulePositionShifting");
 	
+	std::shared_ptr<NumberParameter<double>> widgetZeroOrientation = NumberParameter<double>::make(0.0, "Zero Orientation", "ZeroOrientation", "%.1f°");
+	
 	OptionParameter::Option linearWidgetOrientation_vertical = OptionParameter::Option(0, "Vertical", "Vertical");
 	OptionParameter::Option linearWidgetOrientation_horizontal = OptionParameter::Option(1, "Horizontal", "Horizontal");
 	std::vector<OptionParameter::Option*> linearWidgetOrientation_options = {

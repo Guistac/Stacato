@@ -558,6 +558,7 @@ bool PositionControlledMachine::saveMachine(tinyxml2::XMLElement* xml) {
 	displayModuloturns_param->save(userSetupXML);
 	resetLowerLimitOnZeroCapture->save(userSetupXML);
 	resetUpperLimitOnZeroCapture->save(userSetupXML);
+	widgetZeroOrientation->save(userSetupXML);
 	
 	XMLElement* animatableXML = xml->InsertNewChildElement("Animatable");
 	animatablePosition->save(animatableXML);
@@ -598,6 +599,7 @@ bool PositionControlledMachine::loadMachine(tinyxml2::XMLElement* xml) {
 	displayModuloturns_param->load(userSetupXML);
 	resetLowerLimitOnZeroCapture->load(userSetupXML);
 	resetUpperLimitOnZeroCapture->load(userSetupXML);
+	widgetZeroOrientation->load(userSetupXML);
 	
 	if(XMLElement* animatableXML = xml->FirstChildElement("Animatable")){
 		animatablePosition->load(animatableXML);
